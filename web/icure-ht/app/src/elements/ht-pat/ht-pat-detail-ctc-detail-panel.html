@@ -971,9 +971,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                         pageNum += 1 // add a page
                     } // will be set on next page
                     const element = this.root.querySelector("#barCode");
-                    JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
+                    JsBarcode(element, rids ? rids[idx].rid : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
                     var jpegUrl = element.toDataURL("image/jpeg");
-                    const ridIdx = (rids[idx].rid).split('').join(' ');
+                    const ridIdx = (rids ? rids[idx].rid : hcp.nihii).split('').join('&nbsp;');
 
                     let prescArray = [], posology = {}
                     _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
@@ -1186,7 +1186,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     /* flex */
                     *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
                     /* elems */
-                    img.codbar {height:50px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+                    img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
                     /* style */
                     *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
                     *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
