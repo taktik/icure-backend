@@ -1311,7 +1311,7 @@
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[hasInsurability]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[_isETarButtonDisabled(selectedInvoice,isLoadingValidation,isTarificationMcnError,npi)]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
                         <template is="dom-if" if="[[!hasInsurability]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif,npi)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
                     </template>
 
                     <template is="dom-if" if="[[isInvoiceClosed]]">
@@ -1874,8 +1874,7 @@
                         type: Array
                     },
                     activeNmclItem: {
-                        type: Object,
-                        observer : 'checkHere'
+                        type: Object
                     },
                     isPrescriberIsNeeded: {
                         type: Boolean,
@@ -2130,6 +2129,7 @@
             _mediumTypeChanged(mediumType) {
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
+                    this.set('selectedInvoice.encounterLocationNorm',0)
                 }
                 this.varIsEattestClosedChanged()
                 this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
@@ -4014,7 +4014,7 @@
                         this._getAdressesBookInfo();
                     }
                 };
-                this.saveAdressTimeout = setTimeout(this.getAdresses, 3000);
+                this.saveAdressTimeout = setTimeout(this.getAdresses, 1000);
             }
 
             setLocation(e){
@@ -4041,7 +4041,7 @@
             }
 
             _isJustifButtonDisabled(){
-                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && !this._invoiceDateIsToday()) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
             }
 
             _switchBetweenMethodForJustifAndCreation(){
