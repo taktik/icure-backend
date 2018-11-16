@@ -19,6 +19,7 @@
 package org.taktik.icure.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -162,6 +163,16 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
+	public List<List<Message>> getChildren(List<String> parentIds) {
+
+		List<Message> byParentId = queryResults(createQuery("by_parent_id")
+				.includeDocs(true)
+				.keys(parentIds));
+
+		return parentIds.stream().map(id -> byParentId.stream().filter(c -> c.getParentId().equals(id)).collect(Collectors.toList())).collect(Collectors.toList());
+	}
+
+	@Override
 	@View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")
 	public List<Message> getByInvoiceIds(Set<String> invoiceIds) {
 		return queryView("by_invoice_id", invoiceIds.toArray(new String[invoiceIds.size()]));
@@ -184,5 +195,6 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	public List<Message> listConflicts() {
 		return queryView("conflicts");
 	}
+
 
 }

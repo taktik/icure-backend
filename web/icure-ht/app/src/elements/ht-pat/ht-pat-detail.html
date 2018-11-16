@@ -63,7 +63,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
-<link rel="import" href="dialogs/hubs/ht-hub-transaction-view.html">
+<link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
+<link rel="import" href="dialogs/hubs/ht-pat-hub-transaction-view.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -1387,7 +1388,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
 												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-												on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
+												on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1699,9 +1700,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
 			<!--<paper-input id="hcpHubConsent" label="[[localize('hub_hcp_cons','Hcp Hub consent',language)]]" value="{{_getHubHcpConsentDesc(hcpHubConsent)}}"></paper-input>-->
 			<template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent) || !hubSupportsConsent]]">
-				<paper-input id="patientHubConsent" label="[[localize('pat_hub_cons','Pat Hub consent',language)]]" value="{{_getHubPatientConsentDesc(patientHubConsent)}}"></paper-input>
-				<paper-input id="patientHubTherLink" label="[[localize('hub_tl','Hub therapeutic link',language)]]" value="{{patientHubTherLink}}"></paper-input>
-
+				<div>
+					<div><p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p></div>
+					<div><p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p></div>
+				</div>
 				<vaadin-grid id="transaction-list" class="material" overflow="bottom" items=[[hubTransactionList]] active-item="{{selectedTransaction}}">
 					<vaadin-grid-column width="120px">
 						<template class="header">[[localize('trans_typ','Type',language)]]</template>
@@ -1732,7 +1734,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid>
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
-				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+				<!--<paper-button on-tap="_showTransaction">get transaction</paper-button>-->
 				<paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
@@ -1756,11 +1758,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 		</paper-dialog>
 
-		<paper-dialog id="transactionDialog">
-			<h2 class="modal-title">[[localize('trn','Transaction',language)]] [[_transactionId(selectedTransaction)]]</h2>
-            <div id="kmehr_slot"></div>
-		</paper-dialog>
-
 		<paper-dialog id="select-more-options-dialog">
 			<div class="horizontal">
 				<label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
@@ -1780,11 +1777,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-dialog>
 
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
-		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
-		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
+		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
+		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
-		<ht-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-hub-transaction-view>
+		<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>
+		<ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
 	</template>
 	<script>
 
@@ -2088,6 +2086,14 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLoading:{
 			    type: Boolean,
                 value: false
+            },
+			currentSelectMedicationEventDetail: {
+			    type: Object,
+				value: () => {}
+			},
+            currentMedicationDetailEventDetail: {
+                type: Object,
+                value: () => {}
             }
 		};
 	}
@@ -2211,7 +2217,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._getHubPatientConsent();
         this._getHubTherapeuticLinks();
         this._getHubTransactionList();
-        this.$.hubDialog.open();
+        this.$.patHubDialog.open();
+
+        // this.$.hubDialog.open();
     }
 
     _openEdmgDialog(e){
@@ -2565,24 +2573,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return desc;
 	}
 
-    _getHubPatientConsent(){
+    _getHubPatientConsent() {
         //getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin)
-		if (this.patient.ssin && this.api.tokenId) {
+        if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp =>
-                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
-					this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
-                    this.patient.ssin)
-        ).then(consentResp => {
-                if (consentResp) {
-                    this.set('patientHubConsent', consentResp);
-                    return consentResp;
-                } else {
-                    return null;
-        }
-        }
-        )
+                .then(hcp =>
+                    this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
+                        this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                        this.patient.ssin)
+                ).then(consentResp => {
+                    if (consentResp) {
+                        this.set('patientHubConsent', consentResp)
+                        return consentResp
+                    } else {
+                        return null
+                    }
+                })
         } else {
             return Promise.resolve(null)
         }
@@ -2670,56 +2677,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _openTransactionViewer(){
 		this.$.transactionViewDialog.open(this.selectedTransaction, this._getHubTransaction());
-	}
-
-    _showTransaction(){
-	    this.$.transactionDialog.open();
-        //this.shadowRoot.querySelector("#transaction_name").innerHTML = "" // erase previous title
-        this.shadowRoot.querySelector("#kmehr_slot").innerHTML = "Loading..." // erase previous content
-	    this._getHubTransaction().then(tranResp =>
-	    {
-            var slot = this.shadowRoot.querySelector("#kmehr_slot");
-	        if(tranResp) {
-
-                //this.shadowRoot.querySelector("#transaction_name").innerHTML = this._transactionId(this.selectedTransaction)
-
-                const req = new XMLHttpRequest();
-
-                req.onreadystatechange = function(event) {
-                    if (this.readyState === XMLHttpRequest.DONE) {
-                        if (this.status === 200) {
-
-                            var xsltProcessor = new XSLTProcessor();
-                            var xslStylesheet = this.responseXML;
-                            xsltProcessor.importStylesheet(xslStylesheet);
-
-                            var fragment = xsltProcessor.transformToFragment(tranResp, document);
-
-                            slot.innerHTML = "";
-                            slot.appendChild(fragment);
-
-                        } else {
-                            slot.innerHTML = "ERROR: XSLT not found";
-                        }
-                    }
-                };
-
-                var transtype =  this._transactionType(this.selectedTransaction);
-				var xslt;
-                if(transtype == "sumehr") {
-                    xslt = "sumehr_to_html.xslt"
-                    req.open("GET", xslt, true);
-                    req.send(null);
-				} else {
-                    var slot = this.shadowRoot.querySelector("#kmehr_slot");
-                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype + ":" + tranResp
-				}
-
-            } else {
-                slot.innerHTML = "No transaction found";
-            }
-		}
-		)
 	}
 
 	_isTransactionSet(tr){
@@ -3895,23 +3852,53 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
 	}
 
-    _medicationCreated(e) {
-        if (!this.currentContact) {
-            return;
-        }
-        this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+	_selectMedication(e) {
+        this.currentSelectMedicationEventDetail = e.detail
+        this.$['medication-selection'].open(e.detail.service, e.detail.content );
 	}
 
-    _displayMedicationDetails(e) {
-	    const m = e.detail
-        this.$['medication-details'].open(e.detail, { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: true } );
+    _medicationDetail(e) {
+        this.currentMedicationDetailEventDetail = e.detail
+		this.$['medication-detail'].open(e.detail.service, e.detail.content);
     }
 
-    _medicationChanged(e) {
-        if (!this.currentContact) {
-            return;
+    _medicationCreated(e) {
+	    if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onCreate) {
+            this.currentSelectMedicationEventDetail.onCreate(e)
+		} else {
+            if (!this.currentContact) {
+                return;
+            }
+            this._displayMedicationDetails(e)
         }
-        this.saveNewService(e.detail).then(() => this.refreshPatient())
+	}
+
+    _medicationValueChanged(e) {
+        if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onValueChanged) {
+            this.currentSelectMedicationEventDetail.onValueChanged(e)
+        }
+    }
+
+    _medicationDetailValueChanged(e) {
+        if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
+            this.currentMedicationDetailEventDetail.onValueChanged(e)
+        } else {
+            this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+        }
+    }
+
+
+    _displayMedicationDetails(e) {
+        if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
+            this.currentSelectMedicationEventDetail.onShowDetails(e)
+        } else {
+            const m = e.detail
+            this.$['medication-detail'].open(e.detail, {
+                id: m.id,
+                medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
+                isNew: true
+            });
+        }
     }
 
 	_healthElementsSelectorColumns() {

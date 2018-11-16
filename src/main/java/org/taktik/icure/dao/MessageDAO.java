@@ -57,4 +57,6 @@ public interface MessageDAO extends GenericDAO<Message> {
 	List<Message> getByExternalRefs(String hcPartyId, HashSet<String> strings);
 
 	List<Message> listConflicts();
+
+	List<List<Message>> getChildren(List<String> parentIds);
 }

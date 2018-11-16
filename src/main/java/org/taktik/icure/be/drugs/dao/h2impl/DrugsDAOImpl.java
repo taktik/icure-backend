@@ -241,7 +241,7 @@ public class DrugsDAOImpl implements DrugsDAO {
 		return new HibernateTemplate(getSessionFactory());
 	}
 
-	protected SessionFactory getSessionFactory() {
+	private synchronized SessionFactory getSessionFactory() {
 		if (sessionFactory == null) {
 			if (!isDataBasePresent()) {
 				throw new DrugsDatabaseNotFoundException();

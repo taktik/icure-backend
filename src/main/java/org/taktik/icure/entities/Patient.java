@@ -98,6 +98,8 @@ public class Patient extends StoredICureDocument implements Person {
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
 
+	protected Boolean openNote;
+
 
 	public @Nullable
 	String getMergeToPatientId() {
@@ -547,4 +549,8 @@ public class Patient extends StoredICureDocument implements Person {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public Boolean getOpenNote() { return openNote; }
+
+    public void setOpenNote(Boolean openNote) { this.openNote = openNote; }
 }

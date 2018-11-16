@@ -91,6 +91,8 @@ public class PatientDto extends IcureDto {
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
 
+    protected Boolean openNote;
+
 
     public String getMergeToPatientId() {
         return mergeToPatientId;
@@ -389,7 +391,11 @@ public class PatientDto extends IcureDto {
         this.medicalHouseContracts = medicalHouseContracts;
     }
 
-	@Override
+    public Boolean getOpenNote() { return openNote; }
+
+    public void setOpenNote(Boolean openNote) { this.openNote = openNote; }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
