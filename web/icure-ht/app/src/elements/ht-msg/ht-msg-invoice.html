@@ -813,6 +813,89 @@
                         <!--<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>-->
                         <div class="invoiceContainer">
                             <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
+                                <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
+                                    <div class="gridContainer grid-pending">
+                                        <div class="containScroll">
+                                            <vaadin-grid id="noscroll" class="pendingTable" class="force-sizer" theme="force-sizer" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showMessagesToBeCorrectedDetail">
+                                                <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col" >
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="sentMediumType">Type</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.sentMediumType]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="insuranceCode">Mutuelle</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.insuranceCode]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="invoiceReference">N° facture</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.invoiceReference]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.patientName]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="patientSsin">Niss</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.patientSsin]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="invoiceDate">Date facture</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.invoiceDate]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column-group>
+                                                    <!-- <template class="header hasBorder">Montants</template> -->
+                                                    <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
+                                                        <template class="header border-left">
+                                                            <vaadin-grid-sorter path="reimbursement">OA</vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>[[_formatAmount(item.reimbursement)]]</template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="patientIntervention">Patient</vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>[[_formatAmount(item.patientIntervention)]]</template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="doctorSupplement">Supplément</vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>[[_formatAmount(item.doctorSupplement)]]</template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col border-right">
+                                                        <template class="header border-right">
+                                                            <vaadin-grid-sorter path="totalAmount">Total</vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>[[_formatAmount(item.totalAmount)]]</template>
+                                                    </vaadin-grid-column>
+                                                </vaadin-grid-column-group>
+                                                <vaadin-grid-column  flex-grow="0" width="10%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="statut">Statut</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.statut]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="error">Error</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.error]]</template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid>
+                                        </div>
+                                    </div>
+                                </template>
                                 <template is="dom-if" if="[[isProcess(invoicesStatus.*)]]">
                                     <div class="scrollBox">
                                         <vaadin-grid id="messagesGrid" class="processTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
@@ -1255,7 +1338,7 @@
 
             <paper-dialog id="pendingDetailDialog">
                 <div>
-                    Details of invoice n° [[activeGridItem.invoice.invoiceReference]]
+                    Détail de l'envoi n° [[activeGridItem.invoice.invoiceReference]]
                     <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
                     <paper-input label="Mutuelle" value="[[activeGridItem.insurance.code]]"readonly></paper-input>
                 </div>
@@ -1428,6 +1511,10 @@
                         type: Object,
                         value : () => ({})
                     },
+                    messagesToBeCorrected:{
+                        type: Object,
+                        value : () => ({})
+                    },
                     selectedInvoicesByStatus:{
                         type: Object,
                         value : () => ({})
@@ -1472,6 +1559,12 @@
                         value : true
                     },
                     invoicesFromBatch:{
+                        type: Object,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    toBeCorrectedMessageDetail:{
                         type: Object,
                         value: function () {
                             return [];
@@ -1538,7 +1631,6 @@
                         this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
 
-
                         return ({
                             patientName: pat.lastName+" "+pat.firstName,
                             invoiceId: inv.id,
@@ -1552,21 +1644,25 @@
                             patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
                             totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
                             doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
-                            statut : "To be send",
+                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? "To be corrected" : "To be send",
                             hasChildren : false,
                             uuid : inv.id,
                             parentUuid : ins.code.charAt(0),
                             patient: pat,
-                            invoice: inv
+                            invoice: inv,
+                            toBeCorrected: !!inv.invoicingCodes.find(ic => ic.resent === true),
+                            error: inv.error
                     })
                 }))
                 .then(invoiceStruct => {
-                    this.set('selectedInvoicesToBeSend', invoiceStruct)
-                    this.set("totalInvoicesToBeSend.totalPatientIntervention",invoiceStruct ? invoiceStruct.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00)
-                    this.set("totalInvoicesToBeSend.totalDoctorSupplement",invoiceStruct ? invoiceStruct.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00)
-                    this.set("totalInvoicesToBeSend.totalReimbursement",invoiceStruct ? invoiceStruct.reduce((tot, m) => tot + Number(m.reimbursement), 0).toFixed(2) : 0.00)
-                    this.set("totalInvoicesToBeSend.totalAmount",invoiceStruct ? invoiceStruct.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00)
-                    this._toggleDataProvider(invoiceStruct)
+                    this.set("messagesToBeCorrected", invoiceStruct.filter(inv => inv.toBeCorrected === true))
+                    this.set('selectedInvoicesToBeSend', invoiceStruct.filter(inv => inv.toBeCorrected === false && inv.printedDate))
+
+                    this.set("totalInvoicesToBeSend.totalPatientIntervention",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00)
+                    this.set("totalInvoicesToBeSend.totalDoctorSupplement",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00)
+                    this.set("totalInvoicesToBeSend.totalReimbursement",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.reimbursement), 0).toFixed(2) : 0.00)
+                    this.set("totalInvoicesToBeSend.totalAmount",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00)
+                    this._toggleDataProvider(this.selectedInvoicesToBeSend)
                 })
             }
 
@@ -1575,7 +1671,7 @@
                 !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
                 !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
 
-                !!this.initializeBatchCounter(0, 0, this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
+                !!this.initializeBatchCounter(0, 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
             }
 
             fetchMessages() {
@@ -2443,6 +2539,23 @@
                 }
             }
 
+            _showMessagesToBeCorrectedDetail(){
+                if (this.activeGridItem){
+                    this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
+                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
+
+                    this.activeGridItem.inv.invoicingCodes.map(c => {
+                        //this.set("toBeCorrectedMessageDetail")
+                    })
+
+
+
+                }else{
+                    this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
+                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
+                }
+            }
+
             _openHelpDeskDialogSupp(e){
                 e.stopPropagation();
                 this.set("infoHelpdesk",JSON.parse(e.target.dataset.item))
@@ -2531,8 +2644,12 @@
 
             }
 
+            isToBeCorrected(){
+                return (this.invoicesStatus === "toBeCorrected")
+            }
+
             initializeBatchCounter(toBeSend, toBeCorrected, processedCounter, acceptedCounter, rejectedCounter){
-                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, toBeCorrected: toBeCorrected,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: 0} }));
+                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, toBeCorrected: this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: 0} }));
             }
 
             _getIconStatusClass(status) {
