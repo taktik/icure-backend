@@ -135,4 +135,9 @@ public class ClassificationLogicImpl extends GenericLogicImpl<Classification, Cl
 
 	}
 
+    @Override
+    public List<Classification> getClassificationByIds(List<String> ids) {
+        return classificationDAO.getList(ids);
+    }
+
 }
