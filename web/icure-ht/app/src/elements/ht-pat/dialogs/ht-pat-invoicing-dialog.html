@@ -547,12 +547,10 @@
 
             .verifiedNmcl {
                 color: var(--app-status-color-ok);
-                height: 20px;
             }
 
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
-                height: 20px;
             }
 
             vaadin-grid.material {
@@ -1087,14 +1085,6 @@
                                 <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
-                                    <vaadin-grid-column width="20px" style="padding: 0;">
-                                        <template>
-                                            <div class="cell frozen textAlignCenter">
-                                                <template is="dom-if" if="[[item.contract]]"><iron-icon icon="vaadin:check" class="verifiedNmcl" title="[[localize('verified_etarif','E-Tarif vérifié',language)]]"></iron-icon></template>
-                                                <template is="dom-if" if="[[!item.contract]]"><iron-icon icon="vaadin:close" class="unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]"></iron-icon></template>
-                                            </div>
-                                        </template>
-                                    </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('co','Code',language)]]</div>
@@ -1117,19 +1107,20 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp;€</div></template>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
-                                            <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]
-                                            </div>
+                                            <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp;€</div></template>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
@@ -1138,7 +1129,7 @@
                                         <template>
                                             <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="88px">
                                         <template class="header">
@@ -1147,7 +1138,7 @@
                                         <template>
                                             <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="24px" class="textAlignCenter">
                                         <template class="header">
