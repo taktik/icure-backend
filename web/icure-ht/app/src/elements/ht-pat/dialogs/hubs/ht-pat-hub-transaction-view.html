@@ -187,49 +187,8 @@
                 </page>
                 <page>
                     <div>
-                        <!--<div class="hub-info">-->
-                            <!--<div><p><b>[[localize('tra_typ','Type',language)]]</b>[[_transactionType(transInfo)]]</p></div>-->
-                            <!--<div><p><b>[[localize('tra_dat','Date',language)]]</b>[[_transactionDate(transInfo)]]</p></div>-->
-                            <!--<div><p><b>[[localize('tra_aut','Author',language)]]</b>[[_transactionAuthor(transInfo)]]</p></div>-->
-                        <!--</div>-->
-                        <!--<div>-->
-                            <!--<template is="dom-if" if="[[_isSumehr(transInfo)]]">-->
-                                <!--<p>sumehr</p>-->
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_isMedicationScheme(transInfo)]]">-->
-                                <!--<p>Medication scheme</p>-->
-                                <!--&lt;!&ndash; Header: id; sender; recipient  &ndash;&gt;-->
-                                <!--&lt;!&ndash; Folder: id; patient &ndash;&gt;-->
-                                <!--&lt;!&ndash; -Transactions:  &ndash;&gt;-->
-                                <!--<template is="dom-repeat" items="[[_getNodeList(message, 'transaction')]]">-->
-                                    <!--<p>tr</p>-->
-                                    <!--<p>[[_getAuthorDesc(item, 'hub')]]/[[_getAuthorDesc(item, 'persphysician')]]</p>-->
-                                    <!--&lt;!&ndash; -Transactions(medicationscheme): id; type; version; author(s) &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -Transactions(medicationschemeelement): id; type; version; author(s) &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items: id; type;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items (healthcareelement:adaptationflag): content;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items (medication): content; beginmoment; endmoment;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;temporality, periodicity  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;regimen: dayperiod; qtty; unit  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;route  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;instructions  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items (healthcareelement:medicationuse): content;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -Transactions(treatmentsuspension): id; type; version; author(s) &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items: id; type;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; &#45;&#45;items (medication): content; beginmoment; endmoment;  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;lifecycle(suspended)  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;lnk:xpath to transaction (ID-KMEHR=?)  &ndash;&gt;-->
-                                    <!--&lt;!&ndash; -&#45;&#45;transactionreason: content  &ndash;&gt;-->
-                                <!--</template>-->
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_isDiaryNote(transInfo)]]">-->
-                                <!--<p>Diarynote</p>-->
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_isOther(transInfo)]]">-->
-                                <!--<p>other</p>-->
-                            <!--</template>-->
 
-                        </div>
+
                     </div>
                 </page>
                 <page>
