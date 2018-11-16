@@ -283,6 +283,7 @@
             }
 
             .invoice-nomenclature-code-container {
+
             }
 
             .nmcl-descr {
@@ -311,6 +312,11 @@
 
             .nmcl-list {
                 overflow-y: auto;
+            }
+            .fullW {
+                flex:1;
+                overflow-y: auto;
+                height: 52px;
             }
 
             #nmclGrid {
@@ -637,7 +643,7 @@
 
             .nmclFavoriteCode {
                 background-color: var(--app-secondary-color-dark);
-                margin: 0 5px 0 0;
+                margin: 0 5px 5px 0;
                 color: var(--app-text-color-light);
                 height: 20px;
                 font-size: 12px;
@@ -928,7 +934,7 @@
                 position: fixed;
                 top:50%;
                 right: 0;
-                z-index:999999999999;
+                z-index:1200;
                 color: white;
                 font-size: 13px;
                 background:rgba(0,0,0,0.42);
@@ -1228,13 +1234,15 @@
                             <template is="dom-if" if="[[!isInvoiceClosed]]">
                                 <div class="nmcl-favorite">
                                     <span>[[localize('fav','Favorites code',language)]]:</span>
-                                    <template is="dom-repeat" items="[[favoriteCode]]">
-                                        <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
-                                            [[item.code]]
-                                            <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
-                                                       on-tap="_deleteFavoriteCode"></iron-icon>
-                                        </paper-button>
-                                    </template>
+                                    <div class="fullW">
+                                        <template is="dom-repeat" items="[[favoriteCode]]">
+                                            <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
+                                                [[item.code]]
+                                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
+                                                           on-tap="_deleteFavoriteCode"></iron-icon>
+                                            </paper-button>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div class="invoice-nomenclature-code-option">
                                     <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
