@@ -413,6 +413,7 @@
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
+                document.addEventListener('xmlHubUpdated', () => this.xmlHubListener() );
             }
 
             _dateFormat(date) {
@@ -1096,6 +1097,12 @@
             }
 
             _putHubTransactionSet(tsXML){
+
+                console.log('---_putHubTransactionSet---');
+                console.log(tsXML);
+                console.log(this.patient);
+                console.log(this.patient.ssin);
+                console.log(this.api.tokenId);
                 //putTransactionSetUsingPOST(
                 // endpoint: string,
                 // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
@@ -1104,6 +1111,9 @@
                 // patientSsin: string,
                 // essage: string,
                 // hubPackageId?: string, hubApplication?: string): Promise<models.PutTransactionSetResponse | any>;
+
+                const myblob = new Blob([tsXML]);
+
                 if (this.patient && this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
@@ -1112,7 +1122,7 @@
                                 hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                 this.hubId,
                                 this.patient.ssin,
-                                tsXML,
+                                myblob,
                                 this.hubPackageId, this.hubApplication
                                 )
                             ).then(putResp => {
@@ -1129,25 +1139,33 @@
                 }
             }
 
+            xmlHubListener() {
+                this._putHubTransactionSet(document.getElementById('putHubXml').value).then(resp => {
+                    console.log('---response _putHubTransactionSet---');
+                    console.log(resp);
+                    this.set("tsResp", resp);
+                })
+            }
+
             _getTSfromFileAndPut(){
                 //TODO: this is testing code, not for production
                 const req = new XMLHttpRequest();
-                const pht = this._putHubTransactionSet;
 
                 req.onreadystatechange = function(event){
-
-                    if (this.readyState === XMLHttpRequest.DONE) {
-                        if (this.status === 200) {
-                            const msSam = this.responseXML;
-                            const txtSam = new XMLSerializer().serializeToString(msSam.documentElement);
-                            pht(txtSam).then(resp => this.set("tsResp", resp))
-                        } else {
-                            slot.innerHTML = "ERROR: XSLT not found";
-                        }
+                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                        const msSam = this.responseXML;
+                        const txtSam = new XMLSerializer().serializeToString(msSam.documentElement);
+                        const inputHidden = document.createElement("input");
+                        inputHidden.setAttribute('type', 'hidden');
+                        inputHidden.setAttribute('value', txtSam);
+                        inputHidden.setAttribute('id', 'putHubXml');
+                        document.body.appendChild(inputHidden);
+                        document.dispatchEvent( new Event("xmlHubUpdated",{bubbles:true,cancelable:false,composed: false}) )
                     }
                 };
 
-                req.open("GET", "ts_sam.xml", true);
+                //req.open("GET", "http://www.figac.be/topaz_ms.xml", true);//"GET", "http://i-fab.be/ts_sam.xml", true);
+                req.open("GET", "http://i-fab.be/ts_sam.xml", true);
                 req.send(null);
 
             }
