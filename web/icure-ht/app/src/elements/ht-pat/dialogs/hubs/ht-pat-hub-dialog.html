@@ -589,7 +589,7 @@
             generateAndPutSumehr(){
                 if (this.patient && this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatient(this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
                             .then(patientDto =>
                                 this.api.crypto().extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys =>
@@ -626,7 +626,7 @@
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatient(this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
                             .then(patientDto =>
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)

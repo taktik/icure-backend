@@ -750,7 +750,7 @@
 
 			_patientFilterChanged(filter){
                 if(filter && filter.length > 1) {
-					this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, filter, null, null, 100, "asc")
+					this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, filter, null, null, 100, "asc")
 						.then(patients => {
 							console.log(patients);
 							let filtredpatients = patients.rows.filter(pat => pat.ssin)
