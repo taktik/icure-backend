@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 
 public class InvoiceDto extends IcureDto {
@@ -30,6 +31,7 @@ public class InvoiceDto extends IcureDto {
 	private Long printedDate;
 
 	private Double paid;
+	private PaymentType paymentType;
 
 	private List<InvoicingCodeDto> invoicingCodes;
 	private String invoiceType;
@@ -43,6 +45,9 @@ public class InvoiceDto extends IcureDto {
 
 	private String invoiceReference;
 	private String thirdPartyReference;
+
+	private String thirdPartyPaymentJustification;
+	protected String thirdPartyPaymentReason;
 
 	protected String gnotionNihii;
 	protected String gnotionSsin;
@@ -308,4 +313,20 @@ public class InvoiceDto extends IcureDto {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
 }

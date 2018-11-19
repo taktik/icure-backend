@@ -26,6 +26,7 @@ import org.taktik.icure.entities.embed.InvoiceInterventionType;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.embed.MediumType;
+import org.taktik.icure.entities.embed.PaymentType;
 import org.taktik.icure.entities.utils.MergeUtil;
 
 import java.util.ArrayList;
@@ -52,12 +53,16 @@ public class Invoice extends StoredICureDocument {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	private String thirdPartyPaymentJustification;
+	private String thirdPartyPaymentReason;
+
 	private InvoiceType invoiceType;
 	private MediumType sentMediumType;
 	private InvoiceInterventionType interventionType;
 
 	private String groupId;
 
+	private PaymentType paymentType;
 	private Double paid;
 
 	private String gnotionNihii;
@@ -490,6 +495,30 @@ public class Invoice extends StoredICureDocument {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
 
 	@Override
 	public boolean equals(Object o) {
