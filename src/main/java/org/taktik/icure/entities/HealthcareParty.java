@@ -60,6 +60,7 @@ public class HealthcareParty extends StoredDocument implements Person {
 	protected String cbe;
 
 	protected String userId;
+
 	protected String parentId;
 
 	protected Integer convention; //0,1,2,9

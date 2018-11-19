@@ -286,7 +286,7 @@ public class DocumentFacade implements OpenApiFacade{
 		return response;
 	}
 
-	@ApiOperation(response = DocumentDto.class, value = "Gets a document")
+	@ApiOperation(response = DocumentDto.class, responseContainer = "Array", value = "Gets a document")
 	@POST
 	@Path("/batch")
 	public Response getDocuments(@RequestBody ListOfIdsDto documentIds) {
