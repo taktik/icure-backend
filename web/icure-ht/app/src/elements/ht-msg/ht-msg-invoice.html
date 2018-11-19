@@ -935,14 +935,14 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant<br/>facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
@@ -1010,7 +1010,7 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="accAmount-col">
@@ -1119,14 +1119,14 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="refAmount-col">
@@ -1259,7 +1259,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="invoicedAmount">Montant<br/>facturé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.statut,item.totalAmount)]]">[[_formatAmount(item.invoicedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
@@ -1271,7 +1271,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.statut,item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
@@ -1281,6 +1281,12 @@
                                                 <template style="align-self: flex-start;">
                                                     <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
                                                 </template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
+                                                </template>
+                                                <template><span class$="[[_getTxtStatusColor(item.statut,item.paid)]]">[[_formatAmount(item.paid)]]€</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header">

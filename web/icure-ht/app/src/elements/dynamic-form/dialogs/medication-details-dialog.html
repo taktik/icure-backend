@@ -379,7 +379,7 @@
                 </div>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
-                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
+                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
                         <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
                         <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
                         <paper-item id="high">[[localize('high','High',language)]]</paper-item>
@@ -760,16 +760,19 @@
 
             ready() {
                 super.ready()
+                // console.log('selectedMedicationContentWithId',selectedMedicationContentWithId)
             }
 
             hasCustomFrequencyTable(regimen) {
-                if (regimen.length <= 1) {
-                    return false
-                } else {
-                    let reg1 = regimen[0]
-                    let allEqual = false
-                    const difReg = regimen.find(reg => !_.isEqual(reg1, reg))
-                    return difReg ? true : false
+                if (regimen) {
+                    if (regimen.length <= 1){
+                        return false
+                    } else {
+                        let reg1 = regimen[0]
+                        let allEqual = false
+                        const difReg = regimen.find(reg => !_.isEqual(reg1, reg))
+                        return difReg ? true : false
+                    }
                 }
             }
 
@@ -803,7 +806,7 @@
                     // this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
                     // this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
                     // this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen.frequency : 0)
-                    this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "middle" ? 1 : 0 )
+                    // this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "middle" ? 1 : 0 )
 
                     this.set("beginMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment))
                     this.set("endMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment))
@@ -883,9 +886,10 @@
             }
 
             _changeMedicPriority() {
+                console.log('_changeMedicPriority')
                 if (this.selectedMedicationContentWithId) {
                     const priority = this.medicPriority ? this.medicPriority === 2 ? 'high' : this.medicPriority === 1 ? 'middle' : 'low' : 'low'
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.priority", priority)
+                    this.set("medicPriority", priority)
                     this.save()
                 }
             }
