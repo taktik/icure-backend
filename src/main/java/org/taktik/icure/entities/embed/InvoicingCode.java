@@ -78,6 +78,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Integer percentNorm;
     protected String prescriberNihii;
     protected String relatedCode;
+	protected Long prescriptionDate; // yyyyMMdd
 
 
 	protected String prescriberSsin;
@@ -512,6 +513,10 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public void setLocationCdHcParty(String locationCdHcParty) {
 		this.locationCdHcParty = locationCdHcParty;
 	}
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 
 	public InvoicingCode solveConflictWith(InvoicingCode other) {
 		this.dateCode = this.dateCode == null ? other.dateCode : this.dateCode;

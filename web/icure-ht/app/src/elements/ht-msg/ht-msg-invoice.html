@@ -228,13 +228,10 @@
                     }
                 }
                 .gridContainer{
-                    height: calc(100vh - 190px);
+                    height: auto;
                     overflow-y: hidden;
                     overflow-x: hidden;
                     box-shadow: var(--app-shadow-elevation-1);
-                }
-                .gridContainer.grid-pending {
-                    height: calc(100vh - 190px - 36px);
                 }
 
                 .invoice-status {
@@ -338,7 +335,7 @@
                 }
 
                 #messagesGridContainer {
-                    overflow: hidden;
+                    overflow-y: auto;
                 }
 
                 .invoiceContainer{
@@ -363,26 +360,15 @@
                     height: 49%;
                 }
 
-                .invoiceDetailContainer {
-                    height: 50%;
-                    opacity: 0;
-                    transition: all .75s ease-out;
-                    overflow-y: auto;
-                }
-                .invoiceDetailContainer.open {
-                    opacity: 1;
-                    width: 100%;
-                    height: 37%;
-                }
-
+                .invoiceDetailContainer,
                 .toBeCorrectedContainerDetail{
                     height: 50%;
                     opacity: 0;
                     transition: all .75s ease-out;
                     overflow-y: auto;
                 }
-
-                .toBeCorrectedContainerDetail.open{
+                .invoiceDetailContainer.open,
+                .toBeCorrectedContainerDetail.open {
                     opacity: 1;
                     width: 100%;
                     height: 37%;
@@ -871,32 +857,32 @@
                                                         <template class="header border-left">
                                                             <vaadin-grid-sorter path="reimbursement">OA</vaadin-grid-sorter>
                                                         </template>
-                                                        <template>[[_formatAmount(item.reimbursement)]]</template>
+                                                        <template>[[_formatAmount(item.reimbursement)]]€</template>
                                                     </vaadin-grid-column>
                                                     <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
                                                         <template class="header">
                                                             <vaadin-grid-sorter path="patientIntervention">Patient</vaadin-grid-sorter>
                                                         </template>
-                                                        <template>[[_formatAmount(item.patientIntervention)]]</template>
+                                                        <template>[[_formatAmount(item.patientIntervention)]]€</template>
                                                     </vaadin-grid-column>
                                                     <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
                                                         <template class="header">
                                                             <vaadin-grid-sorter path="doctorSupplement">Supplément</vaadin-grid-sorter>
                                                         </template>
-                                                        <template>[[_formatAmount(item.doctorSupplement)]]</template>
+                                                        <template>[[_formatAmount(item.doctorSupplement)]]€</template>
                                                     </vaadin-grid-column>
                                                     <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col border-right">
                                                         <template class="header border-right">
                                                             <vaadin-grid-sorter path="totalAmount">Total</vaadin-grid-sorter>
                                                         </template>
-                                                        <template>[[_formatAmount(item.totalAmount)]]</template>
+                                                        <template>[[_formatAmount(item.totalAmount)]]€</template>
                                                     </vaadin-grid-column>
                                                 </vaadin-grid-column-group>
                                                 <vaadin-grid-column  flex-grow="0" width="10%" class="recipient-col">
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="statut">Statut</vaadin-grid-sorter>
                                                     </template>
-                                                    <template>[[item.statut]]</template>
+                                                    <template><span class$="invoice-status {{_getIconStatusClass(item.statut)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.statut]]</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                                     <template class="header">
@@ -965,7 +951,7 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <template><span class$="{{_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
@@ -1036,29 +1022,14 @@
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
                                                 <!--<template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
-                                                <template>
-                                                    <template is="dom-if" if="[[_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span class$="{{_isMoreThen(item.messageInfo.acceptedAmount,0,'txtcolor--greenStatus')}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
-                                                    </template>
-                                                    <template is="dom-if" if="[[!_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
-                                                    </template>
-                                                </template>
+                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <!--<template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>-->
-                                                <template>
-                                                    <template is="dom-if" if="[[_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span class$="{{_isMoreThen(item.messageInfo.refusedAmount,0,'txtcolor--redStatus')}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
-                                                    </template>
-                                                    <template is="dom-if" if="[[!_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span>
-                                                    </template>
-                                                </template>
+                                                <template><span class$="{{_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
@@ -1242,7 +1213,7 @@
                                             </vaadin-grid-column-group>
                                             <vaadin-grid-column class="recipient-col" width="300px">
                                                 <template class="header">Erreur</template>
-                                                <template>[[item.error]]</template>
+                                                <template><span class$="{{_getIconStatusClass(item.error)}}">[[item.error]]</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header"></template>
@@ -1640,7 +1611,7 @@
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                     .then(invAndIdsPat =>
-                        this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                     ).then(invAndPats =>
                         this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
@@ -1658,7 +1629,7 @@
                             patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
                             totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
                             doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
-                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corr','To be corrected') : this.localize('inv_to_be_send','To be send'),
+                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corrected','To be corrected',this.language) : this.localize('inv_to_be_send','To be send'),
                             hasChildren : false,
                             uuid : inv.id,
                             parentUuid : ins.code.charAt(0),
@@ -2497,7 +2468,7 @@
                     this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invoiceIds.map(i => i)}))
                         .then(invoices => Promise.all(invoices.map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                         .then(invAndIdsPat =>
-                            this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                            this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                         )
                         .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
                             invoiceReference: inv.invoiceReference,
@@ -2682,6 +2653,7 @@
                 if (amount > 0) {
                     return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
                     (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
                     (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
                     (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
