@@ -715,19 +715,19 @@
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="border-left"><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]€</span></small></template>
+                                                <template class="border-left"><small><span class$="{{_getTxtStatusColor(item.statut,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalReimbursement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]€</span></small></template>
+                                                <template><small><span class$="{{_getTxtStatusColor(item.statut,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalPatientIntervention)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]€</span></small></template>
+                                                <template><small><span class$="{{_getTxtStatusColor(item.statut,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalDoctorSupplement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
-                                                <template class="border-right"><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]€</span></small></template>
+                                                <template class="border-right"><small><span class$="{{_getTxtStatusColor(item.statut,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalAmount)]]€</template>-->
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
@@ -1730,7 +1730,7 @@
                             patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
                             totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
                             doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
-                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? "To be corrected" : "To be send",
+                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corr','To be corrected' : this.localize('inv_to_be_send','To be send'),
                             hasChildren : false,
                             uuid : inv.id,
                             parentUuid : ins.code.charAt(0),
@@ -2744,6 +2744,7 @@
                     (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
                     (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
                     (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
                     ""
             }
@@ -2753,6 +2754,7 @@
                     return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
                     (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
                     (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
                     (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
                     ""

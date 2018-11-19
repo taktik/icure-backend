@@ -473,7 +473,8 @@
 						</div>
 					</template>
 					<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
-						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
+						<!--<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">-->
+						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe">
 							<iron-icon icon="vaadin:pills" ></iron-icon>
 							[[localize('pre','Prescribe',language)]]
 						</paper-button>
@@ -951,7 +952,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	_printPrescriptions(e) {
-		if (this.patient.ssin && this.api.tokenId) {
+		// if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
 			this.$.loadingPrescriptionDialog.open();
 			const drugsToBePrescribed = this._drugsToBePrescribed();
 			let splitColumns = this._splitColumns().filter(c => c && c.length > 0);
@@ -970,9 +971,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                         pageNum += 1 // add a page
                     } // will be set on next page
                     const element = this.root.querySelector("#barCode");
-                    JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
+                    JsBarcode(element, rids ? rids[idx].rid : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
                     var jpegUrl = element.toDataURL("image/jpeg");
-                    const ridIdx = (rids[idx].rid).split('').join(' ');
+                    const ridIdx = (rids ? rids[idx].rid : hcp.nihii).split('').join('&nbsp;');
 
                     let prescArray = [], posology = {}
                     _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
@@ -991,13 +992,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     let medicName = ""
                     prescArray.map(that => { // create prescription content
                         prescriContent += `<article>
-                            S/ ${that.S}<br>
-                            R/ ${that.R}
+                            <p><span class="bold">R/</span> ${that.R}</p>
+                            <p><span class="bold">S/</span> ${that.S}</p>
                         </article>`;
                         articlePoso.push(that.poso) // add posology to the list
                         medicName = that.S
                     }) // map end
-                    const prescri = `<article class="prescription">
+                    const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
                         <header>
                             <img src="${jpegUrl}" alt="code-bar">
                             <div class="barcode-num">${ridIdx}</div>
@@ -1038,7 +1039,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             <small class="center">Délivrable à partir du&nbsp;:</small>
                             <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
                         </footer>
-                    </article>`; // create single prescription body
+                    </article>` : prescriContent; // create single prescription body
                     prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
                 }) // splitCol forEach end
                 console.log("prescriToPrint",prescriToPrint)
@@ -1073,50 +1074,126 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                         that.map((single)=>{
                             let singleName = single.name
                             thatBody += single.body
-                            single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                            if (this.patient.ssin && this.api.tokenId) {
+                                single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                            }
                         })
-                        const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
-                        const onepageBodyBottom = `</tbody></table></footer></div>`;
-                        onePageBody += onePageBodyTop+rows+onepageBodyBottom;
+                        if (this.patient.ssin && this.api.tokenId) {
+                            const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
+                            const onepageBodyBottom = `</tbody></table></footer></div>`;
+                            onePageBody += onePageBodyTop+rows+onepageBodyBottom;
+                        } else {
+                            onePageBody = `<div class="page">
+                                <header id="header" class="flexbox vert bt center">
+                                    <div class="horiz">
+                                        <div class="cell br w50 p1025">
+                                            <img class="codbar" src="${jpegUrl}" alt="code-bar">
+                                            <span>${ridIdx}</span>
+                                        </div>
+                                        <div class="cell w50">
+                                            <p>Nom et prénom du prescripteur</p>
+                                            <p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div class="horiz w100">
+                                    <div class="vert bt bb flex1">
+                                        <p class="uppercase">À remplir par le prescripteur</p>
+                                        <p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+                                    </div>
+                                </div>
+                                <main id="main" class="flexbox flex1 horiz bb">
+                                    <div class="cell br w33">
+                                        <p>Réservé à la vignette de conditionnement</p>
+                                    </div>
+                                    <div class="cell">
+                                        ${thatBody}
+                                    </div>
+                                </main>
+                                <footer id="footer" class="flex horiz bb">
+                                    <div class="flex1 cell br">
+                                        <p class="title bold center w100">Cachet du prescripteur</p>
+                                        <ul>
+                                            <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
+                                            <li>Rue du test</li>
+                                            <li class="uppercase">1000 Bru</li>
+                                            <li>Tel&nbsp;: 00/000.000</li>
+                                            <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="w40">
+                                        <div class="vert w100">
+                                            <div class="cell bb center">
+                                                <p class="mt0">Date et signature du prescripteur</p>
+                                                <p>${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                                            </div>
+                                            <div class="cell">
+                                                <p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+                                                <p class="signdate center bold w100">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+                                <aside>
+                                    <div class="horiz">
+                                        <p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+                                    </div>
+                                </aside>
+                            </div>`;
+                        } // elif end
+
                     }
                     thatI++
                 }) // allPage map end
-                const toPrint = `<html>
-                    <head>
-                        <style>
-                            body {margin: 0;width: 210mm;}
-                            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
-                            body > div.page:last-child {page-break-after: avoid;}
-                            body > div.page >main {display: flex;width: 100%;}
-                            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
-                            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
-                            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
-                            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
-                            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
-                            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
-                            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
-                            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
-                            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
-                            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
-                            body > div.page > main > article div.profile {margin: 0 25px;}
-                            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
-                            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-                            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
-                            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
-                            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
-                            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
-                            body > div.page > footer table:first-child {border-top:none;}
-                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
-                            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
-                            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
-                            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
-                            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
-                        </style>
-                    </head>
-                    <body>
-                        ${onePageBody}
-                    </body>
-                </html>`; // finalize PDF body
+                const toPrint = (this.patient.ssin && this.api.tokenId) ?
+                `<html>
+                    <head><style>
+                    body {margin: 0;width: 210mm;}
+                    body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+                    body > div.page:last-child {page-break-after: avoid;}
+                    body > div.page >main {display: flex;width: 100%;}
+                    body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+                    body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+                    body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
+                    body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
+                    body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
+                    body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
+                    body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
+                    body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+                    body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
+                    body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
+                    body > div.page > main > article div.profile {margin: 0 25px;}
+                    body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
+                    body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
+                    body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+                    body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
+                    body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+                    body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
+                    body > div.page > footer table:first-child {border-top:none;}
+                    body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+                    body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
+                    body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
+                    body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
+                    body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
+                </style></head><body>${onePageBody}</body></html>`
+                    : // no eHe connection =
+                `<html><head><style>
+                    /* body */
+                    body {margin: 0;padding: 0;}
+                    div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+                    div.page:last-child {page-break-after: avoid;}
+                    * {font-size:.95em;font-family: Arial,sans-serif;}
+                    /* flex */
+                    *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
+                    /* elems */
+                    img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+                    /* style */
+                    *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
+                    *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
+                    *.br {border-right: 2px solid black;} *.bt {border-top: 2px solid black} *.bb {border-bottom: 2px solid black}
+                    *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
+                    *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
+                </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
                 console.log("toPrint",toPrint)
 
                 this.$.loadingPrescriptionDialog.close();
@@ -1144,7 +1221,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 }) // forEach end
                 this.saveCurrentContact().then(() => this._refreshDrugs())
             })); // rids and api call end
-		} // if end
+		// } // if eHe connected end
+
 	} // method end
 
 	_columnName(idx) {
