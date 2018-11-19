@@ -1730,7 +1730,7 @@
                             patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
                             totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
                             doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
-                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corr','To be corrected' : this.localize('inv_to_be_send','To be send'),
+                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corr','To be corrected') : this.localize('inv_to_be_send','To be send'),
                             hasChildren : false,
                             uuid : inv.id,
                             parentUuid : ins.code.charAt(0),
