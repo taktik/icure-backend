@@ -359,20 +359,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue:
-            (
-                this.api.localize(m.content, this.language) // ||
-                // (m.content[this.language] =
-                //     {
-                //         medicationValue: { regimen: [] }
-                //     }
-                // )
-            ).medicationValue,
+            medicationValue: m.content[this.language].medicationValue,
             isNew: isNew || false };
 	}
 
 	addMedication() {
-        // console.log("add medic",this)
 		const id = this.api.crypto().randomUuid();
 		const newMedication =  {
 		    id: id,
@@ -392,6 +383,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			]])
 		};
+        console.log("add medic",newMedication)
 		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
