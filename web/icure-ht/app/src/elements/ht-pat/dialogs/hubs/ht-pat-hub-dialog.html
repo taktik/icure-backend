@@ -191,7 +191,7 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <template is="dom-if" if="[[hubSupportsConsent]]">
-                    <p>[[localize('hub_hcp_cs','Hcp hub consent',language)]] : [[_getHubHcpConsentDesc(hcpHubConsent)]]</p>
+                    <p><b>[[localize('hub_hcp_cs','Hcp hub consent',language)]] :</b> [[_getHubHcpConsentDesc(hcpHubConsent)]]</p>
                 </template>
             </div>
             <template is="dom-if" if="[[!_HcpHasHubConsent(hcpHubConsent, hubSupportsConsent)]]">
@@ -200,9 +200,9 @@
             <template is="dom-if" if="[[_HcpHasHubConsent(hcpHubConsent, hubSupportsConsent)]]">
                 <template is="dom-if" if="[[hubSupportsConsent]]">
                     <div>
-                        <p><b>[[localize('pat_hub_info','Pat Hub info',language)]]</b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
-                        <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
-                        <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[_getHubPatientTherLinkDesc(patientHubTherLinks)]]</p>
+                        <p><b>[[localize('pat_hub_info','Pat Hub info',language)]] : </b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
+                        <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]] : </b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
+                        <p><b>[[localize('hub_tl','Hub therapeutic link',language)]] : </b>[[_getHubPatientTherLinkDesc(patientHubTherLinks)]]</p>
                     </div>
                 </template>
                 <template is="dom-if" if="[[supportBreakTheGlass]]">
@@ -542,9 +542,12 @@
                     this.set('isLoading', false);
                     console.log(error);
                 });
-                if (this.hubSupportsConsent) this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat)).catch(error => {
-                    console.log(error);
-                })
+
+                if (this.hubSupportsConsent){
+                    this.putHubPatient().then(putResp => {
+                        this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat)).catch(error => {console.log(error);})
+                    }).catch(error => {console.log(error);})
+                }
             }
 
             close() {
