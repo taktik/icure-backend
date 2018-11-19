@@ -1257,24 +1257,19 @@
                                             <vaadin-grid-column-group>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
-                                                        <vaadin-grid-sorter path="invoicedAmount">Montant<br/>Facturé</vaadin-grid-sorter>
+                                                        <vaadin-grid-sorter path="invoicedAmount">Montant<br/>facturé</vaadin-grid-sorter>
                                                     </template>
                                                     <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
-                                                        <vaadin-grid-sorter path="acceptedAmount">Montant<br/>Accepté</vaadin-grid-sorter>
+                                                        <vaadin-grid-sorter path="acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
                                                     </template>
-                                                    <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
-                                                        <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)]]">[[_formatAmount(item.acceptedAmount)]]€</span></template>
-                                                    </template>
-                                                    <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
-                                                        <template><span>[[_formatAmount(item.acceptedAmount)]]€</span></template>
-                                                    </template>
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
-                                                        <vaadin-grid-sorter path="refusedAmount">Montant<br/>Refusé</vaadin-grid-sorter>
+                                                        <vaadin-grid-sorter path="refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                     </template>
                                                     <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
@@ -1287,17 +1282,14 @@
                                                     <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
                                                 </template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
-                                                </template>
-                                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.paid)]]">[[_formatAmount(item.paid)]]€</span></template>
-                                            </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
+                                                    <template>[[item.status]]</template>
                                                 </template>
-                                                <template><span class$="invoice-status [[_getIconStatusClass(item.statut))]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.statut]]</span></template>
+                                                <template>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
+                                                </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="recipient-col">
                                                 <template class="header"></template>
@@ -1315,7 +1307,7 @@
 
             </div>
 
-            <ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patientFromSelectedInvoice]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+            <ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patientFromSelectedInvoice]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 
         <paper-dialog id="pendingDetailDialog">
                 <div>
@@ -1640,7 +1632,7 @@
                 }))
                 .then(invoiceStruct => {
                     this.set("messagesToBeCorrected", invoiceStruct.filter(inv => inv.toBeCorrected === true))
-                    this.set('selectedInvoicesToBeSend', invoiceStruct.filter(inv => inv.toBeCorrected === false && inv.printedDate))
+                    this.set('selectedInvoicesToBeSend', invoiceStruct.filter(inv => inv.toBeCorrected === false && inv.invoice.printedDate))
 
                     this.set("totalInvoicesToBeSend.totalPatientIntervention",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00)
                     this.set("totalInvoicesToBeSend.totalDoctorSupplement",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00)
@@ -1674,9 +1666,9 @@
                                     invoiceNumber: m.externalRef,
                                     invoiceMonth: "",
                                     invoiceDate: "",
-                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount).toFixed(2) : "0.00",
-                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00",
-                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount).toFixed(2) : "0.00",
+                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount) : "0.00",
+                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount) : "0.00",
+                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount) : "0.00",
                                     invoiceStatus: "",
                                     rejectionReason: "",
                                     paymentReference: m.metas && m.metas.paymentReferenceAccount1 ? m.metas.paymentReferenceAccount1 : "",
@@ -2474,8 +2466,8 @@
                             ssin: pat.ssin,
                             invoiceDate: inv.invoiceDate,
                             invoicedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            acceptedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            refusedAmount: 0.00,
+                            acceptedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
+                            refusedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
                             rejectionReason: inv.error,
                             paid: false,
                             status: this.activeGridItem.messageInfo.invoiceStatus,
@@ -2483,9 +2475,9 @@
                             invoicingCodes: inv.invoicingCodes.map(code => ({
                                 invoicingCode: code.code,
                                 invoiceDate: code.dateCode,
-                                invoicedAmount: Number(code.reimbursement).toFixed(),
-                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? "0.00" : "0.00",
-                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement).toFixed(2) : "0.00",
+                                invoicedAmount: Number(code.reimbursement),
+                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : code && code.paid ? code.paid : 0.00,
+                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : code && code.paid ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
                                 rejectionReason: code.error,
                                 paid: false,
                                 status: ""
@@ -2679,7 +2671,6 @@
 
             _openInvoicingDialog(e){
                 if(e && e.target && e.target.id){
-                    this.currentContact = e.target.id
                     this.$.invoicingForm.open()
                 }
             }
