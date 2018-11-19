@@ -400,7 +400,7 @@
                     const messages = msgsPl && msgsPl.rows || []
 
                     const ssins = _.uniq(_.compact((messages || []).map(msg => (msg.metas || {}).ssin)))
-                    return (ssins.length ? this.api.patient().filterBy(undefined, undefined, 1000, 0, undefined, false,
+                    return (ssins.length ? this.api.patient().filterByWithUser(this.user,undefined, undefined, 1000, 0, undefined, false,
                             {
                                 filter: {
                                     $type: "PatientByHcPartyAndSsinsFilter",
@@ -478,7 +478,7 @@
                         const inscriptions = _.flatMap(_.compact(lists.map(l => l && l.inscriptions)))
                         const ssins =  _.uniq(_.compact(inscriptions.filter(i => !i.lastName && i.inss)))
 
-                        return (ssins.length ? this.api.patient().filterBy(undefined, undefined, 1000, 0, undefined, false,
+                        return (ssins.length ? this.api.patient().filterByWithUser(this.user,undefined, undefined, 1000, 0, undefined, false,
                             {
                                 filter: {
                                     $type: "PatientByHcPartyAndSsinsFilter",

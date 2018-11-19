@@ -578,7 +578,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					}
 					return acc;
 				}, {});
-				return this.api.patient().getPatients({ ids: Object.keys(accesses) }).then(patients => {
+				return this.api.patient().getPatientsWithUser(this.user, { ids: Object.keys(accesses) }).then(patients => {
 					patients.forEach(p => accesses[p.id] && (accesses[p.id].patient = p));
 					this._isLoadingLatestPatients = false;
 					return accesses;
@@ -599,7 +599,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}).then(messages => this.set('messages', messages || []));
 
 			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
-				return appointments && this.api.patient().getPatients(new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
+				return appointments && this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
 					//todo wtf JSON not valid
 					patients.forEach((p, idx) => appointments[idx].patient = p);
 					this._isLoadingTodaysConsultations = false;
@@ -635,7 +635,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					const decodedPatIds = patIds.map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1]);
 					s.patId = decodedPatIds.find(id => id != null);return decodedPatIds;
 				})))).then(arraysOfArraysOfPatIdsAsUa => {
-					return this.api.patient().filterBy(null, null, maxplanningsize, /*index*/null, sort, desc, {
+					return this.api.patient().filterByWithUser(this.user, null, null, maxplanningsize, /*index*/null, sort, desc, {
 						filter: {
 							'$type': 'PatientByIdsFilter',
 							'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))

@@ -1610,7 +1610,7 @@
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids[0]]))))
                     .then(invAndIdsPat =>
-                        this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                     ).then(invAndPats =>
                         this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
@@ -2466,7 +2466,7 @@
                     this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invoiceIds.map(i => i)}))
                         .then(invoices => Promise.all(invoices.map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids[0]]))))
                         .then(invAndIdsPat =>
-                            this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                            this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                         )
                         .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
                             invoiceReference: inv.invoiceReference,
