@@ -64,6 +64,7 @@ public class Invoice extends StoredICureDocument {
 
 	private PaymentType paymentType;
 	private Double paid;
+	private List<Payment> payments;
 
 	private String gnotionNihii;
 	private String gnotionSsin;
@@ -88,9 +89,6 @@ public class Invoice extends StoredICureDocument {
 	private String encounterLocationName;
 	private String encounterLocationNihii;
 	private Integer encounterLocationNorm;
-
-
-	private Long prescriptionDate; // yyyyMMdd
 
 	private Integer longDelayJustification;
 
@@ -492,10 +490,6 @@ public class Invoice extends StoredICureDocument {
 		this.careProviderType = careProviderType;
 	}
 
-	public Long getPrescriptionDate() {	return prescriptionDate;	}
-
-	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
-
 	public String getThirdPartyPaymentJustification() {
 		return thirdPartyPaymentJustification;
 	}
@@ -518,6 +512,14 @@ public class Invoice extends StoredICureDocument {
 
 	public void setPaymentType(PaymentType paymentType) {
 		this.paymentType = paymentType;
+	}
+
+	public List<Payment> getPayments() {
+		return payments;
+	}
+
+	public void setPayments(List<Payment> payments) {
+		this.payments = payments;
 	}
 
 	@Override
