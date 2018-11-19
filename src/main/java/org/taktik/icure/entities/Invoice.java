@@ -26,6 +26,7 @@ import org.taktik.icure.entities.embed.InvoiceInterventionType;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.embed.MediumType;
+import org.taktik.icure.entities.embed.PaymentType;
 import org.taktik.icure.entities.utils.MergeUtil;
 
 import java.util.ArrayList;
@@ -52,12 +53,16 @@ public class Invoice extends StoredICureDocument {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	private String thirdPartyPaymentJustification;
+	private String thirdPartyPaymentReason;
+
 	private InvoiceType invoiceType;
 	private MediumType sentMediumType;
 	private InvoiceInterventionType interventionType;
 
 	private String groupId;
 
+	private PaymentType paymentType;
 	private Double paid;
 
 	private String gnotionNihii;
@@ -72,8 +77,20 @@ public class Invoice extends StoredICureDocument {
 	private String internshipLastName;
 	private String internshipFirstName;
 	private String internshipCdHcParty;
+	private String supervisorNihii;
+	private String supervisorSsin;
+	private String supervisorLastName;
+	private String supervisorFirstName;
+	private String supervisorCdHcParty;
 
 	private String error;
+
+	private String encounterLocationName;
+	private String encounterLocationNihii;
+	private Integer encounterLocationNorm;
+
+
+	private Long prescriptionDate; // yyyyMMdd
 
 	private Integer longDelayJustification;
 
@@ -115,6 +132,11 @@ public class Invoice extends StoredICureDocument {
 		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
 		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
 		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
+		this.supervisorNihii = this.supervisorNihii == null ? other.supervisorNihii : this.supervisorNihii;
+		this.supervisorSsin = this.supervisorSsin == null ? other.supervisorSsin : this.supervisorSsin;
+		this.supervisorLastName = this.supervisorLastName == null ? other.supervisorLastName : this.supervisorLastName;
+		this.supervisorFirstName = this.supervisorFirstName == null ? other.supervisorFirstName : this.supervisorFirstName;
+		this.supervisorCdHcParty = this.supervisorCdHcParty == null ? other.supervisorCdHcParty : this.supervisorCdHcParty;
 
 		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
 				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
@@ -165,6 +187,11 @@ public class Invoice extends StoredICureDocument {
 		ni.internshipLastName = i.internshipLastName;
 		ni.internshipFirstName = i.internshipFirstName;
 		ni.internshipCdHcParty = i.internshipCdHcParty;
+		ni.supervisorNihii = i.supervisorNihii;
+		ni.supervisorSsin = i.supervisorSsin;
+		ni.supervisorLastName = i.supervisorLastName;
+		ni.supervisorFirstName = i.supervisorFirstName;
+		ni.supervisorCdHcParty = i.supervisorCdHcParty;
 
 		ni.invoicingCodes = codes.stream().map(ic -> {
 			InvoicingCode invoicingCode = new InvoicingCode(ic);
@@ -381,6 +408,62 @@ public class Invoice extends StoredICureDocument {
 		this.internshipCdHcParty = internshipCdHcParty;
 	}
 
+	public String getSupervisorNihii() {
+		return supervisorNihii;
+	}
+
+	public void setSupervisorNihii(String supervisorNihii) {
+		this.supervisorNihii = supervisorNihii;
+	}
+
+	public String getSupervisorSsin() {
+		return supervisorSsin;
+	}
+
+	public void setSupervisorSsin(String supervisorSsin) {
+		this.supervisorSsin = supervisorSsin;
+	}
+
+	public String getSupervisorLastName() {
+		return supervisorLastName;
+	}
+
+	public void setSupervisorLastName(String supervisorLastName) {
+		this.supervisorLastName = supervisorLastName;
+	}
+
+	public String getSupervisorFirstName() {
+		return supervisorFirstName;
+	}
+
+	public String getEncounterLocationName() { return encounterLocationName; }
+
+	public void setEncounterLocationName(String encounterLocationName) { this.encounterLocationName = encounterLocationName; }
+
+	public String getEncounterLocationNihii() { return encounterLocationNihii; }
+
+	public void setEncounterLocationNihii(String encounterLocationNihii) { this.encounterLocationNihii = encounterLocationNihii; }
+
+	public Integer getEncounterLocationNorm() {
+		return encounterLocationNorm;
+	}
+
+	public void setEncounterLocationNorm(Integer encounterLocationNorm) {
+		this.encounterLocationNorm = encounterLocationNorm;
+	}
+
+	public void setSupervisorFirstName(String supervisorFirstName) {
+		this.supervisorFirstName = supervisorFirstName;
+	}
+
+	public String getSupervisorCdHcParty() {
+		return supervisorCdHcParty;
+	}
+
+	public void setSupervisorCdHcParty(String supervisorCdHcParty) {
+		this.supervisorCdHcParty = supervisorCdHcParty;
+	}
+
 	public String getError() { return error; }
 
 	public void setError(String error) { this.error = error; }
@@ -407,6 +490,34 @@ public class Invoice extends StoredICureDocument {
 
 	public void setCareProviderType(String careProviderType) {
 		this.careProviderType = careProviderType;
+	}
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	@Override

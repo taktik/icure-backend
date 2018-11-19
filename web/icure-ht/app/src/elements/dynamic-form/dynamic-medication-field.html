@@ -134,13 +134,6 @@
 				list-style: none;
 			}
 
-			.action-buttons {
-				float: right;
-				width: 40px;
-				height: 20px;
-				padding-right: 8px;
-			}
-
 			.action-buttons paper-icon-button {
 				padding: 2px;
 				margin-top: -1px;
@@ -204,14 +197,15 @@
 			}
 
 			.medication-line > .action-buttons {
-				width:70px;
-				padding-right:0;
+				width:72px;
+				padding-right:8px;
 			}
 
 			.medication-line > span {
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
+                flex: 1;
 			}
 
 			paper-icon-button {
@@ -235,14 +229,12 @@
 
 		<ul>
 		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
-			<li id="[[lv.id]]" class="medication-line"><span>[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
+			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
 		</template>
 		</ul>
 
 		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
 
-		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
-		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 	</template>
 	<script>
 
@@ -339,17 +331,19 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		    this.set('previouslySavedValue', _.cloneDeep(this.value))
 			this.set('localizedValue', localizedValue);
 			this.set('refresher', this.refresher+1)
+
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
 		}
 	}
 
     _medicationCreated(e) {
     	this.push('value',e.detail)
+        this.set('selectedMedicationContentWithId',this.extractContentWithIdFromMedicationService(e.detail,true))
         this._displayMedicationDetails(e)
 	}
 
 	_displayMedicationDetails(e) {
-        this.$['medication-detail'].open(e.detail,this.extractContentWithIdFromMedicationService(e.detail,true))
+        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.selectedMedicationContentWithId, onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -361,12 +355,19 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
+        console.log('extractContentWithIdFromMedicationService',m,isNew)
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {
-                medicationValue: { regimen: [] }
-            })).medicationValue,
+            medicationValue:
+            (
+                this.api.localize(m.content, this.language) // ||
+                // (m.content[this.language] =
+                //     {
+                //         medicationValue: { regimen: [] }
+                //     }
+                // )
+            ).medicationValue,
             isNew: isNew || false };
 	}
 
@@ -391,14 +392,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			]])
 		};
-		this.$['medication-selection'].open(newMedication, this.extractContentWithIdFromMedicationService(newMedication, true));
+		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
 	editMedication(el) {
 		const id = el.target.parentElement.parentElement.id;
 		const item = this.value.find(s => s.id === id);
 		if (item) {
-			this.$['medication-detail'].open(item, this.extractContentWithIdFromMedicationService(item));
+            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
 	}
 

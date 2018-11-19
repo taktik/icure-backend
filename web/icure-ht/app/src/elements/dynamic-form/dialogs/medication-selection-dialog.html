@@ -11,12 +11,10 @@
 
 <link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
-
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <dom-module id="medication-selection-dialog">
     <template>
@@ -159,9 +157,18 @@
                 font-weight: 700;
 
             }
+
+            paper-spinner {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                z-index: 150;
+                transform: translate(-50%,-50%);
+            }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
+            <paper-spinner class="center" active="[[isLoadingEntities]]"></paper-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
             <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                 <paper-tab name="medicinalProduct" on-tap="setMedicationType">
@@ -261,6 +268,10 @@
                     filterValue: {
                         type: String,
                         value: ''
+                    },
+                    isLoadingEntities: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -370,6 +381,7 @@
             setGridSize(grid, size) {
                 console.log('setSize', size)
                 grid.set('size', size)
+                this.set('isLoadingEntities',false)
             }
 
             _cellContent(item, column) {
@@ -383,17 +395,16 @@
             }
 
             selectMedicationFromList(med) {
+                console.log("selectMedicationFromList",med)
                 if (med.id) {
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                         this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                             "intendedname": med.name,
-                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}],
+                            "priority": 'low'
                         })
-                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                            weekday: null,
-                            date: null,
-                            administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
-                        }])
+                        console.log('mpp',mppInfos)
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}}])
                         this.set("bufferUnit",mppInfos.gal.name)
                         this.set("bufferQuantity",1)
 
@@ -414,12 +425,8 @@
                             "compoundPrescription": med.name
                         })
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                        weekday: null,
-                        date: null,
-                        administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
-                    }])
-                    this.set("bufferUnit",this.localize('generic_unit','unit',language))
+                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
+                    this.set("bufferUnit",mppInfos.gal.name)
                     this.set("bufferQuantity",1)
 
                     if (this.selectedMedicationContentWithId.isNew) {
@@ -433,7 +440,7 @@
             click(e) {
                 const selected = this.selectedMedicationFromList;
 
-                console.log('selected ' + selected + ' - ' + this.latestSelected);
+                console.log('selected ',selected,' - ',this.latestSelected);
                 if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
                     this.select(this.latestSelected);
                 } else {
@@ -480,6 +487,7 @@
                     }
                     setTimeout(function () {
                         if (currentValue === this.filterValue) {
+                            this.set('isLoadingEntities',true)
                             console.log("Triggering search for " + this.filterValue);
 
                             this.selectedMedicationFromList = null
@@ -491,6 +499,7 @@
                             grid.clearCache();
                         } else {
                             console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+                            this.set('isLoadingEntities',false)
                         }
                     }.bind(this), 500); //Wait for the user to stop typing
                 }.bind(this), 100);

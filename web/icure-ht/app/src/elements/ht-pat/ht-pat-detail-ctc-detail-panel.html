@@ -9,7 +9,7 @@
 <link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
 <link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
 
-
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
@@ -35,7 +35,6 @@
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
-<link rel="import" href="dialogs/ht-pat-ch4-cons-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
 <link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
@@ -106,12 +105,16 @@
 				z-index:1;
 			}
 
+			.contact-card-frame {
+				padding-bottom: 24px;
+			}
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
 				@apply --padding-32;
 				padding-bottom:8px;
-				padding-top: 32px;
+				padding-top: 16px;
 			}
 			/*.contact-title:first-child{
 				padding-top:0;
@@ -122,7 +125,7 @@
 
 			.pat-details-card {
 				width: calc(100% - 64px);
-				margin: 0 32px;
+				margin: 0 32px 32px;
 			}
 
 			.horizontal {
@@ -242,6 +245,7 @@
 				background: var(--app-secondary-color);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
+				text-transform: capitalize;
 			}
 
 			filter-panel{
@@ -299,13 +303,14 @@
 			.add-forms-container {
 				position: absolute;
 				bottom: 48px;
-				left: 0;
+				right: 0;
 				background-color: var(--app-background-color-light);
 				opacity: .8;
 				padding: 8px 0;
 				border-radius: 2px;
 				max-width: 253px;
 			}
+
 			.floating-action-bar paper-fab-speed-dial-action {
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
@@ -343,6 +348,11 @@
 				background: var(--app-secondary-color-dark) !important;
 			}
 
+			.fleft {
+				position: absolute;
+				left: 8px;
+			}
+
 			.floating-action-bar iron-icon{
 				box-sizing: border-box;
 				padding: 2px;
@@ -357,6 +367,38 @@
 				white-space: nowrap;
 			}
 
+            paper-spinner.center {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+            }
+
+			.paper-fab-container {
+				position:relative;
+			}
+
+			#prose-editor {
+				width: 90%;
+				height: calc(90% - 64px);
+				max-width: 1024px;
+			}
+
+			#prose-editor > prose-editor{
+				height: calc(100% - 60px - 56px);
+				width: 100%;
+				display: block;
+				padding: 0;
+				margin: 0;
+			}
+
+			.buttons{
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				box-sizing: border-box;
+				border-top: 1px solid #e0e0e0;
+			}
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -381,29 +423,38 @@
 				</div>
 			</div>
 			<div class="contact-card-container">
-                <template is="dom-if" if="[[list]]">
-				    <ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
-                </template>
-                <template is="dom-if" if="[[table]]">
-                    <ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
-                </template>
-                <template is="dom-if" if="[[graphique]]">
-                </template>
-                <template is="dom-if" if="[[doc]]">
-                <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
-						<template is="dom-if" if="[[form.id]]">
-							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
-													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
-						</template>
-						<template is="dom-repeat" items="[[form.docs]]">
-							<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+				<paper-spinner class="center" active="[[isLoadingDoc]]"></paper-spinner>
+				<template is="dom-if" if="[[list]]">
+					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
+										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
+				</template>
+				<template is="dom-if" if="[[table]]">
+					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
+										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
+				</template>
+				<template is="dom-if" if="[[graphique]]">
+				</template>
+				<template is="dom-if" if="[[doc]]">
+					<div class="contact-card-frame">
+					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
+							<template is="dom-if" if="[[form.id]]">
+								<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
+														 current-contact="[[currentContact]]"
+														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
+														 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
+							</template>
+							<template is="dom-repeat" items="[[form.docs]]">
+								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]"
+											 resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+							</template>
 						</template>
 					</template>
+					</div>
 				</template>
-                </template>
 			</div>
 			<div id="floating-action-bar" class="floating-action-bar">
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
@@ -411,16 +462,19 @@
 						<paper-button class="add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
 					</template>
 					<template is="dom-if" if=[[showAddFormsContainer]]>
-						<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon ic on="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+						<div class="paper-fab-container">
+							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+							<div class="add-forms-container">
+								<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
+							</div>
+						</div>
 					</template>
-					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
-					</div>
 					<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
-						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
+						<!--<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">-->
+						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe">
 							<iron-icon icon="vaadin:pills" ></iron-icon>
 							[[localize('pre','Prescribe',language)]]
 						</paper-button>
@@ -432,7 +486,7 @@
 						</paper-button>
 					</div>
 					<div id="invoicingBtnCtnr">
-						<paper-button id="invoicingBtn" class="invoicing-btn action-btn"  on-tap="_invoicing">
+						<paper-button id="invoicingBtn" class="invoicing-btn ac.detail-panel div.paragraph-contenttion-btn"  on-tap="_invoicing">
 							<iron-icon icon="vaadin:invoice" ></iron-icon>
 							[[localize('inv','Invoice',language)]]
 						</paper-button>
@@ -494,11 +548,24 @@
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+
+		<paper-dialog id="prose-editor" no-cancel-on-outside-click no-cancel-on-esc-key>
+			<h2 class="modal-title">New Report</h2>
+			<prose-editor></prose-editor>
+			<div class="buttons">
+				<div class="fleft">
+					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
+					<paper-button class="modal-button" on-tap="loadTemplate">[[localize('load_temp','Load template',language)]]</paper-button>
+				</div>
+				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('save','Save',language)]]</paper-button>
+			</div>
+		</paper-dialog>
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -507,6 +574,8 @@ import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
+import '../prose-editor/prose-editor/prose-editor';
+import mustache from "mustache/mustache.js";
 
 class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -610,6 +679,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             hiddenSubContactsId: {
                 type: Object,
                 value: {}
+            },
+            isLoadingDoc: {
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -879,7 +952,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	_printPrescriptions(e) {
-		if (this.patient.ssin && this.api.tokenId) {
+		// if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
 			this.$.loadingPrescriptionDialog.open();
 			const drugsToBePrescribed = this._drugsToBePrescribed();
 			let splitColumns = this._splitColumns().filter(c => c && c.length > 0);
@@ -890,111 +963,267 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 				deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
 			}))).then(rids => {
-				const width = 297.576,
-				      height = 566.928;
+                let prescriToPrint = [], allPages = []
+                let prescNum = 0, pageNum = 1
+                splitColumns.forEach((c, idx) => {
+                    prescNum += 1
+                    if (prescNum > 2 * pageNum) { // if doesn't fit in page
+                        pageNum += 1 // add a page
+                    } // will be set on next page
+                    const element = this.root.querySelector("#barCode");
+                    JsBarcode(element, rids ? rids[idx].rid : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
+                    var jpegUrl = element.toDataURL("image/jpeg");
+                    const ridIdx = (rids ? rids[idx].rid : hcp.nihii).split('').join('&nbsp;');
 
-				const center = function (pdf, x, txt, fontSize) {
-					return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
-				};
+                    let prescArray = [], posology = {}
+                    _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
+                        const medicationApi = this.api.contact().medication();
+                        const med = this.api.contact().medicationValue(s, this.language);
+                        const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
+                        const medS = medicationApi.medicationNameToString(med, this.language)
+                        const medR = medicationApi.posologyToString(med, this.language)
+                        const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
+                        prescArray.push(thisMed) // add to the medications list
+                    }) // flatmap end
+                    console.log("prescArray",prescArray)
 
-				//const pdf = new jsPDF('p', 'pt', [width, height])
+                    let prescriContent = ""
+                    let articlePoso = []
+                    let medicName = ""
+                    prescArray.map(that => { // create prescription content
+                        prescriContent += `<article>
+                            <p><span class="bold">R/</span> ${that.R}</p>
+                            <p><span class="bold">S/</span> ${that.S}</p>
+                        </article>`;
+                        articlePoso.push(that.poso) // add posology to the list
+                        medicName = that.S
+                    }) // map end
+                    const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
+                        <header>
+                            <img src="${jpegUrl}" alt="code-bar">
+                            <div class="barcode-num">${ridIdx}</div>
+                            <hr>
+                            <h2>Preuve de prescription électronique</h2>
+                            <hr>
+                            <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+                            <hr>
+                            <div class="profile">
+                                <small>Nom et prénom du prescripteur&nbsp;:</small>
+                                <ul class="prescripteur-details">
+                                    <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
+                                    <li><b>INAMI&nbsp;:</b> ${hcp.nihii}</li>
+                                </ul>
+                            </div>
+                            <hr>
+                            <div class="profile">
+                                <small>Nom et prénom du patient&nbsp;:</small>
+                                <ul class="patient-details">
+                                    <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
+                                    <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
+                                </ul>
+                            </div>
+                            <hr>
+                        </header>
+                        <h2>Contenu de la prescription électronique</h2>
+                        <hr>
+                        <div class="prescription-content">
+                            ${prescriContent}
+                        </div>
+                        <footer>
+                            <hr>
+                            <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+                            <hr>
+                            <small class="center">Date&nbsp;:</small>
+                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                            <hr>
+                            <small class="center">Délivrable à partir du&nbsp;:</small>
+                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                        </footer>
+                    </article>` : prescriContent; // create single prescription body
+                    prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
+                }) // splitCol forEach end
+                console.log("prescriToPrint",prescriToPrint)
 
-				//pdf.addFont('ArialMS', 'Arial', 'normal')
-				//pdf.addFont('Times', 'Serif', 'normal')
+                console.log("allPages before map",allPages)
+                prescriToPrint.map((that)=>{ // for every prescription found in list
+                    let singlePage = {body:'',poso:[]}
+                    singlePage.body += (that.prescriBody) // get the body
+                    singlePage.name = that.name
+                    that.posology.map((poso)=>{ // check if there's posology
+                        singlePage.poso.push(poso)
+                    })
+                    if (!allPages[that.page-1]) {
+                        allPages.push([singlePage]) // assign posology to prescription
+                    } else {
+                        allPages[that.page-1].push(singlePage)
+                    }
+                })
+                console.log("allPages after map",allPages)
+                let onePageBody = ""
+                let thatI = 0
+                allPages.map((that)=>{
+                    let posoByDay = { // make the arrays that will receive sorted posologies
+                            'byMoment':[],
+                            'byHour':[]
+                        },
+                        posoByWeek = [],
+                        posoByMonth = []
+                    if (typeof that == 'object') {
+                        let rows = ''
+                        let thatBody = ''
+                        that.map((single)=>{
+                            let singleName = single.name
+                            thatBody += single.body
+                            if (this.patient.ssin && this.api.tokenId) {
+                                single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                            }
+                        })
+                        if (this.patient.ssin && this.api.tokenId) {
+                            const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
+                            const onepageBodyBottom = `</tbody></table></footer></div>`;
+                            onePageBody += onePageBodyTop+rows+onepageBodyBottom;
+                        } else {
+                            onePageBody = `<div class="page">
+                                <header id="header" class="flexbox vert bt center">
+                                    <div class="horiz">
+                                        <div class="cell br w50 p1025">
+                                            <img class="codbar" src="${jpegUrl}" alt="code-bar">
+                                            <span>${ridIdx}</span>
+                                        </div>
+                                        <div class="cell w50">
+                                            <p>Nom et prénom du prescripteur</p>
+                                            <p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div class="horiz w100">
+                                    <div class="vert bt bb flex1">
+                                        <p class="uppercase">À remplir par le prescripteur</p>
+                                        <p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+                                    </div>
+                                </div>
+                                <main id="main" class="flexbox flex1 horiz bb">
+                                    <div class="cell br w33">
+                                        <p>Réservé à la vignette de conditionnement</p>
+                                    </div>
+                                    <div class="cell">
+                                        ${thatBody}
+                                    </div>
+                                </main>
+                                <footer id="footer" class="flex horiz bb">
+                                    <div class="flex1 cell br">
+                                        <p class="title bold center w100">Cachet du prescripteur</p>
+                                        <ul>
+                                            <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
+                                            <li>Rue du test</li>
+                                            <li class="uppercase">1000 Bru</li>
+                                            <li>Tel&nbsp;: 00/000.000</li>
+                                            <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="w40">
+                                        <div class="vert w100">
+                                            <div class="cell bb center">
+                                                <p class="mt0">Date et signature du prescripteur</p>
+                                                <p>${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                                            </div>
+                                            <div class="cell">
+                                                <p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+                                                <p class="signdate center bold w100">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+                                <aside>
+                                    <div class="horiz">
+                                        <p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+                                    </div>
+                                </aside>
+                            </div>`;
+                        } // elif end
 
-				const pdf = new jsPDF('p', 'pt', [width, height]);
+                    }
+                    thatI++
+                }) // allPage map end
+                const toPrint = (this.patient.ssin && this.api.tokenId) ?
+                `<html>
+                    <head><style>
+                    body {margin: 0;width: 210mm;}
+                    body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+                    body > div.page:last-child {page-break-after: avoid;}
+                    body > div.page >main {display: flex;width: 100%;}
+                    body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+                    body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+                    body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
+                    body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
+                    body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
+                    body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
+                    body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
+                    body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+                    body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
+                    body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
+                    body > div.page > main > article div.profile {margin: 0 25px;}
+                    body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
+                    body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
+                    body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+                    body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
+                    body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+                    body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
+                    body > div.page > footer table:first-child {border-top:none;}
+                    body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+                    body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
+                    body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
+                    body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
+                    body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
+                </style></head><body>${onePageBody}</body></html>`
+                    : // no eHe connection =
+                `<html><head><style>
+                    /* body */
+                    body {margin: 0;padding: 0;}
+                    div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+                    div.page:last-child {page-break-after: avoid;}
+                    * {font-size:.95em;font-family: Arial,sans-serif;}
+                    /* flex */
+                    *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
+                    /* elems */
+                    img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+                    /* style */
+                    *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
+                    *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
+                    *.br {border-right: 2px solid black;} *.bt {border-top: 2px solid black} *.bb {border-bottom: 2px solid black}
+                    *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
+                    *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
+                </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
+                console.log("toPrint",toPrint)
 
-				splitColumns.forEach((c, idx) => {
-					if (idx) {
-						pdf.addPage();
-					}
-					const element = this.root.querySelector("#barCode");
-					JsBarcode(element, rids[idx].rid, { format: "CODE128A", displayValue: false, height: 75 });
-					var jpegUrl = element.toDataURL("image/jpeg");
+                this.$.loadingPrescriptionDialog.close();
 
-					pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57);
-					pdf.setFontSize(7);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, rids[idx].rid, 7), 69, rids[idx].rid);
-					pdf.setFontSize(9);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE", 9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "Veuillez présenter ce document au pharmacien pour scanner le ", 9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "code-barres et délivrer les médicaments prescrits", 9), 116, "code-barres et délivrer les médicaments prescrits");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`);
-					pdf.setFontSize(7);
-					pdf.setFont('Serif');
-					pdf.text(18, 129, "Nom et prénom du prescripteur:");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`);
-					pdf.setFontSize(7);
-					pdf.setFont('Serif');
-					pdf.text(18, 162.5, "Nom et prénom du patient:");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`);
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`);
-					pdf.setFontSize(9);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE", 9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE");
+                this.api.pdfReport(mustache.render(toPrint, null))
+                    .then(data => {
+                        let blob = new Blob([data], {type: 'application/pdf'});
+                        let url = window.URL.createObjectURL(blob)
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+                        a.href = url;
+                        a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                drugsToBePrescribed.forEach(s => {
+                    const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
+                    if (tag) {
+                        tag.id = 'CD-LIFECYCLE|ordered|1';
+                        tag.code = 'ordered'
+                    } else {
+                        s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
+                    }
+                }) // forEach end
+                this.saveCurrentContact().then(() => this._refreshDrugs())
+            })); // rids and api call end
+		// } // if eHe connected end
 
-					pdf.text(18, 240, _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
-						const medicationApi = this.api.contact().medication();
-						const med = this.api.contact().medicationValue(s, this.language);
-						return ["S/ " + medicationApi.medicationNameToString(med, this.language), "R/ " + medicationApi.posologyToString(med, this.language), ""];
-					}));
-
-					pdf.setFontSize(9);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, "Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte");
-					pdf.setFontSize(7);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "Date:", 7), 487, "Date:");
-
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, moment().format("DD/MM/YYYY"), 9), 501, moment().format("DD/MM/YYYY"));
-					pdf.setFontSize(7);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, moment(this.deliveryDateString).format("DD/MM/YYYY"), 9), 533, moment(this.deliveryDateString).format("DD/MM/YYYY"));
-					pdf.lines([[0, 0], [286, 0]], 5.788, 76);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 94);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 122);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 156);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 192);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 210);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 464);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 480);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 513);
-				});
-
-				this.$.loadingPrescriptionDialog.close();
-
-				pdf.autoPrint();
-				//pdf.output("dataurlnewwindow")
-				pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`);
-
-				drugsToBePrescribed.forEach(s=>{
-				    const tag = s.tags.find(t=>t.type==='CD-LIFECYCLE')
-					if (tag) { tag.id = 'CD-LIFECYCLE|ordered|1'; tag.code = 'ordered' } else { s.tags.push(this.api.code().normalize({id:'CD-LIFECYCLE|ordered|1'})) }
-				})
-                this.saveCurrentContact().then(()=>this._refreshDrugs())
-
-			}));
-		}
-	}
+	} // method end
 
 	_columnName(idx) {
 		return `#${idx + 1}`;
@@ -1059,6 +1288,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			return;
 		}
 
+        this.set('isLoadingDoc',true)
+
 		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
 			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
@@ -1102,7 +1333,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				}, [])).sortBy(f=>-f.created).value()
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
-		});
+		}).finally(() => this.set('isLoadingDoc',false));
 	}
 
 	toggleDetailsFiltersPanel() {
@@ -1135,6 +1366,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	refreshIcons() {
 		Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
+	}
+
+	newReport() {
+		this.$['prose-editor'].open()
 	}
 
 }

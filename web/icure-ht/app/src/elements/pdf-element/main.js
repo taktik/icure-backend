@@ -8,10 +8,11 @@
     this.reader = Polymer.dom(el.root).querySelector('.pdf-viewer');
     this.viewportOut = this.reader.querySelector('.pdf-viewport-out');
     this.toolbar = this.reader.querySelector('.pdf-toolbar');
-    this.toolbarHeight = 0;
+    this.toolbarHeight = this.toolbar.offsetHeight || 0;
     this.title = this.toolbar.querySelector('.title');
     this.enableTextSelection = el.enableTextSelection;
     this.fitWidth = el.fitWidth;
+    this.fitHeight = el.fitHeight;
     this.HEIGHT = el.getAttribute('height');
 
     this.viewport = this.reader.querySelector('.pdf-viewport');
@@ -59,7 +60,9 @@
     // this.element.style.height = this.reader.style.height = this.HEIGHT + 64 + 'px';
 
     // this.viewportOutStyle.width = width + 'px';
-    this.viewportOutStyle.height = height + 'px';
+      if (!this.fitHeight) {
+          this.viewportOutStyle.height = height + 'px';
+      }
 
     this.spinner.style.top = (height - this.toolbarHeight) / 2 + 'px';
   };
@@ -70,6 +73,9 @@
 
   Reader.prototype.setFitWidth = function(fitWidth) {
     this.fitWidth = fitWidth;
+  };
+  Reader.prototype.setFitHeight = function(fitHeight) {
+      this.fitHeight = fitHeight;
   };
 
   Reader.prototype.queueRenderPage = function(num) {
@@ -154,7 +160,9 @@
         self.viewport.width = self.pageW;
         self.viewport.height = self.pageH;
         self.viewportStyle.width = self.pageW + 'px';
-        self.viewportStyle.height = self.pageH + 'px';
+        if (!self.fitHeight) {
+            self.viewportStyle.height = self.pageH + 'px';
+        }
 
         if (self.enableTextSelection){
           self.textLayerDivStyle.width = self.pageW + 'px';
@@ -224,12 +232,21 @@
         if (self.enableTextSelection){
           self.textLayerDiv.innerHTML="";
           page.getTextContent().then(function(textContent) {
-            PDFJS.renderTextLayer({
+            const task = PDFJS.renderTextLayer({
               textContent: textContent,
               container: self.textLayerDiv,
               pageIndex : pageNum,
               viewport: viewerViewport,
               textDivs: []
+            })
+            task.promise.then(() => {
+                if (self.fitHeight && self.textLayerDiv && self.textLayerDiv.offsetHeight) {
+                  setTimeout(() => {
+                      const newHeight = Math.max(self.textLayerDiv.offsetHeight, 200) + self.toolbarHeight + 32 + 'px'
+                      console.log('Setting pdf-element height to ' + newHeight)
+                      self.element.style.height = newHeight
+                  }, 300)
+                }
             });
           });
         }
@@ -244,10 +261,10 @@
       this.viewportStyle.left = 0;
 
     if (this.pageH < this.HEIGHT) {
-      this.viewportStyle.top = (this.HEIGHT - this.pageH - this.toolbarHeight) / 2 + 'px';
-      this.viewportStyle.topNum = Math.floor((this.HEIGHT - this.pageH - this.toolbarHeight) / 2) + this.toolbarHeight;
+      this.viewportStyle.top = this.fitHeight ? '0' : ((this.HEIGHT - this.pageH - this.toolbarHeight) / 2 + 'px');
+      this.viewportStyle.topNum = (this.fitHeight ? 0 : Math.floor((this.HEIGHT - this.pageH - this.toolbarHeight) / 2)) + this.toolbarHeight;
       if (this.enableTextSelection){
-        this.textLayerDivStyle.topNum = Math.floor((this.HEIGHT - this.pageH - this.toolbarHeight) / 2) + this.toolbarHeight;
+        this.textLayerDivStyle.topNum = (this.fitHeight ? 0 : Math.floor((this.HEIGHT - this.pageH - this.toolbarHeight) / 2)) + this.toolbarHeight;
       }
     } else {
       this.viewportStyle.top = 0;

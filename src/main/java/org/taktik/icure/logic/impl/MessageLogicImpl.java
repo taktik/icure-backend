@@ -112,6 +112,11 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
+	public List<List<Message>> getChildren(List<String> parentIds) {
+		return messageDAO.getChildren(parentIds);
+	}
+
+	@Override
 	public List<Message> getByTransportGuids(String hcpId, Set<String> transportGuids) {
 		return messageDAO.getByTransportGuids(hcpId, transportGuids);
 	}
@@ -134,11 +139,8 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 			if (message == null) {
 				logger.error("Cannot create 'null' message. ");
 			} else {
-				if (message.getAuthor()==null) { message.setAuthor(loggedUser.getHealthcarePartyId()); }
 				if (message.getFromAddress()==null) { message.setFromAddress(loggedUser.getEmail()); }
 				if (message.getFromHealthcarePartyId()==null) { message.setFromHealthcarePartyId(loggedUser.getHealthcarePartyId()); }
-
-				message.setResponsible(loggedUser.getHealthcarePartyId());
 
 				success = success && super.createEntities(Collections.singletonList(message), createdEntities);
 			}

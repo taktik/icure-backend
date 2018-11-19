@@ -13,7 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-msg/ht-msg-menu.html">
 <link rel="import" href="elements/ht-msg/ht-msg-list.html">
 <link rel="import" href="elements/ht-msg/ht-msg-invoice.html">
+<link rel="import" href="elements/ht-msg/ht-msg-mycarenet.html">
 <link rel="import" href="elements/ht-msg/ht-msg-new.html">
+
 
 
 <link rel="import" href="./shared-styles.html">
@@ -48,11 +50,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: grid;
                 grid-template-columns: 50% 50%;
                 grid-template-rows: 100%;
-                grid-template-rows: 100%;
             }
 
             ht-msg-detail{
-                padding: 15px;
+                padding: 16px;
+                z-index: 0;
+                transform: translateX(100vw);
+                opacity: 0;
+                transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+            ht-msg-detail.selected {
+                transform: none;
+                opacity: 1;
+                z-index: 1;
             }
 
             .display-left-menu{
@@ -79,6 +89,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 80%;
             }
 
+            ht-msg-list.selected {
+                width: 152vw;
+            }
+
             @media screen and (max-width:1025px){
                 .container{
                     grid-template-columns: 0 40% 60%;
@@ -102,22 +116,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:inherit;
                 }
 
-            }
+                #msg-invoice,
+                #msg-mycarenet {
+                    width: 100vw;
+                }
 
+                ht-msg-list {
+                    transition: all .5s ease-out;
+                }
+
+                ht-msg-list.selected {
+                    height: calc(30vh - 24px);
+                    width: initial;
+                }
+
+                ht-msg-detail {
+                    padding: 0 16px;
+                    z-index: 2;
+                    width: 100vw;
+                    height: calc(70vh - 32px);
+                    bottom: 0;
+                    position: fixed;
+                    transform: translateY(100vh);
+                    opacity: 0;
+                    display: flex;
+                    flex-direction: column;
+                    box-sizing: border-box;
+                }
+                ht-msg-detail.selected {
+                    transform: none;
+                    opacity: 1;
+                }
+            }
         </style>
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                          on-selection-change="handleMenuChange" on-new-msg="_newMsg"></ht-msg-menu>
-            <template is="dom-if" if="[[!invoicesLayout]]">
+            <template is="dom-if" if="[[otherLayout]]">
                 <div class="sub-container">
                     <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                  user="[[user]]"
                                  select-list="[[selectList]]"
-                                 on-selection-messages-change="handleMessageChange"></ht-msg-list>
+                                 on-selection-messages-change="handleMessageChange"
+                                 class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
+                                   class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -128,6 +174,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  invoices-status="[[invoicesStatus]]"
                                  on-selection-messages-change="handleMessageChange"
                                  on-initialize-batch-counter="callInitializeBatchCounter"></ht-msg-invoice>
+            </template>
+
+            <template is="dom-if" if="[[mycarenetLayout]]">
+                <ht-msg-mycarenet id="msg-mycarenet" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                                  user="[[user]]"
+                                  select-list="[[selectList]]">
+
+                </ht-msg-mycarenet>
             </template>
 
         </div>
@@ -145,13 +199,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             static get properties() {
                 return {
                     api: {
-                        type: Object
+                        type: Object,
+                        noReset: true
                     },
                     user: {
-                        type: Object
+                        type: Object,
+                        noReset: true
                     },
 					credentials:{
-						type: Object
+						type: Object,
+                        noReset: true
 					},
                     selectList: {
                         type: Object
@@ -163,29 +220,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     invoicesStatus:{
                         type: String,
                         value: null
+                    },
+                    mycarenetLayout:{
+                        type: Boolean,
+                        value : false
+                    },
+                    otherLayout:{
+                        type: Boolean,
+                        value : false
                     }
 
-            }
+                }
             }
 
             constructor() {
                 super()
             }
 
+            reset() {
+                const props = HtMsg.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+            }
+
             ready() {
                 super.ready()
+            }
+
+            _selectedElem(e) {
+                return (e) ? 'selected' : ''
             }
 
             handleMenuChange(e) {
                 if (e.detail && e.detail.selection.item === 'e_invOut') {
                     this.set('invoicesLayout', true)
+                    this.set('mycarenetLayout',false)
+                    this.set('otherLayout',false)
                     this.set('invoicesStatus', e.detail.selection.status)
                     setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
 
-                } else {
+                } else if (e.detail && e.detail.selection.item === 'mycarenet') {
+                    this.set('mycarenetLayout',true)
                     this.set('invoicesLayout', false)
+                    this.set('otherLayout',false)
+                    setTimeout(() => this.shadowRoot.querySelector("#msg-mycarenet").refresh(),0)
+                }else{
+                    this.set('invoicesLayout', false)
+                    this.set('mycarenetLayout',false)
+                    this.set('otherLayout',true)
                 }
                 this.set('selectList', e.detail)
+                this._closeColumn(e)
             }
 
             handleMessageChange(e) {

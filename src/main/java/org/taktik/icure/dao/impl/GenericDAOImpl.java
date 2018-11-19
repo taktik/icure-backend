@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -197,7 +198,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	protected T save(Boolean newEntity, T entity) {
 		if (entity != null) {
 			if (log.isDebugEnabled()) {
-				log.debug(entityClass.getSimpleName() + ".save: " + entity);
+				log.debug(entityClass.getSimpleName() + ".save: " + entity.getId() + ":" + entity.getRev());
 			}
 
 			// Before save
@@ -402,7 +403,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
 		if (entities != null) {
 			if (log.isDebugEnabled()) {
-				log.debug(entityClass.getSimpleName() + ".save: " + entities);
+				log.debug(entityClass.getSimpleName() + ".save: " + entities.stream().filter(Objects::nonNull).map(entity->entity.getId() + ":" + entity.getRev()).collect(Collectors.joining(",")));
 			}
 
 			List<T> updatedEntities = new ArrayList<>();

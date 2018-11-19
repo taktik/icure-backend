@@ -15,6 +15,7 @@
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../dynamic-form/dynamic-link.html">
@@ -43,6 +44,11 @@
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
                 justify-self: flex-end;
+            }
+            #dialog .dmg-cons paper-button.action[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
             }
 
             #dialog .dmg-cons .buttons {
@@ -136,14 +142,34 @@
             paper-tab.iron-selected > iron-icon {
                 color: var(--app-secondary-color);
             }
+
+            .tab-selector {
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
+            .end-buttons {
+                position: absolute;
+                right: 15px;
+                bottom: 15px;
+                margin: 0;
+                padding: 0;
+            }
+            .modal-button--save {
+                background: var(--app-secondary-color);
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+            }
+            paper-spinner {
+                position: relative;
+                top: 10px;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('e_dmg','e-Dmg',language)]]</h2>
-            <paper-tabs selected="{{tabs}}" >
+            <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
-                <paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>
+                <!--<paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>-->
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -151,7 +177,8 @@
                         <div>
                             <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
-                            <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
+                            <paper-button class="action" on-tap="_consultDmg" disabled="[[isLoading]]">[[localize('refresh','Refresh',language)]]</paper-button>
+                            <paper-spinner active="[[isLoading]]"></paper-spinner>
                         </div>
                         <!-- Show consultation result/errors -->
                         <div class="edmg-info">
@@ -200,17 +227,19 @@
                 <page>
                     <div class="dmg-cons"> <!-- Notification input -->
                         <div class="edmg-info">
-                            <template is="dom-if" if="[[!allEDmgregistered]]">
+                            <template is="dom-if" if="[[!_enableNotification(allEDmgregistered, asSupervisor)]]">
                                 <p>[[localize('dmg_reg_incpl','e-Dmg registration not yet completed',language)]]</p>
                             </template>
                             <!--<template is="dom-if" if="{{_eDmgRegComplete()}}">-->
                                 <!--<p>localize('dmg_reg_cpl','e-Dmg registration completed',language)</p>-->
                             <!--</template>-->
                         </div>
-                        <template is="dom-if" if="[[allEDmgregistered]]">
+                        <template is="dom-if" if="[[_enableNotification(allEDmgregistered, asSupervisor)]]">
                         <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                        <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
+                            <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
+                            <paper-button class="action" on-tap="_dmgNotify" disabled="[[isLoading]]">[[localize('dmg_not','Notify',language)]]</paper-button>
+                            <paper-spinner active="[[isLoading]]"></paper-spinner>
 
                             <template is="dom-if" if="{{notifyDmgResp}}">
                                 <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
@@ -233,25 +262,13 @@
                         </template>
                     </div>
                 </page>
-                <page>
-                    <p>Experimental</p>
-                    <vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                    <paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>
-                    <paper-button class="action" on-tap="_dmgListRequest">[[localize('dmg_lst','Get List',language)]]</paper-button>
-                </page>
             </iron-pages>
-            <div class="buttons">
+            <div class="end-buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
-            </div>
-            <!--<div class="buttons">-->
-            <!--<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>-->
-            <!--<paper-button class="modal-button&#45;&#45;save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>-->
-            <!--</div>-->
         </paper-dialog>
     </template>
     <script>
-        import * as models from 'icc-api/dist/icc-api/model/models';
 
         class HtPatEdmgDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
@@ -278,6 +295,10 @@
                     user: {
                         type: Object,
                         value: null
+                    },
+                    userHcp: {
+                        type:Object,
+                        value: {"supervisorId" : null}
                     },
                     language: {
                         type: String
@@ -391,6 +412,10 @@
                         type: Boolean,
                         value: false
                     },
+                    asSupervisor:{
+                      type: Boolean,
+                      value: false
+                    },
                     currentRegs:{
                         type: Object,
                         value : null
@@ -417,13 +442,17 @@
                     },
                     getListResp:{
                         type: Object,
-                        vale: null
+                        value: null
+                    },
+                    isLoading:{
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)'];
+                return ['apiReady(api,user,opened)', 'hcpSupervisorChanged(userHcp.supervisorId)'];
             }
 
             ready() {
@@ -569,6 +598,10 @@
                 return regs;
             }
 
+            _enableNotification(allReg, superv){
+                return allReg || superv;
+            }
+
             _eDmgRegComplete(){
                 return this.allEDmgregistered;
             }
@@ -606,22 +639,35 @@
             getDmgNotifyResult(){
                 const requestDate = Date.parse(this.encounterDate);
                 if (this.api.tokenId) {
+                    this.set('isLoading',true)
                     //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
                     if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp => {
-                                    return this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
-                                        this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
-                                        this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
-                                        this.patient.firstName, this.patient.lastName,
-                                        this.getGender(this.patient.ssin),
-                                        requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
+                                    return (this.asSupervisor && hcp.supervisorId ?
+                                        this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                            this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
+                                                this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
+                                                this.patient.firstName, this.patient.lastName,
+                                                this.getGender(this.patient.ssin),
+                                                requestDate, sup.ssin, sup.nihii, sup.firstName, sup.lastName))
+                                        :
+                                        this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
+                                            this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
+                                            this.patient.firstName, this.patient.lastName,
+                                            this.getGender(this.patient.ssin),
+                                            requestDate)).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id, "DMG", "notify"))
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {
+                                        this.set('isLoading',false)
                                         return edmgResp;
                                     } else {
+                                        this.set('isLoading',false)
                                         return null;
                                     }
                                 }
@@ -640,12 +686,14 @@
                                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                             null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
                                             (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
-                                            requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
+                                            requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id, "DMG", "notify"))
                                     }
                                 ).then(edmgResp => {
                                         if (edmgResp) {
+                                            this.set('isLoading',false)
                                             return edmgResp;
                                         } else {
+                                            this.set('isLoading',false)
                                             return null;
                                         }
                                     }
@@ -653,106 +701,43 @@
                         });
                     }
                 } else {
+                    this.set('isLoading',false)
                     return Promise.resolve(null)
                 }
 
             }
+
+
 
             _consultDmg(){
-                //consultDmgResp
-                this.getDmgConsult().then(edmgResp => this.set('consultDmgResp', edmgResp));
+                if (!this.api.tokenId || this.isLoading) return;
+                this.set('isLoading', true);
+                this.api.getUpdatedEdmgStatus(
+                    this.user,
+                    this.patient,
+                    Date.parse(this.consultStart),
+                    this.edmgNiss,
+                    this.edmgOA,
+                    this.genInsOA,
+                    this.genInsAFF                    ,
+                    true    // Bypass cache, force hit on fhc().Dmgcontroller().consultDmgUsingGET()
+                ).then(edmgResp => {
+                    this.set('isLoading',false)
+                    this.set('consultDmgResp', edmgResp);
+                });
             }
 
-            getDmgConsult(){
-                const requestDate = Date.parse(this.consultStart);
 
-//.consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-//consultDmgUsingGET(xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
-// hcpNihii: string, hcpSsin: string, hcpFirstName: string, hcpLastName: string,
-// patientSsin?: string, patientGender?: string, oa?: string,
-// regNrWithMut?: string, requestDate?: number)
-                if (this.api.tokenId) {
-                    //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
-                    if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
-                        return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                            .then(hcp => {
-                                    return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
-                                        this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                        this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null, null,
-                                        requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
-                                }
-                            ).then(edmgResp => {
-                                    if (edmgResp) {
-                                        return edmgResp;
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            )
-                    }else{
-                        //return Promise.resolve(null)
-                        //there is no niss
-                        let oa = this.genInsOA;
-                        let aff = this.genInsAFF;
-                        const pi = this.patient.insurabilities && _.assign({}, this.patient.insurabilities[0] || {});
-                        this.api.insurance().getInsurance(pi.insuranceId).then(insu => {
-                            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                                .then(hcp => {
-                                        return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
-                                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                            null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
-                                            (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
-                                            requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
-                                    }
-                                ).then(edmgResp => {
-                                        if (edmgResp) {
-                                            return edmgResp;
-                                        } else {
-                                            return null;
-                                        }
-                                    }
-                                )
-                        });
-                    }
-                } else {
-                    return Promise.resolve(null)
+            hcpSupervisorChanged(supervisorId){
+                if(supervisorId && supervisorId !== '') {
+                    this.set('asSupervisor', true);
+                }
+                else
+                {
+                    this.set('asSupervisor', false);
                 }
             }
 
-            _dmgListRequest(){
-                this.getDmgListRequest().then(edmgResp => this.set('getListResp', edmgResp));
-            }
-
-            //postDmgsListRequestUsingPOST(
-            // keystoreId: string, tokenId: string, passPhrase: string,
-            // hcpNihii: string, hcpSsin: string, hcpFirstName: string, hcpLastName: string,
-            // oa?: string, requestDate?: number)
-            getDmgListRequest(){
-                const requestDate = Date.parse(this.listRequestDate);
-                if (this.api.tokenId) {
-                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                        .then(hcp => {
-                                return this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(
-                                    this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                    this.listIO,
-                                    requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.user.id))
-                            }
-                        ).then(edmgResp => {
-                                if (edmgResp) {
-                                    return edmgResp;
-                                } else {
-                                    return null;
-                                }
-                            }
-                        )
-                }
-                else {
-                    return Promise.resolve(null);
-                }
-            }
 
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
@@ -770,6 +755,9 @@
 
 
             open() {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    this.set('userHcp', hcp);
+                })
                 this.set('edmgNiss', null);
                 this.set('edmgOA', null);
                 this.set('edmgAFF', null);

@@ -65,6 +65,7 @@ public class PatientDto extends IcureDto {
     protected String education;
     protected String profession;
     protected String note;
+    protected String administrativeNote;
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
@@ -441,4 +442,12 @@ public class PatientDto extends IcureDto {
 			return false;
 		return true;
 	}
+
+    public String getAdministrativeNote() {
+        return administrativeNote;
+    }
+
+    public void setAdministrativeNote(String administrativeNote) {
+        this.administrativeNote = administrativeNote;
+    }
 }

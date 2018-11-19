@@ -241,23 +241,22 @@ public class InvoicingCodeDto implements Serializable {
         this.timeOfDay = timeOfDay;
     }
 
-    public Integer getOverride3rdPayerCode() {
-        return override3rdPayerCode;
-    }
+	public Integer getOverride3rdPayerCode() {
+		return override3rdPayerCode;
+	}
 
-    public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
-        this.override3rdPayerCode = override3rdPayerCode;
-    }
+	public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
+		this.override3rdPayerCode = override3rdPayerCode;
+	}
 
-    public String getOverride3rdPayerReason() {
+	public String getOverride3rdPayerReason() {
         return override3rdPayerReason;
     }
 
     public void setOverride3rdPayerReason(String override3rdPayerReason) {
         this.override3rdPayerReason = override3rdPayerReason;
     }
-
-
+    
     public Integer getPrescriberNorm() {
         return prescriberNorm;
     }

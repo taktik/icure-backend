@@ -102,6 +102,8 @@
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
+
+            this.hcpartyiccLight = new api.iccHcpartyApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
@@ -112,8 +114,8 @@
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
-            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
-            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc)
+            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
@@ -239,6 +241,10 @@
             return this.hcpartyicc
         }
 
+        hcpartyLight() {
+            return this.hcpartyiccLight
+        }
+
         helement() {
             return this.helementicc
         }
@@ -265,6 +271,10 @@
 
         replication() {
             return this.replicationicc
+        }
+
+        receipt() {
+            return this.receipticc
         }
 
         tarification() {
@@ -360,7 +370,7 @@
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id))))
+                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))))
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
@@ -371,21 +381,52 @@
             this.registry[domain] = {listeners:[], entities:{}}
         }
 
-        register(entity, domain) {
-            if (!entity) { return entity }
+        getRegistry(domain) {
+            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+        }
 
-            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}})
+        /**
+         * returns a Promise that will resolve when the current tail of the promise chain for this object resolves or that resolves immediately if the current chain is empty
+         *
+         * The promise resolves with two args in an array. The one that has been passed to the resolve and the next promise to resolve in order to make the queue advance
+         *
+         * @param entity
+         * @param domain
+         * @returns {*}
+         */
+        queue(entity, domain) {
+            if (!entity || !entity.id) { return Promise.resolve([entity, undefined]) }
+            const reg = this.getRegistry(domain)
+
+            let res = null
+            const defer = new Promise((resolve) => { res = resolve })
+            defer.resolve = res
+
+            const thisPromise = reg.queues[entity.id]
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
+            reg.queues[entity.id] = defer
+
+            return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
+        }
+
+        register(entity, domain, defer) {
+            if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
+
+            const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
-            if (current) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
                 reg.listeners.forEach(l=>{
                     if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
                 })
-            } else {
+            } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
+
+            defer && defer.resolve(current)
+
             return current
         }
 
@@ -394,16 +435,13 @@
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
                 credentials: "same-origin", // include, same-origin, *omit
-                headers: { "Content-Type": "text/html; charset=utf-8", },
+                headers: {"Content-Type": "text/html; charset=utf-8",},
                 redirect: "follow",
                 body: html,
             }).then(response => response.arrayBuffer())
         }
 
-
-
         loadBicData() {
-
             // Already existing, take no action
             if( typeof this.bicsData !== 'undefined' ) return;
 
@@ -411,10 +449,7 @@
             this.bicsData = require('../bic/bics-list.json') || {};
         }
 
-
-
         getBicByIban( inputString ){
-
             // Get from json file -> casted in this.bicsData
             this.loadBicData();
 
@@ -432,14 +467,91 @@
 
             // Up with results, if any
             return foundResult.length ? foundResult[0].bicCode : '';
-
         }
 
-        logMcn(obj, user, docId) {
-            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+        logMcn(obj, user, docId, cat, subcat) {
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
+        getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
+            if(!user||!patient) return Promise.resolve(null);
+
+            // Everything that isn't today
+            this.flushObsoleteEdmgStatusCache();
+
+            const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus.' + moment().format('YYYYMMDD') + '.' + user.healthcarePartyId + '.' + patient.ssin;
+
+            // Try to get data from cache
+            const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
+            if( cachedEdmgResp && !byPassCache ) { return Promise.resolve(JSON.parse(cachedEdmgResp)); }
+
+            if(((edmgNiss && edmgNiss !=='') || (patient.ssin && patient.ssin !== '')) && !(edmgOA && edmgOA !=='')){
+                return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                    .then(hcp => {
+                        return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                            this.keystoreId,
+                            this.tokenId,
+                            this.credentials.ehpassword,
+                            hcp.nihii,
+                            hcp.ssin,
+                            hcp.firstName,
+                            hcp.lastName,
+                            edmgNiss ? edmgNiss.trim() : patient.ssin,
+                            null,
+                            null,
+                            null,
+                            requestDate
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
+                    }).then(edmgResp => {
+                        localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                        return edmgResp||Promise.resolve(null);
+                    }).catch(() => { return Promise.resolve(null)});
+            }else{
+                //there is no niss
+                const pi = patient.insurabilities && _.assign({}, patient.insurabilities[0] || {});
+                this.insurance().getInsurance(pi.insuranceId).then(insu => {
+                    return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                                    this.keystoreId,
+                                    this.tokenId,
+                                    this.credentials.ehpassword,
+                                    hcp.nihii,
+                                    hcp.ssin,
+                                    hcp.firstName,
+                                    hcp.lastName,
+                                    null,
+                                    null,
+                                    (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
+                                    (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
+                                    requestDate
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
+                            }
+                        ).then(edmgResp => {
+                            localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                            return edmgResp||Promise.resolve(null);
+                        }).catch(() => { return Promise.resolve(null)});
+                    }).catch(() => { return Promise.resolve(null)});
+            }
+
+        }
+
+        flushObsoleteEdmgStatusCache() {
+
+            // Target what's for us
+            const patternToLookFor= 'org.taktik.icure.edmgStatus.';
+
+            // Loop and drop old ones
+            Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
+                // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
+                const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
+
+                // Drop if older than today
+                if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
+            });
+
+        }
     }
 
     customElements.define(IccApi.is, IccApi)
