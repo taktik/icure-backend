@@ -375,14 +375,14 @@
                     height: 37%;
                 }
 
-                .toBeCorrectedDetailContainerC{
+                .toBeCorrectedContainerDetail{
                     height: 50%;
                     opacity: 0;
                     transition: all .75s ease-out;
                     overflow-y: auto;
                 }
 
-                .toBeCorrectedDetailContainerC.open{
+                .toBeCorrectedContainerDetail.open{
                     opacity: 1;
                     width: 100%;
                     height: 37%;
@@ -1199,7 +1199,7 @@
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
                                     <h4 class="mb0">Contenu de la facture à corriger</h4>
                                     <h6>Erreur sur la facture: [[this.activeGridItem.invoice.error]]</h6>
-                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedDetailContainerC">
+                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedContainerDetail">
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">Date</template>
