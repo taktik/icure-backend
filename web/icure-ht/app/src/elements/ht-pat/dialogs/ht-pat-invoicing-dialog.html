@@ -49,13 +49,14 @@
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../../spinner-style.html">
+<link rel="import" href="../../../vaadin-icure-theme.html">
 
 <link rel="import" href="related-code-link.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
-        <style include="spinner-style">
+        <style include="spinner-style vaadin-icure-theme">
 
             paper-button[disabled] {
                 background-color: var(--app-secondary-color-dark);
@@ -177,7 +178,7 @@
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items: flex-start;
+                align-items: center;
             }
 
             .flex-container-nmcl {
@@ -215,7 +216,10 @@
             #invoice-number {
                 flex: 1;
                 margin: 0;
-                padding-top: 3px;
+                padding-top: 2px;
+                --paper-imput-container: {
+                    padding: 0!important;
+                };
                 --paper-input-container-underline: {
                     opacity: 0.42;
                 }
@@ -319,6 +323,7 @@
 
             #nmcl-search {
                 flex: 1;
+                padding: 0 8px 0 0;
             }
 
             .invoice-item {
@@ -1063,14 +1068,14 @@
 
 
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                     value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
-                            <div slot="suffix">
-                                <iron-icon icon="info" id="invoice-dmg-icon"
-                                           class="infoDmg"></iron-icon>
-                            </div>
-                        </paper-input>
-                        <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
-                    </div>
+                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]" always-float-label="true">
+                                <div slot="suffix">
+                                    <iron-icon icon="info" id="invoice-dmg-icon"
+                                               class="infoDmg"></iron-icon>
+                                </div>
+                            </paper-input>
+                            <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
+                        </div>
 
                 </div>
                 <div class="invoice-nomenclature-code">

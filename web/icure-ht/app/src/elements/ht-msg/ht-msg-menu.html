@@ -492,7 +492,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 overflow: hidden;
-                flex: 1;
             }
             /* .box-txt.force-ellipsis {
                 max-width: 60%;
@@ -507,6 +506,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             .inbox-line.one-line-menu {
                 width: 100%;
+				justify-content: space-between;
             }
 
             paper-spinner {
@@ -522,7 +522,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
-					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
+					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
@@ -535,7 +535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</collapse-button>
 			<collapse-button id="sentboxcollapse">
 				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
+                    <div class="one-line-menu list-title"><div><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span></div><template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">

@@ -240,10 +240,13 @@
                 .invoice-status {
                     border-radius: 20px;
                     padding: 1px 12px 1px 8px;
-                    width: auto;
                     font-size: 12px;
                     display: block;
-                    width: fit-content;
+                    width: auto;
+                    max-width: fit-content;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
                 }
 
                 .invoice-status--orangeStatus{
@@ -567,11 +570,15 @@
 
                 .batchNumber{
                     color: var(--app-text-color-light);
-                    border-radius: 10px;
+                    border-radius: 25px;
                     min-height: 0;
-                    display: block;
-                    padding: 0 4px;
                     margin-left: 8px;
+                    font-size: .6em;
+                    display: inline-block;
+                    padding: 4px 6px;
+                    line-height: 0.8;
+                    text-align: center;
+                    height: 10px;
                 }
                 .batchPending{background-color: var(--paper-orange-400);}
                 .batchToBeCorrected{background-color: var(--paper-red-400);}
