@@ -54,7 +54,7 @@ public class Invoice extends StoredICureDocument {
 	private String thirdPartyReference;
 
 	private String thirdPartyPaymentJustification;
-	protected String thirdPartyPaymentReason;
+	private String thirdPartyPaymentReason;
 
 	private InvoiceType invoiceType;
 	private MediumType sentMediumType;

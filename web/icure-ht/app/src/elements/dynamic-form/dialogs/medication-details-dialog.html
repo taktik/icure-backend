@@ -1,6 +1,7 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-button/vaadin-button.html">
 <link rel="import" href="../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
@@ -16,6 +17,8 @@
                 top: 50vh !important;
                 transform: translateY(-50%);
                 max-height: 75vh !important;
+                display: flex;
+                flex-direction: column;
             }
 
             #medication-detail .save-line {
@@ -43,10 +46,9 @@
             }
 
             .regimen-line paper-icon-button {
-                margin-left: 12px;
-                margin-bottom: 12px;
-                height: 20px;
-                width: 20px;
+                margin: 12px;
+                height: 24px;
+                width: 24px;
                 padding: 2px;
             }
 
@@ -60,6 +62,7 @@
                 flex-grow: 3;
                 margin: auto;
                 padding: 0 8px 0 8px;
+                width: 50%;
             }
 
             .regimen--quantity {
@@ -118,6 +121,11 @@
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
+            }
+
+            .modal-button--save:disabled {
+                background: var(--app-secondary-color-dark);
+                box-shadow: none;
             }
 
             .buttons {
@@ -184,8 +192,26 @@
                 white-space: nowrap;
             }
 
+            .regimen-details {
+                background: var(--app-background-color-dark);
+                border-bottom: 2px solid var(--app-background-color-darker);
+                border-radius: 4px;
+                padding: 4px;
+                margin-bottom: 4px;
+            }
+
             span.regimen-txt {
                 height: 36px;
+            }
+
+            .regimen-add {
+                justify-content: flex-end;
+                margin: 4px 0 8px 0;
+            }
+
+            .regimen--quantity {
+                text-align: right;
+                min-width: 104px;
             }
 
             .display-type-regimen {margin-top: 0;}
@@ -199,11 +225,137 @@
                 padding-right: 4px;
             }
 
+            .add-box {
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                padding: 8px;
+                background: white; /*var(--app-background-color-dark);*/
+                border-radius: 4px;
+                box-shadow: var(--app-shadow-elevation-1);
+                transform: translateY(8px);
+                z-index: 1;
+            }
+            .add-box h2 {
+                text-align: center;
+            }
+            .add-box .one-line {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+            }
+            .add-box .one-line > * {
+                flex: 1;
+            }
+            .add-btn {
+                min-width: 216px;
+            }
+
+            .regimen-add .one-line {
+                display: flex;
+            }
+            .regimen-add .one-line.fields { flex:1; }
+
+            .add-first-regimen {
+                width: 216px;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+            .regimen-line .add-first-regimen {
+                margin: initial;
+            }
+            .add-first-regimen .modal-button--save {
+                display: flex;
+                justify-content: flex-end;
+                box-sizing: border-box;
+                border-radius: 2px;
+            }
+            .add-first-regimen .modal-button--save span {
+                padding: 8px;
+            }
+            .add-first-regimen .modal-button--save span:first-child {
+                flex: 1;
+                text-align: center;
+            }
+            .add-first-regimen .modal-button--save span:last-child {
+                padding-left: 8px;
+            }
+            .add-first-regimen .modal-button--save span:last-child:before {
+                content: "";
+                width: 1px;
+                height: 100%;
+                background: var(--app-secondary-color-dark);
+                position: relative;
+                float: left;
+                right: 8px;
+            }
+
+            .add-first-regimen .btn-drpdwn-container {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                position: absolute;
+                background: white;
+                z-index: 10;
+                width: 216px;
+            }
+            
+            .add-first-regimen .btn-drpdwn-container paper-item  {
+                text-transform: capitalize;
+            }
+            .add-first-regimen .btn-drpdwn-container paper-item:hover  {
+                background: var(--app-background-color-dark);
+            }
+
+            @media screen and (max-width: 768px) {
+                .display-type-regimen {
+                    flex-direction: column;
+                }
+                .display-type-regimen > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                .display-type-regimen .one-line {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                }
+                .display-type-regimen .one-line > * {
+                    flex: 1;
+                }
+
+                .regimen-add {
+                    flex-direction: column;
+                    height: auto;
+                }
+                .regimen-add > * {
+                    width: 100%;
+                }
+                .regimen-add .add-first-regimen .btn-drpdwn-container {
+                    width: 100%;
+                }
+
+                .regimen-add .one-line {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                }
+                .regimen-add .one-line > * {
+                    flex: 1;
+                }
+            }
         </style>
 
         <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
+            <paper-tabs selected="{{selectedTab}}">
+                <paper-tab>
+                    <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>Lignes
+                </paper-tab>
+                <paper-tab>
+                    <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>Tableau
+                </paper-tab>
+            </paper-tabs>
+
 
             <div class="regimen-line display-type-regimen">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
@@ -219,10 +371,12 @@
                                  disabled="true"></paper-input>
                 </template>
 
-                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
-                                    class="regimen--datepicker"></vaadin-date-picker>
-                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
-                                    class="regimen--datepicker"></vaadin-date-picker>
+                <div class="one-line">
+                    <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
+                                        class="regimen--datepicker"></vaadin-date-picker>
+                    <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
+                                        class="regimen--datepicker"></vaadin-date-picker>
+                </div>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
@@ -231,268 +385,250 @@
                         <paper-item id="high">[[localize('high','High',language)]]</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
-                <span class="regimen-txt">Display by</span>
-                <paper-tabs selected="{{selectedTab}}">
-                    <paper-tab>
-                        <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>Lignes
-                    </paper-tab>
-                    <paper-tab>
-                        <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>Tableau
-                    </paper-tab>
-                </paper-tabs>
             </div>
-
-            <div class="containTabs">
-                <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                    <h4>[[localize('prefill','Préremplir les détails',language)]]</h4>
-                    <div class="regimen-line">
-                        <paper-input label="" id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_selectTakeQuantity">
-                            <div slot="suffix">prises</div>
-                        </paper-input>
-                        <paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]" class="regimen--frequency">
-                            <paper-listbox slot="dropdown-content" selected="[[bufferGeneralFrequency]]" on-iron-select="_selectFrequency">
-                                <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                                <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                                <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-                        <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" on-change="_selectUnitQuantity"
-                                     min="0"></paper-input>
-                        <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units" on-change="_selectUnits"></paper-input>
-                    </div>
-                    <h4>[[localize('med_det','Détails',language)]]</h4>
-                    <div id="lineDomMap">
-                        <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
-                            <div class="regimen-line regimen-details">
-                                <!--<paper-dropdown-menu label="Frequency" class="regimen&#45;&#45;frequency">-->
-                                <!--<paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-tap="_setFrequencyList">-->
-                                <!--<paper-item id="daily" on-tap="_setFrequencyList">[[localize('dai','Daily',language)]]</paper-item>-->
-                                <!--<paper-item id="weekly" on-tap="_setFrequencyList">[[localize('wee','Weekly',language)]]</paper-item>-->
-                                <!--<paper-item id="monthly" on-tap="_setFrequencyList">[[localize('mon','Monthly',language)]]</paper-item>-->
-                                <!--</paper-listbox>-->
-                                <!--</paper-dropdown-menu>-->
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'daily')]]">
-                                    <paper-dropdown-menu label="Time of day" class="regimen--tod" id="{{rg.dayPeriod.code}}">
-                                        <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-iron-select="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
-                                            <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-                                            <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-                                            <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-                                            <paper-item id="morning">[[_localize("Morning")]]</paper-item>
-                                            <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-                                            <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
-                                            <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-                                            <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-                                            <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-                                            <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-                                            <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-                                            <paper-item id="evening">[[_localize("Evening")]]</paper-item>
-                                            <paper-item id="night">[[_localize("Night")]]</paper-item>
-                                            <hr>
-                                            <paper-item>[[_localize("Precise hour")]]</paper-item>
-                                        </paper-listbox>
-                                        <div class="hidden">[[rg.dayPeriod.code]]</div>
-                                    </paper-dropdown-menu>
-                                    <paper-input id="{{rg.administratedQuantity.quantity}}" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
-                                                 class="regimen--quantity" min="0" on-change="_selectSingleQuantity"></paper-input>
-                                    <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"-->
-                                    <span class="regimen-txt">[[bufferUnit]]</span>
-                                </template>
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'weekly')]]">
-                                    <paper-dropdown-menu id="[[rg.weekPeriod.code]]" label="Day of week" class="regimen--tod">
-                                        <paper-listbox slot="dropdown-content" selected="{{rg.weekPeriod.code}}" attr-for-selected="id" on-iron-select="_selectWeekPeriod">
-                                            <paper-item id="mon">Monday</paper-item>
-                                            <paper-item id="tue">Tuesday</paper-item>
-                                            <paper-item id="wed">Wednesday</paper-item>
-                                            <paper-item id="thu">Thursday</paper-item>
-                                            <paper-item id="fri">Friday</paper-item>
-                                            <paper-item id="sat">Saturday</paper-item>
-                                            <paper-item id="sun">Sunday</paper-item>
-                                        </paper-listbox>
-                                    </paper-dropdown-menu>
-                                    <paper-input id="[[rg.administratedQuantity.quantity]]" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
-                                                 class="regimen--quantity" min="0" on-change="_selectSingleQuantity"></paper-input>
-                                    <span class="regimen-txt">[[bufferUnit]]</span>
-                                </template>
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'monthly')]]">
-                                    <!--<template is="dom-if" if="[[!rg.date]]">-->
-                                    <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
-                                    <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
-                                    <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
-                                    <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
-                                    <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
-                                    <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
-                                    <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
-                                    <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
-                                    <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
-                                    <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
-                                    <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
-                                    <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
-                                    <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
-                                    <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
-                                    <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
-                                    <!--<hr>-->
-                                    <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
-                                    <!--</paper-listbox>-->
-                                    <!--</paper-dropdown-menu>-->
-                                    <!--</template>-->
-                                    Mois ???
-                                </template>
-                                <!--<template is="dom-if" if="[[!rg.weekday]]">-->
-                                <!--<template is="dom-if" if="[[rg.date]]">-->
-                                <!--</template>-->
-                                <!--<template is="dom-if" if="[[!rg.date]]">-->
-                                <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
-                                <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
-                                <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
-                                <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
-                                <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
-                                <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
-                                <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
-                                <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
-                                <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
-                                <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
-                                <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
-                                <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
-                                <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
-                                <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
-                                <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
-                                <!--<hr>-->
-                                <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
-                                <!--</paper-listbox>-->
-                                <!--</paper-dropdown-menu>-->
-                                <!--</template>-->
-                                <!--</template>-->
-                                <paper-icon-button icon="clear" on-tap="_clearPosologyRegimen"></paper-icon-button>
+            <template is="dom-if" if="[[bufferTable.length]]">
+                <div class="regimen-line regimen-add">
+                    <div class="add-first-regimen">
+                        <div class="modal-button--save add-btn">
+                            <span on-tap="_confirmRegimenAdd">[[localize('add_pos_reg','Add posology regimen',language)]]</span>
+                            <span on-tap="_toggleDpdwn"><iron-icon icon="menu"></iron-icon></span>
+                        </div>
+                        <template is="dom-if" if="[[dpdwn]]">
+                            <div class="btn-drpdwn-container">
+                                <paper-item id="daily" on-tap="_confirmRegimenAdd" data-item="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                <paper-item id="weekly" on-tap="_confirmRegimenAdd" data-item="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                <paper-item id="monthly" on-tap="_confirmRegimenAdd" data-item="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                             </div>
                         </template>
                     </div>
-                    <template is="dom-if" if="[[rg.date]]">
-                        <paper-button class="posology-btn" on-tap="_addPosologyRegimen">
-                            [[localize('add_pos_reg','Add posology regimen',language)]]
-                            <iron-icon icon="add"></iron-icon>
-                        </paper-button>
-                    </template>
-                    <paper-button class="posology-btn" on-tap="_addPosologyRegimen">
-                        [[localize('add_pos_reg','Add posology regimen',language)]]
-                        <iron-icon icon="add"></iron-icon>
-                    </paper-button>
-                </template>
-
-                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
-                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'daily')]]">
-                        <vaadin-grid id="selectedMedicationTable">
-                            <vaadin-grid-column>
-                                <template class="header">Daily</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="160px">
-                                <template class="header">Prescr</template>
-                                <template><div>[[selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit]]</div></template>
-                            </vaadin-grid-column>
-
-                            <vaadin-grid-column-group class="med-det-moment">
-                                <template class="header">Morning</template>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">Before</template>
-                                    <template>1</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">During</template>
-                                    <template>2</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">After</template>
-                                    <template>3</template>
-                                </vaadin-grid-column>
-                            </vaadin-grid-column-group>
-
-                            <vaadin-grid-column-group class="med-det-moment">
-                                <template class="header">Midday</template>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">Before</template>
-                                    <template>1</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">During</template>
-                                    <template>2</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">After</template>
-                                    <template>3</template>
-                                </vaadin-grid-column>
-                            </vaadin-grid-column-group>
-
-                            <vaadin-grid-column-group>
-                                <template class="header">Evening</template>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">Before</template>
-                                    <template>1</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">During</template>
-                                    <template>2</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header">After</template>
-                                    <template>3</template>
-                                </vaadin-grid-column>
-                            </vaadin-grid-column-group>
-
-                            <vaadin-grid-column flex-grow="0" width="200px">
-                                <template class="header">Comments</template>
-                                <template><div>this is a single column</div></template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </template>
-                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'weekly')]]">
-                        <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Weekly</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Mon</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Tue</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Wed</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Thu</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Fri</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Sat</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
-                                <template class="header">Sun</template>
-                                <template>1</template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </template>
-                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'monthly')]]">
-                        <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
-                            <vaadin-grid-column flex-grow="0" width="100%">
-                                <template class="header">Monthly</template>
-                                <template>Calendar</template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </template>
-
-                    <!--<paper-button class="posology-btn" on-tap="_addPosologyRegimen">-->
-                    <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
-                    <!--<iron-icon icon="add"></iron-icon>-->
+                    <!--<template is="dom-if" if="[[!displayAddRegimen]]">-->
+                    <!--<paper-button on-tap="_openRegimenAdd" class="add-btn">-->
+                        <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
+                        <!--<iron-icon icon="add"></iron-icon>-->
                     <!--</paper-button>-->
+                    <!--</template>-->
+                    <!--<template is="dom-if" if="[[displayAddRegimen]]">-->
+                        <!--<div class="one-line fields">-->
+                            <!--<paper-input id="takeQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferNumberByFrequency}}" type="number" class="regimen&#45;&#45;quantity"-->
+                                         <!--min="0" class="regimen&#45;&#45;quantity" on-change="_selectTakeQuantity">-->
+                                <!--<div slot="suffix">X</div>-->
+                            <!--</paper-input>-->
+                            <!--<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen&#45;&#45;units"></paper-input>-->
+                            <!--<paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]"-->
+                                                 <!--class="regimen&#45;&#45;frequency">-->
+                                <!--<paper-listbox slot="dropdown-content" selected="0" on-iron-select="_selectFrequency">-->
+                                    <!--<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>-->
+                                    <!--<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>-->
+                                    <!--<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>-->
+                                <!--</paper-listbox>-->
+                            <!--</paper-dropdown-menu>-->
+                        <!--</div>-->
+                        <!--<div class="one-line">-->
+                            <!--<paper-button on-tap="_closeRegimenAdd">-->
+                                <!--[[localize('can','Cancel',language)]] <iron-icon icon="clear"></iron-icon>-->
+                            <!--</paper-button>-->
+                            <!--<paper-button class="modal-button&#45;&#45;save add-btn" on-tap="_confirmRegimenAdd">-->
+                                <!--[[localize('add','Add',language)]] <iron-icon icon="done"></iron-icon>-->
+                            <!--</paper-button>-->
+                        <!--</div>-->
+                    <!--</template>-->
+                </div>
+            </template>
+
+            <div class="containTabs">
+                <template is="dom-if" if="[[!bufferTable.length]]">
+                        <div class="add-first-regimen">
+                            <div class="modal-button--save add-btn">
+                                <span on-tap="_confirmRegimenAdd">[[localize('add_pos_reg','Add posology regimen',language)]]</span>
+                                <span on-tap="_toggleDpdwn"><iron-icon icon="menu"></iron-icon></span>
+                            </div>
+                            <template is="dom-if" if="[[dpdwn]]">
+                                <div class="btn-drpdwn-container">
+                                    <paper-item id="daily" on-tap="_confirmRegimenAdd" data-item="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                    <paper-item id="weekly" on-tap="_confirmRegimenAdd" data-item="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                    <paper-item id="monthly" on-tap="_confirmRegimenAdd" data-item="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                                </div>
+                            </template>
+                        </div>
+                </template>
+                <template is="dom-if" if="[[bufferTable.length]]">
+                    <h4>Prescriptions</h4>
+                    <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
+                        <div id="lineDomMap">
+                            <template id="rgRepeat" is="dom-repeat" items="[[bufferTable]]" as="rg">
+                                <div class="regimen-line regimen-details">
+                                    <template is="dom-if" if="[[_isEqual(rg.frequency,'daily')]]">
+                                        <paper-input id="{{rg.administratedQuantity.quantity}}" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                                     class="regimen--quantity" min="0" on-change="_selectSingleQuantity">
+                                            <div slot="suffix">X</div>
+                                        </paper-input>
+                                        <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"></paper-input>
+                                        <paper-dropdown-menu label="Time of day" class="regimen--tod" id="{{rg.administratedQuantity.time}}">
+                                            <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.administratedQuantity.time}}" attr-for-selected="id" on-iron-select="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
+                                                <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+                                                <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+                                                <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+                                                <paper-item id="morning">[[_localize("Morning")]]</paper-item>
+                                                <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+                                                <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
+                                                <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+                                                <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+                                                <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+                                                <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+                                                <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+                                                <paper-item id="evening">[[_localize("Evening")]]</paper-item>
+                                                <paper-item id="night">[[_localize("Night")]]</paper-item>
+                                                <hr>
+                                                <paper-item>[[_localize("Precise hour")]]</paper-item>
+                                            </paper-listbox>
+                                            <div class="hidden">[[rg.dayPeriod.code]]</div>
+                                        </paper-dropdown-menu>
+                                    </template>
+                                    <template is="dom-if" if="[[_isEqual(rg.frequency,'weekly')]]">
+                                        <paper-input id="[[rg.administratedQuantity.quantity]]" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                                     class="regimen--quantity" min="0" on-change="_selectSingleQuantity">
+                                            <div slot="suffix">X</div>
+                                        </paper-input>
+                                        <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"></paper-input>
+                                        <paper-dropdown-menu id="[[rg.administratedQuantity.time]]" label="Day of week" class="regimen--tod">
+                                            <paper-listbox slot="dropdown-content" selected="{{rg.administratedQuantity.time}}" attr-for-selected="id" on-iron-select="_selectWeekPeriod">
+                                                <paper-item id="mon">Monday</paper-item>
+                                                <paper-item id="tue">Tuesday</paper-item>
+                                                <paper-item id="wed">Wednesday</paper-item>
+                                                <paper-item id="thu">Thursday</paper-item>
+                                                <paper-item id="fri">Friday</paper-item>
+                                                <paper-item id="sat">Saturday</paper-item>
+                                                <paper-item id="sun">Sunday</paper-item>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </template>
+                                    <template is="dom-if" if="[[_isEqual(rg.frequency,'monthly')]]">
+                                        <paper-input id="[[rg.administratedQuantity.quantity]]" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                                     class="regimen--quantity" min="0" on-change="_selectSingleQuantity">
+                                            <div slot="suffix">X</div>
+                                        </paper-input>
+                                        <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"></paper-input>
+                                        <vaadin-date-picker id="beginMoment" label="[[localize('date', 'Date', language)]]" value="{{rg.administratedQuantity.time}}"
+                                                            class="regimen--tod"></vaadin-date-picker>
+                                    </template>
+                                    <paper-icon-button icon="clear" on-tap="_clearPosologyRegimen"></paper-icon-button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                        <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqquency,'daily')]]">
+                            <vaadin-grid id="selectedMedicationTable" items="[[bufferTable]]">
+                                <vaadin-grid-column flex-grow="0" width="160px">
+                                    <template class="header">Prescr</template>
+                                    <template><div>[[selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit]]</div></template>
+                                </vaadin-grid-column>
+
+                                <vaadin-grid-column-group class="med-det-moment">
+                                    <template class="header">Morning</template>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">Before</template>
+                                        <template>1</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">During</template>
+                                        <template>2</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">After</template>
+                                        <template>3</template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid-column-group>
+
+                                <vaadin-grid-column-group class="med-det-moment">
+                                    <template class="header">Midday</template>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">Before</template>
+                                        <template>1</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">During</template>
+                                        <template>2</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">After</template>
+                                        <template>3</template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid-column-group>
+
+                                <vaadin-grid-column-group>
+                                    <template class="header">Evening</template>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">Before</template>
+                                        <template>1</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">During</template>
+                                        <template>2</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">After</template>
+                                        <template>3</template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid-column-group>
+
+                                <vaadin-grid-column flex-grow="0" width="200px">
+                                    <template class="header">Comments</template>
+                                    <template><div>this is a single column</div></template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
+                        <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].frequency,'weekly')]]">
+                            <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Weekly</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Mon</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Tue</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Wed</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Thu</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Fri</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Sat</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                    <template class="header">Sun</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
+                        <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].frequency,'monthly')]]">
+                            <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
+                                <vaadin-grid-column flex-grow="0" width="100%">
+                                    <template class="header">Monthly</template>
+                                    <template>Calendar</template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
+
+                        <!--<paper-button class="posology-btn" on-tap="_togglePosologyRegimen">-->
+                        <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
+                        <!--<iron-icon icon="add"></iron-icon>-->
+                        <!--</paper-button>-->
+                    </template>
                 </template>
             </div>
 
@@ -508,10 +644,13 @@
                 <!--<paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button&#45;&#45;save">[[localize('cancel','Cancel',language)]]</paper-button>-->
                 <!--</div>-->
                 <!--</template>-->
+
                 <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
-                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                    <paper-button dialog-confirm autofocus on-tap="save" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+                    <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <template is="dom-if" if="[[bufferTable.length]]">
+                        <paper-button dialog-confirm autofocus on-tap="closeAndSave" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+                    </template>
                 </div>
             </div>
         </paper-dialog>
@@ -584,17 +723,17 @@
                     beginMomentAsString: {
                         type: String,
                         value: "",
-                        observer: "changeBeginMoment"
+                        observer: "_changeBeginMoment"
                     },
                     endMomentAsString: {
                         type: String,
                         value: "",
-                        observer: "changeEndMoment"
+                        observer: "_changeEndMoment"
                     },
                     medicPriority: {
                         type: String,
                         value: "low",
-                        observer: "changeMedicPriority"
+                        observer: "_changeMedicPriority"
                     },
                     selectedTab: {
                         type: Number,
@@ -603,6 +742,14 @@
                     bufferTable: {
                         type: Array,
                         value: []
+                    },
+                    displayAddRegimen: {
+                        type: Boolean,
+                        value: false
+                    },
+                    dpdwn: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -638,9 +785,12 @@
 
             }
 
+            _toggleDpdwn() {this.set('dpdwn',!this.dpdwn)}
+
             open(medicationDetail, selectedMedicationContentWithId) {
                 if (selectedMedicationContentWithId) {
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId)
+                    this.set('previousMedication', selectedMedicationContentWithId)
                     console.log("open",selectedMedicationContentWithId)
                     this.set('medicationDetail', medicationDetail)
                     console.log("med details",medicationDetail)
@@ -649,214 +799,63 @@
                     this.set('customFrequencyTable', isCustom)
                     this.set('flagTableFrequency', isCustom)
 
-                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "not found :(")
-                    this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
-                    this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
-                    this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].freqType : 'daily')// this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
-                    const previousPriority = selectedMedicationContentWithId.medicationValue.medicinalProduct.priority
-                    this.set('medicPriority', previousPriority == "high" ? 2 : previousPriority == "middle" ? 1 : 0 )
+                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : this.localize('generic_unit','unit',this.language))
+                    // this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
+                    // this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
+                    // this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen.frequency : 0)
+                    this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "middle" ? 1 : 0 )
 
                     this.set("beginMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment))
                     this.set("endMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment))
 
+                    this.set('displayAddRegimen',false)
+                    this.set('dpdwn',false)
                     this.set("bufferTable", selectedMedicationContentWithId.medicationValue.regimen)
-                    if(this.bufferTable.administratedQuantity) {this._setFrequencyList(this.bufferTable)}
+                    console.log('bufferTable',this.bufferTable)
+                    // if(this.bufferTable.administratedQuantity) {this._setFrequencyList(this.bufferTable)}
                 }
                 this.$['medication-detail'].open()
             }
 
             _clearPosologyRegimen(event, target) {
+                console.log(event)
                 const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
-                    this.set("bufferNumberByFrequency",parseInt(this.bufferNumberByFrequency)-1)
-                    this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1)
+                    this.splice('bufferTable', this.bufferTable.indexOf(rgModel.rg), 1)
                 }
             }
 
-            _addPosologyRegimen() {
-                const reg = this.selectedMedicationContentWithId.medicationValue.regimen
-                this.set("bufferNumberByFrequency",parseInt(this.bufferNumberByFrequency)+1)
+            _openRegimenAdd() {
+                this.set('displayAddRegimen',true)
+            }
+            _closeRegimenAdd() {
+                this.set('bufferQuantity', 1)
+                this.set('bufferNumberByFrequency', 1)
+                this.set('bufferGeneralFrequency', 'daily')
+                this.set('displayAddRegimen',false)
+            }
 
-                this.push('selectedMedicationContentWithId.medicationValue.regimen', {
-                    freqType: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
-                    administratedQuantity: {
-                        time: null,
-                        quantity: this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
-                        unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
-                    }
-                })
+            _confirmRegimenAdd(e) {
+                this.set('dpdwn',false)
+                const dropDownSelectedFreq = e.target.dataset.item;
+                console.log('dropDownSelectedFreq',dropDownSelectedFreq)
+                for (let i = 0; i < this.bufferNumberByFrequency; i++) {
+                    this.push('bufferTable', {
+                        frequency: dropDownSelectedFreq ? dropDownSelectedFreq : this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
+                        administratedQuantity: {
+                            time: null,
+                            quantity: dropDownSelectedFreq ? 1 :this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                            unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                        }
+                    })
+                }
+                console.log('confirm :',this.bufferTable)
+                this._closeRegimenAdd()
+                this.save()
             }
 
             _localize(s) {
                 return this.api.contact().medication().localize(s, this.language)
-            }
-
-            _selectedFrequency(rg) {
-                return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0
-            }
-
-            _selectTakeQuantity() {
-                if (this.bufferNumberByFrequency == 0) {this.set('bufferNumberByFrequency',1)}
-                this._prefillDetails()
-            }
-
-            _formatFreq(freq) {
-                return (freq == 'monthly') ? 2 : (freq == 'weekly') ? 1 : 0
-            }
-            
-            _selectFrequency(event, target) {
-                console.log(event,target)
-                // const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
-                // if (!rgModel) {
-                //     return
-                // }
-                // if (target.item.id === 'daily') {
-                //     this.set('bufferGeneralFrequency',0)
-                // } else if (target.item.id === 'weekly') {
-                //     this.set('bufferGeneralFrequency',1)
-                // } else if (target.item.id === 'monthly') {
-                //     this.set('bufferGeneralFrequency',2)
-                // }
-                this.set('bufferGeneralFrequency',
-                    (target.item.id === 'monthly') ? 2 : (target.item.id === 'weekly') ? 1 : 0
-                )
-                // this._valueChanged()
-                this._prefillDetails()
-            }
-            
-            _selectUnitQuantity() {
-                if (this.bufferQuantity == 0 || !this.bufferQuantity) {this.set('bufferQuantity',1)}
-                this._prefillDetails()
-            }
-
-            _selectUnits() {
-                // const str = this.bufferUnit
-                // let lines = this.shadowRoot.querySelectorAll('.regimen-details')
-                // Array.prototype.slice.call(lines).map(line=>{
-                //     let field = line.querySelector(".quantity-paper")
-                //     let input = field.shadowRoot.querySelector("#container > iron-input.input-element > input")
-                //     input.value = str
-                // })
-                this._prefillDetails()
-            }
-            
-            _prefillDetails() {
-                let prefillTable = {freqType: (this.bufferGeneralFrequency == 2)?'monthly':(this.bufferGeneralFrequency == 1)?'weekly':'daily',administratedQuantity:[]}
-                for (let cpt = 0; cpt < this.bufferNumberByFrequency; cpt++) {
-                    const thatLine = { // weekly
-                        time: null,
-                        quantity: this.bufferQuantity, // .$['nativeinput'].valueAsNumber,
-                        unit: this.bufferUnit
-                    }
-                    prefillTable.administratedQuantity.push(thatLine)
-                }
-                this.set('bufferTable', prefillTable)
-                this._setFrequencyList(this.bufferTable)
-            }
-
-            _selectDayPeriod(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
-                if (!rgModel) {
-                    return
-                }
-                rgModel.set('rg.dayPeriod', {type: "CD-DAYPERIOD", code: (target.item)?target.item.id:'error'})
-                this._makeBufferTable()
-            }
-            _selectWeekPeriod(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
-                if (!rgModel) {
-                    return
-                }
-                rgModel.set('rg.weekPeriod', {type: "CD-WEEKPERIOD", code: (target.item)?target.item.id:'error'})
-                this._makeBufferTable()
-            }
-
-            _selectSingleQuantity(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
-                if (!rgModel) {
-                    return
-                }
-                console.log(event.path[0].id)
-                // this._makeBufferTable()
-            }
-
-            _makeBufferTable(param) {
-                const dom = this.shadowRoot.getElementById('lineDomMap').querySelectorAll('div.regimen-line')
-                let quantitiesList = []
-                if (param) {console.log('withParam',param)}
-                Array.prototype.map.call(dom, oneDomRegimen=>{
-                    const builtRegimen =
-                    (this.bufferGeneralFrequency == 2) ? {time:[],quantity:this.bufferQuantity,unit:this.bufferUnit} :
-                    (this.bufferGeneralFrequency == 1) ? { // weekly
-                        time: (param) ? param : Array(oneDomRegimen)[0].children[4].id,
-                        quantity: Array(oneDomRegimen)[0].children[5].id, // .$['nativeinput'].valueAsNumber,
-                        unit: this.bufferUnit
-                    } :  { // daily
-                        time: (param) ? param : Array(oneDomRegimen)[0].children[0].id,
-                        quantity: Array(oneDomRegimen)[0].children[1].id, // .$['nativeinput'].valueAsNumber,
-                        unit: this.bufferUnit
-                    }
-                    quantitiesList.push(builtRegimen)
-                })
-                this.set('bufferTable',{
-                    freqType: (this.bufferGeneralFrequency == 2) ? 'monthly' : (this.bufferGeneralFrequency == 1) ? 'weekly' : 'daily',
-                    administratedQuantity:quantitiesList})
-                this.set('selectedMedicationContentWithId.medicationValue.regimen',this.bufferTable)
-                this.save()
-            }
-
-            _valueChanged() {
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
-                console.log("_valueChanged()",this.medicationDetail)
-            }
-
-            _preselectQuantity() {
-                let papers = this.shadowRoot.querySelectorAll(".quantity-paper")
-                console.log("papers",papers)
-                Array.prototype.slice.call(papers).map(that=>{
-                    that.value = this.bufferUnit
-                })
-            }
-
-            _setFrequencyList(preset) {
-                let bufferTable = []
-                if (preset) { console.log('preset',preset)
-                    Array.prototype.map.call(preset,regimen=>{bufferTable.push({time: regimen.administratedQuantity.time,quantity: regimen.administratedQuantity.quantity,unit: regimen.administratedQuantity.unit})})
-                }
-                if (!preset) {
-                    console.log("setFreqList(), in :",this.bufferTable)
-                    for (let cpt = 0; cpt < this.bufferNumberByFrequency; cpt++) {
-                        // get fields values
-                        bufferTable.push({
-                            freqType: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
-                            administratedQuantity: {
-                                time: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].time : null,
-                                quantity: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
-                                unit: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].unit : this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
-                            }
-                        })
-                    }
-                }
-                this.set("customFrequencyTable", true)
-                this.set("flagTableFrequency", true)
-                this.set("selectedMedicationContentWithId.medicationValue.regimen", bufferTable)
-                let medicDetails = this.medicationDetail; medicDetails.content[this.language].medicationValue.regimen = bufferTable
-                this.set('bufferTable',bufferTable)
-                this.set('medicationDetail',medicDetails)
-                if (!preset) {this.save()}
-            }
-
-            _addFrequency() {
-                const newRegimen = {
-                    freqType: (this.bufferGeneralFrequency == 2) ? 'monthly' : (this.bufferGeneralFrequency == 1) ? 'weekly' : 'daily',
-                    administratedQuantity: {
-                        time: null,
-                        quantity: this.bufferQuantity,
-                        unit: this.bufferUnit
-                    }
-                }
-                this.push("selectedMedicationContentWithId.medicationValue.regimen", newRegimen)
-                this.push("bufferTable.administratedQuantity", newRegimen.administratedQuantity)
             }
 
             dateLongToStr(numberDate) {
@@ -867,7 +866,7 @@
                 }
             }
 
-            changeBeginMoment() {
+            _changeBeginMoment() {
                 if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
                     const beginMoment = parseInt(this.beginMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment", beginMoment)
@@ -875,7 +874,7 @@
                 }
             }
 
-            changeEndMoment() {
+            _changeEndMoment() {
                 if (this.selectedMedicationContentWithId && this.endMomentAsString) {
                     const endMoment = parseInt(this.endMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment", endMoment)
@@ -883,26 +882,83 @@
                 }
             }
 
-            changeMedicPriority() {
+            _changeMedicPriority() {
                 if (this.selectedMedicationContentWithId) {
                     const priority = this.medicPriority ? this.medicPriority === 2 ? 'high' : this.medicPriority === 1 ? 'middle' : 'low' : 'low'
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.priority", priority)
                     this.save()
                 }
             }
-            close() {
 
+            _formatFreq(freq) {
+                return (freq == 'monthly') ? 2 : (freq == 'weekly') ? 1 : 0
+            }
+
+            _selectTakeQuantity() {
+                if (this.bufferNumberByFrequency <= 0) {this.set('bufferNumberByFrequency',1)}
+            }
+            _selectFrequency(event, target) {
+                console.log("select freq",event,target)
+                const generalFrequency = (target.item.id === 'monthly') ? 2 : (target.item.id === 'weekly') ? 1 : 0
+                this.set('bufferGeneralFrequency',generalFrequency)
+            }
+            _selectSingleQuantity(event,target) {
+                console.log("select single quant",event,target)
+                console.log('event path',event.path[0].id)
+                if (event.path[0].id == 0) {
+                    event.path[0].value = 1
+                }
+                // if (this.bufferQuantity <= 0 || !this.bufferQuantity) {this.set('bufferQuantity',1)}
+            }
+            _selectDayPeriod(event, target) {
+                console.log("select day period",event,target)
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
+                if (!rgModel) {
+                    return
+                }
+                rgModel.set('rg.dayPeriod', {type: "CD-DAYPERIOD", code: (target.item)?target.item.id:'error'})
+            }
+            _selectWeekPeriod(event, target) {
+                console.log("select week period",event,target)
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
+                if (!rgModel) {
+                    return
+                }
+                rgModel.set('rg.weekPeriod', {type: "CD-WEEKPERIOD", code: (target.item)?target.item.id:'error'})
+            }
+
+            cancel() {
+                if (this.bufferTable != this.previousMedication.medicationValue.regimen) {
+                    this.set('bufferTable',this.previousMedication.medicationValue.regimen)
+                    this.save()
+                }
+                this.close()
+            }
+            closeAndSave() {
+                this.set("selectedMedicationContentWithId.medicationValue.regimen", this.bufferTable)
+                this._valueChanged() // instant save
+                this.close()
+            }
+            close() {
+                this.set("selectedMedicationContentWithId", null)
+                this.set('bufferTable',null)
             }
             _closeAndNew() {
                 const target = this.parentNode
-                console.log("target",target)
-                this.save()
+                this._valueChanged() // instant save
                 this.close()
                 // this.parentNode.dispatchEvent(new CustomEvent('newMedicFromChild',{}) )
             }
 
             save() {
+                this.set("selectedMedicationContentWithId.medicationValue.regimen", this.bufferTable)
                 this._valueChanged()
+            }
+
+            _valueChanged() {
+                console.log('bufferTable',this.bufferTable)
+                console.log("_valueChanged()",this.medicationDetail)
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
             }
         }
 

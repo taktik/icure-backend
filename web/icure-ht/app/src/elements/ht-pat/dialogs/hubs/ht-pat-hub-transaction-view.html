@@ -152,6 +152,7 @@
                 background: var(--app-secondary-color);
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
             }
+
             paper-spinner {
                 position: relative;
                 top: 10px;
@@ -168,6 +169,7 @@
             <paper-spinner active="[[isLoading]]"></paper-spinner>
             <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('tra_vwr','Viewer',language)]]</paper-tab>
+                <paper-tab>[[localize('tra_vwr','Viewer 2',language)]]</paper-tab>
                 <paper-tab>[[localize('xml_vwr','XML View',language)]]</paper-tab>
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
@@ -181,6 +183,12 @@
                         <div>
                             <div id="kmehr_slot"></div>
                         </div>
+                    </div>
+                </page>
+                <page>
+                    <div>
+
+
                     </div>
                 </page>
                 <page>
@@ -239,6 +247,10 @@
                         value: ''
                     },
                     transInfo:{
+                        type: Object,
+                        value: null
+                    },
+                    message:{
                         type: Object,
                         value: null
                     }
@@ -318,7 +330,9 @@
                 tranRespPromise.then(tranResp => {
                     if (tranResp) {
                         this.set('transactionXml', tranResp);
-                        //TODO: show formatted
+                        const parser = new DOMParser();
+                        const msg = parser.parseFromString(tranResp, "text/xml");
+                        this.set('message', msg);
                         this.formatResponse(transInfo, tranResp);
                     }
                     this.set('isLoading',false);
@@ -326,6 +340,45 @@
                     console.log('getTransaction failed : ' + error);
                     this.set('isLoading',false);
                 })
+            }
+
+            _getNodeList(msg, tagName){
+                return msg ? msg.querySelectorAll(tagName) : null;
+            }
+
+            _getAuthorDesc(trn, type){
+                const auth = this._getAuthor(trn, type);
+                if(auth){
+                    let nm = auth.querySelector('name') ? auth.querySelector('name').innerHTML : '';
+                    nm += auth.querySelector('firstname') ? ' ' + auth.querySelector('firstname').innerHTML : ''
+                    nm += auth.querySelector('familyname') ? ' ' + auth.querySelector('familyname').innerHTML : ''
+                    return nm
+                }else {
+                    return '';
+                }
+            }
+
+            _getAuthor(trn, type){
+                //msg.querySelectorAll(tagName)[0].querySelectorAll('author')[0].querySelectorAll('hcparty')
+                const hcps = Array.from(trn.querySelectorAll('author')[0].querySelectorAll('hcparty'));
+                const auth =  hcps ? hcps.find(hcp => hcp.querySelectorAll('cd')[0].innerHTML === type) : null;
+                return auth;
+            }
+
+            _isSumehr(transInfo){
+                return this._transactionType(transInfo) === 'sumehr';
+            }
+
+            _isMedicationScheme(transInfo){
+                return this._transactionType(transInfo) === 'medicationscheme';
+            }
+
+            _isDiaryNote(transInfo){
+                return this._transactionType(transInfo) === 'diarynote';
+            }
+
+            _isOther(transInfo){
+                return !( this._isSumehr(transInfo)|| this._isMedicationScheme(transInfo) || this._isDiaryNote(transInfo));
             }
 
             _transactionId(tr){

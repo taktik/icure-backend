@@ -395,18 +395,16 @@
             }
 
             selectMedicationFromList(med) {
+                console.log("selectMedicationFromList",med)
                 if (med.id) {
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                         this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                             "intendedname": med.name,
-                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}],
+                            "priority": 'low'
                         })
                         console.log('mpp',mppInfos)
-                        console.log('med',med)
-                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                            freqType: 'daily',
-                            administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}
-                        }])
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}}])
                         this.set("bufferUnit",mppInfos.gal.name)
                         this.set("bufferQuantity",1)
 
@@ -427,11 +425,8 @@
                             "compoundPrescription": med.name
                         })
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                        freqType: 'daily',
-                        administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}
-                    }])
-                    this.set("bufferUnit",this.localize('generic_unit','unit',this.language))
+                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
+                    this.set("bufferUnit",mppInfos.gal.name)
                     this.set("bufferQuantity",1)
 
                     if (this.selectedMedicationContentWithId.isNew) {
@@ -440,13 +435,12 @@
                         this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                     }
                 }
-                console.log('made regimen like this : ',this.selectedMedicationContentWithId.medicationValue.regimen)
             }
 
             click(e) {
                 const selected = this.selectedMedicationFromList;
 
-                console.log('selected ' + selected + ' - ' + this.latestSelected);
+                console.log('selected ',selected,' - ',this.latestSelected);
                 if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
                     this.select(this.latestSelected);
                 } else {

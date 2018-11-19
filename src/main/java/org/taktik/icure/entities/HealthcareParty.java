@@ -61,6 +61,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 
 	protected String userId;
 
+	protected String parentId;
+
 	protected Integer convention; //0,1,2,9
     protected String supervisorId;
 
@@ -320,6 +322,14 @@ public class HealthcareParty extends StoredDocument implements Person {
 
 	public void setOptions(Map<String, String> options) {
 		this.options = options;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
 	}
 
 	@JsonIgnore

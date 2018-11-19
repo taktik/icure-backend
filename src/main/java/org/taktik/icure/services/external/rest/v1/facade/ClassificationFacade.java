@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.taktik.icure.entities.Classification;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationLogic;
@@ -95,6 +96,29 @@ public class ClassificationFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.").build();
 		}
 	}
+
+    @ApiOperation(
+        value = "Get a list of classifications",
+        response = ClassificationDto.class,
+        httpMethod = "GET",
+        notes = "Ids are seperated by a coma"
+    )
+    @GET
+    @Path("/byIds/{ids}")
+    public Response getClassificationByHcPartyId(@PathParam( "ids") String ids) {
+        if (ids == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<Classification> elements = classificationLogic.getClassificationByIds(Arrays.asList(ids.split(",")));
+
+        boolean succeed = (elements != null);
+        if (succeed) {
+            return Response.ok().entity(elements.stream().map(x -> mapper.map(x, ClassificationDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.").build();
+        }
+    }
 
 
 

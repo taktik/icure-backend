@@ -2186,7 +2186,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
                         this.set('patient.gender', this.curGenInsResp.sex);
 
-                        this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
+                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
                             this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
                             this.patient && (this.set('patient.rev', p.rev))
                         })
@@ -2911,7 +2911,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatient(this.patient.id)
+                        this.api.patient().getPatientWithUser(this.api.user,this.patient.id)
                             .then(patientDto =>{
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
@@ -3395,7 +3395,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 if (patient === this.patient) {
                                     this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
                                         this.set('patient.insurabilities.0', pi)
-                                        return this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p, 'patient', defer))
+                                        return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p, 'patient', defer))
                                     })
                                 }
 

@@ -486,7 +486,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #saveFilterDialog{
                     align-items: center;
                 }
-                
+
                 #saveFilterDialog .buttons{
                     padding: 8px 24px;
                 }
@@ -1426,14 +1426,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }, {})
                             const importedAESHcPartyKeys = {}
                             return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
-                                return this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
                                     filter: {
                                         '$type': 'PatientByIdsFilter',
                                         'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
                                     }
                                 })
                             })
-                        }) : this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                        }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
                     }
 
                     grid.latestPromise.then(function (res) {
@@ -1654,7 +1654,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getAllPatients() {
 
                 return this.api.getRowsUsingPagination(
-                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                    (key,docId) => this.api.patient().listPatientsByHcPartyWithUser(this.user, this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
                         rows: pl.rows.map(
                             p => (
                                 p.languages = p.languages.join(' / '),
@@ -1748,7 +1748,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     gender : this.valueGender,
                     medicalHouseContracts: [this.medicalHouseContractShadowObject]
                 }).then(
-                    p => this.api.patient().createPatient(p)
+                    p => this.api.patient().createPatientWithUser(this.user, p)
                 ).then(
                     p => this.api.register(p,'patient')
                 ).then(
@@ -1912,7 +1912,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (targetId !== "") {
                     const mark = this.patientSelected.find(m => m.id === targetId)
                     if (!mark) {
-                        this.api.patient().getPatient(targetId).then(result =>{
+                        this.api.patient().getPatientWithUser(this.user, targetId).then(result =>{
                             this.push('patientSelected',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
                             this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
                         })
@@ -1946,7 +1946,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     let p = Promise.resolve([])
                     this.patientSelected.forEach((patient, pidx) =>{
                         p = p.then(acc =>
-                            this.api.patient().getPatient(patient.id)
+                            this.api.patient().getPatientWithUser(this.user, patient.id)
                                 .then(patientDto => {
                                     return this.api.crypto()
                                         .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
@@ -2031,7 +2031,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const hcpId = this.user.healthcarePartyId
                 this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
                     pPromise = pPromise.then(pats =>
-                        this.api.patient().share(pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
+                        this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
                             .then(pat => _.concat(pats, pat))
                     )
                 })
@@ -2123,7 +2123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         console.log(unionFilter)
                         //research
-                        this.api.patient().filterBy(null, null, 50, 0, 1, 'desc', {filter: unionFilter}).then(tb => {
+                        this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: unionFilter}).then(tb => {
                             console.log("result of the research : " + JSON.stringify(tb))
 
                             //construct of the table
@@ -2293,7 +2293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 listIds = listIds.substring(0, listIds.length-1)
                 //console.log(listIds)
                 if(this.idFusionPat)
-                    this.api.patient().mergeInto(this.idFusionPat,listIds).then(response => {
+                    this.api.patient().mergeIntoWithUser(this.user, this.idFusionPat,listIds).then(response => {
                         console.log(response)
                         this.set('selectedPatient', response)
                     })
