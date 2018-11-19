@@ -865,7 +865,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
-                    (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
+                    (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
                         ppss.map(pps => {
                             const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
                             this.set('patient.partnerships.' + index + '.partnerInfo', pps)
@@ -921,13 +921,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             partner.partnerId = partner.id
 
                             this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p, 'patient')).then(np => {
-                                this.api.patient().createPatient(np).then(p => this.api.register(p, 'patient')).then(np => {
+                                this.api.patient().createPatientWithUser(this.user,np).then(p => this.api.register(p, 'patient')).then(np => {
                                     this.set('patient.partnerships.' + index + '.partnerInfo', np)
                                 })
                             })
                         } else {
                             //patient present
-                            this.api.patient().modifyPatient(partner.partnerInfo)
+                            this.api.patient().modifyPatientWithUser(this.user,partner.partnerInfo)
                                 .then(p => this.api.register(p, 'patient'))
                                 .then(partner => {
                                         this.set('patient.partnerships.' + index + '.partnerInfo', partner)
@@ -937,13 +937,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     })
                 }
 
-                this.api.patient().modifyPatient(patient)
+                this.api.patient().modifyPatientWithUser(this.user,patient)
                     .catch(() => defer.resolve(patient))
                     .then(p => this.api.register(p, 'patient', defer))
                     .then(p => this.dispatchEvent(new CustomEvent("patient-saved", {detail: p, bubbles: true, composed: true})))
                     .catch(e => {
                         if (this.patient) {
-                            return this.api.patient().getPatient(this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
+                            return this.api.patient().getPatientWithUser(this.user,this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
                                 this.patient = p
                                 this.saveTimeout = undefined
                                 this.saveAction = undefined
@@ -1112,7 +1112,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     newPhcp.sendFormats = {}
                     phcp.push(newPhcp)
 
-                    this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient))
+                    this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient))
                         .then(p => this.api.register(p, 'patient', defer))
                         .then(() => {
                             this.set('patient.patientHealthCareParties', phcp)
@@ -1135,7 +1135,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         var externalPatientHcpTeam = []
         //var dmgOwner = []
 
-        this.api.patient().getPatient(this.patient.id).then(patient => {
+        this.api.patient().getPatientWithUser(this.user,this.patient.id).then(patient => {
 
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
@@ -1248,7 +1248,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                                         phcpE.referral = true
                                                         phcpE.isDmg = true
 
-                                                        return this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer)).then(p => this.patientChanged())
+                                                        return this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer)).then(p => this.patientChanged())
                                                     } else {
                                                         defer.resolve(patient)
                                                         return patient
@@ -1324,7 +1324,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                             patient.patientHealthCareParties = this.patient.patientHealthCareParties
                                             this.push('patient.patientHealthCareParties', newPhcp)
                                             // 4 save data
-                                            return this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer))
+                                            return this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer))
                                         })
 
                                     })
@@ -1445,7 +1445,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const hcpId = this.user.healthcarePartyId
 
         pPromise = pPromise.then(pats =>
-                this.api.patient().share(this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
+                this.api.patient().share(this.api.user, this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
                     hcp.check && hcp.id).map(hcp => hcp.id))
                     .then(pat => {
                             _.concat(pats, pat)
