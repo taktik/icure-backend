@@ -228,13 +228,10 @@
                     }
                 }
                 .gridContainer{
-                    height: calc(100vh - 190px);
+                    height: auto;
                     overflow-y: hidden;
                     overflow-x: hidden;
                     box-shadow: var(--app-shadow-elevation-1);
-                }
-                .gridContainer.grid-pending {
-                    height: calc(100vh - 190px - 36px);
                 }
 
                 .invoice-status {
@@ -338,7 +335,7 @@
                 }
 
                 #messagesGridContainer {
-                    overflow: hidden;
+                    overflow-y: auto;
                 }
 
                 .invoiceContainer{
@@ -363,26 +360,15 @@
                     height: 49%;
                 }
 
-                .invoiceDetailContainer {
-                    height: 50%;
-                    opacity: 0;
-                    transition: all .75s ease-out;
-                    overflow-y: auto;
-                }
-                .invoiceDetailContainer.open {
-                    opacity: 1;
-                    width: 100%;
-                    height: 37%;
-                }
-
+                .invoiceDetailContainer,
                 .toBeCorrectedDetailContainerC{
                     height: 50%;
                     opacity: 0;
                     transition: all .75s ease-out;
                     overflow-y: auto;
                 }
-
-                .toBeCorrectedDetailContainerC.open{
+                .invoiceDetailContainer.open,
+                .toBeCorrectedDetailContainerC.open {
                     opacity: 1;
                     width: 100%;
                     height: 37%;
@@ -1182,7 +1168,7 @@
                             <template is="dom-if" if="[[ifInvoiceSelected]]">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
                                     <h4 class="mb0">Contenu de la facture à corriger</h4>
-                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedDetailContainerC">
+                                    <div id="toBeCorrectedDetailContainer" class="invoiceDetailContainer">
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">Date</template>
@@ -1318,7 +1304,7 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
+                                                <template><span class$="invoice-status {{_getIconStatusClass(item.statut))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="recipient-col">
                                                 <template class="header"></template>
