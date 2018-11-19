@@ -1018,14 +1018,7 @@
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
                                                 <!--<template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
-                                                <template>
-                                                    <template is="dom-if" if="[[_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span class$="{{_isMoreThen(item.messageInfo.acceptedAmount,0,'txtcolor--greenStatus')}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
-                                                    </template>
-                                                    <template is="dom-if" if="[[!_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
-                                                        <span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
-                                                    </template>
-                                                </template>
+                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
