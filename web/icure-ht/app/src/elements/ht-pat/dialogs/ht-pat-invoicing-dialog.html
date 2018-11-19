@@ -2130,7 +2130,7 @@
                 })
             }
 
-            open() {
+            open(selection) {
                 if (!this.user) return
                 Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice')))]).then(([hcp, invoices]) => {
 
@@ -2159,10 +2159,20 @@
                         }
 
                         this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
-                        this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
+                        if (selection && selection.invoicingCodeId) {
+                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(newInvoice))
+                        } else {
+                            this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
+                        }
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
-                        this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
+                        if (selection && selection.invoicingCodeId) {
+                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(invoiceOfDay))
+                        } else {
+                            this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
+                        }
                     }
 
                     this.set("hasInsurability",this._hasInsurability())
@@ -2265,7 +2275,6 @@
 
                     const newNmcl = {
                         code: nmcl.code,
-                        contactId: this.currentContact.id,
                         tarificationId: nmcl.id,
                         label: nmcl.label[this.language],
                         totalAmount: Number(0.00).toFixed(2),
