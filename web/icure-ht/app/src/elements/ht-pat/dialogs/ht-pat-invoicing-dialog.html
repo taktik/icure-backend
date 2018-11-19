@@ -2307,10 +2307,7 @@
                         nmcl.valorisations.map(val => {
                             const gen = (env.gen(val.predicate)())
                             let status = {done: false}
-
-
-                            console.log("value :", val)
-
+                            
                             while (!status.done) {
                                 status = gen.next()
                             }
