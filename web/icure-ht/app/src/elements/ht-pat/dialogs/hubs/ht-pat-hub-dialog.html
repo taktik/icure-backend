@@ -594,7 +594,7 @@
                                 this.api.crypto().extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys =>
                                         this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
                                         }).then(output =>
@@ -632,7 +632,7 @@
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
                                         return this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
                                         }).then(output => {

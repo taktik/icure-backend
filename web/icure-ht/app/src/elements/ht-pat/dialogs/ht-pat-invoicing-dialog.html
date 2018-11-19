@@ -2316,7 +2316,7 @@
                         nmcl.valorisations.map(val => {
                             const gen = (env.gen(val.predicate)())
                             let status = {done: false}
-                            
+
                             while (!status.done) {
                                 status = gen.next()
                             }
@@ -2350,7 +2350,7 @@
 
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
 
-                        const patientKeys = secretForeignKeys.join(",")
+                        const patientKeys = secretForeignKeys.extractedKeys.join(",")
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             let invoice=inv[0] || null;
@@ -3277,7 +3277,7 @@
             _transferNmcl(){
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
-                        const patientKeys = secretForeignKeys.join(",")
+                        const patientKeys = secretForeignKeys.extractedKeys.join(",")
 
                         this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem]).then( response => {
                             const invoice = response[0]
