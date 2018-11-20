@@ -78,6 +78,8 @@ public class InvoicingCodeDto implements Serializable {
 
 	protected String locationNihii;
 	protected String locationCdHcParty;
+	protected Long prescriptionDate; // yyyyMMdd
+
 
 	protected Long status;
 
@@ -256,7 +258,7 @@ public class InvoicingCodeDto implements Serializable {
     public void setOverride3rdPayerReason(String override3rdPayerReason) {
         this.override3rdPayerReason = override3rdPayerReason;
     }
-    
+
     public Integer getPrescriberNorm() {
         return prescriberNorm;
     }
@@ -420,4 +422,8 @@ public class InvoicingCodeDto implements Serializable {
     public Long getStatus() { return status; }
 
     public void setStatus(Long status) { this.status = status; }
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 }
