@@ -273,6 +273,10 @@
             return this.replicationicc
         }
 
+        receipt() {
+            return this.receipticc
+        }
+
         tarification() {
             return this.tarificationicc
         }
@@ -465,15 +469,12 @@
             return foundResult.length ? foundResult[0].bicCode : '';
         }
 
-        logMcn(obj, user, docId) {
-            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+        logMcn(obj, user, docId, cat, subcat) {
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
-
-
         getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
-
             if(!user||!patient) return Promise.resolve(null);
 
             // Everything that isn't today
@@ -501,7 +502,7 @@
                             null,
                             null,
                             requestDate
-                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                     }).then(edmgResp => {
                         localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
                         return edmgResp||Promise.resolve(null);
@@ -525,7 +526,7 @@
                                     (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
                                     (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
                                     requestDate
-                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                             }
                         ).then(edmgResp => {
                             localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
@@ -551,9 +552,6 @@
             });
 
         }
-
-
-
     }
 
     customElements.define(IccApi.is, IccApi)

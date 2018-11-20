@@ -9,9 +9,12 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-tree-toggle.html">
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-mycarenet">
@@ -55,6 +58,8 @@
 
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 #detailGrid {
@@ -108,21 +113,41 @@
                 }
 
                 iron-icon.list {
+                    position: absolute;
+                    top: 2px;
+                    left: 0;
                     width: 20px;
                 }
+
                 iron-icon.closure {
-                    width: 16px;
-                }
-                iron-icon.extension {
+                    position: absolute;
+                    top: 2px;
+                    left: 0;
                     width: 16px;
                 }
 
-                paper-spinner {
+                iron-icon.extension {
+                    position: absolute;
+                    top: 2px;
+                    left: 0;
+                    width: 16px;
+                }
+
+                .icon-container {
+                    position: relative;
+                    height: 20px;
+                    width: 20px;
+                }
+
+                paper-spinner.center {
                     position: absolute;
                     top: 50%;
                     left: 50%;
                     z-index: 9999;
-                    transform: translate(-50% -50%);
+                    transform: translate(-50%, -50%);
+                }
+                paper-spinner.loading-req {
+                    transform: translateY(12px);
                 }
 
                 paper-button[disabled] {
@@ -136,32 +161,35 @@
         <div class="invoice-panel">
             <template is="dom-if" if="[[isLoadingDmg]]"><paper-spinner class="center" active="[[isLoadingDmg]]"></paper-spinner></template>
             <div class="grid-panel">
-                <div  id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
+                <div id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{leftFilterValue}}"
                                  on-keydown="refreshFilter">
                     </paper-input>
-                    <vaadin-grid items="[[messages]]" active-item="{{activeItem}}" selected-items="{{selectedItems}}">
-                        <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
-                        <vaadin-grid-column class="icon-col" width="40px">
+                    <vaadin-grid id="messages-vaadin-grid" active-item="{{activeItem}}" selected-items="{{selectedItems}}" data-provider="[[_messagesDataProvider()]]">
+                        <vaadin-grid-column class="icon-col" width="70px">
                             <template class="header">
                             </template>
                             <template>
-                                <template is="dom-if" if="[[_isList(item)]]">
-                                    <iron-icon class="icon type-icon list" icon="list"></iron-icon>
-                                </template>
-                                <template is="dom-if" if="[[_isClosure(item)]]">
-                                    <iron-icon class="icon type-icon closure" icon="vaadin:ban"></iron-icon>
-                                </template>
-                                <template is="dom-if" if="[[_isExtension(item)]]">
-                                    <iron-icon class="icon type-icon extension" icon="alarm-add"></iron-icon>
-                                </template>
+                                <vaadin-grid-tree-toggle leaf="[[!item.children.length]]" expanded="{{expanded}}" level="[[level]]">
+                                    <div class="icon-container">
+                                    <template is="dom-if" if="[[_isList(item)]]">
+                                        <iron-icon class="icon type-icon list" icon="list"></iron-icon>
+                                    </template>
+                                    <template is="dom-if" if="[[_isClosure(item)]]">
+                                        <iron-icon class="icon type-icon closure" icon="vaadin:ban"></iron-icon>
+                                    </template>
+                                    <template is="dom-if" if="[[_isExtension(item)]]">
+                                        <iron-icon class="icon type-icon extension" icon="alarm-add"></iron-icon>
+                                    </template>
+                                    </div>
+                                </vaadin-grid-tree-toggle>
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="received-col" width="120px">
                             <template class="header">
-                                <vaadin-grid-sorter path="received">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="sentreceived">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
                             </template>
-                            <template>[[_formatDate(item.received)]]</template>
+                            <template>[[_formatDate(item.sent,item.received)]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="subject-col" width="calc(30% - 93px)">
                             <template class="header">
@@ -173,7 +201,7 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column class="adress-col" width="80px">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize("OA","OA",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="fromAddress">[[localize("From","From",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.fromAddress]]</template>
                         </vaadin-grid-column>
@@ -187,8 +215,26 @@
                             <template class="header">
                                 <vaadin-grid-sorter path="metas">[[localize("info","Informations",language)]]</vaadin-grid-sorter>
                             </template>
-                            <template>[[_displayMetas(item.metas)]]</template>
+                            <template>
+                                <template is="dom-if" if="[[_listRequest(item.metas.type)]]">
+                                    <template is="dom-repeat" items="[[ios]]" as="io">
+                                        <template is="dom-if" if="[[_tack(item.metas,io)]]">
+                                            <iron-icon class="status" id="status_[[item.id]]_[[io]]" class="status" icon="done"></iron-icon>
+                                            <paper-tooltip position="right" id="tt_status_[[item.id]]_[[io]]" for="status_[[item.id]]_[[io]]">
+                                                [[io]]: [[localize("req_rec","request received",language)]]
+                                            </paper-tooltip>
+                                        </template>
+                                        <template is="dom-if" if="[[!_tack(item.metas,io)]]">
+                                            <iron-icon class="status" id="status_[[item.id]]_[[io]]" icon="schedule"></iron-icon>
+                                            <paper-tooltip position="right" id="tt_status_[[item.id]]_[[io]]" for="status_[[item.id]]_[[io]]">
+                                                [[io]]: [[localize("req_not_yet_rec","request not yet received",language)]]
+                                            </paper-tooltip>
+                                        </template>
+                                    </template>
+                                </template>
+                            </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
                     </vaadin-grid>
                 </div>
                 <div id="detailGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
@@ -219,7 +265,8 @@
                 </div>
             </div>
             <div class="btns-container">
-                <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages" disabled="[[isLoadingDmg]]">[[localize('req_msg_lists','Request Messages Lists',language)]]
+                <paper-spinner class="loading-req" active="[[isLoadingReq]]"></paper-spinner>
+                <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages" disabled="[[isLoadingReq]]">[[localize('req_msg_lists','Request Messages Lists',language)]]
                 </paper-button>
                 <paper-button class="bottom-btn" id="getMessagesBtn" on-tap="getMessages" disabled="[[isLoadingDmg]]">[[localize('get_msg','Get Messages',language)]]
                 </paper-button>
@@ -324,6 +371,10 @@
                     },
                     rightFilterValue :{
                         type : String
+                    },
+                    ios: {
+                        type: Array,
+                        value: ['100','200','300','400','500','600','900']
                     }
                 };
             }
@@ -345,7 +396,7 @@
             }
 
             refresh() {
-                this.api.message().findMessagesByTransportGuid('GMD:IN:*', null, null, 1000).then(msgsPl => {
+                this.api.message().findMessagesByTransportGuid('GMD:*', null, null, 1000).then(msgsPl => {
                     const messages = msgsPl && msgsPl.rows || []
 
                     const ssins = _.uniq(_.compact((messages || []).map(msg => (msg.metas || {}).ssin)))
@@ -357,7 +408,8 @@
                                     ssins: ssins
                                 }
                             }
-                        ) : Promise.resolve([])).then(patients => {
+                        ) : Promise.resolve([]))
+                        .then(patients => {
                             messages.forEach(msg => {
                                 const ssin = (msg.metas || {}).ssin
                                 if (ssin) {
@@ -367,8 +419,16 @@
                             return messages
                         })
                 }).then(messages =>  {
-                    this.set('messages', messages || [])
+                    this.set('messages', (messages || []).filter(m => m.metas && ['listrequest','extension','closure'].includes(m.metas.type)).map(m => {
+                        if (m.metas && m.metas.type === 'listrequest') {
+                            m.children = messages.filter(mm => mm.parentId === m.id)
+                        }
+                        m.sentreceived = m.sent || m.received
+                        return m
+                    }))
                     this.set('tempoMessages', messages || [])
+
+                    this.root.querySelector("#messages-vaadin-grid").clearCache()
                 })
             }
 
@@ -407,7 +467,7 @@
                     this.set('tempoSubMessages', [])
                     return
                 }
-                Promise.all(this.selectedItems.filter(item => this._isList(item)).map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
+                Promise.all(_.uniq(this.selectedItems.filter(item => this._isList(item)).flatMap(i => i.children || [i])).map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
                     docs => Promise.all(docs.map(d => this.api.document().getAttachment(d.id, d.attachmentId).then(a => {
                         try {
                             return JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))
@@ -465,24 +525,49 @@
                 })
             }
 
+            _messagesDataProvider() {
+                return (params, callback) => {
+                    if (!params.sortOrders || !params.sortOrders.length) {params.sortOrders = [{path:'sentreceived',direction:'desc'}]}
+                    const startIndex = params.page * params.pageSize
+                    if (!params.parentItem) {
+                        this.messages ? callback(_.orderBy(this.messages,params.sortOrders.map(x=>x.path),params.sortOrders.map(x=>x.direction)).slice(startIndex, startIndex + params.pageSize), this.messages.length) : callback([], 0)
+                    } else {
+                        callback(params.parentItem.children.slice(startIndex, startIndex + params.pageSize), params.parentItem.children.length)
+                    }
+                }
+            }
+
             getMessages() {
                 this.set('isLoadingDmg', true)
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", []).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", [])
+                    .then( x => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "loadMessages") )
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
-                    /*.then(([ackHashes, dmgHashes]) => Promise.all([
+                    .then(([ackHashes, dmgHashes]) => Promise.all([
                         this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
                         this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
-                    ]))*/.finally(() => this.set('isLoadingDmg', false))
+                    ])).finally(() => {
+                        this.set('isLoadingDmg', false)
+                        this.refresh()
+                    })
             }
 
             requestMessages(){
-                this.set('isLoadingDmg', true)
-                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
-                    .then( x => this.api.logMcn(x, this.user, this.hcp.id) ).finally(() => this.set('isLoadingDmg', false))
+                this.set('isLoadingReq', true)
+
+                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
+                    .then( m => {
+                        return this.api.message().saveDmgsListRequest(this.user, m)
+                            .then(x => this.api.logMcn(x, this.user, m.id, "DMG", "listrequest"))
+                            .catch(e => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "listrequest"))
+                    })
+                    .finally(() => {
+                        this.set('isLoadingReq', false)
+                        this.refresh()
+                    })
             }
 
-            _formatDate(val){
-                return this.api.moment(val).format("DD/MM/YYYY")
+            _formatDate(v1,v2){
+                return (v1 || v2) && this.api.moment((v1 || v2)).format("DD/MM/YYYY")
             }
 
             refreshFilter(){
@@ -536,7 +621,7 @@
 
 
             _isList(item){
-                return (_.isEmpty(item.metas) && item.subject.includes("List")) || item.metas.type==="list";
+                return (_.isEmpty(item.metas) && item.subject.includes("List")) || item.metas.type==="list"  || item.metas.type==="listrequest";
             }
 
             _isClosure(item){
@@ -545,6 +630,18 @@
 
             _isExtension(item){
                 return (_.isEmpty(item.metas) && item.subject.includes("Extension")) || item.metas.type==="extension";
+            }
+
+            _any(a,b) {
+                return a || b
+            }
+
+            _listRequest(type) {
+                return type === 'listrequest'
+            }
+
+            _tack(metas,io) {
+                return metas[`tack.${io}`]
             }
         }
 
