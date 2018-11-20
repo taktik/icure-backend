@@ -41,7 +41,7 @@
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items: flex-end;
+                align-items: center;
 
             }
 
@@ -81,12 +81,11 @@
 
             .regimen--datepicker {
                 width: 132px;
-                margin: auto;
-                padding: 0 8px 2px 8px;
                 cursor: pointer;
             }
             .regimen--priority {
                 width: 96px;
+                padding-top: 1px;
             }
 
             paper-input {
@@ -216,7 +215,10 @@
 
             .display-type-regimen {margin-top: 0;}
             .display-type-regimen .regimen-txt {flex:1;text-align: right;}
-            #medication-name {flex: 3;}
+            #medication-name {
+                flex: 3;
+                padding-top: 1px;
+            }
 
             h4 {margin-bottom: 0;}
 
@@ -297,7 +299,7 @@
                 z-index: 10;
                 width: 216px;
             }
-            
+
             .add-first-regimen .btn-drpdwn-container paper-item  {
                 text-transform: capitalize;
             }
@@ -371,12 +373,10 @@
                                  disabled="true"></paper-input>
                 </template>
 
-                <div class="one-line">
                     <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
                                         class="regimen--datepicker"></vaadin-date-picker>
                     <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
                                         class="regimen--datepicker"></vaadin-date-picker>
-                </div>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
