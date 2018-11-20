@@ -746,7 +746,7 @@
                     this.set('previousMedication', selectedMedicationContentWithId)
                     this.set('medicationDetail', medicationDetail)
 
-                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : this.localize('generic_unit','unit',this.language))
+                    this.set('bufferUnit', selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
                     this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
 
                     this.set("beginMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment))
@@ -780,7 +780,6 @@
                         }
                     })
                 }
-                this._closeRegimenAdd()
             }
 
             _localize(s) {

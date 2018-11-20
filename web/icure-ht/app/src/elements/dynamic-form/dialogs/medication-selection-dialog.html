@@ -403,10 +403,7 @@
                             "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}],
                             "priority": 'low'
                         })
-                        console.log('mpp',mppInfos)
-                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}}])
-                        this.set("bufferUnit",mppInfos.gal.name)
-                        this.set("bufferQuantity",1)
+                        this.set('selectedMedicationContentWithId.medicationUnit', mppInfos.gal && mppInfos.gal.name ||  this.localize('generic_unit','unit',this.language))
 
                         if (this.selectedMedicationContentWithId.isNew) {
                             this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
@@ -420,14 +417,13 @@
                             "intendedname": med.name,
                             "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
                         })
+                        this.set('selectedMedicationContentWithId.medicationUnit', this.localize('generic_unit','unit',this.language))
                     } else {
                         this.set('selectedMedicationContentWithId.medicationValue', {
                             "compoundPrescription": med.name
                         })
                     }
                     this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
-                    this.set("bufferUnit",mppInfos.gal.name)
-                    this.set("bufferQuantity",1)
 
                     if (this.selectedMedicationContentWithId.isNew) {
                         this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
