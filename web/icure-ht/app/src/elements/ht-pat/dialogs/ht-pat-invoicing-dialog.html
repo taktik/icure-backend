@@ -2217,6 +2217,9 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
+                if(e && e.detail && e.detail.value && e.detail.value === "eattest"){
+                    //this.set('selectedInvoice.')
+                }
                 return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
@@ -2320,7 +2323,6 @@
                             while (!status.done) {
                                 status = gen.next()
                             }
-
 
                             val.totalAmount = Number(val.totalAmount).toFixed(2)
                             val.reimbursement = Number(val.reimbursement).toFixed(2)
