@@ -2088,12 +2088,13 @@
 
 
             _selectInvoice(idx) {
-                console.log('select invoice')
+                //console.log('select invoice')
                 // Drop all should there be any
                 //this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
                 const selected = (idx >= 0) ?  this.invoices[idx] : null
                 const invoiceId = selected && selected.id
+                if(selected===this.selectedInvoice)return;
 
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
@@ -2187,9 +2188,19 @@
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
                     this.set('selectedInvoice.encounterLocationNorm',0)
+                    this.set('selectedInvoice.invoiceType',"patient")
+                }
+                else if(mediumType === "efact"){
+                    this.set('selectedInvoice.invoiceType',"mutualfund")
                 }
                 this.varIsEattestClosedChanged()
                 this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
+
+                this.api.invoice().modifyInvoice(this.selectedInvoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.updateGui(invoice, true)
+                    })
             }
             _closeDialog() {
                 this.$.invoiceDialog.close()
@@ -2217,12 +2228,8 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
-                if(e && e.detail && e.detail.value && e.detail.value === "eattest"){
-                    this.set('selectedInvoice.invoiceType',"patient")
-                }
-                else if(e && e.detail && e.detail.value && e.detail.value === "efact"){
-                    this.set('selectedInvoice.invoiceType',"mutualfund")
-                }
+
+
                 return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
@@ -2635,7 +2642,7 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot, c) => tot+(c.reimbursement || 0) + (c.patientIntervention || 0) + (c.doctorSupplement || 0), 0).toFixed(2))) }
+                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2))) }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
@@ -2686,6 +2693,12 @@
 
             _invoicingCodeChange() {
                 if (this.activeNmclItem) {
+                    if (this.activeNmclItem.prescriberNorm === 0 || this.activeNmclItem.prescriberNorm === 3) {
+                        this.set("isPrescriberIsNeeded", false)
+                    } else {
+                        this.set("isPrescriberIsNeeded", true)
+                    }
+
                     const code = this.selectedInvoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
                     const codeIdx = this.selectedInvoice.invoicingCodes.indexOf(code)
 
@@ -4067,8 +4080,7 @@
             }
 
             _isInvoiceClosedOrSelectedInvoiceEattest(){
-                return this.selectedInvoice && this.selectedInvoice.sentMediumType &&  this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
-
+                return this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
             }
 
             _getAdressesBookInfo(){
@@ -4117,7 +4129,7 @@
             }
 
             _isJustifButtonDisabled(){
-                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
             }
 
             _switchBetweenMethodForJustifAndCreation(){
