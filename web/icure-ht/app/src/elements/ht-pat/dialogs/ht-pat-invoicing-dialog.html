@@ -2218,7 +2218,10 @@
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
                 if(e && e.detail && e.detail.value && e.detail.value === "eattest"){
-                    //this.set('selectedInvoice.')
+                    this.set('selectedInvoice.invoiceType',"patient")
+                }
+                else if(e && e.detail && e.detail.value && e.detail.value === "efact"){
+                    this.set('selectedInvoice.invoiceType',"mutualfund")
                 }
                 return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
