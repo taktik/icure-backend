@@ -460,7 +460,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .modal-button {
-                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    --paper-button-ink-color:
+                            var(--app-secondary-color-dark);
                     color: var(--app-text-color);
                     font-weight: 400;
                     font-size: 14px;
@@ -475,6 +476,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
+                }
+
+                paper-button.filter-tag.iron-selected {
+                    background: var(--app-secondary-color);
+                    color: var(--app-primary-color-dark);
                 }
 
                 paper-dialog > div:not(.buttons) {
@@ -725,8 +731,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-listbox id="filters" selectable="paper-button" multi toggle-shift selected-values="{{selectedFilterIndexes}}">
                             <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
                                       id="filterMenu">
-                                <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" on-tap="selectFilter"
-                                              user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
+                                <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" user="[[user]]" language="[[language]]">
                                     <div class="one-line-menu list-title">
                                         [[filter.name]]
                                     </div>
@@ -913,11 +918,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </iron-input>
                                 <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
                                     <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
-                                    <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-                                        <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
-                                        <template is="dom-repeat" items="[[option]]">
-                                            <paper-item>[[item]]</paper-item>
-                                        </template>
+                                    <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}" selected-item="{{selectedItem}}">
+                                        <paper-item id="unknown">[[localize('unknown','unknown',language)]]</paper-item>
+                                        <paper-item id="male">[[localize('male','male',language)]]</paper-item>
+                                        <paper-item id="female">[[localize('female','female',language)]]</paper-item>
+                                        <paper-item id="indeterminate">[[localize('indeterminate','indeterminate',language)]]</paper-item>
+                                        <paper-item id="changed">[[localize('changed','changed',language)]]</paper-item>
                                     </paper-listbox>
                                 </paper-menu-button>
                             </paper-input-container>
@@ -1258,12 +1264,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Object,
                         value: () => []
                     },
-                    form: {
-                        type: Object,
-                        value: function () {
-                            return require('./rsrc/PatientAdministrativeForm.json')
-                        }
-                    },
                     listBoxOffsetWidth: {
                         type: Number,
                         value: -100
@@ -1271,9 +1271,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     selected: {
                         type: Number,
                         observer: '_selectedChanged'
-                    },
-                    option: {
-                        type: Array
                     },
                     valueGender: {
                         type: String,
@@ -1513,16 +1510,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                 }
-
-                //get Genders
-                let jsonGender
-                this.form.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(d => {
-                    if (d.label === "Gender") {
-                        jsonGender = d.editor.menuOptions
-                    }
-                })))
-                this.set("option", jsonGender ? jsonGender : [])
-
             }
 
             _hcpFilterChanged(e) {
@@ -1574,17 +1561,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             refresh() {
-                let currentValue = this.filterValue
-
-                if (this.latestSearchValue === currentValue) {
-                    return
-                }
+                const previousValue = this.filterValue
                 setTimeout( () => {
-                    if (currentValue === this.filterValue) {
+                    if (previousValue === this.filterValue) {
                         console.log("Triggering search for " + this.filterValue)
                         this.$['patients-list'].clearCache()
                     } else {
-                        console.log("Skipping search for " + this.filterValue + " != " + currentValue)
+                        console.log("Skipping search for new value " + this.filterValue + " != " + previousValue)
                     }
                 }, 500) //Wait for the user to stop typing
             }
@@ -2125,7 +2108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.readOnly) {
                     return
                 }
-                this.set('valueGender', this.option[selected - 1] || null)
+                this.set('valueGender', this.selectedItem && this.selectedItem.id || null)
             }
 
             _searchDuplicate() {
