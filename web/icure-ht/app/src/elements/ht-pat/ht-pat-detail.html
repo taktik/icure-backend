@@ -2445,7 +2445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return Promise.resolve(null)
                 }
             }
-            
+
             currentTherLinksChanged(){
                 this.set('haveTherLinks', this.currentTherLinks.length > 0)
             }
@@ -2603,7 +2603,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
                                         this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
                                         }).then(output => {

@@ -41,7 +41,7 @@
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items: flex-end;
+                align-items: center;
 
             }
 
@@ -81,12 +81,11 @@
 
             .regimen--datepicker {
                 width: 132px;
-                margin: auto;
-                padding: 0 8px 2px 8px;
                 cursor: pointer;
             }
             .regimen--priority {
                 width: 96px;
+                padding-top: 1px;
             }
 
             paper-input {
@@ -216,7 +215,10 @@
 
             .display-type-regimen {margin-top: 0;}
             .display-type-regimen .regimen-txt {flex:1;text-align: right;}
-            #medication-name {flex: 3;}
+            #medication-name {
+                flex: 3;
+                padding-top: 1px;
+            }
 
             h4 {margin-bottom: 0;}
 
@@ -297,7 +299,7 @@
                 z-index: 10;
                 width: 216px;
             }
-            
+
             .add-first-regimen .btn-drpdwn-container paper-item  {
                 text-transform: capitalize;
             }
@@ -328,7 +330,7 @@
                 }
                 .regimen-add > * {
                     width: 100%;
-                }
+                }prescriptionDialog
                 .regimen-add .add-first-regimen .btn-drpdwn-container {
                     width: 100%;
                 }
@@ -371,12 +373,10 @@
                                  disabled="true"></paper-input>
                 </template>
 
-                <div class="one-line">
                     <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
                                         class="regimen--datepicker"></vaadin-date-picker>
                     <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
                                         class="regimen--datepicker"></vaadin-date-picker>
-                </div>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
@@ -386,7 +386,7 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
             </div>
-            <template is="dom-if" if="[[bufferTable.length]]">
+            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
                 <div class="regimen-line regimen-add">
                     <div class="add-first-regimen">
                         <div class="modal-button--save add-btn">
@@ -401,42 +401,11 @@
                             </div>
                         </template>
                     </div>
-                    <!--<template is="dom-if" if="[[!displayAddRegimen]]">-->
-                    <!--<paper-button on-tap="_openRegimenAdd" class="add-btn">-->
-                        <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
-                        <!--<iron-icon icon="add"></iron-icon>-->
-                    <!--</paper-button>-->
-                    <!--</template>-->
-                    <!--<template is="dom-if" if="[[displayAddRegimen]]">-->
-                        <!--<div class="one-line fields">-->
-                            <!--<paper-input id="takeQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferNumberByFrequency}}" type="number" class="regimen&#45;&#45;quantity"-->
-                                         <!--min="0" class="regimen&#45;&#45;quantity" on-change="_selectTakeQuantity">-->
-                                <!--<div slot="suffix">X</div>-->
-                            <!--</paper-input>-->
-                            <!--<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen&#45;&#45;units"></paper-input>-->
-                            <!--<paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]"-->
-                                                 <!--class="regimen&#45;&#45;frequency">-->
-                                <!--<paper-listbox slot="dropdown-content" selected="0" on-iron-select="_selectFrequency">-->
-                                    <!--<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>-->
-                                    <!--<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>-->
-                                    <!--<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>-->
-                                <!--</paper-listbox>-->
-                            <!--</paper-dropdown-menu>-->
-                        <!--</div>-->
-                        <!--<div class="one-line">-->
-                            <!--<paper-button on-tap="_closeRegimenAdd">-->
-                                <!--[[localize('can','Cancel',language)]] <iron-icon icon="clear"></iron-icon>-->
-                            <!--</paper-button>-->
-                            <!--<paper-button class="modal-button&#45;&#45;save add-btn" on-tap="_confirmRegimenAdd">-->
-                                <!--[[localize('add','Add',language)]] <iron-icon icon="done"></iron-icon>-->
-                            <!--</paper-button>-->
-                        <!--</div>-->
-                    <!--</template>-->
                 </div>
             </template>
 
             <div class="containTabs">
-                <template is="dom-if" if="[[!bufferTable.length]]">
+                <template is="dom-if" if="[[!selectedMedicationContentWithId.medicationValue.regimen.length]]">
                         <div class="add-first-regimen">
                             <div class="modal-button--save add-btn">
                                 <span on-tap="_confirmRegimenAdd">[[localize('add_pos_reg','Add posology regimen',language)]]</span>
@@ -451,11 +420,11 @@
                             </template>
                         </div>
                 </template>
-                <template is="dom-if" if="[[bufferTable.length]]">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
                     <h4>Prescriptions</h4>
                     <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
                         <div id="lineDomMap">
-                            <template id="rgRepeat" is="dom-repeat" items="[[bufferTable]]" as="rg">
+                            <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
                                 <div class="regimen-line regimen-details">
                                     <template is="dom-if" if="[[_isEqual(rg.frequency,'daily')]]">
                                         <paper-input id="{{rg.administratedQuantity.quantity}}" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
@@ -519,7 +488,7 @@
 
                     <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                         <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqquency,'daily')]]">
-                            <vaadin-grid id="selectedMedicationTable" items="[[bufferTable]]">
+                            <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
                                 <vaadin-grid-column flex-grow="0" width="160px">
                                     <template class="header">Prescr</template>
                                     <template><div>[[selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit]]</div></template>
@@ -648,8 +617,8 @@
                 <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
                     <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                    <template is="dom-if" if="[[bufferTable.length]]">
-                        <paper-button dialog-confirm autofocus on-tap="closeAndSave" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
+                        <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
                     </template>
                 </div>
             </div>
@@ -673,10 +642,6 @@
                         type: Object,
                         value: null,
                         notify: true
-                    },
-                    flagTableFrequency: {
-                        type: Boolean,
-                        value: false
                     },
                     _dayPeriods: {
                         type: Array,
@@ -716,10 +681,6 @@
                         type: Number,
                         value: 0
                     },
-                    customFrequencyTable: {
-                        type: Boolean,
-                        value: false
-                    },
                     beginMomentAsString: {
                         type: String,
                         value: "",
@@ -731,21 +692,13 @@
                         observer: "_changeEndMoment"
                     },
                     medicPriority: {
-                        type: String,
-                        value: "low",
+                        type: Number,
+                        value: 0,
                         observer: "_changeMedicPriority"
                     },
                     selectedTab: {
                         type: Number,
                         value: 0
-                    },
-                    bufferTable: {
-                        type: Array,
-                        value: []
-                    },
-                    displayAddRegimen: {
-                        type: Boolean,
-                        value: false
                     },
                     dpdwn: {
                         type: Boolean,
@@ -791,28 +744,15 @@
                 if (selectedMedicationContentWithId) {
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId)
                     this.set('previousMedication', selectedMedicationContentWithId)
-                    console.log("open",selectedMedicationContentWithId)
                     this.set('medicationDetail', medicationDetail)
-                    console.log("med details",medicationDetail)
-
-                    const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen)
-                    this.set('customFrequencyTable', isCustom)
-                    this.set('flagTableFrequency', isCustom)
 
                     this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : this.localize('generic_unit','unit',this.language))
-                    // this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
-                    // this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
-                    // this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen.frequency : 0)
-                    this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority == "middle" ? 1 : 0 )
+                    this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
 
                     this.set("beginMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment))
                     this.set("endMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment))
 
-                    this.set('displayAddRegimen',false)
                     this.set('dpdwn',false)
-                    this.set("bufferTable", selectedMedicationContentWithId.medicationValue.regimen)
-                    console.log('bufferTable',this.bufferTable)
-                    // if(this.bufferTable.administratedQuantity) {this._setFrequencyList(this.bufferTable)}
                 }
                 this.$['medication-detail'].open()
             }
@@ -821,26 +761,17 @@
                 console.log(event)
                 const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
-                    this.splice('bufferTable', this.bufferTable.indexOf(rgModel.rg), 1)
+                    this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1)
                 }
             }
 
-            _openRegimenAdd() {
-                this.set('displayAddRegimen',true)
-            }
-            _closeRegimenAdd() {
-                this.set('bufferQuantity', 1)
-                this.set('bufferNumberByFrequency', 1)
-                this.set('bufferGeneralFrequency', 'daily')
-                this.set('displayAddRegimen',false)
-            }
 
             _confirmRegimenAdd(e) {
                 this.set('dpdwn',false)
                 const dropDownSelectedFreq = e.target.dataset.item;
                 console.log('dropDownSelectedFreq',dropDownSelectedFreq)
                 for (let i = 0; i < this.bufferNumberByFrequency; i++) {
-                    this.push('bufferTable', {
+                    this.push('selectedMedicationContentWithId.medicationValue.regimen', {
                         frequency: dropDownSelectedFreq ? dropDownSelectedFreq : this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
                         administratedQuantity: {
                             time: null,
@@ -849,9 +780,7 @@
                         }
                     })
                 }
-                console.log('confirm :',this.bufferTable)
                 this._closeRegimenAdd()
-                this.save()
             }
 
             _localize(s) {
@@ -870,7 +799,6 @@
                 if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
                     const beginMoment = parseInt(this.beginMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment", beginMoment)
-                    this.save()
                 }
             }
 
@@ -878,7 +806,6 @@
                 if (this.selectedMedicationContentWithId && this.endMomentAsString) {
                     const endMoment = parseInt(this.endMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment", endMoment)
-                    this.save()
                 }
             }
 
@@ -886,7 +813,6 @@
                 if (this.selectedMedicationContentWithId) {
                     const priority = this.medicPriority ? this.medicPriority === 2 ? 'high' : this.medicPriority === 1 ? 'middle' : 'low' : 'low'
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.priority", priority)
-                    this.save()
                 }
             }
 
@@ -928,20 +854,16 @@
             }
 
             cancel() {
-                if (this.bufferTable != this.previousMedication.medicationValue.regimen) {
-                    this.set('bufferTable',this.previousMedication.medicationValue.regimen)
-                    this.save()
-                }
                 this.close()
             }
-            closeAndSave() {
-                this.set("selectedMedicationContentWithId.medicationValue.regimen", this.bufferTable)
-                this._valueChanged() // instant save
+
+            saveAndClose() {
+                this.save() // instant save
                 this.close()
             }
+
             close() {
                 this.set("selectedMedicationContentWithId", null)
-                this.set('bufferTable',null)
             }
             _closeAndNew() {
                 const target = this.parentNode
@@ -951,12 +873,10 @@
             }
 
             save() {
-                this.set("selectedMedicationContentWithId.medicationValue.regimen", this.bufferTable)
                 this._valueChanged()
             }
 
             _valueChanged() {
-                console.log('bufferTable',this.bufferTable)
                 console.log("_valueChanged()",this.medicationDetail)
                 this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
             }

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.entities.Payment;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 
@@ -32,6 +33,7 @@ public class InvoiceDto extends IcureDto {
 
 	private Double paid;
 	private PaymentType paymentType;
+	private List<Payment> payments;
 
 	private List<InvoicingCodeDto> invoicingCodes;
 	private String invoiceType;
@@ -79,7 +81,6 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationName;
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
-	protected Long prescriptionDate; // yyyyMMdd
 
 	private Map<String,String> receipts = new HashMap<>();
 
@@ -310,9 +311,6 @@ public class InvoiceDto extends IcureDto {
 		this.encounterLocationNorm = encounterLocationNorm;
 	}
 
-	public Long getPrescriptionDate() {	return prescriptionDate;	}
-
-	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 
 	public String getThirdPartyPaymentJustification() {
 		return thirdPartyPaymentJustification;
@@ -328,5 +326,21 @@ public class InvoiceDto extends IcureDto {
 
 	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
 		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public List<Payment> getPayments() {
+		return payments;
+	}
+
+	public void setPayments(List<Payment> payments) {
+		this.payments = payments;
 	}
 }
