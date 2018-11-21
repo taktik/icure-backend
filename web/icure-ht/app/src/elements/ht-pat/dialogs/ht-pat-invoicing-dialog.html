@@ -1453,6 +1453,7 @@
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
                 <paper-input class="paid" label="Montant encaissé"
+                             allowed-pattern="[.\d]"
                              value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
             </div>
             <div class="buttons">
@@ -2094,7 +2095,10 @@
 
                 const selected = (idx >= 0) ?  this.invoices[idx] : null
                 const invoiceId = selected && selected.id
-                if(selected===this.selectedInvoice)return;
+                if(selected===this.selectedInvoice){
+                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                    return;
+                }
 
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
@@ -2217,6 +2221,7 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
+                this.set('selectedInvoice.sentMediumType',e.detail.value)
                 const mediumType = e.detail.value
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
@@ -2625,9 +2630,9 @@
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => {
-                            this.$['nmclGrid'].clearCache()
                             this.calculateTotalOfInvoice()
                             this.updateGui(invoice)
+                            this.$['nmclGrid'].clearCache()
 
                             return invoice
                         })
@@ -2685,11 +2690,13 @@
                                 id: "Invoice::" + newReference
                             }).then(() => {
                                 console.log(invoice)
+                                this.updateGui(invoice)
                                 if(this.selectedInvoice.sentMediumType==="efact"){
                                     return this.generateJustificatory(invoice)
                                 } else if(this.selectedInvoice.sentMediumType==="eattest"){
                                     return this.sendEattest(invoice);
                                 }
+
                             }))
                 })
             }
