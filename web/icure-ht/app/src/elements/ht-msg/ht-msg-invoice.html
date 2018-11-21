@@ -577,6 +577,15 @@
                     transform: translateY(8px);
                 }
 
+                .error_message_red{
+                    color: var(--paper-red-400);
+                }
+
+                .iconBtn{
+                    height: 16px;
+                    width: 16px;
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -882,12 +891,6 @@
                                                     </template>
                                                     <template><span class$="invoice-status [[_getIconStatusClass(item.statut)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.statut)]]"></iron-icon> [[item.statut]]</span></template>
                                                 </vaadin-grid-column>
-                                                <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="error">Error</vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>[[item.error]]</template>
-                                                </vaadin-grid-column>
                                             </vaadin-grid>
                                         </div>
                                     </div>
@@ -1078,7 +1081,7 @@
                                 </template>
                                 <template is="dom-if" if="[[isReject(invoicesStatus.*)]]">
                                     <div class="scrollBox">
-                                        <vaadin-grid id="messagesGrid" class="rejectedTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                        <vaadin-grid id="messagesGrid" class="rejectedTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail" selected="{{selectedInvoiceIndex}}">
                                             <vaadin-grid-column flex-grow="0" width="14%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
@@ -1161,7 +1164,8 @@
                             <template is="dom-if" if="[[ifInvoiceSelected]]">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
                                     <h4 class="mb0">Contenu de la facture à corriger</h4>
-                                    <h6>Erreur sur la facture: [[this.activeGridItem.invoice.error]]</h6>
+                                    <h6>Erreur sur la facture: <span class="error_message_red">[[activeGridItem.invoice.error]]</span></h6>
+                                    <paper-button on-tap="_openInvoicingDialog" class="modal-button" id="[[activeGridItem.invoice.id]]"><iron-icon icon="vaadin:pencil" class="iconBtn"></iron-icon> Corriger</paper-button>
                                     <div id="toBeCorrectedDetailContainer" class="toBeCorrectedContainerDetail">
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
@@ -1207,12 +1211,12 @@
                                                 <template class="header">Erreur</template>
                                                 <template><span class$="[[_getIconStatusClass(item.error)]]">[[item.error]]</span></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <!--<vaadin-grid-column class="recipient-col">
                                                 <template class="header"></template>
                                                 <template>
                                                     <iron-icon icon="vaadin:pencil" id="[[item.id]]" on-tap="_openInvoicingDialog"></iron-icon>
                                                 </template>
-                                            </vaadin-grid-column>
+                                            </vaadin-grid-column>-->
                                         </vaadin-grid>
                                     </div>
                                 </template>
@@ -1580,6 +1584,9 @@
                     },
                     patientFromSelectedInvoice:{
                         type: Object
+                    },
+                    selectedInvoiceIndex:{
+                        type : Number
                     }
                 };
             }
@@ -2484,8 +2491,8 @@
                                 invoicingCode: code.code,
                                 invoiceDate: code.dateCode,
                                 invoicedAmount: Number(code.reimbursement),
-                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : code && code.paid ? code.paid : 0.00,
-                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : code && code.paid ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
+                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : ((code && code.paid) ? code.paid : 0.00),
+                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
                                 rejectionReason: code.error,
                                 paid: false,
                                 status: ""

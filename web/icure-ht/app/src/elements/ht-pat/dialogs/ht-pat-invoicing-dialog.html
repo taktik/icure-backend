@@ -2368,8 +2368,10 @@
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
 
+                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(this.patient.insurabilities.length ? this.patient.insurabilities[0].insuranceId : '000')+':'
+                                
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
                                     .then(invoice => {
                                         this.$['nmclGrid'].clearCache()
@@ -3295,8 +3297,10 @@
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
+                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(this.patient.insurabilities.length ? this.patient.insurabilities[0].insuranceId : '000')+':'
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice, 'invoice'))
                                     .then(invoice => {
                                         this.$['nmclGrid'].clearCache()
