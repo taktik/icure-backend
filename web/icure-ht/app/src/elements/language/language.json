@@ -444,7 +444,8 @@
     "prec_hour": "Precise hour",
     "before": "before",
     "during": "during",
-    "after": "after"
+    "after": "after",
+    "moment": "Moment"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -956,7 +957,8 @@
     "prec_hour": "Heure précise",
     "before": "avant",
     "during": "pendant",
-    "after": "après"
+    "after": "après",
+    "moment": "Moment"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1506,6 +1508,7 @@
     "prec_hour": "Nauwkeurig uur",
     "before": "voor",
     "during": "gedurende",
-    "after": "na"
+    "after": "na",
+    "moment": "Moment"
   }
 }
