@@ -18,13 +18,8 @@
 
 package org.taktik.icure.dao;
 
-import org.taktik.icure.entities.ClassificationTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.taktik.icure.entities.Article;
 
-public interface ClassificationTemplateDAO extends GenericDAO<ClassificationTemplate>  {
-	ClassificationTemplate getClassificationTemplate(String classificationTemplateId);
-
-    List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys);
+public interface ArticleDAO extends GenericDAO<Article> {
 }

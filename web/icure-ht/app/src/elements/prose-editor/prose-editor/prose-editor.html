@@ -42,6 +42,8 @@
 
                     font-family: 'Roboto', sans-serif;
                     font-size: 11px;
+
+                    margin-bottom: 24px;
                 }
 
                 h1 {
@@ -91,6 +93,53 @@
 
                 .ProseMirror li {
                     position: relative;
+                }
+
+                .ProseMirror .tableWrapper {
+                    overflow-x: auto;
+                }
+                .ProseMirror table {
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                    width: 100%;
+                    overflow: hidden;
+                    margin: 0;
+                }
+
+                .ProseMirror td, .ProseMirror th {
+                    vertical-align: top;
+                    box-sizing: border-box;
+                    position: relative;
+                }
+
+                .ProseMirror .column-resize-handle {
+                    position: absolute;
+                    right: -2px; top: 0; bottom: 0;
+                    width: 4px;
+                    z-index: 20;
+                    background-color: #adf;
+                    pointer-events: none;
+                }
+
+                .ProseMirror.resize-cursor {
+                    cursor: ew-resize;
+                    cursor: col-resize;
+                }
+
+                /* Give selected cells a blue overlay */
+                .ProseMirror .selectedCell:after {
+                    z-index: 2;
+                    position: absolute;
+                    content: "";
+                    left: 0; right: 0; top: 0; bottom: 0;
+                    background: rgba(200, 200, 255, 0.4);
+                    pointer-events: none;
+                }
+
+                .ProseMirror th, .ProseMirror td {
+                    min-width: 1em;
+                    border: 1px solid #ddd;
+                    padding: 3px 5px;
                 }
 
                 .ProseMirror-hideselection *::selection {
@@ -202,7 +251,8 @@
                 }
 
                 paper-input.zoom {
-                    width:120px;
+                    padding-left: 8px;
+                    width: 60px;
                     height: 40px;
                 }
 
@@ -242,7 +292,7 @@
 
                 <font-picker font="[[currentFont]]" on-font-picker-selected="doFont"></font-picker>
 
-                <font-size-picker font-size="[[currentSize]]" on-font-size-picker-selected="doSize"></font-size-picker>
+                <font-size-picker font-size="[[currentSize]]" font-size-list="[[sizes]]" on-font-size-picker-selected="doSize"></font-size-picker>
 
                 <span class="divider"></span>
 
@@ -266,18 +316,20 @@
                             alt="table options">
                     </paper-icon-button>
                     <div slot="dropdown-content" class="dropdown-content box" on-tap="_onTap" id="box">
-                            <paper-item on-tap="_addColumnBefore">Insert column before</paper-item>
-                            <paper-item on-tap="_addColumnAfter">Insert column after</paper-item>
-                            <paper-item on-tap="_deleteColumn">Delete column</paper-item>
-                            <paper-item on-tap="_addRowBefore">Insert row before</paper-item>
-                            <paper-item on-tap="_addRowAfter">Insert row after</paper-item>
-                            <paper-item on-tap="_deleteRow">Delete row</paper-item>
-                            <paper-item on-tap="_deleteTable">Delete table</paper-item>
-                            <paper-item on-tap="_mergeCells">Merge cells</paper-item>
-                            <paper-item on-tap="_splitCell">Split cell</paper-item>
-                            <paper-item on-tap="_toggleHeaderColumn">Toggle header column</paper-item>
-                            <paper-item on-tap="_toggleHeaderRow">Toggle header row</paper-item>
-                            <paper-item on-tap="_toggleHeaderCell">Toggle header cells</paper-item>
+                        <paper-item on-tap="_insertTable">Insert table</paper-item>
+                        <hr>
+                        <paper-item on-tap="_addColumnBefore">Insert column before</paper-item>
+                        <paper-item on-tap="_addColumnAfter">Insert column after</paper-item>
+                        <paper-item on-tap="_deleteColumn">Delete column</paper-item>
+                        <paper-item on-tap="_addRowBefore">Insert row before</paper-item>
+                        <paper-item on-tap="_addRowAfter">Insert row after</paper-item>
+                        <paper-item on-tap="_deleteRow">Delete row</paper-item>
+                        <paper-item on-tap="_deleteTable">Delete table</paper-item>
+                        <paper-item on-tap="_mergeCells">Merge cells</paper-item>
+                        <paper-item on-tap="_splitCell">Split cell</paper-item>
+                        <paper-item on-tap="_toggleHeaderColumn">Toggle header column</paper-item>
+                        <paper-item on-tap="_toggleHeaderRow">Toggle header row</paper-item>
+                        <paper-item on-tap="_toggleHeaderCell">Toggle header cells</paper-item>
                     </div>
                 </paper-menu-button>
 

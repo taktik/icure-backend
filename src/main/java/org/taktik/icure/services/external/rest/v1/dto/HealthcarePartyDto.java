@@ -56,6 +56,7 @@ public class HealthcarePartyDto extends StoredDto {
 	protected String cbe;
 	protected Integer convention; //0,1,2,9
     protected String userId;
+    protected String parentId;
 	protected String supervisorId;
 
     protected String notes;
@@ -304,4 +305,12 @@ public class HealthcarePartyDto extends StoredDto {
     public String getUserId() { return userId; }
 
     public void setUserId(String userId) { this.userId = userId; }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
 }

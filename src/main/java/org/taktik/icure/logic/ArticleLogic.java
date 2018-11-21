@@ -16,15 +16,20 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao;
+package org.taktik.icure.logic;
 
-import org.taktik.icure.entities.ClassificationTemplate;
+import org.taktik.icure.entities.Article;
+import org.taktik.icure.exceptions.DeletionException;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public interface ClassificationTemplateDAO extends GenericDAO<ClassificationTemplate>  {
-	ClassificationTemplate getClassificationTemplate(String classificationTemplateId);
+public interface ArticleLogic extends EntityPersister<Article, String> {
 
-    List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys);
+    Article createArticle(Article Article);
+
+    Article getArticle(String ArticleId);
+
+    Article modifyArticle(Article Article);
+
+    List<String> deleteArticles(List<String> ids) throws DeletionException;
 }
