@@ -287,6 +287,7 @@
             }
 
             .invoice-nomenclature-code-container {
+
             }
 
             .nmcl-descr {
@@ -315,6 +316,11 @@
 
             .nmcl-list {
                 overflow-y: auto;
+            }
+            .fullW {
+                flex:1;
+                overflow-y: auto;
+                height: 52px;
             }
 
             #nmclGrid {
@@ -642,7 +648,7 @@
 
             .nmclFavoriteCode {
                 background-color: var(--app-secondary-color-dark);
-                margin: 0 5px 0 0;
+                margin: 0 5px 5px 0;
                 color: var(--app-text-color-light);
                 height: 20px;
                 font-size: 12px;
@@ -929,7 +935,51 @@
                 min-height: 280px;
             }
 
+            #savedIndicator{
+                position: fixed;
+                top:50%;
+                right: 0;
+                z-index:1200;
+                color: white;
+                font-size: 13px;
+                background:rgba(0,0,0,0.42);
+                height: 24px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                width: 0;
+                opacity: 0;
+            }
+            #savedIndicator.saved{
+                animation: savedAnim 2.5s ease-in;
+            }
+            @keyframes savedAnim {
+                0%{
+                    width: 0;
+                    opacity: 0;
+                }
+                20%{
+                    width: 114px;
+                    opacity: 1;
+                }
+                25%{
+                    width: 96px;
+                    opacity: 1;
+                }
+                75%{
+                    width: 96px;
+                    opacity: 1;
+                }
+                100%{
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
         </style>
+
+        <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
+            <iron-icon icon="icons:check"></iron-icon>
+        </paper-item>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}">
             <div class="invoice-panel">
@@ -1004,7 +1054,6 @@
                         <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice, selectedInvoice.sentMediumType)]]"></vaadin-date-picker>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
-                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription de',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker></template>
                     </div>
 
                     <div class="flex-container">
@@ -1189,13 +1238,15 @@
                             <template is="dom-if" if="[[!isInvoiceClosed]]">
                                 <div class="nmcl-favorite">
                                     <span>[[localize('fav','Favorites code',language)]]:</span>
-                                    <template is="dom-repeat" items="[[favoriteCode]]">
-                                        <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
-                                            [[item.code]]
-                                            <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
-                                                       on-tap="_deleteFavoriteCode"></iron-icon>
-                                        </paper-button>
-                                    </template>
+                                    <div class="fullW">
+                                        <template is="dom-repeat" items="[[favoriteCode]]">
+                                            <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
+                                                [[item.code]]
+                                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
+                                                           on-tap="_deleteFavoriteCode"></iron-icon>
+                                            </paper-button>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div class="invoice-nomenclature-code-option">
                                     <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
@@ -1277,6 +1328,7 @@
                                 <paper-input class="flex-container-nmcl-row"
                                              label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
                                              value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription date',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker></template>
                             </template>
                         </div>
                         <div class="flex-container-nmcl">
@@ -2048,6 +2100,7 @@
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
+                this.set("errorMessage","")
 
                 if (!selected) {
                     this.set('selectedInvoice', {})
@@ -2068,7 +2121,6 @@
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
-                    selected.prescriptionDate ? this.set('prescriptionDateAsString', this.returnDatePickerDate(selected.prescriptionDate)) : this.set('prescriptionDateAsString', moment().format("YYYY-MM-DD"))
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
@@ -2078,7 +2130,7 @@
                 })
             }
 
-            open() {
+            open(selection) {
                 if (!this.user) return
                 Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice')))]).then(([hcp, invoices]) => {
 
@@ -2107,10 +2159,20 @@
                         }
 
                         this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
-                        this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
+                        if (selection && selection.invoicingCodeId) {
+                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(newInvoice))
+                        } else {
+                            this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
+                        }
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
-                        this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
+                        if (selection && selection.invoicingCodeId) {
+                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(invoiceOfDay))
+                        } else {
+                            this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
+                        }
                     }
 
                     this.set("hasInsurability",this._hasInsurability())
@@ -2213,7 +2275,6 @@
 
                     const newNmcl = {
                         code: nmcl.code,
-                        contactId: this.currentContact.id,
                         tarificationId: nmcl.id,
                         label: nmcl.label[this.language],
                         totalAmount: Number(0.00).toFixed(2),
@@ -2251,43 +2312,45 @@
                         }
                     });
 
-                    nmcl.valorisations.map(val => {
-                        const gen = (env.gen(val.predicate)())
-                        let status = {done: false}
+                    if(nmcl.code!="109955") {
+                        nmcl.valorisations.map(val => {
+                            const gen = (env.gen(val.predicate)())
+                            let status = {done: false}
 
-                        while (!status.done) {
-                            status = gen.next()
-                        }
+                            while (!status.done) {
+                                status = gen.next()
+                            }
 
 
-                        val.totalAmount = Number(val.totalAmount).toFixed(2)
-                        val.reimbursement = Number(val.reimbursement).toFixed(2)
-                        val.patientIntervention = Number(val.patientIntervention).toFixed(2)
-                        val.doctorSupplement = Number(val.doctorSupplement||'0').toFixed(2)
-
-                        // Patient has NO ins, charge it with all due fees
-                        if( !this._hasInsurability() ) {
-                            val.patientIntervention = Number( Number(val.patientIntervention) + Number(val.reimbursement) ).toFixed(2);
-                            val.reimbursement = Number('0').toFixed(2);
-                        }
-
-                        if (status.value && moment().isBetween(this.api.moment(val.startOfValidity),this.api.moment(val.endOfValidity),"year","[]")) {
-
-                            newNmcl.totalAmount = Number(Number(newNmcl.totalAmount) + Number(val.totalAmount)).toFixed(2);
-                            newNmcl.reimbursement = Number(Number(newNmcl.reimbursement) + Number(val.reimbursement)).toFixed(2);
-                            newNmcl.patientIntervention = Number(Number(newNmcl.patientIntervention) + Number(val.patientIntervention)).toFixed(2);
+                            val.totalAmount = Number(val.totalAmount).toFixed(2)
+                            val.reimbursement = Number(val.reimbursement).toFixed(2)
+                            val.patientIntervention = Number(val.patientIntervention).toFixed(2)
+                            val.doctorSupplement = Number(val.doctorSupplement || '0').toFixed(2)
 
                             // Patient has NO ins, charge it with all due fees
-                            if( !this._hasInsurability() ) {
-                                newNmcl.patientIntervention = Number( Number(newNmcl.patientIntervention) + Number(newNmcl.reimbursement) ).toFixed(2);
-                                newNmcl.reimbursement = Number('0').toFixed(2);
+                            if (!this._hasInsurability()) {
+                                val.patientIntervention = Number(Number(val.patientIntervention) + Number(val.reimbursement)).toFixed(2);
+                                val.reimbursement = Number('0').toFixed(2);
                             }
-                        }
-                    })
+
+                            if (status.value && moment().isBetween(this.api.moment(val.startOfValidity), this.api.moment(val.endOfValidity), "year", "[]")) {
+
+                                newNmcl.totalAmount = Number(Number(newNmcl.totalAmount) + Number(val.totalAmount)).toFixed(2);
+                                newNmcl.reimbursement = Number(Number(newNmcl.reimbursement) + Number(val.reimbursement)).toFixed(2);
+                                newNmcl.patientIntervention = Number(Number(newNmcl.patientIntervention) + Number(val.patientIntervention)).toFixed(2);
+
+                                // Patient has NO ins, charge it with all due fees
+                                if (!this._hasInsurability()) {
+                                    newNmcl.patientIntervention = Number(Number(newNmcl.patientIntervention) + Number(newNmcl.reimbursement)).toFixed(2);
+                                    newNmcl.reimbursement = Number('0').toFixed(2);
+                                }
+                            }
+                        })
+                    }
 
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
 
-                        const patientKeys = secretForeignKeys.join(",")
+                        const patientKeys = secretForeignKeys.extractedKeys.join(",")
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             let invoice=inv[0] || null;
@@ -2500,6 +2563,8 @@
             _showDetail() {
                 if (this.activeNmclItem) {
                     const selected = this.activeNmclItem
+
+                    selected.prescriptionDate ? this.set('prescriptionDateAsString', this.returnDatePickerDate(selected.prescriptionDate)) : this.set('prescriptionDateAsString', moment().format("YYYY-MM-DD"))
                     if(selected.code==="109955"){
                         this.set('activeNmclItem.qteAll',(this.activeNmclItem.units+6)/2)
                     }
@@ -2672,9 +2737,9 @@
             _prescriptionDateAsStringChanged(prescriptionDateAsString) {
                 const dateNow = parseInt(this.api.moment(Date.now()).format('YYYYMMDD'));
                 const dateInt = parseInt(prescriptionDateAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
-                if (this.selectedInvoice && (this.selectedInvoice.prescriptionDate !== dateInt)) {
+                if (this.activeNmclItem && (this.activeNmclItem.prescriptionDate !== dateInt)) {
                     if ( dateInt <= dateNow) {
-                        this.set('selectedInvoice.prescriptionDate', dateInt)
+                        this.set('activeNmclItem.prescriptionDate', dateInt)
                     } else {
                         if(this.shadowRoot.querySelector('#prescription-date')) {
                             this.shadowRoot.querySelector('#prescription-date').set(Date.now())
@@ -2682,6 +2747,8 @@
                     }
 
                 }
+
+                console.log("date de prescription",this.activeNmclItem,this.selectedInvoice)
             }
 
             findAndReplace(string, target, replacement) {
@@ -3210,7 +3277,7 @@
             _transferNmcl(){
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
-                        const patientKeys = secretForeignKeys.join(",")
+                        const patientKeys = secretForeignKeys.extractedKeys.join(",")
 
                         this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem]).then( response => {
                             const invoice = response[0]
@@ -3345,6 +3412,7 @@
                                     }))
                                 .finally(() => this.updateGui(invoice, true))
                             console.log("saved:",invoice)
+                            this._patientSaved()
                         })
                 };
                 if (invoice.id && rev) {
@@ -3352,6 +3420,11 @@
                 } else {
                     this.updateGui(invoice)
                 }
+            }
+
+            _patientSaved() {
+                setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
+                this.$.savedIndicator.classList.add("saved");
             }
 
             selectedInvoiceChanged(){
@@ -3433,16 +3506,6 @@
                         quantity : code.units,
                         reglementarySupplement : Number(code.patientIntervention),
                         reimbursement: Number(code.reimbursement),
-                        requestor : {
-                            date: this.selectedInvoice.invoiceDate ,
-                            hcp: {
-                                cdHcParty: "persphysician",
-                                firstName: this.hcp.firstName,
-                                idHcParty: this.hcp.nihii,
-                                idSsin: this.hcp.ssin,
-                                lastName: this.hcp.lastName
-                            }
-                        },
                         riziv : code.code
                     }
 
@@ -3451,7 +3514,7 @@
                     }
                     if(this.selectedInvoice.gnotionNihii){
                         newCode.gmdManager={
-                            cdHcParty: null,
+                            cdHcParty: "persphysician",
                             firstName: null,
                             idHcParty: this.selectedInvoice.gnotionNihii,
                             idSsin: null,
@@ -3479,6 +3542,19 @@
                         }
                     }
 
+                    if(this.prescriberType[code.prescriberNorm].prescriber){
+                        newCode.requestor = {
+                        date: code.prescriptionDate,
+                            hcp: {
+                                cdHcParty: "persphysician",
+                                firstName: null,
+                                idHcParty: code.prescriberNihii || null,
+                                idSsin: null,
+                                lastName: null
+                            }
+                        }
+                    }
+
                     eattest.codes.push(newCode)
                 })
 
@@ -3489,7 +3565,7 @@
                 this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))
                     .then(fhcEattest => {
-                        if(fhcEattest.acknowledge.errors.length===0) {
+                        if(fhcEattest.acknowledge.errors.length===0 && fhcEattest.attest!==null) {
                             this.set('selectedInvoice.thirdPartyReference', fhcEattest.invoicingNumber)
                             this.set("selectedInvoice.sentDate", sentDate)
                             fhcEattest.attest.codes.map(code =>{
@@ -3523,10 +3599,14 @@
                                 .finally(() => this.eattest(this.selectedInvoice))
                         } else {
                             let errorMsg="";
-                            fhcEattest.acknowledge.errors.map(error => {
-                                console.log("Error :",error)
-                                errorMsg+=error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", "
-                            })
+                            if(fhcEattest.acknowledge && fhcEattest.acknowledge.errors && fhcEattest.acknowledge.errors.length!==0)
+                                fhcEattest.acknowledge.errors.map(error => {
+                                    console.log("Error :",error)
+                                    errorMsg+=error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", "
+                                })
+                            else{
+                                errorMsg+="Error : pas de message d'erreur renvoyé."
+                            }
                             this.set("errorMessage",errorMsg)
                         }
                     }).finally(() => this.set('isLoadingJustif', false))

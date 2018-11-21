@@ -191,7 +191,7 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <template is="dom-if" if="[[hubSupportsConsent]]">
-                    <p>[[localize('hub_hcp_cs','Hcp hub consent',language)]] : [[_getHubHcpConsentDesc(hcpHubConsent)]]</p>
+                    <p><b>[[localize('hub_hcp_cs','Hcp hub consent',language)]] :</b> [[_getHubHcpConsentDesc(hcpHubConsent)]]</p>
                 </template>
             </div>
             <template is="dom-if" if="[[!_HcpHasHubConsent(hcpHubConsent, hubSupportsConsent)]]">
@@ -200,9 +200,9 @@
             <template is="dom-if" if="[[_HcpHasHubConsent(hcpHubConsent, hubSupportsConsent)]]">
                 <template is="dom-if" if="[[hubSupportsConsent]]">
                     <div>
-                        <p><b>[[localize('pat_hub_info','Pat Hub info',language)]]</b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
-                        <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
-                        <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p>
+                        <p><b>[[localize('pat_hub_info','Pat Hub info',language)]] : </b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
+                        <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]] : </b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
+                        <p><b>[[localize('hub_tl','Hub therapeutic link',language)]] : </b>[[_getHubPatientTherLinkDesc(patientHubTherLinks)]]</p>
                     </div>
                 </template>
                 <template is="dom-if" if="[[supportBreakTheGlass]]">
@@ -273,12 +273,14 @@
                 <div class="buttons">
                     <!--<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
                     <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
-                        <paper-button on-tap="_registerHubPatConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                        <paper-button on-tap="_registerHubPatientConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                         <paper-button on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
+                        <paper-button on-tap="_runRegisterHubPatient" dialog-confirm>[[localize('register','Register',language)]]</paper-button>
                     </template>
-                    <template is="dom-if" if="[[_enableRevokeConsent(patientHubConsent, hubSupportsConsent)]]">
-                        <paper-button on-tap="_revokeHubPatientTherapeuticLink" dialog-confirm>[[localize('revoke_therlink','Revoke therapeutic link',language)]]</paper-button>
-                    </template>
+                    <!--<template is="dom-if" if="[[_enableRevokeConsent(patientHubConsent, hubSupportsConsent)]]">-->
+                        <!--<paper-button on-tap="_revokeHubPatientConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
+                        <!--<paper-button on-tap="_revokeHubPatientTherapeuticLink" dialog-confirm>[[localize('revoke_therlink','Revoke therapeutic link',language)]]</paper-button>-->
+                    <!--</template>-->
                 </div>
             </template>
             <div class="buttons">
@@ -372,7 +374,7 @@
                     patientHubConsent:{
                         type: Object
                     },
-                    patientHubTherLink:{
+                    patientHubTherLinks:{
                         type: Object
                     },
                     patientHubInfo:{
@@ -413,6 +415,7 @@
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
+                document.addEventListener('xmlHubUpdated', () => this.xmlHubListener() );
             }
 
             _dateFormat(date) {
@@ -539,9 +542,12 @@
                     this.set('isLoading', false);
                     console.log(error);
                 });
-                if (this.hubSupportsConsent) this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat)).catch(error => {
-                    console.log(error);
-                })
+
+                if (this.hubSupportsConsent){
+                    this.putHubPatient().then(putResp => {
+                        this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat)).catch(error => {console.log(error);})
+                    }).catch(error => {console.log(error);})
+                }
             }
 
             close() {
@@ -583,12 +589,12 @@
             generateAndPutSumehr(){
                 if (this.patient && this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatient(this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
                             .then(patientDto =>
                                 this.api.crypto().extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys =>
                                         this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
                                         }).then(output =>
@@ -620,26 +626,26 @@
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatient(this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
                             .then(patientDto =>
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
                                         return this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
                                         }).then(output => {
                                             //creation of the xml file
-                                            var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+                                            let file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
 
                                             //creation the downloading link
-                                            var a = document.createElement("a");
+                                            let a = document.createElement("a");
                                             document.body.appendChild(a);
                                             a.style = "display: none";
 
                                             //download the new file
-                                            var url = window.URL.createObjectURL(file);
+                                            let url = window.URL.createObjectURL(file);
                                             a.href = url;
                                             a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
                                             a.click();
@@ -681,7 +687,7 @@
 
             _transactionDate(tr){
                 if(tr.date) {
-                    var d = new Date(0);
+                    let d = new Date(0);
                     d.setUTCMilliseconds(tr.date);
                     return d.toDateString();
                 } else {
@@ -690,7 +696,7 @@
             }
 
             _transactionAuthor(tr){
-                var authorRes = "--";
+                let authorRes = "--";
                 const author = tr.author.hcparties.find(hcp => hcp.familyname);
                 if(author) {
                     authorRes = author.familyname + ' ' + author.firstname;
@@ -725,7 +731,7 @@
             }
 
             _getHubHcpConsentDesc(cs){
-                var desc = '';
+                let desc = '';
                 //hub
                 if(cs && cs.author && cs.author && cs.author.hcparties && cs.author.hcparties[0]){
                     desc += cs.author.hcparties[0].name + ' ';
@@ -755,8 +761,8 @@
                 if (this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
-                            this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint, this.api.keystoreId,
-                                this.api.tokenId, this.api.credentials.ehpassword,
+                            this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint,
+                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip)
                         ).then(consentResp => {
                                 if (consentResp) {
@@ -779,8 +785,14 @@
                 }
             }
 
+            _getHubPatientTherLinkDesc(tl){
+                let desc = '';
+                desc = tl;
+                return desc;
+            }
+
             _getHubPatientConsentDesc(cs){
-                var desc = '';
+                let desc = '';
                 // author - sign date - type
                 // author - fname lname niss nihii
 
@@ -881,20 +893,60 @@
                 }
             }
 
-            _registerHubPatientConsent(){
-                //registerPatientConsentUsingPOST1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
+            _runRegisterHubPatient(){
+                this._registerHubPatientConsent().then(consResp => this.set('registerConsentResp', consResp)).catch(error=> console.log(error))
+                this._registerHubPatientTherapeuticLink().then(tlResp => this.set('registerTLResp', tlResp)).catch(error=> console.log(error))
+            }
 
+            _registerHubPatientConsent(){
+                //registerPatientConsentUsingPOST1(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // patientSsin: string,
+                // hubPackageId?: string,
+                // patientEidCardNumber?: string): Promise<any | Boolean>;
+                if (this.patient.ssin && this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.fhc().Hubcontroller().registerPatientConsentUsingPOST1(this.hubEndPoint,
+                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                            this.patient.ssin, this.hubPackageId, this.eidCardNumber)
+                    ).then(consResp => {
+                            if(consResp.therapeuticLink) {
+                                //this.showPatientTherLinkState()
+                                return(consResp.therapeuticLink)
+                            }
+                            else{
+                                return Promise.resolve(null)
+                            }
+                        }
+                    )
+                }
+                else
+                {
+                    return Promise.resolve(null)
+                }
             }
 
             _getHubTherapeuticLinks(){
-                //getTherapeuticLinksUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, therLinkType, from, to)
+                //getTherapeuticLinksUsingGET(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // patientSsin: string,
+                // hubPackageId?: string,
+                // therLinkType?: string,
+                // from?: Date,
+                // to?: Date): Promise<Array<models.TherapeuticLink> | any>;
                 if (this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
-                            this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId,
-                                this.api.tokenId, this.api.credentials.ehpassword,
+                            this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint,
+                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.lastName, hcp.firstName,  hcp.nihii, hcp.ssin, this.hcpZip,
-                                this.patient.ssin, null, null, null)
+                                this.patient.ssin,
+                                this.hubPackageId)
                         ).then(tlResp => {
                                 if (tlResp) {
                                     return tlResp;
@@ -909,16 +961,24 @@
             }
 
             _registerHubPatientTherapeuticLink(){
-                //registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
+                //registerTherapeuticLinkUsingPOST(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // patientSsin: string,
+                // hubPackageId?: string,
+                // patientEidCardNumber?: string): Promise<any | Boolean>;
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId,
-                            this.api.tokenId, this.api.credentials.ehpassword,
-                            hcp.ssin, hcp.firstName, hcp.lastName, hcp.nihii,
-                            this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber)
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint,
+                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                            this.patient.ssin,
+                            this.hubPackageId,
+                            this.eidCardNumber)
                     ).then(therLinkResp => {
                             if(therLinkResp.therapeuticLink) {
-                                this.showPatientTherLinkState()
+                                //this.showPatientTherLinkState()
                                 return(therLinkResp.therapeuticLink)
                             }
                             else{
@@ -934,7 +994,7 @@
             }
 
             _revokeHubPatientTherapeuticLink(){
-                //not implemented yet
+               //TODO: implement, does not exist in FHC
             }
 
             _getHubTransactionList(){
@@ -982,7 +1042,7 @@
             }
 
             _isTransactionSet(tr){
-                var cd = tr.cds.find(cd => cd.value.toLowerCase()==='gettransactionset');
+                let cd = tr.cds.find(cd => cd.value.toLowerCase()==='gettransactionset');
                 if(cd){
                     return true;
                 } else {
@@ -1096,6 +1156,11 @@
             }
 
             _putHubTransactionSet(tsXML){
+                console.log('---_putHubTransactionSet---');
+                console.log(tsXML);
+                console.log(this.patient);
+                console.log(this.patient.ssin);
+                console.log(this.api.tokenId);
                 //putTransactionSetUsingPOST(
                 // endpoint: string,
                 // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
@@ -1104,6 +1169,7 @@
                 // patientSsin: string,
                 // essage: string,
                 // hubPackageId?: string, hubApplication?: string): Promise<models.PutTransactionSetResponse | any>;
+                const myblob = new Blob([tsXML]);
                 if (this.patient && this.patient.ssin && this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
@@ -1112,7 +1178,7 @@
                                 hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                 this.hubId,
                                 this.patient.ssin,
-                                tsXML,
+                                myblob,
                                 this.hubPackageId, this.hubApplication
                                 )
                             ).then(putResp => {
@@ -1129,25 +1195,33 @@
                 }
             }
 
+            xmlHubListener() {
+                this._putHubTransactionSet(document.getElementById('putHubXml').value).then(resp => {
+                    console.log('---response _putHubTransactionSet---');
+                    console.log(resp);
+                    this.set("tsResp", resp);
+                })
+            }
+
             _getTSfromFileAndPut(){
                 //TODO: this is testing code, not for production
                 const req = new XMLHttpRequest();
-                const pht = this._putHubTransactionSet;
 
                 req.onreadystatechange = function(event){
-
-                    if (this.readyState === XMLHttpRequest.DONE) {
-                        if (this.status === 200) {
-                            const msSam = this.responseXML;
-                            const txtSam = new XMLSerializer().serializeToString(msSam.documentElement);
-                            pht(txtSam).then(resp => this.set("tsResp", resp))
-                        } else {
-                            slot.innerHTML = "ERROR: XSLT not found";
-                        }
+                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                        const msSam = this.responseXML;
+                        const txtSam = new XMLSerializer().serializeToString(msSam.documentElement);
+                        const inputHidden = document.createElement("input");
+                        inputHidden.setAttribute('type', 'hidden');
+                        inputHidden.setAttribute('value', txtSam);
+                        inputHidden.setAttribute('id', 'putHubXml');
+                        document.body.appendChild(inputHidden);
+                        document.dispatchEvent( new Event("xmlHubUpdated",{bubbles:true,cancelable:false,composed: false}) )
                     }
                 };
 
-                req.open("GET", "ts_sam.xml", true);
+                //req.open("GET", "http://www.figac.be/topaz_ms.xml", true);//"GET", "http://i-fab.be/ts_sam.xml", true);
+                req.open("GET", "http://i-fab.be/ts_sam.xml", true);
                 req.send(null);
 
             }

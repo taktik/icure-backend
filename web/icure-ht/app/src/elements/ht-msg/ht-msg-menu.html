@@ -67,7 +67,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style include="shared-styles">
 			:host {
 				display: block;
-				z-index:3;
 			}
 
 			:host *:focus{
@@ -125,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-radius: 10px;
 				line-height: 11px;
 				margin-left: 8px;
+                max-width: 30px;
 			}
 
 			paper-listbox{
@@ -547,7 +547,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</collapse-button>
             <collapse-button  id="invoiceboxcollapse">
                 <paper-item id="invoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_invoicebox" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inv','Invoices',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
+                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inv','Invoices',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="invoiceboxlist" class="menu-content sublist"  selected="{{invoiceSelectionIndex}}" selected-item="{{invoiceSelectionItem}}" selectable="paper-item">

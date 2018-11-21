@@ -30,33 +30,33 @@ import java.util.*;
 public class UserDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	protected String name;
-	protected Set<PropertyDto> properties = new HashSet<>();
-	protected Set<PermissionDto> permissions = new HashSet<>();
-	protected Users.Type type;
-	protected Users.Status status;
-	protected String groupId;
-	protected String login;
-	protected String password;
-	protected String passwordHash;
-	protected String secret;
-	protected Boolean use2fa;
-	protected Long createdDate;
-	protected Long lastLoginDate;
-	protected Long expirationDate;
-	protected String activationToken;
-	protected Long activationTokenExpirationDate;
-	protected String passwordToken;
-	protected Long passwordTokenExpirationDate;
-	protected Long termsOfUseDate;
-	protected String healthcarePartyId;
+	private String name;
+	private Set<PropertyDto> properties = new HashSet<>();
+	private Set<PermissionDto> permissions = new HashSet<>();
+	private Users.Type type;
+	private Users.Status status;
+	private String groupId;
+	private String login;
+	private String password;
+	private String passwordHash;
+	private String secret;
+	private Boolean use2fa;
+	private Long createdDate;
+	private Long lastLoginDate;
+	private Long expirationDate;
+	private String activationToken;
+	private Long activationTokenExpirationDate;
+	private String passwordToken;
+	private Long passwordTokenExpirationDate;
+	private Long termsOfUseDate;
+	private String healthcarePartyId;
 
-	protected List<String> roles = new ArrayList<>();
-    protected String email;
+	private List<String> roles = new ArrayList<>();
+    private String email;
 
-	protected Map<String,Set<String>> autoDelegations = new HashMap<>(); //healthcareIds
+	private Map<String,Set<String>> autoDelegations = new HashMap<>(); //healthcareIds
 
-	protected Map<String, String> applicationTokens = new HashMap<>();
+	private Map<String, String> applicationTokens = new HashMap<>();
 
 	public String getName() {
 		return name;
@@ -248,11 +248,6 @@ public class UserDto extends StoredDto implements Cloneable, Serializable {
 
 	public void setApplicationTokens(Map<String, String> applicationTokens) {
 		this.applicationTokens = applicationTokens;
-	}
-
-
-	public List<String> getParents() {
-		return roles;
 	}
 
 	public Roles.VirtualHostDependency getVirtualHostDependency() {
