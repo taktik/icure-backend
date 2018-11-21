@@ -385,10 +385,6 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	@Override
 	public Patient createPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
-			throw new MissingRequirementsException("createPatient: Name, Last name are required.");
-		}
-
 		if (patient.getPreferredUserId() != null && (patient.getDelegations() == null || patient.getDelegations().size() == 0)) {
 			patient.setDelegations(new HashMap<>());
 			User user = userLogic.getUser(patient.getPreferredUserId());
