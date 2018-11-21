@@ -2185,22 +2185,11 @@
             }
 
             _mediumTypeChanged(mediumType) {
-                if (mediumType === 'eattest') {
-                    this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
-                    this.set('selectedInvoice.encounterLocationNorm',0)
-                    this.set('selectedInvoice.invoiceType',"patient")
-                }
-                else if(mediumType === "efact"){
-                    this.set('selectedInvoice.invoiceType',"mutualfund")
-                }
+
                 this.varIsEattestClosedChanged()
                 this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
 
-                this.api.invoice().modifyInvoice(this.selectedInvoice)
-                    .then(invoice => this.api.register(invoice,'invoice'))
-                    .then(invoice => {
-                        this.updateGui(invoice, true)
-                    })
+
             }
             _closeDialog() {
                 this.$.invoiceDialog.close()
@@ -2228,9 +2217,23 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
+                const mediumType = e.detail.value
+                if (mediumType === 'eattest') {
+                    this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
+                    this.set('selectedInvoice.encounterLocationNorm',0)
+                    this.set('selectedInvoice.invoiceType',"patient")
+                }
+                else if(mediumType === "efact"){
+                    this.set('selectedInvoice.invoiceType',"mutualfund")
+                }
 
+                e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
 
-                return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
+                this.api.invoice().modifyInvoice(this.selectedInvoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.updateGui(invoice, true)
+                    })
             }
 
             _nmclSearch(e) {
@@ -3708,9 +3711,6 @@
             }
 
             eattest(invoice){
-
-                console.log("print",invoice)
-
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
@@ -3984,10 +3984,10 @@
                                     {{#formatNumber}}{{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
+
                                 </td>
                             </tr>
 
