@@ -1453,6 +1453,7 @@
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
                 <paper-input class="paid" label="Montant encaissé"
+                             allowed-pattern="[.\d]"
                              value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
             </div>
             <div class="buttons">
@@ -2088,12 +2089,16 @@
 
 
             _selectInvoice(idx) {
-                console.log('select invoice')
+                //console.log('select invoice')
                 // Drop all should there be any
                 //this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
                 const selected = (idx >= 0) ?  this.invoices[idx] : null
                 const invoiceId = selected && selected.id
+                if(selected===this.selectedInvoice){
+                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                    return;
+                }
 
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
@@ -2184,12 +2189,11 @@
             }
 
             _mediumTypeChanged(mediumType) {
-                if (mediumType === 'eattest') {
-                    this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
-                    this.set('selectedInvoice.encounterLocationNorm',0)
-                }
+
                 this.varIsEattestClosedChanged()
                 this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
+
+
             }
             _closeDialog() {
                 this.$.invoiceDialog.close()
@@ -2217,7 +2221,24 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
-                return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
+                this.set('selectedInvoice.sentMediumType',e.detail.value)
+                const mediumType = e.detail.value
+                if (mediumType === 'eattest') {
+                    this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
+                    this.set('selectedInvoice.encounterLocationNorm',0)
+                    this.set('selectedInvoice.invoiceType',"patient")
+                }
+                else if(mediumType === "efact"){
+                    this.set('selectedInvoice.invoiceType',"mutualfund")
+                }
+
+                e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
+
+                this.api.invoice().modifyInvoice(this.selectedInvoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.updateGui(invoice, true)
+                    })
             }
 
             _nmclSearch(e) {
@@ -2320,7 +2341,6 @@
                             while (!status.done) {
                                 status = gen.next()
                             }
-
 
                             val.totalAmount = Number(val.totalAmount).toFixed(2)
                             val.reimbursement = Number(val.reimbursement).toFixed(2)
@@ -2612,9 +2632,9 @@
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => {
-                            this.$['nmclGrid'].clearCache()
                             this.calculateTotalOfInvoice()
                             this.updateGui(invoice)
+                            this.$['nmclGrid'].clearCache()
 
                             return invoice
                         })
@@ -2632,7 +2652,7 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot, c) => tot+(c.reimbursement || 0) + (c.patientIntervention || 0) + (c.doctorSupplement || 0), 0).toFixed(2))) }
+                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2))) }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
@@ -2672,17 +2692,25 @@
                                 id: "Invoice::" + newReference
                             }).then(() => {
                                 console.log(invoice)
+                                this.updateGui(invoice)
                                 if(this.selectedInvoice.sentMediumType==="efact"){
                                     return this.generateJustificatory(invoice)
                                 } else if(this.selectedInvoice.sentMediumType==="eattest"){
                                     return this.sendEattest(invoice);
                                 }
+
                             }))
                 })
             }
 
             _invoicingCodeChange() {
                 if (this.activeNmclItem) {
+                    if (this.activeNmclItem.prescriberNorm === 0 || this.activeNmclItem.prescriberNorm === 3) {
+                        this.set("isPrescriberIsNeeded", false)
+                    } else {
+                        this.set("isPrescriberIsNeeded", true)
+                    }
+
                     const code = this.selectedInvoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
                     const codeIdx = this.selectedInvoice.invoicingCodes.indexOf(code)
 
@@ -3694,9 +3722,6 @@
             }
 
             eattest(invoice){
-
-                console.log("print",invoice)
-
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
@@ -3970,10 +3995,10 @@
                                     {{#formatNumber}}{{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
+
                                 </td>
                             </tr>
 
@@ -4066,8 +4091,7 @@
             }
 
             _isInvoiceClosedOrSelectedInvoiceEattest(){
-                return this.selectedInvoice && this.selectedInvoice.sentMediumType &&  this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
-
+                return this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
             }
 
             _getAdressesBookInfo(){
@@ -4116,7 +4140,7 @@
             }
 
             _isJustifButtonDisabled(){
-                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
             }
 
             _switchBetweenMethodForJustifAndCreation(){
