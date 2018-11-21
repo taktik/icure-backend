@@ -15,6 +15,8 @@
         <style>
             :host {
                 height: 50px !important;
+                padding: 8px!important;
+                margin-bottom: 0!important;
             }
         </style>
     </template>
@@ -86,3 +88,17 @@
     </template>
 </dom-module>
 
+
+<dom-module id="vaadin-combo-box-style" theme-for="vaadin-combo-box">
+    <template>
+        <style>
+            :host {
+                height: 50px;
+            }
+            :host [part=text-field]{
+                height: 50px;
+                padding: 0;
+            }
+        </style>
+    </template>
+</dom-module>
