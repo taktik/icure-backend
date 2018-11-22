@@ -1005,7 +1005,7 @@
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
-                                        <template is="dom-if" if="[[_ifEattestSaved(item)]]">
+                                        <template is="dom-if" if="[[_ifEattestSaved(item,item.printedDate)]]">
                                             <div class="he-edit-btn-container">
                                                 <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
@@ -2129,7 +2129,7 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
 
                     this.$['nmclGrid'].clearCache()
                 })
@@ -2191,7 +2191,7 @@
             _mediumTypeChanged(mediumType) {
 
                 this.varIsEattestClosedChanged()
-                this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
+                this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
 
 
             }
@@ -2551,6 +2551,7 @@
                         }).finally(() => {
                         this.isLoadingEattest = false
                         this.set('isLoadingValidation',false)
+                        this.updateGui(this.selectedInvoice)
                     })
                 } else {
                     //Todo manage mandatory fields
@@ -3560,7 +3561,7 @@
                         }
                     }
 
-                    if(this.selectedInvoice.encounterLocationNorm!==0){
+                    if(this.selectedInvoice.encounterLocationNorm && this.selectedInvoice.encounterLocationNorm!==0){
                         newCode.location={
                             cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].cdHcParty,
                             firstName: null,
