@@ -78,11 +78,13 @@ public class Invoice extends StoredICureDocument {
 	private String internshipLastName;
 	private String internshipFirstName;
 	private String internshipCdHcParty;
+	private String internshipCbe;
 	private String supervisorNihii;
 	private String supervisorSsin;
 	private String supervisorLastName;
 	private String supervisorFirstName;
 	private String supervisorCdHcParty;
+	private String supervisorCbe;
 
 	private String error;
 
@@ -130,11 +132,13 @@ public class Invoice extends StoredICureDocument {
 		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
 		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
 		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
+		this.internshipCbe = this.internshipCbe == null ? other.internshipCbe : this.internshipCbe;
 		this.supervisorNihii = this.supervisorNihii == null ? other.supervisorNihii : this.supervisorNihii;
 		this.supervisorSsin = this.supervisorSsin == null ? other.supervisorSsin : this.supervisorSsin;
 		this.supervisorLastName = this.supervisorLastName == null ? other.supervisorLastName : this.supervisorLastName;
 		this.supervisorFirstName = this.supervisorFirstName == null ? other.supervisorFirstName : this.supervisorFirstName;
 		this.supervisorCdHcParty = this.supervisorCdHcParty == null ? other.supervisorCdHcParty : this.supervisorCdHcParty;
+		this.supervisorCbe = this.supervisorCbe == null ? other.supervisorCbe : this.supervisorCbe;
 
 		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
 				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
@@ -185,11 +189,13 @@ public class Invoice extends StoredICureDocument {
 		ni.internshipLastName = i.internshipLastName;
 		ni.internshipFirstName = i.internshipFirstName;
 		ni.internshipCdHcParty = i.internshipCdHcParty;
+		ni.internshipCbe = i.internshipCbe;
 		ni.supervisorNihii = i.supervisorNihii;
 		ni.supervisorSsin = i.supervisorSsin;
 		ni.supervisorLastName = i.supervisorLastName;
 		ni.supervisorFirstName = i.supervisorFirstName;
 		ni.supervisorCdHcParty = i.supervisorCdHcParty;
+		ni.supervisorCbe = i.supervisorCbe;
 
 		ni.invoicingCodes = codes.stream().map(ic -> {
 			InvoicingCode invoicingCode = new InvoicingCode(ic);
@@ -406,6 +412,10 @@ public class Invoice extends StoredICureDocument {
 		this.internshipCdHcParty = internshipCdHcParty;
 	}
 
+	public String getInternshipCbe() { return internshipCbe; }
+
+	public void setInternshipCbe(String internshipCbe) { this.internshipCbe = internshipCbe; }
+
 	public String getSupervisorNihii() {
 		return supervisorNihii;
 	}
@@ -433,6 +443,10 @@ public class Invoice extends StoredICureDocument {
 	public String getSupervisorFirstName() {
 		return supervisorFirstName;
 	}
+
+	public void setSupervisorCbe(String supervisorCbe) { this.supervisorCbe = supervisorCbe; }
+
+	public String getSupervisorCbe() { return supervisorCbe; }
 
 	public String getEncounterLocationName() { return encounterLocationName; }
 
