@@ -2112,6 +2112,7 @@
                 this.set('npi', false)
                 this.set("errorMessage","")
 
+
                 if (!selected) {
                     this.set('selectedInvoice', {})
                     return
@@ -2129,6 +2130,7 @@
                     })
                 ).finally(() => {
 
+                    this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
@@ -2673,6 +2675,7 @@
             }
 
             _validateAndPrepareInvoiceForBatchSending() {
+
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
@@ -2687,29 +2690,29 @@
                     this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
                 }
 
-                this.api.entityRef().getLatest("Invoice::").then(latest => {
-                    console.log(latest)
-                    const lastReference = latest.id.replace(/Invoice:[^_]/g, '')
-                    const newReference = Number(lastReference) + 1
-
-                    this.set("selectedInvoice.invoiceReference", newReference)
+                if(this.isInvoiceToBeCorrected === true && !this._isSelectedInvoiceEattest()){
+                   this.selectedInvoice.invoicingCodes.map(ic => ic.resent = false)
+                   this.api.invoice().modifyInvoice(this.selectedInvoice)
+                     .then(invoice => this.api.register(invoice, 'invoice'))
+                     .then(invoice => {
+                         console.log(invoice)
+                         this.updateGui(invoice)
+                         return this.generateJustificatory(invoice)
+                     })
+                }else{
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice, 'invoice'))
-                        .then(invoice =>
-                            this.api.entityRef().createEntityReference({
-                                docId: invoice.id,
-                                id: "Invoice::" + newReference
-                            }).then(() => {
-                                console.log(invoice)
-                                this.updateGui(invoice)
-                                if(this.selectedInvoice.sentMediumType==="efact"){
-                                    return this.generateJustificatory(invoice)
-                                } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    return this.sendEattest(invoice);
-                                }
+                        .then(invoice => {
+                            console.log(invoice)
+                            this.updateGui(invoice)
 
-                            }))
-                })
+                            if (this.selectedInvoice.sentMediumType === "efact") {
+                                return this.generateJustificatory(invoice)
+                            } else if (this.selectedInvoice.sentMediumType === "eattest") {
+                                return this.sendEattest(invoice);
+                            }
+                        })
+                }
             }
 
             _invoicingCodeChange() {
