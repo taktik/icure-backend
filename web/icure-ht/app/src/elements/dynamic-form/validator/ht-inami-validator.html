@@ -1,0 +1,36 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/iron-validator-behavior/iron-validator-behavior.html">
+
+<dom-module id="ht-inami-validator">
+    <script>
+
+        class HtInamiValidator extends Polymer.mixinBehaviors([Polymer.IronValidatorBehavior], Polymer.Element) {
+            static get is() {
+                return 'ht-inami-validator';
+            }
+
+            static get properties() {
+                return {
+                    api :{
+                        type : Object
+                    },
+                    pattern: {
+                        type: String,
+                        value: null
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            validate(value) {
+                return !value || this.api.patient().checkInami(value+"")
+            }
+        }
+
+        customElements.define(HtInamiValidator.is, HtInamiValidator);
+    </script>
+</dom-module>

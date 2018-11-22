@@ -52,6 +52,7 @@
 <link rel="import" href="../../../vaadin-icure-theme.html">
 
 <link rel="import" href="related-code-link.html">
+<link rel="import" href="../../dynamic-form/validator/ht-inami-validator.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
@@ -977,6 +978,7 @@
 
         </style>
 
+        <ht-inami-validator api="[[api]]" validator-name="ht-inami-validator"></ht-inami-validator>
         <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
             <iron-icon icon="icons:check"></iron-icon>
         </paper-item>
@@ -1083,7 +1085,8 @@
                         <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
                             <paper-input id="invoice-nihiiTrainee"
                                          label="[[localize('train_nihii','NIHII trainee',language)]]"
-                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"
+                                         validator="ht-inami-validator" auto-validate></paper-input>
                         </template>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
@@ -1107,8 +1110,9 @@
                             </vaadin-combo-box>
                             <template is="dom-if" if="[[isLocationIsNeeded]]">
                                 <vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
-                                <paper-input id="invoice-nihii-location" label="[[localize('nissLocation','Niss du Lieu',language)]]"
-                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                <paper-input id="invoice-nihii-location" label="[[localize('nihiiLocation','Inami du Lieu',language)]]"
+                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"
+                                             validator="ht-inami-validator" auto-validate></paper-input>
                             </template>
                             <template is="dom-if" if="[[isLoadingLocations]]">
                                 <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
@@ -1117,7 +1121,8 @@
 
 
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]" always-float-label="true">
+                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]" always-float-label="true"
+                                         validator="ht-inami-validator" auto-validate>
                                 <div slot="suffix">
                                     <iron-icon icon="info" id="invoice-dmg-icon"
                                                class="infoDmg"></iron-icon>
@@ -1327,7 +1332,8 @@
                             <template is="dom-if" if="[[isPrescriberIsNeeded]]">
                                 <paper-input class="flex-container-nmcl-row"
                                              label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
-                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"
+                                             validator="ht-inami-validator" auto-validate></paper-input>
                                 <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription date',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker></template>
                             </template>
                         </div>
