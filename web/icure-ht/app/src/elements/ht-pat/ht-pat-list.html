@@ -1317,7 +1317,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             "cdItemRisk",
                             "cdItemFamilyRisk",
                             "cdItemHealthcareelement",
-                            "cdItemHealthcareapproach",
                             "cdItemAllergy",
                             "cdItemDiagnosis",
                             "cdItemLab",
@@ -1433,82 +1432,85 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
 
                     let svcFilter = null
-                    if (this.selectedFilters && this.selectedFilters.length) {
-                        svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
-                    } else {
-                        try { svcFilter = filterExParser.parse(latestSearchValue, {hcpId: this.user.healthcarePartyId}) } catch (ignored) {}
-                    }
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
 
-                    const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyAndSsinFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'ssin': latestSearchValue
-                    } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyDateOfBirthFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine) => (p3.length === 4 ? p3 : (p3 > 20) ? "19" + p3 : "20" + p3) + (p2.length === 2 ? p2 : "0" + p2) + (p1.length === 2 ? p1 : "0" + p1))
-                    } : {
-                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'searchString': latestSearchValue
-                    }
+                        if (this.selectedFilters && this.selectedFilters.length) {
+                            svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
+                        } else {
+                            try { svcFilter = filterExParser.parse(latestSearchValue, {hcpId: currentHcp.parentId || this.user.healthcarePartyId}) } catch (ignored) {}
+                        }
+
+                        const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyAndSsinFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'ssin': latestSearchValue
+                        } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyDateOfBirthFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine) => (p3.length === 4 ? p3 : (p3 > 20) ? "19" + p3 : "20" + p3) + (p2.length === 2 ? p2 : "0" + p2) + (p1.length === 2 ? p1 : "0" + p1))
+                        } : {
+                            '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'searchString': latestSearchValue
+                        }
 
 
-                    if (grid.lastParams !== thisParams) {
-                        grid.lastParams = thisParams
-                        console.log("Starting search for " + thisParams)
+                        if (grid.lastParams !== thisParams) {
+                            grid.lastParams = thisParams
+                            console.log("Starting search for " + thisParams)
 
-                        this.set('hideSpinner', false)
-                        this.set('isLoadingPatient', true)
+                            this.set('hideSpinner', false)
+                            this.set('isLoadingPatient', true)
 
-                        ;(svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter})
-                            .then(out => {
-                                let rows = out.rows
+                            ;(svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter})
+                                    .then(out => {
+                                        let rows = out.rows
 
-                                const svcDict = rows.reduce((acc, s) => {
-                                    const cs = acc[s.id]
-                                    if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
-                                        acc[s.id] = s
-                                    }
-                                    return acc
-                                }, {})
-                                const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
-                                const hcpId = this.user.healthcarePartyId
+                                        const svcDict = rows.reduce((acc, s) => {
+                                            const cs = acc[s.id]
+                                            if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
+                                                acc[s.id] = s
+                                            }
+                                            return acc
+                                        }, {})
+                                        const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
+                                        const hcpId = this.user.healthcarePartyId
 
-                                const ownersOfDelegations = services.reduce((acc, s) => {
-                                    s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
-                                    return acc
-                                }, {})
-                                const importedAESHcPartyKeys = {}
-                                return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
-                                    return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
-                                        filter: {
-                                            '$type': 'PatientByIdsFilter',
-                                            'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
-                                        }
-                                    })
-                                })
-                            }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
-                        ).then(res => {
-                            if (grid.lastParams !== thisParams) {
-                                console.log("Cancelling obsolete search")
-                                return
-                            }
-                            const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
+                                        const ownersOfDelegations = services.reduce((acc, s) => {
+                                            s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
+                                            return acc
+                                        }, {})
+                                        const importedAESHcPartyKeys = {}
+                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
+                                            return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                                filter: {
+                                                    '$type': 'PatientByIdsFilter',
+                                                    'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
+                                                }
+                                            })
+                                        })
+                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                            ).then(res => {
+                                if (grid.lastParams !== thisParams) {
+                                    console.log("Cancelling obsolete search")
+                                    return
+                                }
+                                const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
 
-                            if (keptPatients.length > 0) {
-                                this.btnSelectionPatient = true
-                            }
+                                if (keptPatients.length > 0) {
+                                    this.btnSelectionPatient = true
+                                }
 
-                            if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-                                grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
-                            }
-                            callback(keptPatients.map(this.pimpPatient))
-                        }).finally(() => {
-                            this.set('hideSpinner', true)
-                            this.set('isLoadingPatient', false)
-                        })
-                    }
+                                if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
+                                    grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
+                                }
+                                callback(keptPatients.map(this.pimpPatient))
+                            }).finally(() => {
+                                this.set('hideSpinner', true)
+                                this.set('isLoadingPatient', false)
+                            })
+                        }
+                    })
                 }
             }
 

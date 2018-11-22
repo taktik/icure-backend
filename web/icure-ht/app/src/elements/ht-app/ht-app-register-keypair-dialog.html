@@ -17,10 +17,10 @@
 			<form is="form" id="keys-form">
 				<div class="layout vertical center">
 					<h3>[[localize('a_pri_key_fil_is_nee_for_thi_use','A private key file is needed for this user',language)]]</h3>
-					<h5>ID: {{user.healthcarePartyId}}</h5>
+					<h5>ID: [[keyhcpid]]</h5>
 					<paper-input type="file" id="rsaFileInput" on-change="rsaKeySelected"></paper-input>
 					<paper-button raised="true" id="submitButton" type="submit" on-tap="selectFile" autofocus>[[localize('imp','Import',language)]]</paper-button>
-					<div>{{message}}</div>
+					<div>[[message]]</div>
 				</div>
 			</form>
 
