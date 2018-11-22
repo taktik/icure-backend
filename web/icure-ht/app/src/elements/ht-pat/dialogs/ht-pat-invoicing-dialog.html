@@ -2698,10 +2698,7 @@
                 }
 
                 if(this.isInvoiceToBeCorrected === true && !this._isSelectedInvoiceEattest()){
-                   this.selectedInvoice.invoicingCodes.map(ic => {
-                       ic.resent = false
-                       ic.errorMessage = null
-                   })
+                   this.selectedInvoice.invoicingCodes.map(ic => ic.resent = false)
 
                    this.api.invoice().modifyInvoice(this.selectedInvoice)
                      .then(invoice => this.api.register(invoice, 'invoice'))

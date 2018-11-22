@@ -729,11 +729,6 @@
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template><span class$="invoice-status [[_getIconStatusClass(item.statut)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.statut)]]"></iron-icon> [[item.statut]]</span></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                            <template>
-                                                <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
-                                            </template>
-                                        </vaadin-grid-column>
                                     </vaadin-grid>
                                     <vaadin-grid items="toggledDatas">
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
@@ -2050,17 +2045,6 @@
 
             _showInvoiceToBeSendDetails(){
                 this.$.pendingDetailDialog.open()
-            }
-
-            _unlockInvoice(e){
-                e.stopPropagation()
-
-                if(e.target.dataset.item){
-                    const invoice = JSON.parse(e.target.dataset.item)
-                    delete(invoice.printedDate)
-
-                    this.api.invoice().modifyInvoice(invoice).then(() => this.getMessage())
-                }
             }
 
             SEG_getErrSegment_200(zones){
