@@ -64,12 +64,14 @@ public class InvoiceDto extends IcureDto {
 	protected String internshipLastName;
 	protected String internshipFirstName;
 	protected String internshipCdHcParty;
+	protected String internshipCbe;
 
 	protected String supervisorNihii;
 	protected String supervisorSsin;
 	protected String supervisorLastName;
 	protected String supervisorFirstName;
 	protected String supervisorCdHcParty;
+	protected String supervisorCbe;
 
 	protected Integer longDelayJustification;
 	protected Boolean creditNote;
@@ -237,6 +239,10 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
 
+	public String getInternshipCbe() { return internshipCbe; }
+
+	public void setInternshipCbe(String internshipCbe) { this.internshipCbe = internshipCbe; }
+
 	public String getSupervisorNihii() {
 		return supervisorNihii;
 	}
@@ -276,6 +282,10 @@ public class InvoiceDto extends IcureDto {
 	public void setSupervisorCdHcParty(String supervisorCdHcParty) {
 		this.supervisorCdHcParty = supervisorCdHcParty;
 	}
+
+	public void setSupervisorCbe(String supervisorCbe) { this.supervisorCbe = supervisorCbe; }
+
+	public String getSupervisorCbe() { return supervisorCbe; }
 
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;
