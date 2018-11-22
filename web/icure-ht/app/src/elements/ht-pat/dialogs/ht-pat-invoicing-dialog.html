@@ -2231,6 +2231,7 @@
                 this.set('selectedMediumCodeType', e.detail.value)
                 this.set('selectedInvoice.sentMediumType',e.detail.value)
                 const mediumType = e.detail.value
+
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
                     this.set('selectedInvoice.encounterLocationNorm',0)
@@ -2398,7 +2399,7 @@
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
-                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+                                const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
                                 
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
@@ -2691,7 +2692,11 @@
                 }
 
                 if(this.isInvoiceToBeCorrected === true && !this._isSelectedInvoiceEattest()){
-                   this.selectedInvoice.invoicingCodes.map(ic => ic.resent = false)
+                   this.selectedInvoice.invoicingCodes.map(ic => {
+                       ic.resent = false
+                       ic.errorMessage = null
+                   })
+
                    this.api.invoice().modifyInvoice(this.selectedInvoice)
                      .then(invoice => this.api.register(invoice, 'invoice'))
                      .then(invoice => {
@@ -3340,7 +3345,7 @@
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+                                const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
 
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
