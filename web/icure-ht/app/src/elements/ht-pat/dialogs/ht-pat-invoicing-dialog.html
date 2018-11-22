@@ -2179,7 +2179,7 @@
 
                         this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
                         if (selection && selection.invoicingCodeId) {
-                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            const idx =  _.findIndex(this.invoices, i => i.id === selection.invoicingCodeId || i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
                             this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(newInvoice))
                         } else {
                             this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
@@ -2187,7 +2187,7 @@
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
                         if (selection && selection.invoicingCodeId) {
-                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            const idx =  _.findIndex(this.invoices, i => i.id === selection.invoicingCodeId || i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
                             this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(invoiceOfDay))
                         } else {
                             this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
@@ -2390,7 +2390,7 @@
                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
                             .then(([inv, parentIns]) => {
                             let invoice = inv
-                                                
+
                             if(!invoice){return null;}
                             if (!invoice.id) {
                                 invoice.invoiceDate = this.selectedInvoice.invoiceDate
@@ -2405,7 +2405,7 @@
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
                                 const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
-                                
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
