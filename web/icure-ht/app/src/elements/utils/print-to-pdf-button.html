@@ -1,0 +1,49 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../tk-localizer.html">
+
+<dom-module id="print-to-pdf-button">
+  <template>
+    <style is="custom-style">
+    </style>
+
+    <paper-button on-tap="[[_print]]">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button>
+  </template>
+
+</dom-module>
+<script>
+import styx from '../../../scripts/styx';
+
+class PrintToPdfButton extends Polymer.TkLocalizerMixin(Polymer.Element) {
+  static get is() {
+    return 'print-to-pdf-button';
+  }
+  static get properties() {
+    // Support for some of the iron-collapse attributes
+    // Check their source code for more information.
+    return {
+      css: {
+        type: String,
+        value: ''
+      },
+      language: {
+          value: 'en',
+          type: String
+      }
+    };
+  }
+  constructor() {
+    super();
+  }
+  print(e) {
+      const el = styx.parent(e.target, el => el.tagName.classList.contains('printable'))
+      const css = []
+      for (let idx = 0; idx < document.styleSheets.length; i++) {
+          const ss = document.styleSheets.item(idx)
+          ss.cssRules.forEach(r => css.push(e.cssText))
+      }
+
+  }
+}
+window.
+}customElements.define(PrintToPdfButton.is, PrintToPdfButton);
+</script>

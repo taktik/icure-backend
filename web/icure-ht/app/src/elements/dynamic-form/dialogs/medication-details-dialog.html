@@ -740,11 +740,28 @@
 
             _toggleDpdwn() {this.set('dpdwn',!this.dpdwn)}
 
+            extractContentWithIdFromMedicationService(m, isNew) {
+                return {
+                    id: m.id,
+                    codes: m.codes,
+                    medicationValue:
+                    (
+                        this.api.localize(m.content, this.language)  ||
+                        ( m.content[this.language] =
+                                {
+                                    medicationValue: { regimen: [] }
+                                }
+                        )
+                    ).medicationValue,
+                    isNew: isNew || false };
+            }
+
+
             open(medicationDetail, selectedMedicationContentWithId) {
                 if (selectedMedicationContentWithId) {
-                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId)
-                    this.set('previousMedication', selectedMedicationContentWithId)
                     this.set('medicationDetail', medicationDetail)
+                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId ||  this.extractContentWithIdFromMedicationService(m, false))
+                    this.set('previousMedication', this.selectedMedicationContentWithId)
 
                     this.set('bufferUnit', selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
                     this.set('medicPriority', selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )

@@ -54,6 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icpc-styles.html">
+<link rel="import" href="../../atc-styles.html">
 <link rel="import" href="../../scrollbar-style.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
@@ -71,7 +72,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <style include="iron-flex iron-flex-alignment"></style>
         <!--suppress CssUnusedSymbol -->
-        <style include="icpc-styles scrollbar-style">
+        <style include="atc-styles icpc-styles scrollbar-style">
             :host {
                 height: 100%;
             }
@@ -1110,6 +1111,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             paper-spinner {
                 margin-left: 15px;
             }
+
+            .menu-item.iron-selected {
+                background:var(--app-primary-color);
+                color: white;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
         </style>
 
         <div class="container">
@@ -1265,7 +1317,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template is="dom-repeat" items="[[medications]]" as="medication">
                                     <paper-item class="menu-item" id="_svc_[[medication.id]]">
                                         <div class="one-line-menu">
-                                            [[shortServiceDescription(medication, language)]]
+                                            <template is="dom-if" if="[[medication.colour]]">
+                                                <label class$="colour-code [[medication.colour]]"><span></span></label>
+                                            </template>
+                                            <i>[[_shortDateFormat(medication.openingDate, medication.valueDate)]]</i>:[[shortMedicationDescription(medication, language)]]
+                                        </div>
+                                        <div>
+                                            <div class="he-edit-btn-container">
+                                                <paper-icon-button id="med-edit-btn-edit_[[getHeId(medication)]]" class="he-edit-btn" icon="create" on-tap="_editMedication"></paper-icon-button>
+                                                <paper-tooltip position="top" for="med-edit-btn-edit_[[getHeId(medication)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
+                                            </div>
                                         </div>
                                     </paper-item>
                                 </template>
@@ -2082,6 +2143,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return date ? this.api.moment(date, fFrom).format(fTo) : '';
             }
 
+            _shortDateFormat(date, altDate) {
+                return (date || altDate) && "'"+this.api.moment((date || altDate)).format('YY') || '';
+            }
+
             _isElevated(CT){
                 return CT && CT.substring(2) !== '0' ? this._yesOrNo(true) : this._yesOrNo(false);
             }
@@ -2219,7 +2284,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     }
                                 }
                             )
-                    }else{
+                    } else {
                         //there is no niss
                         let oa = this.genInsOA;
                         let aff = this.genInsAFF;
@@ -3003,7 +3068,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     })
 
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications', _.sortBy(medications, sorter)))
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
+                    )
                     this._updateFilterPanels()
                 })
 
@@ -3516,7 +3583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!pat) {
                     return require('../../../images/Male-128.jpg');
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'F' || pat.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
             }
 
             serviceDescriptions(ctc, label) {
@@ -3526,6 +3593,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             shortServiceDescription(svc, lng) {
                 let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng);
                 return rawDesc && '' + rawDesc || '';
+            }
+
+            shortMedicationDescription(svc, lng) {
+                let rawContent = svc && this.api && this.api.contact().preferredContent(svc, lng);
+                return rawContent && rawContent.medicationValue && `${this.api.contact().medication().medicationNameToString(rawContent.medicationValue)} ${this.api.contact().medication().posologyToString(rawContent.medicationValue, lng)}` || '';
             }
 
             contentHasData(c) {
@@ -3552,6 +3624,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 };
 
                 this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
+            }
+
+            _editMedication(e) {
+                const id = e.target.id.substr("med-edit-btn-edit_".length)
+                const m = this.medications.find(s => s.id === id)
+                this.$['medication-detail'].open(m);
             }
 
             _selectMedication(e) {
@@ -3594,10 +3672,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
                     this.currentSelectMedicationEventDetail.onShowDetails(e)
                 } else {
-                    const m = e.detail
+                    const medicationService = e.detail
                     this.$['medication-detail'].open(e.detail, {
-                        id: m.id,
-                        medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
+                        id: medicationService.id,
+                        medicationValue: (this.api.localize(medicationService.content, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
                         isNew: true
                     });
                 }
@@ -3727,17 +3805,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set("contactStatutChecked",[]);
 
-                if(this.statutFilter!=="all")
+                if(this.statutFilter!=="all") {
                     this.contactYears.map(
-                        contactYear =>{
-                            contactYear.contacts.map( ctc =>{
+                        contactYear => {
+                            contactYear.contacts.map(ctc => {
                                 ctc.subContacts.map(sbct => {
                                     let value;
-                                    if(sbct.healthElementId){
+                                    if (sbct.healthElementId) {
                                         this.api.helement().getHealthElement(sbct.healthElementId).then(element => {
-                                            value = element.status===table.findIndex( row => row===this.statutFilter)
-                                            if(value && !this.contactStatutChecked.find(id => id===ctc.id)){
-                                                this.push("contactStatutChecked",ctc.id);
+                                            value = element.status === table.findIndex(row => row === this.statutFilter)
+                                            if (value && !this.contactStatutChecked.find(id => id === ctc.id)) {
+                                                this.push("contactStatutChecked", ctc.id);
                                             }
                                         })
                                     }
@@ -3746,7 +3824,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         }
                     )
-
+                }
             }
 
             _composeHistory(e){
