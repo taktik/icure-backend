@@ -361,14 +361,14 @@
                 }
 
                 .invoiceDetailContainer,
-                .toBeCorrectedDetailContainerC{
+                .toBeCorrectedContainerDetail{
                     height: 50%;
                     opacity: 0;
                     transition: all .75s ease-out;
                     overflow-y: auto;
                 }
                 .invoiceDetailContainer.open,
-                .toBeCorrectedDetailContainerC.open {
+                .toBeCorrectedContainerDetail.open {
                     opacity: 1;
                     width: 100%;
                     height: 37%;
@@ -577,6 +577,15 @@
                     transform: translateY(8px);
                 }
 
+                .error_message_red{
+                    color: var(--paper-red-400);
+                }
+
+                .iconBtn{
+                    height: 16px;
+                    width: 16px;
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -701,26 +710,24 @@
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="border-left"><small><span class$="{{_getTxtStatusColor(item.statut,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]€</span></small></template>
+                                                <template class="border-left"><small><span class$="[[_getTxtStatusColor(item.statut,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalReimbursement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small><span class$="{{_getTxtStatusColor(item.statut,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]€</span></small></template>
+                                                <template><small><span class$="[[_getTxtStatusColor(item.statut,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalPatientIntervention)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small><span class$="{{_getTxtStatusColor(item.statut,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]€</span></small></template>
+                                                <template><small><span class$="[[_getTxtStatusColor(item.statut,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalDoctorSupplement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
-                                                <template class="border-right"><small><span class$="{{_getTxtStatusColor(item.statut,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]€</span></small></template>
+                                                <template class="border-right"><small><span class$="[[_getTxtStatusColor(item.statut,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalInvoicesToBeSend.totalAmount)]]€</template>-->
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
-                                            <template>
-                                                <span class$="invoice-status {{_getIconStatusClass(item.statut)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.statut]]</span>
-                                            </template>
+                                            <template><span class$="invoice-status [[_getIconStatusClass(item.statut)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.statut)]]"></iron-icon> [[item.statut]]</span></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <template>
@@ -882,13 +889,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="statut">Statut</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span class$="invoice-status {{_getIconStatusClass(item.statut)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.statut]]</span></template>
-                                                </vaadin-grid-column>
-                                                <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="error">Error</vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>[[item.error]]</template>
+                                                    <template><span class$="invoice-status [[_getIconStatusClass(item.statut)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.statut)]]"></iron-icon> [[item.statut]]</span></template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid>
                                         </div>
@@ -937,30 +938,28 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant<br/>facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="{{_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
-                                                <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                </template>
+                                                <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
                                                 <template class="header"></template>
@@ -1014,31 +1013,29 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <!--<template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
-                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <!--<template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
+                                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="{{_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
-                                                <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                </template>
+                                                <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column-group>
                                                <template class="header hasBorder">Informations paiement</template>
@@ -1084,7 +1081,7 @@
                                 </template>
                                 <template is="dom-if" if="[[isReject(invoicesStatus.*)]]">
                                     <div class="scrollBox">
-                                        <vaadin-grid id="messagesGrid" class="rejectedTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                        <vaadin-grid id="messagesGrid" class="rejectedTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail" selected="{{selectedInvoiceIndex}}">
                                             <vaadin-grid-column flex-grow="0" width="14%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
@@ -1125,30 +1122,28 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="6%" class="stat-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
-                                                <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                </template>
+                                                <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
                                                 <template class="header">
@@ -1169,8 +1164,9 @@
                             <template is="dom-if" if="[[ifInvoiceSelected]]">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
                                     <h4 class="mb0">Contenu de la facture à corriger</h4>
-                                    <h6>Erreur sur la facture: [[this.activeGridItem.invoice.error]]</h6>
-                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedDetailContainerC">
+                                    <h6>Erreur sur la facture: <span class="error_message_red">[[activeGridItem.invoice.error]]</span></h6>
+                                    <paper-button on-tap="_openInvoicingDialog" class="modal-button" id="[[activeGridItem.invoice.id]]"><iron-icon icon="vaadin:pencil" class="iconBtn"></iron-icon> Corriger</paper-button>
+                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedContainerDetail">
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">Date</template>
@@ -1196,31 +1192,31 @@
                                                 <template class="header">Montants</template>
                                                 <vaadin-grid-column class="recipient-col">
                                                     <template class="header">OA</template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column class="recipient-col">
                                                     <template class="header">Patient</template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column class="recipient-col">
                                                     <template class="header">Supplément</template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column class="recipient-col">
                                                     <template class="header">Total</template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]</span></template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid-column-group>
                                             <vaadin-grid-column class="recipient-col" width="300px">
                                                 <template class="header">Erreur</template>
-                                                <template><span class$="{{_getIconStatusClass(item.error)}}">[[item.error]]</span></template>
+                                                <template><span class$="[[_getIconStatusClass(item.error)]]">[[item.error]]</span></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <!--<vaadin-grid-column class="recipient-col">
                                                 <template class="header"></template>
                                                 <template>
                                                     <iron-icon icon="vaadin:pencil" id="[[item.id]]" on-tap="_openInvoicingDialog"></iron-icon>
                                                 </template>
-                                            </vaadin-grid-column>
+                                            </vaadin-grid-column>-->
                                         </vaadin-grid>
                                     </div>
                                 </template>
@@ -1268,7 +1264,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="invoicedAmount">Montant<br/>facturé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.statut,item.totalAmount)]]">[[_formatAmount(item.invoicedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
@@ -1280,7 +1276,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor(item.statut,item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
@@ -1291,13 +1287,19 @@
                                                     <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
                                                 </template>
                                             </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
+                                                </template>
+                                                <template><span class$="[[_getTxtStatusColor(item.statut,item.paid)]]">[[_formatAmount(item.paid)]]€</span></template>
+                                            </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
                                                     <template>[[item.status]]</template>
                                                 </template>
                                                 <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
+                                                    <span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus))]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="recipient-col">
@@ -1353,22 +1355,22 @@
                             <template class="header">Montants</template>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
-                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]</span></template>
+                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Patient</template>
-                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]</span></template>
+                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Supplément</template>
-                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]</span></template>
+                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Total</template>
-                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]</span></template>
+                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
@@ -1582,6 +1584,9 @@
                     },
                     patientFromSelectedInvoice:{
                         type: Object
+                    },
+                    selectedInvoiceIndex:{
+                        type : Number
                     }
                 };
             }
@@ -2486,8 +2491,8 @@
                                 invoicingCode: code.code,
                                 invoiceDate: code.dateCode,
                                 invoicedAmount: Number(code.reimbursement),
-                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : code && code.paid ? code.paid : 0.00,
-                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : code && code.paid ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
+                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : ((code && code.paid) ? code.paid : 0.00),
+                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
                                 rejectionReason: code.error,
                                 paid: false,
                                 status: ""

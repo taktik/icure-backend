@@ -2080,6 +2080,10 @@
                     hasInsurability : {
                         type: Boolean,
                         value : false
+                    },
+                    isInvoiceToBeCorrected: {
+                        type: Boolean,
+                        value: false
                     }
                 }
 
@@ -2101,7 +2105,8 @@
 
                 const selected = (idx >= 0) ?  this.invoices[idx] : null
                 const invoiceId = selected && selected.id
-                if(selected===this.selectedInvoice){
+
+                if(selected === this.selectedInvoice){
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                     return;
                 }
@@ -2113,10 +2118,12 @@
                 this.set('npi', false)
                 this.set("errorMessage","")
 
+
                 if (!selected) {
                     this.set('selectedInvoice', {})
                     return
                 }
+
 
                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                     nmcls.map(nmcl =>{
@@ -2129,6 +2136,7 @@
                     })
                 ).finally(() => {
 
+                    this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
@@ -2377,15 +2385,18 @@
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
 
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
-                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
-
-                            let invoice=inv[0] || null;
+                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl])
+                            .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  [inv[0] || null, null])
+                            .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
+                            .then(([inv, parentIns]) => {
+                            let invoice = inv
+                                                
                             if(!invoice){return null;}
                             if (!invoice.id) {
                                 invoice.invoiceDate = this.selectedInvoice.invoiceDate
                                 invoice.invoiceReference = this.selectedInvoice.invoiceReference
                                 invoice.thirdPartyPaymentJustification = this.selectedInvoice.thirdPartyPaymentJustification
-                                invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
+                                invoice.invoicePeriod = this.selectedInvoice.invoicePeriod !== "" ? this.selectedInvoice.invoicePeriod : 0
                                 invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
                                 invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
                                 invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
@@ -2393,9 +2404,10 @@
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
-
+                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+                                
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
                                     .then(invoice => {
                                         this.$['nmclGrid'].clearCache()
@@ -2669,6 +2681,7 @@
             }
 
             _validateAndPrepareInvoiceForBatchSending() {
+
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
@@ -2683,29 +2696,29 @@
                     this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
                 }
 
-                this.api.entityRef().getLatest("Invoice::").then(latest => {
-                    console.log(latest)
-                    const lastReference = latest.id.replace(/Invoice:[^_]/g, '')
-                    const newReference = Number(lastReference) + 1
-
-                    this.set("selectedInvoice.invoiceReference", newReference)
+                if(this.isInvoiceToBeCorrected === true && !this._isSelectedInvoiceEattest()){
+                   this.selectedInvoice.invoicingCodes.map(ic => ic.resent = false)
+                   this.api.invoice().modifyInvoice(this.selectedInvoice)
+                     .then(invoice => this.api.register(invoice, 'invoice'))
+                     .then(invoice => {
+                         console.log(invoice)
+                         this.updateGui(invoice)
+                         return this.generateJustificatory(invoice)
+                     })
+                }else{
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice, 'invoice'))
-                        .then(invoice =>
-                            this.api.entityRef().createEntityReference({
-                                docId: invoice.id,
-                                id: "Invoice::" + newReference
-                            }).then(() => {
-                                console.log(invoice)
-                                this.updateGui(invoice)
-                                if(this.selectedInvoice.sentMediumType==="efact"){
-                                    return this.generateJustificatory(invoice)
-                                } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    return this.sendEattest(invoice);
-                                }
+                        .then(invoice => {
+                            console.log(invoice)
+                            this.updateGui(invoice)
 
-                            }))
-                })
+                            if (this.selectedInvoice.sentMediumType === "efact") {
+                                return this.generateJustificatory(invoice)
+                            } else if (this.selectedInvoice.sentMediumType === "eattest") {
+                                return this.sendEattest(invoice);
+                            }
+                        })
+                }
             }
 
             _invoicingCodeChange() {
@@ -3314,8 +3327,11 @@
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
 
-                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem]).then( response => {
-                            const invoice = response[0]
+                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem])
+                             .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  [inv[0] || null, null])
+                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
+                             .then(([inv, parentIns]) => {
+                            const invoice = inv
                             if (!invoice) {
                                 return null
                             }
@@ -3330,8 +3346,10 @@
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
+                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice, 'invoice'))
                                     .then(invoice => {
                                         this.$['nmclGrid'].clearCache()
