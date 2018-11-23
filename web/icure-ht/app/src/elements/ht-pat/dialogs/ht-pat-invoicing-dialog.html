@@ -564,6 +564,7 @@
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
             }
+            
 
             vaadin-grid.material {
 
@@ -1166,8 +1167,8 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
-                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp;€</div></template>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','This nomenclature code has not (yet) been verified by eFact',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric verifiedNmcl" title="[[localize('verified_etarif','This nomenclature code has been verified by eFact',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="verifiedNmcl f-s-12em cursorPointer">*</em></div></template>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
@@ -1176,8 +1177,8 @@
                                             <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]</div>
                                         </template>
                                         <template>
-                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
-                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp;€</div></template>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','This nomenclature code has not (yet) been verified by eFact',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric verifiedNmcl" title="[[localize('verified_etarif','This nomenclature code has been verified by eFact',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€<em class="verifiedNmcl f-s-12em cursorPointer">*</em></div></template>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
