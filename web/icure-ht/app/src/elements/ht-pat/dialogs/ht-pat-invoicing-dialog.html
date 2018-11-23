@@ -1434,7 +1434,7 @@
             </div>
             <div class="buttons">
                 <paper-button on-tap="_closeManualEncodingDialog">[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button on-tap="_closeManualEncodingDialog">[[localize('add','Add',language)]]</paper-button>
+                <paper-button on-tap="_confirmManualEncodingDialog">[[localize('add','Add',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -2401,6 +2401,9 @@
                                 invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
+                                invoice.encounterLocationName = this.selectedInvoice.encounterLocationName
+                                invoice.encounterLocationNihii = this.selectedInvoice.encounterLocationNihii
+                                invoice.encounterLocationNorm = this.selectedInvoice.encounterLocationNorm
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
                                 const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
@@ -2415,7 +2418,7 @@
                                             .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
                                             .then(invoices => {
                                                 this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
-                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.invoicingCodes.map(c => c.id.includes(icId))))
+                                                this.set('selectedInvoiceIndex', _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id.includes(icId))))
                                                 this.$['nmclGrid'].clearCache()
 
                                                 return invoice
@@ -3361,7 +3364,7 @@
                                             .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
                                             .then(invoices => {
                                                 this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
-                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
+                                                this.set('selectedInvoiceIndex', _.findIndex(this.invoices, i => i.id === invoice.id))
                                                 this.$['nmclGrid'].clearCache()
 
                                                 return invoice
@@ -3521,6 +3524,10 @@
             }
 
             _closeManualEncodingDialog(){
+                this.$['manualEncodingDialog'].close()
+            }
+
+            _confirmManualEncodingDialog(){
                 this.$['manualEncodingDialog'].close()
             }
 
