@@ -1321,6 +1321,14 @@
                             <paper-input class="flex-container-descr-nmcl-row"
                                          label="[[localize('lab','Label',language)]]" value="{{activeNmclItem.label}}"
                                          readonly></paper-input>
+                            <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                                <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
+                                                  label="[[localize('derog','Derogation',language)]]"
+                                                  filtered-items="[[invoicingCodeDerogationType]]" item-label-path="label.[[language]]"
+                                                  item-value-path="id" value="{{activeNmclItem.derogationMaxNumber}}"
+                                                  readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                            </template>
+
                         </div>
                         <div class="flex-container-nmcl">
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
@@ -1836,6 +1844,35 @@
                             }
                         ]
 
+                    },
+                    invoicingCodeDerogationType:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: 0,
+                                label: {
+                                    "fr": "Pas de dérogation",
+                                    "nl": "No derogation",
+                                    "en": "No derogation"
+                                }
+                            },
+                            {
+                                id: 3,
+                                label: {
+                                    "fr": "2e prestation identique de la journée",
+                                    "nl": "2nd identical service of the day",
+                                    "en": "2nd identical service of the day"
+                                }
+                            },
+                            {
+                                id: 4,
+                                label: {
+                                    "fr": "3e ou suivante prestation identique de la journée",
+                                    "nl": "3nd or following identical service of the day",
+                                    "en": "3nd or following identical service of the day"
+                                }
+                            }
+                        ]
                     },
                     typeOfSupport:{
                         type: Object,
@@ -2373,7 +2410,8 @@
                         id: this.api.crypto().randomUuid(),
                         logicalId: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
-                        prescriberNorm: 0
+                        prescriberNorm: 0,
+                        derogationMaxNumber: 0
                     }
                     const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
