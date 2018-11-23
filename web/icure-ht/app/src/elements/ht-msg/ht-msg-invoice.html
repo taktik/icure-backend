@@ -249,18 +249,19 @@
                 .invoice-status--orangeStatus{
                     background: #fcdf354d;
                 }
-
                 .invoice-status--greenStatus{
                     background: #07f8804d;
                 }
-
                 .invoice-status--blueStatus {
                     background: #84c8ff;
                 }
-
                 .invoice-status--redStatus{
                     background: #ff4d4d4d;
                 }
+                .invoice-status--purpleStatus {
+                    background: #ba68c8;
+                }
+
 
                 .statusIcon{
                     height: 8px;
@@ -277,6 +278,9 @@
                 }
                 .statusIcon.invoice-status--redStatus {
                     color: var(--app-status-color-nok);
+                }
+                .statusIcon.invoice-status--purpleStatus {
+                    color: var(--paper-purple-300);
                 }
                 .statusIcon.invoice-status--orangeStatus,
                 .statusIcon.invoice-status--greenStatus,
@@ -295,6 +299,9 @@
                 }
                 *.txtcolor--redStatus {
                     color: var(--app-status-color-nok);
+                }
+                *.txtcolor--purpleStatus {
+                    color: var(--paper-purple-300)
                 }
 
                 #pendingDetailDialog{
@@ -826,7 +833,6 @@
             </template>
             <template is="dom-if" if="[[!statusToBeSend]]">
                     <div class="gridContainer">
-                        <!--<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>-->
                         <div class="invoiceContainer">
                             <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
@@ -1036,8 +1042,8 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="[[_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
-                                                <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected, messagesArchived)]]€</template>
+                                                <template><span class$="[[_getTxtStatusColor('force-red',item.messageInfo.refusedAmount)]]">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
                                                 <template class="header">
@@ -1283,13 +1289,13 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)]]">[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                    <template><span class$="{{_getTxtStatusColor('force-green',item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template><span class$="[[_getTxtStatusColor(item.statut,item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                    <template><span class$="[[_getTxtStatusColor('force-red',item.refusedAmount)]]">[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
@@ -2680,6 +2686,7 @@
                     (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
                     (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
                     (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
                     ""
             }
             _getTxtStatusColor(status,amount) {
@@ -2692,6 +2699,9 @@
                     (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
                     (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
+                    (status == 'force-red') ? "txtcolor--redStatus" :
+                    (status == 'force-green') ? "txtcolor--greenStatus" :
                     ""
                 }
             }

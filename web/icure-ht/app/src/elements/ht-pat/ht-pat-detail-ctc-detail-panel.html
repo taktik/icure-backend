@@ -1025,8 +1025,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 const medicationApi = this.api.contact().medication();
                 const med = this.api.contact().medicationValue(s, this.language);
                 const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
-                const medS = medicationApi.medicationNameToString(med, this.language)
-                const medR = medicationApi.posologyToString(med, this.language)
+                const medR = medicationApi.medicationNameToString(med, this.language)
+                const medS = medicationApi.posologyToString(med, this.language)
                 const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
                 prescArray.push(thisMed) // add to the medications list
             }) // flatmap end
@@ -1156,11 +1156,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             </div>
                         </main>
                         <footer id="footer" class="flex horiz bb">
-                            <div class="flex1 cell br">
+                            <div class="flex1 cell br w50">
                                 <p class="title bold center w100">Cachet du prescripteur</p>
                                 <ul>
                                     <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
-                                    {{#hcp.addresses[0].street}}}
+                                    {{#hcp.addresses[0].street}}
                                         <li>$(hcp.addresses[0].street}{{#hcp.addresses[0].houseNumber}}, $(hcp.addresses[0].houseNumber}{{/hcp.addresses[0].houseNumber}}</li>
                                     {{/hcp.addresses[0].street}}
                                     {{#hcp.addresses[0].city}}
@@ -1172,7 +1172,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                                     <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
                                 </ul>
                             </div>
-                            <div class="w40">
+                            <div class="w50">
                                 <div class="vert w100">
                                     <div class="cell bb center">
                                         <p class="mt0">Date et signature du prescripteur</p>
