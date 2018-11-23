@@ -259,7 +259,7 @@
                     background: #ff4d4d4d;
                 }
                 .invoice-status--purpleStatus {
-                    background: #ba68c8;
+                    background: #e1b6e6;
                 }
 
 
@@ -284,7 +284,8 @@
                 }
                 .statusIcon.invoice-status--orangeStatus,
                 .statusIcon.invoice-status--greenStatus,
-                .statusIcon.invoice-status--redStatus {
+                .statusIcon.invoice-status--redStatus,
+                .statusIcon.invoice-status--purpleStatus {
                     background: transparent !important;
                 }
 
@@ -1040,7 +1041,7 @@
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
                                                 <!--<template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
-                                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor('force-green',item.messageInfo.acceptedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected, messagesArchived)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
