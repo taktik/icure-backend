@@ -298,7 +298,6 @@
 
             .nmcl-favorite {
                 display: flex;
-                height: 52px;
                 padding: 5px;
             }
 
@@ -319,9 +318,13 @@
                 overflow-y: auto;
             }
             .fullW {
-                flex:1;
-                overflow-y: auto;
-                height: 52px;
+                flex: 1;
+                overflow: hidden;
+                flex-direction: row;
+                display: flex;
+            }
+            .fullW * {
+                user-select: none;
             }
 
             #nmclGrid {
@@ -954,6 +957,24 @@
             #savedIndicator.saved{
                 animation: savedAnim 2.5s ease-in;
             }
+
+            .paddles {
+                position: relative;
+                z-index: 99;
+            }
+            .paddle {
+                /*position: absolute;*/
+                /*top: 0;*/
+                /*bottom: 0;*/
+                /*width: 3em;*/
+            }
+            .left-paddle {
+                left: 0;
+            }
+            .right-paddle {
+                right: 0;
+            }
+
             @keyframes savedAnim {
                 0%{
                     width: 0;
@@ -1244,7 +1265,13 @@
                             <template is="dom-if" if="[[!isInvoiceClosed]]">
                                 <div class="nmcl-favorite">
                                     <span>[[localize('fav','Favorites code',language)]]:</span>
-                                    <div class="fullW">
+                                    <div class="paddles">
+                                        <iron-icon icon="arrow-back" class="left-paddle paddle hidden" on-tap="scrollLeft">
+                                        </iron-icon>
+                                        <iron-icon icon="arrow-forward" class="right-paddle paddle" on-tap="scrollRight">
+                                        </iron-icon>
+                                    </div>
+                                    <div class="fullW" on-track="dragHoriz">
                                         <template is="dom-repeat" items="[[favoriteCode]]">
                                             <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
                                                 [[item.code]]
@@ -2122,6 +2149,14 @@
                     isInvoiceToBeCorrected: {
                         type: Boolean,
                         value: false
+                    },
+                    mousePos: {
+                        type: Object,
+                        value: {x:0,y:0}
+                    },
+                    scrollCount: {
+                        type: Number,
+                        value: 0
                     }
                 }
 
@@ -2133,6 +2168,16 @@
 
             ready() {
                 super.ready()
+            }
+
+            dragHoriz(event) {
+                const e = event || window.event;
+                const posX = e.clientX, posY = e.clientY;
+                const newPos = {x:posX,y:posY}
+                if (this.mousePos != newPos) {
+                    this.set('mousePos', newPos)
+                }
+                console.log('drag queen',posX,posY)
             }
 
 

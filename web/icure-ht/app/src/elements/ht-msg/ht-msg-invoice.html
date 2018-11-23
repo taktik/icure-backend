@@ -259,7 +259,7 @@
                     background: #ff4d4d4d;
                 }
                 .invoice-status--purpleStatus {
-                    background: #ba68c8;
+                    background: #e1b6e6;
                 }
 
 
@@ -284,7 +284,8 @@
                 }
                 .statusIcon.invoice-status--orangeStatus,
                 .statusIcon.invoice-status--greenStatus,
-                .statusIcon.invoice-status--redStatus {
+                .statusIcon.invoice-status--redStatus,
+                .statusIcon.invoice-status--purpleStatus {
                     background: transparent !important;
                 }
 
@@ -630,7 +631,12 @@
                 <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid" where="toBeSend">></paper-input>
             </template>
             <template is="dom-if" if="[[!statusToBeSend]]">
-                <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid" where="notToBeSend"></paper-input>
+                <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
+                    <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid" where="notToBeSend"></paper-input>
+                </template>
+                <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
+                    <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="toBeCorrected" where="notToBeSend"></paper-input>
+                </template>
             </template>
 
             <template is="dom-if" if="[[statusToBeSend]]">
@@ -836,8 +842,8 @@
                         <div class="invoiceContainer">
                             <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
-                                    <div class="gridContainer grid-pending">
-                                        <div class="containScroll">
+                                    <div id="toBeCorrected" class="gridContainer grid-pending">
+                                        <div class="scrollBox">
                                             <vaadin-grid id="noscroll" class="pendingTable" class="force-sizer" theme="force-sizer" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected, messagesArchived)]]" active-item="{{activeGridItem}}" on-tap="_showMessagesToBeCorrectedDetail">
                                                 <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col" >
                                                     <template class="header">
@@ -1035,7 +1041,7 @@
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
                                                 <!--<template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
-                                                <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <template><span class$="[[_getTxtStatusColor('force-green',item.messageInfo.acceptedAmount)]]">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected, messagesArchived)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
@@ -1954,19 +1960,23 @@
                 const str =
                     (param == "invoiceGrid") ? this.filterInput:
                     (param == "messagesGrid") ? this.filterInputInvoices :
+                    (param == "toBeCorrected") ? this.filterInputInvoices :
                     this.selectedInputDetail
                 setTimeout(function () {
                     let arrList =
                         (param == "invoiceGrid") ? this.shadowRoot.querySelectorAll("."+param) :
                         (param == "selectedInputDetail") ? this.shadowRoot.querySelectorAll("#invoiceDetailContainer #invoiceGridDetail") :
+                        // (param == "toBeCorrected") ? this.shadowRoot.querySelector("#"+param+" .containScroll") :
                         this.shadowRoot.querySelectorAll(".scrollBox")
                     console.log("arrList a",param,arrList)
-                    if (param == "messagesGrid") {
+                    if ((param == "messagesGrid") || (param == "toBeCorrected")) {
                         let temp
                         const selected =
                             (where == "process") ? "processTable" :
                             (where == "reject") ? "rejectedTable" :
+                            (where == "toBeCorrected") ? "pendingTable" :
                             "archiveAndAccepted"
+                        console.log('selected',selected)
                         Array.prototype.slice.call(arrList).map(list=> {
                             console.log("list", list)
                             if (list.querySelector("."+selected) ) {
@@ -1980,6 +1990,7 @@
                         console.log("before exec",str,table)
                         this.executeSearch(str,table)
                     })
+
                 }.bind(this), 500)
             }
 
