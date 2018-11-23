@@ -16,6 +16,7 @@ import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
 import org.taktik.icure.db.Importer
 import org.taktik.icure.entities.Tarification
+import org.taktik.icure.entities.embed.LetterValue
 import org.taktik.icure.entities.embed.Valorisation
 import org.taktik.icure.utils.FuzzyValues
 
@@ -371,6 +372,18 @@ class TarificationCodeImporter extends Importer {
 					fr           : e.nomen_desc_fr.text(),
 					nl           : e.nomen_desc_nl.text(),
 					rubric       : r,
+					letter1      : e.key_letter1.text(),
+					letter_index1: e.key_letter_index1.text(),
+					coeff1       : e.key_coeff1.text(),
+					letter1_value: e.key_letter1_value.text(),
+					letter2      : e.key_letter2.text(),
+					letter_index2: e.key_letter_index2.text(),
+					coeff2       : e.key_coeff2.text(),
+					letter2_value: e.key_letter2_value.text(),
+					letter3      : e.key_letter3.text(),
+					letter_index3: e.key_letter_index3.text(),
+					coeff3       : e.key_coeff3.text(),
+					letter3_value : e.key_letter3_value.text(),
 					valorisations: []
 				])
 			}
@@ -447,7 +460,26 @@ class TarificationCodeImporter extends Importer {
 						def label = [:]
 						label.fr = map.fr
 						label.nl = map.nl
-						def code = new Tarification(Sets.newHashSet('be', 'fr'), type, map.id, "1.0", label)
+						def code = new Tarification(
+								Sets.newHashSet('be', 'fr'),
+								type,
+								map.id,
+								"1.0",
+								label)
+
+						code.nGroup = r.id
+
+						code.letterValues = new LinkedList()
+						if (map.letter1 && map.letter1 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter1, index: map.letter_index1, coefficient: Double.valueOf(map.coeff1), value: Double.valueOf(map.letter1_value)))
+						}
+						if (map.letter2 && map.letter2 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter2, index: map.letter_index2, coefficient: Double.valueOf(map.coeff2), value: Double.valueOf(map.letter2_value)))
+						}
+						if (map.letter3 && map.letter3 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter3, index: map.letter_index3, coefficient: Double.valueOf(map.coeff3), value: Double.valueOf(map.letter3_value)))
+						}
+
 						code.category = [fr: map.rubric.fr, nl: map.rubric.nl] as Map<String, String>
 						int i = 0
 

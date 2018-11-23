@@ -102,6 +102,7 @@ public class ClassificationTemplateFacade implements OpenApiFacade{
         value = "Get a list of classifications Templates",
         response = ClassificationTemplateDto.class,
         httpMethod = "GET",
+        responseContainer = "Array",
         notes = "Ids are seperated by a coma"
     )
     @GET
