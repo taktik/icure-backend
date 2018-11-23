@@ -249,18 +249,19 @@
                 .invoice-status--orangeStatus{
                     background: #fcdf354d;
                 }
-
                 .invoice-status--greenStatus{
                     background: #07f8804d;
                 }
-
                 .invoice-status--blueStatus {
                     background: #84c8ff;
                 }
-
                 .invoice-status--redStatus{
                     background: #ff4d4d4d;
                 }
+                .invoice-status--purpleStatus {
+                    background: #ba68c8;
+                }
+
 
                 .statusIcon{
                     height: 8px;
@@ -277,6 +278,9 @@
                 }
                 .statusIcon.invoice-status--redStatus {
                     color: var(--app-status-color-nok);
+                }
+                .statusIcon.invoice-status--purpleStatus {
+                    color: var(--paper-purple-300);
                 }
                 .statusIcon.invoice-status--orangeStatus,
                 .statusIcon.invoice-status--greenStatus,
@@ -295,6 +299,9 @@
                 }
                 *.txtcolor--redStatus {
                     color: var(--app-status-color-nok);
+                }
+                *.txtcolor--purpleStatus {
+                    color: var(--paper-purple-300)
                 }
 
                 #pendingDetailDialog{
@@ -2679,6 +2686,7 @@
                     (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
                     (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
                     (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
                     ""
             }
             _getTxtStatusColor(status,amount) {
@@ -2691,6 +2699,7 @@
                     (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
                     (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
                     (status == 'force-red') ? "txtcolor--redStatus" :
                     (status == 'force-green') ? "txtcolor--greenStatus" :
                     ""
