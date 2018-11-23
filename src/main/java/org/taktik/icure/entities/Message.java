@@ -47,22 +47,24 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_EFACT 					= 1 << 6;
 
 	public final static int STATUS_SENT  	     			= 1 << 7;
-	public final static int STATUS_SUBMITTED 				= 1 << 8;
-	public final static int STATUS_RECEIVED 				= 1 << 9;
-	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10;
-	public final static int STATUS_ACCEPTED 				= 1 << 11;
-	public final static int STATUS_REJECTED 				= 1 << 12;
+	public final static int STATUS_SUBMITTED 				= 1 << 8; //tack
+	public final static int STATUS_RECEIVED 				= 1 << 9; //tack
+	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; //931000
+	public final static int STATUS_ACCEPTED 				= 1 << 11; //920098
+	public final static int STATUS_REJECTED 				= 1 << 12; //920999
 
 	public final static int STATUS_TACK 					= 1 << 13;
 	public final static int STATUS_MASKED 					= 1 << 14;
 
-	public final static int STATUS_SUCCESS 					= 1 << 15;
-	public final static int STATUS_WARNING 					= 1 << 16;
-	public final static int STATUS_ERROR 					= 1 << 17;
+	public final static int STATUS_SUCCESS 					= 1 << 15; //920900 920098
+	public final static int STATUS_WARNING 					= 1 << 16; //920900
+	public final static int STATUS_ERROR 					= 1 << 17; //920099
 
 	public final static int STATUS_ANALYZED 				= 1 << 18;
 	public final static int STATUS_DELETED_ON_SERVER 		= 1 << 19;
 	public final static int STATUS_SHOULD_BE_DELETED_ON_SERVER 	= 1 << 20;
+
+	public final static int STATUS_ARCHIVED					= 1 << 21;
 
 	private String fromAddress;
 	private String fromHealthcarePartyId;

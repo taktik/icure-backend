@@ -74,4 +74,6 @@ public class PatientHealthCarePartyDto implements Serializable {
 	public void setType(PatientHealthCarePartyTypeDto type) {
 		this.type = type;
 	}
+
+
 }

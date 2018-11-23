@@ -65,7 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flex-wrap: wrap;
                     flex-basis: 100%;
                     align-items: center;
-                    width:100%
+                    width: 100%
                 }
 
                 .horizontal paper-input {
@@ -74,11 +74,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .horizontal paper-input-container {
                     @apply --padding-right-left-16;
-                    padding:0;
+                    padding: 0;
                 }
 
-                .horizontal paper-menu-button{
-                    padding:0;
+                .horizontal paper-menu-button {
+                    padding: 0;
                 }
 
                 .horizontal vaadin-date-picker {
@@ -132,7 +132,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding-right: 24px;
                 }
 
-
                 vaadin-grid.material paper-checkbox {
                     --primary-color: var(--paper-indigo-500);
                     margin: 0 24px;
@@ -179,9 +178,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     bottom: 0;
                     right: 0;
                 }
+
                 .toggle-btn {
                     position: relative;
                 }
+
                 .closed {
                     display: none;
                 }
@@ -344,12 +345,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .deleteFilterIcon {
                     color: var(--app-text-color-disabled);
                 }
+
                 .deleteFilterIcon:hover {
                     color: var(--app-text-color);
                     transition: all 0.24s ease-in-out;
                 }
-                .deleteFilterIcon iron-icon{
-                    height:14px;
+
+                .deleteFilterIcon iron-icon {
+                    height: 14px;
                     width: 14px;
                 }
 
@@ -369,9 +372,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     -webkit-transition: background .15s;
                     transition: background .15s;
                     z-index: 2;
-                    display : flex;
-                    border-left: 1px solid rgba(0,0,0,.05);
-                    border-right: 1px solid rgba(0,0,0,.05);
+                    display: flex;
+                    border-left: 1px solid rgba(0, 0, 0, .05);
+                    border-right: 1px solid rgba(0, 0, 0, .05);
 
                 }
 
@@ -397,36 +400,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 1000px;
                 }
 
+                #sharePatientDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+
                 #inputGender {
-                    border:none;
+                    border: none;
                     width: calc(100% - 24px);
                     outline: 0;
-                    background:none;
+                    background: none;
                     font-size: var(--form-font-size);
                 }
-                #fusionPatSelect{
-                    border:none;
+
+                #fusionPatSelect {
+                    border: none;
                     width: calc(100% - 24px);
                     outline: 0;
-                    background:none;
+                    background: none;
                     font-size: var(--form-font-size);
                 }
+
                 #fusionDialog {
                     height: 200px;
                     width: 700px;
                 }
 
-                #duplicate-list{
+                #duplicate-list {
                     max-height: 200px;
                 }
-                #sharePatientDelegationDialog{
-                    width : 920px;
+
+                #sharePatientDelegationDialog {
+                    width: 920px;
                 }
+
+                #sharePatientDelegationDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+
                 .delegationCheckBox {
                     width: 220px;
                 }
+
                 .filter-panel-title {
-                    display:block;
+                    display: block;
                     @apply --paper-font-body2;
                     @apply --padding-32;
                     padding-top: 8px;
@@ -434,14 +452,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin: 0;
                 }
 
-                .modal-title{
+                .modal-title {
                     background: var(--app-background-color-dark);
                     margin-top: 0;
                     margin-bottom: 0;
                     padding: 16px 24px;
                 }
-                .modal-button{
-                    --paper-button-ink-color: var(--app-secondary-color-dark);
+
+                .modal-button {
+                    --paper-button-ink-color:
+                            var(--app-secondary-color-dark);
                     color: var(--app-text-color);
                     font-weight: 400;
                     font-size: 14px;
@@ -451,37 +471,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     text-transform: capitalize;
                 }
 
-                .modal-button--save{
+                .modal-button--save {
                     box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                     background: var(--app-secondary-color);
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
                 }
+
+                paper-button.filter-tag.iron-selected {
+                    background: var(--app-secondary-color);
+                    color: var(--app-primary-color-dark);
+                }
+
                 paper-dialog > div:not(.buttons) {
-                    margin-top:0;
+                    margin-top: 0;
                     flex-grow: 1;
                 }
 
                 paper-dialog {
                     width: 80%;
-                    display:flex;
+                    display: flex;
                     flex-flow: row wrap;
                     justify-content: space-between;
                     align-items: flex-start;
                 }
-                paper-input{
+
+                paper-input {
                     --paper-input-container-focus-color: var(--app-primary-color);
-                    font-size:var(--form-font-size);
+                    font-size: var(--form-font-size);
                 }
 
-                #saveFilterDialog{
+                #saveFilterDialog {
                     align-items: center;
                 }
-                
-                #saveFilterDialog .buttons{
+
+                #saveFilterDialog .buttons {
                     padding: 8px 24px;
                 }
-
 
                 .saved-filters {
                     display: flex;
@@ -492,7 +518,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .filter-tag {
-                    background: rgba(0,0,0,.1);
+                    background: rgba(0, 0, 0, .1);
                     color: var(--exm-token-input-badge-text-color, --text-primary-color);
                     height: 34px;
                     font-size: 13px;
@@ -502,6 +528,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     border-radius: 5px;
                     text-transform: capitalize;
                 }
+
                 .del-filter {
                     height: 16px;
                     width: 16px;
@@ -516,6 +543,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     div.container {
                         display: inherit;
                     }
+
                     .add-btn-container {
                         width: 100%;
                         left: inherit;
@@ -528,6 +556,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         border-right: 1px dashed lightgrey;
                         box-sizing: border-box;
                     }
+
                     .add-btn-container paper-button.add-btn,
                     .add-btn-container .exportcsv-btn {
                         height: 60px;
@@ -543,6 +572,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         bottom: 10px;
                         right: 35px;
                     }
+
                     .add-list-mobile {
                         position: fixed;
                         bottom: 69px;
@@ -550,7 +580,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         background: var(--app-background-color-light);
                         width: 200px;
-                        border: 1px solid rgba(0,0,0,.1);
+                        border: 1px solid rgba(0, 0, 0, .1);
                         border-radius: 2px;
                         z-index: 99;
                         padding: 8px 0;
@@ -559,19 +589,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         transform: scaleY(0);
                         transform-origin: bottom;
                     }
+
                     .shown-menu {
                         transform: scaleY(1);
                     }
+
                     .toggle-btn {
                         color: var(--app-text-color);
                         background: var(--app-secondary-color);
                     }
+
                     .add-elem-mobile {
                         cursor: pointer;
                         padding: 10px;
                     }
+
                     .add-elem-mobile:hover {
-                        background: rgba(0,0,0,.1);
+                        background: rgba(0, 0, 0, .1);
                     }
 
                     .eid {
@@ -579,10 +613,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
 
                     .administrative-panel {
-                        height:100%;
+                        height: 100%;
                         background: var(--app-background-color);
                         margin: 0;
-                        width:100%;
+                        width: 100%;
                         grid-column: 2 / 4;
                         /*grid-template-columns: 40px 200px 200px 40px;*/
                         grid-row: 1 / 1;
@@ -604,11 +638,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         font-weight: bold;
                     }
 
-                    paper-tab.iron-selected iron-icon{
+                    paper-tab.iron-selected iron-icon {
                         opacity: 1;
                     }
 
-                    paper-tab iron-icon{
+                    paper-tab iron-icon {
                         opacity: 0.5;
                         color: var(--app-text-color);
                     }
@@ -620,11 +654,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     .horizontal paper-input-container {
                         @apply --padding-right-left-16;
-                        padding:0;
+                        padding: 0;
                     }
 
-                    .horizontal paper-menu-button{
-                        padding:0;
+                    .horizontal paper-menu-button {
+                        padding: 0;
                     }
 
                     .horizontal vaadin-date-picker {
@@ -635,13 +669,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     .dialog {
                         width: 80%;
-                        min-height:320px;
-                        display:flex;
+                        min-height: 320px;
+                        display: flex;
                         flex-flow: row wrap;
                         justify-content: space-between;
                         align-items: flex-start;
                     }
                 }
+
                 paper-spinner {
                     position: fixed;
                     top: 210px;
@@ -649,15 +684,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     z-index: 9999;
                     transform: translateX(-50%);
                 }
+
                 #add-patient-dialog {
                     border-radius: 2px;
                 }
+
                 #add-patient-dialog .administrative-panel {
                     padding: 0;
                 }
+
                 #add-patient-dialog .administrative-panel paper-tabs {
                     border-radius: 2px 2px 0 0;
                 }
+
                 #add-patient-dialog .administrative-panel iron-pages {
                     padding: 0 24px;
                 }
@@ -681,8 +720,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
                 <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
 
-                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
-                                 on-keydown="refresh">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
                         <div slot="suffix">
                             <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter"></paper-icon-button>
                             <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
@@ -690,19 +728,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-input>
 
                     <div id="saved-filters" class="saved-filters">
-                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
-                                  id="filterMenu">
-                            <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" on-tap="selectFilter"
-                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
-                                <div class="one-line-menu list-title">
-                                    [[filter.name]]
-                                </div>
-                                <div>
-                                    <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
-                                               on-tap="deleteFilter"></iron-icon>
-                                </div>
-                            </paper-button>
-                        </template>
+                        <paper-listbox id="filters" selectable="paper-button" multi toggle-shift selected-values="{{selectedFilterIndexes}}">
+                            <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
+                                      id="filterMenu">
+                                <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" user="[[user]]" language="[[language]]">
+                                    <div class="one-line-menu list-title">
+                                        [[filter.name]]
+                                    </div>
+                                    <div>
+                                        <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
+                                                   on-tap="deleteFilter"></iron-icon>
+                                    </div>
+                                </paper-button>
+                            </template>
+                        </paper-listbox>
                     </div>
                 </template>
 
@@ -835,7 +874,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
-                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]] <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon></paper-button>
+                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]
+                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
+                        </paper-button>
                         <template is="dom-if" if="[[taskProgress]]">
                             <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
                         </template>
@@ -847,117 +888,126 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </div>
 
+        <paper-dialog id="add-patient-dialog" class="dialog">
+            <div class="administrative-panel" style="width:100%">
+                <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
+                    <paper-tab class="adm-tab">
+                        <iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon>
+                        [[localize('subscription_form_physical_person','Physical person',language)]]
+                    </paper-tab>
+                    <paper-tab class="adm-tab">
+                        <iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon>
+                        [[localize('subscription_form_medical_house','Medical houses',language)]]
+                    </paper-tab>
+                </paper-tabs>
 
 
+                <iron-pages selected="[[tabs]]" class="">
+                    <page>
+                        <div class="horizontal" style="margin-top:20px">
+                            <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
+                            <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
+                            <paper-input label="First name" value="{{firstName}}"></paper-input>
+                            <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                            <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+                            <paper-input-container>
+                                <label slot="label">[[localize("gender","Gender",language)]]
+                                </label>
+                                <iron-input slot="input" bind-value="{{valueGender}}">
+                                    <input id="inputGender" readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
+                                </iron-input>
+                                <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                                    <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                                    <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}" selected-item="{{selectedItem}}">
+                                        <paper-item id="unknown">[[localize('unknown','unknown',language)]]</paper-item>
+                                        <paper-item id="male">[[localize('male','male',language)]]</paper-item>
+                                        <paper-item id="female">[[localize('female','female',language)]]</paper-item>
+                                        <paper-item id="indeterminate">[[localize('indeterminate','indeterminate',language)]]</paper-item>
+                                        <paper-item id="changed">[[localize('changed','changed',language)]]</paper-item>
+                                    </paper-listbox>
+                                </paper-menu-button>
+                            </paper-input-container>
+                        </div>
+                    </page>
+                    <page>
+                        <!--Medical houses-->
+                        <div class="horizontal" style="margin-top:20px">
+                            <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label style="width:20%"></paper-input>
+                            <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
+                                                always-float-label on-value-changed="updateStartOfCoverage" style="width:20%"></vaadin-date-picker>
+                            <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
+                                         type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
+                            <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"
+                                                always-float-label readonly style="width:20%"></vaadin-date-picker>
+                        </div>
+                        <div class="horizontal" style="margin-top:30px">
+                            <label style="font-weight: 700; display:inline-block; margin-right:30px;">
+                                <iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon>
+                                [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
+                            <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label
+                                            style="margin-right:30px">Has doctor subscription?
+                            </paper-checkbox>
+                            <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label
+                                            style="margin-right:30px">Has physiotherapist subscription?
+                            </paper-checkbox>
+                            <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has
+                                nurse subscription?
+                            </paper-checkbox>
+                        </div>
+                    </page>
+                </iron-pages>
 
 
-
-
-            <paper-dialog id="add-patient-dialog" class="dialog">
-
-                <div class="administrative-panel" style="width:100%">
-
-
-                    <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
-                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon> [[localize('subscription_form_physical_person','Physical person',language)]]</paper-tab>
-                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon> [[localize('subscription_form_medical_house','Medical houses',language)]]</paper-tab>
-                    </paper-tabs>
-
-
-                    <iron-pages selected="[[tabs]]" class="">
-                        <page>
-                            <div class="horizontal" style="margin-top:20px">
-                                    <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
-                                    <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                                    <paper-input label="First name" value="{{firstName}}"></paper-input>
-                                    <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
-                                    <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
-                                    <paper-input-container>
-                                        <label slot="label">[[localize("gender","Gender",language)]]
-                                        </label>
-                                        <iron-input slot="input" bind-value="{{valueGender}}">
-                                            <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
-                                        </iron-input>
-                                        <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
-                                            <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
-                                            <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-                                                <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
-                                                <template is="dom-repeat" items="[[option]]">
-                                                    <paper-item>[[item]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-menu-button>
-                                    </paper-input-container>
-                            </div>
-                        </page>
-                        <page>
-                            <!--Medical houses-->
-                            <div class="horizontal" style="margin-top:20px">
-                                <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label style="width:20%"></paper-input>
-                                <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"  style="width:20%"></vaadin-date-picker>
-                                <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
-                                <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly  style="width:20%"></vaadin-date-picker>
-                            </div>
-                            <div class="horizontal" style="margin-top:30px">
-                                <label style="font-weight: 700; display:inline-block; margin-right:30px;"><iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon> [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
-                                <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label style="margin-right:30px">Has doctor subscription?</paper-checkbox>
-                                <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label style="margin-right:30px">Has physiotherapist subscription?</paper-checkbox>
-                                <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
-                            </div>
-                        </page>
-                    </iron-pages>
-
-
-                    <div>
-                        <template is="dom-if" if="[[displayResult]]">
-                            <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
-                                <vaadin-grid-column>
-                                    <template class="header">
-                                        [[localize('las_nam','Last name',language)]]
-                                    </template>
-                                    <template>
-                                        <div>[[item.lastName]]</div>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column>
-                                    <template class="header">
-                                        [[localize('fir_nam','First name',language)]]
-                                    </template>
-                                    <template>
-                                        <div>[[item.firstName]]</div>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column>
-                                    <template class="header">
-                                        [[localize('dat_of_bir','Date of birth',language)]]
-                                    </template>
-                                    <template>
-                                        <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column>
-                                    <template class="header">
-                                        [[localize('ssin','SSIN',language)]]
-                                    </template>
-                                    <template>
-                                        <div>[[item.ssin]]</div>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column>
-                                    <template class="header">
-                                        [[localize('remark','Remarks',language)]]
-                                    </template>
-                                    <template>
-                                        <div>[[item.remarks]]</div>
-                                    </template>
-                                </vaadin-grid-column>
-                            </vaadin-grid>
-                        </template>
-                    </div>
-                    <div class="buttons" style="margin-top:30px; float:right">
-                        <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                        <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
-                    </div>
+                <div>
+                    <template is="dom-if" if="[[displayResult]]">
+                        <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('las_nam','Last name',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('fir_nam','First name',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.firstName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('dat_of_bir','Date of birth',language)]]
+                                </template>
+                                <template>
+                                    <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('ssin','SSIN',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.ssin]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('remark','Remarks',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.remarks]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </template>
+                </div>
+                <div class="buttons" style="margin-top:30px; float:right">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
+                </div>
             </div>
         </paper-dialog>
 
@@ -1035,7 +1085,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
             <div>
                 <vaadin-grid items="[[hcpSelectedForSharing]]">
-                    <vaadin-grid-column  width="150px">
+                    <vaadin-grid-column width="150px">
                         <template class="header">
                             Prestataires
                         </template>
@@ -1043,7 +1093,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             [[getNamesWithHcpId(item.id)]]
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column  width="700px">
+                    <vaadin-grid-column width="700px">
                         <template class="header">
                             Droits d'accès
                         </template>
@@ -1051,7 +1101,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div>
                                 <template is="dom-repeat" items="[[delegation]]" as="delegationTag">
                                     <template is="dom-if" if="{{_showAllDelegation(delegationTag,item.id,hcpSelectedForSharing.*)}}">
-                                        <vaadin-checkbox class="delegationCheckBox" id="[[item.id]][[delegationTag]]" checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}" on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]</vaadin-checkbox>
+                                        <vaadin-checkbox class="delegationCheckBox" id="[[item.id]][[delegationTag]]"
+                                                         checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}"
+                                                         on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]
+                                        </vaadin-checkbox>
                                         <template is="dom-if" if="{{_neededBr(delegationTag)}}">
                                             <br>
                                         </template>
@@ -1108,7 +1161,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // To generate download xlsx file
         import '../../../bower_components/js-xlsx/shim.js'
-        const XLSX = require( '../../../bower_components/js-xlsx/dist/xlsx.full.min.js')
+
+        const XLSX = require('../../../bower_components/js-xlsx/dist/xlsx.full.min.js')
 
         class HtPatList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1130,8 +1184,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     activeItem: {
                         type: Object
                     },
-                    hcp:{
-                      type: Object
+                    hcp: {
+                        type: Object
                     },
                     hcpSelectedForSharing: {
                         type: Object,
@@ -1151,11 +1205,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: false,
                         notify: true
                     },
-                    nbPatientSelected:{
+                    nbPatientSelected: {
                         type: Number,
                         value: 0
                     },
-                    taskProgress:{
+                    taskProgress: {
                         type: Number,
                         value: 0
                     },
@@ -1192,6 +1246,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true,
                         value: () => []
                     },
+                    selectedFilterIndexes: {
+                        type: Array,
+                        notify: true,
+                        value: () => []
+                    },
                     patientSelected: {
                         type: Array,
                         notify: true,
@@ -1201,15 +1260,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value: false
                     },
-                    listResultPatients :{
+                    listResultPatients: {
                         type: Object,
                         value: () => []
-                    },
-                    form:{
-                        type: Object,
-                        value: function () {
-                            return require('./rsrc/PatientAdministrativeForm.json');
-                        }
                     },
                     listBoxOffsetWidth: {
                         type: Number,
@@ -1219,36 +1272,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Number,
                         observer: '_selectedChanged'
                     },
-                    option:{
-                        type: Array
-                    },
                     valueGender: {
                         type: String,
                         notify: true
                     },
-                    lastName : {
-                        type : String,
-                        value : null,
-                        observer : '_searchDuplicate'
+                    filterValue: {
+                        type: String,
+                        value: ''
                     },
-                    firstName : {
-                        type : String,
-                        value : null,
-                        observer : '_searchDuplicate'
+                    filter: {
+                        type: Object,
+                        value: null
                     },
-                    dateAsString : {
-                        type : String,
-                        value : null,
-                        observer : '_searchDuplicate'
+                    lastName: {
+                        type: String,
+                        value: null,
+                        observer: '_searchDuplicate'
                     },
-                    ssin : {
-                        type : String,
-                        value : null,
-                        observer : '_searchDuplicate'
+                    firstName: {
+                        type: String,
+                        value: null,
+                        observer: '_searchDuplicate'
                     },
-                    delegation : {
-                        type : Array,
-                        value : [
+                    dateAsString: {
+                        type: String,
+                        value: null,
+                        observer: '_searchDuplicate'
+                    },
+                    ssin: {
+                        type: String,
+                        value: null,
+                        observer: '_searchDuplicate'
+                    },
+                    delegation: {
+                        type: Array,
+                        value: [
                             "all",
                             "administrativeData",
                             "generalInformation",
@@ -1259,7 +1317,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             "cdItemRisk",
                             "cdItemFamilyRisk",
                             "cdItemHealthcareelement",
-                            "cdItemHealthcareapproach",
                             "cdItemAllergy",
                             "cdItemDiagnosis",
                             "cdItemLab",
@@ -1270,19 +1327,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             "cdItemVaccine"
                         ]
                     },
-                    exportOption :{
-                        type : Boolean,
-                        value : false
+                    exportOption: {
+                        type: Boolean,
+                        value: false
                     },
-                    fusionOption :{
-                        type : Boolean,
-                        value : false
+                    fusionOption: {
+                        type: Boolean,
+                        value: false
                     },
-                    idFusionPat : {
-                        type : String,
+                    idFusionPat: {
+                        type: String,
                         notify: true
                     },
-                    fusionSelected : {
+                    fusionSelected: {
                         type: Number,
                         observer: '_fusionSelectedChanged'
                     },
@@ -1322,7 +1379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)']
+                return ['_selectedFilterIndexesChanged(selectedFilterIndexes.splices)', '_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)']
             }
 
             constructor() {
@@ -1337,12 +1394,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready()
 
                 this.medicalHouseContractShadowObject = {
-                    mmNihii : null,
-                    startOfContract : null,
-                    startOfCoverage : null,
-                    kine : false,
-                    gp : false,
-                    nurse : false
+                    mmNihii: null,
+                    startOfContract: null,
+                    startOfCoverage: null,
+                    kine: false,
+                    gp: false,
+                    nurse: false
                 }
 
                 var grid = this.$['patients-list']
@@ -1350,7 +1407,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 grid.lastParams = null //Used to prevent double calls
                 grid.size = 0
                 grid.pageSize = 50
-                grid.dataProvider = function (params, callback) {
+                grid.dataProvider = (params, callback) => {
                     const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || 'lastName'
                     const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
 
@@ -1358,12 +1415,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const startIndex = (params.page || 0) * pageSize
                     const endIndex = ((params.page || 0) + 1) * pageSize
 
-                    const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
+                    const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":" + JSON.stringify(this.selectedFilters || [])
 
                     let latestSearchValue = this.filterValue
                     this.latestSearchValue = latestSearchValue
 
-                    if (!latestSearchValue || latestSearchValue.length < 2) {
+                    if ((!latestSearchValue || latestSearchValue.length < 2) && !(this.selectedFilters && this.selectedFilters.length)) {
                         console.log("Cancelling empty search")
                         this.btnSelectionPatient = false
                         this.shareOption = false
@@ -1375,114 +1432,124 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
 
                     let svcFilter = null
-                    try {
-                        svcFilter = filterExParser.parse(latestSearchValue, {hcpId: this.user.healthcarePartyId})
-                    } catch (ignored) {
-                    }
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
 
-                    const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyAndSsinFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'ssin': latestSearchValue
-                    } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyDateOfBirthFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine )=>(p3.length===4 ? p3 : (p3 >20) ? "19"+p3 : "20"+p3)+(p2.length===2 ? p2 : "0"+p2)+(p1.length===2 ? p1 : "0"+p1))
-                    } : {
-                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'searchString': latestSearchValue
-                    }
+                        if (this.selectedFilters && this.selectedFilters.length) {
+                            svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
+                        } else {
+                            try { svcFilter = filterExParser.parse(latestSearchValue, {hcpId: currentHcp.parentId || this.user.healthcarePartyId}) } catch (ignored) {}
+                        }
+
+                        const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyAndSsinFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'ssin': latestSearchValue
+                        } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyDateOfBirthFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine) => (p3.length === 4 ? p3 : (p3 > 20) ? "19" + p3 : "20" + p3) + (p2.length === 2 ? p2 : "0" + p2) + (p1.length === 2 ? p1 : "0" + p1))
+                        } : {
+                            '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'searchString': latestSearchValue
+                        }
 
 
-                    if (grid.lastParams !== thisParams) {
-                        grid.lastParams = thisParams
-                        console.log("Starting search for " + thisParams)
-                        grid.latestPromise = svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter}).then(out => {
-                            let rows = out.rows
+                        if (grid.lastParams !== thisParams) {
+                            grid.lastParams = thisParams
+                            console.log("Starting search for " + thisParams)
 
-                            const svcDict = rows.reduce((acc, s) => {
-                                const cs = acc[s.id]
-                                if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
-                                    acc[s.id] = s
+                            this.set('hideSpinner', false)
+                            this.set('isLoadingPatient', true)
+
+                            ;(svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter})
+                                    .then(out => {
+                                        let rows = out.rows
+
+                                        const svcDict = rows.reduce((acc, s) => {
+                                            const cs = acc[s.id]
+                                            if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
+                                                acc[s.id] = s
+                                            }
+                                            return acc
+                                        }, {})
+                                        const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
+                                        const hcpId = this.user.healthcarePartyId
+
+                                        const ownersOfDelegations = services.reduce((acc, s) => {
+                                            s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
+                                            return acc
+                                        }, {})
+                                        const importedAESHcPartyKeys = {}
+                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
+                                            return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                                filter: {
+                                                    '$type': 'PatientByIdsFilter',
+                                                    'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
+                                                }
+                                            })
+                                        })
+                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                            ).then(res => {
+                                if (grid.lastParams !== thisParams) {
+                                    console.log("Cancelling obsolete search")
+                                    return
                                 }
-                                return acc
-                            }, {})
-                            const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
-                            const hcpId = this.user.healthcarePartyId
+                                const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
 
-                            const ownersOfDelegations = services.reduce((acc, s) => {
-                                s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
-                                return acc
-                            }, {})
-                            const importedAESHcPartyKeys = {}
-                            return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
-                                return this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
-                                    filter: {
-                                        '$type': 'PatientByIdsFilter',
-                                        'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
-                                    }
-                                })
+                                if (keptPatients.length > 0) {
+                                    this.btnSelectionPatient = true
+                                }
+
+                                if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
+                                    grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
+                                }
+                                callback(keptPatients.map(this.pimpPatient))
+                            }).finally(() => {
+                                this.set('hideSpinner', true)
+                                this.set('isLoadingPatient', false)
                             })
-                        }) : this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
-                    }
-
-                    grid.latestPromise.then(function (res) {
-                        if (this.filterValue !== latestSearchValue) {
-                            console.log("Cancelling obsolete search")
-                            return
                         }
-
-                        const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
-
-                        if (keptPatients.length > 0) {
-                            this.btnSelectionPatient = true
-                        }
-
-                        if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-                            grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
-                        }
-                        callback(keptPatients.map(this.pimpPatient))
-                    }.bind(this))
-                }.bind(this)
-
-                //get Genders
-                let jsonGender;
-                this.form.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(d =>{ if(d.label === "Gender"){jsonGender = d.editor.menuOptions}})));
-                this.set("option", jsonGender ? jsonGender : [])
-
+                    })
+                }
             }
 
-            _hcpFilterChanged(e){
-                let latestSearchValue = this.hcpFilterValue || e && e.detail.value;
-                this.latestSearchValue = latestSearchValue;
+            _hcpFilterChanged(e) {
+                let latestSearchValue = this.hcpFilterValue || e && e.detail.value
+                this.latestSearchValue = latestSearchValue
                 if (!latestSearchValue || latestSearchValue.length < 2) {
-                    console.log("Cancelling empty search");
-                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])));
-                    return;
+                    console.log("Cancelling empty search")
+                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                    return
                 }
                 this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
                     if (latestSearchValue !== this.latestSearchValue) {
-                        console.log("Cancelling obsolete search");
-                        return;
+                        console.log("Cancelling obsolete search")
+                        return
                     }
-                    this.set('hcp', res.rows);
-                });
+                    this.set('hcp', res.rows)
+                })
             }
 
             _hcpDataProvider() {
                 return {
-                    filter: function (hcpFilterValue) {
-                        const desc = 'desc';
-                        let count = 15;
-                        return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null,  null, count, desc)]).then(results => {
-                            const hcpList = results[0];
-                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , lastName: hcp.lastName, firstName: hcp.firstName, speciality: hcp.speciality, email: hcp.email}) ));
-                            return { totalSize: filtered.length, rows: filtered };
-                        });
+                    filter: (hcpFilterValue) => {
+                        const desc = 'desc'
+                        let count = 15
+                        return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null, null, count, desc)]).then(results => {
+                            const hcpList = results[0]
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({
+                                id: hcp.id,
+                                lastName: hcp.lastName,
+                                firstName: hcp.firstName,
+                                speciality: hcp.speciality,
+                                email: hcp.email
+                            })))
+                            return {totalSize: filtered.length, rows: filtered}
+                        })
 
-                    }.bind(this)
-                };
+                    }
+                }
             }
 
             toggleMobileMenu() {
@@ -1496,27 +1563,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             refresh() {
-                //Give the gui the time to update the field
-                setTimeout(function () {
-                    let currentValue = this.filterValue
-
-                    if (this.latestSearchValue === currentValue) {
-                        return
+                const previousValue = this.filterValue
+                setTimeout( () => {
+                    if (previousValue === this.filterValue) {
+                        console.log("Triggering search for " + this.filterValue)
+                        this.$['patients-list'].clearCache()
+                    } else {
+                        console.log("Skipping search for new value " + this.filterValue + " != " + previousValue)
                     }
-                    setTimeout(function () {
-                        if (currentValue === this.filterValue) {
-                            this.set('isLoadingPatient', true)
-                            console.log("Triggering search for " + this.filterValue)
-                            this.$['patients-list'].clearCache()
-                            this.set('isLoadingPatient', false)
-                        } else {
-                            console.log("Skipping search for " + this.filterValue + " != " + currentValue)
-                            this.set('isLoadingPatient', false)
-                        }
-                    }.bind(this), 500) //Wait for the user to stop typing
-                }.bind(this), 100)
+                }, 500) //Wait for the user to stop typing
             }
-
 
 
             pimpPatient(p) {
@@ -1527,11 +1583,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
-                this.set('isLoadingPatient', true)
-                if(this.shareOption || this.exportOption || this.fusionOption) return;
+                if (!this.hideSpinner) {
+                    this.set('isLoadingPatient', true)
+                }
+                if (this.shareOption || this.exportOption || this.fusionOption) return
 
                 // Must click on a row
-                if( e.path[0].nodeName == 'TABLE' ) return;
+                if (e.path[0].nodeName == 'TABLE') return
 
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
@@ -1546,37 +1604,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _readEid() {
                 fetch('http://127.0.0.1:16042/read')
                     .then((response) => {
-                        return response.json();
+                        return response.json()
                     })
                     .then(res => {
                         if (res.cards[0]) {
-                            this.set('firstName',res.cards[0].firstName)
-                            this.set('lastName',res.cards[0].surname)
-                            this.set('dateAsString', this.api.moment(res.cards[0].dateOfBirth*1000).format('YYYY-MM-DD'))
+                            this.set('firstName', res.cards[0].firstName)
+                            this.set('lastName', res.cards[0].surname)
+                            this.set('dateAsString', this.api.moment(res.cards[0].dateOfBirth * 1000).format('YYYY-MM-DD'))
                             this.set('ssin', res.cards[0].nationalNumber)
                             this.set('valueGender', res.cards[0].gender === 'M' ? 'male' : 'female')
                         }
-                    });
+                    })
             }
 
             _exportListToCsv() {
-                var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"];
-                var csv = columns.join(";") + "\n";
-                var grid = this.$['patients-list'];
-                grid.dataProvider({pageSize:10000}, function(items) {
-                    items.forEach( item =>
+                var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"]
+                var csv = columns.join(";") + "\n"
+                var grid = this.$['patients-list']
+                grid.dataProvider({pageSize: 10000}, (items) => {
+                    items.forEach(item =>
                         csv += columns.map(col => item[col]).join(";") + '\n'
-                    );
+                    )
 
-                    var file = new Blob([csv] ,{type: "text/csv"});
-                    var a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
+                    var file = new Blob([csv], {type: "text/csv"})
+                    var a = document.createElement("a")
+                    document.body.appendChild(a)
+                    a.style = "display: none"
 
-                    var url = window.URL.createObjectURL(file);
-                    a.href = url;
-                    a.download = "patients-list.csv";
-                    a.click();
+                    var url = window.URL.createObjectURL(file)
+                    a.href = url
+                    a.download = "patients-list.csv"
+                    a.click()
                     window.URL.revokeObjectURL(url)
                 })
 
@@ -1593,87 +1651,86 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     "email",
                     "phone",
                     "mobile"
-                ];
+                ]
 
                 // Human readable columns
                 var hrColumns = [
-                    this.localize('lastname','Last name'),
-                    this.localize('firstname','First name'),
-                    this.localize('gender','Gender'),
-                    this.localize('birthdate','Birthdate'),
-                    this.localize('ssin','SSIN'),
-                    this.localize('email_address','Email address'),
-                    this.localize('phone_number','Phone number'),
-                    this.localize('mobile_number','Mobile number')
-                ];
+                    this.localize('lastname', 'Last name'),
+                    this.localize('firstname', 'First name'),
+                    this.localize('gender', 'Gender'),
+                    this.localize('birthdate', 'Birthdate'),
+                    this.localize('ssin', 'SSIN'),
+                    this.localize('email_address', 'Email address'),
+                    this.localize('phone_number', 'Phone number'),
+                    this.localize('mobile_number', 'Mobile number')
+                ]
 
                 // Define csv content, header = column names
-                var csvFileContent = hrColumns.join(";") + "\n\n";
+                var csvFileContent = hrColumns.join(";") + "\n\n"
 
                 // Get grid / we're going to read data from it
-                var grid = this.$['patients-list'];
+                var grid = this.$['patients-list']
 
                 // Loop grid with a max of X results (csv)
-                grid.dataProvider({pageSize:10000}, function(items) {
+                grid.dataProvider({pageSize: 10000}, function (items) {
 
                     // Rewrite date for HR, input = yyyymmdd, output = dd/mm/yyyy
-                    items.forEach( item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') )
+                    items.forEach(item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short', 'N/A'))
 
                     // Populate / collect
-                    items.forEach( item => csvFileContent += dataColumns.map( col => item[col] ).join( ";" ) + '\n' );
+                    items.forEach(item => csvFileContent += dataColumns.map(col => item[col]).join(";") + '\n')
 
-                    var fileBlob = new Blob([csvFileContent] ,{type: "text/csv"});
-                    var downloadLink = document.createElement("a");
-                    document.body.appendChild( downloadLink );
-                    downloadLink.style = "display: none";
+                    var fileBlob = new Blob([csvFileContent], {type: "text/csv"})
+                    var downloadLink = document.createElement("a")
+                    document.body.appendChild(downloadLink)
+                    downloadLink.style = "display: none"
 
-                    var urlObject = window.URL.createObjectURL( fileBlob );
+                    var urlObject = window.URL.createObjectURL(fileBlob)
 
-                    downloadLink.href = urlObject;
-                    downloadLink.download = "patients-list.csv";
-                    downloadLink.click();
-                    window.URL.revokeObjectURL( urlObject )
+                    downloadLink.href = urlObject
+                    downloadLink.download = "patients-list.csv"
+                    downloadLink.click()
+                    window.URL.revokeObjectURL(urlObject)
                 })
 
             }
 
 
-
             getAllPatients() {
 
                 return this.api.getRowsUsingPagination(
-                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                    (key, docId) => this.api.patient().listPatientsByHcPartyWithUser(this.user, this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
                         rows: pl.rows.map(
                             p => (
                                 p.languages = p.languages.join(' / '),
-                                p.dateOfBirth = ( p.dateOfBirth ? ("" + p.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') ),
-                                _.assign(
-                                    _.pick( p, ['lastName'], ['firstName'], ['dateOfBirth'], ['gender'], ['languages'], ['ssin'] ),
-                                    _.fromPairs(
-                                        _.flatMap(
-                                            p.addresses,
-                                            a => [
-                                                [a.addressType+'_street', a.street],
-                                                [a.addressType+'_number', a.houseNumber],
-                                                [a.addressType+'_zip', a.postalCode],
-                                                [a.addressType+'_city', a.city]
-                                            ]
-                                            .concat(
-                                                _.map(
-                                                    a.telecoms,
-                                                    t => [
-                                                        a.addressType+'_'+t.telecomType, t.telecomNumber
-                                                    ]
-                                                )
+                                    p.dateOfBirth = (p.dateOfBirth ? ("" + p.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short', 'N/A')),
+                                    _.assign(
+                                        _.pick(p, ['lastName'], ['firstName'], ['dateOfBirth'], ['gender'], ['languages'], ['ssin']),
+                                        _.fromPairs(
+                                            _.flatMap(
+                                                p.addresses,
+                                                a => [
+                                                    [a.addressType + '_street', a.street],
+                                                    [a.addressType + '_number', a.houseNumber],
+                                                    [a.addressType + '_zip', a.postalCode],
+                                                    [a.addressType + '_city', a.city]
+                                                ]
+                                                    .concat(
+                                                        _.map(
+                                                            a.telecoms,
+                                                            t => [
+                                                                a.addressType + '_' + t.telecomType, t.telecomNumber
+                                                            ]
+                                                        )
+                                                    )
                                             )
                                         )
                                     )
-                                )
                             )
-                    ),
-                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                    done:!pl.nextKeyPair
+                        ),
+                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                        done: !pl.nextKeyPair
                     }))
                 )
             }
@@ -1689,41 +1746,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 )
             }
 
-            generateXlsFile( data ) {
+            generateXlsFile(data) {
 
                 // Create xls work book and assign properties
-                const xlsWorkBook = { SheetNames: [], Sheets: {} };
-                xlsWorkBook.Props = { Title: "Patients list", Author: "iCure" };
+                const xlsWorkBook = {SheetNames: [], Sheets: {}}
+                xlsWorkBook.Props = {Title: "Patients list", Author: "iCure"}
 
                 // Create sheet based on json data collection
-                var xlsWorkSheet = XLSX.utils.json_to_sheet( data );
+                var xlsWorkSheet = XLSX.utils.json_to_sheet(data)
 
                 // Link sheet to workbook
-                XLSX.utils.book_append_sheet(xlsWorkBook, xlsWorkSheet, 'Patients list');
+                XLSX.utils.book_append_sheet(xlsWorkBook, xlsWorkSheet, 'Patients list')
 
                 // Virtual data output
-                var xlsWorkBookOutput = new Buffer(XLSX.write(xlsWorkBook, { bookType: 'xls', type: 'buffer' }));
+                var xlsWorkBookOutput = new Buffer(XLSX.write(xlsWorkBook, {bookType: 'xls', type: 'buffer'}))
 
                 // Put output to virtual "file"
-                var fileBlob = new Blob([xlsWorkBookOutput] ,{type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+                var fileBlob = new Blob([xlsWorkBookOutput], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
 
                 // Create download link and append to page's body
-                var downloadLink = document.createElement("a"); document.body.appendChild( downloadLink ); downloadLink.style = "display: none";
+                var downloadLink = document.createElement("a")
+                document.body.appendChild(downloadLink)
+                downloadLink.style = "display: none"
 
                 // Create url
-                var urlObject = window.URL.createObjectURL( fileBlob );
+                var urlObject = window.URL.createObjectURL(fileBlob)
 
                 // Link to url
-                downloadLink.href = urlObject; downloadLink.download = "patients-list.xls";
+                downloadLink.href = urlObject
+                downloadLink.download = "patients-list.xls"
 
                 // Trigger download and drop object
-                downloadLink.click(); window.URL.revokeObjectURL( urlObject );
+                downloadLink.click()
+                window.URL.revokeObjectURL(urlObject)
 
                 // Free mem
-                fileBlob = false;
-                xlsWorkBookOutput = false;
+                fileBlob = false
+                xlsWorkBookOutput = false
 
-                return;
+                return
             }
 
             confirm() {
@@ -1732,13 +1793,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     firstName: this.firstName,
                     active: true,
                     dateOfBirth: this.dateAsString && this.dateAsString.length && parseInt(this.dateAsString.replace(/-/g, '')) || null,
-                    ssin : this.ssin,
-                    gender : this.valueGender,
+                    ssin: this.ssin,
+                    gender: this.valueGender,
                     medicalHouseContracts: [this.medicalHouseContractShadowObject]
                 }).then(
-                    p => this.api.patient().createPatient(p)
+                    p => this.api.patient().createPatientWithUser(this.user, p)
                 ).then(
-                    p => this.api.register(p,'patient')
+                    p => this.api.register(p, 'patient')
                 ).then(
                     p => {
                         this.set('selectedPatient', p)
@@ -1826,6 +1887,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return []
             }
 
+            _selectedFilterIndexesChanged() {
+                const activeFilters = this._activeFilters()
+                this.set('selectedFilters', this.selectedFilterIndexes.map(i => activeFilters[i]))
+                if (this.selectedFilters.length) {
+                    this.set('filterValue', this._selectedFiltersAsString())
+                    this.$['patients-list'].clearCache()
+                }
+            }
+
             _selectedFilterIndexes() {
                 const activeFilters = this._activeFilters()
                 return this.selectedFilters ? this.selectedFilters.map(f => activeFilters.map(ff => ff.name).indexOf(f.name)) : []
@@ -1838,39 +1908,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.selectedFilters[0].filter)
             }
 
-            _filterValueChanged(filterValue) {
-                if (this.selectedFilters[0] && this._selectedFiltersAsString() !== this.filterValue) {
-                    this.set('selectedFilters', [])
+            _filterValueChanged(filterValue, oldValue) {
+                if (this.selectedFilters[0] && this._selectedFiltersAsString() !== filterValue) {
+                    this.set('selectedFilterIndexes', [])
+                } else if (!this.selectedFilters.length && filterValue !== oldValue) {
+                    this.refresh()
                 }
-            }
-
-            selectFilter(e) {
-                const activeFilters = this._activeFilters()
-                const clickedElem = e.target.parentNode
-                const parentElem = clickedElem.parentNode.parentNode
-                const childsElem = parentElem.querySelectorAll(".filter-tag")
-                const toMap = Array.prototype.slice.call(childsElem)
-                let activeId, i = 0
-                toMap.map( (idx) => {
-                    if (clickedElem === idx) {
-                        activeId = i
-                    }
-                    i++
-                })
-                if (activeFilters[activeId]) {
-                    this.set('filterValue', activeFilters[activeId].filter.searchString)
-                    this.previouslySetFilterValue = this.filterValue
-                } else {
-                    if (this.filterValue === this.previouslySetFilterValue) {
-                        this.set('filterValue', '')
-                    }
-                }
-
-                this.refresh(e)
             }
 
             _sharePatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('shareOption', true)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
@@ -1879,13 +1927,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _exportPatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('exportOption', true)
                 this.set('shareOption', false)
                 this.set('fusionOption', false)
             }
 
-            _fusionPatient(e){
+            _fusionPatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('fusionOption', true)
                 this.set('shareOption', false)
                 this.set('exportOption', false)
@@ -1897,14 +1947,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (targetId !== "") {
                     const mark = this.patientSelected.find(m => m.id === targetId)
                     if (!mark) {
-                        this.api.patient().getPatient(targetId).then(result =>{
-                            this.push('patientSelected',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
-                            this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
+                        this.api.patient().getPatientWithUser(this.user, targetId).then(result => {
+                            this.push('patientSelected', {id: targetId, check: true, names: result.firstName + " " + result.lastName})
+                            this.set('nbPatientSelected', this.patientSelected.filter(patient => patient.check).length)
                         })
                     } else {
                         mark.check = !mark.check
                         this.notifyPath('patientSelected.*')
-                        this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
+                        this.set('nbPatientSelected', this.patientSelected.filter(patient => patient.check).length)
                     }
                 }
 
@@ -1921,51 +1971,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _openPatientActionDialog() {
-                if(this.shareOption) {
+                if (this.shareOption) {
                     this.$['sharePatientDialog'].open()
                     this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
                 }
-                if(this.exportOption){
+                if (this.exportOption) {
                     //export here
-                    this.set('taskProgress', 0.001);
+                    this.set('taskProgress', 0.001)
                     let p = Promise.resolve([])
-                    this.patientSelected.forEach((patient, pidx) =>{
+                    this.patientSelected.forEach((patient, pidx) => {
                         p = p.then(acc =>
-                            this.api.patient().getPatient(patient.id)
+                            this.api.patient().getPatientWithUser(this.user, patient.id)
                                 .then(patientDto => {
                                     return this.api.crypto()
                                         .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
-                                        return this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
-                                            secretForeignKeys: secretForeignKeys,
-                                            comment: null
-                                        }, (progress) => this.set('taskProgress', (pidx+progress)/this.patientSelected.length)).then(output => {
-                                            //creation of the xml file
-                                            var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+                                            return this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                                secretForeignKeys: secretForeignKeys.extractedKeys,
+                                                comment: null
+                                            }, (progress) => this.set('taskProgress', (pidx + progress) / this.patientSelected.length)).then(output => {
+                                                //creation of the xml file
+                                                var file = typeof output === "string" ? new Blob([output], {type: "application/xml"}) : output
 
-                                            //creation the downloading link
-                                            var a = document.createElement("a");
-                                            document.body.appendChild(a);
-                                            a.style = "display: none";
+                                                //creation the downloading link
+                                                var a = document.createElement("a")
+                                                document.body.appendChild(a)
+                                                a.style = "display: none"
 
-                                            //download the new file
-                                            var url = window.URL.createObjectURL(file);
-                                            a.href = url;
-                                            a.download = patient.names.replace(" ","_")+"_"+(moment().format("x"))+".xml";
-                                            a.click();
-                                            window.URL.revokeObjectURL(url);
+                                                //download the new file
+                                                var url = window.URL.createObjectURL(file)
+                                                a.href = url
+                                                a.download = patient.names.replace(" ", "_") + "_" + (moment().format("x")) + ".xml"
+                                                a.click()
+                                                window.URL.revokeObjectURL(url)
 
-                                            document.body.removeChild(a);
+                                                document.body.removeChild(a)
 
-                                        }).catch( error=> console.log(error))
-                                })
-                        }))
+                                            }).catch(error => console.log(error))
+                                        })
+                                }))
                     })
                     p.finally(() => this.set('taskProgress', 0))
                 }
-                if(this.fusionOption){
-                    this.set("patientSelected",this.patientSelected.filter(element => element.check===true))
-                    if(this.patientSelected.length>1)
+                if (this.fusionOption) {
+                    this.set("patientSelected", this.patientSelected.filter(element => element.check === true))
+                    if (this.patientSelected.length > 1)
                         this.$['fusionDialog'].open()
                 }
             }
@@ -1977,21 +2027,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('nbPatientSelected', 0)
             }
 
-            _cancelSelecting(){
+            _cancelSelecting() {
                 this._deselectAllSelectedPatients()
                 this.set('shareOption', false)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
             }
 
-            _checkHcp(e){
+            _checkHcp(e) {
                 if (e.target.id !== "") {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === e.target.id)
                     if (!mark) {
-                        this.push('hcpSelectedForSharing',{
-                            id:e.target.id,
-                            check:true,
-                            delegation : ["all"]
+                        this.push('hcpSelectedForSharing', {
+                            id: e.target.id,
+                            check: true,
+                            delegation: ["all"]
                         })
                     } else {
                         mark.check = !mark.check
@@ -2001,7 +2051,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
-            _sharingHcp(item){
+            _sharingHcp(item) {
                 if (item) {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
                     return mark && mark.check
@@ -2010,57 +2060,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            confirmSharingNextStep(){
+            confirmSharingNextStep() {
 
                 let pPromise = Promise.resolve([])
                 const hcpId = this.user.healthcarePartyId
                 this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
                     pPromise = pPromise.then(pats =>
-                        this.api.patient().share(pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
+                        this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
                             .then(pat => _.concat(pats, pat))
                     )
                 })
 
-                this.$['sharePatientDialog'].close();
+                this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
-                const tab = _.differenceBy(this.hcpSelectedForSharing,[{'check' : false}], 'check')
-                this.set("hcpSelectedForSharing",tab)
+                const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
+                this.set("hcpSelectedForSharing", tab)
 
                 //loading existing delegation of shared users
-                this.hcpSelectedForSharing.forEach( (userShared,index)  => {
-                    let delegationTag = [];
+                this.hcpSelectedForSharing.forEach((userShared, index) => {
+                    let delegationTag = []
                     const keys = Object.keys(this.user.autoDelegations)
                     keys.forEach(key => {
-                        if(this.user.autoDelegations[key].find(x => x===userShared.id))
+                        if (this.user.autoDelegations[key].find(x => x === userShared.id))
                             delegationTag.push(key)
                     })
-                    if(delegationTag.length!==0)
-                        this.set("hcpSelectedForSharing."+index+".delegation",delegationTag);
+                    if (delegationTag.length !== 0)
+                        this.set("hcpSelectedForSharing." + index + ".delegation", delegationTag)
                 })
 
-                this.$['sharePatientDelegationDialog'].open();
+                this.$['sharePatientDelegationDialog'].open()
 
                 return pPromise
             }
 
             confirmSharing() {
-                this.updateDelegation();
-                this.$['sharePatientDelegationDialog'].close();
+                this.updateDelegation()
+                this.$['sharePatientDelegationDialog'].close()
             }
 
             _openPopupMenu() {
                 if (this.readOnly) {
-                    return;
+                    return
                 }
-                this.shadowRoot.querySelector('#paper-menu-button').open();
+                this.shadowRoot.querySelector('#paper-menu-button').open()
             }
 
             _selectedChanged(selected) {
                 if (this.readOnly) {
-                    return;
+                    return
                 }
-                this.set('valueGender', this.option[selected - 1] || null);
+                this.set('valueGender', this.selectedItem && this.selectedItem.id || null)
             }
 
             _searchDuplicate() {
@@ -2081,7 +2131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const dateOfBirthFilter = (/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)) && ({
                     '$type': 'PatientByHcPartyDateOfBirthFilter',
                     'healthcarePartyId': this.user.healthcarePartyId,
-                    'dateOfBirth': this.dateAsString.replace(/-/g,"")
+                    'dateOfBirth': this.dateAsString.replace(/-/g, "")
                 })
                 const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
                     '$type': 'PatientByHcPartyAndSsinFilter',
@@ -2095,7 +2145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     filters: intersectionFilters
                 }) : intersectionFilters[0], ssinFilter].filter(x => !!x)
 
-                const unionFilter = unionFilters.length>1 ? ({
+                const unionFilter = unionFilters.length > 1 ? ({
                     '$type': 'UnionFilter',
                     filters: unionFilters
                 }) : unionFilters[0]
@@ -2108,19 +2158,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         console.log(unionFilter)
                         //research
-                        this.api.patient().filterBy(null, null, 50, 0, 1, 'desc', {filter: unionFilter}).then(tb => {
+                        this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: unionFilter}).then(tb => {
                             console.log("result of the research : " + JSON.stringify(tb))
 
                             //construct of the table
                             if (tb["totalSize"] !== 0) {
                                 tb["rows"].map(row => {
                                     row["remarks"] = this.localize("rem_Ty5_CreatPat", "Ressemblance !", language)
-                                    let flagRem = false;
+                                    let flagRem = false
                                     if (row["firstName"].toUpperCase() === this.firstName.toUpperCase() && row["lastName"].toUpperCase() === this.lastName.toUpperCase()) {
                                         row["remarks"] = this.localize("rem_Ty1_CreatPat", "Même nom et prénom!", language)
 
                                         if (row["dateOfBirth"].toString() === this.dateAsString.replace(/-/g, '')) {
-                                            flagRem = true;
+                                            flagRem = true
                                             row["remarks"] = this.localize("rem_Ty4_CreatPat", "Même nom, prénom et date de naissance!", language)
                                         }
                                     }
@@ -2148,12 +2198,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            getNamesWithHcpId(id){
-                const element = this.hcp.find( x => x.id===id)
-                return element.lastName+" "+element.firstName
+            getNamesWithHcpId(id) {
+                const element = this.hcp.find(x => x.id === id)
+                return element.lastName + " " + element.firstName
             }
 
-            _checkDelegation(event){
+            _checkDelegation(event) {
 
                 const index = this.hcpSelectedForSharing.indexOf(event.model.__data.item)
                 const tag = event.target.id.substr(event.model.__data.item.id.length)
@@ -2161,184 +2211,176 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 //idem of checkingDelegation
 
-                if(this.hcpSelectedForSharing[index].delegation.find(x => x==='all')){
-                    this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter(x=> true))
+                if (this.hcpSelectedForSharing[index].delegation.find(x => x === 'all')) {
+                    this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.filter(x => true))
                     this.hcpSelectedForSharing[index].delegation.shift()
                 }
-                if(value===true){//check
-                    if(tag==="all"){
-                        this.set("hcpSelectedForSharing."+index+".delegation",[])
+                if (value === true) {//check
+                    if (tag === "all") {
+                        this.set("hcpSelectedForSharing." + index + ".delegation", [])
                     }
-                    this.push("hcpSelectedForSharing."+index+".delegation",tag)
+                    this.push("hcpSelectedForSharing." + index + ".delegation", tag)
 
-                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12){
-                        this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
-                    }
-
-                    if(this.hcpSelectedForSharing[index].delegation.find(x => x === "medicalInformation")){
-                        this.set("hcpSelectedForSharing."+index+".delegation",this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
+                    if (this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12) {
+                        this.push("hcpSelectedForSharing." + index + ".delegation", "medicalInformation")
                     }
 
-                    if(this.hcpSelectedForSharing[index].delegation.filter(element=> !(element.includes("cdItem")||element==="all")).length===6){
-                        this.set("hcpSelectedForSharing."+index+".delegation",["all"])
+                    if (this.hcpSelectedForSharing[index].delegation.find(x => x === "medicalInformation")) {
+                        this.set("hcpSelectedForSharing." + index + ".delegation", this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
+                    }
+
+                    if (this.hcpSelectedForSharing[index].delegation.filter(element => !(element.includes("cdItem") || element === "all")).length === 6) {
+                        this.set("hcpSelectedForSharing." + index + ".delegation", ["all"])
                     }
                 }
-                else{//uncheck
-                    if(tag==="all"){
-                        this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter( (element,index,array) => (index<=4 && element!=="all")))
+                else {//uncheck
+                    if (tag === "all") {
+                        this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.filter((element, index, array) => (index <= 4 && element !== "all")))
                     }
-                    else{
-                        this.set("hcpSelectedForSharing."+index+".delegation",
-                            this.hcpSelectedForSharing[index].delegation.filter(x => x!==tag))
+                    else {
+                        this.set("hcpSelectedForSharing." + index + ".delegation",
+                            this.hcpSelectedForSharing[index].delegation.filter(x => x !== tag))
                     }
                 }
             }
 
-            checkingDelegation(tagInput,delegations){
-                if(!delegations)return ;
-                return delegations.find( x => x===tagInput );
+            checkingDelegation(tagInput, delegations) {
+                if (!delegations) return
+                return delegations.find(x => x === tagInput)
             }
 
-            updateDelegation(){
+            updateDelegation() {
                 if (!this.user) return
                 let userDelegation = this.user.autoDelegations
 
-                this.hcpSelectedForSharing.forEach( userShared =>{
-                    //delete old delegations for this user
-                    Object.keys(userDelegation).forEach(key => {
-                        userDelegation[key]= userDelegation[key].filter( x => x!==userShared.id)
-                        if(userDelegation[key].length===0) delete userDelegation[key]
-                    })
+                this.hcpSelectedForSharing.forEach(userShared => {
+                        //delete old delegations for this user
+                        Object.keys(userDelegation).forEach(key => {
+                            userDelegation[key] = userDelegation[key].filter(x => x !== userShared.id)
+                            if (userDelegation[key].length === 0) delete userDelegation[key]
+                        })
 
-                    userShared.delegation.forEach( delegationTag => {
-                        //add news delegations for this user
-                        if(userDelegation.hasOwnProperty(delegationTag)){
-                            userDelegation[delegationTag].push(userShared.id)
-                        }
-                        else{
-                            userDelegation[delegationTag]=[userShared.id]
-                        }
-                    })}
+                        userShared.delegation.forEach(delegationTag => {
+                            //add news delegations for this user
+                            if (userDelegation.hasOwnProperty(delegationTag)) {
+                                userDelegation[delegationTag].push(userShared.id)
+                            }
+                            else {
+                                userDelegation[delegationTag] = [userShared.id]
+                            }
+                        })
+                    }
                 )
-                this.set("user.autoDelegations",userDelegation)
+                this.set("user.autoDelegations", userDelegation)
 
-                this.api.user().modifyUser(this.user).then(user =>{
+                this.api.user().modifyUser(this.user).then(user => {
                     this.dispatchEvent(new CustomEvent('user-saved', {
                         detail: user,
                         bubbles: true,
                         composed: true
                     }))
-                }).catch( e => {
+                }).catch(e => {
                     console.log(e)
                 }).finally(e => {
                     this.api.user().getUser(this.user.id).then(x => {
-                        this.set("user",x)
+                        this.set("user", x)
                     })
                 })
             }
 
-            _neededBr(tag){
-                return tag==="all";
+            _neededBr(tag) {
+                return tag === "all"
             }
 
-            _showAllDelegation(tag,id){
+            _showAllDelegation(tag, id) {
 
-                if(tag==="all") return true;
-                const index = this.hcpSelectedForSharing.findIndex( x => x.id===id)
-                if(index===-1) return false;
+                if (tag === "all") return true
+                const index = this.hcpSelectedForSharing.findIndex(x => x.id === id)
+                if (index === -1) return false
 
-                let value = !this.hcpSelectedForSharing[index].delegation.find(x =>x==="all")
-                if(tag.includes("cdItem") && this.hcpSelectedForSharing[index].delegation.find(x =>x==="medicalInformation"))
-                    value = false;
+                let value = !this.hcpSelectedForSharing[index].delegation.find(x => x === "all")
+                if (tag.includes("cdItem") && this.hcpSelectedForSharing[index].delegation.find(x => x === "medicalInformation"))
+                    value = false
                 return value
             }
 
-            _optionsChecked(){
+            _optionsChecked() {
                 return this.shareOption || this.exportOption || this.fusionOption
             }
 
             _fusionSelectedChanged(selected) {
                 if (this.readOnly) {
-                    return;
+                    return
                 }
-                this.set('idFusionPat', this.patientSelected[selected].id || null);
+                this.set('idFusionPat', this.patientSelected[selected].id || null)
             }
 
-            getNamePat(id){
-                const pat = this.patientSelected.find(patient => patient.id===id)
-                return pat.names;
+            getNamePat(id) {
+                const pat = this.patientSelected.find(patient => patient.id === id)
+                return pat.names
             }
 
-            confirmFusion(){
-                let listIds = "";
+            confirmFusion() {
+                let listIds = ""
                 this.patientSelected.forEach(patient => {
-                    if(patient.id!==this.idFusionPat)
-                        listIds +=patient.id+",";
+                    if (patient.id !== this.idFusionPat)
+                        listIds += patient.id + ","
                 })
-                listIds = listIds.substring(0, listIds.length-1)
+                listIds = listIds.substring(0, listIds.length - 1)
                 //console.log(listIds)
-                if(this.idFusionPat)
-                    this.api.patient().mergeInto(this.idFusionPat,listIds).then(response => {
+                if (this.idFusionPat)
+                    this.api.patient().mergeIntoWithUser(this.user, this.idFusionPat, listIds).then(response => {
                         console.log(response)
                         this.set('selectedPatient', response)
                     })
             }
 
-            _isPatientsSelected(){
-                return this.patientSelected.filter( x => x.check==true).length;
+            _isPatientsSelected() {
+                return this.patientSelected.filter(x => x.check == true).length
             }
 
 
-
-
-            updateStartOfCoverage( event, object ) {
+            updateStartOfCoverage(event, object) {
 
                 // Busy status
-                this.updateStartOfCoverageBusy = this.updateStartOfCoverageBusy || false;
+                this.updateStartOfCoverageBusy = this.updateStartOfCoverageBusy || false
 
                 // Already busy ?
-                if( this.updateStartOfCoverageBusy ) return;
+                if (this.updateStartOfCoverageBusy) return
 
                 // Set to busy
-                this.updateStartOfCoverageBusy = true;
+                this.updateStartOfCoverageBusy = true
 
                 // Grab final object
-                let startOfContractObject = this.$['startOfContract'];
-                let startOfCoverageObject = this.$['startOfCoverage'];
-                let evalutationMonthsObject = this.$['evalutationMonths'];
+                let startOfContractObject = this.$['startOfContract']
+                let startOfCoverageObject = this.$['startOfCoverage']
+                let evalutationMonthsObject = this.$['evalutationMonths']
 
                 // No value defined yet (first call), set to today
-                if( object.value == "" ) startOfContractObject.value = moment().format('YYYY-MM-DD');
+                if (object.value == "") startOfContractObject.value = moment().format('YYYY-MM-DD')
 
                 // By default, start of coverage date = 1st day of next month
-                startOfCoverageObject.value = moment( startOfContractObject.value ).add( ( 1 + parseInt( evalutationMonthsObject.value || 0 ) ), 'months').startOf('month').format('YYYY-MM-DD');
+                startOfCoverageObject.value = moment(startOfContractObject.value).add((1 + parseInt(evalutationMonthsObject.value || 0)), 'months').startOf('month').format('YYYY-MM-DD')
 
                 // Cast values
                 this.medicalHouseContractShadowObject = {
-                    mmNihii : this.medicalHouseContract.mmNihii,
-                    startOfContract : this.medicalHouseContract.startOfContract.replace(/-/g, ''),
-                    startOfCoverage : this.medicalHouseContract.startOfCoverage.replace(/-/g, ''),
-                    kine : this.$['medicalHouseContractKineCheckBox'].checked,
-                    gp : this.$['medicalHouseContractGpCheckBox'].checked,
-                    nurse : this.$['medicalHouseContractNurseCheckBox'].checked
+                    mmNihii: this.medicalHouseContract.mmNihii,
+                    startOfContract: this.medicalHouseContract.startOfContract.replace(/-/g, ''),
+                    startOfCoverage: this.medicalHouseContract.startOfCoverage.replace(/-/g, ''),
+                    kine: this.$['medicalHouseContractKineCheckBox'].checked,
+                    gp: this.$['medicalHouseContractGpCheckBox'].checked,
+                    nurse: this.$['medicalHouseContractNurseCheckBox'].checked
                 }
 
                 // We're finished
-                this.updateStartOfCoverageBusy = false;
+                this.updateStartOfCoverageBusy = false
 
             }
-
-
-
-
 
 
         }
 
         customElements.define(HtPatList.is, HtPatList)
-
-
-
 
 
     </script>

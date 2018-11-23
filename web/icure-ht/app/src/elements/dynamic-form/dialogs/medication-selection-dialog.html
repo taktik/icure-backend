@@ -285,10 +285,26 @@
                 super()
             }
 
+            extractContentWithIdFromMedicationService(m, isNew) {
+                return {
+                    id: m.id,
+                    codes: m.codes,
+                    medicationValue:
+                    (
+                        this.api.localize(m.content, this.language)  ||
+                        ( m.content[this.language] =
+                                {
+                                    medicationValue: { regimen: [] }
+                                }
+                        )
+                    ).medicationValue,
+                    isNew: isNew || false };
+            }
+
             open(medication, selectedMedicationContentWithId) {
                 if (medication) {
                     this.set('newMedication', medication);
-                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId);
+                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(m, false))
                 }
                 this.$['medication-selection'].open()
             }
@@ -395,24 +411,23 @@
             }
 
             selectMedicationFromList(med) {
+                console.log("selectMedicationFromList",med)
                 if (med.id) {
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                         this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                             "intendedname": med.name,
-                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}],
+                            "priority": 'low'
                         })
-                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                            weekday: null,
-                            date: null,
-                            administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
-                        }])
-                        this.set("bufferUnit",mppInfos.gal.name)
-                        this.set("bufferQuantity",1)
+                        this.set('selectedMedicationContentWithId.medicationUnit', mppInfos.gal && mppInfos.gal.name ||  this.localize('generic_unit','unit',this.language))
+
+                        med.id.id && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-DRUG-CNK') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-DRUG-CNK', version:'1'})).code = med.id.id)
+                        med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
 
                         if (this.selectedMedicationContentWithId.isNew) {
                             this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
                         } else {
-                            this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:this.newMedication, bubbles: true, composed: true}))
                         }
                     })
                 } else {
@@ -421,18 +436,16 @@
                             "intendedname": med.name,
                             "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
                         })
+                        this.set('selectedMedicationContentWithId.medicationUnit', this.localize('generic_unit','unit',this.language))
+
+                        med.inncluster && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-INNCLUSTER', version:'1'})).code = med.inncluster)
+                        med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
                     } else {
                         this.set('selectedMedicationContentWithId.medicationValue', {
                             "compoundPrescription": med.name
                         })
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                        weekday: null,
-                        date: null,
-                        administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
-                    }])
-                    this.set("bufferUnit",this.localize('generic_unit','unit',language))
-                    this.set("bufferQuantity",1)
+                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 
                     if (this.selectedMedicationContentWithId.isNew) {
                         this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
@@ -445,7 +458,7 @@
             click(e) {
                 const selected = this.selectedMedicationFromList;
 
-                console.log('selected ' + selected + ' - ' + this.latestSelected);
+                console.log('selected ',selected,' - ',this.latestSelected);
                 if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
                     this.select(this.latestSelected);
                 } else {

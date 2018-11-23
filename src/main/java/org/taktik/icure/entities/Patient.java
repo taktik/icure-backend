@@ -27,14 +27,7 @@ import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.entities.embed.Address;
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation;
-import org.taktik.icure.entities.embed.Gender;
-import org.taktik.icure.entities.embed.Insurability;
-import org.taktik.icure.entities.embed.MedicalHouseContract;
-import org.taktik.icure.entities.embed.Partnership;
-import org.taktik.icure.entities.embed.PatientHealthCareParty;
-import org.taktik.icure.entities.embed.PersonalStatus;
+import org.taktik.icure.entities.embed.*;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.ValidCode;
@@ -60,6 +53,7 @@ public class Patient extends StoredICureDocument implements Person {
     protected String lastName;  //Is usually either maidenName or spouseName
     protected String alias;
     protected boolean active = true;
+    protected DeactivationReason deactivationReason = DeactivationReason.none;
     protected String ssin;
     protected String civility;
     protected Gender gender = Gender.unknown;
@@ -68,6 +62,7 @@ public class Patient extends StoredICureDocument implements Person {
     protected String partnerName; // Name of the partner, sometimes equal to spouseName
     protected PersonalStatus personalStatus = PersonalStatus.unknown;
 
+
     protected Integer dateOfBirth; // YYYYMMDD if unknown, 00, ex:20010000 or
 	protected Integer dateOfDeath; // YYYYMMDD if unknown, 00, ex:20010000 or
     protected String placeOfBirth;
@@ -75,7 +70,9 @@ public class Patient extends StoredICureDocument implements Person {
     protected String education;
     protected String profession;
     protected String note;
-	protected String warning;
+	protected String administrativeNote;
+
+    protected String warning;
 	protected String nationality;
 
 	protected String preferredUserId;
@@ -547,4 +544,20 @@ public class Patient extends StoredICureDocument implements Person {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public String getAdministrativeNote() {
+        return administrativeNote;
+    }
+
+    public void setAdministrativeNote(String administrativeNote) {
+        this.administrativeNote = administrativeNote;
+    }
+
+    public DeactivationReason getDeactivationReason() {
+        return deactivationReason;
+    }
+
+    public void setDeactivationReason(DeactivationReason deactivationReason) {
+        this.deactivationReason = deactivationReason;
+    }
 }

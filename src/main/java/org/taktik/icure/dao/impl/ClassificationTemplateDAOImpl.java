@@ -27,11 +27,9 @@ import org.taktik.icure.dao.ClassificationTemplateDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.ClassificationTemplate;
-import org.taktik.icure.entities.base.Code;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +48,17 @@ class ClassificationTemplateDAOImpl extends GenericIcureDAOImpl<ClassificationTe
 	public ClassificationTemplate getClassificationTemplate(String classificationTemplateId) {
 		return get(classificationTemplateId);
 	}
+
+    @Override
+    @View(name = "by_hcparty_patient", map = "classpath:js/classificationtemplate/By_hcparty_patient_map.js")
+    public List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys) {
+        ComplexKey[] keys = secretPatientKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretPatientKeys.size()]);
+
+        List<ClassificationTemplate> result = new ArrayList<>();
+        queryView("by_hcparty_patient", keys).forEach((e)->{if (result.isEmpty() || !e.getId().equals(result.get(result.size()-1).getId())) {result.add(e); }});
+
+        return result;
+    }
 
 
 }

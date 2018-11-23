@@ -27,6 +27,8 @@ import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
 import Element = Polymer.Element;
+import {addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, columnResizing, deleteColumn, deleteRow, deleteTable, goToNextCell, mergeCells, splitCell, tableEditing, tableNodes, toggleHeaderCell, toggleHeaderColumn, toggleHeaderRow} from "prosemirror-tables";
+import {fixTables} from "./fixtables";
 
 
 /**
@@ -43,6 +45,9 @@ export class ProseEditor extends Polymer.Element {
   @property({type: Number, observer: '_zoomChanged'})
   zoomLevel = 120
 
+  @property({type: Array})
+  sizes = ['4px','5px','6px','7px','8px','9px','10px','11px','12px','13px','14px','16px','18px','20px','24px','28px','36px','48px','72px']
+
   _zoomChanged() {
     if (this.$.container) {
       this.$.container.style.transform = "translateX(-50%)  translateY(" + (this.zoomLevel - 100) / 2 + "%) scale(" + (this.zoomLevel / 100) + ")"
@@ -56,6 +61,7 @@ export class ProseEditor extends Polymer.Element {
   pageNodeSpec: NodeSpec = {
     inline: false,
     draggable: false,
+    isolating: true,
     attrs: {
       id: {default: 0}
     },
@@ -108,6 +114,17 @@ export class ProseEditor extends Polymer.Element {
         }})),
         toDOM(node: any) {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
+        }
+      }))
+      .append(tableNodes({
+        tableGroup: "block",
+        cellContent: "block+",
+        cellAttributes: {
+          background: {
+            default: null,
+            getFromDOM(dom) { return (dom as HTMLElement).style.backgroundColor || null },
+            setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
+          }
         }
       }))
       .addBefore("image", "tab", this.tabNodeSpec),
@@ -369,29 +386,58 @@ export class ProseEditor extends Polymer.Element {
       })
     });
 
-    this.editorView = new EditorView(this.$.editor, {
-      state: EditorState.create({
-        doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
-        plugins: [
-          keymap({
-            "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
-              let tabType = this.editorSchema.nodes.tab
-              let {$from} = state.selection, index = $from.index()
-              if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
-                return false
-              if (dispatch)
-                dispatch(state.tr.replaceSelectionWith(tabType.create()))
-              return true
-            }
-          }),
-          keymap(baseKeymap),
-          history(),
-          selectionTrackingPlugin,
-          paginationPlugin,
-          paragraphPlugin
-        ]
-      })
+    let state = EditorState.create({
+      doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
+      plugins: [
+        keymap({
+          "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
+            let tabType = this.editorSchema.nodes.tab
+            let {$from} = state.selection, index = $from.index()
+            if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
+              return false
+            if (dispatch)
+              dispatch(state.tr.replaceSelectionWith(tabType.create()))
+            return true
+          }
+        }),
+        keymap(baseKeymap),
+        history(),
+        columnResizing({}),
+        tableEditing(),
+        keymap({
+          "Tab": goToNextCell(1),
+          "Shift-Tab": goToNextCell(-1),
+          "Mod-b": toggleMark(this.editorSchema.marks.strong, {}),
+          "Mod-i": toggleMark(this.editorSchema.marks.em, {}),
+          "Mod-u": toggleMark(this.editorSchema.marks.underlined, {}),
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-+': (e: EditorState, d?: (tr: Transaction) => void) => this.addMark(this.editorSchema.marks.size, {size: proseEditor.sizes[Math.min(proseEditor.currentSizeIdx(), proseEditor.sizes.length-2) + 1]})(e,d),
+          'Mod--': (e: EditorState, d?: (tr: Transaction) => void) => this.addMark(this.editorSchema.marks.size, {size: proseEditor.sizes[Math.max(proseEditor.currentSizeIdx(), 1) - 1]})(e,d),
+          'Mod-Shift-k' : this.clearMarks()
+        }),
+        selectionTrackingPlugin,
+        paginationPlugin,
+        paragraphPlugin
+      ]
     })
+
+    let fix = fixTables(state)
+    if (fix) state = state.apply(fix.setMeta("addToHistory", false))
+
+    this.editorView = new EditorView(this.$.editor, {
+      state: state
+    })
+
+    document.execCommand("enableObjectResizing", false, false)
+    document.execCommand("enableInlineTableEditing", false, false)
+
+  }
+
+  currentSizeIdx() {
+    if (!this.sizes) { return 0 }
+    const idx = this.sizes.indexOf(this.get('currentSize'))
+    return idx >= 0 ? idx : this.sizes.length/2
   }
 
   doUndo(e: CustomEvent) {
@@ -403,7 +449,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-
   doRedo(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -412,7 +457,6 @@ export class ProseEditor extends Polymer.Element {
       this.editorView.focus()
     }
   }
-
 
   toggleBold(e: Event) {
     e.stopPropagation()
@@ -593,6 +637,119 @@ export class ProseEditor extends Polymer.Element {
         }
       }
       return true
+    }
+  }
+
+  _insertTable(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      const state = this.editorView.state;
+
+      let {$from} = state.selection, index = $from.index()
+      if (this.editorView.dispatch) {
+        const scNodes = state.schema.nodes;
+        const newState = state.tr.replaceSelectionWith(scNodes.table.create({},[scNodes.table_row.create({},[scNodes.table_cell.create({},[scNodes.paragraph.create({})])])]))
+        this.editorView.dispatch(newState)
+      }
+      return true
+    }
+  }
+
+  _addColumnBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addColumnAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteTable(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteTable(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _mergeCells(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      mergeCells(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _splitCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      splitCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
     }
   }
 

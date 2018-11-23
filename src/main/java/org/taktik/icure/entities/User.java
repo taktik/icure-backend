@@ -46,45 +46,45 @@ import java.util.Set;
 public class User extends StoredDocument implements Principal, Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	protected String name;
-	protected Set<Property> properties = new HashSet<>();
-	protected Set<Permission> permissions = new HashSet<>();
-	protected Users.Type type;
-	protected Users.Status status;
-	protected String login;
-	protected String passwordHash;
+	private String name;
+	private Set<Property> properties = new HashSet<>();
+	private Set<Permission> permissions = new HashSet<>();
+	private Users.Type type;
+	private Users.Status status;
+	private String login;
+	private String passwordHash;
 	private String secret;
-	protected Boolean use2fa;
+	private Boolean use2fa;
 
-	protected String groupId;
-    protected String healthcarePartyId;
-	protected Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcarePartyIds
+	private String groupId;
+    private String healthcarePartyId;
+	private Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcarePartyIds
 
 	@JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant createdDate;
+	private Instant createdDate;
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant lastLoginDate;
+	private Instant lastLoginDate;
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant expirationDate;
-	protected String activationToken;
+	private Instant expirationDate;
+	private String activationToken;
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant activationTokenExpirationDate;
-	protected String passwordToken;
+	private Instant activationTokenExpirationDate;
+	private String passwordToken;
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant passwordTokenExpirationDate;
+	private Instant passwordTokenExpirationDate;
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
-	protected Instant termsOfUseDate;
+	private Instant termsOfUseDate;
 
-	protected Set<String> roles = new HashSet<>();
-    protected String email;
+	private Set<String> roles = new HashSet<>();
+    private String email;
 
-	protected Map<String, String> applicationTokens = new HashMap<>();
+	private Map<String, String> applicationTokens = new HashMap<>();
 
 	public String getGroupId() {
 		return groupId;

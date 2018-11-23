@@ -114,8 +114,8 @@
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
-            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
-            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc, this.patienticc)
+            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
@@ -273,6 +273,10 @@
             return this.replicationicc
         }
 
+        receipt() {
+            return this.receipticc
+        }
+
         tarification() {
             return this.tarificationicc
         }
@@ -374,11 +378,11 @@
         }
 
         unregisterAll(domain) {
-            this.registry[domain] = {listeners:[], entities:{}}
+            this.registry[domain] = {listeners:{}, entities:{}, queues: {}}
         }
 
         getRegistry(domain) {
-            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+            return this.registry[domain] || (this.registry[domain] = {listeners: {}, entities: {}, queues: {}})
         }
 
         /**
@@ -399,7 +403,7 @@
             defer.resolve = res
 
             const thisPromise = reg.queues[entity.id]
-            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolve(entity) }, 10000) : null
             reg.queues[entity.id] = defer
 
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
@@ -414,8 +418,11 @@
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
-                reg.listeners.forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
+                Object.values(reg.listeners).forEach(l=>{
+                    if (!l.pool || l.pool.some(x => x === entity.id)) {
+                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                        l.callbacks && l.callbacks.forEach(cb => cb())
+                    }
                 })
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
@@ -438,7 +445,6 @@
         }
 
         loadBicData() {
-
             // Already existing, take no action
             if( typeof this.bicsData !== 'undefined' ) return;
 
@@ -446,10 +452,7 @@
             this.bicsData = require('../bic/bics-list.json') || {};
         }
 
-
-
         getBicByIban( inputString ){
-
             // Get from json file -> casted in this.bicsData
             this.loadBicData();
 
@@ -457,7 +460,7 @@
             inputString = ( inputString || '' ) + '';
 
             // No Iban ?
-            if(!parseInt( inputString.length ) ) return;
+            if(!inputString.length) return;
 
             // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
             var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );
@@ -467,14 +470,91 @@
 
             // Up with results, if any
             return foundResult.length ? foundResult[0].bicCode : '';
-
         }
 
-        logMcn(obj, user, docId) {
-            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+        logMcn(obj, user, docId, cat, subcat) {
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
+        getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
+            if(!user||!patient) return Promise.resolve(null);
+
+            // Everything that isn't today
+            this.flushObsoleteEdmgStatusCache();
+
+            const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus.' + moment().format('YYYYMMDD') + '.' + user.healthcarePartyId + '.' + patient.ssin;
+
+            // Try to get data from cache
+            const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
+            if( cachedEdmgResp && !byPassCache ) { return Promise.resolve(JSON.parse(cachedEdmgResp)); }
+
+            if(((edmgNiss && edmgNiss !=='') || (patient.ssin && patient.ssin !== '')) && !(edmgOA && edmgOA !=='')){
+                return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                    .then(hcp => {
+                        return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                            this.keystoreId,
+                            this.tokenId,
+                            this.credentials.ehpassword,
+                            hcp.nihii,
+                            hcp.ssin,
+                            hcp.firstName,
+                            hcp.lastName,
+                            edmgNiss ? edmgNiss.trim() : patient.ssin,
+                            null,
+                            null,
+                            null,
+                            requestDate
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
+                    }).then(edmgResp => {
+                        localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                        return edmgResp||Promise.resolve(null);
+                    }).catch(() => { return Promise.resolve(null)});
+            }else{
+                //there is no niss
+                const pi = patient.insurabilities && _.assign({}, patient.insurabilities[0] || {});
+                this.insurance().getInsurance(pi.insuranceId).then(insu => {
+                    return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                                    this.keystoreId,
+                                    this.tokenId,
+                                    this.credentials.ehpassword,
+                                    hcp.nihii,
+                                    hcp.ssin,
+                                    hcp.firstName,
+                                    hcp.lastName,
+                                    null,
+                                    null,
+                                    (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
+                                    (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
+                                    requestDate
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
+                            }
+                        ).then(edmgResp => {
+                            localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                            return edmgResp||Promise.resolve(null);
+                        }).catch(() => { return Promise.resolve(null)});
+                    }).catch(() => { return Promise.resolve(null)});
+            }
+
+        }
+
+        flushObsoleteEdmgStatusCache() {
+
+            // Target what's for us
+            const patternToLookFor= 'org.taktik.icure.edmgStatus.';
+
+            // Loop and drop old ones
+            Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
+                // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
+                const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
+
+                // Drop if older than today
+                if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
+            });
+
+        }
     }
 
     customElements.define(IccApi.is, IccApi)

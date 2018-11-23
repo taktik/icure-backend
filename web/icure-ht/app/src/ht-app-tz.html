@@ -501,6 +501,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
         <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                        keyhcpid="[[keyHcpId]]"
                                         message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
                                         on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
         <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
@@ -1180,6 +1181,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Object,
                         value: null
                     },
+                    keyHcpId: {
+                        type: Object,
+                        value: null,
+                    },
                     language: {
                         type: String,
                         noReset: true,
@@ -1351,7 +1356,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (newTimer > 0) {
                         this.set('disconnectionTimer', newTimer)
                     } else {
+                        const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
+                        this.credentials.username = creds.username
+                        this.credentials.ehpassword = creds.ehpassword
                         this._triggerMenu()
                     }
                 }, 10000)
@@ -1427,8 +1435,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 overlay.classList.toggle('open')
                 menu.classList.toggle('open')
-
-
             }
 
             _viewChanged(view) {
@@ -1530,31 +1536,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (!this.authenticated) {
                         this.authenticated = true
 
-                        if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-                                this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
-                                    if (ok) {
-                                        this.api.loadUsersAndHcParties()
-                                        this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
-                                        const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                                        if (!this.routeData || destPage !== this.routeData.page) {
-                                            this.set('routeData.page', destPage)
-                                        } else {
-                                            this._routePageChanged(destPage)
-                                        }
+                        const loadKeysForParent = (parentId, prom) => {
+                            if (parentId) {
+                                return prom.then(([success, destPage]) => {
+                                    if (success) {
+                                        return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
+                                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
+                                        )
                                     } else {
-                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
-                                        this.$.registerKeyPairDialog.opened = true
-                                }
-                            })
-                        } else {
-                                if (hcp.publicKey) {
-                                    this.registerKeyPairDialogMessage = ""
-                                    this.$.registerKeyPairDialog.opened = true
-                                } else {
-                                    console.log("HCP public key is " + hcp.publicKey, hcp)
-                                    this.$.firstConnectionDialog.opened = true
-                                }
+                                        return Promise.resolve([success, destPage])
+                                    }
+                                })
+                            } else {
+                                return prom
+                            }
                         }
+
+                        loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
+                            if (success) {
+                                const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                if (!this.routeData || destPage !== this.routeData.page) {
+                                    this.set('routeData.page', destPage)
+                                } else {
+                                    this._routePageChanged(destPage)
+                                }
+                            }
+                        })
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
@@ -1564,6 +1571,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.set("credentials.error", "Wrong user or password")
                 }.bind(this))
+            }
+
+            loadOrImportRSAKeys(u, hcp, page) {
+                return new Promise((resolve, reject) => {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcp.id)) {
+                        this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
+                            this.set("keyHcpId", hcp.id)
+                            if (ok) {
+                                this.api.loadUsersAndHcParties()
+                                this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
+                                resolve([true, page])
+                            } else {
+                                this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                this.registerKeyPairDialogResolution = ([resolve,reject])
+                                this.$.registerKeyPairDialog.opened = true
+                            }
+                        })
+                    } else {
+                        this.set("keyHcpId", hcp.id)
+                        if (hcp.publicKey) {
+                            this.registerKeyPairDialogMessage = ""
+                            this.registerKeyPairDialogResolution = ([resolve,reject])
+                            this.$.registerKeyPairDialog.opened = true
+                        } else {
+                            console.log("HCP public key is " + hcp.publicKey, hcp)
+                            this.registerKeyPairDialogResolution = ([resolve,reject])
+                            this.$.firstConnectionDialog.opened = true
+                        }
+                    }
+
+                })
             }
 
             uploadKeystoreAndCheckToken() {
@@ -1600,29 +1638,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             importPrivateKey(e, selectedRsaFile) {
-                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(hcpId, selectedRsaFile).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
-                        this.set('routeData.page', 'main/')
+
+                        this.registerKeyPairDialogResolution[0]([true, 'main/'])
                     } else {
                         this.set("registerKeyPairDialogMessage", "Invalid key file")
                         this.$.registerKeyPairDialog.reset()
                     }
-                }.bind(this)).catch(e => console.log(e))
+                }.bind(this)).catch(e => {console.log(e); this.registerKeyPairDialogResolution[1](e)})
             }
 
             importScannedPrivateKey(e, jwkKey) {
-                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(hcpId, jwkKey).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
-                        this.set('routeData.page', 'main/')
+                        this.registerKeyPairDialogResolution[0]([true, 'main/'])
                     } else {
                         this.set("registerKeyPairDialogMessage", "Invalid key file")
                         this.$.registerKeyPairDialog.reset()
                     }
-                }.bind(this)).catch(e => console.log(e))
+                }.bind(this)).catch(e => {console.log(e); this.registerKeyPairDialogResolution[1](e)})
             }
 
             togglePanel(e) {
@@ -1635,26 +1686,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (existingUserDto && existingUserDto.id) {
                         this.$['ht-invite-hcp-user-already-exists'].open()
                     } else {
-                        this.api.hcparty().createHealthcareParty({
-                            "name": this.lastName + " " + this.firstName,
-                            "lastName": this.lastName,
-                            "firstName": this.firstName,
-                            "nihii": this.nihii,
-                            "ssin": this.ssin
-                        }).then(hcp => {
-                            this.api.user().createUser({
-                                "healthcarePartyId": hcp.id,
-                                "name": this.lastName + " " + this.firstName,
-                                "email": this.email,
-                                "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
-                                "status": "ACTIVE",
-                                "type": "database"
-                            }).then(usr => {
-                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                                this.$['ht-invite-hcp-link'].open()
-                            })
-                        })
+                        this.createAndInviteUser();
                     }
+                }).catch( error=> {
+                    this.createAndInviteUser();
                 })
 
             }
@@ -1735,6 +1770,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _logList() {
                 this.$['ht-access-log'].open()
+            }
+
+            createAndInviteUser(){
+                this.api.hcparty().createHealthcareParty({
+                    "name": this.lastName + " " + this.firstName,
+                    "lastName": this.lastName,
+                    "firstName": this.firstName,
+                    "nihii": this.nihii,
+                    "ssin": this.ssin
+                }).then(hcp => {
+                    this.api.user().createUser({
+                        "healthcarePartyId": hcp.id,
+                        "name": this.lastName + " " + this.firstName,
+                        "email": this.email,
+                        "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
+                        "status": "ACTIVE",
+                        "type": "database"
+                    }).then(usr => {
+                        this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                        this.$['ht-invite-hcp-link'].open()
+                    })
+                })
             }
         }
 
