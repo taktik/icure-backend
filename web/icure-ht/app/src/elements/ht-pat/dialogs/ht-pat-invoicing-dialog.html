@@ -293,12 +293,12 @@
 
             .nmcl-descr {
                 overflow-y: hidden;
-                height: 332px;
+                /*height: 332px;*/
             }
 
             .nmcl-favorite {
                 display: flex;
-                height: 25px;
+                height: 52px;
                 padding: 5px;
             }
 
@@ -2308,7 +2308,6 @@
                 if (this.shadowRoot.querySelector("#nmcl-search").selectedItem || e.target.dataset.item) {
 
                     const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.shadowRoot.querySelector("#nmcl-search").selectedItem
-
                     const newNmcl = {
                         code: nmcl.code,
                         tarificationId: nmcl.id,
@@ -2327,9 +2326,9 @@
                         isRelativePrestation: nmcl.hasRelatedCode,
                         valid: false,
                         id: this.api.crypto().randomUuid(),
+                        logicalId: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
                         prescriberNorm: 0
-
                     }
                     const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
@@ -2384,7 +2383,6 @@
                     }
 
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
-
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl])
                             .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  [inv[0] || null, null])

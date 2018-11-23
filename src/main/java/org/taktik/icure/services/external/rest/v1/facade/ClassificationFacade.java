@@ -101,6 +101,7 @@ public class ClassificationFacade implements OpenApiFacade{
         value = "Get a list of classifications",
         response = ClassificationDto.class,
         httpMethod = "GET",
+        responseContainer = "Array",
         notes = "Ids are seperated by a coma"
     )
     @GET
