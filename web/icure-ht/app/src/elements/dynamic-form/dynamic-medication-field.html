@@ -392,6 +392,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			]])
 		};
+        console.log("add medic",newMedication)
 		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 

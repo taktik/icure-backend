@@ -18,6 +18,9 @@
                 padding: 8px!important;
                 margin-bottom: 0!important;
             }
+            :host(#beginMoment) {
+                padding: 0 0 2px 0 !important;
+            }
         </style>
     </template>
 </dom-module>
@@ -83,6 +86,20 @@
             :host(#selectedMedicationTable) .med-det-moment {
                 border-left: 1px solid var(--app-background-color-dark);
                 border-right: 1px solid var(--app-background-color-dark);
+            }
+
+            :host(#selectedMedicationTable) [part~="cell"].clear-from-table {
+                width: 48px;
+                flex-grow: 0;
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"] {
+                text-align: center;
+                border-left: 1px solid var(--app-background-color-darker);
+                border-right: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color-dark);
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"].bt {
+                border-top: 1px solid var(--app-background-color-dark);
             }
         </style>
     </template>
