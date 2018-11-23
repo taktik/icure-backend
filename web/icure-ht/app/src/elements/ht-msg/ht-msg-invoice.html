@@ -1689,17 +1689,17 @@
                     this.set("totalInvoicesToBeSend.totalReimbursement",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.reimbursement), 0).toFixed(2) : 0.00)
                     this.set("totalInvoicesToBeSend.totalAmount",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00)
                     this._toggleDataProvider(this.selectedInvoicesToBeSend)
-                })
+                }).finally(() => this.fetchMessages())
             }
 
 
             dispatchMessages() {
                 !!this.set("messagesArchived", this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0))
                 this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
-                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
+                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))))
                 !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
 
-                !!this.initializeBatchCounter(0, 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
+                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
             }
 
             fetchMessages() {
@@ -1808,7 +1808,6 @@
 
             getMessage(){
                 this.fetchMessageToBeSendOrToBeCorrected()
-                this.fetchMessages()
             }
 
 
@@ -1889,7 +1888,7 @@
                     this.invoicesStatus === "accept" ? this.messagesAccepted :
                         this.invoicesStatus === "reject" ? this.messagesRejected :
                             this.invoicesStatus === "toBeCorrected" ? this.messagesToBeCorrected :
-                                this.invoiceStatus === "archive" ? this.messagesArchived : []
+                                this.invoicesStatus === "archive" ? this.messagesArchived : []
             }
 
             _invoicedAmount() {
