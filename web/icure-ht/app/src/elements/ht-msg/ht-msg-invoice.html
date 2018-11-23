@@ -729,11 +729,6 @@
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template><span class$="invoice-status [[_getIconStatusClass(item.statut)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.statut)]]"></iron-icon> [[item.statut]]</span></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                            <template>
-                                                <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
-                                            </template>
-                                        </vaadin-grid-column>
                                     </vaadin-grid>
                                     <vaadin-grid items="toggledDatas">
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
@@ -1211,12 +1206,12 @@
                                                 <template class="header">Erreur</template>
                                                 <template><span class$="[[_getIconStatusClass(item.error)]]">[[item.error]]</span></template>
                                             </vaadin-grid-column>
-                                            <!--<vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column class="recipient-col">
                                                 <template class="header"></template>
                                                 <template>
                                                     <iron-icon icon="vaadin:pencil" id="[[item.id]]" on-tap="_openInvoicingDialog"></iron-icon>
                                                 </template>
-                                            </vaadin-grid-column>-->
+                                            </vaadin-grid-column>
                                         </vaadin-grid>
                                     </div>
                                 </template>
@@ -1612,7 +1607,8 @@
             }
 
             fetchMessageToBeSendOrToBeCorrected(){
-
+                this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                     .then(invAndIdsPat =>
@@ -1667,6 +1663,8 @@
 
             fetchMessages() {
                 this._isLoadingMessages = true
+                this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
                     .then(messages => {
                         const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
@@ -2050,17 +2048,6 @@
 
             _showInvoiceToBeSendDetails(){
                 this.$.pendingDetailDialog.open()
-            }
-
-            _unlockInvoice(e){
-                e.stopPropagation()
-
-                if(e.target.dataset.item){
-                    const invoice = JSON.parse(e.target.dataset.item)
-                    delete(invoice.printedDate)
-
-                    this.api.invoice().modifyInvoice(invoice).then(() => this.getMessage())
-                }
             }
 
             SEG_getErrSegment_200(zones){
