@@ -1607,7 +1607,8 @@
             }
 
             fetchMessageToBeSendOrToBeCorrected(){
-
+                this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                     .then(invAndIdsPat =>
@@ -1662,6 +1663,8 @@
 
             fetchMessages() {
                 this._isLoadingMessages = true
+                this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
                     .then(messages => {
                         const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
