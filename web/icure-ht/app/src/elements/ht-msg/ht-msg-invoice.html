@@ -1063,7 +1063,7 @@
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="messageInfo.paymentReference">Payé</vaadin-grid-sorter>
                                                     </template>
-                                                    <template>[[item.messageInfo.paid]]</template>
+                                                    <template>[[_getPaidStatus(item.messageInfo.paid)]]</template>
                                                 </vaadin-grid-column>
                                                 <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
                                                     <template class="header">
@@ -1751,15 +1751,15 @@
                                             const st = mm.message.status
 
                                             const invoiceStatus =
-                                                !!(st & (1 << 21))  ? this.localize('inv_arch','Archived',this.language):
-                                                !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                                !!(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
+                                                !!(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
                                                 !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
                                                 !!(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
                                                 !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
                                                 !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
                                                 !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
-                                                !!(st & (1 << 9)) ?  this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
-                                                !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
+                                                !!(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                !!(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
 
 
                                             const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
@@ -2740,6 +2740,10 @@
                             this.getMessage()
                     })
                 }
+            }
+
+            _getPaidStatus(paidStatus){
+                return (paidStatus && paidStatus === true) ? "Oui" : "Non"
             }
 
         }
