@@ -1246,7 +1246,11 @@
                                     </div>
                                 </template>
                                 <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
-                                    <h4 class="mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]] <paper-button class="modal-button alignRight" on-tap="_openArchiveDialogForAcceptedBatch">Archiver</paper-button></h4>
+                                    <h4 class="mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]]
+
+                                            <paper-button class="modal-button alignRight" on-tap="_openArchiveDialogForBatch">Archiver</paper-button>
+
+                                    </h4>
                                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
                                     <div id="invoiceDetailContainer" class="invoiceDetailContainer">
                                         <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
@@ -2096,11 +2100,12 @@
                         .forEach(([fedId,invoices]) => {
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
                                         .then(message => this.api.register(message,'message'))
-                                        .finally(() => {
-                                           this.getMessage()
-                                           this.set('isSending',false)
-                                       })
                         })
+
+                    return prom.then(() => {
+                        this.set('isSending',false)
+                        this.getMessage()
+                    })
                 })
             }
 
@@ -2621,23 +2626,19 @@
                                     this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
                                         .then(msg => {
                                             msg ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
                                         })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
-                                            this.set('isReceiving',false)
                                         })
                                 } else if (message.tack) {
                                     this.api.message().processTack(this.user, this.hcp, message)
                                         .then(rcpt => {
                                             rcpt ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
                                         })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
-                                            this.set('isReceiving',false)
                                         })
                                 }
                             })
@@ -2656,6 +2657,11 @@
                         })
                         return sprom
                     })*/
+
+                    return prom.then(() => {
+                        this.set('isReceiving',false)
+                        this.getMessage()
+                    })
                 })
             }
 
@@ -2682,7 +2688,7 @@
             }
 
             initializeBatchCounter(toBeSend, toBeCorrected, processedCounter, acceptedCounter, rejectedCounter, archivedCounter){
-                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, toBeCorrected: this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: archivedCounter} }));
+                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: toBeSend, toBeCorrected: toBeCorrected,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: archivedCounter} }));
             }
 
             _getIconStatusClass(status) {
@@ -2739,7 +2745,7 @@
                 }
             }
 
-            _openArchiveDialogForAcceptedBatch(){
+            _openArchiveDialogForBatch(){
                 if(this.activeGridItem && this.activeGridItem.message && this.activeGridItem.message.id){
                     this.$["archiveDialog"].open()
                 }
