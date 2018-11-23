@@ -291,7 +291,7 @@ open class KmehrExport {
 				isBoolean = content.booleanValue
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
                 content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply { l = language; value = content.stringValue }) } }
-				Utils.makeXGC(content.instantValue?.toEpochMilli())?.let { date = it; time = it; }
+				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
                     mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode -> if (unitCode.isNotEmpty()) {unit = UnitType().apply { cd = CDUNIT().apply { s = CDUNITschemes.CD_UNIT; sv = "1.0"; value = unitCode } } } }
 					if (unit == null) {

@@ -52,6 +52,7 @@
 <link rel="import" href="../../../vaadin-icure-theme.html">
 
 <link rel="import" href="related-code-link.html">
+<link rel="import" href="../../dynamic-form/validator/ht-inami-validator.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
@@ -977,6 +978,7 @@
 
         </style>
 
+        <ht-inami-validator api="[[api]]" validator-name="ht-inami-validator"></ht-inami-validator>
         <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
             <iron-icon icon="icons:check"></iron-icon>
         </paper-item>
@@ -1051,7 +1053,7 @@
                         <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
                                      value="{{selectedInvoice.invoiceReference}}" readonly always-float-label="true"></paper-input>
 
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice, selectedInvoice.sentMediumType)]]"></vaadin-date-picker>
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice, selectedInvoice.sentMediumType)]]"></vaadin-date-picker>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
                     </div>
@@ -1083,7 +1085,8 @@
                         <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
                             <paper-input id="invoice-nihiiTrainee"
                                          label="[[localize('train_nihii','NIHII trainee',language)]]"
-                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"
+                                         validator="ht-inami-validator" auto-validate></paper-input>
                         </template>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
@@ -1107,8 +1110,9 @@
                             </vaadin-combo-box>
                             <template is="dom-if" if="[[isLocationIsNeeded]]">
                                 <vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
-                                <paper-input id="invoice-nihii-location" label="[[localize('nissLocation','Niss du Lieu',language)]]"
-                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                <paper-input id="invoice-nihii-location" label="[[localize('nihiiLocation','Inami du Lieu',language)]]"
+                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"
+                                             validator="ht-inami-validator" auto-validate></paper-input>
                             </template>
                             <template is="dom-if" if="[[isLoadingLocations]]">
                                 <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
@@ -1117,7 +1121,8 @@
 
 
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]" always-float-label="true">
+                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]" always-float-label="true"
+                                         validator="ht-inami-validator" auto-validate>
                                 <div slot="suffix">
                                     <iron-icon icon="info" id="invoice-dmg-icon"
                                                class="infoDmg"></iron-icon>
@@ -1327,7 +1332,8 @@
                             <template is="dom-if" if="[[isPrescriberIsNeeded]]">
                                 <paper-input class="flex-container-nmcl-row"
                                              label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
-                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"
+                                             validator="ht-inami-validator" auto-validate></paper-input>
                                 <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription date',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker></template>
                             </template>
                         </div>
@@ -2112,6 +2118,7 @@
                 this.set('npi', false)
                 this.set("errorMessage","")
 
+
                 if (!selected) {
                     this.set('selectedInvoice', {})
                     return
@@ -2129,6 +2136,7 @@
                     })
                 ).finally(() => {
 
+                    this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
@@ -2171,7 +2179,7 @@
 
                         this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
                         if (selection && selection.invoicingCodeId) {
-                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            const idx =  _.findIndex(this.invoices, i => i.id === selection.invoicingCodeId || i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
                             this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(newInvoice))
                         } else {
                             this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
@@ -2179,7 +2187,7 @@
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
                         if (selection && selection.invoicingCodeId) {
-                            const idx =  _.findIndex(this.invoices, i => i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
+                            const idx =  _.findIndex(this.invoices, i => i.id === selection.invoicingCodeId || i.invoicingCodes.some(c => c.id === selection.invoicingCodeId))
                             this.set('selectedInvoiceIndex', idx >=0 ? idx : this.invoices.indexOf(invoiceOfDay))
                         } else {
                             this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
@@ -2229,6 +2237,7 @@
                 this.set('selectedMediumCodeType', e.detail.value)
                 this.set('selectedInvoice.sentMediumType',e.detail.value)
                 const mediumType = e.detail.value
+
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
                     this.set('selectedInvoice.encounterLocationNorm',0)
@@ -2380,7 +2389,7 @@
                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
                             .then(([inv, parentIns]) => {
                             let invoice = inv
-                                                
+
                             if(!invoice){return null;}
                             if (!invoice.id) {
                                 invoice.invoiceDate = this.selectedInvoice.invoiceDate
@@ -2394,8 +2403,8 @@
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
-                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
-                                
+                                const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
@@ -2671,6 +2680,7 @@
             }
 
             _validateAndPrepareInvoiceForBatchSending() {
+
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
@@ -2685,29 +2695,30 @@
                     this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
                 }
 
-                this.api.entityRef().getLatest("Invoice::").then(latest => {
-                    console.log(latest)
-                    const lastReference = latest.id.replace(/Invoice:[^_]/g, '')
-                    const newReference = Number(lastReference) + 1
+                if(this.isInvoiceToBeCorrected === true && !this._isSelectedInvoiceEattest()){
+                   this.selectedInvoice.invoicingCodes.map(ic => ic.resent = false)
 
-                    this.set("selectedInvoice.invoiceReference", newReference)
+                   this.api.invoice().modifyInvoice(this.selectedInvoice)
+                     .then(invoice => this.api.register(invoice, 'invoice'))
+                     .then(invoice => {
+                         console.log(invoice)
+                         this.updateGui(invoice)
+                         return this.generateJustificatory(invoice)
+                     })
+                }else{
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice, 'invoice'))
-                        .then(invoice =>
-                            this.api.entityRef().createEntityReference({
-                                docId: invoice.id,
-                                id: "Invoice::" + newReference
-                            }).then(() => {
-                                console.log(invoice)
-                                this.updateGui(invoice)
-                                if(this.selectedInvoice.sentMediumType==="efact"){
-                                    return this.generateJustificatory(invoice)
-                                } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    return this.sendEattest(invoice);
-                                }
+                        .then(invoice => {
+                            console.log(invoice)
+                            this.updateGui(invoice)
 
-                            }))
-                })
+                            if (this.selectedInvoice.sentMediumType === "efact") {
+                                return this.generateJustificatory(invoice)
+                            } else if (this.selectedInvoice.sentMediumType === "eattest") {
+                                return this.sendEattest(invoice);
+                            }
+                        })
+                }
             }
 
             _invoicingCodeChange() {
@@ -3335,7 +3346,7 @@
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                const prefix = invoice.sentMediumType+':'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
+                                const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
 
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
