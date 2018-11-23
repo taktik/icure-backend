@@ -144,7 +144,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 		val document = documentLogic.get(documentId)
 
 		return ResponseUtils.ok(softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
-		                                                               patientLogic.getPatient(patientId),
+		                                                               patientId?.let { patientLogic.getPatient(patientId) },
 		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 	
