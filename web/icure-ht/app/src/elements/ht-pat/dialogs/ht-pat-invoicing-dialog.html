@@ -2599,7 +2599,8 @@
                 return item && language && language === "fr" ? item.msgFr : item.msgNl
             }
 
-            _showDetail() {
+            _showDetail(e) {
+                console.log(e)
                 if (this.activeNmclItem) {
                     const selected = this.activeNmclItem
 
@@ -2623,6 +2624,9 @@
             }
 
             _checkIfLocationNeeds() {
+                if(!this.selectedInvoice.encounterLocationNorm || this.selectedInvoice.encounterLocationNorm===""){
+                    this.set("selectedInvoice.encounterLocationNorm",0);
+                }
                 if (this.selectedInvoice.encounterLocationNorm === 0) {
                     this.set("isLocationIsNeeded", false)
                 } else {
@@ -3323,7 +3327,7 @@
             }
 
             _transferNmcl(){
-                if(this.bufferTypeCode!=this.selectedMediumCodeType){
+                if(this.activeNmclItem && this.activeNmclItem.id && this.bufferTypeCode && this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
 
@@ -3331,7 +3335,7 @@
                              .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  [inv[0] || null, null])
                              .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
                              .then(([inv, parentIns]) => {
-                            const invoice = inv
+                            let invoice = inv
                             if (!invoice) {
                                 return null
                             }
@@ -3376,19 +3380,17 @@
                             this.set('isDetailNmcl', false)
                             let tabNmcl = this.selectedInvoice.invoicingCodes
 
-                            const item = tabNmcl.find(n => n.tarificationId === this.activeNmclItem)
-                            const iindex = tabNmcl.indexOf(item)
+                            const iindex = tabNmcl.indexOf(this.activeNmclItem)
 
-                            delete(tabNmcl[iindex])
-                            tabNmcl.splice(iindex, 1)
-
-                            this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
+                            //delete(this.selectedInvoice.invoicingCodes[iindex])
+                            this.selectedInvoice.invoicingCodes.splice(iindex, 1)
 
                             this.api.invoice().modifyInvoice(this.selectedInvoice)
                                 .then(invoice => this.api.register(invoice,'invoice'))
                                 .then(invoice => {
                                     //TODO check that it was in the list of invoices or do a findBy and that it was selected or do a select
 
+                                    this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
                                     this.$['nmclGrid'].clearCache()
                                     this.calculateTotalOfInvoice()
                                     this.updateGui(invoice)
@@ -3396,7 +3398,10 @@
                                     return invoice
                                 })
                         })
-                    }).finally(() => this.$["transferDialog"].close())
+                    }).finally(() => {
+                        this.$["transferDialog"].close()
+                        this.set("bufferTypeCode","")
+                    })
                 }
             }
 
@@ -3585,7 +3590,7 @@
                         }
                     }
 
-                    if(this.selectedInvoice.encounterLocationNorm && this.selectedInvoice.encounterLocationNorm!==0){
+                    if(this.selectedInvoice.encounterLocationNorm && this.selectedInvoice.encounterLocationNorm!=="" && this.selectedInvoice.encounterLocationNorm!==0){
                         newCode.location={
                             cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].cdHcParty,
                             firstName: null,
