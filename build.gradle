@@ -193,6 +193,9 @@ dependencies {
 	compile name: 'probatron4j-custom-0.7.4'
 	compile name: 'ehvalidator-service-core-2.1.1'
 
+    // mustache
+    compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
+
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'
 

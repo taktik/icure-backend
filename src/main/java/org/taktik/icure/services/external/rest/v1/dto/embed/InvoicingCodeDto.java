@@ -60,6 +60,7 @@ public class InvoicingCodeDto implements Serializable {
     protected String override3rdPayerReason;
     protected Integer prescriberNorm;
 	protected Integer percentNorm;
+	protected Integer derogationMaxNumber;
 	protected String prescriberNihii;
     protected String relatedCode;
 	protected Boolean canceled;
@@ -266,6 +267,10 @@ public class InvoicingCodeDto implements Serializable {
     public void setPrescriberNorm(Integer prescriberNorm) {
         this.prescriberNorm = prescriberNorm;
     }
+
+    public Integer getDerogationMaxNumber() { return derogationMaxNumber; }
+
+    public void setDerogationMaxNumber(Integer derogationMaxNumber) { this.derogationMaxNumber = derogationMaxNumber; }
 
 	public Integer getPercentNorm() {
 		return percentNorm;

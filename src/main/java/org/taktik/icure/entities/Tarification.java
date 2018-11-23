@@ -21,8 +21,10 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.embed.LetterValue;
 import org.taktik.icure.entities.embed.Valorisation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +37,8 @@ public class Tarification extends Code {
 	Boolean hasRelatedCode;
 	Boolean needsPrescriber;
 	Set<String> relatedCodes;
+	String nGroup;
+	List<LetterValue> letterValues;
 
 	public Tarification() {
 	}
@@ -105,5 +109,21 @@ public class Tarification extends Code {
 
 	public void setRelatedCodes(Set<String> relatedCodes) {
 		this.relatedCodes = relatedCodes;
+	}
+
+	public String getnGroup() {
+		return nGroup;
+	}
+
+	public void setnGroup(String nGroup) {
+		this.nGroup = nGroup;
+	}
+
+	public List<LetterValue> getLetterValues() {
+		return letterValues;
+	}
+
+	public void setLetterValues(List<LetterValue> letterValues) {
+		this.letterValues = letterValues;
 	}
 }

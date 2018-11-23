@@ -460,7 +460,7 @@
             inputString = ( inputString || '' ) + '';
 
             // No Iban ?
-            if(!parseInt( inputString.length ) ) return;
+            if(!inputString.length) return;
 
             // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
             var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );

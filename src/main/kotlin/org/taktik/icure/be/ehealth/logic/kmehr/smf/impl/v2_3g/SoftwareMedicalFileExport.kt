@@ -31,6 +31,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Insurability
@@ -39,19 +40,7 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHEADING
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHEADINGschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
@@ -89,6 +78,8 @@ import javax.xml.datatype.DatatypeConstants
 @org.springframework.stereotype.Service
 class SoftwareMedicalFileExport : KmehrExport() {
 
+	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
+
 	fun exportSMF(
 		os: OutputStream,
 		patient: Patient,
@@ -99,7 +90,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		progressor: AsyncProgress?,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 			date = makeXGC(Instant.now().toEpochMilli())!!,
-			time = makeXGC(Instant.now().toEpochMilli())!!,
+			time = makeXGC(Instant.now().toEpochMilli(), true)!!,
 			soft = Config.Software(name = "iCure", version = ICUREVERSION),
 			clinicalSummaryType = "TODO",
 			defaultLanguage = "en"
@@ -153,6 +144,14 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val contacts = contactLogic!!.findByHCPartyPatient(healthcareParty.id, sfks.toList())
 		val startIndex = folder.transactions.size
 
+		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty.id, sfks)).groupBy{
+			it.idOpeningContact
+		}
+
+        // add Hes without idOpeningContact to clinical summary
+		hesByContactId[null].orEmpty().map{ he -> addHealthCareElement(folder.transactions.first(), he, 0)} // FIXME: what about itemIndex ?
+		hesByContactId = hesByContactId.filterKeys { it != null }
+
 		contacts.forEachIndexed { index, encContact ->
 			progressor?.progress((1.0 * index) / contacts.size)
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
@@ -170,7 +169,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 			folder.transactions.addAll(contact.subContacts.mapIndexed { i, subContact ->
 				TransactionType().apply {
-					var services: List<Service> = ArrayList(contact.services ?: setOf()).filter { s -> subContact.services.map { it.serviceId }.contains(s.id) }
+					val services: List<Service> = ArrayList(contact.services ?: setOf()).filter { s -> subContact.services.map { it.serviceId }.contains(s.id) }
+                    val trn = this
 
 					val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when {
 						subContact.status == null -> Triple("contactreport", "parameter", false)
@@ -180,7 +180,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					}
 
 					ids.add(idKmehr(startIndex + i))
-					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = contact.id })
+					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = "${contact.id}-${i}"})
 					cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = cdTransactionRef }) //TODO change to contactreport, labresult, lab
 					contact.modified?.let {
 						date = makeXGC(it)
@@ -195,6 +195,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
 					contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
+					hesByContactId[contact.id].orEmpty().map{ he -> addHealthCareElement(trn, he, 0)} // FIXME: what about itemIndex ?
+					hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
+
 					services.forEach { svc ->
 						val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 						val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
@@ -202,6 +205,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 								svc.content.let { it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" } ?: "technical" } //Change parameters to technicals if not real parameters
 							} else it
 						}
+
 						val contents = svc.content.entries.flatMap {
 							makeContent(it.key, it.value)?.let { c -> listOf(c.apply { if (svcCdItem == null && texts.size>0) { texts.first().value = "${svc.label}: ${texts.first().value}" }}) } ?: emptyList()
 						}
@@ -228,6 +232,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return folder
 	}
 
+
 	private fun makeEncounterDateTime(index: Int, yyyymmddhhmmss: Long): ItemType {
 		return ItemType().apply {
 			ids.add(idKmehr(index))
@@ -248,6 +253,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			})
 		}
 	}
+
 
 	private fun makeEncounterLocation(index: Int, location: String, language: String): ItemType {
 		return ItemType().apply {
@@ -350,7 +356,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				val cleanPatientId = p.id.replace("-".toRegex(), "")
 				value = "${cleanPatientId.substring(0, minOf(cleanPatientId.length, 8))}.${System.currentTimeMillis()}"
 			})
-			makeXGC(System.currentTimeMillis()).let { date = it; time = it }
+			makeXGC(System.currentTimeMillis(), true).let { date = it; time = it }
 			isIscomplete = true
 			isIsvalidated = true
 		}
@@ -539,13 +545,47 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
+	private fun codesToKmehr(codes: Set<CodeStub>): ContentType {
+		return ContentType().apply {
+			cds.addAll(codes.map { code ->
+				when(code.type) {
+					"ICPC" -> CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = code.version; value = code.code}
+					"ICD" -> CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = code.version; value = code.code}
+				//"BE-THESAURUS" -> CDCLINICAL().apply { sv = code.version; value = code.code} // FIXME: no spec for version can be found regarding thesaurus
+					"BE-THESAURUS-PROCEDURES" -> CDCONTENT().apply {
+						s = CDCONTENTschemes.LOCAL
+						sl = "MEDINOTE.MEDICALCODEID"
+						sv = code.version
+						value = "pricareprocedures;locas.${code.code}" // FIXME: pricare specific ?
+					}
+					else -> CDCONTENT().apply {
+						s = CDCONTENTschemes.LOCAL
+						sl = "ICURE.MEDICALCODEID"
+						sv = code.version
+						value = code.code
+					}
+				}
+			})
+		}
+	}
+
+
 	fun addHealthCareElement(trn: TransactionType, eds: HealthElement, itemIndex: Int): Int {
 		var mutItemIndex = itemIndex
 		try {
-			val item = createItemWithContent(eds, itemIndex, "healthcareelement", listOf(makeContent("fr", Content(eds.descr))).filterNotNull()) ?: return itemIndex
+			val content = listOf(
+					ContentType().apply {
+						texts.add(TextType().apply { l = "fr"; value = eds.descr })
+					},
+					ContentType().apply {
+						cds.addAll( codesToKmehr(eds.codes).cds )
+					}
+			)
+			val item = createItemWithContent(eds, itemIndex, "healthcareelement", content)
 			if (eds.closingDate != null) {
 				getHistory(trn).headingsAndItemsAndTexts.add(item)
 			} else {
+				trn.headingsAndItemsAndTexts.add(item)
 			}
 			mutItemIndex++
 		} catch (e: Exception) {
