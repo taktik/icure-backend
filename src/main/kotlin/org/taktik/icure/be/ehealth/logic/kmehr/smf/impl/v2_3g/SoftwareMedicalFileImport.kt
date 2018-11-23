@@ -1,22 +1,18 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -25,22 +21,8 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.AddressType
-import org.taktik.icure.entities.embed.Content
-import org.taktik.icure.entities.embed.Duration
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Measure
-import org.taktik.icure.entities.embed.Medication
-import org.taktik.icure.entities.embed.Medicinalproduct
-import org.taktik.icure.entities.embed.RegimenItem
-import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.entities.embed.Substanceproduct
-import org.taktik.icure.entities.embed.Telecom
-import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
@@ -176,8 +158,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         language: String,
                                         mappings: Map<String, List<ImportMapping>>): Contact {
         return Contact().apply {
+            val contact = this
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
+
             this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
@@ -206,12 +190,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
                 val label =
                     item.cds.find { it.s == CDITEMschemes.LOCAL && it.sl == "iCureLabel" }?.value
-                        ?: mapping?.label?.get(language) ?: mappings["note"]?.lastOrNull()?.label?.get(language)
-                        ?: "Note"
+                            ?: item.contents.filter { it.texts?.size ?: 0 > 0 }
+                                    .flatMap{
+                                        it.texts.filter {
+                                            it.l == language
+                                        }.map {
+                                            it.value
+                                        }
+                                    }
+                                    .let{ if (it.size > 0) it else null }
+                                    ?.joinToString(" ")
+                            ?: mapping?.label?.get(language)
+                            ?: mappings["note"]?.lastOrNull()?.label?.get(language)
+                            ?: "Note"
 
                 when (cdItem) {
                     "healthcareelement" -> {
-                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v)
+                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
                         v.hes.add(healthElementLogic.createHealthElement(he))
                     }
                 //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
@@ -220,7 +215,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     else -> {
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
                         this.services.add(service)
-                        this.subContacts.add(SubContact().apply { })
+                        this.subContacts.add(SubContact().apply { services.add( ServiceLink(service.id))})
                     }
                 }
             }
@@ -232,7 +227,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                        item: ItemType,
                                        author: User,
                                        language: String,
-                                       v: ImportResult): HealthElement? {
+                                       v: ImportResult,
+                                       contactId: String
+                                    ): HealthElement? {
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
 	        this.healthElementId = idGenerator.newGUID().toString()
@@ -246,6 +243,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.idOpeningContact = contactId
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
             item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
@@ -312,10 +310,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }
                             medicinalProduct = item.contents.filter { it.medicinalproduct != null }.firstOrNull()?.let {
                                 it.medicinalproduct?.let { Medicinalproduct().apply {
-                                intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s, it.value, it.sv)) }
+                                intendedcds = it.intendedcds?.map { CodeStub( it.s.toString(), it.value, it.sv) }
                                 intendedname = it.intendedname.toString()
                             } } }
-                            compoundPrescription = item.contents.map { it.compoundprescription?.value }.filterNotNull().firstOrNull()
+                            compoundPrescription = item.contents.map {
+                                // TODO: redo this
+                                //var con: List<TextType> = it.compoundprescription?.content as List<String>
+                                //con.map { it.value }.joinToString("")
+                                ""
+                            }.filterNotNull().firstOrNull()
                             instructionForPatient = item.instructionforpatient?.value
                             regimen = item.regimen?.let { it.daynumbersAndQuantitiesAndDaytimes.map {
                                 RegimenItem().apply {
