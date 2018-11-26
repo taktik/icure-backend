@@ -137,6 +137,23 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
+	@View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
+	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
+		ComplexKey startKey;
+		ComplexKey endKey;
+		if (transportGuid != null && transportGuid.endsWith(":*")) {
+			String prefix = transportGuid.substring(0, transportGuid.length() - 1);
+			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, fromDate, prefix, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+			endKey = ComplexKey.of(partyId, toDate, prefix + "\ufff0", ComplexKey.emptyObject());
+		} else {
+			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, fromDate, transportGuid, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+			endKey = ComplexKey.of(partyId, toDate, transportGuid, ComplexKey.emptyObject());
+		}
+
+		return pagedQueryView("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset, true);
+	}
+
+	@Override
 	@View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
 	public PaginatedList<Message> findByHcParty(String partyId, PaginationOffset<List<Object>> paginationOffset) {
 		ComplexKey startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
