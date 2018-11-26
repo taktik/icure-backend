@@ -1843,6 +1843,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirm() {
+                // Trigger update
+                this.updateStartOfCoverage();
                 this.api.patient().newInstance(this.user, {
                     lastName: this.lastName,
                     firstName: this.firstName,
@@ -2412,7 +2414,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 let evalutationMonthsObject = this.$['evalutationMonths']
 
                 // No value defined yet (first call), set to today
-                if (object.value == "") startOfContractObject.value = moment().format('YYYY-MM-DD')
+                if (!object || ( object && object.value == "")) startOfContractObject.value = moment().format('YYYY-MM-DD')
 
                 // By default, start of coverage date = 1st day of next month
                 startOfCoverageObject.value = moment(startOfContractObject.value).add((1 + parseInt(evalutationMonthsObject.value || 0)), 'months').startOf('month').format('YYYY-MM-DD')
