@@ -1,8 +1,6 @@
 package org.taktik.icure.dto.result
 
-import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.*
 import java.util.LinkedList
 
 class ImportResult(
@@ -10,7 +8,10 @@ class ImportResult(
     val hes:LinkedList<HealthElement> = LinkedList(),
     val ctcs:LinkedList<Contact> = LinkedList(),
     val warnings:LinkedList<String> = LinkedList(),
-    val errors:LinkedList<String> = LinkedList()
+    val errors:LinkedList<String> = LinkedList(),
+    val forms:LinkedList<Form> = LinkedList(),
+    val hcps:LinkedList<HealthcareParty> = LinkedList(),
+    val documents:LinkedList<Document> = LinkedList()
                   ) {
     fun warning(w:String): ImportResult {
         warnings.add(w)
