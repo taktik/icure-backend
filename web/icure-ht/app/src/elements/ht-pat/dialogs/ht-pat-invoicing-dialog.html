@@ -567,7 +567,7 @@
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
             }
-            
+
 
             vaadin-grid.material {
 
@@ -743,7 +743,7 @@
             }
 
             #manualEncodingDialog{
-                height: 340px;
+                height: 410px;
                 width: 500px;
             }
 
@@ -1468,6 +1468,14 @@
                              label="N° de serie"
                              value="{{manualEncoding.serialNumber}}" class="manualEncodingContainerChild"></paper-input>
             </div>
+            <template is="dom-if" if="[[supportTypeChanged(manualEncoding.supportType)]]">
+                <div class="manualEncodingContainer">
+                    <vaadin-combo-box id="code-type" filtered-items="[[typeOfReasonVignette]]"
+                                      item-label-path="label.[[language]]" item-value-path="id"
+                                      label="Type de support"
+                                      value="{{manualEncoding.reasonVignette}}" class="manualEncodingContainerChild"></vaadin-combo-box>
+                </div>
+            </template>
             <div class="buttons">
                 <paper-button on-tap="_closeManualEncodingDialog">[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button on-tap="_confirmManualEncodingDialog">[[localize('add','Add',language)]]</paper-button>
@@ -1937,12 +1945,35 @@
                         ]
 
                     },
+                    typeOfReasonVignette:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: 1,
+                                label: {
+                                    "fr": "Le bénéficiaire n’est pas présent au moment de la prestation et sa présence simultanée et celle du dispensateur n’est pas réglementairement requise",
+                                    "nl": "Le bénéficiaire n’est pas présent au moment de la prestation et sa présence simultanée et celle du dispensateur n’est pas réglementairement requise",
+                                    "en": "Le bénéficiaire n’est pas présent au moment de la prestation et sa présence simultanée et celle du dispensateur n’est pas réglementairement requise"
+                                }
+                            },
+                            {
+                                id: 2,
+                                label: {
+                                    "fr": "Le bénéficiaire ne dispose pas de document d’identité",
+                                    "nl": "Le bénéficiaire ne dispose pas de document d’identité",
+                                    "en": "Le bénéficiaire ne dispose pas de document d’identité"
+                                }
+                            }
+                        ]
+
+                    },
                     manualEncoding:{
                         type: Object,
                         value: () => ({
                             reason: "",
                             supportType: "",
-                            serialNumber: ""
+                            serialNumber: "",
+                            reasonVignette : ""
                         })
                     },
                     selectedInvoice: {
@@ -2317,6 +2348,7 @@
             }
 
             analyzeMediumType(e) {
+                if(!this.selectedInvoice || !this.selectedMediumCodeType) return;
                 this.set('selectedMediumCodeType', e.detail.value)
                 this.set('selectedInvoice.sentMediumType',e.detail.value)
                 const mediumType = e.detail.value
@@ -3613,6 +3645,28 @@
 
             _confirmManualEncodingDialog(){
                 this.$['manualEncodingDialog'].close()
+
+                if(!this.selectedInvoice || !this.manualEncoding) return ;
+                
+                this.set("selectedInvoice.idDocument.reasonManualEncoding",this.manualEncoding && this.manualEncoding.reason)
+                this.set("selectedInvoice.idDocument.eIdDocumentSupportType",this.manualEncoding && this.manualEncoding.supportType)
+                this.set("selectedInvoice.idDocument.SupportSerialNumber",this.manualEncoding && this.manualEncoding.serialNumber)
+                if(this.manualEncoding && this.manualEncoding.supportType===7){
+                    this.set("selectedInvoice.idDocument.reasonUsingVignette",this.manualEncoding && this.manualEncoding.reasonVignette)
+                }
+                else{
+                    this.set("selectedInvoice.idDocument.reasonUsingVignette","")
+                }
+
+                this.api.invoice().modifyInvoice(this.selectedInvoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.updateGui(invoice, true)
+                    })
+            }
+
+            supportTypeChanged(){
+                return this.manualEncoding && this .manualEncoding.supportType===7
             }
 
             _isCreditNote(e) {
@@ -3656,6 +3710,17 @@
                         reglementarySupplement : Number(code.patientIntervention),
                         reimbursement: Number(code.reimbursement),
                         riziv : code.code
+                    }
+
+                    if(this.selectedInvoice.idDocument && this.selectedInvoice.idDocument.eIdDocumentSupportType && this.selectedInvoice.idDocument.SupportSerialNumber && this.selectedInvoice.idDocument.reasonManualEncoding){
+                        newCode.cardReading={
+                            date:null,
+                            inputType: 4,
+                            manualInputReason: this.selectedInvoice.idDocument.reasonManualEncoding,
+                            mediaType: this.selectedInvoice.idDocument.eIdDocumentSupportType,
+                            serial: this.selectedInvoice.idDocument.SupportSerialNumber,
+                            time:null,
+                        }
                     }
 
                     if(code.relatedCode){
