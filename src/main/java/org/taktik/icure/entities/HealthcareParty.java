@@ -95,6 +95,12 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     protected String publicKey;
 
+
+    // Medical houses
+    protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
+    protected String type;                              // "persphysician" or "medicalHouse"
+
+
 	public HealthcareParty() {
 
 	}
@@ -347,4 +353,20 @@ public class HealthcareParty extends StoredDocument implements Person {
     public String getUserId() { return userId; }
 
     public void setUserId(String userId) { this.userId = userId; }
+
+    public String getBillingType() {
+        return billingType;
+    }
+
+    public void setBillingType(String billingType) {
+        this.billingType = billingType;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

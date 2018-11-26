@@ -13,6 +13,7 @@ public class MedicalHouseContractDto implements Serializable {
     private boolean kine;
     private boolean gp;
     private boolean nurse;
+    private String hcpId;
 
     public String getMmNihii() {
         return mmNihii;
@@ -78,4 +79,11 @@ public class MedicalHouseContractDto implements Serializable {
         this.nurse = nurse;
     }
 
+    public String getHcpId() {
+        return hcpId;
+    }
+
+    public void setHcpId(String hcpId) {
+        this.hcpId = hcpId;
+    }
 }

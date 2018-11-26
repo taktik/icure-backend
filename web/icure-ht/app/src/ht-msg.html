@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-msg/ht-msg-menu.html">
 <link rel="import" href="elements/ht-msg/ht-msg-list.html">
 <link rel="import" href="elements/ht-msg/ht-msg-invoice.html">
+<link rel="import" href="elements/ht-msg/ht-msg-flatrate-invoice.html">
 <link rel="import" href="elements/ht-msg/ht-msg-mycarenet.html">
 <link rel="import" href="elements/ht-msg/ht-msg-new.html">
 
@@ -24,6 +25,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="ht-msg">
 
     <template>
+
         <style include="shared-styles">
             :host {
                 display: block;
@@ -116,6 +118,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:inherit;
                 }
 
+                #msg-flatrate-invoice,
                 #msg-invoice,
                 #msg-mycarenet {
                     width: 100vw;
@@ -149,6 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
         </style>
+
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
@@ -174,6 +178,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  invoices-status="[[invoicesStatus]]"
                                  on-selection-messages-change="handleMessageChange"
                                  on-initialize-batch-counter="callInitializeBatchCounter"></ht-msg-invoice>
+            </template>
+
+            <template is="dom-if" if="[[flatrateinvoicesLayout]]">
+                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                                 user="[[user]]"
+                                 select-list="[[selectList]]"
+                                 invoices-status="[[flatrateinvoicesStatus]]"
+                                 on-selection-messages-change="handleMessageChange"></ht-msg-flatrate-invoice>
             </template>
 
             <template is="dom-if" if="[[mycarenetLayout]]">
@@ -217,7 +229,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value: false
                     },
+                    flatrateinvoicesLayout: {
+                        type: Boolean,
+                        value: false
+                    },
                     invoicesStatus:{
+                        type: String,
+                        value: null
+                    },
+                    flatrateinvoicesStatus:{
                         type: String,
                         value: null
                     },
@@ -253,18 +273,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             handleMenuChange(e) {
                 if (e.detail && e.detail.selection.item === 'e_invOut') {
                     this.set('invoicesLayout', true)
+                    this.set('flatrateinvoicesLayout',false)
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',false)
                     this.set('invoicesStatus', e.detail.selection.status)
                     setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
 
+                } else if (e.detail && e.detail.selection.item === 'e_flatrateinvOut') {
+                    this.set('invoicesLayout', false)
+                    this.set('flatrateinvoicesLayout',true)
+                    this.set('mycarenetLayout',false)
+                    this.set('otherLayout',false)
+                    this.set('flatrateinvoicesStatus', e.detail.selection.status)
+                    setTimeout(() => this.shadowRoot.querySelector("#msg-flatrate-invoice").getInvoices(),0)
                 } else if (e.detail && e.detail.selection.item === 'mycarenet') {
                     this.set('mycarenetLayout',true)
                     this.set('invoicesLayout', false)
+                    this.set('flatrateinvoicesLayout', false)
                     this.set('otherLayout',false)
                     setTimeout(() => this.shadowRoot.querySelector("#msg-mycarenet").refresh(),0)
                 }else{
                     this.set('invoicesLayout', false)
+                    this.set('flatrateinvoicesLayout', false)
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',true)
                 }

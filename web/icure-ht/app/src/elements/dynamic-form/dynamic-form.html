@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 <link rel="import" href="dynamic-number-field.html">
 <link rel="import" href="dynamic-token-field.html">
@@ -381,7 +382,7 @@
 			}
 
 			_displayedTitle() {
-				return this.title && this.dataProvider ? this.title : "Loading …";
+				return this.title && this.dataProvider ? this.title : "Loading ...";
 			}
 
 			_linkForm(e) {

@@ -437,7 +437,10 @@
     "gen_duplicate" : "Generate a duplicata",
     "gen_kmehr" : "Generate Kmehr response",
     "gen_xades" : "Generate Xades message",
-    "location" : "Location"
+    "location" : "Location",
+    "flatrateInvoicing" : "Flat rate invoicing",
+    "_e_flatrateinv_download" : "To download",
+    "_e_flatrateinv_archives" : "Archives"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -942,7 +945,10 @@
     "gen_duplicate" : "Générer un duplicata",
     "gen_kmehr" : "Générer la réponse Kmehr",
     "gen_xades" : "Générer le message Xades",
-    "location" : "Lieu de prestation"
+    "location" : "Lieu de prestation",
+    "flatrateInvoicing" : "Facturation au forfait",
+    "_e_flatrateinv_download" : "A télécharger",
+    "_e_flatrateinv_archives" : "Archives"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1485,6 +1491,9 @@
     "gen_duplicate" : "Generate a duplicata",
     "gen_kmehr" : "Generate Kmehr message",
     "gen_xades" : "Generate Xades message",
-    "location" : "Location"
+    "location" : "Location",
+    "flatrateInvoicing" : "Flat rate invoicing",
+    "_e_flatrateinv_download" : "Te downloaden",
+    "_e_flatrateinv_archives" : "Archives"
   }
 }

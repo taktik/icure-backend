@@ -12,18 +12,17 @@
                 "width" : 820,
                 "multiline" : false,
                 "left" : 340,
+                "menuOptions" : [],
                 "top" : 5,
-                "key" : "StringEditor"
+                "key" : "PopupMenuEditor",
+                "dataSource": {"source":"mh"}
               },
+              "codeTypes" : [],
               "sortOrder" : 1463236439,
-              "codeTypes" : [
-
-              ],
-              "label" : "Medical house ID",
+              "label" : "Medical House",
               "type" : "TKString",
               "subForm" : false,
-              "name" : "mmNihii",
-              "irrelevant" : true
+              "name" : "hcpId"
             },
             {
               "editor" : {
