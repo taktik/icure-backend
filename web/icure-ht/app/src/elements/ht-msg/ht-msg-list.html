@@ -275,7 +275,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #restore-button {
                     position: absolute;
-                    left: 53%;
+                    right: 106px;
                     top: 30px;
                     z-index: 1;
                     height: 35px;
@@ -328,9 +328,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="second-panel col-right">
                 <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
 
-                <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                <paper-tooltip for="del-button" offset="4">[[localize('del','Delete',language)]]</paper-tooltip>
-                <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
+                <div class="actions">
+                    <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                    <paper-tooltip for="del-button" offset="4">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                    <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
+                    <paper-tooltip for="del-button" offset="4">[[localize('restore','Restore',language)]]</paper-tooltip>
+                </div>
+
 
 
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
@@ -628,7 +632,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
 					let restoreButton = this.shadowRoot.querySelector('#restore-button');
-					restoreButton && (restoreButton.hidden = true);
+					// restoreButton && (restoreButton.hidden = true);
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -753,9 +757,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				console.log('msgs',msgs)
 				if(msgs.length) {
                     msgs.forEach(msg =>{
-                        console.log('msg',msg, typeof msg)
-                        if (!(msg.transportGuid).includes("BIN")) {
-                            this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
+                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
+                        if (!(msg.transportGuid).startsWith("BIN")) {
                             this.api.message().deleteMessages(msg.id)
                                 .then(() => {
                                     this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
@@ -783,11 +786,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 let msgs = this.checkedMessages;
 				if(msgs) {
 					msgs.forEach(msg =>{
-						while(msg.transportGuid.startsWith("BIN")){
+                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
+						if (msg.transportGuid.startsWith("BIN")){
 							msg.transportGuid = msg.transportGuid.substring(3);
+                            this.api.message().modifyMessage(msg)
+                                .then(()=> this._refresh());
 						}
-						this.api.message().modifyMessage(msg)
-                            .then(()=> this._refresh());
+				        else {
+				            console.log(msg.id,'not in bin')
+                        }
+                    })
+                    allCheckboxes.forEach(box=>{
+                        box.checked = false;
                     })
 				}
 			}

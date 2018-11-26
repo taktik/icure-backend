@@ -678,7 +678,8 @@
                     <div class="buttons">
 						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden="[[!_isDeleted]]"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
@@ -691,12 +692,12 @@
                             <div class="msg-header-grid">
                                 <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
                                 <div class="from">[[msg.fromAddress]]</div>
-                                <div class="to">to [[msg.toAddresses]]</div>
+                                <div class="to">[[localize('to','To',language)]] [[msg.toAddresses]]</div>
                             </div>
                             <div class="layout-horizontal layout-horizontal--flex-end">
                                 <div class="date">[[_timeFormat(msg.received)]]</div>
                                 <paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-                                <paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
+                                <paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>
                                 <!--<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
                                 <!--<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>-->
                                 <!--<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
@@ -724,7 +725,7 @@
             </div>
 
             <div class="attached">
-                <h3>Pièces jointes</h3>
+                <h3>[[localize('attachments','Attachments',language)]]</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <paper-card class="annexe-card">
@@ -868,6 +869,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return msgBody.length ? msgBody : "no content"
 	}
 
+	_isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
+
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 			this.set('isLoadingMessage',true)
@@ -1003,6 +1008,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
         // })
 	}
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
+    }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
