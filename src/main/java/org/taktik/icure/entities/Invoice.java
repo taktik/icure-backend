@@ -85,6 +85,7 @@ public class Invoice extends StoredICureDocument {
 	private String supervisorFirstName;
 	private String supervisorCdHcParty;
 	private String supervisorCbe;
+	private String correctiveInvoiceId;
 
 	private String error;
 
@@ -534,6 +535,14 @@ public class Invoice extends StoredICureDocument {
 
 	public void setPayments(List<Payment> payments) {
 		this.payments = payments;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
 	}
 
 	@Override
