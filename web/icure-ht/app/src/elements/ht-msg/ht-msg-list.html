@@ -281,6 +281,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 35px;
                 }
 
+                #actions-spinner {
+                    position: absolute;
+                    right: 148px;
+                    top: 30px;
+                    z-index: 1;
+                    height: 35px;
+                }
+
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
@@ -332,7 +340,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                     <paper-tooltip for="del-button" offset="4">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                     <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                    <paper-tooltip for="del-button" offset="4">[[localize('restore','Restore',language)]]</paper-tooltip>
+                    <paper-tooltip for="restore-button" offset="4">[[localize('restore','Restore',language)]]</paper-tooltip>
                 </div>
 
 
@@ -448,6 +456,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checkedMessages: {
                         type: Array,
                         value: []
+                    },
+                    isLoadingMailList: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -759,18 +771,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     msgs.forEach(msg =>{
                         this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
                         if (!(msg.transportGuid).startsWith("BIN")) {
+                            this.set('isLoadingMailList',true)
                             this.api.message().deleteMessages(msg.id)
                                 .then(() => {
                                     this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                                     this._refresh();
-                                });
+                                })
+                                .finally(()=>{this.set('isLoadingMailList',false)})
                         } else {
                             msg.transportGuid = "BIN" + msg.transportGuid;
+                            this.set('isLoadingMailList',true)
                             this.api.message().modifyMessage(msg)
                                 .then(() => {
                                     this._refresh();
                                     this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                });
+                                })
+                                .finally(()=>{this.set('isLoadingMailList',false)})
                         }
                     });
 					// mailListSelectionColumn.selectAll = false;
@@ -788,9 +804,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					msgs.forEach(msg =>{
                         this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
 						if (msg.transportGuid.startsWith("BIN")){
+                            this.set('isLoadingMailList',true)
 							msg.transportGuid = msg.transportGuid.substring(3);
                             this.api.message().modifyMessage(msg)
-                                .then(()=> this._refresh());
+                                .then(()=> this._refresh())
+                                .finally(()=>{this.set('isLoadingMailList',false)})
 						}
 				        else {
 				            console.log(msg.id,'not in bin')
