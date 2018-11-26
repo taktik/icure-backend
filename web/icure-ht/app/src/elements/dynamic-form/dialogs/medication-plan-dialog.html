@@ -9,17 +9,17 @@
 <link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../dialog-style.html">
-<link rel="import" href="../../../icd-styles.html">
+<link rel="import" href="../../../atc-styles.html">
 
 <dom-module id="medication-plan-dialog">
     <template>
-        <style include="dialog-style icd-styles">
-            paper-dialog{
+        <style include="dialog-style atc-styles">
+            paper-dialog {
                 width: 90%;
                 height: 80%;
             }
 
-            .modal-title{
+            .modal-title {
                 padding: 0 24px;
                 display: flex;
                 flex-flow: row wrap;
@@ -27,18 +27,18 @@
                 align-items: center;
             }
 
-            paper-tabs{
+            paper-tabs {
                 width: 50%;
                 max-width: 400px;
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 /* margin: 0 auto; */
             }
 
-            paper-tab{
+            paper-tab {
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            .patient{
+            .patient {
                 height: calc(100% - 48px - 48px);
                 overflow-y: auto;
                 margin-top: 0;
@@ -46,14 +46,14 @@
                 box-sizing: border-box;
             }
 
-            .table-container{
+            .table-container {
                 margin-bottom: 24px;
             }
 
-            .header{
+            .header {
                 background: linear-gradient(to right, var(--app-secondary-color), var(--app-secondary-color-dark));
                 color: var(--app-text-color-light);
-                display: flex; 
+                display: flex;
                 flex-flow: row wrap;
                 justify-content: flex-start;
                 align-items: center;
@@ -63,31 +63,31 @@
                 box-sizing: border-box;
             }
 
-            .header h3{
+            .header h3 {
                 font-size: 14;
                 font-weight: 400;
                 margin: 0;
             }
 
-            .header iron-icon{
+            .header iron-icon {
                 height: 20px;
                 width: 20px;
                 margin-right: 4px;
             }
 
-            .table-header{
+            .table-header {
                 width: 100%;
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items:center;
+                align-items: center;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 font-size: 11px;
                 color: var(--app-text-color-disabled);
                 height: 28px;
             }
 
-            .col{
+            .col {
                 height: 100%;
                 padding: 0 4px;
                 box-sizing: border-box;
@@ -97,31 +97,31 @@
                 align-items: center;
             }
 
-            .col--med{
+            .col--med {
                 width: 30%;
                 justify-content: flex-start;
             }
 
-            .med--name{
+            .med--name {
                 font-weight: 500;
                 margin-right: 4px;
             }
 
-            .col--photo{
+            .col--photo {
                 max-width: 56px;
                 min-width: 56px;
                 text-align: center;
                 flex-grow: 1;
             }
 
-            .col--bef, .col--dur, .col--aft{
+            .col--bef, .col--dur, .col--aft {
                 max-width: 56px;
                 min-width: 56px;
                 text-align: center;
                 flex-grow: 1;
             }
 
-            .dur-pill{
+            .dur-pill {
                 background: var(--app-secondary-color);
                 color: var(--app-text-color-light);
                 font-weight: 500;
@@ -134,37 +134,36 @@
                 text-align: center;
             }
 
-            .col--ed, .col--freq{
+            .col--ed, .col--freq {
                 text-align: center;
                 width: 12%;
             }
 
-            
-
-            .col--com{
+            .col--com {
                 width: 40%;
                 justify-content: flex-start;
             }
 
-            .table-row{
+            .table-row {
                 width: 100%;
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items:center;
+                align-items: center;
                 font-size: 12px;
                 color: var(--app-text-color);
                 height: 40px;
             }
-            .table-row:nth-child(even){
+
+            .table-row:nth-child(even) {
                 background: var(--app-background-color-light);
             }
 
-            .table-row .col:not(:last-child){
+            .table-row .col:not(:last-child) {
                 border-right: 1px solid var(--app-background-color-dark);
             }
 
-            .general-infos{
+            .general-infos {
                 display: flex;
                 flex-flow: row wrap;
                 justify-content: flex-start;
@@ -175,24 +174,20 @@
                 border-radius: 4px;
             }
 
-            .infos-block{
+            .infos-block {
                 font-size: 14px;
                 font-weight: 400;
                 color: var(--app-text-color);
                 margin-right: 24px;
             }
 
-            .infos-block span{
+            .infos-block span {
                 background: var(--app-background-color-light);
                 border-radius: 12px;
                 font-weight: 500;
                 padding: 1px 8px;
                 margin-right: 8px;
             }
-
-            
-
-            
 
             /* PRESENT */
 
@@ -216,41 +211,43 @@
                 text-overflow: ellipsis;
                 justify-content: center;
             }
-            .th .td{
+
+            .th .td {
                 color: var(--app-text-color);
             }
 
             .tr {
-                position:relative;
+                position: relative;
                 width: 100%;
                 display: flex;
                 flex-flow: row nowrap;
                 color: var(--app-text-color);
-                z-index:1;
+                z-index: 1;
                 height: 24px;
             }
 
-            .tr:not(.category):not(.th):not(.old) .td{
+            .tr:not(.category):not(.th):not(.old) .td {
                 color: var(--app-text-color-light);
             }
 
-            .tr:not(.th):not(.category)::after{
-                display:block;
-                content:'';
-                position:absolute;
+            .tr:not(.th):not(.category)::after {
+                display: block;
+                content: '';
+                position: absolute;
                 top: 0;
                 left: 0;
                 height: 100%;
                 width: 100%;
                 background: var(--paper-red-a200);
-                z-index:0;
+                z-index: 0;
             }
 
-            .tr:not(.td):nth-child(odd)::after{
+            .tr:not(.td):nth-child(odd)::after {
                 opacity: 0.6;
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
-            .tr:not(.td):nth-child(even)::after{
+
+            .tr:not(.td):nth-child(even)::after {
                 opacity: 0.8;
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
@@ -259,16 +256,15 @@
                 opacity: 1;
             }
 
-            .tr.old{
+            .tr.old {
                 color: var(--app-text-color-disabled);
             }
-            .tr.old::after{
-                background: var(--app-background-color-light)!important;
+
+            .tr.old::after {
+                background: var(--app-background-color-light) !important;
             }
 
-            
-
-            .tr:not(.category){
+            .tr:not(.category) {
                 color: var(--app-text-color-white);
             }
 
@@ -295,58 +291,58 @@
                 font-size: 13px;
             }
 
-            .td--comments, .td--medicine, .td--category{
+            .td--comments, .td--medicine, .td--category {
                 justify-content: flex-start;
             }
 
-            .td--category iron-icon{
+            .td--category iron-icon {
                 height: 14px;
                 width: 14px;
                 margin-right: 4px;
             }
 
-            .th .td{
+            .th .td {
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
-            .span-3{
+            .span-3 {
                 padding: 6px 19px; /* 19px because we had the padding of the missings .td padding + their borders */
             }
 
-            .category{
+            .category {
                 border-bottom: 1px solid #d0d0d0;
             }
 
-            .reimbursed iron-icon{
+            .reimbursed iron-icon {
                 height: 14px;
-                width: 14px; 
+                width: 14px;
                 padding: 2px;
                 border-radius: 50%;
-                box-shadow: 0 0 0 rgba(0,0,0,.2);
+                box-shadow: 0 0 0 rgba(0, 0, 0, .2);
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
                 background-color: var(--app-text-color-light);
 
             }
 
-            .reimbursed iron-icon:hover{
+            .reimbursed iron-icon:hover {
                 height: 16px;
                 width: 16px;
-                box-shadow: 0 0 4px rgba(0,0,0,.2);
+                box-shadow: 0 0 4px rgba(0, 0, 0, .2);
             }
 
-            .reimbursed iron-icon.ok{
-               color: var(--app-status-color-ok)
+            .reimbursed iron-icon.ok {
+                color: var(--app-status-color-ok)
             }
 
-            .reimbursed iron-icon.nok{
+            .reimbursed iron-icon.nok {
                 color: var(--app-status-color-nok)
             }
 
-            .reimbursed iron-icon.pending{
+            .reimbursed iron-icon.pending {
                 color: var(--app-status-color-pending)
             }
 
-            .add-period-btn{
+            .add-period-btn {
                 height: 16px;
                 width: 16px;
                 padding: 0;
@@ -354,12 +350,12 @@
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
-            .add-period-btn:hover{
+            .add-period-btn:hover {
                 height: 18px;
                 width: 18px;
                 color: var(--app-secondary-color);
             }
-            
+
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
@@ -372,99 +368,100 @@
                     <paper-tab>Patient</paper-tab>
                 </paper-tabs>
             </h2>
-            
+
 
             <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
                 <div class="history">
                     <h2>History</h2>
                 </div>
             </template>
-           
+
             <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                 <div class="present">
                     <div class="table">
-                            <div class="tr th">
-                                <div class="td">
-                                        
-                                </div>
-                                <div class="td"
-                                style="flex-grow: 3;">
-                                    
-                                </div>
-                                <div class="td" style="flex-grow: 2;">
-                                    
-                                </div>
-                                <div class="td span-3" style="flex-grow: 3;">
-                                    Breakfast
-                                </div>
-                                <div class="td span-3" style="flex-grow: 3;">
-                                    Lunch
-                                </div>
-                                <div class="td span-3" style="flex-grow: 3;">
-                                    Dinner
-                                </div>
-                                <div class="td"  style="flex-grow: 2;">
-                                    
-                                </div>
-                                <div class="td"  style="flex-grow: 4;">
-                                    
-                                </div>
+                        <div class="tr th">
+                            <div class="td">
+
                             </div>
-                            <div class="tr th">
-                                <div class="td">
-                                        
-                                </div>
-                                <div class="td td--medicine"
-                                style="flex-grow: 3; justify-content: flex-start">
-                                    Medicine
-                                </div>
-                                <div class="td" style="flex-grow: 2;">
-                                    Frequency
-                                </div>
-                                <div class="td bf-bef">
-                                    Before
-                                </div>
-                                <div class="td bf-dur">
-                                    During
-                                </div>
-                                <div class="td bf-aft">
-                                    After
-                                </div>
-                                <div class="td lu-bef">
-                                    Before
-                                </div>
-                                <div class="td lu-dur">
-                                    During
-                                </div>
-                                <div class="td lu-aft">
-                                    After
-                                </div>
-                                <div class="td di-bef">
-                                    Before
-                                </div>
-                                <div class="td di-dur">
-                                    During
-                                </div>
-                                <div class="td di-aft">
-                                    After
-                                </div>
-                                <div class="td"  style="flex-grow: 2;">
-                                    End Date
-                                </div>
-                                <div class="td td-comments"  style="flex-grow: 4; justify-content: space-between;">
-                                    Comments
-                                    <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
-                                </div>
+                            <div class="td"
+                                 style="flex-grow: 3;">
+
                             </div>
-                            <!-- END HEADER -->
-                            <!-- START BODY -->
+                            <div class="td" style="flex-grow: 2;">
+
+                            </div>
+                            <div class="td span-3" style="flex-grow: 3;">
+                                Breakfast
+                            </div>
+                            <div class="td span-3" style="flex-grow: 3;">
+                                Lunch
+                            </div>
+                            <div class="td span-3" style="flex-grow: 3;">
+                                Dinner
+                            </div>
+                            <div class="td" style="flex-grow: 2;">
+
+                            </div>
+                            <div class="td" style="flex-grow: 4;">
+
+                            </div>
+                        </div>
+                        <div class="tr th">
+                            <div class="td">
+
+                            </div>
+                            <div class="td td--medicine"
+                                 style="flex-grow: 3; justify-content: flex-start">
+                                Medicine
+                            </div>
+                            <div class="td" style="flex-grow: 2;">
+                                Frequency
+                            </div>
+                            <div class="td bf-bef">
+                                Before
+                            </div>
+                            <div class="td bf-dur">
+                                During
+                            </div>
+                            <div class="td bf-aft">
+                                After
+                            </div>
+                            <div class="td lu-bef">
+                                Before
+                            </div>
+                            <div class="td lu-dur">
+                                During
+                            </div>
+                            <div class="td lu-aft">
+                                After
+                            </div>
+                            <div class="td di-bef">
+                                Before
+                            </div>
+                            <div class="td di-dur">
+                                During
+                            </div>
+                            <div class="td di-aft">
+                                After
+                            </div>
+                            <div class="td" style="flex-grow: 2;">
+                                End Date
+                            </div>
+                            <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
+                                Comments
+                                <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
+                            </div>
+                        </div>
+                        <!-- END HEADER -->
+                        <!-- START BODY -->
+                        <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
                             <div class="tr category">
                                 <div class="td"></div>
                                 <div class="td td--category" style="flex-grow: 3;">
-                                    <iron-icon icon="history"></iron-icon><b>Anti-hypertenseurs</b>
+                                    <iron-icon icon="history"></iron-icon>
+                                    <b>[[_localizedTitle(medicationsWithPosology)]]</b>
                                 </div>
                                 <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td" ></div>
                                 <div class="td"></div>
                                 <div class="td"></div>
                                 <div class="td"></div>
@@ -473,120 +470,138 @@
                                 <div class="td"></div>
                                 <div class="td"></div>
                                 <div class="td"></div>
-                                <div class="td"  style="flex-grow: 2;"></div>
-                                <div class="td"  style="flex-grow: 4;"></div>
+                                <div class="td"></div>
+                                <div class="td" style="flex-grow: 2;"></div>
+                                <div class="td" style="flex-grow: 4;"></div>
                             </div>
-                            <div class="tr ICD-10--XII-bg">
-                                <div class="td reimbursed">
-                                    <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class="ok"></iron-icon>
-                                    <paper-tooltip for="reimbursedStatus" >reimbursed</paper-tooltip>
+                            <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
+                            <div class$="tr [[_medicationClass(m.medication)]]">
+                                <div class$="td [[_reimbursedClass(m.medication)]]">
+                                    <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="[[_hasValidChap4Class(m.medication)]]"></iron-icon>
+                                    <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
                                 </div>
                                 <div class="td td--medicine" style="flex-grow: 3;">
-                                    <span>Amlor 200mg</span>
+                                    <span>[[_serviceDescription(m.medication)]]</span>
                                 </div>
-                                <div class="td" style="flex-grow: 2;"><span>2x/d</span></div>
-                                <div class="td bf-bef">1</div>
-                                <div class="td bf-dur"></div>
-                                <div class="td bf-aft"></div>
-                                <div class="td lu-bef"></div>
-                                <div class="td lu-dur"></div>
-                                <div class="td lu-aft"></div>
-                                <div class="td di-bef">1</div>
-                                <div class="td di-dur"></div>
-                                <div class="td di-aft"></div>
+                                <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
+                                <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
+                                    <div class="td bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                </template>
+                                <div class="td bf-bef">[[m.regimenTable.1.0.administratedQuantity.quantity]]</div>
+                                <div class="td bf-dur">[[m.regimenTable.2.0.administratedQuantity.quantity]]</div>
+                                <div class="td bf-aft">[[m.regimenTable.3.0.administratedQuantity.quantity]]</div>
+                                <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
+                                    <div class="td bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                </template>
+                                <div class="td lu-bef">[[m.regimenTable.5.0.administratedQuantity.quantity]]</div>
+                                <div class="td lu-dur">[[m.regimenTable.6.0.administratedQuantity.quantity]]</div>
+                                <div class="td lu-aft">[[m.regimenTable.7.0.administratedQuantity.quantity]]</div>
+                                <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
+                                    <div class="td bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                </template>
+                                <div class="td di-bef">[[m.regimenTable.9.0.administratedQuantity.quantity]]</div>
+                                <div class="td di-dur">[[m.regimenTable.10.0.administratedQuantity.quantity]]</div>
+                                <div class="td di-aft">[[m.regimenTable.11.0.administratedQuantity.quantity]]</div>
+                                <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
+                                    <div class="td bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                </template>
                                 <div class="td" style="flex-grow: 2;">10/02/2019</div>
                                 <div class="td td--comments" style="flex-grow: 4;"></div>
                             </div>
-                            <div class="tr ICD-10--XII-bg old">
-                                <div class="td reimbursed">
-                                    <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class="ok"></iron-icon>
-                                    <paper-tooltip for="reimbursedStatus" >reimbursed</paper-tooltip>
-                                </div>
-                                <div class="td td--medicine" style="flex-grow: 3;">
-                                    <span>Selectol 500mg</span>
-                                </div>
-                                <div class="td" style="flex-grow: 2;"><span>2x/d</span></div>
-                                <div class="td bf-bef"></div>
-                                <div class="td bf-dur"></div>
-                                <div class="td bf-aft">1</div>
-                                <div class="td lu-bef"></div>
-                                <div class="td lu-dur"></div>
-                                <div class="td lu-aft">1</div>
-                                <div class="td di-bef"></div>
-                                <div class="td di-dur"></div>
-                                <div class="td di-aft"></div>
-                                <div class="td" style="flex-grow: 2;">30/10/2018</div>
-                                <div class="td td--comments" style="flex-grow: 4;"></div>
+                        </template>
+                        </template>
+
+                        <div class="tr ICD-10--XII-bg">
+                            <div class="td reimbursed">
+                                <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class="ok"></iron-icon>
+                                <paper-tooltip for="reimbursedStatus">reimbursed</paper-tooltip>
                             </div>
-                            <div class="tr category">
-                                <div class="td"></div>
-                                <div class="td td--category" style="flex-grow: 3;">
-                                    <iron-icon icon="history"></iron-icon><b>Anti-douleurs</b>
-                                </div>
-                                <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td" ></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"  style="flex-grow: 2;"></div>
-                                <div class="td td--comments"  style="flex-grow: 4;"></div>
+                            <div class="td td--medicine" style="flex-grow: 3;">
+                                <span>Amlor 200mg</span>
                             </div>
-                            <div class="tr ICD-10--XI-bg">
-                                <div class="td reimbursed">
-                                    <iron-icon icon="icons:euro-symbol"  class="nok"></iron-icon>
-                                </div>
-                                <div class="td td--medicine" style="flex-grow: 3;">
-                                    <span>Paracétamol Téva 200mg </span>
-                                </div>
-                                <div class="td" style="flex-grow: 2;">
-                                    <span>2x/d</span>
-                                </div>
-                                <div class="td bf-bef"></div>
-                                <div class="td bf-dur"></div>
-                                <div class="td bf-aft"></div>
-                                <div class="td lu-bef">1</div>
-                                <div class="td lu-dur"></div>
-                                <div class="td lu-aft"></div>
-                                <div class="td di-bef">1</div>
-                                <div class="td di-dur"></div>
-                                <div class="td di-aft"></div>
-                                <div class="td"  style="flex-grow: 2;"></div>
-                                <div class="td td--comments"  style="flex-grow: 4;"> Take with a glass of milk</div>
+                            <div class="td" style="flex-grow: 2;"><span>2x/d</span></div>
+                            <div class="td bf-bef">1</div>
+                            <div class="td bf-dur"></div>
+                            <div class="td bf-aft"></div>
+                            <div class="td lu-bef"></div>
+                            <div class="td lu-dur"></div>
+                            <div class="td lu-aft"></div>
+                            <div class="td di-bef">1</div>
+                            <div class="td di-dur"></div>
+                            <div class="td di-aft"></div>
+                            <div class="td" style="flex-grow: 2;">10/02/2019</div>
+                            <div class="td td--comments" style="flex-grow: 4;"></div>
+                        </div>
+                        <div class="tr category">
+                            <div class="td"></div>
+                            <div class="td td--category" style="flex-grow: 3;">
+                                <iron-icon icon="history"></iron-icon>
+                                <b>Anti-douleurs</b>
                             </div>
-                            <div class="tr ICD-10--XI-bg">
-                                    <div class="td reimbursed">
-                                        <iron-icon icon="icons:euro-symbol" class="pending"></iron-icon>
-                                    </div>
-                                    <div class="td td--medicine"
-                                        style="flex-grow: 3;">
-                                        <span>Claradol Codéine 20mg </span>
-                                    </div>
-                                    <div class="td"
-                                        style="justify-content: center; flex-grow: 2;">
-                                        <span>3x/d</span>
-                                    </div>
-                                    <div class="td bf-bef"></div>
-                                    <div class="td bf-dur">1</div>
-                                    <div class="td bf-aft"></div>
-                                    <div class="td lu-bef">1</div>
-                                    <div class="td lu-dur"></div>
-                                    <div class="td lu-aft"></div>
-                                    <div class="td di-bef"></div>
-                                    <div class="td di-dur">1</div>
-                                    <div class="td di-aft"></div>
-                                    <div class="td"  style="flex-grow: 2;"></div>
-                                    <div class="td td--comments"  style="flex-grow: 4;"> Take with a glass of brandy</div>
-                                </div>
-                              </div>
-                              <!-- END BODY -->
-                              <!-- END TABLE -->
-                          </div>
-                          
+                            <div class="td" style="flex-grow: 2;"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td"></div>
+                            <div class="td" style="flex-grow: 2;"></div>
+                            <div class="td td--comments" style="flex-grow: 4;"></div>
+                        </div>
+                        <div class="tr ICD-10--XI-bg">
+                            <div class="td reimbursed">
+                                <iron-icon icon="icons:euro-symbol" class="nok"></iron-icon>
+                            </div>
+                            <div class="td td--medicine" style="flex-grow: 3;">
+                                <span>Paracétamol Téva 200mg </span>
+                            </div>
+                            <div class="td" style="flex-grow: 2;">
+                                <span>2x/d</span>
+                            </div>
+                            <div class="td bf-bef"></div>
+                            <div class="td bf-dur"></div>
+                            <div class="td bf-aft"></div>
+                            <div class="td lu-bef">1</div>
+                            <div class="td lu-dur"></div>
+                            <div class="td lu-aft"></div>
+                            <div class="td di-bef">1</div>
+                            <div class="td di-dur"></div>
+                            <div class="td di-aft"></div>
+                            <div class="td" style="flex-grow: 2;"></div>
+                            <div class="td td--comments" style="flex-grow: 4;"> Take with a glass of milk</div>
+                        </div>
+                        <div class="tr ICD-10--XI-bg">
+                            <div class="td reimbursed">
+                                <iron-icon icon="icons:euro-symbol" class="pending"></iron-icon>
+                            </div>
+                            <div class="td td--medicine"
+                                 style="flex-grow: 3;">
+                                <span>Claradol Codéine 20mg </span>
+                            </div>
+                            <div class="td"
+                                 style="justify-content: center; flex-grow: 2;">
+                                <span>3x/d</span>
+                            </div>
+                            <div class="td bf-bef"></div>
+                            <div class="td bf-dur">1</div>
+                            <div class="td bf-aft"></div>
+                            <div class="td lu-bef">1</div>
+                            <div class="td lu-dur"></div>
+                            <div class="td lu-aft"></div>
+                            <div class="td di-bef"></div>
+                            <div class="td di-dur">1</div>
+                            <div class="td di-aft"></div>
+                            <div class="td" style="flex-grow: 2;"></div>
+                            <div class="td td--comments" style="flex-grow: 4;"> Take with a glass of brandy</div>
+                        </div>
+                    </div>
+                    <!-- END BODY -->
+                    <!-- END TABLE -->
+                </div>
+
                 </div>
             </template>
 
@@ -758,16 +773,12 @@
                 </div>
             </template>
 
-            
-            
-           
-           
-            
+
             <div class="buttons">
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">Close</paper-button>
-                
+
                 <paper-button dialog-confirm autofocus on-tap="" class="modal-button modal-button--save">Add medication</paper-button>
-                
+
             </div>
         </paper-dialog>
     </template>
@@ -793,8 +804,20 @@
                     selectedTab: {
                         type: Number,
                         value: 0
+                    },
+                    medications: {
+                        type: Array,
+                        value: () => []
+                    },
+                    medicationClassesWithPosology: {
+                        type: Array,
+                        value: () => []
                     }
                 }
+            }
+
+            static get observers() {
+                return ['_medicationsChanged(medications.*)']
             }
 
             constructor() {
@@ -806,11 +829,11 @@
             }
 
             setSelectedTab(e) {
-                this.set('selectedTab',e)
+                this.set('selectedTab', e)
             }
 
-            _isEqual(a,b) {
-                console.log(a+' ?= '+b)
+            _isEqual(a, b) {
+                console.log(a + ' ?= ' + b)
                 return (a === b)
             }
 
@@ -846,7 +869,139 @@
                 this._valueChanged()
             }
 
+            _regimenTableDataProvider(frequency) {
+                function getMeal(regimens, daytime, frequency="daily") {
+                    return regimens.find(rg => rg.dayPeriod && rg.dayPeriod.code === daytime && rg.frequency === frequency) || {
+                        administratedQuantity: { quantity: 0 },
+                        dayPeriod: {type: "CD-DAYPERIOD", code: daytime},
+                        frequency: "daily"
+                    }
+                }
 
+                return (params, callback) => {
+                    if (!this.get('selectedMedicationContentWithId.medicationValue')) { callback([], 0); return }
+
+                    const startIndex = params.page * params.pageSize
+                    const regs = this.selectedMedicationContentWithId.medicationValue.regimen
+                    const {morningRegimens, middayRegimens, eveningRegimens} = this.extractRegimenSlices(regs, frequency)
+
+                    const extraColsBefore = []
+                    const extraColsAfter = []
+
+                    const scores = this.api.contact().medication().regimenScores()
+
+                    this.regimenTable = [
+                        {moment:this.localize('breakfast','breakfast'), regimens: morningRegimens, beforeMeal: getMeal(morningRegimens,'beforebreakfast', frequency)
+                            , duringMeal: getMeal(morningRegimens,'duringbreakfast', frequency), afterMeal: getMeal(morningRegimens,'afterbreakfast', frequency)},
+                        {moment:this.localize('lunch','lunch'), regimens: middayRegimens, beforeMeal: getMeal(middayRegimens,'beforelunch', frequency)
+                            , duringMeal: getMeal(middayRegimens,'duringlunch', frequency), afterMeal: getMeal(middayRegimens,'afterlunch', frequency)},
+                        {moment:this.localize('dinner','dinner'), regimens: eveningRegimens, beforeMeal: getMeal(eveningRegimens,'beforedinner', frequency)
+                            , duringMeal: getMeal(eveningRegimens, 'duringdinner', frequency), afterMeal: getMeal(eveningRegimens,'afterdinner', frequency)}
+                    ]
+
+
+                    ;[[0,scores.beforebreakfast-1,scores.duringbreakfast,scores.afterbreakfast+1,105959], [110000,scores.beforelunch-1,scores.duringlunch,scores.afterlunch+1,155959], [160000,scores.beforedinner-1,scores.duringdinner,scores.afterdinner+1,240000]].forEach((quad,idx) => {
+                        const l  = this.regimenTable[idx]
+                        l.extraBefore = extraColsBefore.map(() => null).concat((l.regimens || []).filter(r => this.selectRegimen(scores, r, quad[0],  quad[1]) || r.timeOfDay && r.timeOfDay < quad[2]))
+                        extraColsBefore.push(..._.sortBy(l.extraBefore.filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0))
+                        l.extraAfter = extraColsAfter.map(() => null).concat((l.regimens || []).filter(r => this.selectRegimen(scores, r, quad[3],  quad[4]) || r.timeOfDay && r.timeOfDay > quad[2]))
+                        extraColsAfter.push(..._.sortBy(l.extraAfter.filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0))
+                    })
+
+                    this.set('extraColsBefore', extraColsBefore.map(rg =>  rg.timeOfDay ? this._formatTime(rg.timeOfDay) : rg.dayPeriod && rg.dayPeriod.code ))
+                    this.set('extraColsAfter', extraColsAfter.map(rg => rg.timeOfDay ? this._formatTime(rg.timeOfDay) : rg.dayPeriod && rg.dayPeriod.code  ))
+
+
+                    ;[0,1,2,3].forEach(idx => idx>=this.extraColsBefore.length && (this.root.querySelector(`#extracol_before_${idx}`).hidden = true))
+                    this.extraColsBefore.forEach((val,idx) => {
+                        const el = this.root.querySelector(`#extracol_before_${idx}`)
+                        el && (el.hidden = false)
+                    })
+
+                    ;[0,1,2,3].forEach(idx => idx>=this.extraColsAfter.length && (this.root.querySelector(`#extracol_after_${idx}`).hidden = true))
+                    this.extraColsAfter.forEach((val,idx) => {
+                        const el = this.root.querySelector(`#extracol_after_${idx}`)
+                        el && (el.hidden = false)
+                    })
+
+                    callback(this.regimenTable.slice(startIndex, startIndex + params.pageSize), this.regimenTable.length)
+                }
+            }
+
+            extractRegimenSlices(regimen, frequency, conditions) {
+                const scores = this.api.contact().medication().regimenScores()
+                return conditions.map(c => (regimen || []).filter(r => r.frequency === frequency && c(rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] ||  0)))
+            }
+
+            _medicationsChanged() {
+                const scores = this.api.contact().medication().regimenScores()
+                this.medicationClassesWithPosology =  _.sortBy(Object.values(this.medications.map( m => ({
+                    medication:m, regimenTable: this.extractRegimenSlices(((this.api.contact().preferredContent(m, this.language) || {}).medicationValue || {}).regimen, 'daily', [
+                        x => x < scores.beforebreakfast,
+                        x => x === scores.beforebreakfast,
+                        x => x === scores.duringbreakfast,
+                        x => x === scores.afterbreakfast,
+                        x => x < scores.beforelunch,
+                        x => x === scores.beforelunch,
+                        x => x === scores.duringlunch,
+                        x => x === scores.afterlunch,
+                        x => x < scores.beforedinner,
+                        x => x === scores.beforedinner,
+                        x => x === scores.duringdinner,
+                        x => x === scores.afterdinner,
+                        x => x > scores.afterdinner
+                    ])
+                })).reduce((acc,m) => {
+                    const letter = (m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code.substr(0,1)
+                    ;(acc[letter] || (acc[letter] = {letter:letter, meds:[]})).meds.push(m)
+                    return acc
+                }, {})), 'letter')
+            }
+
+            _serviceDescription(s) {
+                return this.api.contact().medication().medicationNameToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _servicePosology(s) {
+                return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _chap4Status(s) {
+                return this._hasValidChap4Class() ? 'reimbursed' : ''
+            }
+
+            _hasValidChap4Class(s) {
+                (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.accepted && (!!z.end || this.api.moment(z.end).isAfter(moment())))
+            }
+
+            _reimbursedClass(s) {
+                return (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).length ? 'reimbursed' : ''
+            }
+
+            _medicationClass(m) {
+                return m.colour && (m.colour + '-back') || ''
+            }
+
+            _localizedTitle(medicationsWithPosology) {
+                return this.atcCat(medicationsWithPosology.letter)
+            }
+
+            atcCat(l) {
+                return l === 'A' ? this.localize('ali_trac_meta','Alimentary tract and metabolism') :
+                    l === 'B' ? this.localize('blo_blo_for','Blood and blood forming organs') :
+                    l === 'C' ? this.localize('car_sys','Cardiovascular system') :
+                    l === 'D' ? this.localize('dermatologicals','Dermatologicals') :
+                    l === 'G' ? this.localize('gen_uri_sys','Genito-urinary system and sex hormones') :
+                    l === 'H' ? this.localize('sys_hor_pre','Systemic hormonal preparations, excluding sex hormones and insulins') :
+                    l === 'J' ? this.localize('anti_inf_sys','Antiinfectives for systemic use') :
+                    l === 'L' ? this.localize('anti_neo_imm','Antineoplastic and immunomodulating agents') :
+                    l === 'M' ? this.localize('mus_ske_sys','Musculo-skeletal system') :
+                    l === 'N' ? this.localize('ner_sys','Nervous system') :
+                    l === 'P' ? this.localize('Anti_para_pro','Antiparasitic products, insecticides and repellents') :
+                    l === 'R' ? this.localize('res_sys','Respiratory system') :
+                    l === 'S' ? this.localize('sens_org','Sensory organs') :
+                    l === 'V' ? this.localize('various','Various') : this.localize('unk','Unknown')
+            }
         }
 
         customElements.define(MedicationPlanDialog.is, MedicationPlanDialog)
