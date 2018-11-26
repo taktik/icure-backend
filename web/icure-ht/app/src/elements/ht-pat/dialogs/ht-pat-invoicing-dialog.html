@@ -1265,12 +1265,12 @@
                             <template is="dom-if" if="[[!isInvoiceClosed]]">
                                 <div class="nmcl-favorite">
                                     <span>[[localize('fav','Favorites code',language)]]:</span>
-                                    <div class="paddles">
-                                        <iron-icon icon="arrow-back" class="left-paddle paddle hidden" on-tap="scrollLeft">
-                                        </iron-icon>
-                                        <iron-icon icon="arrow-forward" class="right-paddle paddle" on-tap="scrollRight">
-                                        </iron-icon>
-                                    </div>
+                                    <!--<div class="paddles">-->
+                                        <!--<iron-icon icon="arrow-back" class="left-paddle paddle hidden" on-tap="scrollLeft">-->
+                                        <!--</iron-icon>-->
+                                        <!--<iron-icon icon="arrow-forward" class="right-paddle paddle" on-tap="scrollRight">-->
+                                        <!--</iron-icon>-->
+                                    <!--</div>-->
                                     <div class="fullW" on-track="dragHoriz">
                                         <template is="dom-repeat" items="[[favoriteCode]]">
                                             <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
