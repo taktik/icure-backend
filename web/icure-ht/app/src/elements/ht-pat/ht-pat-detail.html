@@ -3145,28 +3145,71 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         Polymer.updateStyles(this.$.insuranceStatus)
 
                         if (genInsOk) {
-                            //set gen ins info on patient
-                            const pi = patient.insurabilities && _.assign({}, patient.insurabilities[0] || {})
-                            const ins = gi.insurabilities[0]
+                            //TODO: expected behaviour:
+                            //1. if same mut and CT1/2 -> do nothing
+                            //2. if different mut or CT1/2 -> close previous insurability and create new insurability
+                            const lpi = (patient.insurabilities && patient.insurabilities.length) ? patient.insurabilities : [{}];
+                            const ins = gi.insurabilities[0];
                             this.api.insurance().listInsurancesByCode(ins.mutuality).then(out => {
-                                if (out && out.length) {
-                                    pi.insuranceId = out[0].id
+                                if(out && out.length){
+                                    //find all patient insurabilities where insuranceId = out[0].Id and endDate is null or > today
+                                    let lpiFound = false;
+                                    let insuId = '';
+                                    for (let i = 0; i < out.length; i++) {
+                                        lpiFound = lpi.filter(function(p){
+                                            return  p.insuranceId === out[i].id && !(p.endDate);
+                                        })
+                                        if(lpiFound && lpiFound.length) {
+                                            insuId = out[i].id;
+                                            break;
+                                        };
+                                    }
+                                    if(lpiFound && lpiFound.length){
+                                        lpiFound.map(p => {
+                                            //1 if found: check if CT1/2 is changed
+                                            if (ins.ct1 && (!p.parameters || p.parameters.tc1 !== ins.ct1)) {
+                                                console.log('Insurability: CT1/2 changed');//1.2 if changed: close the found ins and create new with startdate today
+                                                p.endDate = moment().format('YYYYMMDD'); //todo: real value
+                                                const newP = {};
+                                                newP.identificationNumber = ins.regNrWithMut;
+                                                newP.insuranceId = out[0].id;
+                                                newP.startDate = moment().format('YYYYMMDD');
+                                                newP.parameters = _.assign(newP.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false'});
+                                                ins.ct2 && newP.parameters.tc2 !== ins.ct2 && (newP.parameters = _.assign(newP.parameters || {}, {tc2: ins.ct2}))
+                                                ins.paymentApproval ? newP.parameters = _.assign(newP.parameters || {}, {paymentapproval: 'true'}) : delete newP.parameters.paymentapproval
+                                                this.patient.insurabilities.push(newP);
+                                                if (patient === this.patient) {
+                                                    this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
+                                                        return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer))
+                                                    })
+                                                }
+                                            }else{
+                                                //1.1 if not changed: do nothing
+                                                console.log('Insurability: Nothing changed');
+                                            }
+                                        })
+                                    } else {
+                                        console.log('Insurability: Mutuality changed');//2 if not found: create new with startdate today
+                                        const newP = {};
+                                        newP.identificationNumber = ins.regNrWithMut;
+                                        newP.insuranceId = out[0].id;
+                                        newP.startDate = moment().format('YYYYMMDD');
+                                        newP.parameters = _.assign(newP.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false'});
+                                        ins.ct2 && newP.parameters.tc2 !== ins.ct2 && (newP.parameters = _.assign(newP.parameters || {}, {tc2: ins.ct2}))
+                                        ins.paymentApproval ? newP.parameters = _.assign(newP.parameters || {}, {paymentapproval: 'true'}) : delete newP.parameters.paymentapproval
+                                        //2.1 close all other
+                                        this.patient.insurabilities.map(p =>{
+                                                if(!p.endDate) p.endDate = moment().format('YYYYMMDD');
+                                            }
+                                        );
+                                        this.patient.insurabilities.push(newP);
+                                        if (patient === this.patient) {
+                                            this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
+                                                return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer))
+                                            })
+                                        }
+                                    }
                                 }
-                                if (ins.ct1 && (!pi.parameters || pi.parameters.tc1 !== ins.ct1)) {
-                                    pi.parameters = _.assign(pi.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false'})
-                                }
-                                pi.identificationNumber = ins.regNrWithMut
-
-                                ins.ct2 && pi.parameters.tc2 !== ins.ct2 && (pi.parameters = _.assign(pi.parameters || {}, {tc2: ins.ct2}))
-                                ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, {paymentapproval: 'true'}) : delete pi.parameters.paymentapproval
-
-                                if (patient === this.patient) {
-                                    this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                        this.set('patient.insurabilities.0', pi)
-                                        return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p, 'patient', defer))
-                                    })
-                                }
-
                             })
                         }
                         this.selectedTherLink = null
