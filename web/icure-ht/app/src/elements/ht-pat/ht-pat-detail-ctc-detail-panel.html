@@ -473,7 +473,8 @@
 						</div>
 					</template>
 					<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
-						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
+						<!--<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">-->
+						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe">
 							<iron-icon icon="vaadin:pills" ></iron-icon>
 							[[localize('pre','Prescribe',language)]]
 						</paper-button>
@@ -682,6 +683,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             isLoadingDoc: {
 			    type: Boolean,
                 value: false
+            },
+            globalHcp: {
+			    type: Object,
+                value: null
             }
 		};
 	}
@@ -693,6 +698,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	constructor() {
 		super();
 	}
+
+	ready() {
+	    super.ready();
+        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+    }
 
 	_activeIconClass(selected) {
 	    return selected ? 'icn-selected' : ''
@@ -951,188 +961,39 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	_printPrescriptions(e) {
-		if (this.patient.ssin && this.api.tokenId) {
-			this.$.loadingPrescriptionDialog.open();
-			const drugsToBePrescribed = this._drugsToBePrescribed();
-			let splitColumns = this._splitColumns().filter(c => c && c.length > 0);
-			this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
-				patient: this.patient,
-				hcp: hcp,
-				feedback: false,
-				medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
-				deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
-			}))).then(rids => {
-                let prescriToPrint = [], allPages = []
-                let prescNum = 0, pageNum = 1
-                splitColumns.forEach((c, idx) => {
-                    prescNum += 1
-                    if (prescNum > 2 * pageNum) { // if doesn't fit in page
-                        pageNum += 1 // add a page
-                    } // will be set on next page
-                    const element = this.root.querySelector("#barCode");
-                    JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
-                    var jpegUrl = element.toDataURL("image/jpeg");
-                    const ridIdx = (rids[idx].rid).split('').join(' ');
+        this.$.loadingPrescriptionDialog.open();
+        const drugsToBePrescribed = this._drugsToBePrescribed();
+        const splitColumns = this._splitColumns().filter(c => c && c.length > 0)
+        const element = this.root.querySelector("#barCode");
+        let rids = undefined
+		if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
+            console.log("with recip-e")
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
+                patient: this.patient,
+                hcp: hcp,
+                feedback: false,
+                medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
+                deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
+            }))).then(tempRids => rids = tempRids ))
+        } else {
+            console.log("no recip-e")
+        }
+        const toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rids)
 
-                    let prescArray = [], posology = {}
-                    _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
-                        const medicationApi = this.api.contact().medication();
-                        const med = this.api.contact().medicationValue(s, this.language);
-                        const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
-                        const medS = medicationApi.medicationNameToString(med, this.language)
-                        const medR = medicationApi.posologyToString(med, this.language)
-                        const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
-                        prescArray.push(thisMed) // add to the medications list
-                    }) // flatmap end
-                    console.log("prescArray",prescArray)
+        this.$.loadingPrescriptionDialog.close();
 
-                    let prescriContent = ""
-                    let articlePoso = []
-                    let medicName = ""
-                    prescArray.map(that => { // create prescription content
-                        prescriContent += `<article>
-                            S/ ${that.S}<br>
-                            R/ ${that.R}
-                        </article>`;
-                        articlePoso.push(that.poso) // add posology to the list
-                        medicName = that.S
-                    }) // map end
-                    const prescri = `<article class="prescription">
-                        <header>
-                            <img src="${jpegUrl}" alt="code-bar">
-                            <div class="barcode-num">${ridIdx}</div>
-                            <hr>
-                            <h2>Preuve de prescription électronique</h2>
-                            <hr>
-                            <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
-                            <hr>
-                            <div class="profile">
-                                <small>Nom et prénom du prescripteur&nbsp;:</small>
-                                <ul class="prescripteur-details">
-                                    <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
-                                    <li><b>INAMI&nbsp;:</b> ${hcp.nihii}</li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="profile">
-                                <small>Nom et prénom du patient&nbsp;:</small>
-                                <ul class="patient-details">
-                                    <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
-                                    <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
-                                </ul>
-                            </div>
-                            <hr>
-                        </header>
-                        <h2>Contenu de la prescription électronique</h2>
-                        <hr>
-                        <div class="prescription-content">
-                            ${prescriContent}
-                        </div>
-                        <footer>
-                            <hr>
-                            <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
-                            <hr>
-                            <small class="center">Date&nbsp;:</small>
-                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
-                            <hr>
-                            <small class="center">Délivrable à partir du&nbsp;:</small>
-                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
-                        </footer>
-                    </article>`; // create single prescription body
-                    prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
-                }) // splitCol forEach end
-                console.log("prescriToPrint",prescriToPrint)
-
-                console.log("allPages before map",allPages)
-                prescriToPrint.map((that)=>{ // for every prescription found in list
-                    let singlePage = {body:'',poso:[]}
-                    singlePage.body += (that.prescriBody) // get the body
-                    singlePage.name = that.name
-                    that.posology.map((poso)=>{ // check if there's posology
-                        singlePage.poso.push(poso)
-                    })
-                    if (!allPages[that.page-1]) {
-                        allPages.push([singlePage]) // assign posology to prescription
-                    } else {
-                        allPages[that.page-1].push(singlePage)
-                    }
-                })
-                console.log("allPages after map",allPages)
-                let onePageBody = ""
-                let thatI = 0
-                allPages.map((that)=>{
-                    let posoByDay = { // make the arrays that will receive sorted posologies
-                            'byMoment':[],
-                            'byHour':[]
-                        },
-                        posoByWeek = [],
-                        posoByMonth = []
-                    if (typeof that == 'object') {
-                        let rows = ''
-                        let thatBody = ''
-                        that.map((single)=>{
-                            let singleName = single.name
-                            thatBody += single.body
-                            single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
-                        })
-                        const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
-                        const onepageBodyBottom = `</tbody></table></footer></div>`;
-                        onePageBody += onePageBodyTop+rows+onepageBodyBottom;
-                    }
-                    thatI++
-                }) // allPage map end
-                const toPrint = `<html>
-                    <head>
-                        <style>
-                            body {margin: 0;width: 210mm;}
-                            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
-                            body > div.page:last-child {page-break-after: avoid;}
-                            body > div.page >main {display: flex;width: 100%;}
-                            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
-                            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
-                            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
-                            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
-                            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
-                            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
-                            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
-                            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
-                            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
-                            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
-                            body > div.page > main > article div.profile {margin: 0 25px;}
-                            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
-                            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-                            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
-                            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
-                            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
-                            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
-                            body > div.page > footer table:first-child {border-top:none;}
-                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
-                            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
-                            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
-                            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
-                            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
-                        </style>
-                    </head>
-                    <body>
-                        ${onePageBody}
-                    </body>
-                </html>`; // finalize PDF body
-                console.log("toPrint",toPrint)
-
-                this.$.loadingPrescriptionDialog.close();
-
-                this.api.pdfReport(mustache.render(toPrint, null))
-                    .then(data => {
-                        let blob = new Blob([data], {type: 'application/pdf'});
-                        let url = window.URL.createObjectURL(blob)
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-                        a.href = url;
-                        a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    })
+        this.api.pdfReport(mustache.render(toPrint, null))
+            .then(data => {
+                let blob = new Blob([data], {type: 'application/pdf'});
+                let url = window.URL.createObjectURL(blob)
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.href = url;
+                a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }).finally(()=>{
                 drugsToBePrescribed.forEach(s => {
                     const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
                     if (tag) {
@@ -1143,9 +1004,250 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     }
                 }) // forEach end
                 this.saveCurrentContact().then(() => this._refreshDrugs())
-            })); // rids and api call end
-		} // if end
-	} // method end
+            })
+	} // print end
+
+    _formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rids) {
+        console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
+        let prescriToPrint = [], allPages = []
+        let prescNum = 0, pageNum = 1
+        JsBarcode(element, rids ? rids[idx].rid : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
+        const jpegUrl = element.toDataURL("image/jpeg");
+        const ridIdx = (rids ? rids[idx].rid : hcp.nihii).split('').join('&nbsp;')
+        splitColumns.forEach((c, idx) => {
+            prescNum += 1
+            if (prescNum > 2 * pageNum) { // if doesn't fit in page
+                pageNum += 1 // add a page
+            } // will be set on next page
+
+            let prescArray = [], posology = {}
+            _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
+                const medicationApi = this.api.contact().medication();
+                const med = this.api.contact().medicationValue(s, this.language);
+                const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
+                const medR = medicationApi.medicationNameToString(med, this.language)
+                const medS = medicationApi.posologyToString(med, this.language)
+                const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
+                prescArray.push(thisMed) // add to the medications list
+            }) // flatmap end
+            console.log("prescArray",prescArray)
+
+            let prescriContent = ""
+            let articlePoso = []
+            let medicName = ""
+            prescArray.map(that => { // create prescription content
+                prescriContent += `<article>
+                    <p><span class="bold">R/</span> ${that.R}</p>
+                    <p><span class="bold">S/</span> ${that.S}</p>
+                </article>`;
+                articlePoso.push(that.poso) // add posology to the list
+                medicName = that.S
+            }) // map end
+            const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
+                <header>
+                    <img src="${jpegUrl}" alt="code-bar">
+                    <div class="barcode-num">${ridIdx}</div>
+                    <hr>
+                    <h2>Preuve de prescription électronique</h2>
+                    <hr>
+                    <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+                    <hr>
+                    <div class="profile">
+                        <small>Nom et prénom du prescripteur&nbsp;:</small>
+                        <ul class="prescripteur-details">
+                            <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
+                            <li><b>INAMI&nbsp;:</b> ${hcp.nihii}</li>
+                        </ul>
+                    </div>
+                    <hr>
+                    <div class="profile">
+                        <small>Nom et prénom du patient&nbsp;:</small>
+                        <ul class="patient-details">
+                            <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
+                            <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
+                        </ul>
+                    </div>
+                    <hr>
+                </header>
+                <h2>Contenu de la prescription électronique</h2>
+                <hr>
+                <div class="prescription-content">
+                    ${prescriContent}
+                </div>
+                <footer>
+                    <hr>
+                    <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+                    <hr>
+                    <small class="center">Date&nbsp;:</small>
+                    <p class="center">${deliveryDate}</p>
+                    <hr>
+                    <small class="center">Délivrable à partir du&nbsp;:</small>
+                    <p class="center">${deliveryDate}</p>
+                </footer>
+            </article>` : prescriContent; // create single prescription body
+            prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
+        }) // splitCol forEach end
+        console.log("prescriToPrint",prescriToPrint)
+
+        console.log("allPages before map",allPages)
+        prescriToPrint.map((that)=>{ // for every prescription found in list
+            let singlePage = {body:'',poso:[]}
+            singlePage.body += (that.prescriBody) // get the body
+            singlePage.name = that.name
+            that.posology.map((poso)=>{ // check if there's posology
+                singlePage.poso.push(poso)
+            })
+            if (!allPages[that.page-1]) {
+                allPages.push([singlePage]) // assign posology to prescription
+            } else {
+                allPages[that.page-1].push(singlePage)
+            }
+        })
+        console.log("allPages after map",allPages)
+        let onePageBody = ""
+        let thatI = 0
+        allPages.map((that)=>{
+            let posoByDay = { // make the arrays that will receive sorted posologies
+                    'byMoment':[],
+                    'byHour':[]
+                },
+                posoByWeek = [],
+                posoByMonth = []
+            if (typeof that == 'object') {
+                let rows = ''
+                let thatBody = ''
+                that.map((single)=>{
+                    let singleName = single.name
+                    thatBody += single.body
+                    if (this.patient.ssin && this.api.tokenId) {
+                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                    }
+                })
+                if (this.patient.ssin && this.api.tokenId) {
+                    const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
+                    const onepageBodyBottom = `</tbody></table></footer></div>`;
+                    onePageBody += onePageBodyTop+rows+onepageBodyBottom;
+                } else {
+                    onePageBody = `<div class="page">
+                        <header id="header" class="flexbox vert bt center">
+                            <div class="horiz">
+                                <div class="cell br w50 p1025">
+                                    <img class="codbar" src="${jpegUrl}" alt="code-bar">
+                                    <span>${ridIdx}</span>
+                                </div>
+                                <div class="cell w50">
+                                    <p>Nom et prénom du prescripteur</p>
+                                    <p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
+                                </div>
+                            </div>
+                        </header>
+                        <div class="horiz w100">
+                            <div class="vert bt bb flex1">
+                                <p class="uppercase">À remplir par le prescripteur</p>
+                                <p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+                            </div>
+                        </div>
+                        <main id="main" class="flexbox flex1 horiz bb">
+                            <div class="cell br w33">
+                                <p>Réservé à la vignette de conditionnement</p>
+                            </div>
+                            <div class="cell">
+                                ${thatBody}
+                            </div>
+                        </main>
+                        <footer id="footer" class="flex horiz bb">
+                            <div class="flex1 cell br w50">
+                                <p class="title bold center w100">Cachet du prescripteur</p>
+                                <ul>
+                                    <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
+                                    {{#hcp.addresses[0].street}}
+                                        <li>$(hcp.addresses[0].street}{{#hcp.addresses[0].houseNumber}}, $(hcp.addresses[0].houseNumber}{{/hcp.addresses[0].houseNumber}}</li>
+                                    {{/hcp.addresses[0].street}}
+                                    {{#hcp.addresses[0].city}}
+                                        <li class="uppercase">{{#hcp.addresses[0].postalCode}}$(hcp.addresses[0].postalCode} - {{/hcp.addresses[0].postalCode}} $(hcp.addresses[0].city}</li>
+                                    {{/hcp.addresses[0].city}}
+                                    {{#hcp.addresses[0].telecoms}}
+                                        <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
+                                    {{/hcp.addresses[0].telecoms}}
+                                    <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
+                                </ul>
+                            </div>
+                            <div class="w50">
+                                <div class="vert w100">
+                                    <div class="cell bb center">
+                                        <p class="mt0">Date et signature du prescripteur</p>
+                                        <p>${deliveryDate}</p>
+                                    </div>
+                                    <div class="cell">
+                                        <p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+                                        <p class="signdate center bold w100">${deliveryDate}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                        <aside>
+                            <div class="horiz">
+                                <p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+                            </div>
+                        </aside>
+                    </div>`;
+                } // elif end
+
+            }
+            thatI++
+        }) // allPage map end
+        const toPrint = (this.patient.ssin && this.api.tokenId) ?
+            `<html>
+            <head><style>
+            body {margin: 0;width: 210mm;}
+            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+            body > div.page:last-child {page-break-after: avoid;}
+            body > div.page >main {display: flex;width: 100%;}
+            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
+            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
+            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
+            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
+            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
+            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
+            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
+            body > div.page > main > article div.profile {margin: 0 25px;}
+            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
+            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
+            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
+            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
+            body > div.page > footer table:first-child {border-top:none;}
+            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
+            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
+            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
+            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
+        </style></head><body>${onePageBody}</body></html>`
+            : // no eHe connection =
+            `<html><head><style>
+            /* body */
+            body {margin: 0;padding: 0;}
+            div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+            div.page:last-child {page-break-after: avoid;}
+            * {font-size:.95em;font-family: Arial,sans-serif;}
+            /* flex */
+            *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
+            /* elems */
+            img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+            /* style */
+            *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
+            *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
+            *.br {border-right: 2px solid black;} *.bt {border-top: 2px solid black} *.bb {border-bottom: 2px solid black}
+            *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
+            *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
+        </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
+        console.log("toPrint",toPrint)
+        return toPrint
+    }
 
 	_columnName(idx) {
 		return `#${idx + 1}`;

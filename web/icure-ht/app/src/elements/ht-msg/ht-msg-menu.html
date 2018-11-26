@@ -67,7 +67,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style include="shared-styles">
 			:host {
 				display: block;
-				z-index:3;
 			}
 
 			:host *:focus{
@@ -125,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-radius: 10px;
 				line-height: 11px;
 				margin-left: 8px;
+                max-width: 30px;
 			}
 
 			paper-listbox{
@@ -450,6 +450,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background-color: var(--paper-orange-400);
 			}
 
+			.batchToBeSend{
+				background-color: var(--paper-orange-400);
+			}
+
+			.batchToBeCorrected{
+				background-color: var(--paper-red-400);
+			}
+
 			.batchProcessed{
 				background-color: var(--paper-blue-400);
 			}
@@ -477,8 +485,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: flex-start;
 			}
 
+            #inbox {
+                flex-direction: row;
+            }
+
             .force-ellipsis {
-                max-width: 100%;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 overflow: hidden;
@@ -496,6 +507,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             .inbox-line.one-line-menu {
                 width: 100%;
+				justify-content: space-between;
             }
 
             paper-spinner {
@@ -511,7 +523,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
-					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
+					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
@@ -524,7 +536,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</collapse-button>
 			<collapse-button id="sentboxcollapse">
 				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
+                    <div class="one-line-menu list-title"><div><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span></div><template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
@@ -535,11 +547,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</collapse-button>
             <collapse-button  id="invoiceboxcollapse">
                 <paper-item id="invoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_invoicebox" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inv','Invoices',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
+                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inv','Invoices',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="invoiceboxlist" class="menu-content sublist"  selected="{{invoiceSelectionIndex}}" selected-item="{{invoiceSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="pending">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
+					<paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeCorrected">[[localize('_e_inv_toBeCorrected','To be corrected',language)]] <span class="batchNumber batchToBeCorrected">[[batchCounter.toBeCorrected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeSend">[[localize('_e_inv_toBeSend','To be send',language)]] <span class="batchNumber batchToBeSend">[[batchCounter.toBeSend]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="process">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="reject">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="accept">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
@@ -619,7 +632,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			batchCounter: {
 			    type: Object,
 				value: () => ({
-					pending: 0,
+					toBeSend: 0,
+					toBeCorrected: 0,
 					processing: 0,
 					rejected: 0,
 					accepted: 0,
@@ -740,7 +754,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation()
         e.preventDefault()
 
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'toBeSend'} } }));
 
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
@@ -854,7 +868,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     initializeBatchCounter(e){
 
-	    this.set("batchCounter.pending", e.detail.pending)
+	    this.set("batchCounter.toBeSend", e.detail.toBeSend)
+		this.set("batchCounter.toBeCorrected", e.detail.toBeCorrected)
         this.set("batchCounter.processing", e.detail.processing)
         this.set("batchCounter.rejected", e.detail.rejected)
         this.set("batchCounter.accepted", e.detail.accepted)

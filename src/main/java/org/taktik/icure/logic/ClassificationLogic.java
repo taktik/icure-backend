@@ -43,4 +43,5 @@ public interface ClassificationLogic extends EntityPersister<Classification, Str
 
 	Classification addDelegations(String classificationId, List<Delegation> delegations);
 
+    List<Classification> getClassificationByIds(List<String> ids);
 }

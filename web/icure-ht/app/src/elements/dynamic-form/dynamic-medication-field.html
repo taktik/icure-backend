@@ -134,13 +134,6 @@
 				list-style: none;
 			}
 
-			.action-buttons {
-				float: right;
-				width: 40px;
-				height: 20px;
-				padding-right: 8px;
-			}
-
 			.action-buttons paper-icon-button {
 				padding: 2px;
 				margin-top: -1px;
@@ -204,15 +197,15 @@
 			}
 
 			.medication-line > .action-buttons {
-				width:70px;
-				padding-right:0;
+				width:72px;
+				padding-right:8px;
 			}
 
 			.medication-line > span {
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
-                max-width: calc(100% - 80px);
+                flex: 1;
 			}
 
 			paper-icon-button {
@@ -304,9 +297,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     static get observers() {
-        return [
-            '_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'
-		];
+        return [];
     }
 
 	constructor() {
@@ -345,11 +336,13 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _medicationCreated(e) {
     	this.push('value',e.detail)
+        this.set('selectedMedicationContentWithId',this.extractContentWithIdFromMedicationService(e.detail,true))
         this._displayMedicationDetails(e)
 	}
 
 	_displayMedicationDetails(e) {
-        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.extractContentWithIdFromMedicationService(e.detail, true), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+        this.set('previouslySavedValue', _.cloneDeep(this.value))
+        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.selectedMedicationContentWithId, onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -361,17 +354,25 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
+        console.log('extractContentWithIdFromMedicationService',m,isNew)
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {
-                medicationValue: { regimen: [] }
-            })).medicationValue,
+            medicationValue:
+            (
+                this.api.localize(m.content, this.language)  ||
+                 	( m.content[this.language] =
+                 	    {
+                 	        medicationValue: { regimen: [] }
+                 	    }
+                 	)
+            ).medicationValue,
             isNew: isNew || false };
 	}
 
 	addMedication() {
-        // console.log("add medic",this)
+        this.set('previouslySavedValue', _.cloneDeep(this.value))
+
 		const id = this.api.crypto().randomUuid();
 		const newMedication =  {
 		    id: id,
@@ -391,21 +392,25 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			]])
 		};
+        console.log("add medic",newMedication)
 		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
 	editMedication(el) {
 		const id = el.target.parentElement.parentElement.id;
 		const item = this.value.find(s => s.id === id);
+        this.set('previouslySavedValue', _.cloneDeep(this.value))
 		if (item) {
-            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, true), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
 	}
 
 	clearMedication(el) {
 		const id = el.target.parentElement.parentElement.id;
+        this.set('previouslySavedValue', _.cloneDeep(this.value))
 		this.set('selectedMedicationContentWithId', null);
 		this.splice('value', this.value.findIndex(s => s.id === id), 1);
+		this._valueChanged()
 	}
 }
 

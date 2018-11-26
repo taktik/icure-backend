@@ -15,6 +15,8 @@
         <style>
             :host {
                 height: 50px !important;
+                padding: 8px!important;
+                margin-bottom: 0!important;
             }
         </style>
     </template>
@@ -82,7 +84,35 @@
                 border-left: 1px solid var(--app-background-color-dark);
                 border-right: 1px solid var(--app-background-color-dark);
             }
+
+            :host(#selectedMedicationTable) [part~="cell"].clear-from-table {
+                width: 48px;
+                flex-grow: 0;
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"] {
+                text-align: center;
+                border-left: 1px solid var(--app-background-color-darker);
+                border-right: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color-dark);
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"].bt {
+                border-top: 1px solid var(--app-background-color-dark);
+            }
         </style>
     </template>
 </dom-module>
 
+
+<dom-module id="vaadin-combo-box-style" theme-for="vaadin-combo-box">
+    <template>
+        <style>
+            :host {
+                height: 50px;
+            }
+            :host [part=text-field]{
+                height: 50px;
+                padding: 0;
+            }
+        </style>
+    </template>
+</dom-module>

@@ -893,14 +893,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (newTimer > 0) {
                         this.set('disconnectionTimer', newTimer)
                     } else {
+                        const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
+                        this.credentials.username = creds.username
+                        this.credentials.ehpassword = creds.ehpassword
                         this._triggerMenu()
                     }
                 }, 10000)
 
             }
 
-            _timeCheck(period = 300000) {
+            _timeCheck(period = 30000) {
                 setTimeout(() => {
                     if (this.api.tokenId) {
                         this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
@@ -1024,7 +1027,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('api.token', res.token)
 
                         return res.tokenId
-                    }).catch(() => {
+                    }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('connected')
                         this.$.eHealthStatus.classList.add('disconnected')
@@ -1180,26 +1183,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if( existingUserDto && existingUserDto.id ) {
                         this.$['ht-invite-hcp-user-already-exists'].open()
                     } else {
-                        this.api.hcparty().createHealthcareParty({
-                            "name": this.lastName + " " + this.firstName,
-                            "lastName": this.lastName,
-                            "firstName": this.firstName,
-                            "nihii": this.nihii,
-                            "ssin": this.ssin
-                        }).then(hcp => {
-                            this.api.user().createUser({
-                                "healthcarePartyId": hcp.id,
-                                "name": this.lastName + " " + this.firstName,
-                                "email": this.email,
-                                "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
-                                "status": "ACTIVE",
-                                "type": "database"
-                            }).then(usr => {
-                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                                this.$['ht-invite-hcp-link'].open()
-                            })
-                        })
+                        this.createAndInviteUser();
                     }
+                }).catch( error=> {
+                    this.createAndInviteUser();
                 })
 
             }
@@ -1281,6 +1268,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _logList() {
                 this.$['ht-access-log'].open()
             }
+
+            createAndInviteUser(){
+                this.api.hcparty().createHealthcareParty({
+                    "name": this.lastName + " " + this.firstName,
+                    "lastName": this.lastName,
+                    "firstName": this.firstName,
+                    "nihii": this.nihii,
+                    "ssin": this.ssin
+                }).then(hcp => {
+                    this.api.user().createUser({
+                        "healthcarePartyId": hcp.id,
+                        "name": this.lastName + " " + this.firstName,
+                        "email": this.email,
+                        "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
+                        "status": "ACTIVE",
+                        "type": "database"
+                    }).then(usr => {
+                        this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                        this.$['ht-invite-hcp-link'].open()
+                    })
+                })
+
+            }
+
+
+
         }
 
         customElements.define(HtApp.is, HtApp)

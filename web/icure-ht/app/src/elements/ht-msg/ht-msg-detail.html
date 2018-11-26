@@ -533,7 +533,7 @@
 				align-items: center;
 				justify-content: flex-start;
 			}
-			
+
 			.layout-horizontal--nowrap{
 				flex-flow: row nowrap;
 			}
@@ -549,7 +549,7 @@
 			.msg-header-grid{
 				display: grid;
 				grid-template-columns: 50px 1fr;
-				grid-template-rows: 25px 25px; 
+				grid-template-rows: 25px 25px;
 				grid-row-gap: 0;
 				grid-column-gap: 8px;
 			}
@@ -676,7 +676,7 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-						<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
+						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
                     </div>
@@ -684,44 +684,43 @@
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
-					<template is="dom-repeat" items="[[messages]]" as="msg">
-							<paper-card class="msg-detail-card" >
-								<h2 class="subject">[[msg.subject]]</h2>
-								<div class="layout-horizontal space-between">
-									<div class="msg-header-grid">
-										<div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
-										<div class="from">[[msg.fromAddress]]</div>
-										<div class="to">to [[msg.toAddresses]]</div>
-									</div>
-									<div class="layout-horizontal layout-horizontal--flex-end">
-										<div class="date">[[_timeFormat(msg.received)]]</div>
-										<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
-										<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>
-										<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>
-									</div>
-								</div>
-                                <!-- <div>
-                                    <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
-                                </div> -->
-                                <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
-
-								<!-- <template is="dom-if" if="[[msg.body]]">
-                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-								</template> -->
-								
-								<template is="dom-if" if="[[msg.body]]">
-									<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
-								</template>
-
-
-                            </paper-card>
+                <template is="dom-repeat" items="[[messages]]" as="msg">
+                    <paper-card class="msg-detail-card" >
+                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal space-between">
+                            <div class="msg-header-grid">
+                                <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
+                                <div class="from">[[msg.fromAddress]]</div>
+                                <div class="to">to [[msg.toAddresses]]</div>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <div class="date">[[_timeFormat(msg.received)]]</div>
+                                <paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
+                                <paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
+                                <!--<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>-->
+                                <!--<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>-->
+                            </div>
                         </div>
-                    </template>
+                        <!-- <div>
+                            <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
+                            <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
+                            <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
+                        </div> -->
+                        <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
+
+                        <!-- <template is="dom-if" if="[[msg.body]]">
+                            <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+                        </template> -->
+
+                        <template is="dom-if" if="[[msg.body]]">
+                            <div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
+                        </template>
+
+
+                    </paper-card>
+                </template>
             </div>
 
             <div class="attached">
@@ -758,7 +757,7 @@
 										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
 									</div>
 								</div>
-                               
+
                             </template>
                             <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
                                 <div class="annexe-card--content">
@@ -773,7 +772,7 @@
 										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
 									</div>
 								</div>
-                                
+
                             </template>
                         </paper-card>
                     </template>
@@ -982,22 +981,27 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_removeMsg(e){
-		let msgId = e.target.getAttribute('msgId');
-		let transportGuid = e.target.getAttribute('transportGuid');
-		this.set('messages', null);
+        let msg = this.messages[0]
+		// let msgId = e.target.getAttribute('msgId');
+		// let transportGuid = e.target.getAttribute('transportGuid');
 
-		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-			.then(msg => {
-				let m = msg.rows[0];
-				if(m.transportGuid.startsWith("BIN")){
-		this.api.message().deleteMessages(msgId)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-				} else {
-					m.transportGuid = "BIN" + m.transportGuid;
-					this.api.message().modifyMessage(m)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-				}
-			})
+		// this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
+		// 	.then(msg => {
+		// 		let m = msg.rows[0];
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                this.api.message().deleteMessages(msg.id)
+                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
+            } else {
+                msg.transportGuid = "BIN" + msg.transportGuid;
+                this.api.message().modifyMessage(msg)
+                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
+            }
+            this.set('messages', null);
+            const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
+            mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+        }
+        // })
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
@@ -1120,7 +1124,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		// TEXT
 		else if(this._textType(mainUti, otherUtis)){
 			// if(this._checkHealthone()){
-			this.api.patient().getPatient("1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
+			this.api.patient().getPatientWithUser(this.user,"1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
 				this.api.contact().newInstance(this.user, patient, {
 					created: new Date().getTime() ,
 					modified: new Date().getTime() ,

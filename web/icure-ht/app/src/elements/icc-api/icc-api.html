@@ -273,6 +273,10 @@
             return this.replicationicc
         }
 
+        receipt() {
+            return this.receipticc
+        }
+
         tarification() {
             return this.tarificationicc
         }
@@ -374,11 +378,11 @@
         }
 
         unregisterAll(domain) {
-            this.registry[domain] = {listeners:[], entities:{}}
+            this.registry[domain] = {listeners:{}, entities:{}, queues: {}}
         }
 
         getRegistry(domain) {
-            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+            return this.registry[domain] || (this.registry[domain] = {listeners: {}, entities: {}, queues: {}})
         }
 
         /**
@@ -399,7 +403,7 @@
             defer.resolve = res
 
             const thisPromise = reg.queues[entity.id]
-            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolve(entity) }, 10000) : null
             reg.queues[entity.id] = defer
 
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
@@ -414,8 +418,11 @@
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
-                reg.listeners.forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
+                Object.values(reg.listeners).forEach(l=>{
+                    if (!l.pool || l.pool.some(x => x === entity.id)) {
+                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                        l.callbacks && l.callbacks.forEach(cb => cb())
+                    }
                 })
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
@@ -453,7 +460,7 @@
             inputString = ( inputString || '' ) + '';
 
             // No Iban ?
-            if(!parseInt( inputString.length ) ) return;
+            if(!inputString.length) return;
 
             // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
             var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );
@@ -466,7 +473,7 @@
         }
 
         logMcn(obj, user, docId, cat, subcat) {
-            this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
@@ -498,7 +505,7 @@
                             null,
                             null,
                             requestDate
-                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                     }).then(edmgResp => {
                         localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
                         return edmgResp||Promise.resolve(null);
@@ -522,7 +529,7 @@
                                     (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
                                     (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
                                     requestDate
-                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                             }
                         ).then(edmgResp => {
                             localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
