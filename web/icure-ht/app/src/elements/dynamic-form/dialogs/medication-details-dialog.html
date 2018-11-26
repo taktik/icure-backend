@@ -9,7 +9,7 @@
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../scrollbar-style.html">
-
+<link rel="import" href="../../../vaadin-icure-theme.html">
 
 <dom-module id="medication-details-dialog">
     <template>
@@ -68,6 +68,16 @@
                 margin-right: 4px;
                 width: 80px;
                 text-align: right;
+            }
+
+            .regimen-grid-quantity {
+                margin-left: auto;
+                margin-right: auto;
+                width: 48px;
+                height: 32px;
+                top: -8px;
+                text-align: center;
+                position: relative;
             }
 
             .regimen--units {
@@ -303,7 +313,7 @@
             }
 
             #selectedMedicationTable {
-                max-height: 33vh;
+                max-height: calc(49px + 49px + 49px + 56px + 16px);
             }
 
             *.capitalize {
@@ -418,7 +428,6 @@
                             <template is="dom-if" if="[[openAddDropDown]]">
                                 <template is="dom-if" if="[[!selectedTab]]">
                                 <div class="btn-dropdown-container">
-                                    <paper-item id="daily" on-tap="_pushRegimen" data-item="daily">[[localize('dai','Daily',language)]]</paper-item>
                                     <paper-item id="weekly" on-tap="_pushRegimen" data-item="weekly">[[localize('wee','Weekly',language)]]</paper-item>
                                     <paper-item id="monthly" on-tap="_pushRegimen" data-item="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                                 </div>
@@ -438,7 +447,7 @@
                         <h4>Posology</h4>
                         <div class="add-col">
                             <template is="dom-if" if="[[openAddColDropDown]]">
-                                <paper-listbox id="dayListbox" class="btn-dropdown-container" slot="dropdown-content" selected="[[tempColToAdd]]" attr-for-selected="id">
+                                <paper-listbox id="dayListbox" class="btn-dropdown-container" slot="dropdown-content" selected="[[tempColToAdd]]"  on-selected-changed="_addCustomDayPeriod" attr-for-selected="id">
                                     <paper-item id="morning" on-tap="" data-item="daily">[[localize('morning','morning',language)]]</paper-item>
                                     <paper-item id="evening" on-tap="" data-item="weekly">[[localize('evening','evening',language)]]</paper-item>
                                     <paper-item id="night" on-tap="" data-item="monthly">[[localize('night','night',language)]]</paper-item>
@@ -447,47 +456,97 @@
                             </template>
                             <paper-icon-button icon="add" on-tap="_toggleColDropDown"></paper-icon-button>
                         </div>
-                        <vaadin-grid id="selectedMedicationTable" data-provider="[[_regimenTableDataProvider()]]" indexAs="index">
+                        <vaadin-grid id="selectedMedicationTable" data-provider="[[_regimenTableDataProvider('daily')]]" indexAs="index">
                             <vaadin-grid-column flex-grow="1" width="160px">
                                 <template class="header">
-                                    [[localize('moment','Moment',language)]]
+                                    [[localize('tim_span','Time span',language)]]
                                 </template>
                                 <template>
                                     [[item.moment]]
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column-group>
-                                <template class="header center">
-                                    [[localize('qua','Quantitites',language)]]
-                                </template>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header bt">[[localize('before','before',language)]]</template>
-                                    <template>
-                                        <paper-input value="{{item.beforeMeal.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0"
-                                                     on-change="_selectSingleQuantityFromTable">
-                                        </paper-input>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header bt">[[localize('during','during',language)]]</template>
-                                    <template>
-                                        <paper-input value="{{item.duringMeal.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0"
-                                                     on-change="_selectSingleQuantityFromTable">
-                                        </paper-input>
-                                    </template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column width="50px">
-                                    <template class="header bt">[[localize('after','after',language)]]</template>
-                                    <template>
-                                        <paper-input value="{{item.afterMeal.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0"
-                                                     on-change="_selectSingleQuantityFromTable">
-                                        </paper-input>
-                                    </template>
-                                </vaadin-grid-column>
-                            </vaadin-grid-column-group>
-                            <vaadin-grid-column width="48px" flex-grow="0">
+                            <vaadin-grid-column id="extracol_before_0" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsBefore.0,extraColsBefore.0,language)]]</template>
                                 <template>
-                                    <paper-icon-button icon="clear" on-tap="_clearPosologyRegimen" data-item$="[[index]]"></paper-icon-button>
+                                    <paper-input no-label-float value="{{item.extraBefore.0.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.0]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_before_1" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsBefore.1,extraColsBefore.1,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraBefore.1.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.1]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_before_2" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsBefore.2,extraColsBefore.2,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraBefore.2.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.2]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_before_3" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsBefore.3,extraColsBefore.3,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraBefore.3.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.3]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header bt">[[localize('bef_meal','before meal',language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.beforeMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header bt">[[localize('dur_meal','during meal',language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.duringMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header bt">[[localize('aft_meal','after meal',language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.afterMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                                </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_0" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.0,extraColsAfter.0,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.0.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.0]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_1" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.1,extraColsAfter.1,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.1.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.1]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_2" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.2,extraColsAfter.2,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.2.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.2]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_3" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.3,extraColsAfter.3,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.3.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.3]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_4" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.4,extraColsAfter.4,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.4.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.4]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_5" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.5,extraColsAfter.5,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.5.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.5]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column id="extracol_after_6" width="50px" hidden>
+                                <template class="header bt">[[localize(extraColsAfter.6,extraColsAfter.6,language)]]</template>
+                                <template>
+                                    <paper-input no-label-float value="{{item.extraAfter.6.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.6]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                 </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
@@ -503,9 +562,9 @@
                                     </paper-input>
                                     <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"></paper-input>
                                     <template is="dom-if" if="[[_isEqual(rg.frequency,'daily')]]">
-                                        <template is="dom-if" if="{{!_isEqual(rg.administratedQuantity.daytime,'custom')}}">
-                                            <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.administratedQuantity.daytime}}">
-                                                <paper-listbox id="dayListbox" slot="dropdown-content" selected="[[rg.administratedQuantity.daytime]]" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="{{rg.dayPeriod.code}}">
+                                        <template is="dom-if" if="{{!_isEqual(rg.dayPeriod.code,'custom')}}">
+                                            <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
+                                                <paper-listbox id="dayListbox" slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="{{rg.dayPeriod.code}}">
                                                     <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
                                                     <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
                                                     <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
@@ -525,8 +584,8 @@
                                                 <div class="hidden">[[rg.dayPeriod.code]]</div>
                                             </paper-dropdown-menu>
                                         </template>
-                                        <template is="dom-if" if="{{_isEqual(rg.administratedQuantity.daytime,'custom')}}">
-                                            <paper-input id="preciseHour" class="regimen--tod" label="[[localize('prec_hour','precise hour',language)]]" value="{{rg.administratedQuantity.preciseHour}}"></paper-input>
+                                        <template is="dom-if" if="{{_isEqual(rg.dayPeriod.code,'custom')}}">
+                                            <paper-input id="preciseHour" class="regimen--tod" label="[[localize('prec_hour','precise hour',language)]]" value="{{_formatTime(rg.timeOfDay)}}" on-value-changed="_changeTimeOfDay"></paper-input>
                                         </template>
                                     </template>
                                     <template is="dom-if" if="[[_isEqual(rg.frequency,'weekly')]]">
@@ -541,9 +600,9 @@
                                                 <paper-item id="sunday">Sunday</paper-item>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
-                                        <template is="dom-if" if="[[!_isEqual(rg.administratedQuantity.daytime,'custom')]]">
-                                            <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.administratedQuantity.daytime}}">
-                                                <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.administratedQuantity.daytime}}" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
+                                        <template is="dom-if" if="[[!_isEqual(rg.dayPeriod.code,'custom')]]">
+                                            <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
+                                                <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
                                                     <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
                                                     <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
                                                     <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
@@ -563,9 +622,8 @@
                                                 <div class="hidden">[[rg.dayPeriod.code]]</div>
                                             </paper-dropdown-menu>
                                         </template>
-                                        <template is="dom-if" if="[[_isEqual(rg.administratedQuantity.daytime,'custom')]]">
-                                            <!--<vaadin-time-picker id="preciseHour" class="regimen&#45;&#45;tod"  label="[_localize('Precise hour')]]" value="{{rg.administratedQuantity.preciseHour}}"></vaadin-time-picker>-->
-                                            <paper-input id="preciseHour" class="regimen--tod" label="[[localize('prec_hour','precise hour',language)]]" value="{{rg.administratedQuantity.preciseHour}}"></paper-input>
+                                        <template is="dom-if" if="[[_isEqual(rg.dayPeriod.code,'custom')]]">
+                                            <paper-input id="preciseHour" class="regimen--tod" label="[[localize('prec_hour','precise hour',language)]]" value="{{_formatTime(rg.timeOfDay)}}" on-value-changed="_changeTimeOfDay"></paper-input>
                                         </template>
                                     </template>
                                     <template is="dom-if" if="[[_isEqual(rg.frequency,'monthly')]]">
@@ -677,7 +735,7 @@
             }
 
             static get observers() {
-                return ['_regimenChanged(selectedMedicationContentWithId.medicationValue.regimen.slices)'];
+                return ['_regimenChanged(selectedMedicationContentWithId.medicationValue.regimen.*)'];
             }
 
             constructor() {
@@ -691,10 +749,10 @@
             _toggleAddDropDown() {
                 this.set('openAddDropDown',!this.openAddDropDown)
             }
+
             _toggleColDropDown() {
                 this.set('openAddColDropDown',!this.openAddColDropDown)
             }
-
 
             _regimenChanged() {
                 this.updateGridIfNeeded()
@@ -702,6 +760,27 @@
 
             _regimenLines() {
                 return this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue && this.selectedMedicationContentWithId.medicationValue.regimen || []
+            }
+
+            _pad2(n) {
+                return n<10 ? '0'+n : ''+n
+            }
+
+            _formatTime(timeOfDay) {
+                return timeOfDay >= 0 && timeOfDay <= 240000 ? `${this._pad2(Math.floor(timeOfDay / 10000))}:${this._pad2(Math.floor(timeOfDay/100) % 100)}` : ''
+            }
+
+            _changeTimeOfDay(event) {
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
+                if (!rgModel) {
+                    return
+                }
+                rgModel.set('rg.timeOfDay', event.target && (
+                    event.target.value.match(/^[0-9]+[:hH][0-9]+$/) && Number(event.target.value.replace(/[:hH]/g,'')*100)
+                    || event.target.value.match(/^[0-9]+[hH]$/) && Number(event.target.value.replace(/[hH]/g,'')*10000)
+                ) || null)
+
+                this.updateGridIfNeeded()
             }
 
             extractContentWithIdFromMedicationService(m, isNew) {
@@ -777,6 +856,24 @@
                 }
             }
 
+            _addCustomDayPeriod(event) {
+                if (event.detail.value && this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue && this.selectedMedicationContentWithId.medicationValue.regimen && !this.selectedMedicationContentWithId.medicationValue.regimen.some(r => r.frequency === 'daily' && r.dayPeriod && r.dayPeriod.code === event.detail.value)) {
+                    this.push('selectedMedicationContentWithId.medicationValue.regimen', {
+                        frequency: 'daily',
+                        administratedQuantity: {
+                            time: null,
+                            quantity: 1,
+                            unit: this.bufferUnit
+                        },
+                        dayPeriod: {type: "CD-DAYPERIOD", code: event.detail.value}
+                    })
+                    this.updateGridIfNeeded()
+                }
+                this.set('openAddColDropDown', false)
+
+                this.set('tempColToAdd', null)
+            }
+
             _pushRegimen(e) {
                 const dropDownSelectedFreq = e.target.dataset.item;
                 this.push('selectedMedicationContentWithId.medicationValue.regimen', {
@@ -793,7 +890,6 @@
             _localize(s) {
                 return this.api.contact().medication().localize(s, this.language)
             }
-
 
             _changeBeginMoment() {
                 if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
@@ -821,12 +917,12 @@
             }
 
             _selectSingleQuantity(event) {
-
+                this.updateGridIfNeeded()
             }
 
             _selectSingleQuantityFromTable(event) {
                 this.regimenTable.reduce((refresh, line) =>
-                    refresh || [line.beforeMeal,line.duringMeal,line.afterMeal].reduce((refresh,rg) => {
+                    refresh || (line.extraBefore||[]).filter(x=>!!x).concat([line.beforeMeal,line.duringMeal,line.afterMeal]).concat((line.extraAfter||[]).filter(x=>!!x)).reduce((refresh,rg) => {
                         if (rg.administratedQuantity && Number(rg.administratedQuantity.quantity) > 0) {
                             const idx = this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rg)
                             if (!(idx>=0)) {
@@ -853,7 +949,6 @@
                     return
                 }
                 rgModel.set('rg.dayPeriod', {type: "CD-DAYPERIOD", code: event.detail.value})
-                rgModel.set('rg.administratedQuantity.daytime', event.detail.value)
 
                 this.updateGridIfNeeded()
             }
@@ -905,10 +1000,10 @@
                 this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
             }
 
-            _regimenTableDataProvider() {
-                function getMeal(eveningRegimens, daytime) {
-                    return eveningRegimens.find(rg => rg.administratedQuantity.daytime=== daytime) || {
-                        administratedQuantity: {daytime: daytime, quantity: 0},
+            _regimenTableDataProvider(frequency) {
+                function getMeal(regimens, daytime, frequency="daily") {
+                    return regimens.find(rg => rg.dayPeriod && rg.dayPeriod.code === daytime && rg.frequency === frequency) || {
+                        administratedQuantity: { quantity: 0 },
                         dayPeriod: {type: "CD-DAYPERIOD", code: daytime},
                         frequency: "daily"
                     }
@@ -918,30 +1013,62 @@
                     if (!this.get('selectedMedicationContentWithId.medicationValue')) { callback([], 0); return }
 
                     const startIndex = params.page * params.pageSize
-                    const {morningRegimens, middayRegimens, eveningRegimens} = this.extractRegimenSlices(this.selectedMedicationContentWithId.medicationValue.regimen)
+                    const regs = this.selectedMedicationContentWithId.medicationValue.regimen
+                    const {morningRegimens, middayRegimens, eveningRegimens} = this.extractRegimenSlices(regs, frequency)
+
+                    const extraColsBefore = []
+                    const extraColsAfter = []
+
+                    const scores = this.api.contact().medication().regimenScores()
 
                     this.regimenTable = [
-                        {moment:this.localize('breakfast','breakfast'), regimens: morningRegimens, beforeMeal: getMeal(morningRegimens,'beforebreakfast')
-                            , duringMeal: getMeal(morningRegimens,'duringbreakfast'), afterMeal: getMeal(morningRegimens,'afterbreakfast')},
-                        {moment:this.localize('lunch','lunch'), regimens: middayRegimens, beforeMeal: getMeal(middayRegimens,'beforelunch')
-                            , duringMeal: getMeal(middayRegimens,'duringlunch'), afterMeal: getMeal(middayRegimens,'afterlunch')},
-                        {moment:this.localize('dinner','dinner'), regimens: eveningRegimens, beforeMeal: getMeal(eveningRegimens,'beforedinner')
-                            , duringMeal: getMeal(eveningRegimens, 'duringdinner'), afterMeal: getMeal(eveningRegimens,'afterdinner')}
+                        {moment:this.localize('breakfast','breakfast'), regimens: morningRegimens, beforeMeal: getMeal(morningRegimens,'beforebreakfast', frequency)
+                            , duringMeal: getMeal(morningRegimens,'duringbreakfast', frequency), afterMeal: getMeal(morningRegimens,'afterbreakfast', frequency)},
+                        {moment:this.localize('lunch','lunch'), regimens: middayRegimens, beforeMeal: getMeal(middayRegimens,'beforelunch', frequency)
+                            , duringMeal: getMeal(middayRegimens,'duringlunch', frequency), afterMeal: getMeal(middayRegimens,'afterlunch', frequency)},
+                        {moment:this.localize('dinner','dinner'), regimens: eveningRegimens, beforeMeal: getMeal(eveningRegimens,'beforedinner', frequency)
+                            , duringMeal: getMeal(eveningRegimens, 'duringdinner', frequency), afterMeal: getMeal(eveningRegimens,'afterdinner', frequency)}
                         ]
+
+
+                    ;[[0,scores.beforebreakfast-1,scores.duringbreakfast,scores.afterbreakfast+1,105959], [110000,scores.beforelunch-1,scores.duringlunch,scores.afterlunch+1,155959], [160000,scores.beforedinner-1,scores.duringdinner,scores.afterdinner+1,240000]].forEach((quad,idx) => {
+                        const l  = this.regimenTable[idx]
+                        l.extraBefore = extraColsBefore.map(() => null).concat((l.regimens || []).filter(r => this.selectRegimen(scores, r, quad[0],  quad[1]) || r.timeOfDay && r.timeOfDay < quad[2]))
+                        extraColsBefore.push(..._.sortBy(l.extraBefore.filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0))
+                        l.extraAfter = extraColsAfter.map(() => null).concat((l.regimens || []).filter(r => this.selectRegimen(scores, r, quad[3],  quad[4]) || r.timeOfDay && r.timeOfDay > quad[2]))
+                        extraColsAfter.push(..._.sortBy(l.extraAfter.filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0))
+                    })
+
+                    this.set('extraColsBefore', extraColsBefore.map(rg =>  rg.timeOfDay ? this._formatTime(rg.timeOfDay) : rg.dayPeriod && rg.dayPeriod.code ))
+                    this.set('extraColsAfter', extraColsAfter.map(rg => rg.timeOfDay ? this._formatTime(rg.timeOfDay) : rg.dayPeriod && rg.dayPeriod.code  ))
+
+
+                    ;[0,1,2,3].forEach(idx => idx>=this.extraColsBefore.length && (this.root.querySelector(`#extracol_before_${idx}`).hidden = true))
+                    this.extraColsBefore.forEach((val,idx) => {
+                        const el = this.root.querySelector(`#extracol_before_${idx}`)
+                        el && (el.hidden = false)
+                    })
+
+                    ;[0,1,2,3].forEach(idx => idx>=this.extraColsAfter.length && (this.root.querySelector(`#extracol_after_${idx}`).hidden = true))
+                    this.extraColsAfter.forEach((val,idx) => {
+                        const el = this.root.querySelector(`#extracol_after_${idx}`)
+                        el && (el.hidden = false)
+                    })
 
                     callback(this.regimenTable.slice(startIndex, startIndex + params.pageSize), this.regimenTable.length)
                 }
             }
 
-            extractRegimenSlices(regimen) {
+            selectRegimen(scores, rg, start, end) {
+                const s = rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] ||  0
+                return s >= start && s <= end
+            }
+
+            extractRegimenSlices(regimen, frequency) {
                 const scores = this.api.contact().medication().regimenScores()
-                const selectRegimen = (rg, start, end) => {
-                    const s = scores[rg.administratedQuantity.daytime] || 0
-                    return s >= start && s <= end
-                }
-                const morningRegimens = (regimen || []).filter(r => selectRegimen(r, 1, 112959))
-                const middayRegimens = (regimen || []).filter(r => selectRegimen(r, 113000, 140000))
-                const eveningRegimens = (regimen || []).filter(r => selectRegimen(r, 143000, 235959))
+                const morningRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 0, 105959))
+                const middayRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 110000, 155959))
+                const eveningRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 160000, 240000))
                 return {morningRegimens, middayRegimens, eveningRegimens}
             }
         }
