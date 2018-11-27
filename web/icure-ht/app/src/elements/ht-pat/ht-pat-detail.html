@@ -62,6 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
+<link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
@@ -104,7 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 font-weight: 400;
                 padding-left:0;
-                width: calc(100% - 48px)
+                width: calc(100% - 96px)
             }
 
             .extra-button {
@@ -1307,6 +1308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <collapse-button id="cb_gmhelb">
                             <paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleMenu">
                                 <div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
+                                <paper-icon-button class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
                                 <paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
@@ -1778,6 +1780,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
+        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></medication-plan-dialog>
         <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
@@ -3069,7 +3072,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
                     )
                     this._updateFilterPanels()
                 })
@@ -3877,6 +3880,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.preventDefault()
 
                 this.$['chapterivdialog'].open()
+            }
+
+
+            _medicationPlan(e) {
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.$['medication-plan'].open()
             }
 
             updateEdmgClassList( cssClassToAssign ) {

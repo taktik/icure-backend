@@ -625,8 +625,10 @@
                 <template is="dom-if" if="[[_isEqual(invoicesStatus,'reject')]]"><span class="batchNumber batchRejected">{{_forceZeroNum(messagesRejected.length)}}</span></template>
                 <template is="dom-if" if="[[_isEqual(invoicesStatus,'archive')]]"><span class="batchNumber batchArchived">{{_forceZeroNum(messagesArchived.length)}}</span></template>
                 <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
+                <template is="dom-if" if="[[_isBatchCanBeArchived(invoicesStatus.*)]]">
+                    <paper-button class="modal-button alignRight" on-tap="_archiveMultipleBatch">Archiver n envoi(s)</paper-button>
+                </template>
             </div>
-
             <template is="dom-if" if="[[statusToBeSend]]">
                 <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid" where="toBeSend">></paper-input>
             </template>
@@ -1246,7 +1248,11 @@
                                     </div>
                                 </template>
                                 <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
-                                    <h4 class="mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]] <paper-button class="modal-button alignRight" on-tap="_openArchiveDialogForAcceptedBatch">Archiver</paper-button></h4>
+                                    <h4 class="mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]]
+                                        <template is="dom-if" if="[[!isArchived(invoicesStatus.*)]]">
+                                            <paper-button class="modal-button alignRight" on-tap="_openArchiveDialogForBatch">Archiver</paper-button>
+                                        </template>
+                                    </h4>
                                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
                                     <div id="invoiceDetailContainer" class="invoiceDetailContainer">
                                         <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
@@ -1701,11 +1707,11 @@
 
             dispatchMessages() {
                 !!this.set("messagesArchived", this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0))
-                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
+                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))))
                 !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))))
-                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
+                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))))
 
-                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
+                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
             }
 
             fetchMessages() {
@@ -2096,11 +2102,12 @@
                         .forEach(([fedId,invoices]) => {
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
                                         .then(message => this.api.register(message,'message'))
-                                        .finally(() => {
-                                           this.getMessage()
-                                           this.set('isSending',false)
-                                       })
                         })
+
+                    return prom.then(() => {
+                        this.set('isSending',false)
+                        this.getMessage()
+                    })
                 })
             }
 
@@ -2621,23 +2628,19 @@
                                     this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
                                         .then(msg => {
                                             msg ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
                                         })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
-                                            this.set('isReceiving',false)
                                         })
                                 } else if (message.tack) {
                                     this.api.message().processTack(this.user, this.hcp, message)
                                         .then(rcpt => {
                                             rcpt ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
                                         })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
-                                            this.set('isReceiving',false)
                                         })
                                 }
                             })
@@ -2656,6 +2659,11 @@
                         })
                         return sprom
                     })*/
+
+                    return prom.then(() => {
+                        this.set('isReceiving',false)
+                        this.getMessage()
+                    })
                 })
             }
 
@@ -2671,6 +2679,10 @@
                 return (this.invoicesStatus === "reject")
             }
 
+            isArchived(){
+                return (this.invoicesStatus === "archive")
+            }
+
 
             isArchOrAcc(){
                 return !(this.invoicesStatus === "reject" || this.invoicesStatus === "process" || this.invoicesStatus === "toBeCorrected")
@@ -2682,7 +2694,7 @@
             }
 
             initializeBatchCounter(toBeSend, toBeCorrected, processedCounter, acceptedCounter, rejectedCounter, archivedCounter){
-                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, toBeCorrected: this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: archivedCounter} }));
+                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: toBeSend, toBeCorrected: toBeCorrected,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: archivedCounter} }));
             }
 
             _getIconStatusClass(status) {
@@ -2739,7 +2751,7 @@
                 }
             }
 
-            _openArchiveDialogForAcceptedBatch(){
+            _openArchiveDialogForBatch(){
                 if(this.activeGridItem && this.activeGridItem.message && this.activeGridItem.message.id){
                     this.$["archiveDialog"].open()
                 }
@@ -2764,6 +2776,14 @@
 
             _getPaidStatus(paidStatus){
                 return (paidStatus && paidStatus === true) ? "Oui" : "Non"
+            }
+
+            _isBatchCanBeArchived(){
+                return this.invoicesStatus === "reject" ? true : false
+            }
+
+            _archiveMultipleBatch(){
+
             }
 
         }
