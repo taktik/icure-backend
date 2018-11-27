@@ -516,7 +516,7 @@ public class InvoiceFacade implements OpenApiFacade{
 		Set<String> insuranceIds = new HashSet<>(insuranceLogic.getAllEntityIds());
 		return users.stream().map(u -> invoiceLogic.listByHcPartyRecipientIdsUnsent(u.getHealthcarePartyId(), insuranceIds).stream()
 				.filter(iv -> u.getId().equals(iv.getAuthor())).collect(Collectors.toList()))
-				.flatMap(List::stream).map((i) -> mapper.map(i, InvoiceDto.class)).sorted(Comparator.comparing(InvoiceDto::getInvoiceDate))
+				.flatMap(List::stream).map((i) -> mapper.map(i, InvoiceDto.class)).sorted(Comparator.comparing(invoiceDto -> Optional.ofNullable(invoiceDto.getInvoiceDate()).orElse(0L)))
 				.collect(Collectors.toList());
 	}
 
