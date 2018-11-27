@@ -19,6 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-list">
@@ -332,9 +333,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
 
 
-                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
-                    <vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>
+                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
+                             active-item="{{activeItem}}" items="[[messages]]" 
+                             on-tap="click" on-removed-opened="_deselectMessages"
+                             selection-mode="multi" width="100%">
+                    <!--<vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>-->
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
+                        <vaadin-grid-column flex-grow="0" width="110px">
+                            <template class="header">
+                                <!--<vaadin-checkbox on-tap="_toggleSelectAll" class="checkbox"></vaadin-checkbox>-->
+                            </template>
+                            <template>
+                                <vaadin-checkbox on-tap="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="110px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
@@ -428,6 +440,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     isLoadingMailList: {
                         type: Boolean,
                         value: false
+                    },
+                    checkedMessages: {
+                        type: Array,
+                        value: []
                     }
                 };
             }
@@ -445,7 +461,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _itemSelected(e) {
-                return (e) ? 'selected' : ''
+                // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
+                if (e.path[0].checked) {
+                    this.push('checkedMessages',JSON.parse(e.target.dataset.item))
+                    console.log('checked')
+                }
+                else {
+                    console.log('not checked')
+                    this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
+                }
+                console.log(this.checkedMessages)
+                // return (e) ? 'selected' : ''
             }
 
 			_newMsg(){
@@ -704,35 +730,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log("selectedMessage",this.selectedMessages)
             }
 
+            _deselectMessages() {
+                console.log('deselected')
+                this.set('activeItem', null)
+                this.click()
+            }
+
+            _toggleSelectAll() {
+                let mailList = this.shadowRoot.querySelector('#mail-list');
+                let allCheckboxes = mailList.querySelectorAll('.checkbox');
+                allCheckboxes.forEach(box=>{
+                    box.checked = !box.checked;
+                })
+            }
+
 			_removeMsgs(){
-				let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
+                console.log('asked for removeMsgs')
+				// let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
 				let mailList = this.shadowRoot.querySelector('#mail-list');
-				let msgs = mailList.selectedItems;
-				if(msgs) {
+				let allCheckboxes = mailList.querySelectorAll('.checkbox');
+				let msgs = this.checkedMessages;
+				console.log('msgs',msgs)
+				if(msgs.length) {
                     msgs.forEach(msg =>{
-                            if(msg.transportGuid.startsWith("BIN")){
-                                this.api.message().deleteMessages(msg.id)
-                                    .then(() => {
-										this._refresh();
-                                    	this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
-									});
-                            } else {
-								msg.transportGuid = "BIN" + msg.transportGuid;
-                                this.api.message().modifyMessage(msg)
-                                    .then(() => {
-										this._refresh();
-                                    	this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-									});
-                            }
+                        console.log('msg',msg, typeof msg)
+                        if (!(msg.transportGuid).includes("BIN")) {
+                            this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
+                            this.api.message().deleteMessages(msg.id)
+                                .then(() => {
+                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+                                    this._refresh();
+                                });
+                        } else {
+                            msg.transportGuid = "BIN" + msg.transportGuid;
+                            this.api.message().modifyMessage(msg)
+                                .then(() => {
+                                    this._refresh();
+                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+                                });
+                        }
                     });
-					mailListSelectionColumn.selectAll = false;
+					// mailListSelectionColumn.selectAll = false;
+                    allCheckboxes.forEach(box=>{
+                        box.checked = false;
+                    })
 				}
             }
 
 			_restoreMsgs(){
-				let mailList = this.shadowRoot.querySelector('#mail-list');
-				let msgs = mailList.selectedItems;
-				console.log(msgs);
+                let mailList = this.shadowRoot.querySelector('#mail-list');
+                let allCheckboxes = mailList.querySelectorAll('.checkbox');
+                let msgs = this.checkedMessages;
 				if(msgs) {
 					msgs.forEach(msg =>{
 						while(msg.transportGuid.startsWith("BIN")){

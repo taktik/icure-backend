@@ -8,6 +8,9 @@ public class ImportResultDto {
     private List<ContactDto> ctcs;
     private List<String> warnings;
     private List<String> errors;
+    private List<FormDto> forms;
+    private List<HealthcarePartyDto> hcps;
+    private List<DocumentDto> documents;
 
     public PatientDto getPatient() {
         return patient;
@@ -48,4 +51,16 @@ public class ImportResultDto {
     public void setErrors(List<String> errors) {
         this.errors = errors;
     }
+
+    public List<FormDto> getForms() { return forms; }
+
+    public void setForms(List<FormDto> forms) { this.forms = forms; }
+
+    public List<HealthcarePartyDto> getHcps() { return hcps; }
+
+    public void setHcps(List<HealthcarePartyDto> hcps) { this.hcps = hcps; }
+
+    public List<DocumentDto> getDocuments() { return documents; }
+
+    public void setDocuments(List<DocumentDto> documents) { this.documents = documents; }
 }

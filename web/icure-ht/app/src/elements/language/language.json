@@ -105,6 +105,7 @@
     "eTarif" : "Validation eTarif",
     "e_inv":"E-Invoicing",
     "edi": "Edit",
+    "last_edi": "Last edit",
     "ehe": "eHealth",
     "ehe_is_con": "eHealth is connected",
     "ehe_is_not_con": "eHealth is not connected",
@@ -394,6 +395,7 @@
     "temp" : "Temporality",
     "train_nihii" : "NIHII trainee",
     "tel_type" : "Type",
+    "type" : "Type",
     "tel_num": "Data",
     "data": "Data",
     "telecom" : "Telecom",
@@ -478,7 +480,9 @@
     "before": "before",
     "during": "during",
     "after": "after",
-    "moment": "Moment"
+    "moment": "Moment",
+    "name": "Name",
+    "hour": "Hour"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -873,6 +877,7 @@
     "sum": "Tableau de bord",
     "tab_vie": "Vue en tableau",
     "tel_type" : "Type",
+    "type" : "Type",
     "tel_num": "Donnée",
     "data": "Donnée",
     "telecom" : "Télécom",
@@ -1024,10 +1029,10 @@
     "before": "avant",
     "during": "pendant",
     "after": "après",
-    "moment": "Moment"
-
-
-
+    "moment": "Moment",
+    "last_edi": "Dernière modification",
+    "name": "Nom",
+    "hour": "Heure"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1134,6 +1139,7 @@
     "derog" : "Derogation",
     "eTarif" : "Validatie eTarif",
     "edi": "Edit",
+    "last_edi": "Last edit",
     "ehe": "eHealth",
     "ehe_is_con": "eHealth is connected",
     "ehe_is_not_con": "eHealth is not connected",
@@ -1412,6 +1418,7 @@
     "temp" : "Tijdelijkheid",
     "train_nihii" : "NIHII trainee",
     "tel_type" : "Type",
+    "type" : "Type",
     "tel_num": "Telecom number",
     "data": "Data",
     "telecom" : "Telecom",
@@ -1611,6 +1618,7 @@
     "before": "voor",
     "during": "gedurende",
     "after": "na",
-    "moment": "Moment"
+    "moment": "Moment",
+    "hour": "Huur"
   }
 }

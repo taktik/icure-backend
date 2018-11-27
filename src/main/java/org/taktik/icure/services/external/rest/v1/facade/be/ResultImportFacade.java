@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.taktik.icure.be.format.logic.MultiFormatLogic;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.logic.DocumentLogic;
@@ -105,9 +106,9 @@ public class ResultImportFacade implements OpenApiFacade {
             httpMethod = "POST",
             notes = ""
     )
-    @Path("/import/{documentId}/{hcpId}/{language}/{protocolIds}/{formIds}")
+    @Path("/import/{documentId}/{hcpId}/{language}")
     @POST
-    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @PathParam("protocolIds") String protocolIds, @PathParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, ContactDto ctc) throws IOException {
+    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @RequestParam("protocolIds") String protocolIds, @RequestParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, ContactDto ctc) throws IOException {
         return mapper.map(multiFormatLogic.doImport(language, documentLogic.get(documentId), hcpId, Arrays.asList(protocolIds.split(",")), Arrays.asList(formIds.split(",")), planOfActionId, mapper.map(ctc, Contact.class)), ContactDto.class);
     }
 
