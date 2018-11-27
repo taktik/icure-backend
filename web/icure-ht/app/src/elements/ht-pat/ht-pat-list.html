@@ -439,6 +439,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-sizing: border-box;
                 }
 
+                #sharingPatientStatus {
+                    width: 920px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #sharingPatientStatus vaadin-grid {
+                    width: calc(100% - 96px);
+                    margin: auto;
+                }
+
                 .delegationCheckBox {
                     width: 220px;
                 }
@@ -537,6 +548,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .add-btn-mobile {
                     display: none;
+                }
+
+                .status-green {
+                    background: #07f8804d;
+                }
+
+                .status-red {
+                    background: #ff4d4d4d;
                 }
 
                 @media screen and (max-width: 1024px) {
@@ -748,7 +767,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
-                             on-tap="click">
+                             on-tap="clickOnRow">
                     <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
@@ -1122,6 +1141,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-button>
             </div>
         </paper-dialog>
+
+        <paper-dialog id="sharingPatientStatus">
+            <h4>[[localize("pat_sha_sta","Patient sharing status",language)]]</h4>
+                <vaadin-grid items="[[patientShareStatuses]]">
+                    <vaadin-grid-column width="150px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            [[item.patient.firstName]] [[item.patient.lastName]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Contacts
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Health elements
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Invoices
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Documents
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('done','Done',language)]]</paper-button>
+                </paper-button>
+            </div>
+        </paper-dialog>
+
 
         <paper-dialog id="fusionDialog">
             <div>
@@ -1582,14 +1660,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return p
             }
 
-            click(e) {
-                if (!this.hideSpinner) {
-                    this.set('isLoadingPatient', true)
-                }
+            clickOnRow(e) {
                 if (this.shareOption || this.exportOption || this.fusionOption) return
 
                 // Must click on a row
-                if (e.path[0].nodeName == 'TABLE') return
+                if (e.path[0].nodeName === 'TABLE') return
 
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
@@ -2051,6 +2126,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _statusDetail(status) {
+                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error.message
+            }
+
+            _statusDetailClass(status) {
+                return status.success === null ? '' : status.success ? 'status-green' : 'status-red'
+            }
+
             _sharingHcp(item) {
                 if (item) {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
@@ -2061,16 +2144,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirmSharingNextStep() {
-
-                let pPromise = Promise.resolve([])
-                const hcpId = this.user.healthcarePartyId
-                this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
-                    pPromise = pPromise.then(pats =>
-                        this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
-                            .then(pat => _.concat(pats, pat))
-                    )
-                })
-
                 this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
@@ -2090,13 +2163,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
 
                 this.$['sharePatientDelegationDialog'].open()
-
-                return pPromise
             }
 
             confirmSharing() {
                 this.updateDelegation()
+
                 this.$['sharePatientDelegationDialog'].close()
+
+                this.$['sharingPatientStatus'].open()
+                this._sharePatients()
+            }
+
+            _sharePatients() {
+                this.patientSharePromise = Promise.resolve(this.patientShareStatuses = [])
+                const hcpId = this.user.healthcarePartyId
+                this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
+                    this.patientSharePromise = this.patientSharePromise.then(pats => {
+                        return this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id), _.fromPairs(this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => [hcp.id, hcp.delegation])))
+                            .then(pat => {
+                                this.push('patientShareStatuses', pat)
+                                return pats
+                            })
+                            .catch(e => {
+                                console.log(e);
+                                this.push('patientShareStatuses', {patient:pat, statuses:{
+                                        contacts: {success:null, error: null},
+                                        healthElements: {success:null, error: null},
+                                        invoices: {success: null, error: null},
+                                        documents: {success:null, error: null},
+                                        patient: {success:false, error: e}}
+                                })
+                                return pats
+                            })
+                    })
+                })
             }
 
             _openPopupMenu() {
