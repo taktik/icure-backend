@@ -1398,9 +1398,9 @@
                     </template>
 
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
-                        <template is="dom-if" if="[[hasInsurability]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[_isETarButtonDisabled(selectedInvoice,isLoadingValidation,isTarificationMcnError,npi)]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                        <template is="dom-if" if="[[hasInsurability]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[_isETarButtonDisabled(selectedInvoice,isLoadingValidation,isTarificationMcnError,npi,selectedInvoice.sentMediumType)]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
                         <template is="dom-if" if="[[!hasInsurability]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif,npi)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif,npi,selectedInvoice.sentMediumType)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
                     </template>
 
                     <template is="dom-if" if="[[isInvoiceClosed]]">
@@ -2240,15 +2240,18 @@
 
 
                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
-                    nmcls.map(nmcl =>{
+                    nmcls.map(nmcl => {
 
-                        const sn = selected.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
-                        if(sn){
-                            sn.prescriberNeeded = nmcl.needsPrescriber
-                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                        let sns = selected.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                        if (sns && sns.length) {
+                            sns.map(sn => {
+                                sn.prescriberNeeded = nmcl.needsPrescriber
+                                sn.isRelativePrestation = nmcl.hasRelatedCode
+                            })
+
                         }
                     })
-                ).finally(() => {
+                    ).finally(() => {
 
                     this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
@@ -2543,10 +2546,24 @@
                                             })
                                     })
                             } else {
-                                const registered = this.api.register(invoice, 'invoice')
-                                this.updateGui(registered)
-                                this.$['nmclGrid'].clearCache()
-                                return registered;
+                                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                    nmcls.map(nmcl =>{
+                                        let sns = invoice.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                                        if(sns && sns.length){
+                                            sns.map(sn =>{
+                                                sn.prescriberNeeded = nmcl.needsPrescriber
+                                                sn.isRelativePrestation = nmcl.hasRelatedCode
+                                            })
+                                        }
+                                    })
+                                ).then(x =>{
+                                    const registered = this.api.register(invoice, 'invoice')
+                                    this.$['nmclGrid'].clearCache()
+                                    this.updateGui(registered)
+                                    return registered;
+                                })
+
+
                             }
                         })
                     })
@@ -2773,9 +2790,21 @@
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => {
-                            this.calculateTotalOfInvoice()
-                            this.updateGui(invoice)
-                            this.$['nmclGrid'].clearCache()
+                            this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                nmcls.map(nmcl =>{
+                                    let sns = invoice.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                                    if(sns && sns.length){
+                                        sns.map(sn =>{
+                                            sn.prescriberNeeded = nmcl.needsPrescriber
+                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        })
+                                    }
+                                })
+                            ).then(x => {
+                                this.calculateTotalOfInvoice()
+                                this.updateGui(invoice)
+                                this.$['nmclGrid'].clearCache()
+                            })
 
                             return invoice
                         })
@@ -3509,12 +3538,22 @@
                             this.api.invoice().modifyInvoice(this.selectedInvoice)
                                 .then(invoice => this.api.register(invoice,'invoice'))
                                 .then(invoice => {
-                                    //TODO check that it was in the list of invoices or do a findBy and that it was selected or do a select
-
-                                    this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
-                                    this.$['nmclGrid'].clearCache()
-                                    this.calculateTotalOfInvoice()
-                                    this.updateGui(invoice)
+                                    this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                        nmcls.map(nmcl =>{
+                                            let sns = invoice.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                                            if(sns && sns.length){
+                                                sns.map(sn =>{
+                                                    sn.prescriberNeeded = nmcl.needsPrescriber
+                                                    sn.isRelativePrestation = nmcl.hasRelatedCode
+                                                })
+                                            }
+                                        })
+                                    ).then(x => {
+                                        this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
+                                        this.$['nmclGrid'].clearCache()
+                                        this.calculateTotalOfInvoice()
+                                        this.updateGui(invoice)
+                                    })
 
                                     return invoice
                                 })
@@ -3583,10 +3622,12 @@
                             this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)}))
                                 .then(nmcls =>
                                     nmcls.map(nmcl => {
-                                        const sn = invoice.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
-                                        if (sn) {
-                                            sn.prescriberNeeded = nmcl.needsPrescriber
-                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        let sns = invoice.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                                        if(sns && sns.length){
+                                            sns.map(sn =>{
+                                                sn.prescriberNeeded = nmcl.needsPrescriber
+                                                sn.isRelativePrestation = nmcl.hasRelatedCode
+                                            })
                                         }
                                     }))
                                 .finally(() => this.updateGui(invoice, true))
@@ -3656,6 +3697,7 @@
                     this.set("selectedInvoice.idDocument.reasonUsingVignette",this.manualEncoding && this.manualEncoding.reasonVignette)
                 }
                 else{
+
                     this.set("selectedInvoice.idDocument.reasonUsingVignette",0)
                 }
 
@@ -4248,10 +4290,12 @@
                             .then(invoice => {
                                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                                     nmcls.map(nmcl =>{
-                                        const sn = invoice.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
-                                        if(sn){
-                                            sn.prescriberNeeded = nmcl.needsPrescriber
-                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        let sns = invoice.invoicingCodes.filter(n => n.tarificationId === nmcl.id) || null
+                                        if(sns && sns.length){
+                                            sns.map(sn =>{
+                                                sn.prescriberNeeded = nmcl.needsPrescriber
+                                                sn.isRelativePrestation = nmcl.hasRelatedCode
+                                            })
                                         }
                                     })
                                 ).finally(() => this.updateGui(invoice))
