@@ -141,16 +141,10 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
 		ComplexKey startKey;
 		ComplexKey endKey;
-		if (transportGuid != null && transportGuid.endsWith(":*")) {
-			String prefix = transportGuid.substring(0, transportGuid.length() - 1);
-			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, fromDate, prefix, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
-			endKey = ComplexKey.of(partyId, toDate, prefix + "\ufff0", ComplexKey.emptyObject());
-		} else {
-			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, fromDate, transportGuid, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
-			endKey = ComplexKey.of(partyId, toDate, transportGuid, ComplexKey.emptyObject());
-		}
+		startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, transportGuid, fromDate) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+		endKey = ComplexKey.of(partyId, transportGuid, toDate);
 
-		return pagedQueryView("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset, true);
+		return pagedQueryView("by_hcparty_transport_guid_sent_date", startKey, endKey, paginationOffset, true);
 	}
 
 	@Override
