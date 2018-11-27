@@ -41,6 +41,8 @@ public interface MessageLogic extends EntityPersister<Message, String> {
 
 	PaginatedList<Message> findByTransportGuid(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset);
 
+	PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset);
+
 	Message addDelegation(String messageId, Delegation delegation);
 
 	Message createMessage(Message message) throws CreationException, LoginException;
