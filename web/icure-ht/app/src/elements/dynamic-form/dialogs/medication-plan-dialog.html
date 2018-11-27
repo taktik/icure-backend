@@ -10,16 +10,17 @@
 <link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../../icd-styles.html">
+<link rel="import" href="../../../scrollbar-style.html">
 
 <dom-module id="medication-plan-dialog">
     <template>
-        <style include="dialog-style icd-styles">
-            paper-dialog{
+        <style include="dialog-style icd-styles scrollbar-style">
+            paper-dialog {
                 width: 90%;
                 height: 80%;
             }
 
-            .modal-title{
+            .modal-title {
                 padding: 0 24px;
                 display: flex;
                 flex-flow: row wrap;
@@ -27,18 +28,18 @@
                 align-items: center;
             }
 
-            paper-tabs{
+            paper-tabs {
                 width: 50%;
                 max-width: 400px;
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 /* margin: 0 auto; */
             }
 
-            paper-tab{
+            paper-tab {
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            .patient{
+            .patient {
                 height: calc(100% - 48px - 48px);
                 overflow-y: auto;
                 margin-top: 0;
@@ -46,11 +47,11 @@
                 box-sizing: border-box;
             }
 
-            .table-container{
+            .table-container {
                 margin-bottom: 24px;
             }
 
-            .header{
+            .header {
                 background: linear-gradient(to right, var(--app-secondary-color), var(--app-secondary-color-dark));
                 color: var(--app-text-color-light);
                 display: flex; 
@@ -63,19 +64,19 @@
                 box-sizing: border-box;
             }
 
-            .header h3{
+            .header h3 {
                 font-size: 14;
                 font-weight: 400;
                 margin: 0;
             }
 
-            .header iron-icon{
+            .header iron-icon {
                 height: 20px;
                 width: 20px;
                 margin-right: 4px;
             }
 
-            .table-header{
+            .table-header {
                 width: 100%;
                 display: flex;
                 flex-flow: row nowrap;
@@ -87,7 +88,7 @@
                 height: 28px;
             }
 
-            .col{
+            .col {
                 height: 100%;
                 padding: 0 4px;
                 box-sizing: border-box;
@@ -97,31 +98,31 @@
                 align-items: center;
             }
 
-            .col--med{
+            .col--med {
                 width: 30%;
                 justify-content: flex-start;
             }
 
-            .med--name{
+            .med--name {
                 font-weight: 500;
                 margin-right: 4px;
             }
 
-            .col--photo{
+            .col--photo {
                 max-width: 56px;
                 min-width: 56px;
                 text-align: center;
                 flex-grow: 1;
             }
 
-            .col--bef, .col--dur, .col--aft{
+            .col--bef, .col--dur, .col--aft {
                 max-width: 56px;
                 min-width: 56px;
                 text-align: center;
                 flex-grow: 1;
             }
 
-            .dur-pill{
+            .dur-pill {
                 background: var(--app-secondary-color);
                 color: var(--app-text-color-light);
                 font-weight: 500;
@@ -134,19 +135,17 @@
                 text-align: center;
             }
 
-            .col--ed, .col--freq{
+            .col--ed, .col--freq {
                 text-align: center;
                 width: 12%;
             }
 
-            
-
-            .col--com{
+            .col--com {
                 width: 40%;
                 justify-content: flex-start;
             }
 
-            .table-row{
+            .table-row {
                 width: 100%;
                 display: flex;
                 flex-flow: row nowrap;
@@ -156,15 +155,16 @@
                 color: var(--app-text-color);
                 height: 40px;
             }
-            .table-row:nth-child(even){
+
+            .table-row:nth-child(even) {
                 background: var(--app-background-color-light);
             }
 
-            .table-row .col:not(:last-child){
+            .table-row .col:not(:last-child) {
                 border-right: 1px solid var(--app-background-color-dark);
             }
 
-            .general-infos{
+            .general-infos {
                 display: flex;
                 flex-flow: row wrap;
                 justify-content: flex-start;
@@ -175,24 +175,24 @@
                 border-radius: 4px;
             }
 
-            .infos-block{
+            .infos-block {
                 font-size: 14px;
                 font-weight: 400;
                 color: var(--app-text-color);
                 margin-right: 24px;
             }
 
-            .infos-block span{
+            .infos-block > div:first-child{
+                margin-bottom: 8px;
+            }
+
+            .infos-block span {
                 background: var(--app-background-color-light);
                 border-radius: 12px;
                 font-weight: 500;
                 padding: 1px 8px;
                 margin-right: 8px;
             }
-
-            
-
-            
 
             /* PRESENT */
 
@@ -208,8 +208,13 @@
             .th {
                 display: none;
                 font-weight: 700;
-                background-color: var(--app-background-color-light);
+                background-color: var(--app-background-color- );
             }
+
+            .th:first-child {
+                border-top: 1px solid var(--app-background-color-dark);
+            }
+
 
             .th > .td {
                 white-space: nowrap;
@@ -230,11 +235,11 @@
                 height: 24px;
             }
 
-            .tr:not(.category):not(.th):not(.old) .td{
+            .tr:not(.category):not(.th):not(.old) .td {
                 color: var(--app-text-color-light);
             }
 
-            .tr:not(.th):not(.category)::after{
+            .tr:not(.th):not(.category)::after {
                 display:block;
                 content:'';
                 position:absolute;
@@ -246,11 +251,11 @@
                 z-index:0;
             }
 
-            .tr:not(.td):nth-child(odd)::after{
+            .tr:not(.td):nth-child(odd)::after {
                 opacity: 0.6;
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
-            .tr:not(.td):nth-child(even)::after{
+            .tr:not(.td):nth-child(even)::after {
                 opacity: 0.8;
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
@@ -259,16 +264,14 @@
                 opacity: 1;
             }
 
-            .tr.old{
-                color: var(--app-text-color-disabled);
+            .tr.old {
+                color: var(--app-text-color-disabled)!important;
             }
-            .tr.old::after{
+            .tr.old::after {
                 background: var(--app-background-color-light)!important;
             }
 
-            
-
-            .tr:not(.category){
+            .tr:not(.category) {
                 color: var(--app-text-color-white);
             }
 
@@ -295,29 +298,33 @@
                 font-size: 13px;
             }
 
-            .td--comments, .td--medicine, .td--category{
+            .td:first-child {
+                border-left: 1px solid var(--app-background-color-dark);
+            }
+
+            .td--comments, .td--medicine, .td--category {
                 justify-content: flex-start;
             }
 
-            .td--category iron-icon{
+            .td--category iron-icon {
                 height: 14px;
                 width: 14px;
                 margin-right: 4px;
             }
 
-            .th .td{
+            .th .td {
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
-            .span-3{
+            .span-3 {
                 padding: 6px 19px; /* 19px because we had the padding of the missings .td padding + their borders */
             }
 
-            .category{
+            .category {
                 border-bottom: 1px solid #d0d0d0;
             }
 
-            .reimbursed iron-icon{
+            .reimbursed iron-icon {
                 height: 14px;
                 width: 14px; 
                 padding: 2px;
@@ -325,28 +332,27 @@
                 box-shadow: 0 0 0 rgba(0,0,0,.2);
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
                 background-color: var(--app-text-color-light);
-
             }
 
-            .reimbursed iron-icon:hover{
+            .reimbursed iron-icon:hover {
                 height: 16px;
                 width: 16px;
                 box-shadow: 0 0 4px rgba(0,0,0,.2);
             }
 
-            .reimbursed iron-icon.ok{
+            .reimbursed iron-icon.ok {
                color: var(--app-status-color-ok)
             }
 
-            .reimbursed iron-icon.nok{
+            .reimbursed iron-icon.nok {
                 color: var(--app-status-color-nok)
             }
 
-            .reimbursed iron-icon.pending{
+            .reimbursed iron-icon.pending {
                 color: var(--app-status-color-pending)
             }
 
-            .add-period-btn{
+            .add-period-btn {
                 height: 16px;
                 width: 16px;
                 padding: 0;
@@ -354,12 +360,91 @@
                 transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
-            .add-period-btn:hover{
+            .add-period-btn:hover {
                 height: 18px;
                 width: 18px;
                 color: var(--app-secondary-color);
             }
-            
+
+
+            /* HISTORY */
+
+           .timeline-header{
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                background: var(--app-background-color-light);
+                border: 1px solid var(--app-background-color-dark);
+           }
+
+           .timeline div {
+                box-sizing: border-box;
+           }
+
+           .years-container{
+                max-width: calc(24px * 36 + 2px);
+                width: calc(24px * 36 + 2px); /* 3 years + borders */
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-grow: 1;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+                position: relative;
+           }
+
+           .year-block{
+                height: 48px;
+                min-width: calc(24px * 12 + 3px); /* 3 borders */
+                text-align: center;
+                display:flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+                align-items: center;
+           }
+
+           .year-block:not(:last-child){
+                border-right: 1px solid var(--app-background-color-dark);
+           }
+
+           .year-block.current{
+               font-weight: 500;
+           }
+
+           .year{
+                width: 100%;
+                height: 50%;
+                border-bottom: 1px solid var(--app-background-color-dark);
+           }
+
+           .quarter{
+                height: 50%;
+                width: calc(24px * 3);
+           }
+
+           .quarter:not(:last-child){
+                border-right: 1px solid var(--app-background-color-dark);
+           }
+
+           .btn-left, .btn-right{
+                display:flex;
+                flex-flow: row wrap;
+                align-items: center;
+                height: 48px;
+                width: 10%;
+                flex-grow: 1;
+           }
+
+           .btn-left{
+               justify-content: flex-end;
+           }
+
+           .btn-right{
+                justify-content: flex-start;
+           }
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
@@ -376,7 +461,68 @@
 
             <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
                 <div class="history">
-                    <h2>History</h2>
+                    <div class="timeline">
+                        <div class="timeline-header">
+                            <div class="btn-left">
+                                <paper-icon-button icon="arrow-back"></paper-icon-button>
+                            </div>
+                            <div class="years-container">
+                                <div class="year-block">
+                                    <div class="year">2015</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block">
+                                    <div class="year">2016</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block">
+                                    <div class="year">2017</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block current">
+                                    <div class="year">2018</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block">
+                                    <div class="year">2019</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block">
+                                    <div class="year">2020</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                                <div class="year-block">
+                                    <div class="year">2021</div>
+                                    <div class="quarter">Q1</div>
+                                    <div class="quarter">Q2</div>
+                                    <div class="quarter">Q3</div>
+                                    <div class="quarter">Q4</div>
+                                </div>
+                            </div>
+                            <div class="btn-right">
+                                <paper-icon-button icon="arrow-forward"></paper-icon-button>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
             </template>
            
@@ -803,10 +949,24 @@
 
             ready() {
                 super.ready()
+                this.addEventListener('iron-resize', () => this._setInitialScroll());
+            }
+
+            attached() {
+                super.attached();
+                this.async(this.notifyResize, 1);
             }
 
             setSelectedTab(e) {
                 this.set('selectedTab',e)
+            }
+
+            _setInitialScroll(){
+                const current = this.shadowRoot.querySelector('.current')
+                const container = this.shadowRoot.querySelector('.years-container')
+                console.log(current.offsetLeft)
+                const currentLeftPos = current.offsetLeft
+                container.scrollLeft = currentLeftPos
             }
 
             _isEqual(a,b) {
