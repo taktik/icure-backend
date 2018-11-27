@@ -1973,7 +1973,8 @@
                             reason: "",
                             supportType: "",
                             serialNumber: "",
-                            reasonVignette : ""
+                            reasonVignette : "",
+                            typeInput : 0
                         })
                     },
                     selectedInvoice: {
@@ -2213,7 +2214,6 @@
 
 
             _selectInvoice(idx) {
-                //console.log('select invoice')
                 // Drop all should there be any
                 //this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
@@ -2258,6 +2258,8 @@
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                     this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
+
+                    this.set("manualEncoding.typeInput",0)
 
                     this.$['nmclGrid'].clearCache()
                 })
@@ -3644,10 +3646,9 @@
             }
 
             _confirmManualEncodingDialog(){
-                this.$['manualEncodingDialog'].close()
-
                 if(!this.selectedInvoice || !this.manualEncoding) return ;
-                
+
+                this.set("selectedInvoice.idDocument",{})
                 this.set("selectedInvoice.idDocument.reasonManualEncoding",this.manualEncoding && this.manualEncoding.reason)
                 this.set("selectedInvoice.idDocument.eIdDocumentSupportType",this.manualEncoding && this.manualEncoding.supportType)
                 this.set("selectedInvoice.idDocument.SupportSerialNumber",this.manualEncoding && this.manualEncoding.serialNumber)
@@ -3655,13 +3656,23 @@
                     this.set("selectedInvoice.idDocument.reasonUsingVignette",this.manualEncoding && this.manualEncoding.reasonVignette)
                 }
                 else{
-                    this.set("selectedInvoice.idDocument.reasonUsingVignette","")
+                    this.set("selectedInvoice.idDocument.reasonUsingVignette",0)
                 }
 
                 this.api.invoice().modifyInvoice(this.selectedInvoice)
                     .then(invoice => this.api.register(invoice,'invoice'))
                     .then(invoice => {
                         this.updateGui(invoice, true)
+
+                        this.set("manualEncoding",{
+                            reason : "",
+                            supportType : "",
+                            serialNumber : "",
+                            reasonVignette : "",
+                            typeInput : 4
+                        })
+
+                        this.$['manualEncodingDialog'].close()
                     })
             }
 
@@ -3715,7 +3726,7 @@
                     if(this.selectedInvoice.idDocument && this.selectedInvoice.idDocument.eIdDocumentSupportType && this.selectedInvoice.idDocument.SupportSerialNumber && this.selectedInvoice.idDocument.reasonManualEncoding){
                         newCode.cardReading={
                             date:null,
-                            inputType: 4,
+                            inputType: this.manualEncoding.typeInput,
                             manualInputReason: this.selectedInvoice.idDocument.reasonManualEncoding,
                             mediaType: this.selectedInvoice.idDocument.eIdDocumentSupportType,
                             serial: this.selectedInvoice.idDocument.SupportSerialNumber,
