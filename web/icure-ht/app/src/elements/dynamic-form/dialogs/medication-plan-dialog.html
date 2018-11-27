@@ -238,7 +238,6 @@
                 left: 0;
                 height: 100%;
                 width: 100%;
-                background: var(--paper-red-a200);
                 z-index: 0;
             }
 
@@ -476,7 +475,7 @@
                             </div>
                             <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
                             <div class$="tr [[_medicationClass(m.medication)]]">
-                                <div class$="td [[_reimbursedClass(m.medication)]]">
+                                <div class$="td reimbursed">
                                     <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="[[_hasValidChap4Class(m.medication)]]"></iron-icon>
                                     <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
                                 </div>
@@ -967,15 +966,23 @@
             }
 
             _chap4Status(s) {
-                return this._hasValidChap4Class() ? 'reimbursed' : ''
+                return this._hasValidChap4() ? 'reimbursed' : ''
             }
 
-            _hasValidChap4Class(s) {
+            _hasValidChap4(s) {
                 (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.accepted && (!!z.end || this.api.moment(z.end).isAfter(moment())))
             }
 
-            _reimbursedClass(s) {
-                return (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).length ? 'reimbursed' : ''
+            _hasPendingChap4(s) {
+                (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.inTreatment)
+            }
+
+            _hasValidChap4Class(s) {
+                return this._hasValidChap4(s) ? 'ok' : this._hasPendingChap4(s) ? 'pending' : this._hasChap4 (s) ? 'nok' : 'hidden'
+            }
+
+            _hasChap4(s) {
+                return !!(((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).length
             }
 
             _medicationClass(m) {
