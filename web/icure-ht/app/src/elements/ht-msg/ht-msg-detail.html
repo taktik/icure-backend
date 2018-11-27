@@ -136,6 +136,7 @@
 				align-items: stretch;
 				background: transparent;
 				box-shadow: none;
+                flex-grow: 1;
 			}
 
 			.horizontal {
@@ -473,12 +474,13 @@
             }
 
             .read-txt {
-                min-height: 600px;
                 width: 100%;
+                max-height: 50vh;
                 overflow-y: auto;
 				flex-grow: 1;
-				margin: 12px 0;
 				border-top: 1px solid var(--app-background-color-dark);
+                padding: 0 10px;
+                box-sizing: border-box;
             }
 
 			.read-txt p{
@@ -487,6 +489,7 @@
 
             .attached {
                 width: 100%;
+                max-height: 176px;
                 padding: 10px;
                 overflow-y: auto;
                 border-top: 1px solid var(--app-background-color-dark);
@@ -540,6 +543,7 @@
 
 			.space-between{
 				justify-content: space-between;
+                height: 80px;
 			}
 
 			.layout-horizontal--flex-end{
@@ -646,6 +650,10 @@
                 width: 100%;
             }
 
+            h2.subject {
+                margin-bottom: 0;
+            }
+
             .message-box {
                 padding: 4px;
                 width: 100%;
@@ -729,17 +737,17 @@
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <paper-card class="annexe-card">
-							<div class="layout-horizontal space-between annexe-card--header">
-								<span>[[item.name]]</span>
-								<paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
-							</div>
+                            <div class="layout-horizontal space-between annexe-card--header">
+                                <span>[[item.name]]</span>
+                                <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
+                            </div>
                             <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
                                 <div class="img-container annexe-card--content">
                                     <img src$="[[item.dataUrl]]">
-								</div>
-								<div class="layout-horizontal space-between">
-									<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-								</div>
+                                </div>
+                                <div class="layout-horizontal space-between">
+                                    <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                </div>
                             </template>
                             <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
@@ -747,32 +755,32 @@
                             </template>
                             <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <template is="dom-if" if="[[showDetail]]">
+                                        <div>[[documentAttachment]]</div>
+                                        <!--TODO: format annexe on display-->
+                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+                                    </template>
+                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    </div>
+                                </div>
 
                             </template>
                             <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
                                 <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <template is="dom-if" if="[[showDetail]]">
+                                        <div>[[documentAttachment]]</div>
+                                        <!--TODO: format annexe on display-->
+                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+                                    </template>
+                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    </div>
+                                </div>
 
                             </template>
                         </paper-card>
@@ -780,6 +788,7 @@
                     <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
+
 		</template>
 	</template>
 	<script>

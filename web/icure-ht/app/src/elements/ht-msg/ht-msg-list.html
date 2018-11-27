@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+<link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-list">
@@ -27,7 +28,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <custom-style>
             <style include="shared-styles">
                 :host {
-                    display: block;
+                    display: flex;
+                    flex-direction: column;
                     z-index:2;
                 }
 
@@ -62,6 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     float:left;
                     @apply --shadow-elevation-2dp;
                     padding:20px;
+                    padding-top: 0;
                     display:flex;
                     flex-flow: column nowrap;
                     align-items: flex-start;
@@ -262,24 +265,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-weight: 700;
                 }
 
-                #del-button {
-                    position: absolute;
-                    right: 64px;
-                    top: 30px;
-                    z-index: 1;
-                    height: 35px;
+                .table-top {
+                    width: calc(100vw - 38%);
+                    min-height: 56px;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-end;
                 }
-                #del-button.selected {
-                    right: calc(42% + 64px);
+                .table-top > .checkbox {
+                    width: 16px;
+                    margin-left: 20px;
+                    display: flex;
+                    justify-content: space-around;
+                    padding-left: 12px;
+                    flex-direction: column;
+                }
+                .table-top > div {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    z-index: 1;
+                }
+                .table-top > div > div {
+                    text-align: center;
+                }
+                .table-top > div.indicators {
+                    flex-grow: 1;
+                    justify-content: flex-end;
+                    padding-right: 24px;
+                }
+                .table-top > div.indicators > div {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 8px;
+                    border-left: 1px solid var(--app-background-color-dark);
+                }
+                .table-top > div.indicators > div > * {
+                    margin: 0 auto;
+                }
+                .table-top > div.indicators > div#stamp-indicator.hasNew {color: var(--app-secondary-color);}
+                .table-top > div.indicators > div#capacity-indicator > * {
+                    display: inline-block;
+                }
+                .table-top > div.actions {
+                    margin: 0 16px;
+                }
+                .table-top > div.actions paper-icon-button {
+                    margin: 8px 0;
                 }
 
-                #restore-button {
-                    position: absolute;
-                    right: 106px;
-                    top: 30px;
-                    z-index: 1;
-                    height: 35px;
-                }
+                .mb4 {margin-bottom: 4px !important;}
 
                 #actions-spinner {
                     position: absolute;
@@ -320,10 +355,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         transition: all .5s ease;
                         box-shadow: none;
                     }
-                    #del-button {
-                        left: initial;
-                        right: 64px !important;
-                    }
 
                     paper-spinner.center {
                         left: 50vw;
@@ -333,17 +364,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
-            <div class="second-panel col-right">
-                <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
-
-                <div class="actions">
-                    <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                    <paper-tooltip for="del-button" offset="4">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
-                    <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                    <paper-tooltip for="restore-button" offset="4">[[localize('restore','Restore',language)]]</paper-tooltip>
+            <div class="table-top">
+                <div class="checkbox">
+                    <vaadin-checkbox on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
                 </div>
 
+                <template is="dom-if" if="[[checkedMessages.length]]">
+                    <div class="actions">
+                        <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
+                        <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                        <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                        <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                    </div>
+                </template>
 
+                <div class="indicators">
+                    <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">0</span></div>
+                    <paper-tooltip for="stamp-indicator" offset="0">buffered msgs</paper-tooltip>
+                    <div id="capacity-indicator"><div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>mailbox capacity</span></div> <paper-progress value="800" min="100" max="1000" class="red"></paper-progress></div>
+                    <paper-tooltip for="capacity-indicator" offset="0">100 %</paper-tooltip>
+                </div>
+
+            </div>
+            <div class="second-panel col-right">
+                <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
 
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
                              active-item="{{activeItem}}" items="[[messages]]" 
@@ -351,17 +395,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              selection-mode="multi" width="100%">
                     <!--<vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>-->
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column flex-grow="0" width="110px">
-                            <template class="header">
-                                <!--<vaadin-checkbox on-tap="_toggleSelectAll" class="checkbox"></vaadin-checkbox>-->
-                            </template>
+                        <vaadin-grid-column flex-grow="0" width="46px">
                             <template>
-                                <vaadin-checkbox on-tap="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
+                                <vaadin-checkbox on-checked-changed="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="110px">
+                        <vaadin-grid-column flex-grow="0" width="102px">
                             <template class="header">
-                                <vaadin-grid-sorter path="received">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="received" direction="asc">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                             </template>
                             <template>
                                 <div class="cell frozen">[[_timeFormat(item.received)]]</div>
@@ -474,20 +515,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
-            }
-
-            _itemSelected(e) {
-                // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
-                if (e.path[0].checked) {
-                    this.push('checkedMessages',JSON.parse(e.target.dataset.item))
-                    console.log('checked')
-                }
-                else {
-                    console.log('not checked')
-                    this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
-                }
-                console.log(this.checkedMessages)
-                // return (e) ? 'selected' : ''
             }
 
 			_newMsg(){
@@ -743,13 +770,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem;
                 this.set('selectedMessages', selected);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
-                console.log("selectedMessage",this.selectedMessages)
             }
 
             _deselectMessages() {
-                console.log('deselected')
                 this.set('activeItem', null)
                 this.click()
+            }
+
+            _itemSelected(e) {
+                // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
+                if (e.path[0].checked) {
+                    this.push('checkedMessages',JSON.parse(e.target.dataset.item))
+                }
+                else {
+                    this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
+                }
+                console.log(this.checkedMessages.length+' checked')
             }
 
             _toggleSelectAll() {
