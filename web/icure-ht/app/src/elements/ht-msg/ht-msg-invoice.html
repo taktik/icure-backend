@@ -1746,7 +1746,7 @@
                                 let allInvoicesIsCorrected = false
 
                                 if((msg.status & (1 << 17)) !== 0 && !(msg.status & (1 << 21))){
-                                    const resentNmclStatus = _.uniq(_.flatten(correctiveInvoices && correctiveInvoices.map(inv =>inv.invoicingCodes.map(c => c.resent))))
+                                    const resentNmclStatus = _.uniq(_.flatten(correctiveInvoices && correctiveInvoices.map(inv =>inv && inv.invoicingCodes && inv.invoicingCodes.map(c => c.resent))))
                                     let allInvoicesIsCorrected = false
 
                                     if(resentNmclStatus.length === 1 && resentNmclStatus[0] === false){
@@ -2774,8 +2774,8 @@
                                 .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
-                    })*/
-
+                    })
+*/
                     return prom.then(() => {
                         this.set('isReceiving',false)
                         this.getMessage()
