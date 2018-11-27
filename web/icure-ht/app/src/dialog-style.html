@@ -1,0 +1,41 @@
+<dom-module id="dialog-style">
+    <template>
+        <style is="custom-style">
+            .modal-title {
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .buttons {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 48px;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+                padding: 4px 0;
+                box-sizing: border-box;
+            }
+
+            .modal-button--save {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+        </style>
+    </template>
+</dom-module>
