@@ -53,7 +53,7 @@
 
             .header {
                 background: linear-gradient(to right, var(--app-secondary-color), var(--app-secondary-color-dark));
-                color: var(--app-text-color-light);
+                color: var(--app-text-color);
                 display: flex;
                 flex-flow: row wrap;
                 justify-content: flex-start;
@@ -124,7 +124,7 @@
 
             .dur-pill {
                 background: var(--app-secondary-color);
-                color: var(--app-text-color-light);
+                color: var(--app-text-color);
                 font-weight: 500;
                 border-radius: 50%;
                 padding: 4px;
@@ -318,6 +318,35 @@
 
             .td span.left{
                 text-align: left;
+            }
+
+            .td-input{
+                position: relative
+            }
+
+            .td iron-input > input{
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                text-align: center;
+                width: 100%;
+                color: #fff;
+                background-color: transparent;
+                border: none;
+                height: 100%;
+                outline: 0;
+                transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+            .td iron-input > input:focus{
+                background-color: rgba(0, 0, 0, .2);
+            }
+
+            .td iron-input > input:hover{
+                background-color: rgba(0, 0, 0, .2);
+                box-shadow: var(--app-shadow-elevation-1);
             }
 
             .td:first-child {
@@ -623,7 +652,7 @@
 
                             </div>
                             <div class="td"
-                                 style="flex-grow: 3;">
+                                 style="flex-grow: 5;">
 
                             </div>
                             <div class="td" style="flex-grow: 2;">
@@ -650,7 +679,7 @@
 
                             </div>
                             <div class="td td--medicine"
-                                 style="flex-grow: 3; justify-content: flex-start">
+                                 style="flex-grow: 5; justify-content: flex-start">
                                 <span class="left">Medicine</span>
                             </div>
                             <div class="td" style="flex-grow: 2;">
@@ -696,7 +725,7 @@
                         <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
                             <div class="tr category">
                                 <div class="td"></div>
-                                <div class="td td--category" style="flex-grow: 3;">
+                                <div class="td td--category" style="flex-grow: 5;">
                                     <iron-icon icon="history"></iron-icon>
                                     <span class="left"><b>[[_localizedTitle(medicationsWithPosology)]]</b></span>
                                 </div>
@@ -719,30 +748,30 @@
                                     <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="reimbursed-status [[_hasValidChap4Class(m.medication)]]"></iron-icon>
                                     <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
                                 </div>
-                                <div class="td td--medicine" style="flex-grow: 3;">
+                                <div class="td td--medicine" style="flex-grow: 5;">
                                     <span class="left">[[_serviceDescription(m.medication)]]</span>
                                 </div>
                                 <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
                                 <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
-                                    <div class="td bf-bef"><span>[[regimen.administratedQuantity.quantity]]</span></div>
+                                    <div class="td td-input bf-bef"><span><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></span></div>
                                 </template>
-                                <div class="td bf-bef"><span>[[m.regimenTable.1.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td bf-dur"><span>[[m.regimenTable.2.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td bf-aft"><span>[[m.regimenTable.3.0.administratedQuantity.quantity]]</span></div>
+                                <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"></iron-input></div>
                                 <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
-                                    <div class="td bf-bef"><span>[[regimen.administratedQuantity.quantity]]</span></div>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
                                 </template>
-                                <div class="td lu-bef"><span>[[m.regimenTable.5.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td lu-dur"><span>[[m.regimenTable.6.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td lu-aft"><span>[[m.regimenTable.7.0.administratedQuantity.quantity]]</span></div>
+                                <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"></iron-input></div>
                                 <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
-                                    <div class="td bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                    <div class="td td-input bf-bef">[[regimen.administratedQuantity.quantity]]</div>
                                 </template>
-                                <div class="td di-bef"><span>[[m.regimenTable.9.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td di-dur"><span>[[m.regimenTable.10.0.administratedQuantity.quantity]]</span></div>
-                                <div class="td di-aft"><span>[[m.regimenTable.11.0.administratedQuantity.quantity]]</span></div>
+                                <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"></iron-input></div>
+                                <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"></iron-input></div>
                                 <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
-                                    <div class="td bf-bef"><span>[[regimen.administratedQuantity.quantity]]</span></div>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
                                 </template>
                                 <div class="td" style="flex-grow: 2;"><span>10/02/2019</span></div>
                                 <div class="td td--comments" style="flex-grow: 4;"><span class="left"></span></div>
