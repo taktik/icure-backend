@@ -138,7 +138,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 	@ApiOperation(value = "Import SMF into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/smf/{documentId}/import")
-	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, @RequestBody(required = false) mappings: Map<String,List<ImportMapping>>?) : Response {
+	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
 		val document = documentLogic.get(documentId)
@@ -147,5 +147,5 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 		                                                               patientId?.let { patientLogic.getPatient(patientId) },
 		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
-	
+
 }

@@ -18,10 +18,21 @@
 
 package org.taktik.icure.services.external.rest.v1.facade.be;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import ma.glasnost.orika.MapperFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.taktik.icure.be.format.logic.MultiFormatLogic;
+import org.taktik.icure.entities.Contact;
+import org.taktik.icure.logic.DocumentLogic;
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
+import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto;
+import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade;
+import org.taktik.icure.utils.ResponseUtils;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,22 +42,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import ma.glasnost.orika.MapperFacade;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.taktik.icure.be.format.logic.MultiFormatLogic;
-import org.taktik.icure.entities.Contact;
-import org.taktik.icure.logic.DocumentLogic;
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
-import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto;
-import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade;
-import org.taktik.icure.utils.ResponseUtils;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/be_result_import")
@@ -108,7 +107,7 @@ public class ResultImportFacade implements OpenApiFacade {
     )
     @Path("/import/{documentId}/{hcpId}/{language}")
     @POST
-    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @RequestParam("protocolIds") String protocolIds, @RequestParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, ContactDto ctc) throws IOException {
+    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @QueryParam("protocolIds") String protocolIds, @QueryParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, ContactDto ctc) throws IOException {
         return mapper.map(multiFormatLogic.doImport(language, documentLogic.get(documentId), hcpId, Arrays.asList(protocolIds.split(",")), Arrays.asList(formIds.split(",")), planOfActionId, mapper.map(ctc, Contact.class)), ContactDto.class);
     }
 
