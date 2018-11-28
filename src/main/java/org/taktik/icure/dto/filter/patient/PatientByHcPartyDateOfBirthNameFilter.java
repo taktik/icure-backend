@@ -7,5 +7,5 @@ public interface PatientByHcPartyDateOfBirthNameFilter extends Filter<String, Pa
     Integer getDateOfBirth();
     String getName();
     String getHealthcarePartyId();
-    String getSsin();
+    Integer getSsin();
 }

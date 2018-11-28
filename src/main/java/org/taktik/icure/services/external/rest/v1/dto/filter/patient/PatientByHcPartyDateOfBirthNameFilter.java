@@ -15,7 +15,7 @@ public class PatientByHcPartyDateOfBirthNameFilter extends Filter<Patient> imple
     private String name;
     private Integer dateOfBirth;
     private String healthcarePartyId;
-    private String ssin;
+    private Integer ssin;
 
     @Override
     public String getName() {
@@ -53,7 +53,8 @@ public class PatientByHcPartyDateOfBirthNameFilter extends Filter<Patient> imple
 
         return Objects.equal(this.dateOfBirth, that.dateOfBirth) &&
             Objects.equal(this.healthcarePartyId, that.healthcarePartyId) &&
-            Objects.equal(this.name, that.name);
+            Objects.equal(this.name, that.name) &&
+            Objects.equal(this.ssin, that.ssin);
     }
 
     @Override
@@ -66,17 +67,18 @@ public class PatientByHcPartyDateOfBirthNameFilter extends Filter<Patient> imple
         String ss = sanitizeString(name);
         return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
             && ((dateOfBirth == null || item.getDateOfBirth()!=null && java.util.Objects.equals(item.getDateOfBirth(), dateOfBirth))
+            || (ssin == null || item.getSsin()!=null && java.util.Objects.equals(item.getSsin(), ssin))
             || (sanitizeString(Optional.of(item.getLastName()).orElse("") + Optional.of(item.getFirstName()).orElse("")).contains(ss) ||
             sanitizeString(Optional.of(item.getMaidenName()).orElse("")).contains(ss) ||
             sanitizeString(Optional.of(item.getPartnerName()).orElse("")).contains(ss)));
     }
 
     @Override
-    public String getSsin() {
+    public Integer getSsin() {
         return ssin;
     }
 
-    public void setSsin(String ssin) {
+    public void setSsin(Integer ssin) {
         this.ssin = ssin;
     }
 }

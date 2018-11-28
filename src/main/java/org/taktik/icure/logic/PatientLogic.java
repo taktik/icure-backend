@@ -91,7 +91,7 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
 	List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId);
 
-    List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, String ssin);
+    List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, Integer ssin);
 
     List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId);
 
