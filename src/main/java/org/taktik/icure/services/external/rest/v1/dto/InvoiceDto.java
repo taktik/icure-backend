@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.entities.IdentityDocumentReader;
 import org.taktik.icure.entities.Payment;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
@@ -84,7 +85,11 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
+	private String correctiveInvoiceId;
+
 	private Map<String,String> receipts = new HashMap<>();
+
+	protected IdentityDocumentReader idDocument;
 
 	public Long getInvoiceDate() {
 		return invoiceDate;
@@ -352,5 +357,21 @@ public class InvoiceDto extends IcureDto {
 
 	public void setPayments(List<Payment> payments) {
 		this.payments = payments;
+	}
+
+	public IdentityDocumentReader getIdDocument() {
+		return idDocument;
+	}
+
+	public void setIdDocument(IdentityDocumentReader idDocument) {
+		this.idDocument = idDocument;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
 	}
 }

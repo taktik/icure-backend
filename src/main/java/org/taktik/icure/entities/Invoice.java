@@ -85,6 +85,7 @@ public class Invoice extends StoredICureDocument {
 	private String supervisorFirstName;
 	private String supervisorCdHcParty;
 	private String supervisorCbe;
+	private String correctiveInvoiceId;
 
 	private String error;
 
@@ -95,6 +96,8 @@ public class Invoice extends StoredICureDocument {
 	private Integer longDelayJustification;
 
 	private Boolean creditNote;
+
+	private IdentityDocumentReader idDocument;
 
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
@@ -536,6 +539,14 @@ public class Invoice extends StoredICureDocument {
 		this.payments = payments;
 	}
 
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -570,5 +581,14 @@ public class Invoice extends StoredICureDocument {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+
+	public IdentityDocumentReader getIdDocument() {
+		return idDocument;
+	}
+
+	public void setIdDocument(IdentityDocumentReader idDocument) {
+		this.idDocument = idDocument;
 	}
 }
