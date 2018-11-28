@@ -1023,16 +1023,12 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
-                                            <div on-tap="_cancelPrintedDate">
-                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
-                                                  <span>[[_formatInvoiceDate(item.printedDate)]]</span>
-                                            </div>
+                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate,item.*)]]">
+                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:green" on-tap="_cancelPrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                            <span>[[_formatInvoiceDate(item.printedDate)]]</span>
                                         </template>
-                                        <template is="dom-if" if="[[_ifClosedButNotPrinted(item)]]">
-                                            <div on-tap="_generatePrintedDate">
-                                                <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
-                                            </div>
+                                        <template is="dom-if" if="[[_ifClosedButNotPrinted(item,item.*)]]">
+                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:red" on-tap="_generatePrintedDate" data-item$="[[item.id]]"></paper-icon-button>
                                         </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
@@ -4423,18 +4419,37 @@
             }
 
             _generatePrintedDate(e){
-                /*
-                if(this.selectedInvoice){
-                    if(this.selectedInvoice.printedDate){
-                        this.selectedInvoice = null
-                    }else{
-                        this.selectedInvoice.printedDate = moment().format('YYYYMMDD')
-                    }
-                }*/
+                e.stopPropagation();
+                e.preventDefault();
+
+                let invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+                const invoiceIndex = this.invoices.findIndex(iv => iv.id === e.target.dataset.item)
+
+                invoice.printedDate=moment().format("YYYYMMDD");
+
+                this.api.invoice().modifyInvoice(invoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.set("invoices."+invoiceIndex,invoice)
+                        this.updateGui(invoice, true)
+                    })
             }
 
             _cancelPrintedDate(e){
-                console.log("la:",e,this.selectedInvoice);
+                e.stopPropagation();
+                e.preventDefault();
+
+                let invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+                const invoiceIndex = this.invoices.findIndex(iv => iv.id === e.target.dataset.item)
+
+                invoice.printedDate=null;
+
+                this.api.invoice().modifyInvoice(invoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.set("invoices."+invoiceIndex,invoice)
+                        this.updateGui(invoice, true)
+                    })
             }
 
             _paymentTypeChanged(){
@@ -4445,7 +4460,7 @@
             }
 
             _ifClosedButNotPrinted(item){
-                return item && !item.printedDate && !this._ifStatusDateExist(item.printedDate) && item.sentDate && item.mediumType==="eattest";
+                return item && !item.printedDate && !this._ifStatusDateExist(item.printedDate) && item.sentDate && item.sentMediumType==="eattest";
             }
         }
 
