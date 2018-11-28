@@ -85,9 +85,12 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
+
 	protected Map<String,String> receipts = new HashMap<>();
 
 	protected IdentityDocumentReader idDocument;
+
+	private String correctiveInvoiceId;
 
 	public Long getInvoiceDate() {
 		return invoiceDate;
@@ -363,5 +366,13 @@ public class InvoiceDto extends IcureDto {
 
 	public void setIdDocument(IdentityDocumentReader idDocument) {
 		this.idDocument = idDocument;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
 	}
 }

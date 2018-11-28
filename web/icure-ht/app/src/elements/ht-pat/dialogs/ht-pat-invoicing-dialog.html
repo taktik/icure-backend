@@ -1023,9 +1023,12 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
-                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.printedDate)]]</span>
-                                        </template>
+                                        <div on-tap="_generatePrintedDate">
+                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
+                                             <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
+                                                  <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                             </template>
+                                        </div>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
@@ -3831,7 +3834,7 @@
                 console.log("envoie")
 
                 const sentDate=moment().format("YYYYMMDD")
-                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
+                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe, this.patient.firstName, this.patient.lastName, this.patient.gender, eattest,sentDate)
                     .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))
                     .then(fhcEattest => {
                         if(fhcEattest.acknowledge.errors.length===0 && fhcEattest.attest!==null) {
@@ -4409,6 +4412,17 @@
                 if (isNaN(v)) {v = Number(this.activeNmclItem.reimbursement)+Number(this.activeNmclItem.patientIntervention)}
                 if(!this.activeNmclItem || v===this.activeNmclItem.totalAmount)return;
                 this.set("activeNmclItem.doctorSupplement", Number((v || 0)-(Number(this.activeNmclItem.reimbursement)+Number(this.activeNmclItem.patientIntervention))).toFixed(2))
+            }
+
+            _generatePrintedDate(e){
+                /*
+                if(this.selectedInvoice){
+                    if(this.selectedInvoice.printedDate){
+                        this.selectedInvoice = null
+                    }else{
+                        this.selectedInvoice.printedDate = moment().format('YYYYMMDD')
+                    }
+                }*/
             }
         }
 
