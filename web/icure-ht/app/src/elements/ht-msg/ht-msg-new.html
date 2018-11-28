@@ -697,7 +697,26 @@
                 this.set("newMessage.destinations", [])
 			}
 
-            open() {
+            open(params) {
+                // const template= {
+                //     destinations: [],
+                //     patientInss: [],
+                //     annex:[],
+                //     document: {
+                //         title: '',
+                //         textContent: ''
+                //     },
+                //     type: 'fw' || 're'
+                // }
+                if (params) {
+                    this.set("newMessage.annex", params.annex)
+                    this.set("newMessage.customMetas", params.customMetas)
+                    this.set('newMessage.destinations', params.destinations)
+                    this.set('newMessage.document.title',params.document.title)
+                    this.set('newMessage.document.textContent',`\r\n\r\n========\r\n${params.document.textContent}`)
+                    this.set("newMessage.patientInss", params.patientInss)
+                    console.log('open',this.newMessage)
+                }
                 this.$['new-msg'].open()
             }
 

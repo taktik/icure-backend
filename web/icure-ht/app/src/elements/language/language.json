@@ -487,7 +487,8 @@
     "del_sel": "Delete selected",
     "fw": "Forward",
     "reply": "Reply",
-    "restore": "Restore"
+    "restore": "Restore",
+    "med_plan": "Medication plan"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1042,7 +1043,8 @@
     "del_sel": "Suppr. les éléments sélectionnés",
     "fw": "Transférer",
     "reply": "Répondre",
-    "restore": "Rétablir"
+    "restore": "Rétablir",
+    "med_plan": "Plan de Médication"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1633,6 +1635,7 @@
     "hour": "Huur",
     "fw": "Forward",
     "reply": "Reply",
-    "restore": "Herstellen"
+    "restore": "Herstellen",
+    "med_plan": "Medication plan"
   }
 }

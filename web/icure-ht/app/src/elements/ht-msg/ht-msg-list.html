@@ -381,8 +381,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="indicators">
                     <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">0</span></div>
                     <paper-tooltip for="stamp-indicator" offset="0">buffered msgs</paper-tooltip>
-                    <div id="capacity-indicator"><div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>mailbox capacity</span></div> <paper-progress value="800" min="100" max="1000" class="red"></paper-progress></div>
-                    <paper-tooltip for="capacity-indicator" offset="0">100 %</paper-tooltip>
+                    <div id="capacity-indicator"><div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>mailbox capacity</span></div> <paper-progress value="0" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress></div>
+                    <paper-tooltip for="capacity-indicator" offset="0">0 %</paper-tooltip>
                 </div>
 
             </div>

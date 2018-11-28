@@ -678,8 +678,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         });
     }
 
-	_newMsg(){
-		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
+	_newMsg(params){
+		this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
 	}
 
     toggleMenu(e) {

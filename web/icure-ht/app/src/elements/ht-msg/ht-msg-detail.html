@@ -685,9 +685,9 @@
                 <div class="action-buttons">
                     <div class="buttons">
 						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden="[[!_isDeleted]]"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden$="{{!_isDeleted}}}"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
@@ -993,6 +993,49 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
 		}
 	}
+
+	_forwardMsgs(e) {
+	    const origMsg = this.messages[0]
+        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        const msgToFw = {
+	        destinations: [],
+            patientInss: origMsg.patientINSS,
+            annex: origMsg.selectedDocuments,
+            document: {
+	            title: 'Fw: '+origMsg.subject,
+                textContent: origMsg.body.length ? origMsg.body : 'no content'
+            },
+            customMetas: origMsg.metas
+        }
+	    console.log(origMsg,'forward',msgToFw)
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
+    }
+
+    _replyMsgs(e) {
+	    const origMsg = this.messages[0]
+        let dest = [{
+            displayName: origMsg.fromAddress,
+            nihii: undefined,
+            cbe: undefined,
+            ssin: undefined,
+            type: "WiP"
+        }]
+        this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        const msgToRe = {
+            destinations: dest,
+            patientInss: origMsg.patientINSS,
+            annex: origMsg.selectedDocuments,
+            document: {
+                title: 'Re: '+origMsg.subject,
+                textContent: origMsg.body.length ? origMsg.body : 'no content'
+            },
+            customMetas: origMsg.metas
+        }
+	    console.log(origMsg,'reply',msgToRe)
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
+    }
 
 	_removeMsg(e){
         let msg = this.messages[0]
