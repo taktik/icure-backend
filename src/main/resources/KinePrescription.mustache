@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CERTIFICAT DE PRESCRIPTION KINESITHERAPIE</title>
+
+</head>
+<body>
+<pre>
+    Je soussigné docteur en médecine certifie que
+
+    {{pat.lname}},  {{pat.fname}}
+
+    nécessite les soins suivants :
+
+    [{{kine.fMasg}}]    Massages
+    [{{kine.fMobilisation}}]    Mobilisations
+    [{{kine.fMecano}}]    Mécanographie
+    [{{kine.fGym}}]    Gymnastique médicale
+    [{{kine.fMasgResp}}]    Massage respiratoire
+    [{{kine.fDrain}}]    Drainages lymphatiques
+    [{{kine.fRelax}}]    Relaxations
+    [{{kine.fElectro}}]    Electrostimulations
+    [{{kine.fUSound}}]    Ultra-sons
+    [{{kine.fUViolet}}]    Ultra-violet
+    [{{kine.fIRed}}]    Infra-rouge
+    [{{kine.fIon}}]    Ionisations
+    [{{kine.fLaser}}]    Laser
+    [{{kine.fFango}}]    Fango
+    [{{kine.fAerosol}}]    Aérosols
+    [{{kine.fPreBirth}}]    Prénatal
+    [{{kine.fPostBirth}}]    Postnatal
+
+    A raison de {{kine.numSession}} séances
+    à la fréquence de : {{kine.freq}} x {{kine.per}}
+
+    Au niveau de : {{kine.site}}
+    Pour le motif suivant : {{kine.motive}}
+    Les soins seront donnés au : {{kine.place}}
+
+    Commentaires :
+    {{kine.comment}}
+
+    -----------------------------------------------------------------------------
+    MEDECIN                                    SIGNATURE
+
+    Dr. {{user.fname}} {{user.lname}} ,
+    {{site.name}}
+    {{site.address}}
+    {{site.postcode}} {{site.city}}
+    Tél.:  {{site.phone}}
+    INAMI : {{user.inami}} 		Date:  {{kine.datemade}}
+    -----------------------------------------------------------------------------
+    </pre>
+</body>
+</html>
