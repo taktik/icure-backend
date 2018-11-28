@@ -326,8 +326,9 @@
                 display: none;
             }
             .favcodes-flex .paddle {
-                width: 36px;
-                height: 36px;
+                width: 24px;
+                height: 20px;
+                margin: 8px 4px 0;
                 min-width: 0;
                 padding: 0;
                 color: var(--app-text-color);
@@ -629,6 +630,7 @@
 
             vaadin-grid.material .cell {
                 overflow: hidden;
+                padding-left: 4px;
                 text-overflow: ellipsis;
             }
 
@@ -1036,9 +1038,12 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
-                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.printedDate)]]</span>
-                                        </template>
+                                        <div on-tap="_generatePrintedDate">
+                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
+                                             <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
+                                                  <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                             </template>
+                                        </div>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
@@ -1353,12 +1358,13 @@
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                            <paper-input prevent-invalid-input class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                            <paper-input prevent-invalid-input class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
-                                         value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
+                                         on-value-changed="_totalChanged"
+                                         value="[[activeNmclItem.totalAmount]]" readonly="[[isInvoiceClosed]]"></paper-input>
                         </div>
 
                         <template is="dom-if" if="[[isTravellingExpenses(activeNmclItem.*)]]">
@@ -1487,7 +1493,7 @@
                 <div class="manualEncodingContainer">
                     <vaadin-combo-box id="code-type" filtered-items="[[typeOfReasonVignette]]"
                                       item-label-path="label.[[language]]" item-value-path="id"
-                                      label="Type de support"
+                                      label="Raison Vignette"
                                       value="{{manualEncoding.reasonVignette}}" class="manualEncodingContainerChild"></vaadin-combo-box>
                 </div>
             </template>
@@ -2509,10 +2515,10 @@
                                 status = gen.next()
                             }
 
-                            val.totalAmount = Number(val.totalAmount).toFixed(2)
                             val.reimbursement = Number(val.reimbursement).toFixed(2)
                             val.patientIntervention = Number(val.patientIntervention).toFixed(2)
                             val.doctorSupplement = Number(val.doctorSupplement || '0').toFixed(2)
+                            val.totalAmount = (Number(val.doctorSupplement || 0)+Number(val.patientIntervention || 0)+Number(val.reimbursement || 0)).toFixed(2)
 
                             // Patient has NO ins, charge it with all due fees
                             if (!this._hasInsurability()) {
@@ -2601,6 +2607,7 @@
                     })
                 }
 
+                this.calculateTotalOfInvoice()
                 this.set('nmcl-value','')
                 this.shadowRoot.querySelector("#nmcl-search").focus()
             }
@@ -2920,7 +2927,7 @@
 
                     let totalAmount = Number(this.activeNmclItem.patientIntervention) + Number(this.activeNmclItem.reimbursement) + Number(this.activeNmclItem.doctorSupplement)
 
-                    this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2))
+                    this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2).replace(/\.?0*$/,''))
                     this.set('selectedInvoice.invoicingCodes.'+codeIdx, this.activeNmclItem)
                     this.$['nmclGrid'].clearCache()
                     this.calculateTotalOfInvoice()
@@ -3791,7 +3798,7 @@
                         date : code.dateCode,
                         doctorSupplement : Number(code.doctorSupplement),
                         fee : Number(code.totalAmount),
-                        quantity : code.units,
+                        quantity : code.units+6,
                         reglementarySupplement : Number(code.patientIntervention),
                         reimbursement: Number(code.reimbursement),
                         riziv : code.code
@@ -3861,7 +3868,7 @@
                 console.log("envoie")
 
                 const sentDate=moment().format("YYYYMMDD")
-                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
+                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe, this.patient.firstName, this.patient.lastName, this.patient.gender, eattest,sentDate)
                     .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))
                     .then(fhcEattest => {
                         if(fhcEattest.acknowledge.errors.length===0 && fhcEattest.attest!==null) {
@@ -4434,7 +4441,23 @@
                 return _.filter( inputData, (v)=>{ return parseInt(v.id) !== 9; });
             }
 
+            _totalChanged(typedValue){
+                let v = Number(typedValue.detail.value || 0)
+                if (isNaN(v)) {v = Number(this.activeNmclItem.reimbursement)+Number(this.activeNmclItem.patientIntervention)}
+                if(!this.activeNmclItem || v===this.activeNmclItem.totalAmount)return;
+                this.set("activeNmclItem.doctorSupplement", Number((v || 0)-(Number(this.activeNmclItem.reimbursement)+Number(this.activeNmclItem.patientIntervention))).toFixed(2))
+            }
 
+            _generatePrintedDate(e){
+                /*
+                if(this.selectedInvoice){
+                    if(this.selectedInvoice.printedDate){
+                        this.selectedInvoice = null
+                    }else{
+                        this.selectedInvoice.printedDate = moment().format('YYYYMMDD')
+                    }
+                }*/
+            }
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
