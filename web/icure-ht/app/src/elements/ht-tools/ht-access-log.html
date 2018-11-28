@@ -33,6 +33,25 @@
             vadin-grid {
                 width : 100%;
             }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
         </style>
         <paper-dialog id="dialog" opened="{{opened}}">
             <div>
@@ -64,6 +83,9 @@
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button modal-button--save" on-tap="close">[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
@@ -111,11 +133,16 @@
                 this.$.dialog.open();
             }
 
+            close() {
+                this.$.dialog.close();
+            }
+
             convertDate(date){
                 return this.api.moment(date).format("DD/MM/YYYY")
             }
 
             updateList(){
+                if (!this.user) return
 
                 let latestSearchValue = this.filterValue
                 this.latestSearchValue = latestSearchValue
@@ -136,7 +163,7 @@
 
                 console.log(filter)
 
-                Promise.all([this.api.patient().filterBy(null,null,1000,0,'lastName',true,{filter: filter}),this.api.user().listUsers()]).then(([patients,users]) => {
+                Promise.all([this.api.patient().filterByWithUser(this.api.user, null, null, 1000, 0, 'lastName', true, {filter: filter}), this.api.user().listUsers()]).then(([patients,users]) => {
                     let promises = [];
                     let logListTemp = [];
                     let listIdUser =[];

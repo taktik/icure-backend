@@ -59,9 +59,14 @@ public class HealthcareParty extends StoredDocument implements Person {
 	protected String invoiceHeader;
 	protected String cbe;
 
-	protected Integer convention; //0,1,2,9
+	protected String userId;
 
-	protected String nihii; //institution, person
+	protected String parentId;
+
+	protected Integer convention; //0,1,2,9
+    protected String supervisorId;
+
+    protected String nihii; //institution, person
 	protected String nihiiSpecCode; //don't show field in the GUI
 
     protected String ssin;
@@ -295,6 +300,14 @@ public class HealthcareParty extends StoredDocument implements Person {
 		this.convention = convention;
 	}
 
+    public String getSupervisorId() {
+        return supervisorId;
+    }
+
+    public void setSupervisorId(String supervisorId) {
+        this.supervisorId = supervisorId;
+    }
+
 	public List<FinancialInstitutionInformation> getFinancialInstitutionInformation() {
         return financialInstitutionInformation;
     }
@@ -311,6 +324,14 @@ public class HealthcareParty extends StoredDocument implements Person {
 		this.options = options;
 	}
 
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
 	@JsonIgnore
 	public @Nullable String getFullName() {
 		String full;
@@ -322,4 +343,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 
 		return full;
 	}
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 }

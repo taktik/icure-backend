@@ -21,25 +21,31 @@ package org.taktik.icure.dao.impl;
 import org.ektorp.ComplexKey;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.PatientDAO;
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
-import org.taktik.icure.db.StringUtils;
-import org.taktik.icure.entities.Patient;
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.db.StringUtils;
+import org.taktik.icure.entities.Patient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Repository("patientDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted) emit(doc._id )}")
 class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO {
+	private static final Logger log = LoggerFactory.getLogger(PatientDAOImpl.class);
 
-    @Autowired
+	@Autowired
     public PatientDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbPatient") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Patient.class, couchdb, idGenerator);
         initStandardDesignDocument();

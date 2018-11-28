@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
@@ -42,6 +43,7 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.GenericResult;
 import org.taktik.icure.utils.FormUtils;
 import org.taktik.icure.utils.ResponseUtils;
@@ -283,6 +285,27 @@ public class DocumentFacade implements OpenApiFacade{
 
 		return response;
 	}
+
+	@ApiOperation(response = DocumentDto.class, responseContainer = "Array", value = "Gets a document")
+	@POST
+	@Path("/batch")
+	public Response getDocuments(@RequestBody ListOfIdsDto documentIds) {
+		Response response;
+
+		if (documentIds == null) {
+			return ResponseUtils.badRequest("Cannot retrieve document: provided document ID is null");
+		}
+
+		List<Document> documents = documentLogic.get(documentIds.getIds());
+		if (documents != null) {
+			response = ResponseUtils.ok(documents.stream().map(doc -> mapper.map(doc, DocumentDto.class)).collect(Collectors.toList()));
+		} else {
+			response = ResponseUtils.notFound("Documents not found");
+		}
+
+		return response;
+	}
+
 
 	@ApiOperation(response = DocumentDto.class, value = "Updates a document")
 	@PUT

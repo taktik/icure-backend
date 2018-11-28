@@ -46,18 +46,19 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_HAS_FREE_INFORMATION 	= 1 << 5;
 	public final static int STATUS_EFACT 					= 1 << 6;
 
-	public final static int STATUS_SUBMITTED 				= 1 << 8;
-	public final static int STATUS_RECEIVED 				= 1 << 9;
-	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10;
-	public final static int STATUS_ACCEPTED 				= 1 << 11;
-	public final static int STATUS_REJECTED 				= 1 << 12;
+	public final static int STATUS_SENT  	     			= 1 << 7;
+	public final static int STATUS_SUBMITTED 				= 1 << 8; //tack
+	public final static int STATUS_RECEIVED 				= 1 << 9; //tack
+	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; //931000
+	public final static int STATUS_ACCEPTED 				= 1 << 11; //920098
+	public final static int STATUS_REJECTED 				= 1 << 12; //920999
 
 	public final static int STATUS_TACK 					= 1 << 13;
 	public final static int STATUS_MASKED 					= 1 << 14;
 
-	public final static int STATUS_SUCCESS 					= 1 << 15;
-	public final static int STATUS_WARNING 					= 1 << 16;
-	public final static int STATUS_ERROR 					= 1 << 17;
+	public final static int STATUS_SUCCESS 					= 1 << 15; //920900 920098
+	public final static int STATUS_WARNING 					= 1 << 16; //920900
+	public final static int STATUS_ERROR 					= 1 << 17; //920099
 
 	public final static int STATUS_ANALYZED 				= 1 << 18;
 	public final static int STATUS_DELETED_ON_SERVER 		= 1 << 19;
@@ -75,7 +76,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Long received;
 	private Long sent;
 
-	private Map<String,String> metas = new HashMap<>();
+	private Map<String, String> metas = new HashMap<>();
 
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
@@ -101,6 +102,9 @@ public class Message extends StoredICureDocument implements Serializable {
 	private List<String> invoiceIds = new ArrayList<>();
 	private String parentId; //ID of parent in a message conversation
 	private String externalRef;
+
+	private Set<String> unassignedResults; //refs
+	private Map<String, String> assignedResults; //ContactId -> ref
 
 	private Map<String,String> senderReferences;
 
@@ -303,5 +307,21 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public void setSenderReferences(Map<String, String> senderReferences) {
 		this.senderReferences = senderReferences;
+	}
+
+	public Set<String> getUnassignedResults() {
+		return unassignedResults;
+	}
+
+	public void setUnassignedResults(Set<String> unassignedResults) {
+		this.unassignedResults = unassignedResults;
+	}
+
+	public Map<String, String> getAssignedResults() {
+		return assignedResults;
+	}
+
+	public void setAssignedResults(Map<String, String> assignedResults) {
+		this.assignedResults = assignedResults;
 	}
 }

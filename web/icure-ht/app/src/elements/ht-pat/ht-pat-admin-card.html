@@ -108,7 +108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .page-container {
-                height: 100%;
+                height: calc(100% - 48px);
                 overflow-y: auto;
             }
 
@@ -424,6 +424,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 16px 24px;
             }
 
+            .iron-container {
+                padding: 0;
+            }
+
+            .form-container {
+                padding-bottom:32px;
+            }
+
         </style>
         <div class="administrative-panel">
             <paper-tabs selected="{{tabs}}">
@@ -432,17 +440,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
             </paper-tabs>
 
-            <iron-pages selected="[[tabs]]" class="">
+            <iron-pages class="iron-container" selected="[[tabs]]" class="">
                 <page>
                     <div class="page-container">
+                        <div class="form-container">
                         <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
-                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
+                        </div>
                     </div>
                 </page>
                 <page>
                     <div class="page-container">
                         <dynamic-form id="dynamic-form-partnerships" class="page-content" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]"
-                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
                     </div>
                 </page>
                 <page>
@@ -722,6 +732,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return require('./rsrc/PatientAddressForm.json');
                 }
             },
+            medicalHouseContractsForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientMedicalHouseContractsForm.json');
+                }
+            },
             telecomForm: {
                 type: Object,
                 value: function () {
@@ -825,7 +841,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     static get observers() {
-        return ['patientChanged(api,user,patient)'];
+        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)'];
     }
 
     constructor() {
@@ -842,18 +858,17 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     patientChanged() {
         if (this.api && this.user && this.patient) {
+            this.api.getRegistry('patient').listeners['ht-pat-admin'] = {target: this, pool: [this.patient.id], callbacks: [this.partnershipsChanged.bind(this)]}
             this.flushSave();
 
             this.initCurrentCareTeam();
 
-
             this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
-                    (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
-                        ppss.map(pps => {
-                            const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
-                            this.set('patient.partnerships.' + index + '.partnerInfo', pps)
-                        })
+                    (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
+                        this.set('patient.partnerships', this.patient.partnerships.map(pp => {
+                            return Object.assign({}, pp, { partnerInfo: ppss.find(ps => ps.partnerId === pp.id) || {id: pp.partnerId} })
+                        }))
                     ).finally(() => {
                         this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
                         this.set('patientMap', _.cloneDeep(this.patient));
@@ -878,60 +893,88 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
+    partnershipsChanged() {
+        const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
+        if (tbc.length) {
+            this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
+                .then(ppss => ppss.forEach(pps => {
+                    const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
+                    this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
+                }))
+        }
+    }
+
     scheduleSave(patient) {
+        const rev = patient.rev
+
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
             this.saveTimeout = undefined
         }
 
-        this.saveAction = function () {
-            if (this.patient.partnerships) {
-                const partnerships = this.patient.partnerships
+        this.saveAction = () => {
+            this.api.queue(patient, 'patient').then(([pat, defer]) => {
+                if (pat.rev !== rev) { defer.resolve(patient); return }
 
-                partnerships.map(partner => {
-                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
-                    const index = partnerships.indexOf(partner)
-                    ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
+                ((this.patient.partnerships && this.patient.partnerships.length) ?
+                    Promise.all(this.patient.partnerships.map((partner, index) => {
 
-                    if (!mark || !partner.partnerId) {
-                        //patient not present
-                        partner.partnerInfo.active = false
-                        partner.partnerInfo.id = partner.id
-                        partner.partnerId = partner.id
+                        ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
 
-                        this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p,'patient')).then(np => {
-                            this.api.patient().createPatient(np).then(p => this.api.register(p,'patient')).then(np => {
-                                this.set('patient.partnerships.' + index + '.partnerInfo', np)
-                            })
+                        if (!partner.partnerId || !partner.partnerInfo.rev) {
+                            //patient not present
+                            partner.partnerInfo.active = false
+                            partner.partnerInfo.id = partner.partnerId
+
+                            return this.api.patient().newInstance(this.user, partner.partnerInfo)
+                                .then(np => {
+                                    partner.partnerId = np.id
+                                    return this.api.patient().createPatientWithUser(this.user, np).then(np => this.api.register(np, 'patient')).then(np => {
+                                        this.set('patient.partnerships.' + index + '.partnerInfo', np)
+                                    })
+                                })
+                                .catch(e => {console.log("Cannot save "+e.message); return null})
+                        } else {
+                            //patient present
+                            return this.api.patient().modifyPatientWithUser(this.user, partner.partnerInfo)
+                                .then(p => this.api.register(p, 'patient'))
+                                .then(partner => {
+                                        this.set('patient.partnerships.' + index + '.partnerInfo', partner)
+                                        return partner
+                                    })
+                                .catch(e => {console.log("Cannot save "+e.message); return null})
+                        }
+                    }))
+                : Promise.resolve([]))
+                    .finally(() =>
+                    this.api.patient().modifyPatientWithUser(this.user,patient)
+                        .catch(() => defer.resolve(patient))
+                        .then(p => this.api.register(p, 'patient', defer))
+                        .then(p => this.dispatchEvent(new CustomEvent("patient-saved", {detail: p, bubbles: true, composed: true})))
+                        .catch(e => {
+                            if (this.patient) {
+                                return this.api.patient().getPatientWithUser(this.user,this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
+                                    this.patient = p
+                                    this.saveTimeout = undefined
+                                    this.saveAction = undefined
+                                    throw e
+                                })
+                            } else {
+                                throw e
+                            }
                         })
-                    } else {
-                        //patient present
-                        this.api.patient().modifyPatient(partner.partnerInfo).then(p => this.api.register(p,'patient')).then(partner => {
-                            this.set('patient.partnerships.' + index + '.partnerInfo', partner)
-                        })
+                )
+            })
+        }
 
-                    }
-                })
-            }
-
-            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => {
-                this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                this.patient && (this.patient.rev = p.rev)
-            }).catch(e =>
-                this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
-                    this.patient = p;
-                    this.saveTimeout = undefined;
-                    this.saveAction = undefined;
-                }));
-        }.bind(this);
         this.saveTimeout = setTimeout(this.saveAction, 10000);
     }
 
     flushSave() {
         if (this.saveTimeout) {
-            clearTimeout(this.saveTimeout);
+            clearTimeout(this.saveTimeout)
             this.saveTimeout = undefined
-            this.saveAction();
+            return this.saveAction()
         }
     }
 
@@ -973,7 +1016,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return {
                         dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
-                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'partnerships' ? this.partnershipsForm : this.insuranceForm
+                        template:
+                            key === 'addresses' ?
+                                this.addressForm :
+                                key === 'telecoms' ?
+                                    this.telecomForm :
+                                    key === 'partnerships' ?
+                                        this.partnershipsForm :
+                                        key === 'medicalHouseContracts' ?
+                                            this.medicalHouseContractsForm :
+                                            this.insuranceForm
                     };
                 });
             },
@@ -986,7 +1038,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             addSubForm: (key, guid) => {
                 this.flushSave(); //Important
-                (root[key] || (root[key] = [])).push({});
+                (root[key] || (root[key] = [])).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
 
@@ -1063,7 +1115,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 "status": "ACTIVE",
                 "type": "database"
             }).then(usr => {
-                this.api.patient().getPatient(this.patient.id).then(patient => {
+                this.api.queue(this.patient, 'patient').then(([patient, defer])  => {
                     var phcp = patient.patientHealthCareParties
                     var newPhcp = {}
                     newPhcp.healthcarePartyId = hcp.id
@@ -1071,16 +1123,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     newPhcp.sendFormats = {}
                     phcp.push(newPhcp)
 
-                    this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                        this.set('patient.patientHealthCareParties', phcp)
-                        this.$['add-new-person-to-care-team'].close()
-                        this.initCurrentCareTeam()
+                    this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient))
+                        .then(p => this.api.register(p, 'patient', defer))
+                        .then(() => {
+                            this.set('patient.patientHealthCareParties', phcp)
+                            this.$['add-new-person-to-care-team'].close()
+                            this.initCurrentCareTeam()
 
-                        if (careProvider.Invite === true) {
-                            this.$['ht-invite-hcp-link'].open()
-                            this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                        }
-                    })
+                            if (careProvider.Invite === true) {
+                                this.$['ht-invite-hcp-link'].open()
+                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                            }
+                        })
                 })
             })
         })
@@ -1092,7 +1146,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         var externalPatientHcpTeam = []
         //var dmgOwner = []
 
-        this.api.patient().getPatient(this.patient.id).then(patient => {
+        this.api.patient().getPatientWithUser(this.user,this.patient.id).then(patient => {
 
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
@@ -1130,170 +1184,174 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 () => {
                     //this.set('currentDMGOwner', dmgOwner);
                     if (this.patient.ssin && this.api.tokenId) {
-                        Promise.all([
-                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                                .then(hcp =>
-                                    this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-                                ).then(dmgConsultResp => {
-                                const dmgNihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : ''
-                                if(internalTeam.find(h => h.nihii === dmgNihii)){
+                        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                            .then(hcp =>
+                                this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                            )
+                            .then(dmgConsultResp => {
+                                const dmgNihii = dmgConsultResp.hcParty && dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : ''
+                                if (dmgNihii && internalTeam.find(h => h.nihii === dmgNihii)) {
                                     // 3.1 Update user/party if exists
                                     console.log('dmg owner in internal team')
-                                    let hcpI = internalTeam.find(h => h.nihii === dmgNihii)
+                                    const hcpI = internalTeam.find(h => h.nihii === dmgNihii)
                                     //TODO: show status
-                                }else if (externalTeam.find(h => h.nihii === dmgNihii)){
+                                    return hcpI
+                                } else if (dmgNihii && externalTeam.find(h => h.nihii === dmgNihii)) {
                                     // 3.1 Update user/party if exists
                                     console.log('dmg owner in external team')
                                     let hcpE = externalTeam.find(h => h.nihii === dmgNihii)
-                                    hcpE.name = (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' + dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name;
-                                    hcpE.lastName = dmgConsultResp.hcParty.familyname;
-                                    hcpE.firstName = dmgConsultResp.hcParty.firstname;
-                                    hcpE.nihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value;
+                                    hcpE.name = (!dmgConsultResp.hcParty.name) && dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' + dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name
+                                    hcpE.lastName = dmgConsultResp.hcParty.familyname
+                                    hcpE.firstName = dmgConsultResp.hcParty.firstname
+                                    hcpE.nihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value
 
-                                    hcpE.addresses = [];
-                                    if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
-                                        dmgConsultResp.hcParty.addresses.map(addr =>{
-
-                                            let hcAddr  = {};
-                                            hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : '';
-                                            hcAddr.street = addr.street ? addr.street : '';
-                                            hcAddr.city = addr.city ? addr.city : '';
-                                            hcAddr.postalCode = addr.zip ? addr.zip : '';
-                                            hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
-                                            hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
-                                            hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
-                                            hcpE.addresses.push(hcAddr);
-                                        });
+                                    hcpE.addresses = []
+                                    if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses) {
+                                        dmgConsultResp.hcParty.addresses.map(addr => {
+                                            let hcAddr = {}
+                                            hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : ''
+                                            hcAddr.street = addr.street ? addr.street : ''
+                                            hcAddr.city = addr.city ? addr.city : ''
+                                            hcAddr.postalCode = addr.zip ? addr.zip : ''
+                                            hcAddr.houseNumber = addr.housenumber ? addr.housenumber : ''
+                                            hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : ''
+                                            hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : ''
+                                            hcpE.addresses.push(hcAddr)
+                                        })
                                     }
 
-                                    if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                    if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds) {
                                         const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
-                                        if(cd){
-                                            hcpE.speciality = cd.value ? cd.value : '';
+                                        if (cd) {
+                                            hcpE.speciality = cd.value ? cd.value : ''
                                         }
                                     }
-                                    hcpE.referral = true;
-                                    hcpE.isDmg = true;
+                                    hcpE.referral = true
+                                    hcpE.isDmg = true
                                     hcpE.referralPeriods = [{
                                         startDate: dmgConsultResp.from,
                                         endDate: dmgConsultResp.to
-                                    }];
+                                    }]
 
-                                    this.api.hcparty().modifyHealthcareParty(hcpE).then(() => {})
-                                    this.api.patient().getPatient(this.patient.id).then(patient => {
-                                        const phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
-                                        if (phcpE) {
-                                            const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
-                                            let type = "other"
-                                            if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
-                                                const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
-                                                if(cd.value === 'orgprimaryhealthcarecenter'){
-                                                    type = "medicalhouse";
-                                                } else if(cd.value === 'persphysician'){
-                                                    type = "doctor";
-                                                }
-                                            }
-                                            if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
-                                                phcpE.referralPeriods = [{
-                                                    startDate: dmgConsultResp.from,
-                                                    endDate: null
-                                                }];
-                                                phcpE.referral = true;
-                                                phcpE.isDmg = true;
+                                    return this.api.hcparty().modifyHealthcareParty(hcpE)
+                                        .then(hcpE => {
+                                            this.api.queue(this.patient, 'patient')
+                                                .then(([patient, defer]) => {
+                                                    let phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
+                                                    if (!phcpE) {
+                                                        patient.patientHealthCareParties.push(phcpE = {healthcarePartyId: hcpE.id, referralPeriods: []})
+                                                    }
+                                                    const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
+                                                    let type = "other"
+                                                    if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds) {
+                                                        const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                                        if (cd.value === 'orgprimaryhealthcarecenter') {
+                                                            type = "medicalhouse"
+                                                        } else if (cd.value === 'persphysician') {
+                                                            type = "doctor"
+                                                        }
+                                                    }
+                                                    if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
+                                                        phcpE.referralPeriods = [{
+                                                            startDate: dmgConsultResp.from,
+                                                            endDate: null
+                                                        }]
+                                                        phcpE.referral = true
+                                                        phcpE.isDmg = true
 
-                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => this.patientChanged())
-                                            }
-                                        }
+                                                        return this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer)).then(p => this.patientChanged())
+                                                    } else {
+                                                        defer.resolve(patient)
+                                                        return patient
+                                                    }
+                                                })
+                                                .then(() => hcpE)
                                     })
-                                }else{
+                                } else if (dmgNihii) {
                                     console.log('dmg owner not yet in patientHcParties')
-                                    this.api.hcparty().createHealthcareParty({
-                                        "name": (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
+                                    return this.api.hcparty().createHealthcareParty({
+                                        "name": (!dmgConsultResp.hcParty.name) && dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' + dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
                                         "lastName": dmgConsultResp.hcParty.familyname,
                                         "firstName": dmgConsultResp.hcParty.firstname,
                                         "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
                                         "ssin": '' //TODO: get SSIN from dmgConsultResp
-                                    }).then( hcp2 => {
+                                    }).then(hcp2 => {
                                         var newPhcp = {}
-                                        newPhcp.firstName = hcp2.firstName;
-                                        newPhcp.lastName = hcp2.lastName;
-                                        newPhcp.name = hcp2.name;
-                                        newPhcp.nihii = hcp2.nihii;
-                                        newPhcp.ssin = hcp2.ssin;
-                                        newPhcp.healthcarePartyId = hcp2.id;
-                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                        newPhcp.firstName = hcp2.firstName
+                                        newPhcp.lastName = hcp2.lastName
+                                        newPhcp.name = hcp2.name
+                                        newPhcp.nihii = hcp2.nihii
+                                        newPhcp.ssin = hcp2.ssin
+                                        newPhcp.healthcarePartyId = hcp2.id
+                                        if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds) {
                                             const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
-                                            if(cd.value === 'orgprimaryhealthcarecenter'){
-                                                newPhcp.type = "medicalhouse";
-                                            } else if(cd.value === 'persphysician'){
-                                                newPhcp.type = "doctor";
-                                            } else{
-                                                newPhcp.type = "other";
+                                            if (cd.value === 'orgprimaryhealthcarecenter') {
+                                                newPhcp.type = "medicalhouse"
+                                            } else if (cd.value === 'persphysician') {
+                                                newPhcp.type = "doctor"
+                                            } else {
+                                                newPhcp.type = "other"
                                             }
                                         }
-                                        newPhcp.isDmg = true;
-                                        newPhcp.referral = true;
+                                        newPhcp.isDmg = true
+                                        newPhcp.referral = true
                                         newPhcp.referralPeriods = [{
                                             startDate: dmgConsultResp.from,
                                             endDate: dmgConsultResp.to
-                                        }];
-                                        hcp2.addresses = [];
-                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
-                                            dmgConsultResp.hcParty.addresses.map(addr =>{
-
-                                                let hcAddr  = {};
-                                                hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : '';
-                                                hcAddr.street = addr.street ? addr.street : '';
-                                                hcAddr.city = addr.city ? addr.city : '';
-                                                hcAddr.postalCode = addr.zip ? addr.zip : '';
-                                                hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
-                                                hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
-                                                hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
-                                                hcp2.addresses.push(hcAddr);
-                                            });
+                                        }]
+                                        hcp2.addresses = []
+                                        if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses) {
+                                            dmgConsultResp.hcParty.addresses.map(addr => {
+                                                let hcAddr = {}
+                                                hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : ''
+                                                hcAddr.street = addr.street ? addr.street : ''
+                                                hcAddr.city = addr.city ? addr.city : ''
+                                                hcAddr.postalCode = addr.zip ? addr.zip : ''
+                                                hcAddr.houseNumber = addr.housenumber ? addr.housenumber : ''
+                                                hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : ''
+                                                hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : ''
+                                                hcp2.addresses.push(hcAddr)
+                                            })
                                         }
 
-                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                        if (dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds) {
                                             const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
-                                            if(cd){
-                                                hcp2.speciality = cd.value ? cd.value : '';
+                                            if (cd) {
+                                                hcp2.speciality = cd.value ? cd.value : ''
                                             }
                                         }
 
-                                        hcp2.pphc = newPhcp;
-                                        hcp2.referral = true;
+                                        hcp2.pphc = newPhcp
+                                        hcp2.referral = true
                                         hcp2.referralPeriods = [{
                                             startDate: dmgConsultResp.from,
                                             endDate: dmgConsultResp.to
-                                        }];
+                                        }]
 
-                                        console.log('dmg owner pushed to external team');
+                                        console.log('dmg owner pushed to external team')
                                         //externalTeam.push(hcp2);
-                                        externalPatientHcpTeam.push(hcp2);
-                                        this.api.patient().getPatient(this.patient.id).then(patient => {
-                                            var phcp = patient.patientHealthCareParties
-                                            phcp.push(newPhcp)
+                                        externalPatientHcpTeam.push(hcp2)
+                                        this.api.queue(this.patient, 'patient').then(([patient, defer]) => {
+                                            patient.patientHealthCareParties = this.patient.patientHealthCareParties
+                                            this.push('patient.patientHealthCareParties', newPhcp)
                                             // 4 save data
-                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                                                this.set('patient.patientHealthCareParties', phcp)
-                                            })
+                                            return this.api.patient().modifyPatientWithUser(this.user,patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p, 'patient', defer))
                                         })
 
-                                })}
-
-
-                            })]
-                        ).then(([]) => {
-                            this.set('currentInternalCareTeam', internalTeam);
-                            this.set('currentExternalCareTeam', externalTeam);
-                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
-                        }).catch(e => {
-                            console.log(e);
-                            this.set('currentInternalCareTeam', internalTeam);
-                            this.set('currentExternalCareTeam', externalTeam);
-                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
-
-                        });
+                                    })
+                                }
+                            })
+                            .then(() => {
+                                this.set('currentInternalCareTeam', internalTeam)
+                                this.set('currentExternalCareTeam', externalTeam)
+                                this.set('currentExternalPatientCareTeam', externalPatientHcpTeam)
+                            })
+                            .catch(e => {
+                                console.log(e)
+                                this.set('currentInternalCareTeam', internalTeam)
+                                this.set('currentExternalCareTeam', externalTeam)
+                                this.set('currentExternalPatientCareTeam', externalPatientHcpTeam)
+                            })
                     }
                 })
 
@@ -1398,7 +1456,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const hcpId = this.user.healthcarePartyId
 
         pPromise = pPromise.then(pats =>
-                this.api.patient().share(this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
+                this.api.patient().share(this.api.user, this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
                     hcp.check && hcp.id).map(hcp => hcp.id))
                     .then(pat => {
                             _.concat(pats, pat)

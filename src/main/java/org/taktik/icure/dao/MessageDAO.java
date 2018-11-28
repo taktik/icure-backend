@@ -46,6 +46,8 @@ public interface MessageDAO extends GenericDAO<Message> {
 
 	PaginatedList<Message> findByTransportGuidReceived(String healthcarePartyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset);
 
+	PaginatedList<Message> findByTransportGuidSentDate(String healthcarePartyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset);
+
 	List<Message> findByHcPartyPatient(String hcPartyId, List<String> secretPatientKeys);
 
 	List<Message> getChildren(String messageId);
@@ -57,4 +59,6 @@ public interface MessageDAO extends GenericDAO<Message> {
 	List<Message> getByExternalRefs(String hcPartyId, HashSet<String> strings);
 
 	List<Message> listConflicts();
+
+	List<List<Message>> getChildren(List<String> parentIds);
 }

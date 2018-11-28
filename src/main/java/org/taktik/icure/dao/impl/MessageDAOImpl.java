@@ -19,6 +19,7 @@
 package org.taktik.icure.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -136,6 +137,17 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
+	@View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
+	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
+		ComplexKey startKey;
+		ComplexKey endKey;
+		startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, transportGuid, fromDate) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+		endKey = ComplexKey.of(partyId, transportGuid, toDate);
+
+		return pagedQueryView("by_hcparty_transport_guid_sent_date", startKey, endKey, paginationOffset, true);
+	}
+
+	@Override
 	@View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
 	public PaginatedList<Message> findByHcParty(String partyId, PaginationOffset<List<Object>> paginationOffset) {
 		ComplexKey startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
@@ -162,6 +174,16 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
+	public List<List<Message>> getChildren(List<String> parentIds) {
+
+		List<Message> byParentId = queryResults(createQuery("by_parent_id")
+				.includeDocs(true)
+				.keys(parentIds));
+
+		return parentIds.stream().map(id -> byParentId.stream().filter(c -> c.getParentId().equals(id)).collect(Collectors.toList())).collect(Collectors.toList());
+	}
+
+	@Override
 	@View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")
 	public List<Message> getByInvoiceIds(Set<String> invoiceIds) {
 		return queryView("by_invoice_id", invoiceIds.toArray(new String[invoiceIds.size()]));
@@ -184,5 +206,6 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	public List<Message> listConflicts() {
 		return queryView("conflicts");
 	}
+
 
 }

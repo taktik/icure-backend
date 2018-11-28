@@ -20,13 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
-import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
-import org.taktik.icure.services.external.rest.v1.dto.embed.InsurabilityDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +40,7 @@ public class PatientDto extends IcureDto {
     protected String lastName;
     protected String alias;
     protected Boolean active = true;
+    protected DeactivationReasonDto deactivationReason = DeactivationReasonDto.none;
     protected String chronicalDisease;
     protected String ssin;
     protected String civility;
@@ -64,6 +59,7 @@ public class PatientDto extends IcureDto {
     protected String education;
     protected String profession;
     protected String note;
+    protected String administrativeNote;
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
@@ -81,6 +77,8 @@ public class PatientDto extends IcureDto {
 	protected List<String> languages = new ArrayList<>(); //http://www.loc.gov/standards/iso639-2/ascii_8bits.html
     protected List<PartnershipDto> partnerships = new ArrayList<>();
 	protected List<PatientHealthCarePartyDto> patientHealthCareParties = new ArrayList<>();
+
+        protected List<MedicalHouseContractDto> medicalHouseContracts = new ArrayList<>();
 
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
@@ -378,6 +376,14 @@ public class PatientDto extends IcureDto {
 		this.encryptedSelf = encryptedSelf;
 	}
 
+    public List<MedicalHouseContractDto> getMedicalHouseContracts() {
+        return medicalHouseContracts;
+    }
+
+    public void setMedicalHouseContracts(List<MedicalHouseContractDto> medicalHouseContracts) {
+        this.medicalHouseContracts = medicalHouseContracts;
+    }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -430,4 +436,20 @@ public class PatientDto extends IcureDto {
 			return false;
 		return true;
 	}
+
+    public String getAdministrativeNote() {
+        return administrativeNote;
+    }
+
+    public void setAdministrativeNote(String administrativeNote) {
+        this.administrativeNote = administrativeNote;
+    }
+
+    public DeactivationReasonDto getDeactivationReason() {
+        return deactivationReason;
+    }
+
+    public void setDeactivationReason(DeactivationReasonDto deactivationReason) {
+        this.deactivationReason = deactivationReason;
+    }
 }

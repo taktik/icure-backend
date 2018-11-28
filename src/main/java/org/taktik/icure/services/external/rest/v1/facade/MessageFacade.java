@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Message;
@@ -265,6 +266,16 @@ public class MessageFacade implements OpenApiFacade{
 			httpMethod = "POST"
 	)
 	@POST
+	@Path("/children/batch")
+	public List<List<MessageDto>> getChildrenOfList(@RequestBody ListOfIdsDto parentIds) throws LoginException {
+		return messageLogic.getChildren(parentIds.getIds()).stream().map(m->m.stream().map(mm->mapper.map(mm,MessageDto.class)).collect(Collectors.toList())).collect(Collectors.toList());
+	}
+
+	@ApiOperation(
+			value = "Get children messages of provided message",
+			httpMethod = "POST"
+	)
+	@POST
 	@Path("byInvoiceId")
 	public List<MessageDto> listMessagesByInvoiceIds(ListOfIdsDto ids) throws LoginException {
 		return messageLogic.listMessagesByInvoiceIds(ids.getIds()).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList());
@@ -305,6 +316,43 @@ public class MessageFacade implements OpenApiFacade{
 
 		return response;
 	}
+
+	@ApiOperation(
+	        value = "Get all messages starting by a prefix between two date",
+            httpMethod = "GET",
+            response = MessagePaginatedList.class
+    )
+    @GET
+    @Path("/byTransportGuidSentDate")
+    public Response findMessagesByTransportGuidSentDate(@QueryParam("transportGuid") String transportGuid, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate,
+                                                        @QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId,
+                                                        @QueryParam("limit") Integer limit) throws LoginException {
+        Response response;
+
+
+        ArrayList<Object> startKeyList = null;
+        if (startKey != null && startKey.length() > 0) {
+            startKeyList = new ArrayList<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKey));
+        }
+        PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
+
+        PaginatedList<Message> messages = messageLogic.findByTransportGuidSentDate(
+                sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+                transportGuid,
+                fromDate,
+                toDate,
+                paginationOffset
+        );
+
+        if (messages != null) {
+            response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
+        } else {
+            response = ResponseUtils.internalServerError("Message listing failed");
+        }
+
+        return response;
+    }
+
 
 	@ApiOperation(
             value = "Get all messages (paginated) for current HC Party and provided to address",

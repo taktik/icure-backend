@@ -78,6 +78,8 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Integer percentNorm;
     protected String prescriberNihii;
     protected String relatedCode;
+	protected Long prescriptionDate; // yyyyMMdd
+    protected Integer derogationMaxNumber;
 
 
 	protected String prescriberSsin;
@@ -93,6 +95,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Boolean accepted;
 	protected Boolean pending;
 	protected Boolean resent;
+	protected Boolean archived;
 
     protected Integer insuranceJustification;
 
@@ -130,12 +133,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.override3rdPayerReason = this.override3rdPayerReason == null ? other.override3rdPayerReason : this.override3rdPayerReason;
 		this.prescriberNorm = this.prescriberNorm == null ? other.prescriberNorm : this.prescriberNorm;
 		this.percentNorm = this.percentNorm == null ? other.percentNorm : this.percentNorm;
+		this.derogationMaxNumber = this.derogationMaxNumber == null ? other.derogationMaxNumber : this.derogationMaxNumber;
 		this.prescriberNihii = this.prescriberNihii == null ? other.prescriberNihii : this.prescriberNihii;
 		this.relatedCode = this.relatedCode == null ? other.relatedCode : this.relatedCode;
 		this.canceled = this.canceled == null ? other.canceled : this.canceled;
 		this.accepted = this.accepted == null ? other.accepted : this.accepted;
 		this.pending = this.pending == null ? other.pending : this.pending;
 		this.resent = this.resent == null ? other.resent : this.resent;
+		this.archived = this.archived == null ? other.archived : this.archived;
 		this.insuranceJustification = this.insuranceJustification == null ? other.insuranceJustification : this.insuranceJustification;
 		this.cancelPatientInterventionReason = this.cancelPatientInterventionReason == null ? other.cancelPatientInterventionReason : this.cancelPatientInterventionReason;
 		this.status = this.status == null ? other.status : this.status;
@@ -303,15 +308,15 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
         this.timeOfDay = timeOfDay;
     }
 
-    public Integer getOverride3rdPayerCode() {
-        return override3rdPayerCode;
-    }
+	public Integer getOverride3rdPayerCode() {
+		return override3rdPayerCode;
+	}
 
-    public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
-        this.override3rdPayerCode = override3rdPayerCode;
-    }
+	public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
+		this.override3rdPayerCode = override3rdPayerCode;
+	}
 
-    public String getOverride3rdPayerReason() {
+	public String getOverride3rdPayerReason() {
         return override3rdPayerReason;
     }
 
@@ -341,6 +346,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	public void setPercentNorm(Integer percentNorm) {
 		this.percentNorm = percentNorm;
+	}
+
+	public Integer getDerogationMaxNumber() {
+		return derogationMaxNumber;
+	}
+
+	public void setDerogationMaxNumber(Integer derogationMaxNumber) {
+		this.derogationMaxNumber = derogationMaxNumber;
 	}
 
 	public String getPrescriberNihii() {
@@ -423,6 +436,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.resent = resent;
 	}
 
+	public Boolean getArchived() {
+		return archived;
+	}
+
+	public void setArchived(Boolean archived) {
+		this.archived = archived;
+	}
+
 	public Long getStatus() {
 		return status;
 	}
@@ -503,6 +524,10 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.locationCdHcParty = locationCdHcParty;
 	}
 
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
 	public InvoicingCode solveConflictWith(InvoicingCode other) {
 		this.dateCode = this.dateCode == null ? other.dateCode : this.dateCode;
 		this.logicalId = this.logicalId == null ? other.logicalId : this.logicalId;
@@ -530,6 +555,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.override3rdPayerCode = this.override3rdPayerCode == null ? other.override3rdPayerCode : this.override3rdPayerCode;
 		this.override3rdPayerReason = this.override3rdPayerReason == null ? other.override3rdPayerReason : this.override3rdPayerReason;
 		this.prescriberNorm = this.prescriberNorm == null ? other.prescriberNorm : this.prescriberNorm;
+		this.derogationMaxNumber = this.derogationMaxNumber == null ? other.derogationMaxNumber : this.derogationMaxNumber;
 		this.prescriberNihii = this.prescriberNihii == null ? other.prescriberNihii : this.prescriberNihii;
 		this.relatedCode = this.relatedCode == null ? other.relatedCode : this.relatedCode;
 		this.canceled = this.canceled == null ? other.canceled : this.canceled;

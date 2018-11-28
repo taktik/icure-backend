@@ -42,11 +42,17 @@ import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
 import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.logic.impl.filter.contact.ContactByHcPartyTagCodeDateFilter;
+import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyAndExternalIdFilter;
+import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyAndSsinFilter;
+import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyAndSsinsFilter;
+import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyDateOfBirthFilter;
+import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyNameContainsFuzzyFilter;
 import org.taktik.icure.logic.impl.filter.service.ServiceByContactsAndSubcontactsFilter;
 import org.taktik.icure.logic.impl.filter.service.ServiceByHcPartyTagCodeDateFilter;
+import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
 
 import java.time.Instant;
-import java.util.Base64;
 import java.util.stream.Collectors;
 
 public class V1MapperFactory {
@@ -76,6 +82,7 @@ public class V1MapperFactory {
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndExternalIdFilter.class, PatientByHcPartyAndExternalIdFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndSsinFilter.class, PatientByHcPartyAndSsinFilter.class).byDefault().toClassMap());
+		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyAndSsinsFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class).byDefault().toClassMap());
         factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyDateOfBirthNameFilter.class, PatientByHcPartyDateOfBirthNameFilter.class).byDefault().toClassMap());

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.entities.Payment;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 
 public class InvoiceDto extends IcureDto {
@@ -30,6 +32,8 @@ public class InvoiceDto extends IcureDto {
 	private Long printedDate;
 
 	private Double paid;
+	private PaymentType paymentType;
+	private List<Payment> payments;
 
 	private List<InvoicingCodeDto> invoicingCodes;
 	private String invoiceType;
@@ -44,6 +48,9 @@ public class InvoiceDto extends IcureDto {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	private String thirdPartyPaymentJustification;
+	protected String thirdPartyPaymentReason;
+
 	protected String gnotionNihii;
 	protected String gnotionSsin;
 	protected String gnotionLastName;
@@ -57,11 +64,25 @@ public class InvoiceDto extends IcureDto {
 	protected String internshipLastName;
 	protected String internshipFirstName;
 	protected String internshipCdHcParty;
+	protected String internshipCbe;
+
+	protected String supervisorNihii;
+	protected String supervisorSsin;
+	protected String supervisorLastName;
+	protected String supervisorFirstName;
+	protected String supervisorCdHcParty;
+	protected String supervisorCbe;
 
 	protected Integer longDelayJustification;
 	protected Boolean creditNote;
 
 	protected String careProviderType;
+
+	protected String error;
+
+	protected String encounterLocationName;
+	protected String encounterLocationNihii;
+	protected Integer encounterLocationNorm;
 
 	private Map<String,String> receipts = new HashMap<>();
 
@@ -218,6 +239,54 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
 
+	public String getInternshipCbe() { return internshipCbe; }
+
+	public void setInternshipCbe(String internshipCbe) { this.internshipCbe = internshipCbe; }
+
+	public String getSupervisorNihii() {
+		return supervisorNihii;
+	}
+
+	public void setSupervisorNihii(String supervisorNihii) {
+		this.supervisorNihii = supervisorNihii;
+	}
+
+	public String getSupervisorSsin() {
+		return supervisorSsin;
+	}
+
+	public void setSupervisorSsin(String supervisorSsin) {
+		this.supervisorSsin = supervisorSsin;
+	}
+
+	public String getSupervisorLastName() {
+		return supervisorLastName;
+	}
+
+	public void setSupervisorLastName(String supervisorLastName) {
+		this.supervisorLastName = supervisorLastName;
+	}
+
+	public String getSupervisorFirstName() {
+		return supervisorFirstName;
+	}
+
+	public void setSupervisorFirstName(String supervisorFirstName) {
+		this.supervisorFirstName = supervisorFirstName;
+	}
+
+	public String getSupervisorCdHcParty() {
+		return supervisorCdHcParty;
+	}
+
+	public void setSupervisorCdHcParty(String supervisorCdHcParty) {
+		this.supervisorCdHcParty = supervisorCdHcParty;
+	}
+
+	public void setSupervisorCbe(String supervisorCbe) { this.supervisorCbe = supervisorCbe; }
+
+	public String getSupervisorCbe() { return supervisorCbe; }
+
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;
 	}
@@ -231,4 +300,57 @@ public class InvoiceDto extends IcureDto {
 	public String getCareProviderType() { return careProviderType; }
 
 	public void setCareProviderType(String careProviderType) { this.careProviderType = careProviderType; }
+
+	public String getError() { return error; }
+
+	public void setError(String error) { this.error = error; }
+
+	public String getEncounterLocationName() { return encounterLocationName; }
+
+	public void setEncounterLocationName(String encounterLocationName) { this.encounterLocationName = encounterLocationName; }
+
+	public String getEncounterLocationNihii() { return encounterLocationNihii; }
+
+	public void setEncounterLocationNihii(String encounterLocationNihii) { this.encounterLocationNihii = encounterLocationNihii; }
+
+	public Integer getEncounterLocationNorm() {
+		return encounterLocationNorm;
+	}
+
+	public void setEncounterLocationNorm(Integer encounterLocationNorm) {
+		this.encounterLocationNorm = encounterLocationNorm;
+	}
+
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public List<Payment> getPayments() {
+		return payments;
+	}
+
+	public void setPayments(List<Payment> payments) {
+		this.payments = payments;
+	}
 }

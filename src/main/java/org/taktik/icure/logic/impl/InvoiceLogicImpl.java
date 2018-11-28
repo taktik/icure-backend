@@ -134,8 +134,23 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
+	public List<Invoice> listByHcPartyEfactPending(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactPending(hcParty, fromDate, toDate);
+	}
+
+	@Override
 	public List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate) {
 		return invoiceDAO.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+	}
+
+	@Override
+	public List<Invoice> listByHcPartyEfactTreated(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactTreated(hcParty, fromDate, toDate);
+	}
+
+	@Override
+	public List<Invoice> listByHcPartyEfactArchived(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactArchived(hcParty, fromDate, toDate);
 	}
 
 	@Override
@@ -143,7 +158,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		return invoiceDAO.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
 	}
 
-    @Override
+	@Override
+	public List<Invoice> listByHcPartyEfactStatus(String hcParty, Boolean pending, Boolean canceled, Boolean accepted, Boolean resent, Boolean archived, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactStatus(hcParty, pending, canceled, accepted, resent, archived, fromDate, toDate);
+	}
+
+	@Override
     public List<Invoice> listByHcPartyGroupId(String hcParty, String groupId) {
         return invoiceDAO.listByHcPartyGroupId(hcParty, groupId);
     }

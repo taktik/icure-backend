@@ -45,7 +45,7 @@ import java.util.Map;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit( doc.lastName, doc._id )}")
 class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements HealthcarePartyDAO {
 	@Autowired
-    public HealthcarePartyDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public HealthcarePartyDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(HealthcareParty.class, couchdb, idGenerator, cacheManager);
         initStandardDesignDocument();
     }

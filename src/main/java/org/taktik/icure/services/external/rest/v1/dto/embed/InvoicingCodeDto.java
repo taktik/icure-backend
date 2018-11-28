@@ -60,12 +60,14 @@ public class InvoicingCodeDto implements Serializable {
     protected String override3rdPayerReason;
     protected Integer prescriberNorm;
 	protected Integer percentNorm;
+	protected Integer derogationMaxNumber;
 	protected String prescriberNihii;
     protected String relatedCode;
 	protected Boolean canceled;
 	protected Boolean accepted;
 	protected Boolean pending;
 	protected Boolean resent;
+	protected Boolean archived;
 
     protected Integer insuranceJustification;
 	protected Integer cancelPatientInterventionReason;
@@ -77,6 +79,8 @@ public class InvoicingCodeDto implements Serializable {
 
 	protected String locationNihii;
 	protected String locationCdHcParty;
+	protected Long prescriptionDate; // yyyyMMdd
+
 
 	protected Long status;
 
@@ -240,22 +244,21 @@ public class InvoicingCodeDto implements Serializable {
         this.timeOfDay = timeOfDay;
     }
 
-    public Integer getOverride3rdPayerCode() {
-        return override3rdPayerCode;
-    }
+	public Integer getOverride3rdPayerCode() {
+		return override3rdPayerCode;
+	}
 
-    public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
-        this.override3rdPayerCode = override3rdPayerCode;
-    }
+	public void setOverride3rdPayerCode(Integer override3rdPayerCode) {
+		this.override3rdPayerCode = override3rdPayerCode;
+	}
 
-    public String getOverride3rdPayerReason() {
+	public String getOverride3rdPayerReason() {
         return override3rdPayerReason;
     }
 
     public void setOverride3rdPayerReason(String override3rdPayerReason) {
         this.override3rdPayerReason = override3rdPayerReason;
     }
-
 
     public Integer getPrescriberNorm() {
         return prescriberNorm;
@@ -264,6 +267,10 @@ public class InvoicingCodeDto implements Serializable {
     public void setPrescriberNorm(Integer prescriberNorm) {
         this.prescriberNorm = prescriberNorm;
     }
+
+    public Integer getDerogationMaxNumber() { return derogationMaxNumber; }
+
+    public void setDerogationMaxNumber(Integer derogationMaxNumber) { this.derogationMaxNumber = derogationMaxNumber; }
 
 	public Integer getPercentNorm() {
 		return percentNorm;
@@ -345,6 +352,10 @@ public class InvoicingCodeDto implements Serializable {
 		this.resent = resent;
 	}
 
+	public Boolean getArchived() { return archived; }
+
+	public void setArchived(Boolean archived) { this.archived = archived; }
+
 	public String getEidReadingValue() {
 		return eidReadingValue;
 	}
@@ -416,4 +427,8 @@ public class InvoicingCodeDto implements Serializable {
     public Long getStatus() { return status; }
 
     public void setStatus(Long status) { this.status = status; }
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 }
