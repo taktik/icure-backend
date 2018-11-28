@@ -517,6 +517,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 9999;
                 transform: translate(-50% -50%);
             }
+
+            #flatrateinvoiceboxcollapse {
+
+            }
+
+            .doNotDisplay {
+                display:none;
+            }
+
 		</style>
 		<div class="col-left">
             <template is="dom-if" if="[[isLoadingMailList]]"><paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner></template>
@@ -560,13 +569,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-listbox>
             </collapse-button>
 
-            <collapse-button  id="flatrateinvoiceboxcollapse">
+            <collapse-button id="flatrateinvoiceboxcollapse" class="doNotDisplay">
                 <paper-item id="flatrateinvoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_flatrateinvoicebox" elevation="">
                     <div class="one-line-menu list-title"><iron-icon icon="accessibility"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('flatrateInvoicing','Facturation au forfait',language)]]</span></div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="flatrateinvoiceboxlist" class="menu-content sublist"  selected="{{flatrateinvoiceSelectionIndex}}" selected-item="{{flatrateinvoiceSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="process">[[localize('_e_flatrateinv_download','A télécharger',language)]]</paper-item>
+                    <!--<paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="process">[[localize('_e_flatrateinv_download','A télécharger',language)]]</paper-item>-->
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j3">[[localize('_e_flatrateinv_listing','Listing',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20">[[localize('_e_flatrateinv_invoicing','Facturation',language)]]</paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archive">[[localize('_e_flatrateinv_archives','Archives',language)]]</paper-item>
                 </paper-listbox>
             </collapse-button>
@@ -668,7 +679,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)'];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)'];
 	}
 
 	constructor() {
@@ -791,7 +802,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation()
         e.preventDefault()
 
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_flatrateinvOut', status: 'process'} } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_flatrateinvOut', status: 'j3'} } }));
 
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
@@ -930,6 +941,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("batchCounter.accepted", e.detail.accepted)
         this.set("batchCounter.archived", e.detail.archived)
 
+    }
+
+    _checkForMedicalHouse() {
+        if( this.user && this.user.healthcarePartyId ) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{ if(hcp && hcp.type && hcp.type==='medicalHouse') { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.remove("doNotDisplay") } else { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay") } })
+        } else {
+            this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay");
+        }
     }
 
 }

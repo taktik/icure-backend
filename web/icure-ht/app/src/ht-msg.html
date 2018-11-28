@@ -181,11 +181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
             <template is="dom-if" if="[[flatrateinvoicesLayout]]">
-                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                 user="[[user]]"
-                                 select-list="[[selectList]]"
-                                 invoices-status="[[flatrateinvoicesStatus]]"
-                                 on-selection-messages-change="handleMessageChange"></ht-msg-flatrate-invoice>
+                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" flatrate-menu-section="[[flatrateMenuSection]]"></ht-msg-flatrate-invoice>
             </template>
 
             <template is="dom-if" if="[[mycarenetLayout]]">
@@ -237,7 +233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         value: null
                     },
-                    flatrateinvoicesStatus:{
+                    flatrateMenuSection:{
                         type: String,
                         value: null
                     },
@@ -284,8 +280,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('flatrateinvoicesLayout',true)
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',false)
-                    this.set('flatrateinvoicesStatus', e.detail.selection.status)
-                    setTimeout(() => this.shadowRoot.querySelector("#msg-flatrate-invoice").getInvoices(),0)
+                    this.set('flatrateMenuSection', e.detail.selection.status)
                 } else if (e.detail && e.detail.selection.item === 'mycarenet') {
                     this.set('mycarenetLayout',true)
                     this.set('invoicesLayout', false)

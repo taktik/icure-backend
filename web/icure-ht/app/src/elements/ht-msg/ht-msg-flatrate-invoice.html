@@ -324,10 +324,6 @@
                     justify-content: flex-start;
                 }
 
-                .batch-status .spinner{
-                    margin-left: 24px;
-                }
-
                 .unlockBtn {
                     height: 12px;
                     width: 12px;
@@ -344,7 +340,8 @@
                 .invoiceContainer{
                     overflow-x: hidden;
                     overflow-y: hidden;
-                    height: calc(100vh - 185px);
+                    /*height: calc(100vh - 185px);*/
+                    height: calc(100vh - 120px);
                     box-shadow: var(--app-shadow-elevation-1);
                 }
                 .invoiceSubContainerBig {
@@ -577,7 +574,9 @@
                 .batchArchived{background-color: var(--paper-purple-300);}
 
                 paper-spinner {
-                    transform: translateY(8px);
+                    margin-top:150px;
+                    height:80px;
+                    width:80px;
                 }
 
                 .tool-btn{
@@ -603,8 +602,8 @@
                     width:300px;
                     top: 0px;
                     background: rgba(255,255,255,1);
-                    border-left:1px solid #000000;
-                    box-shadow:0px 0px 3px 0px #000;
+                    border-left:1px solid #dddddd;
+                    box-shadow:0px 0px 3px 0px #dddddd;
                     height: 100%;
                     z-index: 5;
                     transition: all 400ms ease;
@@ -666,12 +665,24 @@
                     padding:0;
                 }
 
+                .w30px {
+                    width:30px
+                }
+
+                .h30px {
+                    height:30px
+                }
+
                 .w20px {
                     width:20px
                 }
 
                 .h20px {
                     height:20px
+                }
+
+                .p-35px {
+                    padding:35px;
                 }
 
                 .p-r-15px {
@@ -706,210 +717,124 @@
                     float:right
                 }
 
+                .m-t-20 {
+                    margin-top:20px;
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
+
+                #warningMessage {
+                    margin-top: 20px;
+                    margin-bottom: 30px;
+                }
+
+                #warningMessageBody {
+                    display: inline-block;
+                    padding:20px 35px;
+                    color:#7E0000;
+                    background-color: rgba(255, 0, 0, 0.15);
+                    font-weight: 700;
+                    border:1px dashed #7e0000;
+                    text-transform: uppercase;
+                }
+
+                #spinnerContainer {
+                    position:absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;left: 0;
+                    background-color: rgba(0,0,0,.3);
+                    z-index: 10;
+                    text-align: center;
+                }
+
+                .f-s-1em {
+                    font-size:1em;
+                }
+
+                #exportRangeNotification {
+                    font-style:italic;
+                    margin-top:10px;
+                    color:#555555;
+                }
+
+                #exportRangeNotification span {
+                    font-weight: 700;
+                }
+
+                #spinnerMessageFeedback {
+                    background-color:#ffffff;
+                    max-width: 50%;
+                    margin: 20px auto;
+                    border: 1px solid #000;
+                    display:none;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
 
-            <div id="rightPanelToggleContainer" class="">
-                <div class="header">
-                    <paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; Outils</paper-button>
-                </div>
-            </div>
 
-            <div id="rightPanel" class="">
-                <div class="header"  on-tap="_toggleRightPanel">
-                    <label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;Outils</label>
-                    <paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>
-                </div>
-                <div class="body">
 
-                    <h4><iron-icon icon="vaadin:invoice"></iron-icon> &nbsp; [[localize('invoices','Factures',language)]]</h4>
-                    <paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_downloadInvoices" ><iron-icon icon="icons:file-download" class="force-left"></iron-icon> &nbsp; [[localize('downloadFlatrateInvoices','Télécharger les factures',language)]]</paper-button>
+            <!--<div id="rightPanelToggleContainer" class="">-->
+                <!--<div class="header">-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; Outils</paper-button>-->
+                <!--</div>-->
+            <!--</div>-->
 
-                    <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('download','Filtrer par date',language)]]</h4>
-                    <vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>
-                    <vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>
-                    <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_dateRangerFilterResults" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
+            <!--<div id="rightPanel" class="">-->
+                <!--<div class="header"  on-tap="_toggleRightPanel">-->
+                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;Outils</label>-->
+                    <!--<paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>-->
+                <!--</div>-->
+                <!--<div class="body">-->
+                    <!--<h4><iron-icon icon="vaadin:invoice"></iron-icon> &nbsp; [[localize('invoices','Factures',language)]]</h4>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_downloadInvoices" ><iron-icon icon="icons:file-download" class="force-left"></iron-icon> &nbsp; [[localize('downloadFlatrateInvoices','Télécharger les factures',language)]]</paper-button>-->
+                    <!--<h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('download','Filtrer par date',language)]]</h4>-->
+                    <!--<vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>-->
+                    <!--<vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_dateRangerFilterResults" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>-->
+                <!--</div>-->
+            <!--</div>-->
 
-                </div>
-            </div>
 
-            <div id="batchStatus" class="batch-status">
-                [[_displayInvoiceStatus(invoicesStatus)]]
-                <template is="dom-if" if="[[_isEqual(invoicesStatus,'process')]]"></template>
-                <template is="dom-if" if="[[_isEqual(invoicesStatus,'archive')]]"></template>
-                <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
-            </div>
 
-            <template is="dom-if" if="[[!statusToBeSend]]">
-                <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid" where="notToBeSend"></paper-input>
-                    <div class="gridContainer">
-                        <!--<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>-->
-                        <div class="invoiceContainer">
-                            <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
-                                <template is="dom-if" if="[[isProcess(invoicesStatus.*)]]">
-                                    <div class="scrollBox">
-                                        <vaadin-grid id="messagesGrid" class="processTable" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
-                                            <vaadin-grid-column flex-grow="0" width="14%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.hcp]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="4%" class="oa-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.oa]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="20%" class="ref-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.hcpReference]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="invoice-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.invoiceNumber]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="month-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[formatDate(item.messageInfo.invoiceMonth,'month')]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="9%" class="invoiceDate-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[formatDate(item.messageInfo.invoiceDate,'date')]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="invAmount-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant<br/>facturé</vaadin-grid-sorter>
-                                                </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
-                                                <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
-                                                </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
-                                                <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
-                                                </template>
-                                                <template><span class$="{{_getTxtStatusColor(_getIconStatusClass(item.messageInfo.invoiceStatus),item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
-                                                <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted, messagesToBeCorrected)]]€</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="13%" class="stat-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
-                                                </template>
-                                                <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                </template>
-                                            </vaadin-grid-column>
-                                        </vaadin-grid>
-                                    </div>
-                                </template>
-                            </div>
-                            <template is="dom-if" if="[[ifInvoiceSelected]]">
-                                <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
-                                    <h4 class="mb0">Détail des envois selectionnés</h4>
-                                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
-                                    <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-                                        <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
-                                            <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
-                                                </template>
-                                                <template>
-                                                    <vaadin-grid-tree-toggle leaf="[[!item.invoicingCodes.length]]" expanded="{{expanded}}" level="[[level]]">
-                                                        [[item.invoiceReference]]
-                                                    </vaadin-grid-tree-toggle>
-                                                </template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.patient]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.ssin]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="invoicingCode">Nmcl</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.invoicingCode]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="invoiceDate">Date presta.</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[formatDate(item.invoiceDate,'date')]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column-group>
-                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="invoicedAmount">Montant<br/>facturé</vaadin-grid-sorter>
-                                                    </template>
-                                                    <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
-                                                </vaadin-grid-column>
-                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
-                                                    </template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
-                                                </vaadin-grid-column>
-                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
-                                                    </template>
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
-                                                </vaadin-grid-column>
-                                            </vaadin-grid-column-group>
-                                            <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
-                                                </template>
-                                                <template style="align-self: flex-start;">
-                                                    <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
-                                                </template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
-                                                    <template>[[item.status]]</template>
-                                                </template>
-                                                <template>
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                </template>
-                                            </vaadin-grid-column>
-                                        </vaadin-grid>
-                                    </div>
-                                </template>
-                            </template>
-                        </div>
+
+            <template is="dom-if" if="[[_isLoadingMessages]]"><div id="spinnerContainer"><paper-spinner class="spinner" alt="Loading invoices" active></paper-spinner><div id="spinnerMessageFeedback">Querying for data...</div></div></template>
+            <div id="batchStatus" class="batch-status">[[localize(flatrateMenuSection, language)]]</div>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <paper-button class="tool-btn p-35px m-t-20 f-s-1em" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
+                <div id="exportRangeNotification">(*) Période exportée: du <span>[[_startOfPreviousMonth()]]</span> au <span>[[_endOfPreviousMonth()]]</span></div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20')]]">
+                <div class="gridContainer">
+                    <div class="invoiceContainer">
+                        J20
                     </div>
-                </template>
+                </div>
+            </template>
 
-            </div>
 
-            <ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patientFromSelectedInvoice]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archive')]]">
+                <div class="gridContainer">
+                    <div class="invoiceContainer">
+                        Archives
+                    </div>
+                </div>
+            </template>
+
+
+
 
         </div>
 
@@ -937,24 +862,8 @@
                     hcp: {
                         type : Object
                     },
-                    selectedMessages: {
-                        type: Object,
-                        notify: true
-                    },
-                    activeItem: {
-                        type: Object
-                    },
-                    messages: {
-                        type: Array,
-                        value: function () {
-                            return [];
-                        }
-                    },
-                    selectList: {
-                        type: Object
-                    },
                     i18n: {
-                        Type: Object,
+                        type: Object,
                         value: function () {
                             moment.locale('fr');
                             const res = {
@@ -981,88 +890,15 @@
                             return res;
                         }
                     },
-                    totalInvoicesToBeSend:{
-                        type: Object,
-                        value : () => ({
-                            totalReimbursement:          Number(0.00).toFixed(2),
-                            totalAmount:                 Number(0.00).toFixed(2),
-                            totalPatientIntervention:    Number(0.00).toFixed(2),
-                            totalDoctorSupplement:       Number(0.00).toFixed(2)
-                        })
-                    },
-                    invoicesStatus: {
+                    flatrateMenuSection: {
                         type: String,
-                        observer: '_invoicesStatusChanged'
-                    },
-                    statusToBeSend:{
-                        type: Boolean,
-                        value: true
-                    },
-                    selectedInvoicesToBeSend:{
-                        type: Object,
-                        value : () => ({})
-                    },
-                    messagesToBeCorrected:{
-                        type: Object,
-                        value : () => ({})
-                    },
-                    selectedInvoicesByStatus:{
-                        type: Object,
-                        value : () => ({})
-                    },
-                    multiSort:{
-                        type: Boolean,
-                        value: true
+                        observer: '_flatrateMenuSectionChanged'
                     },
                     activeGridItem:{
                         type: Object,
                         value: function () {
                             return [];
                         }
-                    },
-                    filterValue:{
-                        type: String,
-                        value: ""
-                    },
-                    filterPath:{
-                        type:String,
-                        value: "invoice.patient.firstName"
-                    },
-                    btnSelectionPatient: {
-                        type: Boolean,
-                        value: false,
-                        notify: true
-                    },
-                    showInactive: {
-                        type: Boolean,
-                        value: false
-                    },
-                    ifInvoiceSelected: {
-                        type: Boolean,
-                        value: true
-                    },
-                    level :{
-                        type : Number,
-                        value : 0
-                    },
-                    expanded : {
-                        type : Boolean,
-                        value : true
-                    },
-                    invoicesFromBatch:{
-                        type: Object,
-                        value: function () {
-                            return [];
-                        }
-                    },
-                    toBeCorrectedMessageDetail:{
-                        type: Object,
-                        value: function () {
-                            return [];
-                        }
-                    },
-                    mobile :{
-                        type: String
                     },
                     displayedYear: {
                         type: Number,
@@ -1072,16 +908,11 @@
                         type: Boolean,
                         value: false
                     },
-                    archOrAcc:{
-                        type: Boolean,
-                        value:false
-                    },
-                    toBeCorr:{
-                        type: Boolean,
-                        value: false
-                    },
-                    patientFromSelectedInvoice:{
-                        type: Object
+                    flatRateAllPatients : {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
                     }
                 };
             }
@@ -1091,7 +922,7 @@
             }
 
             static get observers() {
-                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)'];
+                // return [];
             }
 
             ready() {
@@ -1101,215 +932,9 @@
                 })
             }
 
-            _detailsChanged() {
-                const igd = this.root.querySelector('#invoiceGridDetail')
-                igd && igd.clearCache()
-            }
-
-            dispatchMessages() {
-                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
-                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
-                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
-
-                !!this.initializeBatchCounter(0, 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
-            }
-
-            fetchMessages() {
-                this._isLoadingMessages = true
-                this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
-                    .then(messages => {
-                        const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
-                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids: _.uniq(filteredMessages.map(m => m.recipients[0]))})).then(insurances => {
-                            this.set('allMessages', filteredMessages.map(m => ({
-                                message: m,
-                                messageInfo: {
-                                    messageType: m.subject,
-                                    hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                    oa: insurances && insurances.find(i => i.id === m.recipients[0])? insurances.find(i => i.id === m.recipients[0]).code : "",
-                                    hcpReference: "",
-                                    invoiceNumber: m.externalRef,
-                                    invoiceMonth: "",
-                                    invoiceDate: "",
-                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount) : "0.00",
-                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount) : "0.00",
-                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount) : "0.00",
-                                    invoiceStatus: "",
-                                    rejectionReason: "",
-                                    paymentReference: m.metas && m.metas.paymentReferenceAccount1 ? m.metas.paymentReferenceAccount1 : "",
-                                    paymentDate: "",
-                                    amountPaid: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00"
-                                }
-                            })))
-
-                            Promise.all( this.allMessages.map(mm =>
-                                this.api.document().findByMessage(this.user.healthcarePartyId, mm.message)
-                                    .then(docs => {
-                                        const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
-
-                                        return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
-
-                                            if (typeof a === "string"){
-                                                try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
-                                            } else if (typeof a === "object") {
-                                                try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
-                                            }
-
-                                            const zone200 = a && a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                            const zone300 = a && a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                            const zone400 = a && a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                            const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
-                                            const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
-
-                                            const st = mm.message.status
-
-                                            const invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
-                                                !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
-                                                !!(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
-                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
-                                                !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
-                                                !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
-                                                !!(st & (1 << 9)) ?  this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
-                                                !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
-
-
-                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                     !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
-
-                                            return (zone200 && zone300) ?
-                                                ({
-                                                    message: mm && mm.message,
-                                                    messageInfo: {
-                                                        messageType:        zone200.zones && zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
-                                                        hcp:                this.hcp.firstName + " " + this.hcp.lastName,
-                                                        oa:                 zone500.zones && zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
-                                                        hcpReference:       enr10.zones && enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
-                                                        invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
-                                                        invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
-                                                        invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount:     (mm && mm.messageInfo && mm.messageInfo.invoicedAmount) ? mm.messageInfo.invoicedAmount : "0.00",
-                                                        acceptedAmount:     (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
-                                                        refusedAmount:      (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? mm.messageInfo.invoicedAmount : (mm && mm.messageInfo && mm.messageInfo.refusedAmount) ? mm.messageInfo.refusedAmount : "0.00",
-                                                        invoiceStatus:      invoiceStatus,
-                                                        rejectionReason:    rejectionReason,
-                                                        paymentReference:   (mm && mm.messageInfo && mm.messageInfo.paymentReference) ? mm.messageInfo.paymentReference : "",
-                                                        paymentDate:        "",
-                                                        amountPaid:         (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
-                                                        paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paid: false
-                                                    }
-                                                }) : mm
-                                        }) : mm
-                                    }))).then(msgsStructs => {
-                                                this._isLoadingMessages = false
-                                                this.set('allMessages', msgsStructs)
-                                                this.dispatchMessages()
-                                        })
-
-                        })
-                    })
-            }
-
-            getInvoices(){
-                this.fetchMessages()
-            }
-
-
-
-            _toggleDataProvider(input) {
-                //TODO rewrite lodash
-
-                let inputList = input
-                let mutGroups = []
-                inputList.map(patient => {
-                    const thisMutGrp = // set this pat insurance code grp
-                        (patient.insuranceCode < 200) ? "100" :
-                        (patient.insuranceCode < 300) ? "200" :
-                        (patient.insuranceCode < 400) ? "300" :
-                        (patient.insuranceCode < 500) ? "400" :
-                        (patient.insuranceCode < 600) ? "500" :
-                        (patient.insuranceCode < 700) ? "600" :
-                        "900"
-                    let grpExists = false
-                    mutGroups.map(grp=> { if (grp.code === thisMutGrp) { // check if grp exists
-                        grpExists = true
-                    }})
-                    if (!grpExists) { mutGroups.push({ // else create object
-                        code: thisMutGrp,pat: [],sum:{oa:0,pat:0,sup:0,tot:0}
-                    })}
-                    mutGroups.map(grp=>{ if (grp.code === thisMutGrp) { // get into this grp
-                        (grp.pat).push(patient) // add the patient
-                    }})
-                }) // inputList map end
-
-                mutGroups.sort((a, b)=>{return a.code-b.code})
-                this.set('toggledDatas', mutGroups ) // this.set
-                for (let grp of mutGroups) {
-                    console.log("grp",grp)
-                    let totPat = 0
-                    for (let pat of grp.pat){
-                        console.log(">pat",pat)
-                        grp.sum.oa += Number(pat.reimbursement)
-                        grp.sum.pat += Number(pat.patientIntervention)
-                        grp.sum.sup += Number(pat.doctorSupplement)
-                        grp.sum.tot += Number(pat.totalAmount)
-                        totPat++
-                    }
-                    // const totEntr = this.localize('entr','Entries',language)
-                    // const totWord = this.localize('tot','Total',language)
-                    // grp.code = `${grp.code} (${totPat} ${totEntr}), OA : ${grp.sum.oa}€ - Patient : ${grp.sum.pat}€ - Sup : ${grp.sum.sup}€ - ${totWord} : ${grp.sum.tot}€`
-                }
-            } // provider end
-
-            calculateTotalInvoicesToBeSend(){
-
-                let total = {
-                    totalReimbursement :          Number(0.00),
-                    totalAmount :                 Number(0.00),
-                    totalPatientIntervention :    Number(0.00),
-                    totalDoctorSupplement :       Number(0.00),
-                }
-
-                this.selectedInvoicesToBeSend.map(invoice => {
-                    total.totalReimbursement          += Number(invoice.totalInvoice.reimbursement)
-                    total.totalAmount                 += Number(invoice.totalInvoice.totalAmount)
-                    total.totalPatientIntervention    += Number(invoice.totalInvoice.patientIntervention)
-                    total.totalDoctorSupplement       += Number(invoice.totalInvoice.doctorSupplement)
-                })
-
-                this.set('totalInvoicesToBeSend', total)
-
-            }
-
-            _invoicesStatusChanged(){
-                this.invoicesStatus === "toBeSend" ? this.set('statusToBeSend', true) : this.set('statusToBeSend', false)
-                this.set('processing',this.isProcess())
-                this.set('archOrAcc',!(this.isProcess()||this.isReject()))
-            }
-
-            messagesByStatus() {
-                return this.invoicesStatus === "process" ? this.messagesProcessed :
-                    this.invoicesStatus === "accept" ? this.messagesAccepted :
-                        this.invoicesStatus === "reject" ? this.messagesRejected :
-                            this.invoicesStatus === "toBeCorrected" ? this.messagesToBeCorrected : []
-            }
-
-            _invoicedAmount() {
-                return this.messagesByStatus() ? this._formatAmount( (this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.invoicedAmount), 0).toFixed(2) ) ) :0
-            }
-
-            _acceptedAmount() {
-                return this.messagesByStatus() ? this._formatAmount( (this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.acceptedAmount), 0).toFixed(2) ) ): 0
-            }
-
-            _refusedAmount() {
-                return this.messagesByStatus() ? this._formatAmount( (this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.refusedAmount), 0).toFixed(2) ) ) : 0
-            }
-
-            _displayInvoiceStatus(status){
-
-               return this.localize(status, this.language)
-
-                //this.shadowRoot.getElementById("batchStatus").classList.add("")
+            _flatrateMenuSectionChanged(){
+                console.log('---_flatrateMenuSectionChanged---');
+                console.log(this.flatrateMenuSection);
             }
 
             formatDate(d,f) {
@@ -1333,179 +958,6 @@
                             (mm.toString() == '11') ? this.localize('Nov',this.language) :
                             this.localize('Dec',this.language)
                         return `${monthStr} ${yyyy}`
-                }
-            }
-
-            _formatAmount(amount){
-                return this.findAndReplace(((Number(amount).toFixed(2)).toString()),'.',',')
-            }
-            _forceZeroNum(num) {
-                console.log('num',num)
-                return (!num) ? '0' : num.toString()
-            }
-
-            findAndReplace(string, target, replacement) {
-                for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
-                return string;
-            }
-
-            refreshFilter(e){
-                const param = e.target.getAttribute('param')
-                console.log("refresh, param",param)
-                const where = this.invoicesStatus // toBeSend, toBeCorrected, process, reject, accept, archive
-                const str =
-                    (param == "invoiceGrid") ? this.filterInput:
-                    (param == "messagesGrid") ? this.filterInputInvoices :
-                    this.selectedInputDetail
-                setTimeout(function () {
-                    let arrList =
-                        (param == "invoiceGrid") ? this.shadowRoot.querySelectorAll("."+param) :
-                        (param == "selectedInputDetail") ? this.shadowRoot.querySelectorAll("#invoiceDetailContainer #invoiceGridDetail") :
-                        this.shadowRoot.querySelectorAll(".scrollBox")
-                    console.log("arrList a",param,arrList)
-                    if (param == "messagesGrid") {
-                        let temp
-                        const selected =
-                            (where == "process") ? "processTable" :
-                            (where == "reject") ? "rejectedTable" :
-                            "archiveAndAccepted"
-                        Array.prototype.slice.call(arrList).map(list=> {
-                            console.log("list", list)
-                            if (list.querySelector("."+selected) ) {
-                                temp = list.querySelectorAll("."+selected)
-                            }
-                        })
-                        arrList = temp
-                    }
-                    console.log("arrList b",param,arrList)
-                    Array.prototype.slice.call(arrList).map(table=>{
-                        console.log("before exec",str,table)
-                        this.executeSearch(str,table)
-                    })
-                }.bind(this), 500)
-            }
-
-            executeSearch(str,param) {
-                console.log("executeSearch",str,param)
-                const grid = param
-                const tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
-                const trs = tbody.querySelectorAll("tr")
-                let input = (str.includes(":") ) ? this.treatQuery(str) : str
-                input = (this.checkFilters(input)).toString().toLowerCase()
-                if (trs.length){
-                    let keepList = []
-                    Array.prototype.slice.call(trs).map(row=>{
-                        let cells = row.querySelectorAll("td"), toHide = true
-                        cells.forEach(that=>{
-                            const test = (that._content.innerText).toString().toLowerCase()
-                            if (test.includes(input)) {
-                                toHide = false
-                            }
-                        })
-                        if (toHide) {
-                            row.hidden = true
-                        } else {
-                            keepList.push(row)
-                            row.hidden = false
-                        }
-                    })
-                    let showCount = 0
-                    keepList.map(showMe=>{
-                        showMe.style.transform = "translateY("+ (showCount*48) +"px)"
-                        showMe.style.height = "48px"
-                        showMe.style.lineHeight = "24px"
-                        showCount++
-                    })
-                } // endif
-            }
-
-            _batchDetailDataProvider() {
-                return (params, callback) => {
-                    const startIndex = params.page * params.pageSize
-                    if (!params.parentItem) {
-                        this.invoicesFromBatch ? callback(this.invoicesFromBatch.slice(startIndex, startIndex + params.pageSize), this.invoicesFromBatch.length) : callback([], 0)
-                    } else {
-                        callback(params.parentItem.invoicingCodes.slice(startIndex, startIndex + params.pageSize), params.parentItem.invoicingCodes.length)
-                    }
-                }
-            }
-
-            checkFilters(str) { // will (set the path type for vaadin filter and) format search output
-                let searchType = "invoice.patient.firstName"
-                let output = str
-                if (str.length) {
-                    if (!isNaN(str)) { // is a number
-                        searchType =
-                            (str.toString().length == 11) ? "patient.ssin" : // NISS (length must be 11)
-                            (str.length == 8) ? "invoice.invoiceReference" : // bill number
-                            (str >= 1930 && str <= (new Date().getFullYear() + 100)) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
-                            ((typeof str == "float") || str.includes(".")) ? "invoice.totalAmount" : // float amount
-                            (str.length == 3 && (100 <= str && str <= 999) ) ? "patient.insurance.code" : // Insurance code
-                            "invoice.invoiceReference"
-                        // format output ->
-                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); }
-                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output.toString(),'.',',') }
-                    } else { // is a string
-                        searchType =
-                            (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
-                            (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.ssin" :
-                            (str.includes(" ") ) ? "invoice.patient.firstName" :
-                            (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
-                            "invoice.patient.firstName"
-                        // format output ->
-                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€',''); output = this.findAndReplace(output,'.',','); }
-                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,' ',''); output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); }
-                        if (searchType == "invoice.invoiceDate") { output = this.fourNumYears(output) }
-                    }
-                }
-                return output
-            }
-            fourNumYears(input) {
-                const aa = input.slice(0,2),bb = input.slice(3,5)
-                let cccc = input.slice(6,11)
-                cccc = (cccc.toString().length == 2) ? cccc = "20"+cccc : cccc
-                return `${aa}/${bb}/${cccc}`
-            }
-            treatQuery(query) { // mainly used for numbers
-                let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
-                search =(search.includes(':')) ? this.findAndReplace(search,':',' ') : search
-                return search
-            }
-
-            _invoicesChange(){
-                this.calculateTotalInvoicesToBeSend()
-            }
-
-            sendInvoices(){
-                this.set('isSending',true)
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
-                    let prom = Promise.resolve()
-                    _.chain(this.selectedInvoicesToBeSend)
-                        .groupBy(fact => fact.insuranceParent)
-                        .toPairs().value()
-                        .forEach(([fedId,invoices]) => {
-                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
-                                        .then(message => this.api.register(message,'message'))
-                                        .finally(() => {
-                                           this.getInvoices()
-                                           this.set('isSending',false)
-                                       })
-                        })
-                })
-            }
-
-            _showInvoiceToBeSendDetails(){
-                this.$.pendingDetailDialog.open()
-            }
-
-            _unlockInvoice(e){
-                e.stopPropagation()
-
-                if(e.target.dataset.item){
-                    const invoice = JSON.parse(e.target.dataset.item)
-                    delete(invoice.printedDate)
-
-                    this.api.invoice().modifyInvoice(invoice).then(() => this.getInvoices())
                 }
             }
 
@@ -1906,218 +1358,6 @@
                 return erreur;
             }
 
-
-            _showDetail() {
-
-                if (this.activeGridItem && this.activeGridItem.message){
-                    this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
-                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
-
-                    const invoiceIds = this.activeGridItem.message.invoiceIds
-                    const st = this.activeGridItem.message.status
-
-                    this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invoiceIds.map(i => i)}))
-                        .then(invoices => Promise.all(invoices.map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
-                        .then(invAndIdsPat =>
-                            this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
-                        )
-                        .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
-                            invoiceReference: inv.invoiceReference,
-                            patient: pat.lastName + " " + pat.firstName,
-                            ssin: pat.ssin,
-                            invoiceDate: inv.invoiceDate,
-                            invoicedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            acceptedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
-                            refusedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
-                            rejectionReason: inv.error,
-                            paid: false,
-                            status: this.activeGridItem.messageInfo.invoiceStatus,
-                            invoice: inv,
-                            invoicingCodes: inv.invoicingCodes.map(code => ({
-                                invoicingCode: code.code,
-                                invoiceDate: code.dateCode,
-                                invoicedAmount: Number(code.reimbursement),
-                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : code && code.paid ? code.paid : 0.00,
-                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : code && code.paid ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
-                                rejectionReason: code.error,
-                                paid: false,
-                                status: ""
-                            }))
-                        })))
-                        .then(infos => this.set('invoicesFromBatch', infos))
-                        .then(() => this.api.message().getChildren(this.activeGridItem.message.id))
-                        .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099', '920098', '920900'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
-                        .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
-                        .then((attachs) => {
-                            attachs.forEach( a => {
-
-                                if (typeof a === "string"){
-                                    try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
-                                } else if (typeof a === "object") {
-                                    try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
-                                }
-
-                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
-
-                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
-                                    zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
-                                    zone400 && this.SEG_getErrSegment_400(zone400.zones || []),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])])
-
-                            })
-                        })
-
-                } else {
-                    this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
-                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
-                }
-            }
-
-            _showMessagesToBeCorrectedDetail(){
-                if (this.activeGridItem){
-                    this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
-                    this.shadowRoot.getElementById("toBeCorrectedDetailContainer").classList.add("open")
-
-                    this.set("toBeCorrectedMessageDetail", this.activeGridItem.invoice.invoicingCodes)
-                    this.set("patientFromSelectedInvoice", this.activeGridItem.patient)
-
-                }else{
-                    this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
-                    this.shadowRoot.getElementById("toBeCorrectedDetailContainer").classList.remove("open")
-                }
-            }
-
-
-            receiveInvoices() {
-                this.set('isReceiving',true)
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
-                    let prom = Promise.resolve()
-                    response.forEach(message => {
-                        // console.log(message)
-
-                        prom = prom.then(() =>
-                            new Promise((resolve) => {
-                                if (message.detail) {
-                                    this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
-                                        .then(msg => {
-                                            msg ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
-                                        })
-                                        .catch(e => {
-                                            // console.log(e)
-                                            resolve()
-                                            this.set('isReceiving',false)
-                                        })
-                                } else if (message.tack) {
-                                    this.api.message().processTack(this.user, this.hcp, message)
-                                        .then(rcpt => {
-                                            rcpt ? resolve(message) : resolve()
-                                            this.set('isReceiving',false)
-                                        })
-                                        .catch(e => {
-                                            // console.log(e)
-                                            resolve()
-                                            this.set('isReceiving',false)
-                                        })
-                                }
-                            })
-                        )
-                    })
-/*
-                    prom = prom.then(treatedMessages => {
-                        let sprom = Promise.resolve()
-                        _.chunk(treatedMessages, 20).forEach(chunk => {
-                            const tacks = chunk.filter(x => x && x.tack)
-                            const responses = chunk.filter(x => x && x.detail)
-
-                            sprom = sprom
-                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
-                        })
-                        return sprom
-                    })*/
-                })
-            }
-
-            _dateFormat(date) {
-                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
-            }
-
-            isProcess(){
-                return this.invoicesStatus === "process"
-            }
-
-            isReject(){
-                return (this.invoicesStatus === "reject")
-            }
-
-
-            isArchOrAcc(){
-                return !(this.invoicesStatus === "reject" || this.invoicesStatus === "process" || this.invoicesStatus === "toBeCorrected")
-
-            }
-
-            isToBeCorrected(){
-                return (this.invoicesStatus === "toBeCorrected")
-            }
-
-            initializeBatchCounter(toBeSend, toBeCorrected, processedCounter, acceptedCounter, rejectedCounter){
-                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { toBeSend: this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, toBeCorrected: this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0,  processing: processedCounter, rejected: rejectedCounter, accepted: acceptedCounter, archived: 0} }));
-            }
-
-            _getIconStatusClass(status) {
-                console.log("geticonstatus",status)
-                return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status == this.localize('inv_to_be_send','To be send',this.language)) ? (!this.statusToBeSend)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
-                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "invoice-status--redStatus" :
-                    (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
-                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
-                    (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
-                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
-                    (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
-                    ""
-            }
-            _getTxtStatusColor(status,amount) {
-                console.log("gettxtstatus",status,amount)
-                if (amount > 0) {
-                    return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
-                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
-                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
-                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
-                    (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
-                    (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
-                    (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
-                    ""
-                }
-            }
-
-            _isEqual(a,b) {console.log('a',a);return (a == b)}
-            _isPartiallyAccepted(test) { return (test == this.localize('inv_par_acc','Partially accepted',this.language))}
-            _isMoreThen(a,b,so) {return (a>b)? so : 'false'}
-
-            cleanStringForJsonParsing(inputValue) {
-                return inputValue
-                    .replace(/\\n/g, "\\n")
-                    .replace(/\\'/g, "\\'")
-                    .replace(/\\"/g, '\\"')
-                    .replace(/\\&/g, "\\&")
-                    .replace(/\\r/g, "\\r")
-                    .replace(/\\t/g, "\\t")
-                    .replace(/\\b/g, "\\b")
-                    .replace(/\\f/g, "\\f")
-                    .replace(/[\u0000-\u0019]+/g,"")
-            }
-
-            _openInvoicingDialog(e){
-                if(e && e.target && e.target.id){
-                    this.$.invoicingForm.open({invoicingCodeId:e.target.id})
-                }
-            }
-
             _toggleRightPanel(){
                 this.shadowRoot.getElementById("rightPanel").classList.toggle("opened")
             }
@@ -2126,6 +1366,22 @@
                 console.log('filter results by date range');
                 console.log(this.shadowRoot.getElementById("dateRangeStart").value);
                 console.log(this.shadowRoot.getElementById("dateRangeEnd").value);
+            }
+
+            _showWarningMessageEarlyInvoicing() {
+                return parseInt(moment().date()) > 5;
+            }
+
+            _startOfPreviousMonth() {
+                return moment().subtract(1, 'month').startOf('month').format('DD/MM/YYYY')
+            }
+
+            _endOfPreviousMonth() {
+                return moment().subtract(1, 'month').endOf('month').format('DD/MM/YYYY')
+            }
+
+            _isEqual(a,b) {
+                return a === b
             }
 
             _downloadInvoices() {
@@ -2143,6 +1399,152 @@
                 // var invoices: MutableList<Invoice> = LinkedList()
 
                 // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
+            }
+
+            _getMyHcps() {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.hcparty().listHealthcareParties( key && JSON.stringify(key), docId, 1000)
+                            .then(pl => {
+                                pl.rows = _
+                                    .chain(pl.rows)
+                                    .filter((i)=>{return(
+                                        !!i
+                                        && !!i.nihii
+                                        && !!i.ssin
+                                        // && i.parentId === this.user.healthcarePartyId        // Must be uncommented (leave as such to have large test data)
+                                    )})
+                                    .uniqBy( 'nihii' )
+                                    .value()
+                                ;
+                                return {
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done: !pl.nextKeyPair
+                                }
+                            })
+                            .catch(()=>{})
+                );
+
+            }
+
+            _getPatientsByHcp( hcpId ) {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        // this.api.patient().listPatientsByHcParty( hcpId, null, key && JSON.stringify(key), docId, 1000)
+                        this.api.patient().listPatientsByHcPartyWithUser(this.user, hcpId, null, key && JSON.stringify(key), docId, 1000)
+                            .then(pl => {
+                                pl.rows = _
+                                    .chain(pl.rows)
+                                    .filter((i)=>{return(
+                                        !!i
+                                        && !!i.active
+                                        && !!i.dateOfBirth
+                                        && !!i.ssin
+                                        && !!i.insurabilities.length
+                                        && !!_
+                                            .chain(i.insurabilities)
+                                            .filter((i)=>{return(
+                                                i
+                                                && i.identificationNumber
+                                                && i.insuranceId
+                                            )})
+                                            .value()
+                                        .length
+                                        && !!i.medicalHouseContracts.length
+                                        && !!_
+                                            .chain(i.medicalHouseContracts)
+                                            .filter((i)=>{return(
+                                                i
+                                                // && i.hcpId === this.user.healthcarePartyId         // Must be uncommented (leave as such to have large test data)
+                                            )})
+                                            .value()
+                                        .length
+                                    )})
+                                    .uniqBy( 'ssin' )
+                                    .value()
+                                ;
+                                return {
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done: !pl.nextKeyPair
+                                }
+                            })
+                            .catch(()=>{})
+                );
+
+            }
+
+            _getListingJ3() {
+
+                this._isLoadingMessages = true;
+
+                // document.getElementById('spinnerMessageFeedback').innerHTML = 'Querying for data...';
+                // console.log(document.querySelector("#spinnerMessageFeedback"));
+                // console.log(this.shadowRoot.querySelector("#spinnerMessageFeedback"));
+
+                // get my hcp children
+                this._getMyHcps()
+                    .then(myHcps => {
+
+                        let resolvedHcpPatients = 0;
+                        const totalPatientToResolve = myHcps.length;
+                        if(!totalPatientToResolve) {this._isLoadingMessages = false; return;}
+
+                        // Get patients of child hcp
+                        _.forEach(myHcps, (singleHcp) => {
+                            this._getPatientsByHcp(singleHcp.id)
+                                .then(hcpPat => {
+                                    resolvedHcpPatients++;
+                                    // document.getElementById('spinnerMessageFeedback').innerHTML = 'Querying for patient ' + resolvedHcpPatients;
+                                    if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this._splitFlatRatePatientsInGroups(); }
+                                })
+                                .catch(()=>{this._isLoadingMessages = false;})
+                        })
+                    })
+                    .catch(()=>{this._isLoadingMessages = false;})
+                ;
+
+            }
+
+
+            _splitFlatRatePatientsInGroups() {
+
+                // 1) Group by MUT
+                // 2) Ensuite group by
+                //     - subscriptionsWithoutTryOut
+                //     - subscriptionsWithTryOut
+                //     - unsubscriptions
+
+
+                // _.chain( this.flatRateAllPatients )
+                // .filter((i)=>{return(
+                //     i
+                //     && moment(i.startOfContract).isBefore(moment(), 'day')
+                //     && ( moment(i.endOfContract).isAfter(moment(), 'day') || !ii.endOfContract )
+                //     && moment(i.startOfCoverage).isBefore(moment(), 'day')
+                //     && ( moment(i.endOfCoverage).isAfter(moment(), 'day') || !ii.endOfCoverage )
+                // )})
+                // .value()
+
+                console.log(this.flatRateAllPatients);
+
+                // this._isLoadingMessages = false;
+
+            }
+
+
+            _getListingJ20() {
+                console.log('_getListingJ20');
+            }
+
+            _getListingArchives() {
+                console.log('_getListingArchives');
             }
 
         }
