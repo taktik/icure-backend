@@ -687,7 +687,7 @@
 						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden$="{{!_isDeleted}}}"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden$="{{!isDeleted}}"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
@@ -846,7 +846,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			isLoadingMessage: {
 				type: Boolean,
 				value: false
-			}
+			},
+            isDeleted: {
+			    type: Boolean,
+                value: false
+            }
 		};
 	}
 
@@ -878,8 +882,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return msgBody.length ? msgBody : "no content"
 	}
 
-	_isDeleted() {
-	    return this.messages[0].transportGuid.startsWith("BIN")
+	_checkDeleted() {
+	    this.set('isDeleted',this.messages[0].transportGuid.startsWith("BIN") )
     }
 
     _focusChanged(){
@@ -914,6 +918,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
                     Promise.all(docs).then(docs=>{
+                        console.log('docs!!',docs)
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
@@ -926,7 +931,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set("selectedDocuments", []);
 					this.getChildren(tempSelect.id)
                 }
-            })
+
+            }).finally(()=>this._checkDeleted)
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);
@@ -1000,12 +1006,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
-            annex: origMsg.selectedDocuments,
+            annex: this.selectedDocuments,
             document: {
 	            title: 'Fw: '+origMsg.subject,
                 textContent: origMsg.body.length ? origMsg.body : 'no content'
             },
-            customMetas: origMsg.metas
+            customMetas: origMsg.metas,
+            type: 'fwd'
         }
 	    console.log(origMsg,'forward',msgToFw)
         const target = this.parentElement.parentNode.children[1]
@@ -1019,18 +1026,19 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             nihii: undefined,
             cbe: undefined,
             ssin: undefined,
-            type: "WiP"
+            type: this.localize('replyto','In reply to',this.language)
         }]
         this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToRe = {
             destinations: dest,
             patientInss: origMsg.patientINSS,
-            annex: origMsg.selectedDocuments,
+            annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
                 textContent: origMsg.body.length ? origMsg.body : 'no content'
             },
-            customMetas: origMsg.metas
+            customMetas: origMsg.metas,
+            type: 'replyto'
         }
 	    console.log(origMsg,'reply',msgToRe)
         const target = this.parentElement.parentNode.children[1]

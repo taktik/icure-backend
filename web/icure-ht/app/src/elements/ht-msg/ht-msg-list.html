@@ -785,7 +785,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
                 }
-                console.log(this.checkedMessages.length+' checked')
+                console.log(this.checkedMessages.length+' checked',this.checkedMessages[this.checkedMessages.length-1])
             }
 
             _toggleSelectAll() {

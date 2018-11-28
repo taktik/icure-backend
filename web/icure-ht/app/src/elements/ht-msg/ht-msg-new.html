@@ -706,15 +706,19 @@
                 //         title: '',
                 //         textContent: ''
                 //     },
-                //     type: 'fw' || 're'
+                //     type: 'fwd' || 'replyto'
                 // }
+                let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
                 if (params) {
                     this.set("newMessage.annex", params.annex)
                     this.set("newMessage.customMetas", params.customMetas)
                     this.set('newMessage.destinations', params.destinations)
                     this.set('newMessage.document.title',params.document.title)
-                    this.set('newMessage.document.textContent',`\r\n\r\n========\r\n${params.document.textContent}`)
+                    this.set('newMessage.document.textContent',`\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}`)
                     this.set("newMessage.patientInss", params.patientInss)
+                    vaadinUpload.files = this.newMessage.annex
                     console.log('open',this.newMessage)
                 }
                 this.$['new-msg'].open()
