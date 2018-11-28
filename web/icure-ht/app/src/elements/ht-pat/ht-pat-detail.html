@@ -3094,7 +3094,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 switch (propHub.typedValue.stringValue) {
                     case 'rsb':
                         this.hubId = 1990000728;
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.abrumet.be/hubservices/intrahub/v3/intrahub.asmx' : 'https://hub.abrumet.be/hubservices/intrahub/v3/intrahub.asmx';
                         this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSB" ;//TODO: verify value
@@ -3102,7 +3102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         break;
                     case 'rsw':
                         this.hubId = 1990000035;
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx';
                         this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSW";
