@@ -2199,7 +2199,7 @@
             }
 
             static get observers() {
-                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
+                return ['_paymentTypeChanged(selectedInvoice.paymentType)','_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
             }
 
             ready() {
@@ -2827,7 +2827,10 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2))) }
+                    if (this.selectedInvoice) {
+                        this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
+                        this.set('selectedInvoice.paymentType',"cash")
+                    }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
@@ -4423,6 +4426,13 @@
                         this.selectedInvoice.printedDate = moment().format('YYYYMMDD')
                     }
                 }*/
+            }
+
+            _paymentTypeChanged(){
+                if(!this.selectedInvoice && this.selectedInvoice.paymentType)return;
+                if(this.selectedInvoice.paymentType==="wired"){
+                    this.set("selectedInvoice.paid",0)
+                }
             }
         }
 
