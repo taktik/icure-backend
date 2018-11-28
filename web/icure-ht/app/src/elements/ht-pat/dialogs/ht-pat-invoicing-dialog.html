@@ -1023,12 +1023,17 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <div on-tap="_generatePrintedDate">
+                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
+                                            <div on-tap="_cancelPrintedDate">
                                             <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
-                                             <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
                                                   <span>[[_formatInvoiceDate(item.printedDate)]]</span>
-                                             </template>
-                                        </div>
+                                            </div>
+                                        </template>
+                                        <template is="dom-if" if="[[_ifClosedButNotPrinted(item)]]">
+                                            <div on-tap="_generatePrintedDate">
+                                                <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
+                                            </div>
+                                        </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
@@ -4428,11 +4433,19 @@
                 }*/
             }
 
+            _cancelPrintedDate(e){
+                console.log("la:",e,this.selectedInvoice);
+            }
+
             _paymentTypeChanged(){
                 if(!this.selectedInvoice && this.selectedInvoice.paymentType)return;
                 if(this.selectedInvoice.paymentType==="wired"){
                     this.set("selectedInvoice.paid",0)
                 }
+            }
+
+            _ifClosedButNotPrinted(item){
+                return item && !item.printedDate && !this._ifStatusDateExist(item.printedDate) && item.sentDate && item.mediumType==="eattest";
             }
         }
 
