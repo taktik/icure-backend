@@ -341,12 +341,17 @@
             }
 
             .td iron-input > input:focus{
-                background-color: rgba(0, 0, 0, .2);
+                animation: .24s ease-in forwards inputShadows;
             }
 
             .td iron-input > input:hover{
                 background-color: rgba(0, 0, 0, .2);
                 box-shadow: var(--app-shadow-elevation-1);
+            }
+
+            @keyframes inputShadows{
+                from{ box-shadow: inset 0 0 0 rgba(0, 0, 0, .2); }
+                to{ box-shadow: inset 0 0 50px rgba(0, 0, 0, .2); }
             }
 
             .td:first-child {
@@ -495,6 +500,15 @@
                 border-right: 1px solid var(--app-background-color-dark);
             }
 
+            .futur-block{
+                min-width: calc(24px * 4);
+                width: calc(24px * 4);
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: center;
+            }
+
             .btn-left, .btn-right{
                 display: flex;
                 flex-flow: row wrap;
@@ -512,6 +526,12 @@
                 justify-content: flex-start;
             }
 
+            .medication-category{
+                color: var(--app-text-color);
+                font-size: 10px;
+                padding-left: 8px;
+            }
+
             .medication-line{
                 display: flex;
                 flex-flow: row nowrap;
@@ -525,10 +545,11 @@
                 background: var(--app-background-color-light);
             }
 
-            .medication-line .category{
+            .medication-line .type{
                 width: 10%;
                 text-align: left;
                 flex-grow: 1;
+                padding-left: 8px;
             }
 
             .medication-line .extra-info{
@@ -540,28 +561,54 @@
                 max-width: calc(24px * 36 + 2px);
                 width: calc(24px * 36 + 2px);
                 overflow: hidden;
+                height: 24px;
             }
 
             .medication-line .line{
-                box-sizing: border-box;
-                position: relative;
-                padding: 0 4px;
+                display: flex;
+                box-sizing: unset;
+                position: absolute;
                 background: red;
-                color: white;
+                color: #fff;
                 width: 600px;
-                margin-left: 150px;
                 border-radius: 2px;
+                top: 0;
+                left: 0;
+                height: 100%;
+                margin: 1px 0;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
             }
 
             .medication-line .line.over{
                 opacity: 0.6;
+            }
+
+            .line-total-width{
+                position: relative;
+                height: 100%;
+            }
+
+            .medication-line .line .name{
+                width: 100%;
+                text-align: left;
+                margin-left: 4px;
+            }
+
+            .medication-line .reimbursement-line{
+                display: block;
+                position: absolute;
+                width: 100%;
+                background: green;
+                height: 4px;
+                bottom: 0;
             }
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
 
             <h2 class="modal-title">[[localize('med_plan','Medication plan',language)]]
-
                 <paper-tabs selected="{{selectedTab}}">
                     <paper-tab>History</paper-tab>
                     <paper-tab>Present</paper-tab>
@@ -577,67 +624,45 @@
                             <div class="btn-left">
                                 <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
                             </div>
-                            <div class="years-container">
-                                <div id="2015" class="year-block">
-                                    <div class="year">2015</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
+                            <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
+                                <template is="dom-repeat" items=[[historyYears]] as="historyYear">
+                                    <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
+                                        <div class="year">[[historyYear.number]]</div>
+                                        <div class="quarter">Q1</div>
+                                        <div class="quarter">Q2</div>
+                                        <div class="quarter">Q3</div>
+                                        <div class="quarter">Q4</div>
+                                    </div>
+                                </template>
+                                <div class="futur-block">
+                                    <div>futur</div> 
                                 </div>
-                                <div id="2016" class="year-block">
-                                    <div class="year">2016</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
-                                <div id="2017" class="year-block">
-                                    <div class="year">2017</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
-                                <div id="2018" class="year-block current">
-                                    <div class="year">2018</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
-                                <div id="2019" class="year-block">
-                                    <div class="year">2019</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
-                                <div id="2020" class="year-block">
-                                    <div class="year">2020</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
-                                <div id="2021" class="year-block">
-                                    <div class="year">2021</div>
-                                    <div class="quarter">Q1</div>
-                                    <div class="quarter">Q2</div>
-                                    <div class="quarter">Q3</div>
-                                    <div class="quarter">Q4</div>
-                                </div>
+                               
                             </div>
                             <div class="btn-right">
                                 <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
                             </div>
                         </div>
                         <div class="timeline-body">
-                            <div class="medication-line">
-                                <div class="category">ß-bloquant</div>
-                                <div class="line-container"><div id="line" class$="line [[_isOver(2018, 2017)]]" >Sélectol 500mg - 3x/j.</div></div>
-                                <div class="extra-info"></div>
-                            </div>
+                            <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
+                                <div class="medication-category">[[fakePatientMedication.category]]</div>
+                                <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
+                                        <div class="medication-line" id="scrollable-element">
+                                            <div class="type">[[medication.type]]</div>
+                                            <div class="line-container">
+                                                <div class="line-total-width" style$="[[_totalWidth()]]">
+                                                    <div id="line" class$="line [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                        <div class="name">[[medication.name]] - [[medication.posology]]</div>
+                                                    </div>
+                                                    <template is="dom-if" if="[[medication.isReimbursed]]">
+                                                        <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="extra-info">[[medication.extraInfo]]</div>
+                                        </div>
+                                    </template>
+                            </template>
                         </div>
                     </div>
                     
@@ -993,7 +1018,73 @@
                     medicationClassesWithPosology: {
                         type: Array,
                         value: () => []
+                    },
+
+                    scrollLeft: {
+                        type: Number, 
+                        value: 0,
+                        notify: true,
+                        observer: '_scrollLeftChanged'
+                    },
+
+                    historyYears: {
+                        type: Array,
+                        value: () => [
+                            {
+                                id: "year-2015",
+                                number: 2015,
+                                isCurrent: false
+                            },
+                            {
+                                id: "year-2016",
+                                number: 2016,
+                                isCurrent: false
+                            },
+                            {
+                                id: "year-2017",
+                                number: 2017,
+                                isCurrent: false
+                            },
+                            {
+                                id: "year-2018",
+                                number: 2018,
+                                isCurrent: true
+                            }
+                        ],
+                    },
+                    fakePatientMedications: {
+                        type: Array,
+                        value: () => [
+                            {
+                                category: "Anti-hypertenseurs",
+                                medications: [
+                                    {
+                                        name: "Selectol 500mg",
+                                        posology: "2x/d",
+                                        type: "ß-bloquant",
+                                        startDate: "01 jan 2017",
+                                        endDate: "31 dec 2018",
+                                        extraInfo: "",
+                                        isReimbursed: true,
+                                        reimmbursementDateStart: "20 jan 2017",
+                                        reimmbursementDateEnd: "31 dec 2018"
+                                    },
+                                    {
+                                        name: "Amlor 200mg",
+                                        posology: "2x/d",
+                                        type: "Inhib.-Ca",
+                                        startDate: "01 jan 2018",
+                                        endDate: "30 sep 2018",
+                                        extraInfo: "",
+                                        isReimbursed: true,
+                                        reimmbursementDateStart: "20 mar 2018",
+                                        reimmbursementDateEnd: "30 sept 2048"
+                                    }
+                                ]
+                            },
+                        ]
                     }
+                    
                 }
             }
 
@@ -1007,7 +1098,8 @@
 
             ready() {
                 super.ready()
-                this.addEventListener('iron-resize', () => this._setInitialScroll());
+                this.addEventListener('iron-resize', () => this._setInitialScroll())
+                this.addEventListener('iron-resize', () => this._totalWidth())
             }
 
             attached() {
@@ -1019,23 +1111,67 @@
                 this.set('selectedTab', e)
             }
 
+            _scrollHandler(e) {
+                this.set('scrollLeft', e.currentTarget.scrollLeft)
+            }
+
+            _scrollLeftChanged(){
+                const yearsContainer = this.shadowRoot.querySelector('.years-container')
+                if(yearsContainer) yearsContainer.scrollLeft = this.scrollLeft
+                const timelines = this.root.querySelectorAll('.line-container')
+                for( let line of timelines) {
+                    line.scrollLeft = this.scrollLeft
+                }
+            }
+
             _setInitialScroll(){
                 const currentYear = this.shadowRoot.querySelector('.current')
-                const yearsContainer = this.shadowRoot.querySelector('.years-container')
-                const currentLeftPos = currentYear.offsetLeft
-                yearsContainer.scrollLeft = currentLeftPos
+                this.set('scrollLeft', currentYear.offsetLeft)
             }
 
-            _scrollBack(){
-                this.shadowRoot.querySelector('.years-container').scollLeft -= 24
+            _scrollBack(e){
+                e.preventDefault();
+                e.stopPropagation();
+                this.set('scrollLeft', this.scrollLeft -= 24)
             }
 
-            _scrollForward(){
-                this.shadowRoot.querySelector('.years-container').scollLeft += 24
+            _scrollForward(e){
+                e.preventDefault();
+                e.stopPropagation();
+                this.set('scrollLeft', this.scrollLeft += 24)
             }
 
-            _isOver(currentYear, endDate){
-                return (endDate < currentYear) ? 'over' : ''
+            _linePosition(startDate, endDate){
+                startDate  = (startDate) ? new Date(startDate) : null
+                const historyYearStart = new Date("01 jan " + this.historyYears[0].number)
+                const left = Math.round((Date.parse(startDate) - Date.parse(historyYearStart))  * 3.8027E-10 * 24)
+                endDate = (endDate) ? new Date(endDate) : null
+                const width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+
+                return "left: " + left + "px; " + "width: " + width
+            }
+
+            _reimbursementLinePosition(startDate, endDate){
+                startDate  = (startDate) ? new Date(startDate) : null
+                endDate = (endDate) ? new Date(endDate) : null
+                const historyYearStart = new Date("01 jan " + this.historyYears[0].number)
+            }
+
+            _totalWidth(){
+                const width = this.historyYears.length * 12 * 24 + 24 * 4
+                return "width: " + width + "px;"      
+            }
+
+           
+
+            _isOver(endDate){
+                endDate = new Date(endDate)
+                // endDateYear = endDate.getFullYear()
+                if(endDate) return (Date.parse(endDate) < Date.now()) ? 'over' : ''
+            }
+
+            _isCurrentYear(current){
+                return (current) ? 'current' : ''
             }
 
             _isEqual(a,b) {
