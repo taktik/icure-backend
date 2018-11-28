@@ -140,8 +140,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
     }
 
     @Override
-    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth) {
-        return patientDAO.listByHcPartyNameOrBirthday(searchString, healthcarePartyId, dateOfBirth);
+    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, String ssin) {
+        return patientDAO.listByHcPartyNameOrBirthday(searchString, healthcarePartyId, dateOfBirth, ssin);
     }
 
     @Override

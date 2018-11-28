@@ -38,7 +38,11 @@ public class PatientByHcPartyDateOfBirthNameFilter implements Filter<String, Pat
     @Override
     public Set<String> resolve(org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthNameFilter filter, Filters context) {
         try {
-            return new HashSet<>(patientLogic.listByHcPartyNameOrBirthday(filter.getName(), filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId(), filter.getDateOfBirth()));
+            return new HashSet<>(patientLogic.listByHcPartyNameOrBirthday(
+                filter.getName(),
+                filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId(),
+                filter.getDateOfBirth(),
+                filter.getSsin()));
         } catch (LoginException e) {
             throw new IllegalArgumentException(e);
         }

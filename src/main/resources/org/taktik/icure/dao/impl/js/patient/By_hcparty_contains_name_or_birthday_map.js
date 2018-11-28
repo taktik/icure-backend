@@ -4,7 +4,8 @@ map = function(doc) {
             return latin_map[a] || ""
         });
         for (var i = 0; i <= r.length - 3; i++) {
-            emit([k, (r.substr(i, r.length - i)), doc.dateOfBirth], doc._id);
+            var ssin = doc.ssin ? doc.ssin.replace(new RegExp('\\s', 'g'), '').replace(new RegExp('\\W', 'g'), '') : null;
+            emit([k, (r.substr(i, r.length - i)), doc.dateOfBirth, ssin], doc._id);
         }
     };
 

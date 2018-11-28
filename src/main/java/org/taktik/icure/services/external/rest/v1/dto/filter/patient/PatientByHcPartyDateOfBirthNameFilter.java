@@ -15,6 +15,7 @@ public class PatientByHcPartyDateOfBirthNameFilter extends Filter<Patient> imple
     private String name;
     private Integer dateOfBirth;
     private String healthcarePartyId;
+    private String ssin;
 
     @Override
     public String getName() {
@@ -68,5 +69,14 @@ public class PatientByHcPartyDateOfBirthNameFilter extends Filter<Patient> imple
             || (sanitizeString(Optional.of(item.getLastName()).orElse("") + Optional.of(item.getFirstName()).orElse("")).contains(ss) ||
             sanitizeString(Optional.of(item.getMaidenName()).orElse("")).contains(ss) ||
             sanitizeString(Optional.of(item.getPartnerName()).orElse("")).contains(ss)));
+    }
+
+    @Override
+    public String getSsin() {
+        return ssin;
+    }
+
+    public void setSsin(String ssin) {
+        this.ssin = ssin;
     }
 }

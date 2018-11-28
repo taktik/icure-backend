@@ -398,9 +398,9 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
     @Override
     @View(name = "by_hcparty_contains_name_or_birthday", map = "classpath:js/patient/By_hcparty_contains_name_or_birthday_map.js")
-    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth) {
+    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, String ssin) {
         String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-        ViewQuery viewQuery = createQuery("by_hcparty_contains_name_or_birthday").startKey(ComplexKey.of(healthcarePartyId, name, dateOfBirth)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0", dateOfBirth == null ? 0 : dateOfBirth)).includeDocs(false);
+        ViewQuery viewQuery = createQuery("by_hcparty_contains_name_or_birthday").startKey(ComplexKey.of(healthcarePartyId, name, dateOfBirth, ssin)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0", dateOfBirth == null ? 0 : dateOfBirth, ssin == null ? ComplexKey.emptyObject() : ssin + "\ufff0")).includeDocs(false);
         return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
     }
 }
