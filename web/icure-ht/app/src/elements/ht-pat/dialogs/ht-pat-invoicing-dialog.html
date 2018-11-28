@@ -286,11 +286,6 @@
                 padding-left: 8px;
                 width: 100%;
             }
-
-            .invoice-nomenclature-code-container {
-
-            }
-
             .nmcl-descr {
                 overflow-y: hidden;
                 /*height: 332px;*/
@@ -302,7 +297,7 @@
             }
 
             .nmcl-favorite span{
-                margin-right: 8px;
+                padding: 8px;
             }
 
             .invoice-nomenclature-code-option {
@@ -317,14 +312,43 @@
             .nmcl-list {
                 overflow-y: auto;
             }
-            .fullW {
+            .favcodes-flex {
                 flex: 1;
                 overflow: hidden;
                 flex-direction: row;
                 display: flex;
+                justify-content: space-between;
             }
-            .fullW * {
-                user-select: none;
+            .favcodes-flex > * {
+                display: block;
+            }
+            .favcodes-flex > .hidden {
+                display: none;
+            }
+            .favcodes-flex .paddle {
+                width: 24px;
+                height: 20px;
+                margin: 8px 4px 0;
+                min-width: 0;
+                padding: 0;
+                color: var(--app-text-color);
+                transition: .5s ease;
+                cursor: pointer;
+                background: var(--app-background-color-darker);
+                border-radius: 4px;
+            }
+            .paddle:hover{transform:scale(.9);}
+
+            .favcodes-box {
+                flex-grow: 1;
+                height: 20px;
+                display: flex;
+                overflow: hidden;
+                flex-direction: row;
+                margin: 8px 0;
+            }
+            .favcodes-box .nmclFavoriteCode {
+                transition: all .25s ease-in;
             }
 
             #nmclGrid {
@@ -606,6 +630,7 @@
 
             vaadin-grid.material .cell {
                 overflow: hidden;
+                padding-left: 4px;
                 text-overflow: ellipsis;
             }
 
@@ -653,7 +678,7 @@
 
             .nmclFavoriteCode {
                 background-color: var(--app-secondary-color-dark);
-                margin: 0 5px 5px 0;
+                margin: 0 5px 0 0;
                 color: var(--app-text-color-light);
                 height: 20px;
                 font-size: 12px;
@@ -958,16 +983,6 @@
                 animation: savedAnim 2.5s ease-in;
             }
 
-            .paddles {
-                position: relative;
-                z-index: 99;
-            }
-            .paddle {
-                /*position: absolute;*/
-                /*top: 0;*/
-                /*bottom: 0;*/
-                /*width: 3em;*/
-            }
             .left-paddle {
                 left: 0;
             }
@@ -1269,19 +1284,21 @@
                                 <div class="nmcl-favorite">
                                     <span>[[localize('fav','Favorites code',language)]]:</span>
                                     <!--<div class="paddles">-->
-                                        <!--<iron-icon icon="arrow-back" class="left-paddle paddle hidden" on-tap="scrollLeft">-->
-                                        <!--</iron-icon>-->
-                                        <!--<iron-icon icon="arrow-forward" class="right-paddle paddle" on-tap="scrollRight">-->
-                                        <!--</iron-icon>-->
                                     <!--</div>-->
-                                    <div class="fullW" on-track="dragHoriz">
-                                        <template is="dom-repeat" items="[[favoriteCode]]">
-                                            <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
-                                                [[item.code]]
-                                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
-                                                           on-tap="_deleteFavoriteCode"></iron-icon>
-                                            </paper-button>
-                                        </template>
+                                    <div class="favcodes-flex" on-track="dragHoriz">
+                                        <iron-icon icon="chevron-left" id="paddle-left" class="left-paddle paddle" on-tap="_favcodesScroll" direction="left">
+                                        </iron-icon>
+                                        <div id="favcodesScroller" class="favcodes-box">
+                                            <template is="dom-repeat" items="[[favoriteCode]]">
+                                                <paper-button style$="transform:translateX([[favcodesScrollX]]px)" on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
+                                                    [[item.code]]
+                                                    <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
+                                                               on-tap="_deleteFavoriteCode"></iron-icon>
+                                                </paper-button>
+                                            </template>
+                                        </div>
+                                        <iron-icon icon="chevron-right" id="paddle-right" class="right-paddle paddle" on-tap="_favcodesScroll" direction="right">
+                                        </iron-icon>
                                     </div>
                                 </div>
                                 <div class="invoice-nomenclature-code-option">
@@ -2190,7 +2207,7 @@
                         type: Object,
                         value: {x:0,y:0}
                     },
-                    scrollCount: {
+                    favcodesScrollX: {
                         type: Number,
                         value: 0
                     }
@@ -2332,6 +2349,23 @@
 
 
             }
+
+            _favcodesScroll(e) {
+                const dir = e.target.getAttribute('direction')
+                if (dir) {
+                    const scrollBox = (dir == 'left') ? e.target.nextElementSibling : e.target.previousElementSibling
+                    const favCodes = scrollBox.children
+                    const maxScroll = favCodes.length * 80 - scrollBox.clientWidth
+                    let scrollPosition = this.tempScroll ? this.tempScroll : 0
+                    scrollPosition = (dir == 'left') ? scrollPosition - 80 : (dir == 'right') ? scrollPosition + 80 : scrollPosition
+                    scrollPosition = (scrollPosition < 0) ? 0 :
+                        (scrollPosition > maxScroll) ? maxScroll :
+                        scrollPosition
+                    this.set('tempScroll',scrollPosition)
+                    this.set('favcodesScrollX',-scrollPosition)
+                }
+            }
+
             _closeDialog() {
                 this.$.invoiceDialog.close()
             }

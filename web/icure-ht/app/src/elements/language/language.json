@@ -484,8 +484,14 @@
     "hour": "Hour",
     "moment": "Moment",
     "can_eattest": "cancel eAttest",
-    "val_justificatory" : "Justificatory"
-},
+    "val_justificatory" : "Justificatory",
+    "hour": "Hour",
+    "del" : "Delete",
+    "del_sel": "Delete selected",
+    "fw": "Forward",
+    "reply": "Reply",
+    "restore": "Restore"
+  },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
     "a_pri_key_fil_is_nee_for_thi_use": "Un fichier de clef privée est requis pour cet utilisateur",
@@ -1034,9 +1040,11 @@
     "last_edi": "Dernière modification",
     "name": "Nom",
     "hour": "Heure",
-    "can_eattest": "annuler eAttest",
-    "val_justificatory" : "Justificatif",
-    "moment": "Moment"
+    "del" : "Supprimer",
+    "del_sel": "Suppr. les éléments sélectionnés",
+    "fw": "Transférer",
+    "reply": "Répondre",
+    "restore": "Rétablir"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1524,6 +1532,7 @@
     "no_ehe_con" : "Geen eHealth verbinding",
     "acc_log" : "Toegangslog",
     "del" : "Wissen",
+    "del_sel": "Wissen geselecteerde",
     "rsw" : "RSW",
     "rsb" : "RSB",
     "vitalink" : "Vitalink",
@@ -1623,9 +1632,9 @@
     "during": "gedurende",
     "after": "na",
     "moment": "Moment",
-    "hour": "Uur",
-    "moment": "Moment",
-    "can_eattest": "cancel eAttest",
-    "val_justificatory" : "Justificatory"
+    "hour": "Huur",
+    "fw": "Forward",
+    "reply": "Reply",
+    "restore": "Herstellen"
   }
 }
