@@ -451,7 +451,9 @@
     "before": "before",
     "during": "during",
     "after": "after",
-    "moment": "Moment"
+    "moment": "Moment",
+    "can_eattest": "cancel eAttest",
+    "val_justificatory" : "Justificatory"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -970,7 +972,9 @@
     "before": "avant",
     "during": "pendant",
     "after": "après",
-    "moment": "Moment"
+    "moment": "Moment",
+    "can_eattest": "annuler eAttest",
+    "val_justificatory" : "Justificatif"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1527,6 +1531,8 @@
     "before": "voor",
     "during": "gedurende",
     "after": "na",
-    "moment": "Moment"
+    "moment": "Moment",
+    "can_eattest": "cancel eAttest",
+    "val_justificatory" : "Justificatory"
   }
 }
