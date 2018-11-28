@@ -445,7 +445,7 @@
 
             .action-buttons {
                 width: 100%;
-                padding: 12px 0;
+                padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
 				height: 40px;
             }
@@ -687,7 +687,9 @@
 						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden$="{{!isDeleted}}"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        <template is="dom-if" if="[[_isDeleted]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        </template>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
@@ -704,25 +706,10 @@
                             </div>
                             <div class="layout-horizontal layout-horizontal--flex-end">
                                 <div class="date">[[_timeFormat(msg.received)]]</div>
-                                <paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-                                <paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>
-                                <!--<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
-                                <!--<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>-->
-                                <!--<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
-                                <!--<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>-->
+                                <!--<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
                             </div>
                         </div>
-                        <!-- <div>
-                            <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
-                            <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
-                            <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
-                        </div> -->
-                        <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
-
-                        <!-- <template is="dom-if" if="[[msg.body]]">
-                            <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-                        </template> -->
-
                         <template is="dom-if" if="[[msg.body]]">
                             <div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
                         </template>
@@ -882,8 +869,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return msgBody.length ? msgBody : "no content"
 	}
 
-	_checkDeleted() {
-	    this.set('isDeleted',this.messages[0].transportGuid.startsWith("BIN") )
+    _isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
     }
 
     _focusChanged(){
@@ -918,7 +905,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
                     Promise.all(docs).then(docs=>{
-                        console.log('docs!!',docs)
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
@@ -931,8 +917,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set("selectedDocuments", []);
 					this.getChildren(tempSelect.id)
                 }
-
-            }).finally(()=>this._checkDeleted)
+            })
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);
@@ -1014,7 +999,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             customMetas: origMsg.metas,
             type: 'fwd'
         }
-	    console.log(origMsg,'forward',msgToFw)
         const target = this.parentElement.parentNode.children[1]
         target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
     }
@@ -1040,7 +1024,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             customMetas: origMsg.metas,
             type: 'replyto'
         }
-	    console.log(origMsg,'reply',msgToRe)
         const target = this.parentElement.parentNode.children[1]
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }

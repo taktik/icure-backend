@@ -492,7 +492,7 @@
         </style>
 
         <paper-dialog id="new-msg" >
-            <h2 class="modal-title">[[localize('new_mes','New message',language)]]</h2>
+            <h2 class="modal-title">[[localize('new_mes','New message',language)]] [[isForwardOrReply]]</h2>
             <div class="scrollbox">
                 <div class="field horizontal">
                     <div class="modal-subtitle">[[localize('from','From',language)]]</div>
@@ -715,11 +715,20 @@
                     this.set("newMessage.annex", params.annex)
                     this.set("newMessage.customMetas", params.customMetas)
                     this.set('newMessage.destinations', params.destinations)
-                    this.set('newMessage.document.title',params.document.title)
-                    this.set('newMessage.document.textContent',`\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}`)
+                    this.set('newMessage.document.title', params.document.title)
+                    this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
                     this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
-                    console.log('open',this.newMessage)
+                    console.log('open with params : ',this.newMessage)
+                    this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
+                } else {
+                    this.set("newMessage.annex", undefined)
+                    this.set("newMessage.customMetas", undefined)
+                    this.set('newMessage.destinations', undefined)
+                    this.set('newMessage.document.title', undefined)
+                    this.set('newMessage.document.textContent', undefined)
+                    this.set("newMessage.patientInss", undefined)
+                    this.set('isForwardOrReply',undefined)
                 }
                 this.$['new-msg'].open()
             }

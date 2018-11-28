@@ -490,12 +490,16 @@
     "del_sel": "Delete selected",
     "fw": "Forward",
     "reply": "Reply",
+    "answer": "Answer",
     "fwd": "Forwarded",
     "replyto": "In reply to",
     "restore": "Restore",
     "med_plan": "Medication plan",
     "write_msg": "Write a message",
-    "uplabel": "Drop files here..."
+    "uplabel": "Drop files here...",
+    "mail_cap": "Mailbox capacity",
+    "buff_msgs": "Buffered messages",
+    "last_msgs": "Last messages"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1049,12 +1053,16 @@
     "del_sel": "Suppr. les éléments sélectionnés",
     "fw": "Transférer",
     "fwd": "Transféré",
+    "answer": "Réponse",
     "replyto": "En réponse à",
     "reply": "Répondre",
     "restore": "Rétablir",
     "med_plan": "Plan de Médication",
     "write_msg": "Écrivez un message",
-    "uplabel": "Glissez des fichiers ici..."
+    "uplabel": "Glissez des fichiers ici...",
+    "mail_cap": "Capacité boîte mail",
+    "buff_msgs": "Messages tampon",
+    "last_msgs": "Derniers messages"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1645,11 +1653,15 @@
     "hour": "Huur",
     "fw": "Forward",
     "reply": "Reply",
+    "answer": "Antwoord",
     "fwd": "Forwarded",
     "replyto": "In reply to",
     "restore": "Herstellen",
     "med_plan": "Medication plan",
     "write_msg": "Schrijf een bericht",
-    "uplabel": "Zet hier bestanden neer..."
+    "uplabel": "Zet hier bestanden neer...",
+    "mail_cap": "Brievenbus capaciteit",
+    "buff_msgs": "Buffered messages",
+    "last_msgs": "Laatste berichten"
   }
 }
