@@ -85,11 +85,12 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
-	private String correctiveInvoiceId;
 
-	private Map<String,String> receipts = new HashMap<>();
+	protected Map<String,String> receipts = new HashMap<>();
 
 	protected IdentityDocumentReader idDocument;
+
+	private String correctiveInvoiceId;
 
 	public Long getInvoiceDate() {
 		return invoiceDate;

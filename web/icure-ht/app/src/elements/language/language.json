@@ -480,9 +480,11 @@
     "before": "before",
     "during": "during",
     "after": "after",
-    "moment": "Moment",
     "name": "Name",
-    "hour": "Hour"
+    "hour": "Hour",
+    "moment": "Moment",
+    "can_eattest": "cancel eAttest",
+    "val_justificatory" : "Justificatory"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -682,7 +684,7 @@
     "inv_succ_tra_oa": "Envoyée a l'OA",
     "inv_to_be_send" : "A envoyer",
     "inv_to_be_corrected" : "A corriger",
-    "inv_pen": "En attente",
+    "inv_pen": "Reçu par l'oa",
     "inv_rej_5%": "Plus de 5% d'erreur",
     "inv_rej_block": "Erreur bloquante",
     "inv_arch" : "Archivé",
@@ -700,7 +702,7 @@
     "inv_supp" : "Supplément",
     "inv_tot" : "Total",
     "inv_stat" : "Statut",
-    "inv_get" : "Reçevoir",
+    "inv_get" : "Recevoir",
     "inv_send" : "Envoyer",
     "inv_prest" : "Prestataire",
     "inv_phys_ref" : "Réf du médecin",
@@ -1029,11 +1031,13 @@
     "before": "avant",
     "during": "pendant",
     "after": "après",
-    "moment": "Moment",
     "last_edi": "Dernière modification",
     "name": "Nom",
-    "hour": "Heure"
- },
+    "hour": "Heure",
+    "can_eattest": "annuler eAttest",
+    "val_justificatory" : "Justificatif",
+    "moment": "Moment"
+  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
     "a_pri_key_fil_is_nee_for_thi_use": "A private key file is needed for this user",
@@ -1619,6 +1623,9 @@
     "during": "gedurende",
     "after": "na",
     "moment": "Moment",
-    "hour": "Huur"
+    "hour": "Uur",
+    "moment": "Moment",
+    "can_eattest": "cancel eAttest",
+    "val_justificatory" : "Justificatory"
   }
 }
