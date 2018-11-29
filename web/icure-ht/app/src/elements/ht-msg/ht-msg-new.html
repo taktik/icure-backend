@@ -117,12 +117,45 @@
                 padding: 10px 15px;
             }
 
+            .vertical {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
             .horizontal {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
                 flex-basis: 100%;
                 align-items: center;
+            }
+            .horizontal.first-line {
+                margin-top: 16px;
+            }
+            .cell {
+                display: flex;
+                flex-grow: 1;
+            }
+            .cell.colspan2 {
+                flex-grow: 2;
+            }
+            .cell.colspan3 {
+                flex-grow: 3;
+            }
+
+            .cell.colspan6 {
+                flex-grow: 6;
+            }
+            .type-to {
+                width: 160px;
+            }
+            .options-cell {
+                padding-left: 8px;
+                margin-left: 8px;
+                border-left: 1px solid var(--app-background-color-dark);
+            }
+            .destinations-list {
+                overflow-x: auto;
             }
 
             .horizontal--nowrap {
@@ -220,7 +253,8 @@
             }
 
             .modal-subtitle {
-               margin-right: 12px;
+                margin: 8px 12px 8px 0;
+                font-weight: bold;
             }
 
             .modal-button {
@@ -471,8 +505,14 @@
                 border-left: 1px solid var(--app-background-color-dark);
                 padding-left: 15px;
             }
+
+            #messageBodyText {
+                min-height: 200px;
+            }
+
             #new-msg {
-                height: calc(100vh - 80px);
+                display: flex;
+                flex-direction: column;
                 top: 70px !important;
                 right: 7px !important;
                 left: initial !important;
@@ -494,75 +534,78 @@
         <paper-dialog id="new-msg" >
             <h2 class="modal-title">[[localize('new_mes','New message',language)]] [[isForwardOrReply]]</h2>
             <div class="scrollbox">
-                <div class="field horizontal">
-                    <div class="modal-subtitle">[[localize('from','From',language)]]</div>
-                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>
 
-                </div>
-                <div class="field">
-                    <div class="horizontal horizontal--nowrap">
-                        <div class="modal-subtitle">[[localize('to','To',language)]]</div>
-                        <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
-                                        label="[[localize('sch_by', 'Search by', language)]]" selected-item="{{recipientType}}"></vaadin-combo-box>
-                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" filter="{{recipientFilter}}" filtered-items="[[hcpList]]" item-label-path="displayName"
-                                          allow-custom-value on-change="_AddDestinations">
-                            <template>[[item.displayName]]</template>
-                        </vaadin-combo-box>
+                <div class="horizontal first-line">
+                    <div class="cell colspan6">
+                        <div class="vertical">
+                            <!--<div class="cell collspan2">-->
+                                <!--<div class="modal-subtitle">[[localize('from','From',language)]]</div>-->
+                                <!--<paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>-->
+                            <div class="cell collspan2">
+                                <div class="horizontal">
+                                    <div class="modal-subtitle">[[localize('to','To',language)]]</div>
+                                    <div class="cell">
+                                        <vaadin-combo-box class="type-to" id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
+                                                          label="[[localize('sch_by', 'Search by', language)]]" selected-item="{{recipientType}}"></vaadin-combo-box>
+                                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" filter="{{recipientFilter}}" filtered-items="[[hcpList]]" item-label-path="displayName"
+                                                          allow-custom-value on-change="_AddDestinations">
+                                            <template>[[item.displayName]]</template>
+                                        </vaadin-combo-box>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                                <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
+                                                  allow-custom-value on-change="_AddSSIN">
+                                    <template>[[item.displayName]]</template>
+                                </vaadin-combo-box>
+                            </div>
+                        </div>
                     </div>
-                    <div class="horizontal">
-                            <template is="dom-if" if="[[newMessage.destinations]]">
-                                <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
-                                    <paper-item class="destination-tag" id="[[destination.displayName]]">
-                                        <div class="destination-type">[[destination.type]]</div>
-                                        <div class="one-line-menu list-title">
-                                            [[destination.displayName]]
-                                        </div>
+                    <div class="cell options-cell">
+                        <div class="vertical">
+                            <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
+                            <div class="cell">
+                                <div>
+                                    <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                                </div>
+                            </div>
+                            <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
+                            <div class="cell">
+                                <div>
+                                    <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                        <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
-                                                    on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
-                                    </paper-item>
-                                </template>
+                <div class="field horizontal destinations-list">
+                    <div class="cell">
+                        <template is="dom-if" if="[[newMessage.destinations]]">
+                            <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
+                                <paper-item class="destination-tag" id="[[destination.displayName]]">
+                                    <div class="destination-type">[[destination.type]]</div>
+                                    <div class="one-line-menu list-title">
+                                        [[destination.displayName]]
+                                    </div>
+
+                                    <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
+                                                       on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
+                                </paper-item>
                             </template>
-                        </div>
-                </div>
-
-                <div class="field">
-                    <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
-                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
-                                      allow-custom-value on-change="_AddSSIN">
-                        <template>[[item.displayName]]</template>
-                    </vaadin-combo-box>
-                </div>
-
-                <div class="field horizontal">
-                    <div class="col-half">
-                        <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
-                        <div>
-                            <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
-                        </div>
-                    </div>
-                    <div class="col-half bordered">
-                        <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
-                        <div>
-                            <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
-                        </div>
+                        </template>
                     </div>
                 </div>
-                <!--<div class="field horizontal">-->
-                    <!---->
-                <!--</div>-->
                 <div class="field">
                     <div class="modal-subtitle">[[localize('msg','Message',language)]]</div>
                     <div>
                         <paper-input id="newMsg-Subject" label="[[localize('sub','Subject',language)]]" value="{{newMessage.document.title}}" always-float-label></paper-input>
-                        <!--<paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"-->
-                                    <!--on-change="msgBodyFileInputSelected"></paper-input>-->
                         <paper-input-container alway-float-label="true">
-                            <!--<iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"-->
-                                                <!--value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>-->
                             <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('write_msg', 'Write a message', language)]]"
                                                     value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                         </paper-input-container>
@@ -572,17 +615,6 @@
                         <vaadin-upload id="vaadin-upload" auto files="{{files}}"  form-data-name="attachment" on-upload-before="_fileUploadBefore" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
-                <!--<div class="field">-->
-                    <!--<div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>-->
-                    <!--<vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"-->
-                                    <!--allow-custom-value on-change="_AddSSIN">-->
-                        <!--<template>[[item.displayName]]</template>-->
-                    <!--</vaadin-combo-box>-->
-                <!--</div>-->
-                <!--<div class="field">-->
-                    <!--<div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>-->
-                    <!--<paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>-->
-                <!--</div>-->
             </div>
             <div class="buttons">
                 <div class="force-left">
@@ -722,11 +754,11 @@
                     console.log('open with params : ',this.newMessage)
                     this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
                 } else {
-                    this.set("newMessage.annex", undefined)
-                    this.set("newMessage.customMetas", undefined)
-                    this.set('newMessage.destinations', undefined)
-                    this.set('newMessage.document.title', undefined)
-                    this.set('newMessage.document.textContent', undefined)
+                    this.set("newMessage.annex", [])
+                    this.set("newMessage.customMetas", [])
+                    this.set('newMessage.destinations', [])
+                    this.set('newMessage.document.title', '')
+                    this.set('newMessage.document.textContent', '')
                     this.set("newMessage.patientInss", undefined)
                     this.set('isForwardOrReply',undefined)
                 }
