@@ -917,6 +917,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set("selectedDocuments", []);
 					this.getChildren(tempSelect.id)
                 }
+                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
@@ -987,6 +988,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg)
         // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToFw = {
 	        destinations: [],
@@ -1005,7 +1007,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg)
         let dest = [{
+            delegations: origMsg.delegations,
             displayName: origMsg.fromAddress,
             nihii: undefined,
             cbe: undefined,
@@ -1014,6 +1018,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }]
         this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToRe = {
+	        delegations: origMsg.delegations,
             destinations: dest,
             patientInss: origMsg.patientINSS,
             annex: undefined,

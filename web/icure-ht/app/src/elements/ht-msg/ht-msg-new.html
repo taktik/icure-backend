@@ -519,6 +519,8 @@
                 position: fixed;
                 max-width: initial !important;
                 width: 83vw !important;
+                max-height: initial !important;
+                height: calc(100vh - 78px);
             }
             @media screen and (max-width: 1030px) {
                 #new-msg {
@@ -569,15 +571,15 @@
                             <div class="cell">
                                 <div>
                                     <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
                                 </div>
                             </div>
                             <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.usePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.useReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.useReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
                                 </div>
                             </div>
                         </div>
@@ -740,12 +742,14 @@
                 //     },
                 //     type: 'fwd' || 'replyto'
                 // }
+                this.clearField();
                 let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
                 vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
                 vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
                 if (params) {
-                    this.set("newMessage.annex", params.annex)
+                    this.set("newMessage.annex", params.annex ? params.annex : [])
                     this.set("newMessage.customMetas", params.customMetas)
+                    this.set("newMessage.delegations", params.delegations)
                     this.set('newMessage.destinations', params.destinations)
                     this.set('newMessage.document.title', params.document.title)
                     this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
@@ -753,14 +757,6 @@
                     vaadinUpload.files = this.newMessage.annex
                     console.log('open with params : ',this.newMessage)
                     this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
-                } else {
-                    this.set("newMessage.annex", [])
-                    this.set("newMessage.customMetas", [])
-                    this.set('newMessage.destinations', [])
-                    this.set('newMessage.document.title', '')
-                    this.set('newMessage.document.textContent', '')
-                    this.set("newMessage.patientInss", undefined)
-                    this.set('isForwardOrReply',undefined)
                 }
                 this.$['new-msg'].open()
             }
@@ -771,17 +767,33 @@
 			}
 
 			_recipientFilterChanged(type, filter) {
-            	if(filter && filter.length >1) {
-					Promise.all([this.api.hcparty().findByName(filter, null, null, 100, false), this.api.hcparty().findBySsinOrNihii(filter, null, null, 100, false)]).then(([hcps1, hcps2]) => {
-						this.set("hcpList", _.uniqBy(_.uniqBy(hcps1.rows.concat(hcps2.rows), 'id')
-							.map(hcp => this.getHcpLight(hcp, type))
-							.filter(hcp => !!this.getTypeValue(hcp, type))
-							.sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'))
-					})
-				}
-				else{
-					this.set("hcpList",[]);
-                }
+                setTimeout(()=>{
+                    if(filter && filter.length >2) {
+                        console.log(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter,type)
+                        // Promise.all([this.api.hcparty().findByName(filter, null, null, 100, false), this.api.hcparty().findBySsinOrNihii(filter, null, null, 100, false)]).then(([hcps1, hcps2]) => {
+                        // 	this.set("hcpList", _.uniqBy(_.uniqBy(hcps1.rows.concat(hcps2.rows), 'id')
+                        // 		.map(hcp => this.getHcpLight(hcp, type))
+                        // 		.filter(hcp => this.getTypeValue(hcp, type))
+                        // 		.sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'))
+                        // })
+                            this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
+                                .then(hcps => {
+                                console.log(hcps)
+                                let setList = []
+                                hcps.map(hcp=>{
+                                    hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
+                                    setList.push(hcp)
+                                })
+                                this.set("hcpList", setList)
+                                    // .map(hcp => this.getHcpLight(hcp, type))
+                                    // .filter(hcp => this.getTypeValue(hcp, type))
+                                    // .sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'
+                            })
+                    }
+                    else{
+                        this.set("hcpList",[]);
+                    }
+                },1500)
             }
 
 			getHcpLight(hcp, type){
@@ -946,48 +958,39 @@
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
                     let message = {};
 
-                    message.id = null;
+                    message.id = this.api.crypto().randomUuid();
 					message.publicationId = (new Date).getTime();
 					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
 					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
 					message.customMetas = this.newMessage.customMetas;
 					message.document = this.newMessage.document;
-					if(this.newMessage.document.textContent){
-						message.document.filename = "MainDocument.txt";
-						message.document.mimeType = "text/plain";
-						message.document.textContent = this.newMessage.document.textContent;
-						message.document.signing = null;
-					}else if(!this.newMessage.document.content){
-						message.document.filename = "MainDocument.txt";
-						message.document.mimeType = "text/plain";
-						message.document.textContent = "";
-						message.document.signing = null;
-                    }
-					if(!this.newMessage.document.title) message.document.title = "";
-					message.freeText = null;
+					message.freeText = this.newMessage.document.textContent ? this.newMessage.document.textContent : '';
 					message.freeInformationTableTitle = null;
 					message.freeInformationTableRows = {};
 					message.patientInss = this.newMessage.patientInss;
-					message.annex = [];
+					message.annex = this.newMessage.annex;
 					message.copyMailTo = [];
-					message.documentTitle = null;
+					message.documentTitle = this.newMessage.document.title ? this.newMessage.document.title : '';
                     message.annexList = this.newMessage.annex;
-					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
-					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
+					message.useReceivedReceipt = this.newMessage.useReceivedReceipt;
+					message.useReadReceipt = this.newMessage.useReadReceipt;
 					message.hasAnnex = message.annex && message.annex.length > 0;
 					message.hasFreeInformations = false;
-					message.important = !!this.newMessage.Important;
-					message.encrypted = !!this.newMessage.crypted;
-					message.usePublicationReceipt = !!this.newMessage.UsePublicationReceipt;
+					message.important = this.newMessage.important;
+					message.encrypted = this.newMessage.crypted;
+					message.usePublicationReceipt = this.newMessage.usePublicationReceipt;
 					message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
 					message.sender = this.setSenderAddressee(currentHcp);
 
-                    // console.log(JSON.stringify(message));
+					console.log('request',this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
+                        this.newMessage.usePublicationReceipt? this.newMessage.usePublicationReceipt:false,
+                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
+                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
 
                     this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-						!!this.newMessage.UsePublicationReceipt?!!this.newMessage.UsePublicationReceipt:"false",
-                        !!this.newMessage.UseReceivedReceipt?!!this.newMessage.UseReceivedReceipt:"false",
-                        !!this.newMessage.UseReadReceipt?!!this.newMessage.UseReadReceipt:"false")
+						this.newMessage.usePublicationReceipt?this.newMessage.usePublicationReceipt:false,
+                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
+                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
                         .then(response => {
                         	console.log(response);
                         	if(response) {
@@ -1044,8 +1047,8 @@
 				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
 				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
-				Addressee.lastName = null;//hcp.lastName || "";
-                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.lastName = hcp.lastName ? hcp.lastName : null;
+                Addressee.firstName = hcp.firstName ? hcp.firstName : null;
 				Addressee.organizationName = null;
 				Addressee.personInOrganisation = null;
                 // if(hcp.quality) Addressee.quality = hcp.quality;
@@ -1059,8 +1062,8 @@
                 Addressee.id = this.getTypeValue(hcp, hcp.type);
 				Addressee.quality = hcp.quality?hcp.quality.toUpper():"DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
-				Addressee.lastName = null;//hcp.lastName || "";
-                Addressee.firstName = null;//hcp.firstName || "";
+                Addressee.lastName = hcp.lastName ? hcp.lastName : null;
+                Addressee.firstName = hcp.firstName ? hcp.firstName : null;
 				Addressee.organizationName = null;
 				Addressee.personInOrganisation = null;
                 // if(hcp.quality) Addressee.quality = hcp.quality;
@@ -1071,6 +1074,7 @@
             clearField(){
             	this.files = [];
 				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
+                this.set('isForwardOrReply','')
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";
             }

@@ -302,7 +302,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div.indicators > div > * {
                     margin: 0 auto;
                 }
-                .table-top > div.indicators > div#stamp-indicator.hasNew {color: var(--app-secondary-color);}
+                .table-top > div.indicators > div#stamp-indicator.hasNew span {color: var(--app-secondary-color);}
                 .table-top > div.indicators > div#capacity-indicator > * {
                     display: inline-block;
                 }
@@ -380,6 +380,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 div.pagination button.page-number:selected {
                     background: var(--app-secondary-color);
+                }
+
+                paper-progress {
+                    --paper-progress-active-color: var(--app-secondary-color);
                 }
 
                 @media screen and (max-width:1025px) {
