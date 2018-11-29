@@ -94,6 +94,9 @@ public class Invoice extends StoredICureDocument {
 
 	private Integer longDelayJustification;
 
+	private String correctiveInvoiceId;
+	private String correctedInvoiceId;
+
 	private Boolean creditNote;
 
 	public Invoice solveConflictWith(Invoice other) {
@@ -243,6 +246,24 @@ public class Invoice extends StoredICureDocument {
 	public void setRecipientId(String recipientId) {
 		this.recipientId = recipientId;
 	}
+
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String recipientType) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
+	public String getCorrectedInvoiceId() {
+		return correctedInvoiceId;
+	}
+
+	public void setCorrectedInvoiceId(String recipientType) {
+		this.correctedInvoiceId = correctedInvoiceId;
+	}
+
 
 	public String getInvoiceReference() {
 		return invoiceReference;
