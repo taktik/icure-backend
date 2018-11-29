@@ -618,9 +618,10 @@
 
             <h2 class="modal-title">[[localize('med_plan','Medication plan',language)]]
                 <paper-tabs selected="{{selectedTab}}">
-                    <paper-tab>History</paper-tab>
-                    <paper-tab>Present</paper-tab>
-                    <paper-tab>Patient</paper-tab>
+                    <paper-tab>[[localize('tab_pres','Present',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_pat','Patient',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_chap','Chapter IV',language)]]</paper-tab>
                 </paper-tabs>
             </h2>
 
@@ -692,13 +693,13 @@
 
                             </div>
                             <div class="td span-3" style="flex-grow: 3;">
-                                <span>Breakfast</span>
+                                <span>[[localize('mom_break','Breakfast',language)]]</span>
                             </div>
                             <div class="td span-3" style="flex-grow: 3;">
-                                <span>Lunch</span>
+                                <span>[[localize('mom_lunch','Lunch',language)]]</span>
                             </div>
                             <div class="td span-3" style="flex-grow: 3;">
-                                <span>Dinner</span>
+                                <span>[[localize('mom_dinner','Dinner',language)]]</span>
                             </div>
                             <div class="td" style="flex-grow: 2;">
 
@@ -713,43 +714,43 @@
                             </div>
                             <div class="td td--medicine"
                                  style="flex-grow: 5; justify-content: flex-start">
-                                <span class="left">Medicine</span>
+                                <span class="left">[[localize('medic','Medicine',language)]]</span>
                             </div>
                             <div class="td" style="flex-grow: 2;">
-                                <span>Frequency</span>
+                                <span>[[localize('freq','Frequency',language)]]</span>
                             </div>
                             <div class="td bf-bef">
-                                <span>Before</span>
+                                <span>[[localize('mom_before','Before',language)]]</span>
                             </div>
                             <div class="td bf-dur">
-                                <span>During</span>
+                                <span>[[localize('mom_during','During',language)]]</span>
                             </div>
                             <div class="td bf-aft">
-                                <span>After</span>
+                                <span>[[localize('mom_after','After',language)]]</span>
                             </div>
                             <div class="td lu-bef">
-                                <span>Before</span>
+                                <span>[[localize('mom_before','Before',language)]]</span>
                             </div>
                             <div class="td lu-dur">
-                                <span>During</span>
+                                <span>[[localize('mom_during','During',language)]]</span>
                             </div>
                             <div class="td lu-aft">
-                                <span>After</span>
+                                <span>[[localize('mom_after','After',language)]]</span>
                             </div>
                             <div class="td di-bef">
-                                <span>Before</span>
+                                <span>[[localize('mom_before','Before',language)]]</span>
                             </div>
                             <div class="td di-dur">
-                                <span>During</span>
+                                <span>[[localize('mom_during','During',language)]]</span>
                             </div>
                             <div class="td di-aft">
-                                <span>After</span>
+                                <span>[[localize('mom_after','After',language)]]</span>
                             </div>
                             <div class="td" style="flex-grow: 2;">
-                                <span>End Date</span>
+                                <span>[[localize('endDate','End Date',language)]]</span>
                             </div>
                             <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
-                                <span class="left">Comments</span>
+                                <span class="left">[[localize('com','Comments',language)]]</span>
                                 <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
                             </div>
                         </div>
@@ -823,7 +824,7 @@
                 <div class="patient">
                     <div class="general-infos">
                         <div class="infos-block">
-                            <div class="infos--name"><span>GP</span>Dr. FirstName LastName</div>
+                            <div class="infos--name"><span>GP</span>Dr. [[user.name]]</div>
                             <div class="infos--address"><span>Address</span>50 street StreetName</div>
                         </div>
 
@@ -1034,7 +1035,9 @@
                         notify: true,
                         observer: '_scrollLeftChanged'
                     },
-
+                    user: {
+                        type: Object
+                    },
                     historyYears: {
                         type: Array,
                         value: () => [
@@ -1290,7 +1293,7 @@
                         }
                     }
                 })
-                return conditions.map(c => (regimen || []).filter(r => r.frequency === frequency && c(rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] ||  0)))
+                return regsTable
             }
 
             _medicationsChanged() {
