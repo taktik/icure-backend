@@ -538,6 +538,7 @@
                 color: var(--app-text-color);
                 font-size: 10px;
                 padding-left: 8px;
+                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .medication-line{
@@ -550,7 +551,7 @@
             }
 
             .medication-line:nth-child(even){
-                background: var(--app-background-color-light);
+                background: #FAFAFA;
             }
 
             .medication-line .type{
@@ -576,7 +577,6 @@
                 display: flex;
                 box-sizing: unset;
                 position: absolute;
-                background: red;
                 color: #fff;
                 width: 600px;
                 border-radius: 2px;
@@ -586,7 +586,16 @@
                 margin: 1px 0;
                 flex-flow: row wrap;
                 align-items: center;
-                justify-content: flex-start;
+                justify-content: space-between;
+            }
+
+            .medication-line .line::after{
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                display: block;
+                content:'';
+                z-index: 0;
             }
 
             .medication-line .line.over{
@@ -599,19 +608,28 @@
             }
 
             .medication-line .line .name{
-                width: 100%;
                 text-align: left;
                 margin-left: 4px;
+                margin-bottom: 4px; 
+                z-index: 1;
+            }
+
+            .medication-line .line .until{
+                text-align: right;
+                margin-right: 4px;
+                margin-bottom: 4px; 
+                z-index: 1;
             }
 
             .medication-line .reimbursement-line{
                 display: block;
                 position: absolute;
                 width: 100%;
-                background: green;
+                background: var(--app-status-color-ok);
                 height: 4px;
                 bottom: 0;
             }
+
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
@@ -645,7 +663,6 @@
                                 <div class="futur-block">
                                     <div>futur</div> 
                                 </div>
-                               
                             </div>
                             <div class="btn-right">
                                 <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
@@ -655,21 +672,22 @@
                             <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
                                 <div class="medication-category">[[fakePatientMedication.category]]</div>
                                 <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
-                                        <div class="medication-line" id="scrollable-element">
-                                            <div class="type">[[medication.type]]</div>
-                                            <div class="line-container">
-                                                <div class="line-total-width" style$="[[_totalWidth()]]">
-                                                    <div id="line" class$="line [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
-                                                        <div class="name">[[medication.name]] - [[medication.posology]]</div>
-                                                    </div>
-                                                    <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                        <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
-                                                    </template>
+                                    <div class="medication-line" id="scrollable-element">
+                                        <div class="type">[[medication.type]]</div>
+                                        <div class="line-container">
+                                            <div class="line-total-width" style$="[[_totalWidth()]]">
+                                                <div id="line" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                    <div class="name">[[medication.name]] - [[medication.posology]]</div>
+                                                    <div class="until">[[medication.endDate]]</div>
                                                 </div>
+                                                <template is="dom-if" if="[[medication.isReimbursed]]">
+                                                    <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                </template>
                                             </div>
-                                            <div class="extra-info">[[medication.extraInfo]]</div>
                                         </div>
-                                    </template>
+                                        <div class="extra-info">[[medication.extraInfo]]</div>
+                                    </div>
+                                </template>
                             </template>
                         </div>
                     </div>
@@ -1075,7 +1093,8 @@
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 jan 2017",
-                                        reimmbursementDateEnd: "31 dec 2018"
+                                        reimmbursementDateEnd: "31 dec 2018",
+                                        colour: "ATC--L"
                                     },
                                     {
                                         name: "Amlor 200mg",
@@ -1086,7 +1105,37 @@
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2048"
+                                        reimmbursementDateEnd: "30 sept 2048",
+                                        colour: "ATC--L"
+                                    }
+                                ]
+                            },
+                            {
+                                category: "Anti-douleur",
+                                medications: [
+                                    {
+                                        name: "Paracétamol Téva 200mg",
+                                        posology: "2x/j",
+                                        type: "",
+                                        startDate: "01 mar 2017",
+                                        endDate: "15 dec 2017",
+                                        extraInfo: "",
+                                        isReimbursed: false,
+                                        reimmbursementDateStart: "20 jan 2017",
+                                        reimmbursementDateEnd: "31 dec 2018",
+                                        colour: "ATC--J"
+                                    },
+                                    {
+                                        name: "Claradol Codéine 20mg",
+                                        posology: "1x/d",
+                                        type: "",
+                                        startDate: "14 oct 2017",
+                                        endDate: "30 sep 2022",
+                                        extraInfo: "",
+                                        isReimbursed: true,
+                                        reimmbursementDateStart: "20 mar 2018",
+                                        reimmbursementDateEnd: "30 sept 2032",
+                                        colour: "ATC--J"
                                     }
                                 ]
                             },
@@ -1111,7 +1160,7 @@
             }
 
             attached() {
-                super.attached();
+                super.attached(); 
                 this.async(this.notifyResize, 1);
             }
 
@@ -1174,8 +1223,8 @@
 
             _isOver(endDate){
                 endDate = new Date(endDate)
-                // endDateYear = endDate.getFullYear()
-                if(endDate) return (Date.parse(endDate) < Date.now()) ? 'over' : ''
+                const endDateYear = endDate.getFullYear()
+                if(endDateYear) return (endDateYear < (new Date()).getFullYear()) ? 'over' : ''
             }
 
             _isCurrentYear(current){
