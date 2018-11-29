@@ -1038,12 +1038,13 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <div on-tap="_generatePrintedDate">
-                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
-                                             <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
-                                                  <span>[[_formatInvoiceDate(item.printedDate)]]</span>
-                                             </template>
-                                        </div>
+                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate,item.*)]]">
+                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:green" on-tap="_cancelPrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                            <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                        </template>
+                                        <template is="dom-if" if="[[_ifClosedButNotPrinted(item,item.*)]]">
+                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:red" on-tap="_generatePrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                        </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
@@ -2216,7 +2217,7 @@
             }
 
             static get observers() {
-                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
+                return ['_paymentTypeChanged(selectedInvoice.paymentType)','_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
             }
 
             ready() {
@@ -2861,7 +2862,10 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2))) }
+                    if (this.selectedInvoice) {
+                        this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
+                        this.set('selectedInvoice.paymentType',"cash")
+                    }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
@@ -4449,14 +4453,48 @@
             }
 
             _generatePrintedDate(e){
-                /*
-                if(this.selectedInvoice){
-                    if(this.selectedInvoice.printedDate){
-                        this.selectedInvoice = null
-                    }else{
-                        this.selectedInvoice.printedDate = moment().format('YYYYMMDD')
-                    }
-                }*/
+                e.stopPropagation();
+                e.preventDefault();
+
+                let invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+                const invoiceIndex = this.invoices.findIndex(iv => iv.id === e.target.dataset.item)
+
+                invoice.printedDate=moment().format("YYYYMMDD");
+
+                this.api.invoice().modifyInvoice(invoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.set("invoices."+invoiceIndex,invoice)
+                        this.updateGui(invoice, true)
+                    })
+            }
+
+            _cancelPrintedDate(e){
+                e.stopPropagation();
+                e.preventDefault();
+
+                let invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+                const invoiceIndex = this.invoices.findIndex(iv => iv.id === e.target.dataset.item)
+
+                invoice.printedDate=null;
+
+                this.api.invoice().modifyInvoice(invoice)
+                    .then(invoice => this.api.register(invoice,'invoice'))
+                    .then(invoice => {
+                        this.set("invoices."+invoiceIndex,invoice)
+                        this.updateGui(invoice, true)
+                    })
+            }
+
+            _paymentTypeChanged(){
+                if(!this.selectedInvoice && this.selectedInvoice.paymentType)return;
+                if(this.selectedInvoice.paymentType==="wired"){
+                    this.set("selectedInvoice.paid",0)
+                }
+            }
+
+            _ifClosedButNotPrinted(item){
+                return item && !item.printedDate && !this._ifStatusDateExist(item.printedDate) && item.sentDate && item.sentMediumType==="eattest";
             }
         }
 
