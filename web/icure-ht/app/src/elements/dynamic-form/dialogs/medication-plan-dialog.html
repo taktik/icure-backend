@@ -39,6 +39,13 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
+            paper-tooltip{
+                --paper-tooltip: {
+                    position: absolute;
+                    z-index: 900;
+                }
+            }
+
             .patient {
                 height: calc(100% - 48px - 48px);
                 overflow-y: auto;
@@ -535,10 +542,40 @@
             }
 
             .medication-category{
+                display:flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-between;
                 color: var(--app-text-color);
                 font-size: 10px;
-                padding-left: 8px;
                 border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
+            .medication-category span:first-child{
+                width: 10%;
+                flex-grow: 1;
+                padding-left: 8px;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            .medication-category span:nth-child(2){
+                max-width: calc(24px * 36 + 2px);
+                width: calc(24px * 36 + 2px);
+                display:block;
+                height: 20px;
+                box-sizing: border-box;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+            }
+            
+            .medication-category span:last-child{
+                width: 10%;
+                flex-grow: 1;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
             }
 
             .medication-line{
@@ -556,6 +593,7 @@
 
             .medication-line .type{
                 width: 10%;
+                height: 100%;
                 text-align: left;
                 flex-grow: 1;
                 padding-left: 8px;
@@ -564,6 +602,11 @@
             .medication-line .extra-info{
                 width: 10%;
                 flex-grow: 1;
+                padding: 0 8px; 
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                height: 100%;
             }
 
             .medication-line .line-container{
@@ -571,6 +614,8 @@
                 width: calc(24px * 36 + 2px);
                 overflow: hidden;
                 height: 24px;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
             }
 
             .medication-line .line{
@@ -578,15 +623,14 @@
                 box-sizing: unset;
                 position: absolute;
                 color: #fff;
-                width: 600px;
                 border-radius: 2px;
                 top: 0;
                 left: 0;
                 height: 100%;
-                margin: 1px 0;
                 flex-flow: row wrap;
                 align-items: center;
                 justify-content: space-between;
+                margin: 1px 0;
             }
 
             .medication-line .line::after{
@@ -628,6 +672,12 @@
                 background: var(--app-status-color-ok);
                 height: 4px;
                 bottom: 0;
+                transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .medication-line .reimbursement-line:hover{
+                height: 6px;
             }
 
         </style>
@@ -672,22 +722,29 @@
                         </div>
                         <div class="timeline-body">
                             <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
-                                <div class="medication-category">[[fakePatientMedication.category]]</div>
+                                <div class="medication-category">
+                                    <span>[[fakePatientMedication.category]]</span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
                                 <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
                                     <div class="medication-line" id="scrollable-element">
                                         <div class="type">[[medication.type]]</div>
                                         <div class="line-container">
-                                            <div class="line-total-width" style$="[[_totalWidth()]]">
+                                            <div class="line-total-width" style$="width: [[totalWidth]]px;">
                                                 <div id="line" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
                                                     <div class="name">[[medication.name]] - [[medication.posology]]</div>
-                                                    <div class="until">[[medication.endDate]]</div>
+                                                    <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
                                                 </div>
                                                 <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                    <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                    <div id="[[medication.id]]" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
                                                 </template>
+                                                <paper-tooltip position="top" for="[[medication.id]]">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
+
                                             </div>
                                         </div>
                                         <div class="extra-info">[[medication.extraInfo]]</div>
+
                                     </div>
                                 </template>
                             </template>
@@ -1054,12 +1111,24 @@
                         notify: true,
                         observer: '_scrollLeftChanged'
                     },
+
+                    totalWidth: {
+                        type: Number,
+                        value: 0,
+                        notify: true,
+                        observer: '_totalWidth'
+                    },
                     user: {
                         type: Object
                     },
                     historyYears: {
                         type: Array,
                         value: () => [
+                            {
+                                id: "year-2014",
+                                number: 2014,
+                                isCurrent: false
+                            },
                             {
                                 id: "year-2015",
                                 number: 2015,
@@ -1089,18 +1158,20 @@
                                 category: "Anti-hypertenseurs",
                                 medications: [
                                     {
+                                        id: "selectol500mg",
                                         name: "Selectol 500mg",
                                         posology: "2x/d",
                                         type: "ß-bloquant",
                                         startDate: "01 jan 2017",
                                         endDate: "31 dec 2018",
-                                        extraInfo: "",
+                                        extraInfo: "Take with a glass of milk Take with a glass of milk Take with a glass of milk Take with a glass of milk",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 jan 2017",
                                         reimmbursementDateEnd: "31 dec 2018",
                                         colour: "ATC--L"
                                     },
                                     {
+                                        id: "Amlor200mg",
                                         name: "Amlor 200mg",
                                         posology: "2x/d",
                                         type: "Inhib.-Ca",
@@ -1109,7 +1180,7 @@
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2048",
+                                        reimmbursementDateEnd: "30 sept 2019",
                                         colour: "ATC--L"
                                     }
                                 ]
@@ -1118,6 +1189,7 @@
                                 category: "Anti-douleur",
                                 medications: [
                                     {
+                                        id: "paracetamolTeva200mg",
                                         name: "Paracétamol Téva 200mg",
                                         posology: "2x/j",
                                         type: "",
@@ -1130,22 +1202,22 @@
                                         colour: "ATC--J"
                                     },
                                     {
+                                        id: "claradolCodeine20mg",
                                         name: "Claradol Codéine 20mg",
                                         posology: "1x/d",
                                         type: "",
                                         startDate: "14 oct 2017",
-                                        endDate: "30 sep 2022",
+                                        endDate: "30 sep 2042",
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2032",
+                                        reimmbursementDateEnd: "30 sept 2019",
                                         colour: "ATC--J"
                                     }
                                 ]
                             },
                         ]
                     }
-
                 }
             }
 
@@ -1207,7 +1279,13 @@
                 const historyYearStart = new Date("01 jan " + this.historyYears[0].number)
                 const left = Math.round((Date.parse(startDate) - Date.parse(historyYearStart))  * 3.8027E-10 * 24)
                 endDate = (endDate) ? new Date(endDate) : null
-                const width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                const currentYear = new Date().getFullYear()
+                let width = "0"
+                if (currentYear >= endDate.getFullYear()) {
+                    width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                } else{
+                    width = this.totalWidth - left + "px"
+                }
 
                 return "left: " + left + "px; " + "width: " + width
             }
@@ -1220,10 +1298,8 @@
 
             _totalWidth(){
                 const width = this.historyYears.length * 12 * 24 + 24 * 4
-                return "width: " + width + "px;"
+                this.set('totalWidth',  width)
             }
-
-
 
             _isOver(endDate){
                 endDate = new Date(endDate)
@@ -1238,6 +1314,13 @@
             _isEqual(a,b) {
                 console.log(a+' ?= '+b)
                 return (a === b)
+            }
+
+            _endAfterCurrent(endDate){
+                const endDateYear = new Date(endDate).getFullYear()
+                const currentYear = new Date().getFullYear()
+                console.log("!!!!!! current !!!!!!!!", (endDateYear > currentYear))
+                return (endDateYear > currentYear)
             }
 
             open(medicationPlan, selectedMedicationContentWithId) {
