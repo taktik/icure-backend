@@ -42,6 +42,9 @@ public class InvoiceDto extends IcureDto {
 
 	private String groupId;
 
+	private String correctiveInvoiceId;
+	private String correctedInvoiceId;
+
 	private String recipientType; //org.taktik.icure.entities.HealthcareParty, org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
 	private String recipientId; //for hcps and insurance, patient link happens through secretForeignKeys
 
@@ -132,6 +135,22 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInvoiceReference(String invoiceReference) {
 		this.invoiceReference = invoiceReference;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String recipientType) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
+	public String getCorrectedInvoiceId() {
+		return correctedInvoiceId;
+	}
+
+	public void setCorrectedInvoiceId(String recipientType) {
+		this.correctedInvoiceId = correctedInvoiceId;
 	}
 
 	public String getInvoiceType() {
