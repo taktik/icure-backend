@@ -1002,7 +1002,7 @@
 
             _regimenTableDataProvider(frequency) {
                 function getMeal(regimens, daytime, frequency="daily") {
-                    return regimens.find(rg => rg.dayPeriod && rg.dayPeriod.code === daytime && rg.frequency === frequency) || {
+                    return regimens.find(rg => rg.dayPeriod && rg.dayPeriod.code === daytime && (rg.frequency || 'daily') === frequency) || {
                         administratedQuantity: { quantity: 0 },
                         dayPeriod: {type: "CD-DAYPERIOD", code: daytime},
                         frequency: "daily"
@@ -1066,9 +1066,9 @@
 
             extractRegimenSlices(regimen, frequency) {
                 const scores = this.api.contact().medication().regimenScores()
-                const morningRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 0, 105959))
-                const middayRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 110000, 155959))
-                const eveningRegimens = (regimen || []).filter(r => r.frequency === frequency && this.selectRegimen(scores, r, 160000, 240000))
+                const morningRegimens = (regimen || []).filter(r => ( r.frequency || 'daily' ) === frequency && this.selectRegimen(scores, r, 0, 105959))
+                const middayRegimens = (regimen || []).filter(r => ( r.frequency || 'daily' ) === frequency && this.selectRegimen(scores, r, 110000, 155959))
+                const eveningRegimens = (regimen || []).filter(r => ( r.frequency || 'daily' ) === frequency && this.selectRegimen(scores, r, 160000, 240000))
                 return {morningRegimens, middayRegimens, eveningRegimens}
             }
         }

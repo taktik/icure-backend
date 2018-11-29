@@ -137,12 +137,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .extra-menu-item {
+                cursor: pointer;
                 --paper-item-focused: {
                     background: white;
                 }
             }
 
-            .extra-menu-item:last-child {
+            .extra-menu-item:hover{
+                background-color: var(--app-background-color-dark);
+            }
+
+            .extra-menu-item:last-child, .extra-menu-item:nth-last-child(2) {
                 border-top: 1px solid var(--app-background-color-dark);
             }
 
@@ -365,7 +370,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 paper-button {
                     margin-right: 10px;
                 }
@@ -537,13 +542,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
                                     [[localize('hc_par')]]
                                 </paper-button>
-                                <paper-tab name="msg" on-tap="doRoute">
-                                    <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                <paper-button name="msg" on-tap="doRoute">
+                                    <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
-                                </paper-tab>
-                                <paper-button name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -566,10 +567,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                 [[localize('msg')]]
                             </paper-tab>
-                            <paper-tab name="logout" on-tap="doRoute">
-                                <iron-icon icon="power-settings-new"></iron-icon>
-                                [[localize('log_out')]]
-                            </paper-tab>
+
                         </paper-tabs>
                         <div class="log-info">
                             <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
@@ -1094,6 +1092,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-item class="extra-menu-item" on-tap="_myProfile">
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
+                                    </paper-item>
+                                    <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
+                                        <iron-icon icon="power-settings-new"></iron-icon>
+                                        [[localize('log_out')]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
