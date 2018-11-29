@@ -24,14 +24,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,6 +38,7 @@ import org.taktik.icure.dao.InvoiceDAO;
 import org.taktik.icure.dao.Option;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.entities.Form;
 import org.taktik.icure.entities.Insurance;
 import org.taktik.icure.entities.Invoice;
@@ -323,6 +317,15 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 			});
 			invoiceDAO.save(iv);
 		});
+	}
+
+	@Override
+	public List<LabelledOccurence> getTarificationsCodesOccurences(String hcPartyId, long minOccurences) {
+		return invoiceDAO.listTarificationsFrequencies(hcPartyId).parallelStream()
+				.filter(v -> v.getValue() != null && v.getValue() >= minOccurences)
+				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(1), v.getValue()))
+				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
+				.collect(Collectors.toList());
 	}
 
 	@Autowired
