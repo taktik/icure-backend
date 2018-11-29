@@ -98,6 +98,7 @@ public class Invoice extends StoredICureDocument {
 	private String correctedInvoiceId;
 
 	private Boolean creditNote;
+	private String creditNoteRelatedInvoiceId;
 
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
@@ -122,6 +123,7 @@ public class Invoice extends StoredICureDocument {
 
 		this.longDelayJustification = this.longDelayJustification == null ? other.longDelayJustification : this.longDelayJustification;
 		this.creditNote = this.creditNote == null ? other.creditNote : this.creditNote;
+		this.creditNoteRelatedInvoiceId = this.creditNoteRelatedInvoiceId == null ? other.creditNoteRelatedInvoiceId: this.creditNoteRelatedInvoiceId;
 
 		this.gnotionNihii = this.gnotionNihii == null ? other.gnotionNihii : this.gnotionNihii;
 		this.gnotionSsin = this.gnotionSsin == null ? other.gnotionSsin : this.gnotionSsin;
@@ -516,6 +518,10 @@ public class Invoice extends StoredICureDocument {
 	public void setCreditNote(Boolean creditNote) {
 		this.creditNote = creditNote;
 	}
+
+	public String getCreditNoteRelatedInvoiceId() { return creditNoteRelatedInvoiceId; }
+
+	public void setCreditNoteRelatedInvoiceId(String creditNoteRelatedInvoiceId) { this.creditNoteRelatedInvoiceId = creditNoteRelatedInvoiceId; }
 
 	public String getCareProviderType() {
 		return careProviderType;
