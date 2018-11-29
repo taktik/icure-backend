@@ -895,13 +895,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     partnershipsChanged() {
-        const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
-        if (tbc.length) {
-            this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
-                .then(ppss => ppss.forEach(pps => {
-                    const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
-                    this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
-                }))
+        if(this.patient){
+            const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
+            if (tbc.length) {
+                this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
+                    .then(ppss => ppss.forEach(pps => {
+                        const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
+                        this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
+                    }))
+            }
         }
     }
 

@@ -401,6 +401,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 				</div>
 				<div class="card-body">
+                    <div class="card-table-header row">
+                        <div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+                        <div class="card-header-cell card-header-cell--date">[[localize('last_edi','last edit',language)]]</div>
+                    </div>
 					<template is="dom-repeat" items="[[accessLogs]]" as="access">
 						<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 							<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
@@ -417,6 +421,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 				</div>
 				<div class="card-body">
+                    <div class="card-table-header row">
+                        <div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+                        <div class="card-header-cell">[[localize('type','Type',language)]]</div>
+                        <div class="card-header-cell card-header-cell--date">[[localize('hour','Hour',language)]]</div>
+                    </div>
 					<div class="consultations-list">
 						<template is="dom-repeat" items="[[appointments]]" as="appointment">
 							<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">

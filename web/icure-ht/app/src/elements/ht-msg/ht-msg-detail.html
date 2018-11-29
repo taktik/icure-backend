@@ -136,6 +136,7 @@
 				align-items: stretch;
 				background: transparent;
 				box-shadow: none;
+                flex-grow: 1;
 			}
 
 			.horizontal {
@@ -473,12 +474,13 @@
             }
 
             .read-txt {
-                min-height: 600px;
                 width: 100%;
+                max-height: 50vh;
                 overflow-y: auto;
 				flex-grow: 1;
-				margin: 12px 0;
 				border-top: 1px solid var(--app-background-color-dark);
+                padding: 0 10px;
+                box-sizing: border-box;
             }
 
 			.read-txt p{
@@ -487,6 +489,7 @@
 
             .attached {
                 width: 100%;
+                max-height: 176px;
                 padding: 10px;
                 overflow-y: auto;
                 border-top: 1px solid var(--app-background-color-dark);
@@ -540,6 +543,7 @@
 
 			.space-between{
 				justify-content: space-between;
+                height: 80px;
 			}
 
 			.layout-horizontal--flex-end{
@@ -646,6 +650,10 @@
                 width: 100%;
             }
 
+            h2.subject {
+                margin-bottom: 0;
+            }
+
             .message-box {
                 padding: 4px;
                 width: 100%;
@@ -676,70 +684,70 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-						<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
+						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_restoreMsgs" hidden="[[!_isDeleted]]"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
-					<template is="dom-repeat" items="[[messages]]" as="msg">
-							<paper-card class="msg-detail-card" >
-								<h2 class="subject">[[msg.subject]]</h2>
-								<div class="layout-horizontal space-between">
-									<div class="msg-header-grid">
-										<div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
-										<div class="from">[[msg.fromAddress]]</div>
-										<div class="to">to [[msg.toAddresses]]</div>
-									</div>
-									<div class="layout-horizontal layout-horizontal--flex-end">
-										<div class="date">[[_timeFormat(msg.received)]]</div>
-										<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
-										<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>
-										<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>
-									</div>
-								</div>
-                                <!-- <div>
-                                    <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
-                                </div> -->
-                                <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
-
-								<!-- <template is="dom-if" if="[[msg.body]]">
-                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-								</template> -->
-
-								<template is="dom-if" if="[[msg.body]]">
-									<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
-								</template>
-
-
-                            </paper-card>
+                <template is="dom-repeat" items="[[messages]]" as="msg">
+                    <paper-card class="msg-detail-card" >
+                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal space-between">
+                            <div class="msg-header-grid">
+                                <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
+                                <div class="from">[[msg.fromAddress]]</div>
+                                <div class="to">[[localize('to','To',language)]] [[msg.toAddresses]]</div>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <div class="date">[[_timeFormat(msg.received)]]</div>
+                                <paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
+                                <paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>
+                                <!--<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>-->
+                                <!--<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>-->
+                            </div>
                         </div>
-                    </template>
+                        <!-- <div>
+                            <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
+                            <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
+                            <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
+                        </div> -->
+                        <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
+
+                        <!-- <template is="dom-if" if="[[msg.body]]">
+                            <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+                        </template> -->
+
+                        <template is="dom-if" if="[[msg.body]]">
+                            <div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
+                        </template>
+
+
+                    </paper-card>
+                </template>
             </div>
 
             <div class="attached">
-                <h3>Pièces jointes</h3>
+                <h3>[[localize('attachments','Attachments',language)]]</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <paper-card class="annexe-card">
-							<div class="layout-horizontal space-between annexe-card--header">
-								<span>[[item.name]]</span>
-								<paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
-							</div>
+                            <div class="layout-horizontal space-between annexe-card--header">
+                                <span>[[item.name]]</span>
+                                <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
+                            </div>
                             <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
                                 <div class="img-container annexe-card--content">
                                     <img src$="[[item.dataUrl]]">
-								</div>
-								<div class="layout-horizontal space-between">
-									<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-								</div>
+                                </div>
+                                <div class="layout-horizontal space-between">
+                                    <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                </div>
                             </template>
                             <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
@@ -747,32 +755,32 @@
                             </template>
                             <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <template is="dom-if" if="[[showDetail]]">
+                                        <div>[[documentAttachment]]</div>
+                                        <!--TODO: format annexe on display-->
+                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+                                    </template>
+                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    </div>
+                                </div>
 
                             </template>
                             <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
                                 <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <template is="dom-if" if="[[showDetail]]">
+                                        <div>[[documentAttachment]]</div>
+                                        <!--TODO: format annexe on display-->
+                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+                                    </template>
+                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    </div>
+                                </div>
 
                             </template>
                         </paper-card>
@@ -780,6 +788,7 @@
                     <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
+
 		</template>
 	</template>
 	<script>
@@ -868,6 +877,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_displayLengthOrEmpty(msgBody){
 		return msgBody.length ? msgBody : "no content"
 	}
+
+	_isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
@@ -982,23 +995,39 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_removeMsg(e){
-		let msgId = e.target.getAttribute('msgId');
-		let transportGuid = e.target.getAttribute('transportGuid');
-		this.set('messages', null);
+        let msg = this.messages[0]
+		// let msgId = e.target.getAttribute('msgId');
+		// let transportGuid = e.target.getAttribute('transportGuid');
 
-		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-			.then(msg => {
-				let m = msg.rows[0];
-				if(m.transportGuid.startsWith("BIN")){
-		this.api.message().deleteMessages(msgId)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-				} else {
-					m.transportGuid = "BIN" + m.transportGuid;
-					this.api.message().modifyMessage(m)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-				}
-			})
+		// this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
+		// 	.then(msg => {
+		// 		let m = msg.rows[0];
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                this.api.message().deleteMessages(msg.id)
+                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
+            } else {
+                msg.transportGuid = "BIN" + msg.transportGuid;
+                this.api.message().modifyMessage(msg)
+                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
+            }
+            this.set('messages', null);
+            const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
+            mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+        }
+        // })
 	}
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
+    }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
