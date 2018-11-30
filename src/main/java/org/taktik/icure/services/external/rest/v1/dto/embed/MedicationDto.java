@@ -46,6 +46,7 @@ public class MedicationDto implements Serializable {
 	CodeDto frequency;
 
 	List<RegimenItemDto> regimen;
+	String posology;
 
 	Map<String, ContentDto> options;
 	Map<String, ParagraphAgreementDto> agreements;
@@ -153,6 +154,10 @@ public class MedicationDto implements Serializable {
 	public void setRegimen(List<RegimenItemDto> regimen) {
 		this.regimen = regimen;
 	}
+
+	public String getPosology() { return posology; }
+
+	public void setPosology(String posology) { this.posology = posology; }
 
 	public DurationDto getDuration() {
 		return duration;
