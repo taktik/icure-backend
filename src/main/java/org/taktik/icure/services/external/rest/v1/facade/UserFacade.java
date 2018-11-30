@@ -36,6 +36,7 @@ import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
+import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -182,6 +183,19 @@ public class UserFacade implements OpenApiFacade{
 		} else {
 			return Response.status(404).type("text/plain").entity("Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
+	}
+
+	@ApiOperation(
+			value = "Get the list of users by healthcare party id",
+			response = LabelledOccurenceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = ""
+	)
+	@GET
+	@Path("/byHealthcarePartyId/{id}")
+	public Response findByHcpartyId(@PathParam("id") String hcpartyId) {
+		return Response.ok().entity(userLogic.findByHcpartyId(hcpartyId)).build();
 	}
 
 

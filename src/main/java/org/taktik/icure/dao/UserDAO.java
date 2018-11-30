@@ -52,4 +52,6 @@ public interface UserDAO extends GenericDAO<User> {
 	List<User> getUsersByPartialIdOnFallback(String id);
 
 	List<User> findByUsernameOnFallback(String login);
+
+	List<User> findByHcpId(String hcPartyId);
 }
