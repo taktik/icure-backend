@@ -85,7 +85,6 @@ public class Invoice extends StoredICureDocument {
 	private String supervisorFirstName;
 	private String supervisorCdHcParty;
 	private String supervisorCbe;
-	private String correctiveInvoiceId;
 
 	private String error;
 
