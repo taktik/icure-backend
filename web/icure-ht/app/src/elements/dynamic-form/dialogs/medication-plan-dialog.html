@@ -20,14 +20,6 @@
                 height: 80%;
             }
 
-            .modal-title {
-                padding: 0 24px;
-                display: flex;
-                flex-flow: row wrap;
-                justify-content: space-between;
-                align-items: center;
-            }
-
             paper-tabs {
                 width: 50%;
                 max-width: 400px;
@@ -38,6 +30,8 @@
             paper-tab {
                 --paper-tab-ink: var(--app-secondary-color);
             }
+
+            
 
             .patient {
                 height: calc(100% - 48px - 48px);
@@ -448,6 +442,10 @@
 
             /* HISTORY */
 
+            .history{
+                margin-top: 24px;
+            }
+
             .timeline-header{
                 display: flex;
                 flex-flow: row nowrap;
@@ -535,10 +533,40 @@
             }
 
             .medication-category{
+                display:flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-between;
                 color: var(--app-text-color);
                 font-size: 10px;
-                padding-left: 8px;
                 border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
+            .medication-category span:first-child{
+                width: 10%;
+                flex-grow: 1;
+                padding-left: 8px;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            .medication-category span:nth-child(2){
+                max-width: calc(24px * 36 + 2px);
+                width: calc(24px * 36 + 2px);
+                display:block;
+                height: 20px;
+                box-sizing: border-box;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+            }
+            
+            .medication-category span:last-child{
+                width: 10%;
+                flex-grow: 1;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
             }
 
             .medication-line{
@@ -556,6 +584,7 @@
 
             .medication-line .type{
                 width: 10%;
+                height: 100%;
                 text-align: left;
                 flex-grow: 1;
                 padding-left: 8px;
@@ -564,6 +593,11 @@
             .medication-line .extra-info{
                 width: 10%;
                 flex-grow: 1;
+                padding: 0 8px; 
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                height: 100%;
             }
 
             .medication-line .line-container{
@@ -571,6 +605,8 @@
                 width: calc(24px * 36 + 2px);
                 overflow: hidden;
                 height: 24px;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
             }
 
             .medication-line .line{
@@ -578,15 +614,14 @@
                 box-sizing: unset;
                 position: absolute;
                 color: #fff;
-                width: 600px;
                 border-radius: 2px;
                 top: 0;
                 left: 0;
                 height: 100%;
-                margin: 1px 0;
                 flex-flow: row wrap;
                 align-items: center;
                 justify-content: space-between;
+                margin: 1px 0;
             }
 
             .medication-line .line::after{
@@ -612,6 +647,10 @@
                 margin-left: 4px;
                 margin-bottom: 4px; 
                 z-index: 1;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 4px;
             }
 
             .medication-line .line .until{
@@ -628,6 +667,25 @@
                 background: var(--app-status-color-ok);
                 height: 4px;
                 bottom: 0;
+                transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+                overflow: visible;
+            }
+
+            .medication-line .reimbursement-line:hover{
+                height: 6px;
+            }
+
+            paper-tooltip{
+                --paper-tooltip: {
+                    position: fixed;
+                    z-index: 900;
+                    width: auto;
+                    left: 50%;
+                    top: calc(10% + 24px);
+                    transform: translate(-50%, -50%);
+                    box-sizing: border-box;
+                }
             }
 
         </style>
@@ -643,370 +701,376 @@
                 </paper-tabs>
             </h2>
 
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                <div class="history">
-                    <div class="timeline">
-                        <div class="timeline-header">
-                            <div class="btn-left">
-                                <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
-                            </div>
-                            <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
-                                <template is="dom-repeat" items=[[historyYears]] as="historyYear">
-                                    <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
-                                        <div class="year">[[historyYear.number]]</div>
-                                        <div class="quarter">Q1</div>
-                                        <div class="quarter">Q2</div>
-                                        <div class="quarter">Q3</div>
-                                        <div class="quarter">Q4</div>
-                                    </div>
-                                </template>
-                                <div class="futur-block">
-                                    <div>futur</div>
+            <div class="content">
+                <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
+                    <div class="history">
+                        <div class="timeline">
+                            <div class="timeline-header">
+                                <div class="btn-left">
+                                    <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
                                 </div>
+                                <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
+                                    <template is="dom-repeat" items=[[historyYears]] as="historyYear">
+                                        <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
+                                            <div class="year">[[historyYear.number]]</div>
+                                            <div class="quarter">Q1</div>
+                                            <div class="quarter">Q2</div>
+                                            <div class="quarter">Q3</div>
+                                            <div class="quarter">Q4</div>
+                                        </div>
+                                    </template>
+                                    <div class="futur-block">
+                                        <div>futur</div>
+                                    </div>
 
+                                </div>
+                                <div class="btn-right">
+                                    <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
+                                </div>
                             </div>
-                            <div class="btn-right">
-                                <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
+                            <div class="timeline-body">
+                                <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
+                                    <div class="medication-category">
+                                        <span>[[fakePatientMedication.category]]</span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
+                                        <div class="medication-line" id="scrollable-element">
+                                            <div class="type">[[medication.type]]</div>
+                                            <div class="line-container">
+                                                <div class="line-total-width" style$="width: [[totalWidth]]px;">
+                                                    <div id="[[medication.id]]" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                        <div class="name">[[medication.name]] - [[medication.posology]]</div>
+                                                        <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
+                                                    </div>
+                                                    <paper-tooltip position="top" for="[[medication.id]]">[[medication.name]] - [[medication.posology]]</paper-tooltip>
+
+                                                    <div id="[[medication.id]]reimbursedLine" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                    <paper-tooltip position="top" for="[[medication.id]]reimbursedLine">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
+                                                </div>
+                                            </div>
+                                            <div class="extra-info">[[medication.extraInfo]]</div>
+
+                                        </div>
+                                    </template>
+                                </template>
                             </div>
                         </div>
-                        <div class="timeline-body">
-                            <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
-                                <div class="medication-category">[[fakePatientMedication.category]]</div>
-                                <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
-                                    <div class="medication-line" id="scrollable-element">
-                                        <div class="type">[[medication.type]]</div>
-                                        <div class="line-container">
-                                            <div class="line-total-width" style$="[[_totalWidth()]]">
-                                                <div id="line" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
-                                                    <div class="name">[[medication.name]] - [[medication.posology]]</div>
-                                                    <div class="until">[[medication.endDate]]</div>
-                                                </div>
-                                                <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                    <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
-                                                </template>
-                                            </div>
-                                        </div>
-                                        <div class="extra-info">[[medication.extraInfo]]</div>
+
+                    </div>
+                </template>
+
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                    <div class="present">
+                        <div class="table">
+                            <div class="tr th">
+                                <div class="td reimbursed">
+
+                                </div>
+                                <div class="td"
+                                    style="flex-grow: 5;">
+
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_break','Breakfast',language)]]</span>
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_lunch','Lunch',language)]]</span>
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_dinner','Dinner',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+
+                                </div>
+                                <div class="td" style="flex-grow: 4;">
+
+                                </div>
+                            </div>
+                            <div class="tr th">
+                                <div class="td">
+
+                                </div>
+                                <div class="td td--medicine"
+                                    style="flex-grow: 5; justify-content: flex-start">
+                                    <span class="left">[[localize('medic','Medicine',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+                                    <span>[[localize('freq','Frequency',language)]]</span>
+                                </div>
+                                <div class="td bf-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td bf-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td bf-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td lu-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td lu-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td lu-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td di-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td di-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td di-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+                                    <span>[[localize('endDate','End Date',language)]]</span>
+                                </div>
+                                <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
+                                    <span class="left">[[localize('com','Comments',language)]]</span>
+                                    <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
+                                </div>
+                            </div>
+                            <!-- END HEADER -->
+                            <!-- START BODY -->
+                            <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
+                                <div class="tr category">
+                                    <div class="td"></div>
+                                    <div class="td td--category" style="flex-grow: 5;">
+                                        <iron-icon icon="history"></iron-icon>
+                                        <span class="left"><b>[[_localizedTitle(medicationsWithPosology)]]</b></span>
                                     </div>
-                                </template>
+                                    <div class="td" style="flex-grow: 2;"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td" style="flex-grow: 2;"></div>
+                                    <div class="td" style="flex-grow: 4;"></div>
+                                </div>
+                                <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
+                                <div class$="tr [[_medicationClass(m.medication)]]">
+                                    <div class="td reimbursed">
+                                        <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="reimbursed-status [[_hasValidChap4Class(m.medication)]]"></iron-icon>
+                                        <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
+                                    </div>
+                                    <div class="td td--medicine" style="flex-grow: 5;">
+                                        <span class="left">[[_serviceDescription(m.medication)]]</span>
+                                    </div>
+                                    <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
+                                    <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
+                                        <div class="td td-input bf-bef"><span><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></span></div>
+                                    </template>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
+                                        <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
+                                    </template>
+                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
+                                        <div class="td td-input bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                    </template>
+                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
+                                        <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
+                                    </template>
+                                    <div class="td" style="flex-grow: 2;"><span>10/02/2019</span></div>
+                                    <div class="td td--comments" style="flex-grow: 4;"><span class="left"></span></div>
+                                </div>
+                            </template>
                             </template>
                         </div>
+                        <!-- END BODY -->
+                        <!-- END TABLE -->
                     </div>
 
-                </div>
-            </template>
+                    </div>
+                </template>
 
-            <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
-                <div class="present">
-                    <div class="table">
-                        <div class="tr th">
-                            <div class="td reimbursed">
+                <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
+                    <div class="patient">
+                        <div class="general-infos">
+                            <div class="infos-block">
+                                <div class="infos--name"><span>GP</span>Dr. [[user.name]]</div>
+                                <div class="infos--address"><span>Address</span>50 street StreetName</div>
+                            </div>
 
-                            </div>
-                            <div class="td"
-                                 style="flex-grow: 5;">
-
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>[[localize('mom_break','Breakfast',language)]]</span>
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>[[localize('mom_lunch','Lunch',language)]]</span>
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>[[localize('mom_dinner','Dinner',language)]]</span>
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-
-                            </div>
-                            <div class="td" style="flex-grow: 4;">
-
+                            <div class="infos-block">
+                                <div class="infos--name"><span>Pharmacist</span>FirstName LastName</div>
+                                <div class="infos--address"><span>Address</span>250 street StreetName</div>
                             </div>
                         </div>
-                        <div class="tr th">
-                            <div class="td">
-
+                        <div id="breakfast" class="table-container">
+                            <div class="header">
+                                <iron-icon icon="icure-svg-icons:breakfast"></iron-icon>
+                                <h3>breakfast</h3>
                             </div>
-                            <div class="td td--medicine"
-                                 style="flex-grow: 5; justify-content: flex-start">
-                                <span class="left">[[localize('medic','Medicine',language)]]</span>
+                            <div class="table-header">
+                                <div class="col col--med">Medicine</div>
+                                <div class="col col--photo">Photo</div>
+                                <div class="col col--ed">End Date</div>
+                                <div class="col col--freq">Frequency</div>
+                                <div class="col col--bef">Before</div>
+                                <div class="col col--dur">During</div>
+                                <div class="col col--aft">After</div>
+                                <div class="col col--com">Comments</div>
                             </div>
-                            <div class="td" style="flex-grow: 2;">
-                                <span>[[localize('freq','Frequency',language)]]</span>
-                            </div>
-                            <div class="td bf-bef">
-                                <span>[[localize('mom_before','Before',language)]]</span>
-                            </div>
-                            <div class="td bf-dur">
-                                <span>[[localize('mom_during','During',language)]]</span>
-                            </div>
-                            <div class="td bf-aft">
-                                <span>[[localize('mom_after','After',language)]]</span>
-                            </div>
-                            <div class="td lu-bef">
-                                <span>[[localize('mom_before','Before',language)]]</span>
-                            </div>
-                            <div class="td lu-dur">
-                                <span>[[localize('mom_during','During',language)]]</span>
-                            </div>
-                            <div class="td lu-aft">
-                                <span>[[localize('mom_after','After',language)]]</span>
-                            </div>
-                            <div class="td di-bef">
-                                <span>[[localize('mom_before','Before',language)]]</span>
-                            </div>
-                            <div class="td di-dur">
-                                <span>[[localize('mom_during','During',language)]]</span>
-                            </div>
-                            <div class="td di-aft">
-                                <span>[[localize('mom_after','After',language)]]</span>
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-                                <span>[[localize('endDate','End Date',language)]]</span>
-                            </div>
-                            <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
-                                <span class="left">[[localize('com','Comments',language)]]</span>
-                                <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
-                            </div>
-                        </div>
-                        <!-- END HEADER -->
-                        <!-- START BODY -->
-                        <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
-                            <div class="tr category">
-                                <div class="td"></div>
-                                <div class="td td--category" style="flex-grow: 5;">
-                                    <iron-icon icon="history"></iron-icon>
-                                    <span class="left"><b>[[_localizedTitle(medicationsWithPosology)]]</b></span>
+                            <div class="table-body">
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed">30/03/2018</div>
+                                    <div class="col col--freq">Everyday</div>
+                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
+                                    <div class="col col--dur"></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com">Drink with a glass of milk</div>
                                 </div>
-                                <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td" style="flex-grow: 4;"></div>
-                            </div>
-                            <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
-                            <div class$="tr [[_medicationClass(m.medication)]]">
-                                <div class="td reimbursed">
-                                    <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="reimbursed-status [[_hasValidChap4Class(m.medication)]]"></iron-icon>
-                                    <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed"></div>
+                                    <div class="col col--freq">Once a week</div>
+                                    <div class="col col--bef"></div>
+                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com"></div>
                                 </div>
-                                <div class="td td--medicine" style="flex-grow: 5;">
-                                    <span class="left">[[_serviceDescription(m.medication)]]</span>
+                            </div>
+                        </div>
+                        <div id="lunch" class="table-container">
+                            <div class="header">
+                                <iron-icon icon="icure-svg-icons:lunch"></iron-icon>
+                                <h3>Lunch</h3>
+                            </div>
+                            <div class="table-header">
+                                <div class="col col--med">Medicine</div>
+                                <div class="col col--photo">Photo</div>
+                                <div class="col col--ed">End Date</div>
+                                <div class="col col--freq">Frequency</div>
+                                <div class="col col--bef">Before</div>
+                                <div class="col col--dur">During</div>
+                                <div class="col col--aft">After</div>
+                                <div class="col col--com">Comments</div>
+                            </div>
+                            <div class="table-body">
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed">30/03/2018</div>
+                                    <div class="col col--freq">Everyday</div>
+                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
+                                    <div class="col col--dur"></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com">Drink with a glass of milk</div>
                                 </div>
-                                <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
-                                    <div class="td td-input bf-bef"><span><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></span></div>
-                                </template>
-                                <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
-                                </template>
-                                <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
-                                    <div class="td td-input bf-bef">[[regimen.administratedQuantity.quantity]]</div>
-                                </template>
-                                <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
-                                </template>
-                                <div class="td" style="flex-grow: 2;"><span>10/02/2019</span></div>
-                                <div class="td td--comments" style="flex-grow: 4;"><span class="left"></span></div>
-                            </div>
-                        </template>
-                        </template>
-                    </div>
-                    <!-- END BODY -->
-                    <!-- END TABLE -->
-                </div>
-
-                </div>
-            </template>
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
-                <div class="patient">
-                    <div class="general-infos">
-                        <div class="infos-block">
-                            <div class="infos--name"><span>GP</span>Dr. [[user.name]]</div>
-                            <div class="infos--address"><span>Address</span>50 street StreetName</div>
-                        </div>
-
-                        <div class="infos-block">
-                            <div class="infos--name"><span>Pharmacist</span>FirstName LastName</div>
-                            <div class="infos--address"><span>Address</span>250 street StreetName</div>
-                        </div>
-                    </div>
-                    <div id="breakfast" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:breakfast"></iron-icon>
-                            <h3>breakfast</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed"></div>
+                                    <div class="col col--freq">Once a week</div>
+                                    <div class="col col--bef"></div>
+                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="lunch" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:lunch"></iron-icon>
-                            <h3>Lunch</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
+                        <div id="dinner" class="table-container">
+                            <div class="header">
+                                <iron-icon icon="icure-svg-icons:dinner"></iron-icon>
+                                <h3>Dinner</h3>
                             </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
+                            <div class="table-header">
+                                <div class="col col--med">Medicine</div>
                                 <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
+                                <div class="col col--ed">End Date</div>
+                                <div class="col col--freq">Frequency</div>
+                                <div class="col col--bef">Before</div>
+                                <div class="col col--dur">During</div>
+                                <div class="col col--aft">After</div>
+                                <div class="col col--com">Comments</div>
+                            </div>
+                            <div class="table-body">
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed">30/03/2018</div>
+                                    <div class="col col--freq">Everyday</div>
+                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
+                                    <div class="col col--dur"></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com">Drink with a glass of milk</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed"></div>
+                                    <div class="col col--freq">Once a week</div>
+                                    <div class="col col--bef"></div>
+                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="beforeBed" class="table-container">
+                            <div class="header">
+                                <iron-icon icon="icure-svg-icons:bed"></iron-icon>
+                                <h3>Before Bed</h3>
+                            </div>
+                            <div class="table-header">
+                                <div class="col col--med">Medicine</div>
+                                <div class="col col--photo">Photo</div>
+                                <div class="col col--ed">End Date</div>
+                                <div class="col col--freq">Frequency</div>
+                                <div class="col col--bef">Before</div>
+                                <div class="col col--dur">During</div>
+                                <div class="col col--aft">After</div>
+                                <div class="col col--com">Comments</div>
+                            </div>
+                            <div class="table-body">
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed">30/03/2018</div>
+                                    <div class="col col--freq">Everyday</div>
+                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
+                                    <div class="col col--dur"></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com">Drink with a glass of milk</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
+                                    <div class="col col--photo">Photo</div>
+                                    <div class="col col--ed"></div>
+                                    <div class="col col--freq">Once a week</div>
+                                    <div class="col col--bef"></div>
+                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
+                                    <div class="col col--aft"></div>
+                                    <div class="col col--com"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="dinner" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:dinner"></iron-icon>
-                            <h3>Dinner</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="beforeBed" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:bed"></iron-icon>
-                            <h3>Before Bed</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
+                </template>
+            </div>
 
             <div class="buttons">
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">Close</paper-button>
@@ -1054,12 +1118,24 @@
                         notify: true,
                         observer: '_scrollLeftChanged'
                     },
+
+                    totalWidth: {
+                        type: Number,
+                        value: 0,
+                        notify: true,
+                        observer: '_totalWidth'
+                    },
                     user: {
                         type: Object
                     },
                     historyYears: {
                         type: Array,
                         value: () => [
+                            {
+                                id: "year-2014",
+                                number: 2014,
+                                isCurrent: false
+                            },
                             {
                                 id: "year-2015",
                                 number: 2015,
@@ -1089,18 +1165,20 @@
                                 category: "Anti-hypertenseurs",
                                 medications: [
                                     {
+                                        id: "selectol500mg",
                                         name: "Selectol 500mg",
                                         posology: "2x/d",
                                         type: "ß-bloquant",
                                         startDate: "01 jan 2017",
                                         endDate: "31 dec 2018",
-                                        extraInfo: "",
+                                        extraInfo: "Take with a glass of milk Take with a glass of milk Take with a glass of milk Take with a glass of milk",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 jan 2017",
                                         reimmbursementDateEnd: "31 dec 2018",
                                         colour: "ATC--L"
                                     },
                                     {
+                                        id: "Amlor200mg",
                                         name: "Amlor 200mg",
                                         posology: "2x/d",
                                         type: "Inhib.-Ca",
@@ -1109,7 +1187,7 @@
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2048",
+                                        reimmbursementDateEnd: "30 sept 2019",
                                         colour: "ATC--L"
                                     }
                                 ]
@@ -1118,6 +1196,7 @@
                                 category: "Anti-douleur",
                                 medications: [
                                     {
+                                        id: "paracetamolTeva200mg",
                                         name: "Paracétamol Téva 200mg",
                                         posology: "2x/j",
                                         type: "",
@@ -1130,22 +1209,22 @@
                                         colour: "ATC--J"
                                     },
                                     {
+                                        id: "claradolCodeine20mg",
                                         name: "Claradol Codéine 20mg",
                                         posology: "1x/d",
                                         type: "",
-                                        startDate: "14 oct 2017",
-                                        endDate: "30 sep 2022",
+                                        startDate: "01 sep 2018",
+                                        endDate: "30 sep 2018",
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2032",
+                                        reimmbursementDateEnd: "30 sept 2019",
                                         colour: "ATC--J"
                                     }
                                 ]
                             },
                         ]
                     }
-
                 }
             }
 
@@ -1207,7 +1286,13 @@
                 const historyYearStart = new Date("01 jan " + this.historyYears[0].number)
                 const left = Math.round((Date.parse(startDate) - Date.parse(historyYearStart))  * 3.8027E-10 * 24)
                 endDate = (endDate) ? new Date(endDate) : null
-                const width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                const currentYear = new Date().getFullYear()
+                let width = "0"
+                if (currentYear >= endDate.getFullYear()) {
+                    width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                } else{
+                    width = this.totalWidth - left + "px"
+                }
 
                 return "left: " + left + "px; " + "width: " + width
             }
@@ -1220,10 +1305,8 @@
 
             _totalWidth(){
                 const width = this.historyYears.length * 12 * 24 + 24 * 4
-                return "width: " + width + "px;"
+                this.set('totalWidth',  width)
             }
-
-
 
             _isOver(endDate){
                 endDate = new Date(endDate)
@@ -1238,6 +1321,13 @@
             _isEqual(a,b) {
                 console.log(a+' ?= '+b)
                 return (a === b)
+            }
+
+            _endAfterCurrent(endDate){
+                const endDateYear = new Date(endDate).getFullYear()
+                const currentYear = new Date().getFullYear()
+                console.log("!!!!!! current !!!!!!!!", (endDateYear > currentYear))
+                return (endDateYear > currentYear)
             }
 
             open(medicationPlan, selectedMedicationContentWithId) {
