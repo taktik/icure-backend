@@ -960,7 +960,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
 	}
 
-	_pdfReport(toPrint) {
+	_pdfReport(drugsToBePrescribed,toPrint) {
         this.api.pdfReport(mustache.render(toPrint, null))
             .then(data => {
                 let blob = new Blob([data], {type: 'application/pdf'});
@@ -1005,13 +1005,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 console.log('prescri',prescri)
                 rid = prescri.rid;
                 toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-            } )))).finally(()=>{
-                this._pdfReport(toPrint)
-            })
+                this._pdfReport(drugsToBePrescribed,toPrint)
+            } ))))
         } else {
             console.log("no recip-e")
             toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-            this._pdfReport(toPrint)
+            this._pdfReport(drugsToBePrescribed,toPrint)
         }
         this.$.loadingPrescriptionDialog.close();
 	} // print end
