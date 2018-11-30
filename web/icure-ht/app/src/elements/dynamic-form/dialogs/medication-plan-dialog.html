@@ -1096,6 +1096,10 @@
                 </template>
             </div>
 
+            <template is="dom-if" if="{{_isEqual(selectedTab,3)}}">
+                <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
+            </template>
+
             <div class="buttons">
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">Close</paper-button>
 
