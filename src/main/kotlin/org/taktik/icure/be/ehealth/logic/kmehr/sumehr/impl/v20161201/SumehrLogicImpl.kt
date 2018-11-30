@@ -42,7 +42,6 @@ import org.xml.sax.SAXException
 import java.io.InputStream
 import java.util.*
 
-@Service
 class SumehrLogicImpl(private val contactLogic: ContactLogic, private val sumehrExport: SumehrExport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
