@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-public class ClassificationDto extends IcureDto {
+public class ClassificationDto extends ClassificationTemplateDto {
 	private static final long serialVersionUID = 1L;
 
 	protected String templateId;
