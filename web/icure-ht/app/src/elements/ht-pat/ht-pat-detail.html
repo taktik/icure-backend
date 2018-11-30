@@ -1699,7 +1699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_registerFedAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
@@ -2623,15 +2623,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerFedAndHubConsent(){
+                this._registerConsent().then(resp => this.showPatientConsentState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientConsent().then().catch(error=> console.log(error));
+            }
+
             _registerConsent(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                     ).then(consentResp => {
                             if(consentResp.consent) {
-                                this.showPatientConsentState()
                                 return(consentResp.consent)
                             }
                             else{
