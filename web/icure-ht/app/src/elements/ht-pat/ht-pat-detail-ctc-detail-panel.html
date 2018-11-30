@@ -1007,7 +1007,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	_pdfReport(drugsToBePrescribed,toPrint,size) {
-        this.api.pdfReport(mustache.render(toPrint, null))
+        this.api.pdfReport(mustache.render(toPrint, null),{
+            paperWidth: size == 'A4' ? 210 : 105,
+            paperHeight: size == 'A4' ? 297 : 210
+        })
             .then(data => {
                 let blob = new Blob([data], {type: 'application/pdf'});
                 let url = window.URL.createObjectURL(blob)
@@ -1091,8 +1094,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             let medicName = ""
             prescArray.map(that => { // create prescription content
                 prescriContent += `<article>
-                    <p><span class="bold">R/</span> ${that.R}</p>
-                    <p><span class="bold">S/</span> ${that.S}</p>
+                    <p class="bigtxt"><span class="bold bigtxt">R/</span> ${that.R}</p>
+                    <p class="bigtxt"><span class="bold bigtxt">S/</span> ${that.S}</p>
                 </article>`;
                 articlePoso.push(that.poso) // add posology to the list
                 medicName = that.R
@@ -1287,15 +1290,16 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             body {margin: 0;padding: 0;}
             div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
-            * {font-size:.95em;font-family: Arial,sans-serif;}
+            * {font-size:10px;font-family: Arial,sans-serif;}
+            *.bigtxt {font-size:13px;}
             /* flex */
             *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
             /* elems */
-            img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+            img.codbar {height:auto;width:100%;background: black;margin-bottom: 5px;} *.signdate {border-bottom: .25px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
             /* style */
             *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
             *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
-            *.br {border-right: 2px solid black;} *.bt {border-top: 2px solid black} *.bb {border-bottom: 2px solid black}
+            *.br {border-right: .25px solid black;} *.bt {border-top: .25px solid black} *.bb {border-bottom: .25px solid black}
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
         </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
