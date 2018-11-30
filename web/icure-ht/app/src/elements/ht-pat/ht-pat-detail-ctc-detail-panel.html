@@ -392,12 +392,19 @@
 				margin: 0;
 			}
 
+            .endline {
+                display: flex;
+                flex-direction: row;
+                margin: 0;
+                border-top: 1px solid var(--app-background-color-dark);
+            }
+
 			.buttons{
-				position: absolute;
-				bottom: 0;
-				width: 100%;
+                display: flex;
+                flex-grow: 1;
 				box-sizing: border-box;
-				border-top: 1px solid #e0e0e0;
+                justify-content: flex-end;
+                padding-top: 16px;
 			}
 		</style>
 
@@ -543,12 +550,18 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
-			<div>
+			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-			</div>
-			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
+                <paper-dropdown-menu id="preferredHub" label="Format prescription">
+                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{selectedFormat}}">
+                        <paper-item name="A4">Format A4</paper-item>
+                        <paper-item name="presc">Format prescription</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <div class="buttons">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
+                </div>
 			</div>
 		</paper-dialog>
 
@@ -687,6 +700,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             globalHcp: {
 			    type: Object,
                 value: null
+            },
+            selectedFormat: {
+			    type: String,
+                value: 'A4'
             }
 		};
 	}
