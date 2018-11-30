@@ -960,6 +960,32 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
 	}
 
+	_pdfReport(toPrint) {
+        this.api.pdfReport(mustache.render(toPrint, null))
+            .then(data => {
+                let blob = new Blob([data], {type: 'application/pdf'});
+                let url = window.URL.createObjectURL(blob)
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.href = url;
+                a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }).finally(()=>{
+            drugsToBePrescribed.forEach(s => {
+                const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
+                if (tag) {
+                    tag.id = 'CD-LIFECYCLE|ordered|1';
+                    tag.code = 'ordered'
+                } else {
+                    s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
+                }
+            }) // forEach end
+            this.saveCurrentContact().then(() => this._refreshDrugs())
+        })
+    }
+
 	_printPrescriptions(e) {
         this.$.loadingPrescriptionDialog.open();
         const drugsToBePrescribed = this._drugsToBePrescribed();
@@ -980,61 +1006,14 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 rid = prescri.rid;
                 toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
             } )))).finally(()=>{
-                this.api.pdfReport(mustache.render(toPrint, null))
-                    .then(data => {
-                        let blob = new Blob([data], {type: 'application/pdf'});
-                        let url = window.URL.createObjectURL(blob)
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-                        a.href = url;
-                        a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    }).finally(()=>{
-                    drugsToBePrescribed.forEach(s => {
-                        const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
-                        if (tag) {
-                            tag.id = 'CD-LIFECYCLE|ordered|1';
-                            tag.code = 'ordered'
-                        } else {
-                            s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
-                        }
-                    }) // forEach end
-                    this.saveCurrentContact().then(() => this._refreshDrugs())
-                })
+                this._pdfReport(toPrint)
             })
         } else {
             console.log("no recip-e")
             toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-            this.api.pdfReport(mustache.render(toPrint, null))
-                .then(data => {
-                    let blob = new Blob([data], {type: 'application/pdf'});
-                    let url = window.URL.createObjectURL(blob)
-                    let a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
-                    a.href = url;
-                    a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }).finally(()=>{
-                drugsToBePrescribed.forEach(s => {
-                    const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
-                    if (tag) {
-                        tag.id = 'CD-LIFECYCLE|ordered|1';
-                        tag.code = 'ordered'
-                    } else {
-                        s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
-                    }
-                }) // forEach end
-                this.saveCurrentContact().then(() => this._refreshDrugs())
-            })
+            this._pdfReport(toPrint)
         }
-        // toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-        // if (toPrint) {
         this.$.loadingPrescriptionDialog.close();
-        // }
 	} // print end
 
     _formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
