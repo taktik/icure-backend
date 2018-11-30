@@ -137,6 +137,17 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
+	@View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
+	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
+		ComplexKey startKey;
+		ComplexKey endKey;
+		startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, transportGuid, fromDate) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+		endKey = ComplexKey.of(partyId, transportGuid, toDate);
+
+		return pagedQueryView("by_hcparty_transport_guid_sent_date", startKey, endKey, paginationOffset, true);
+	}
+
+	@Override
 	@View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
 	public PaginatedList<Message> findByHcParty(String partyId, PaginationOffset<List<Object>> paginationOffset) {
 		ComplexKey startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());

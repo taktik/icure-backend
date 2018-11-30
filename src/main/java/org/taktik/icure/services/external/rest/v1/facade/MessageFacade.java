@@ -318,6 +318,43 @@ public class MessageFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+	        value = "Get all messages starting by a prefix between two date",
+            httpMethod = "GET",
+            response = MessagePaginatedList.class
+    )
+    @GET
+    @Path("/byTransportGuidSentDate")
+    public Response findMessagesByTransportGuidSentDate(@QueryParam("transportGuid") String transportGuid, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate,
+                                                        @QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId,
+                                                        @QueryParam("limit") Integer limit) throws LoginException {
+        Response response;
+
+
+        ArrayList<Object> startKeyList = null;
+        if (startKey != null && startKey.length() > 0) {
+            startKeyList = new ArrayList<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKey));
+        }
+        PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
+
+        PaginatedList<Message> messages = messageLogic.findByTransportGuidSentDate(
+                sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+                transportGuid,
+                fromDate,
+                toDate,
+                paginationOffset
+        );
+
+        if (messages != null) {
+            response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
+        } else {
+            response = ResponseUtils.internalServerError("Message listing failed");
+        }
+
+        return response;
+    }
+
+
+	@ApiOperation(
             value = "Get all messages (paginated) for current HC Party and provided to address",
             httpMethod = "GET",
             response = MessagePaginatedList.class

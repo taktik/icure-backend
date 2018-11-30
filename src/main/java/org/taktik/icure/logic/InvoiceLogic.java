@@ -24,6 +24,7 @@ import java.util.Set;
 import org.ektorp.ComplexKey;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
@@ -73,6 +74,8 @@ public interface InvoiceLogic {
 	List<Invoice> removeCodes(String userId, Set<String> secretPatientKeys, String serviceId, List<String> tarificationIds);
 
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
+
+	List<LabelledOccurence> getTarificationsCodesOccurences(String hcPartyId, long minOccurences);
 
 	void solveConflicts();
 
