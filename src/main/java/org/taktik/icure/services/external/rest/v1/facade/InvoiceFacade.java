@@ -50,6 +50,7 @@ import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.services.external.rest.v1.dto.*;
+import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 import org.taktik.icure.utils.ResponseUtils;
@@ -555,6 +556,19 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/allHcpsByStatus/{status}")
 	public List<InvoiceDto> listAllHcpsByStatus(@PathParam("status") String status, @QueryParam("from") Long from, @QueryParam("to") Long to, ListOfIdsDto hcpIds) {
 		return invoiceLogic.listAllHcpsByStatus(status, from, to, hcpIds.getIds()).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
+	}
+
+	@ApiOperation(
+			value = "Get the list of all used tarifications frequencies in invoices",
+			response = LabelledOccurenceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = ""
+	)
+	@GET
+	@Path("/codes/{minOccurences}")
+	public Response getTarificationsCodesOccurences(@PathParam("minOccurences") Long minOccurences) {
+		return Response.ok().entity(invoiceLogic.getTarificationsCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), minOccurences)).build();
 	}
 
 	@Context
