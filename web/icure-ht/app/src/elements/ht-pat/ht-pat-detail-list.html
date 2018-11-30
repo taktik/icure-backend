@@ -150,7 +150,7 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _date(item) {
-        return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+        return (item && item.modified) ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
     }
 
     _author(item) {
