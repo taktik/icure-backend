@@ -43,6 +43,9 @@ public class InvoiceDto extends IcureDto {
 
 	private String groupId;
 
+	private String correctiveInvoiceId;
+	private String correctedInvoiceId;
+
 	private String recipientType; //org.taktik.icure.entities.HealthcareParty, org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
 	private String recipientId; //for hcps and insurance, patient link happens through secretForeignKeys
 
@@ -75,7 +78,9 @@ public class InvoiceDto extends IcureDto {
 	protected String supervisorCbe;
 
 	protected Integer longDelayJustification;
+
 	protected Boolean creditNote;
+	protected String creditNoteRelatedInvoiceId;
 
 	protected String careProviderType;
 
@@ -138,6 +143,22 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInvoiceReference(String invoiceReference) {
 		this.invoiceReference = invoiceReference;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
+	public String getCorrectedInvoiceId() {
+		return correctedInvoiceId;
+	}
+
+	public void setCorrectedInvoiceId(String correctedInvoiceId) {
+		this.correctedInvoiceId = correctedInvoiceId;
 	}
 
 	public String getInvoiceType() {
@@ -302,6 +323,10 @@ public class InvoiceDto extends IcureDto {
 	public Boolean getCreditNote() { return creditNote; }
 
 	public void setCreditNote(Boolean creditNote) { this.creditNote = creditNote; }
+
+	public String getCreditNoteRelatedInvoiceId() { return creditNoteRelatedInvoiceId; }
+
+	public void setCreditNoteRelatedInvoiceId(String creditNoteRelatedInvoiceId) { this.creditNoteRelatedInvoiceId = creditNoteRelatedInvoiceId; }
 
 	public String getCareProviderType() { return careProviderType; }
 
