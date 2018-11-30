@@ -746,38 +746,38 @@
                                             </span>
                                         </div>
                                     </template>
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity::input}}"></iron-input></div>
                                     <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 4, m.regimenTable.4, m.regimenTable.4.*, medicationsWithPosology.meds.*)]]" as="regimen">
                                         <div class="td td-input bf-bef">
                                             <span>
                                                 <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
-                                                    <input value="{{value::input}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
                                                 </iron-input>
                                             </span>
                                         </div>
                                     </template>
-                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
+                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity::input}}"></iron-input></div>
                                     <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 8, m.regimenTable.8, m.regimenTable.8.*, medicationsWithPosology.meds.*)]]" as="regimen">
                                         <div class="td td-input bf-bef">
                                             <span>
                                                 <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
-                                                    <input value="{{value::input}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
                                                 </iron-input>
                                             </span>
                                         </div>
                                     </template>
-                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
-                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"><input value="{{value::input}}"></iron-input></div>
+                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity::input}}"></iron-input></div>
                                     <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 12, m.regimenTable.12, m.regimenTable.12.*, medicationsWithPosology.meds.*)]]" as="regimen">
                                         <div class="td td-input bf-bef">
                                             <span>
                                                 <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
-                                                    <input value="{{value::input}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
                                                 </iron-input>
                                             </span>
                                         </div>
