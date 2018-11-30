@@ -565,14 +565,6 @@ public class Invoice extends StoredICureDocument {
 		this.payments = payments;
 	}
 
-	public String getCorrectiveInvoiceId() {
-		return correctiveInvoiceId;
-	}
-
-	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
-		this.correctiveInvoiceId = correctiveInvoiceId;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
