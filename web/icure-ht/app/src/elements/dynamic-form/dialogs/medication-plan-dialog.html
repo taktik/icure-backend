@@ -643,9 +643,9 @@
                                     </div>
                                 </template>
                                 <div class="futur-block">
-                                    <div>futur</div> 
+                                    <div>futur</div>
                                 </div>
-                               
+
                             </div>
                             <div class="btn-right">
                                 <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
@@ -663,7 +663,7 @@
                                                         <div class="name">[[medication.name]] - [[medication.posology]]</div>
                                                     </div>
                                                     <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                        <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                        <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div>
                                                     </template>
                                                 </div>
                                             </div>
@@ -1029,7 +1029,7 @@
                     },
 
                     scrollLeft: {
-                        type: Number, 
+                        type: Number,
                         value: 0,
                         notify: true,
                         observer: '_scrollLeftChanged'
@@ -1092,7 +1092,7 @@
                             },
                         ]
                     }
-                    
+
                 }
             }
 
@@ -1167,10 +1167,10 @@
 
             _totalWidth(){
                 const width = this.historyYears.length * 12 * 24 + 24 * 4
-                return "width: " + width + "px;"      
+                return "width: " + width + "px;"
             }
 
-           
+
 
             _isOver(endDate){
                 endDate = new Date(endDate)
@@ -1280,11 +1280,21 @@
 
             extractRegimenSlices(regimen, frequency, conditions) {
                 const scores = this.api.contact().medication().regimenScores()
+                const regsTable = conditions.map(() => [])
+                ;(regimen || []).forEach(rg => {
+                    if ((rg.frequency || 'daily') === frequency) {
+                        const score = rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0
+                        const idx = _.findIndex(conditions, c => c(score))
+                        if (idx>=0) {
+                            regsTable[idx].push(rg)
+                        }
+                    }
+                })
                 return conditions.map(c => (regimen || []).filter(r => r.frequency === frequency && c(rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] ||  0)))
             }
 
             _medicationsChanged() {
-                //const scores = this.api.contact().medication().regimenScores()
+                const scores = this.api.contact().medication().regimenScores()
                 this.medicationClassesWithPosology =  _.sortBy(Object.values(this.medications.map( m => ({
                     medication:m, regimenTable: this.extractRegimenSlices(((this.api.contact().preferredContent(m, this.language) || {}).medicationValue || {}).regimen, 'daily', [
                         x => x < scores.beforebreakfast,
