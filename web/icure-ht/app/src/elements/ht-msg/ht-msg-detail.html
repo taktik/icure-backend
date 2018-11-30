@@ -876,23 +876,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 			this.set('isLoadingMessage',true)
-            this.selectMessage.selection.item.body = [];
+            // this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => { if(docs.length) {
 					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
 						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, null)
 							.then(a =>
-								// With encryption key
-								// this.getDataUrls(doc)
-								// .then(dataUrl => {
-								// 	doc.dataUrl = dataUrl;
-								// 	if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-								// 	else this.set('documentAttachment', a);
-								// 	return doc
-								// })
-
-								//Without encryption key
 								{
 									doc.dataUrl = this.getDataUrls(doc)
 									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
@@ -926,65 +916,69 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	getChildren(item){
-        this.api.message().getChildren(item).then(function(m) {
+	    console.log('getChildren',item)
+        this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
 			if(m.length){
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    console.log('findByMessage',docs)
                     docs.length?
                     	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
-						:m.map(r => this.messages.push(r));
-                    this.set('messages',this.messages)
+						:m.map(r => this.push('messages',r));
                     m.map(r => this.getChildren(r));
                 })
 			}
-        }.bind(this))
+        })
+        // }.bind(this))
 	}
 
-	// With encryption key
-	// getDataUrls(doc){
-	// 	return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
-	// 				.then(decryptedAndImportedAesHcPartyKeys => {
-	// 					let collatedAesKeys = {};
-	// 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-	// 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
-	// 						.then(enckeys =>
-	// 							this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-	// 								this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-	// 									let xml = XML.parseXml(att);
-	// 									if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-	// 										xml.kmehrmessage.header.standard.specialisation &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd.S){
-	// 										this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-	// 									}else{
-	// 										this.set("type","Non Valid Type")
-	// 									}
-	// 								})
-	// 								: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
-	// 						);
-	// 				})
-	// }
+	getDataUrls(doc) {
+	    console.log('getDataUrls',doc)
+        if (Object.keys(doc.encryptionKeys).length) { // if encryption keys
+            console.log(this.user.healthcarePartyId,doc.encryptionKeys)
+            return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+                .then(decryptedAndImportedAesHcPartyKeys => {
+                    let collatedAesKeys = {};
+                    decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
 
-	//Without encryption key
-	getDataUrls(doc){
-		this.set("type","");
-		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
-				let xml = XML.parseXml(att);
-				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-					xml.kmehrmessage.header.standard.specialisation &&
-					xml.kmehrmessage.header.standard.specialisation.cd &&
-					xml.kmehrmessage.header.standard.specialisation.cd.S){
-					this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-				}else{
-					this.set("type","Non Valid Type")
-				}
-				return att
-			})
-		}else {
-			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
-		}
-	}
+                    return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+                        .then(enckeys =>
+                            this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+                                    let xml = XML.parseXml(att);
+                                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                                        xml.kmehrmessage.header.standard.specialisation &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                                    }else{
+                                        this.set("type","Non Valid Type")
+                                    }
+                                })
+                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+                        );
+                })
+        } else { // no encryption keys
+            console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set("type","");
+            if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+                    let xml = XML.parseXml(att);
+                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                        xml.kmehrmessage.header.standard.specialisation &&
+                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                    }else{
+                        this.set("type","Non Valid Type")
+                    }
+                    return att
+                })
+            }else {
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+            }
+        } // encrypt? end
+    }
 
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
