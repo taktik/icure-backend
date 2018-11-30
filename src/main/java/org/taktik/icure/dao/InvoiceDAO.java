@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.ektorp.ComplexKey;
 import org.ektorp.support.View;
+import org.taktik.icure.dao.impl.ektorp.CouchKeyValue;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Invoice;
@@ -53,5 +54,7 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 	List<Invoice> listConflicts();
+	List<String> findTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
+	List<CouchKeyValue<Long>> listTarificationsFrequencies(String hcPartyId);
 
 }
