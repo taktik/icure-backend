@@ -3268,6 +3268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.hubStatus.classList.add('accessOk');
                 }
                 else {
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
                     this._getHubHcpConsent().then(consentResp => {
                             this.set('hcpHubConsent', consentResp)
                             if(consentResp.author.hcparties[0]) {
