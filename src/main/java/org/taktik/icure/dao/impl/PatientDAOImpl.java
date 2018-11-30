@@ -397,12 +397,12 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	}
 
     @Override
-    @View(name = "by_hcparty_contains_name_or_birthday", map = "classpath:js/patient/By_hcparty_contains_name_or_birthday_map.js")
-    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, Integer ssin) {
+    @View(name = "by_hcparty_contains_name_delegate", map = "classpath:js/patient/By_hcparty_contains_name_delegate.js")
+    public List<String> listByHcPartyName(String searchString, String healthcarePartyId) {
         String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-        ViewQuery viewQuery = createQuery("by_hcparty_contains_name_or_birthday")
-            .startKey(ComplexKey.of(healthcarePartyId, name, dateOfBirth, ""+ssin))
-            .endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0", dateOfBirth == null ? 0 : dateOfBirth, ssin == null || ssin == 0 ? ComplexKey.emptyObject() : ssin + "\ufff0")).includeDocs(false);
+        ViewQuery viewQuery = createQuery("by_hcparty_contains_name_delegate")
+            .startKey(ComplexKey.of(healthcarePartyId, name))
+            .endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
         return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
     }
 }

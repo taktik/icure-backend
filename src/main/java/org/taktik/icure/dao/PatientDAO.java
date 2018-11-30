@@ -76,5 +76,5 @@ public interface PatientDAO extends GenericDAO<Patient> {
 
 	List<String> listIdsByHcPartyAndSsins(Collection<String> ssins, String healthcarePartyId);
 
-    List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth, Integer ssin);
+    List<String> listByHcPartyName(String searchString, String healthcarePartyId);
 }

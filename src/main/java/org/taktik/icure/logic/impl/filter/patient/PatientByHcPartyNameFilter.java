@@ -1,7 +1,6 @@
 package org.taktik.icure.logic.impl.filter.patient;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.taktik.icure.dto.filter.patient.PatientByIdsFilter;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
@@ -13,7 +12,7 @@ import javax.security.auth.login.LoginException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PatientByHcPartyDateOfBirthNameFilter implements Filter<String, Patient, org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthNameFilter> {
+public class PatientByHcPartyNameFilter implements Filter<String, Patient, org.taktik.icure.dto.filter.patient.PatientByHcPartyNameFilter> {
 
     PatientLogic patientLogic;
     ICureSessionLogic sessionLogic;
@@ -36,13 +35,11 @@ public class PatientByHcPartyDateOfBirthNameFilter implements Filter<String, Pat
     }
 
     @Override
-    public Set<String> resolve(org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthNameFilter filter, Filters context) {
+    public Set<String> resolve(org.taktik.icure.dto.filter.patient.PatientByHcPartyNameFilter filter, Filters context) {
         try {
-            return new HashSet<>(patientLogic.listByHcPartyNameOrBirthday(
+            return new HashSet<>(patientLogic.listByHcPartyName(
                 filter.getName(),
-                filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId(),
-                filter.getDateOfBirth(),
-                filter.getSsin()));
+                filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId()));
         } catch (LoginException e) {
             throw new IllegalArgumentException(e);
         }

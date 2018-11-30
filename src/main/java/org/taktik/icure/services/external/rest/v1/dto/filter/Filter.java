@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 @JsonPolymorphismSupport({Filters.UnionFilter.class, Filters.IntersectionFilter.class, Filters.ComplementFilter.class, Filters.ConstantFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
-		PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyDateOfBirthNameFilter.class,
+		PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyNameFilter.class,
 		PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class,
 		ContactByHcPartyTagCodeDateFilter.class, ContactByHcPartyPatientTagCodeDateFilter.class, ContactByServiceIdsFilter.class, ServiceByHcPartyTagCodeDateFilter.class})
 public abstract class Filter<O extends Identifiable<String>> implements org.taktik.icure.dto.filter.Filter<String,O>, Serializable {
