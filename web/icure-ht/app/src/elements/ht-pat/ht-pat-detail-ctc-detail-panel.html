@@ -25,6 +25,8 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -399,6 +401,16 @@
                 border-top: 1px solid var(--app-background-color-dark);
             }
 
+            paper-radio-group {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            paper-radio-group paper-radio-button {
+                line-height: 48px;
+            }
+
 			.buttons{
                 display: flex;
                 flex-grow: 1;
@@ -406,6 +418,18 @@
                 justify-content: flex-end;
                 padding-top: 16px;
 			}
+
+            @media screen and (max-width: 800px) {
+                .endline {
+                    padding-bottom: 16px;
+                }
+                paper-radio-group, .buttons {
+                    flex-direction: column;
+                }
+                paper-radio-group paper-radio-button {
+                    line-height: normal;
+                }
+            }
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -552,12 +576,10 @@
 			</vaadin-grid>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-                <paper-dropdown-menu id="preferredHub" label="Format prescription">
-                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{selectedFormat}}">
-                        <paper-item name="A4">Format A4</paper-item>
-                        <paper-item name="presc">Format prescription</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
+                <paper-radio-group selected="{{selectedFormat}}" on-selected-changed="_setPrefillFormat">
+                    <paper-radio-button name="A4">Format A4</paper-radio-button>
+                    <paper-radio-button name="presc">Format prescription</paper-radio-button>
+                </paper-radio-group>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
@@ -719,11 +741,18 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	ready() {
 	    super.ready();
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+
+        this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : this.selectedFormat)
     }
 
 	_activeIconClass(selected) {
 	    return selected ? 'icn-selected' : ''
 	}
+
+    _setPrefillFormat() {
+	    console.log(this.selectedFormat)
+        localStorage.setItem('prefillFormat', this.selectedFormat)
+    }
 
 	_onDrag(e) {
 		if (this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
@@ -977,14 +1006,14 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
 	}
 
-	_pdfReport(drugsToBePrescribed,toPrint) {
+	_pdfReport(drugsToBePrescribed,toPrint,size) {
         this.api.pdfReport(mustache.render(toPrint, null))
             .then(data => {
                 let blob = new Blob([data], {type: 'application/pdf'});
                 let url = window.URL.createObjectURL(blob)
                 let a = document.createElement("a");
                 document.body.appendChild(a);
-                a.style = "display: none";
+                a.style = "display: none;";
                 a.href = url;
                 a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
                 a.click();
@@ -1022,12 +1051,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 console.log('prescri',prescri)
                 rid = prescri.rid;
                 toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-                this._pdfReport(drugsToBePrescribed,toPrint)
+                this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
             } ))))
         } else {
             console.log("no recip-e")
             toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-            this._pdfReport(drugsToBePrescribed,toPrint)
+            this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
         }
         this.$.loadingPrescriptionDialog.close();
 	} // print end
@@ -1066,7 +1095,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     <p><span class="bold">S/</span> ${that.S}</p>
                 </article>`;
                 articlePoso.push(that.poso) // add posology to the list
-                medicName = that.S
+                medicName = that.R
             }) // map end
             const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
                 <header>
@@ -1145,7 +1174,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     let singleName = single.name
                     thatBody += single.body
                     if (this.patient.ssin && this.api.tokenId) {
-                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+single.name+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
                     }
                 })
                 if (this.patient.ssin && this.api.tokenId) {
