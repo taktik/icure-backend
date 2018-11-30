@@ -11,6 +11,7 @@
 <link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../../atc-styles.html">
 <link rel="import" href="../../../scrollbar-style.html">
+<link rel="import" href="../../ht-pat/dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 
 <dom-module id="medication-plan-dialog">
     <template>
@@ -692,7 +693,7 @@
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
 
-            <h2 class="modal-title">[[localize('med_plan','Medication plan',language)]]
+            <h2 class="modal-title">[[_getModalTitle(selectedTab)]]
                 <paper-tabs selected="{{selectedTab}}">
                     <paper-tab>[[localize('tab_pres','Present',language)]]</paper-tab>
                     <paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>
@@ -869,29 +870,53 @@
                                         <span class="left">[[_serviceDescription(m.medication)]]</span>
                                     </div>
                                     <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
-                                    <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
-                                        <div class="td td-input bf-bef"><span><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></span></div>
+                                    <template is="dom-repeat" items="[[combinedTableHeaders(medicationClassesWithPosology, 0, m.regimenTable.0, m.regimenTable.0.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]">
+                                                    <input value="{{regimen.administratedQuantity.quantity}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
                                     </template>
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
-                                        <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 4, m.regimenTable.4, m.regimenTable.4.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
                                     </template>
-                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
-                                        <div class="td td-input bf-bef">[[regimen.administratedQuantity.quantity]]</div>
+                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 8, m.regimenTable.8, m.regimenTable.8.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
                                     </template>
-                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"></iron-input></div>
-                                    <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
-                                        <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
+                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 12, m.regimenTable.12, m.regimenTable.12.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
                                     </template>
-                                    <div class="td" style="flex-grow: 2;"><span>10/02/2019</span></div>
-                                    <div class="td td--comments" style="flex-grow: 4;"><span class="left"></span></div>
+                                    <div class="td" style="flex-grow: 2;"><span>[[_getMedicationClosingDate(m.medication)]]</span></div>
+                                    <div class="td td--comments" style="flex-grow: 4;"><span class="left">[[m.medication.instructionForPatient]]</span></div>
                                 </div>
                             </template>
                             </template>
@@ -900,7 +925,6 @@
                         <!-- END TABLE -->
                     </div>
 
-                    </div>
                 </template>
 
                 <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
@@ -922,14 +946,14 @@
                                 <h3>breakfast</h3>
                             </div>
                             <div class="table-header">
-                                <div class="col col--med">Medicine</div>
+                                <div class="col col--med">[[localize('medic','Medicine',language)]]</div>
                                 <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">End Date</div>
-                                <div class="col col--freq">Frequency</div>
-                                <div class="col col--bef">Before</div>
-                                <div class="col col--dur">During</div>
-                                <div class="col col--aft">After</div>
-                                <div class="col col--com">Comments</div>
+                                <div class="col col--ed">[[localize('endDate','End Date',language)]]</div>
+                                <div class="col col--freq">[[localize('freq','Frequency',language)]]</div>
+                                <div class="col col--bef">[[localize('mom_before','Before',language)]]</div>
+                                <div class="col col--dur">[[localize('mom_during','During',language)]]</div>
+                                <div class="col col--aft">[[localize('mom_after','After',language)]]</div>
+                                <div class="col col--com">[[localize('com','Comments',language)]]</div>
                             </div>
                             <div class="table-body">
                                 <div class="table-row">
@@ -1266,7 +1290,7 @@
 
             _setInitialScroll(){
                 const currentYear = this.shadowRoot.querySelector('.current')
-                this.set('scrollLeft', currentYear.offsetLeft)
+                this.set('scrollLeft', currentYear && currentYear.offsetLeft)
             }
 
             _scrollBack(e){
@@ -1512,6 +1536,41 @@
                     l === 'R' ? this.localize('res_sys','Respiratory system') :
                     l === 'S' ? this.localize('sens_org','Sensory organs') :
                     l === 'V' ? this.localize('various','Various') : this.localize('unk','Unknown')
+            }
+
+            _getModalTitle(){
+                return this.selectedTab === 3 ? this.localize('tab_chap','Chapter IV') : this.localize('med_plan','Medication plan')
+            }
+
+            _getMedicationQuantity(quantity){
+                return quantity
+            }
+
+            _isEmptyRegiment(regiment){
+                return regiment && regiment.length !== 0 ? false : true
+            }
+
+            combinedTableHeaders(medicationClassesWithPosology, index){
+                return _(medicationClassesWithPosology)
+                    .flatMap(classe => classe.meds)
+                    .map(med => med.regimenTable)
+                    .compact()
+                    .map(reg => reg[index])
+                    .compact()
+                    .flatMap(r => r.administratedQuantity && r.administratedQuantity.quantity > 0 && (r.timeOfDay || r.dayPeriod && r.dayPeriod.code))
+                    .compact()
+                    .uniq()
+                    .value()
+            }
+
+            combinedTable(medicationClassesWithPosology, index, regimenTable) {
+                this.combinedTableHeaders(medicationClassesWithPosology, index).map(col =>
+                    regimenTable.find(r => r.timeOfDay === col || r.dayPeriod && r.dayPeriod.code === col)
+                )
+            }
+
+            _getMedicationClosingDate(medication){
+                return medication && medication.closingDate ? this.api.moment(medication.closingDate).format("DD/MM/YYYY") : ""
             }
         }
 
