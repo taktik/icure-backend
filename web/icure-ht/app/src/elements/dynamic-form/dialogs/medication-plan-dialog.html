@@ -39,12 +39,7 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            paper-tooltip{
-                --paper-tooltip: {
-                    position: absolute;
-                    z-index: 900;
-                }
-            }
+            
 
             .patient {
                 height: calc(100% - 48px - 48px);
@@ -656,6 +651,10 @@
                 margin-left: 4px;
                 margin-bottom: 4px; 
                 z-index: 1;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 4px;
             }
 
             .medication-line .line .until{
@@ -674,10 +673,23 @@
                 bottom: 0;
                 transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
                 cursor: pointer;
+                overflow: visible;
             }
 
             .medication-line .reimbursement-line:hover{
                 height: 6px;
+            }
+
+            paper-tooltip{
+                --paper-tooltip: {
+                    position: fixed;
+                    z-index: 900;
+                    width: auto;
+                    left: 50%;
+                    top: calc(10% + 24px);
+                    transform: translate(-50%, -50%);
+                    box-sizing: border-box;
+                }
             }
 
         </style>
@@ -732,15 +744,14 @@
                                         <div class="type">[[medication.type]]</div>
                                         <div class="line-container">
                                             <div class="line-total-width" style$="width: [[totalWidth]]px;">
-                                                <div id="line" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                <div id="[[medication.id]]" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
                                                     <div class="name">[[medication.name]] - [[medication.posology]]</div>
                                                     <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
                                                 </div>
-                                                <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                    <div id="[[medication.id]]" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
-                                                </template>
-                                                <paper-tooltip position="top" for="[[medication.id]]">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
+                                                <paper-tooltip position="top" for="[[medication.id]]">[[medication.name]] - [[medication.posology]]</paper-tooltip>
 
+                                                <div id="[[medication.id]]reimbursedLine" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
+                                                <paper-tooltip position="top" for="[[medication.id]]reimbursedLine">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
                                             </div>
                                         </div>
                                         <div class="extra-info">[[medication.extraInfo]]</div>
@@ -1206,8 +1217,8 @@
                                         name: "Claradol Codéine 20mg",
                                         posology: "1x/d",
                                         type: "",
-                                        startDate: "14 oct 2017",
-                                        endDate: "30 sep 2042",
+                                        startDate: "01 sep 2018",
+                                        endDate: "30 sep 2018",
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
