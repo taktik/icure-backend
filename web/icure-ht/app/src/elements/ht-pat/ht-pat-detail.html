@@ -63,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
-<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
+<!--<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">-->
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-transaction-view.html">
@@ -1310,8 +1310,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
                                 <paper-icon-button id="med-edit-btn-plan" class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
                                 <paper-tooltip position="left" offset="-1" for="med-edit-btn-plan">[[localize('med_plan','Medication Plan',language)]]</paper-tooltip>
-                                <paper-icon-button id="med-edit-btn-chap4" class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
-                                <paper-tooltip position="left" offset="-1" for="med-edit-btn-chap4">[[localize('chap-iv','Chapter IV',language)]]</paper-tooltip>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1701,7 +1699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_registerFedAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
@@ -1783,7 +1781,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
-        <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
+        <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
         <ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
@@ -2625,15 +2623,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerFedAndHubConsent(){
+                this._registerConsent().then(resp => this.showPatientConsentState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientConsent().then().catch(error=> console.log(error));
+            }
+
             _registerConsent(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                     ).then(consentResp => {
                             if(consentResp.consent) {
-                                this.showPatientConsentState()
                                 return(consentResp.consent)
                             }
                             else{
@@ -3266,6 +3268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.hubStatus.classList.add('accessOk');
                 }
                 else {
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
                     this._getHubHcpConsent().then(consentResp => {
                             this.set('hcpHubConsent', consentResp)
                             if(consentResp.author.hcparties[0]) {
