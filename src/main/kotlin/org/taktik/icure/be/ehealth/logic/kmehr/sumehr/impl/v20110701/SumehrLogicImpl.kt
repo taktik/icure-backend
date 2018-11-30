@@ -41,8 +41,8 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.xml.sax.SAXException
 import java.io.InputStream
 import java.util.*
-import javax.ws.rs.core.Context
 
+@org.springframework.stereotype.Service
 class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrExport, val sumehrImport: SumehrImport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
