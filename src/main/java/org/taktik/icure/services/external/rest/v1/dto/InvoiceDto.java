@@ -77,7 +77,9 @@ public class InvoiceDto extends IcureDto {
 	protected String supervisorCbe;
 
 	protected Integer longDelayJustification;
+
 	protected Boolean creditNote;
+	protected String creditNoteRelatedInvoiceId;
 
 	protected String careProviderType;
 
@@ -141,7 +143,7 @@ public class InvoiceDto extends IcureDto {
 		return correctiveInvoiceId;
 	}
 
-	public void setCorrectiveInvoiceId(String recipientType) {
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
 		this.correctiveInvoiceId = correctiveInvoiceId;
 	}
 
@@ -149,7 +151,7 @@ public class InvoiceDto extends IcureDto {
 		return correctedInvoiceId;
 	}
 
-	public void setCorrectedInvoiceId(String recipientType) {
+	public void setCorrectedInvoiceId(String correctedInvoiceId) {
 		this.correctedInvoiceId = correctedInvoiceId;
 	}
 
@@ -315,6 +317,10 @@ public class InvoiceDto extends IcureDto {
 	public Boolean getCreditNote() { return creditNote; }
 
 	public void setCreditNote(Boolean creditNote) { this.creditNote = creditNote; }
+
+	public String getCreditNoteRelatedInvoiceId() { return creditNoteRelatedInvoiceId; }
+
+	public void setCreditNoteRelatedInvoiceId(String creditNoteRelatedInvoiceId) { this.creditNoteRelatedInvoiceId = creditNoteRelatedInvoiceId; }
 
 	public String getCareProviderType() { return careProviderType; }
 
