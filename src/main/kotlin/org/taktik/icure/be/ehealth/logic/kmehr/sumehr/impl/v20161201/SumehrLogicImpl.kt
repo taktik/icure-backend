@@ -30,12 +30,16 @@ import be.fgov.ehealth.ehvalidator.core.EhValidator
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
+import org.taktik.icure.dto.mapping.ImportMapping
+import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.xml.sax.SAXException
+import java.io.InputStream
 import java.util.*
 
 @Service
@@ -55,7 +59,11 @@ class SumehrLogicImpl(private val contactLogic: ContactLogic, private val sumehr
 	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>) =
 		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys)
 
-	override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
+    override fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
 	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
 

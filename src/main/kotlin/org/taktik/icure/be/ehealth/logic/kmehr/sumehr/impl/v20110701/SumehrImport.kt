@@ -1,18 +1,18 @@
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -36,14 +36,14 @@ import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 
 @org.springframework.stereotype.Service
-class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
+class SumehrImport(val patientLogic: PatientLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
                                 val healthElementLogic: HealthElementLogic,
                                 val contactLogic: ContactLogic,
                                 val documentLogic: DocumentLogic,
                                 val idGenerator: UUIDGenerator) {
 
-    fun importSMF(inputStream: InputStream,
+    fun importSumehr(inputStream: InputStream,
                   author: User,
                   language: String,
                   mappings: Map<String, List<ImportMapping>>,
@@ -65,13 +65,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "contactreport" -> parseContactReport(trn, author, res, language, mappings)
-                        "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mappings)
-                        "labresult" -> parseLabResult(trn, author, res, language, mappings)
-                        "result" -> parseResult(trn, author, res, language, mappings)
-                        "note" -> parseNote(trn, author, res, language, mappings)
-                        "prescription" -> parsePrescription(trn, author, res, language, mappings)
-                        "pharmaceuticalprescription" -> parsePharmaceuticalPrescription(trn, author, res, language, mappings)
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings)
                         else -> parseGenericTransaction(trn, author, res, language, mappings)
                     }
                     contactLogic.createContact(ctc)
@@ -82,71 +76,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun parseContactReport(trn: TransactionType,
+    private fun parseSumehr(trn: TransactionType,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
                                    mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parseClinicalSummary(trn: TransactionType,
-                                     author: User,
-                                     v: ImportResult,
-                                     language: String,
-                                     mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parseLabResult(trn: TransactionType,
-                               author: User,
-                               v: ImportResult,
-                               language: String,
-                               mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parseResult(trn: TransactionType,
-                            author: User,
-                            v: ImportResult,
-                            language: String,
-                            mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parseNote(trn: TransactionType,
-                          author: User,
-                          v: ImportResult,
-                          language: String,
-                          mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parsePrescription(trn: TransactionType,
-                                  author: User,
-                                  v: ImportResult,
-                                  language: String,
-                                  mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
-        }
-    }
-
-    private fun parsePharmaceuticalPrescription(trn: TransactionType,
-                                                author: User,
-                                                v: ImportResult,
-                                                language: String,
-                                                mappings: Map<String, List<ImportMapping>>): Contact {
         return parseGenericTransaction(trn, author, v, language, mappings).apply {
 
         }
@@ -310,7 +244,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }
                             medicinalProduct = item.contents.filter { it.medicinalproduct != null }.firstOrNull()?.let {
                                 it.medicinalproduct?.let { Medicinalproduct().apply {
-                                intendedcds = it.intendedcds?.map { CodeStub( it.s.toString(), it.value, it.sv) }
+                                intendedcds = it.intendedcd?.let{ listOf(CodeStub( it.s.toString(), it.value, it.sv)) }
                                 intendedname = it.intendedname.toString()
                             } } }
                             compoundPrescription = item.contents.map {
