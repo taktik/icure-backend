@@ -101,29 +101,39 @@
 				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
 			}
 
+            .txt-container {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
 
 		</style>
 
-		<paper-card class="pat-details-card">
-			<span>[[title]]</span>
-			<template is="dom-if" if="[[!documentId]]">
-				<paper-spinner class="center" active></paper-spinner>
-			</template>
-			<template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<div class="img-container">
-					<img src$="[[dataUrl]]">
-				</div>
-			</template>
-			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
-			</template>
-			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+        <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+            <paper-card class="pat-details-card">
+                <span>[[title]]</span>
+                <template is="dom-if" if="[[!documentId]]">
+                    <paper-spinner class="center" active></paper-spinner>
+                </template>
+                <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <div class="img-container">
+                        <img src$="[[dataUrl]]">
+                    </div>
+                </template>
+                <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
+                </template>
+                <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 
-			</template>
-			<template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<div>[[attachmentContent]]</div>
-			</template>
-		</paper-card>
+                </template>
+            </paper-card>
+        </template>
+        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+            <div class="txt-container">[[attachmentContent]]</div>
+        </template>
 	</template>
 
 	<script>
@@ -230,13 +240,13 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _dataUrlChanged(dataUrl) {
-	    if (dataUrl && dataUrl.length) {
-	        if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl)
+        if (dataUrl && dataUrl.length) {
+            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
                     .then(response => response.text())
                     .then(text => this.set('attachmentContent', text))
-			}
-		}
+            }
+        }
 	}
     mimeType(u){
 	    return this.api.document().mimeType(u)

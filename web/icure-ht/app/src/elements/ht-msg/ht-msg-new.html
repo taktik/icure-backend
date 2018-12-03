@@ -7,6 +7,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -522,6 +523,18 @@
                 max-height: initial !important;
                 height: calc(100vh - 78px);
             }
+
+            .spinner {
+                display: flex;
+                flex-grow: 1;
+                width: 47px; /* force circle */
+                transform: translateY(16px);
+            }
+
+            #newMsg-SSIN {
+                padding-right: 28px;
+            }
+
             @media screen and (max-width: 1030px) {
                 #new-msg {
                     right: initial !important;
@@ -553,6 +566,7 @@
                                                           allow-custom-value on-change="_AddDestinations">
                                             <template>[[item.displayName]]</template>
                                         </vaadin-combo-box>
+                                        <paper-spinner class="spinner" active="[[isLoadingDestinations]]" hidden="[[!isLoadingDestinations]]"></paper-spinner>
                                     </div>
                                 </div>
                             </div>
@@ -562,6 +576,7 @@
                                                   allow-custom-value on-change="_AddSSIN">
                                     <template>[[item.displayName]]</template>
                                 </vaadin-combo-box>
+                                <!--<paper-spinner class="spinner" active="[[isAddingNiss]]" hidden="[[!isAddingNiss]]"></paper-spinner>-->
                             </div>
                         </div>
                     </div>
@@ -713,6 +728,14 @@
 					customMetas:{
                     	type:[],
                         value: []
+                    },
+                    isLoadingDestinations: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isAddingNiss: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -769,29 +792,22 @@
 			_recipientFilterChanged(type, filter) {
                 setTimeout(()=>{
                     if(filter && filter.length >2) {
-                        console.log(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter,type)
-                        // Promise.all([this.api.hcparty().findByName(filter, null, null, 100, false), this.api.hcparty().findBySsinOrNihii(filter, null, null, 100, false)]).then(([hcps1, hcps2]) => {
-                        // 	this.set("hcpList", _.uniqBy(_.uniqBy(hcps1.rows.concat(hcps2.rows), 'id')
-                        // 		.map(hcp => this.getHcpLight(hcp, type))
-                        // 		.filter(hcp => this.getTypeValue(hcp, type))
-                        // 		.sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'))
-                        // })
-                            this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
-                                .then(hcps => {
-                                console.log(hcps)
-                                let setList = []
-                                hcps.map(hcp=>{
-                                    hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
-                                    setList.push(hcp)
-                                })
-                                this.set("hcpList", setList)
-                                    // .map(hcp => this.getHcpLight(hcp, type))
-                                    // .filter(hcp => this.getTypeValue(hcp, type))
-                                    // .sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'
+                        this.set('isLoadingDestinations',true)
+                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
+                            .then(hcps => {
+                            console.log(hcps)
+                            let setList = []
+                            hcps.map(hcp=>{
+                                hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
+                                setList.push(hcp)
                             })
+                            this.set("hcpList", setList)
+                            this.set('isLoadingDestinations',false)
+                        })
                     }
                     else{
                         this.set("hcpList",[]);
+                        this.set('isLoadingDestinations',false)
                     }
                 },1500)
             }
@@ -915,6 +931,7 @@
             }
 
 			_AddSSIN(e){
+                this.set('isAddingNiss',true)
                 let newMsgSSIN = this.shadowRoot.querySelector("#newMsg-SSIN")
 				if( newMsgSSIN && newMsgSSIN.selectedItem){
                     let ssin = newMsgSSIN.selectedItem.ssin
@@ -923,6 +940,7 @@
 				else{
                     this.set("newMessage.patientInss", undefined)
                 }
+                this.set('isAddingNiss',false)
             }
 
 			manageMetadata(){
