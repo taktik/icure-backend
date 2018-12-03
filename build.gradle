@@ -35,7 +35,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '1.0.18'
+version = '1.0.72'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -192,6 +192,9 @@ dependencies {
 	compile group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
 	compile name: 'probatron4j-custom-0.7.4'
 	compile name: 'ehvalidator-service-core-2.1.1'
+
+    // mustache
+    compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
 
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'

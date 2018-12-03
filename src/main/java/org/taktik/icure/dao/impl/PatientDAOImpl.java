@@ -388,7 +388,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	@Override
 	@View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")
 	public PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, PaginationOffset<Long> paginationOffset) {
-		return pagedQueryView("by_modification_date", paginationOffset.getStartKey(), Long.MAX_VALUE, paginationOffset, true, false);
+		return pagedQueryView("by_modification_date", date, Long.MAX_VALUE, paginationOffset, true, false);
 	}
 
 	@Override

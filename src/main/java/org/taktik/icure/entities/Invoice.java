@@ -100,6 +100,8 @@ public class Invoice extends StoredICureDocument {
 	private Boolean creditNote;
 	private String creditNoteRelatedInvoiceId;
 
+	private IdentityDocumentReader idDocument;
+
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
 
@@ -597,5 +599,14 @@ public class Invoice extends StoredICureDocument {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+
+	public IdentityDocumentReader getIdDocument() {
+		return idDocument;
+	}
+
+	public void setIdDocument(IdentityDocumentReader idDocument) {
+		this.idDocument = idDocument;
 	}
 }

@@ -444,8 +444,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <page>
                     <div class="page-container">
                         <div class="form-container">
-                        <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
-                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
+                        <dynamic-form id="dynamic-form-administrative" class="page-content printable" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print>
+                        </dynamic-form>
                         </div>
                     </div>
                 </page>
@@ -894,13 +895,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     partnershipsChanged() {
-        const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
-        if (tbc.length) {
-            this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
-                .then(ppss => ppss.forEach(pps => {
-                    const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
-                    this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
-                }))
+        if(this.patient){
+            const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
+            if (tbc.length) {
+                this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
+                    .then(ppss => ppss.forEach(pps => {
+                        const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
+                        this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
+                    }))
+            }
         }
     }
 
@@ -1032,7 +1035,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getId: () => id,
             deleteSubForm: (key, id) => {
                 this.flushSave();
-                _.remove(root[key], root[key].find(a => a.id === id));
+                _.remove(root[key], a => a.id === id);
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },

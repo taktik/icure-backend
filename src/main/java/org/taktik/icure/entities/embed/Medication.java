@@ -54,6 +54,7 @@ public class Medication implements Serializable {
 	Boolean knownUsage;
 
 	List<RegimenItem> regimen;
+	String posology; // replace structured posology by text
 
 	Map<String, Content> options;
 	Map<String, ParagraphAgreement> agreements;
@@ -138,6 +139,10 @@ public class Medication implements Serializable {
 		this.regimen = regimen;
 	}
 
+	public @Nullable String getPosology() { return posology; }
+
+	public void setPosology(String posology) { this.posology = posology; }
+
 	public @Nullable Substanceproduct getSubstanceProduct() {
 		return substanceProduct;
 	}
@@ -171,7 +176,7 @@ public class Medication implements Serializable {
 	}
 
 	public String toString() {
-		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosology());
+		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
 		if (this.numberOfPackages != null && this.numberOfPackages>0) {
 			result = String.format("%s packages of %s",this.numberOfPackages,result);
 		}
@@ -180,10 +185,11 @@ public class Medication implements Serializable {
 		}
 		return result;
 	}
+
 	@JsonIgnore
-	public @Nullable String getPosology() {
-		if (!StringUtils.isEmpty(instructionForPatient) || regimen == null || regimen.size()==0) {
-			return this.instructionForPatient;
+	public @Nullable String getPosologyText() {
+		if (regimen == null || regimen.size()==0) {
+			return this.posology;
 		}
 
 		String unit = regimen.get(0).getAdministratedQuantity() == null ? null: regimen.get(0).getAdministratedQuantity().getAdministrationUnit() != null ? regimen.get(0).getAdministratedQuantity().getAdministrationUnit().getCode() : regimen.get(0).getAdministratedQuantity().getUnit();
@@ -202,6 +208,14 @@ public class Medication implements Serializable {
 		}
 
 		return String.format("%s, %d x %s, %s",quantity == null || quantity == -1 ? "x" : quantity.toString(), regimen.size(), "daily", Joiner.on(", ").skipNulls().join(regimen.stream().map(RegimenItem::toString).collect(Collectors.toList())));
+	}
 
+	@JsonIgnore
+	public @Nullable String getFullPosologyText() {
+		String poso = getPosologyText();
+		if(this.instructionForPatient != null && !StringUtils.isEmpty(this.instructionForPatient)) {
+			poso = poso + ". " + this.instructionForPatient;
+		}
+		return poso;
 	}
 }

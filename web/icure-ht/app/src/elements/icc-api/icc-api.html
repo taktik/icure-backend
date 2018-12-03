@@ -433,8 +433,9 @@
             return current
         }
 
-        pdfReport(html) {
-            return fetch("https://report.icure.cloud/pdf", {
+        pdfReport(html, options = {}) {
+            const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
+            return fetch(`https://report.icure.cloud/pdf${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
                 credentials: "same-origin", // include, same-origin, *omit
@@ -460,7 +461,7 @@
             inputString = ( inputString || '' ) + '';
 
             // No Iban ?
-            if(!parseInt( inputString.length ) ) return;
+            if(!inputString.length) return;
 
             // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
             var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );

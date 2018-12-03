@@ -252,7 +252,7 @@ public class PatientFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
-			value = "List patients for a specific HcParty or for the current HcParty ",
+			value = "List patients for a specific HcParty",
 			response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList.class,
 			httpMethod = "GET",
 			notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " +
