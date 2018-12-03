@@ -3013,10 +3013,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 ctc.userDescr = ctc.descr
                             }
                         })
-                        ;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, {
-                            descr: 'Contact du jour',
-                            userDescr: 'Contact du jour'
-                        })).then(newCtc => {
+
+                        ;(unclosedContact && (
+                            this.api.moment(unclosedContact.openingDate).isBefore(moment().subtract(1,'days')) ?
+                                this.api.contact()
+                                    .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
+                                    .then(c => this.api.contact().newInstance(this.user, patient, {
+                                        descr: 'Contact du jour',
+                                        userDescr: 'Contact du jour'
+                                    })
+                                    )
+                                : Promise.resolve(unclosedContact)) ||
+                            this.api.contact().newInstance(this.user, patient, {
+                                descr: 'Contact du jour',
+                                userDescr: 'Contact du jour'
+                            })
+                        ).then(newCtc => {
                             const thisYear = moment().year()
 
                             this.set('contacts', Object.values(ctcs.reduce((acc, it) => {
@@ -3271,16 +3283,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 var hcpHubCons = false;
                 if(!this.hubSupportsConsent){
                     this.$.hubStatus.classList.add('accessOk');
-                }
-                else {
+                } else {
                     this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
                     this._getHubHcpConsent().then(consentResp => {
-                            this.set('hcpHubConsent', consentResp)
-                            if(consentResp.author.hcparties[0]) {
-                                hcpHubCons = true;
+                            if (consentResp) {
+                                this.set('hcpHubConsent', consentResp)
+                                hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
+                                this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
+                                Polymer.updateStyles(this.$.hubStatus)
                             }
-                            this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-                            Polymer.updateStyles(this.$.hubStatus)
                         }
                     )
                 }

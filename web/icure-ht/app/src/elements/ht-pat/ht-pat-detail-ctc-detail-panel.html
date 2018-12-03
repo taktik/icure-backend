@@ -455,7 +455,7 @@
 														 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
-								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]"
+								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
 											 resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
 							</template>
 						</template>
@@ -751,6 +751,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
     flushSave() {
 		const dynamicallyLoadedForm = this.shadowRoot.querySelector('#dynamicallyLoadedForm');
 		dynamicallyLoadedForm && dynamicallyLoadedForm.flushSave();
+	}
+
+	_documentId(svc) {
+	    const content = this.api.contact().preferredContent(svc, this.language)
+		return content && content.documentId
 	}
 
     _planAction() {
