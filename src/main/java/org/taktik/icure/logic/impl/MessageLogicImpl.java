@@ -90,7 +90,10 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 		return messageDAO.findByTransportGuid(partyId, transportGuid, paginationOffset);
 	}
 
-
+	@Override
+	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
+		return messageDAO.findByTransportGuidSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset);
+	}
 
 	@Override
 	public Message addDelegation(String messageId, Delegation delegation) {

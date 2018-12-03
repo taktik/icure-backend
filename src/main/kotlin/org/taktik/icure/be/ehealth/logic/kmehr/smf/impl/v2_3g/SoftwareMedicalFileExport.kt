@@ -634,7 +634,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		addHealthCareElements(sender.id, sfks, trn, itemIndex)
 
 		if (comment?.length ?: 0 > 0) {
-			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
+			trn.headingsAndItemsAndTexts.add(TextType().apply { l = language; value = comment })
 		}
 
 		//Remove empty headings
