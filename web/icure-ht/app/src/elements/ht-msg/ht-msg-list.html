@@ -864,7 +864,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.push('checkedMessages',JSON.parse(e.target.dataset.item))
                 }
                 else {
-                    this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
+                    this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
                 }
                 console.log(this.checkedMessages.length+' checked',this.checkedMessages)
             }

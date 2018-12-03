@@ -37,6 +37,7 @@
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../../spinner-style.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
 
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
@@ -712,9 +713,12 @@
                                 <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
                             </div>
                         </div>
-                        <template is="dom-if" if="[[msg.body]]">
-                            <div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
+                        <template is="dom-if" if="[[bodyDocument.id]]">
+                            <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
+                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
                         </template>
+
 
 
                     </paper-card>
@@ -890,8 +894,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                         doc.dataUrl = this.getDataUrls(doc)
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
                                             console.log('this doc is the body', doc)
+                                            this.set('bodyDocument',doc)
                                             // this.api.document().getAttachmentText(doc.id, doc.attachmentId).then(res => {
-                                                tempSelect.body = a
+                                            //     tempSelect.body = a
                                             // });
                                         }
                                         return doc
