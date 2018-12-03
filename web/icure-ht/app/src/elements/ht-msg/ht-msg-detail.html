@@ -884,20 +884,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	        let tempSelect = this.selectMessage.selection.item;
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => { if(docs.length) {
-				    // console.log('then docs',docs)
 					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
 						.map(doc => {
-						//     console.log('what is doc ??',doc)
                             return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
                                 .then(a => {
-                                        // console.log('what is a ??', a)
                                         doc.dataUrl = this.getDataUrls(doc)
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
                                             console.log('this doc is the body', doc)
                                             this.set('bodyDocument',doc)
-                                            // this.api.document().getAttachmentText(doc.id, doc.attachmentId).then(res => {
-                                            //     tempSelect.body = a
-                                            // });
                                         }
                                         return doc
                                     }
@@ -974,6 +968,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
         } else { // no encryption keys
             console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set('bodyDocument',null)
             this.set("type","");
             if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
                 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
