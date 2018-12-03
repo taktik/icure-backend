@@ -23,7 +23,7 @@
 
 
 			paper-input{
-				--paper-input-container-focus-color: var(--app-primary-color);	
+				--paper-input-container-focus-color: var(--app-primary-color);
 			}
 
 			dom-if {
@@ -84,7 +84,7 @@
             }
 
 
-         
+
 		</style>
 
 		<paper-dialog id="dialog">
@@ -115,8 +115,8 @@
 				<div class="flex">
 					<paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
-						<paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
 						<paper-radio-button name="proven">[[localize('proven','Proven',language)]]</paper-radio-button>
+						<paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
 						<paper-radio-button name="unprobable">[[localize('unprobable','improbable',language)]]</paper-radio-button>
 						<paper-radio-button name="excluded">[[localize('excluded','Excluded',language)]]</paper-radio-button>
 					</paper-radio-group>
@@ -136,8 +136,9 @@
 					<paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
 						<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
 						<paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
-						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>
+						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]&nbsp;|</paper-radio-button>
 						<paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
+						<paper-radio-button name="relapse">[[localize('relapse','Relapse',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
 
@@ -154,7 +155,7 @@
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
 			</div>
-		</paper-dialog> 
+		</paper-dialog>
 
 	</template>
 	<script>
