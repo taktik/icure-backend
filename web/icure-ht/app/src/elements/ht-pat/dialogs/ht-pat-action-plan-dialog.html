@@ -605,34 +605,33 @@
                 const service = svc.detail
                 if(service!==null) {
 
-                    const codeProcedure = service.codes.filter( code => code.type==="BE-THESAURUS-PROCEDURES")
-                    const codeProfession = service.codes.filter( code => code.type==="CD-HCPARTY")
-                    const codeVaccine = service.tags.filter( code => code.type==="CD-ITEM")
-                    const codeStatus = service.tags.filter( code => code.type==="CD-LIFECYCLE")
+                    const codeProcedure = (service.codes || []).find( code => code.type==="BE-THESAURUS-PROCEDURES")
+                    const codeProfession = (service.codes || []).find( code => code.type==="CD-HCPARTY")
+                    const codeVaccine = (service.tags || []).find( code => code.type==="CD-ITEM")
+                    const codeStatus = (service.tags || []).find( code => code.type==="CD-LIFECYCLE")
                     Promise.all([
                         this.api.hcparty().getHealthcareParty(service.responsible),
-                        this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURE(codeVaccine.length ? codeVaccine[0].id : "")', 'fr', codeProcedure[0].code, null, null, 10),
-                        this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession[0].code, null, null, 10),
-                        this.api.bedrugs().getMppInfos((codeVaccine.length ? codeVaccine[0].label[Object.keys(codeVaccine[0].label)[0]] : ""), this.language)
+                        codeProcedure ? this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURE(codeVaccine.length ? codeVaccine[0].id : "")', 'fr', codeProcedure.code, null, null, 10) : Promise.resolve([]),
+                        codeProfession ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve([]),
+                        Promise.resolve([]) //WTF !!!!!! this.api.bedrugs().getMppInfos((codeVaccine.length ? codeVaccine.label[Object.keys(codeVaccine.label)[0]] : ""), this.language)
                     ]).then(([hcp,resultProced,resultProf,resultVaccine]) =>{
                         this.push("hcpListItem",{id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName});
 
                         const date = this.api.moment(service.valueDate).format("YYYY-MM-DD");
 
-                        if(codeVaccine.length)
-                            this.set("drugsListItem",[{ name  : resultVaccine.name , id: resultVaccine.id.id}])
+                        if(codeVaccine) this.set("drugsListItem",[{ name  : resultVaccine.name , id: resultVaccine.id.id}])
 
 
-                        this.push("proceduresListItem",{id:codeProcedure[0].id, code:codeProcedure[0].code, label: codeProcedure[0].label})
-                        this.professionId = codeProfession[0].id
+                        this.push("proceduresListItem",{id:codeProcedure.id, code:codeProcedure.code, label: codeProcedure.label})
+                        this.professionId = codeProfession.id
 
                         this.set("plannedAction",{
-                            Status : codeStatus[0].code,//ok
+                            Status : codeStatus.code,//ok
                             Deadline: date,//ok
                             HcpId : service.responsible,//ok
-                            ProcedureId : codeProcedure[0].code,//OK
+                            ProcedureId : codeProcedure.code,//OK
                             ProfessionId : this.professionId,//OK
-                            ReasonOfRef : codeStatus[0].label.fr,//OK
+                            ReasonOfRef : codeStatus.label.fr,//OK
                             isSendMail : false,//ca va surement sauter fait ca en dernier
                             isDeadline: (date ? true : false),//ok
                             isSurgical: false,//creer un antecedent
