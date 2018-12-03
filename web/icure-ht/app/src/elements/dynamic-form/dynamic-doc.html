@@ -118,12 +118,10 @@
 				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
 			</template>
 			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button><vaadin-button id="todayButton" part="today-button" on-tap="importPatient">
-				import
-			</vaadin-button>
-				<template is="dom-if" if="[[showDetail]]">
-					[[documentAttachment]]
-				</template>
+
+			</template>
+			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+
 			</template>
 		</paper-card>
 	</template>
@@ -198,18 +196,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        if(this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-                            this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-                                console.log(typeof att);
-                                this.set('documentAttachment', att);
-                                const xml = XML.parseXml(att)
-                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
-							});
-                        }else {
-                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
-                            console.log('url is', url);
-                            this.set('dataUrl', url);
-                        }
+                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
+                        console.log('url is', url);
+                        this.set('dataUrl', url);
 					});
 				}.bind(this)).catch(() => {
 					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
