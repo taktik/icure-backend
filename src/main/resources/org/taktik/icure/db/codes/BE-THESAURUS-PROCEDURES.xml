@@ -2932,7 +2932,7 @@
       <NIC></NIC>
       <SNOMED></SNOMED>
       <Label_FR>vaccin hépatite AB</Label_FR>
-      <Label_NL>vaccin hepatitis a & b</Label_NL>
+      <Label_NL>vaccin hepatitis AB</Label_NL>
       <Syn_Fr></Syn_Fr>
       <Syn_Nl>lever</Syn_Nl>
       <Treatment></Treatment>
@@ -24173,7 +24173,7 @@
       <IBUI_Not_Exact></IBUI_Not_Exact>
       <NIC></NIC>
       <SNOMED></SNOMED>
-      <Label_FR>révision du traitement chronique - stop & start</Label_FR>
+      <Label_FR>révision du traitement chronique - stop &amp; start</Label_FR>
       <Label_NL>chronische medicatie herzien </Label_NL>
       <Syn_Fr>polymédication ; âgé ; patient</Syn_Fr>
       <Syn_Nl>polymedicatie; start; stop</Syn_Nl>
@@ -24732,7 +24732,7 @@
       <IBUI_Not_Exact></IBUI_Not_Exact>
       <NIC></NIC>
       <SNOMED></SNOMED>
-      <Label_FR>révision du traitement chronique - stop & start</Label_FR>
+      <Label_FR>révision du traitement chronique - stop &amp; start</Label_FR>
       <Label_NL>chronische medicatie herzien </Label_NL>
       <Syn_Fr>polymédication ; âgé ; patient</Syn_Fr>
       <Syn_Nl>polymedicatie; start; stop</Syn_Nl>
@@ -78740,8 +78740,8 @@
       <IBUI_Not_Exact></IBUI_Not_Exact>
       <NIC></NIC>
       <SNOMED></SNOMED>
-      <Label_FR>programme Education & Autogestion du diabète</Label_FR>
-      <Label_NL>programma educatie & zelfzorg (diabetes type2)</Label_NL>
+      <Label_FR>programme Education &amp; Autogestion du diabète</Label_FR>
+      <Label_NL>programma educatie &amp; zelfzorg (diabetes type2)</Label_NL>
       <Syn_Fr></Syn_Fr>
       <Syn_Nl></Syn_Nl>
       <Treatment></Treatment>
