@@ -106,7 +106,7 @@
 
 		<paper-card class="pat-details-card">
 			<span>[[title]]</span>
-			<template is="dom-if" if="[[!service]]">
+			<template is="dom-if" if="[[!documentId]]">
 				<paper-spinner class="center" active></paper-spinner>
 			</template>
 			<template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
@@ -143,8 +143,8 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			user: {
 				type: Object
 			},
-			service: {
-				type: Object,
+            documentId: {
+				type: String,
 				value: null
 			},
 			document: {
@@ -179,19 +179,18 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     static get observers() {
-        return ['_serviceChanged(service, api, user)']
+        return ['_documentIdChanged(documentId, api, user)']
     }
 
     constructor() {
 		super();
 	}
 
-	_serviceChanged() {
-		if (!this.service || !this.api || !this.user) {
+	_documentIdChanged() {
+		if (!this.documentId || !this.api || !this.user) {
 			return;
 		}
-		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');
-		const docId = serviceContent && serviceContent.documentId;
+		const docId = this.documentId;
 		this.api.document().getDocument(docId).then(doc => {
 			this.set('document', doc);
 			if (doc.delegations && Object.keys(doc.delegations).length) {
