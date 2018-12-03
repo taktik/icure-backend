@@ -3,6 +3,8 @@ package org.taktik.icure.logic.impl;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.GroupDAO;
 import org.taktik.icure.entities.Group;
@@ -29,6 +31,7 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 	private UserLogic userLogic;
 	private ReplicationLogic replicationLogic;
 	private CouchDbProperties couchDbProperties;
+	private TaskExecutor threadPoolTaskExecutor;
 
 	@Autowired
 	public void setCouchDbProperties(CouchDbProperties couchDbProperties) {
@@ -60,6 +63,11 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 		this.couchdbInstance = couchdbInstance;
 	}
 
+	@Autowired
+	public void setThreadPoolTaskExecutor(@Qualifier("threadPoolTaskExecutor") TaskExecutor threadPoolTaskExecutor) {
+		this.threadPoolTaskExecutor = threadPoolTaskExecutor;
+	}
+
 	@Override
 	public Group createGroup(Group group, Replication initialReplication) throws IllegalAccessException {
 		String id = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
@@ -86,6 +94,8 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 			connector.create("_security", security);
 		});
 
+		Group result = groupDAO.save(group);
+
 		if (initialReplication != null) {
 			initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> {
 				try {
@@ -96,10 +106,9 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 					throw new IllegalArgumentException("Cannot start replication: invalid target");
 				}
 			}).collect(Collectors.toList()));
-			replicationLogic.startDatabaseSynchronisations(initialReplication, false);
+			threadPoolTaskExecutor.execute(() -> replicationLogic.startDatabaseSynchronisations(initialReplication, false));
 		}
-
-		Group result = groupDAO.save(group);
+		
 		return result.getRev() != null ? result : null;
 	}
 
