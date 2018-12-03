@@ -778,11 +778,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.invoicebox.classList.remove('iron-selected')
         }
     }
-
-
-
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
 	}
 
 	selectedContactItemsChanged() {
