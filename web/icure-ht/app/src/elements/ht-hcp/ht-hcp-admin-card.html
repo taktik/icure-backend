@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</style>
 
-		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[combinedForm]]" data-map="[[hcpMap]]" data-provider="[[dataProvider]]"></dynamic-form>
+		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[hcpForm]]" data-map="[[hcpMap]]" data-provider="[[dataProvider]]"></dynamic-form>
 	</template>
 	<script>class HtHcpAdminCard extends Polymer.Element {
 	static get is() {
@@ -120,18 +120,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	hcpFormChanged() {
-		if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
+		/*if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
 			this.set('combinedForm', this.hcpForm);
-		}
+		}*/
 	}
 
 	hcpChanged() {
 		if (this.api && this.user && this.hcp) {
             this.api.getRegistry('hcp').listeners['ht-hcp-admin'] = {target: this, pool: [this.hcp.id]}
 			this.flushSave();
-			this.set('dataProvider',this.hcpDataProvider(this.hcp));
-			this.set("hcpMap",this.hcp);
-			this.$['dynamic-form'].loadDataMap();
+			this.set('dataProvider',this.hcpDataProvider(this.hcp,'',this.hcp && this.hcp.id));
+			this.set("hcpMap",_.cloneDeep(this.hcp));
+            if (!this.root.activeElement) {
+                this.$['dynamic-form'].loadDataMap();
+            } else {
+                this.$[this.root.activeElement.id].loadDataMap();
+            }
 		}
 	}
 
@@ -159,54 +163,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		}
 	}
 
-	hcpDataProvider(root) {
+	hcpDataProvider(root,rootPath,id) {
+        const getValue = function (key) {
+            return root ? _.get(root, key) : null;
+        };
+        const setValue = (key, value) => {
+            if (root && root[key] !== value) {
+                root[key] = value;
+                this.scheduleSave(this.hcp);
+            }
+        };
 		return {
-			getStringValue: function (key) {
-				return root ? root[key] : null;
-			}.bind(this),
-			getNumberValue: function (key) {
-				return root ? root[key] : null;
-			}.bind(this),
-			getMeasureValue: function (key) {
-				return root ? root[key] : null;
-			}.bind(this),
-			getDateValue: function (key) {
-				return root ? root[key] : null;
-			}.bind(this),
-			setStringValue: function (key, value) {
-				if (root && root[key] !== value) {
-					root[key] = value;
-					this.scheduleSave(this.hcp);
-				}
-			}.bind(this),
-			setNumberValue: function (key, value) {
-				if (root && root[key] !== value) {
-					root[key] = value;
-					this.scheduleSave(this.hcp);
-				}
-			}.bind(this),
-			setMeasureValue: function (key, value) {
-				if (root && root[key] !== value) {
-					root[key] = value;
-					this.scheduleSave(this.hcp);
-				}
-			}.bind(this),
-			setDateValue: function (key, value) {
-				if (root && root[key] !== value) {
-					root[key] = value;
-					this.scheduleSave(this.hcp);
-				}
-			}.bind(this),
+			getStringValue: getValue.bind(this),
+			getNumberValue: getValue.bind(this),
+			getMeasureValue: getValue.bind(this),
+			getDateValue: getValue.bind(this),
+			setStringValue: setValue.bind(this),
+			setNumberValue: setValue.bind(this),
+			setMeasureValue: setValue.bind(this),
+			setDateValue: setValue.bind(this),
 			getSubForms: function (key) {
-				return root[key].map(a => {
+				return (root[key] || []).map((a, idx) => {
 					return {
 					    dataMap: a,
-						dataProvider: this.hcpDataProvider(a),
-                    	template: key === 'addresses' ? this.addressForm : key === 'medicalHouseContracts' ? this.medicalHouseContractsForm : this.telecomForm
+						dataProvider: this.hcpDataProvider(a,(rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
+                    	template:
+							key === 'addresses' ?
+								this.addressForm :
+								key === 'medicalHouseContracts' ?
+									this.medicalHouseContractsForm :
+									this.telecomForm
 					};
 				});
-			}.bind(this)
-		};
+			}.bind(this),
+            addSubForm: function (key, guid){
+                this.flushSave(); //Important
+                (root[key] || (root[key] = [])).push({});
+                this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
+                this.scheduleSave(this.hcp);
+
+            }.bind(this),
+            getId : function(){ return id;}.bind(this),
+            deleteSubForm: function(key, id){
+                this.flushSave();
+                _.remove(root[key], root[key].find(a => a.id === id));
+                this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
+                this.scheduleSave(this.hcp);
+            }.bind(this)
+
+        };
 	}
 
 }
