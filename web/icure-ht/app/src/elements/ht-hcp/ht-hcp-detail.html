@@ -278,7 +278,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</paper-listbox>
 				</paper-material>
 			</div>
-			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
+			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile,hcp)]]">
 				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]"></ht-hcp-admin-card>
 			</template>
 		</div>
@@ -319,7 +319,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
 	}
 
-	hcpChanged() {}
+	hcpChanged() {
+	}
 
 	unselectAdminFile() {
 		this.$.adminFileMenu.select(null);
