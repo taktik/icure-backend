@@ -408,10 +408,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <template is="dom-if" if="[[checkedMessages.length]]">
                     <div class="actions">
-                        <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                        <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
-                        <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                        <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
+                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                            <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                        </template>
                     </div>
                 </template>
 
@@ -593,7 +597,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDatesAndGUID(messages.rows);
+                    console.log('getInbox',messages)
+                    return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -605,13 +610,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -623,7 +628,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -635,25 +640,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getReport(){
-                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => this.set('messages', messages || []));
-
+                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
             getEInv(){
                 console.log(this.messages)
                 this.api.message().findMessagesByTransportGuid('EFACT:OUT:*', null, null, 1000).then(messages => {
                     console.log(messages.rows)
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getReportIn(){
-                this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
             getMycarenetIn() {
@@ -665,7 +675,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEheIn(){
-                this.findMessagesByTransportGUID('INBOX:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
 			getChap4In(){
@@ -712,12 +725,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getTrash(){
-				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
+				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*','BIN:*'], null, null, 1000)
 					.then(messages => this.set('messages', messages || []));
             }
 
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
+                    // console.log('findMessagesByTransportGUID',messages)
                     return this.sortByDatesAndGUID(messages.rows);
                 })
             }
@@ -735,12 +749,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
+                console.log('refresh',this.selectList.selection)
                 if (this.selectList && this.selectList.selection) {
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
-					let restoreButton = this.shadowRoot.querySelector('#restore-button');
-					// restoreButton && (restoreButton.hidden = true);
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -800,7 +813,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.getGMD();
                             break;
                         case 'trash' :
-							restoreButton && (restoreButton.hidden = false);
                         	this.getTrash();
                         	break;
                         case 'Refresh':
@@ -859,7 +871,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _toggleSelectAll() {
                 let mailList = this.shadowRoot.querySelector('#mail-list');
-                let allCheckboxes = mailList.querySelectorAll('.checkbox');
+                let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 allCheckboxes.forEach(box=>{
                     box.checked = !box.checked;
                 })
@@ -874,32 +886,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				console.log('msgs',msgs)
 				if(msgs.length) {
                     msgs.forEach(msg =>{
-                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-                        if (!(msg.transportGuid).startsWith("BIN")) {
-                            this.set('isLoadingMailList',true)
+                        if(msg.transportGuid.startsWith("BIN")){
                             this.api.message().deleteMessages(msg.id)
-                                .then(() => {
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                    this._refresh();
-                                })
-                                .finally(()=>{this.set('isLoadingMailList',false)})
+                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                         } else {
-                            msg.transportGuid = "BIN" + msg.transportGuid;
-                            this.set('isLoadingMailList',true)
+                            msg.transportGuid = "BIN:" + msg.transportGuid;
                             this.api.message().modifyMessage(msg)
-                                .then(() => {
-                                    this._refresh();
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                })
-                                .finally(()=>{this.set('isLoadingMailList',false)})
+                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
                         }
+                        // else {
+                        //     this.set('isLoadingMailList',true)
+                        //     this.api.message().deleteMessages(msg)
+                        //         .then(() => {
+                        //             this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+                        //             this._refresh();
+                        //         })
+                        //         .finally(()=>{this.set('isLoadingMailList',false)})
+                        // }
                     });
 					// mailListSelectionColumn.selectAll = false;
                     allCheckboxes.forEach(box=>{
                         box.checked = false;
                     })
+                    this._refresh()
 				}
             }
+
+            _isEqual(a,b) {return (a === b)}
 
 			_restoreMsgs(){
                 let mailList = this.shadowRoot.querySelector('#mail-list');
@@ -907,8 +920,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 let msgs = this.checkedMessages;
 				if(msgs) {
 					msgs.forEach(msg =>{
-                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-						if (msg.transportGuid.startsWith("BIN")){
+						if (msg.transportGuid.startsWith("BIN:")){
                             this.set('isLoadingMailList',true)
 							msg.transportGuid = msg.transportGuid.substring(3);
                             this.api.message().modifyMessage(msg)
@@ -918,11 +930,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				        else {
 				            console.log(msg.id,'not in bin')
                         }
+                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
                     })
                     allCheckboxes.forEach(box=>{
                         box.checked = false;
                     })
 				}
+                this._refresh()
 			}
 
             _timeFormat(date) {
