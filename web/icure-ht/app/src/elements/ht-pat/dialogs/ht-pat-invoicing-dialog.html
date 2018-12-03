@@ -3802,7 +3802,7 @@
                         date : code.dateCode,
                         doctorSupplement : Number(code.doctorSupplement),
                         fee : Number(code.totalAmount),
-                        quantity : code.units+6,
+                        quantity : code.units+(code.code==="109955" ? 6: 0),
                         reglementarySupplement : Number(code.patientIntervention),
                         reimbursement: Number(code.reimbursement),
                         riziv : code.code
