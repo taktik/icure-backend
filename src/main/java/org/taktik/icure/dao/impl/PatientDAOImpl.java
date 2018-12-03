@@ -76,6 +76,12 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	}
 
 	@Override
+	@View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+	public List<String> listIdsByHcPartyAndActive(boolean active, String healthcarePartyId) {
+		return listIdsForActive(active, healthcarePartyId, "by_hcparty_active");
+	}
+
+	@Override
 	@View(name = "merged_by_date", map = "classpath:js/patient/Merged_by_date.js")
 	public List<Patient> listOfMergesAfter(Long date) {
 		ViewQuery viewQuery = createQuery("merged_by_date").startKey(date).includeDocs(true);
@@ -179,6 +185,15 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 	private List<String> listIdsForSsins(Collection<String> ssins, String healthcarePartyId, String viewName) {
 		ViewQuery viewQuery = createQuery(viewName).reduce(false).keys(ssins.stream().map(ssin->ComplexKey.of(healthcarePartyId,ssin)).collect(Collectors.toList())).includeDocs(false);
+		return db.queryView(viewQuery, String.class);
+	}
+
+	private List<String> listIdsForActive(boolean active, String healthcarePartyId, String viewName) {
+		ComplexKey startKey = ComplexKey.of(healthcarePartyId, active);
+		ComplexKey endKey = ComplexKey.of(healthcarePartyId, active);
+
+		ViewQuery viewQuery = createQuery(viewName).reduce(false).startKey(startKey).endKey(endKey).includeDocs(false);
+
 		return db.queryView(viewQuery, String.class);
 	}
 	@Override

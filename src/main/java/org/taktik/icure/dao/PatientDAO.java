@@ -32,6 +32,7 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsOfHcPartyAndName(String searchString, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndSsin(String ssin, String healthcarePartyId);
 	List<String> listIdsOfHcPartyAndSsin(String ssin, String healthcarePartyId);
+	List<String> listIdsByHcPartyAndActive(boolean active, String healthcarePartyId);
 
 	List<Patient> listOfMergesAfter(Long date);
 
