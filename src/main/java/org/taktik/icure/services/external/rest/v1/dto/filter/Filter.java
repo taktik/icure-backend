@@ -32,6 +32,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHc
 import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByIdsFilter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndActiveFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter;
 
 import java.io.Serializable;
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
 @JsonPolymorphismSupport({Filters.UnionFilter.class, Filters.IntersectionFilter.class, Filters.ComplementFilter.class, Filters.ConstantFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
 		PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyNameFilter.class,
-		PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class,
+		PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyAndActiveFilter.class,
 		ContactByHcPartyTagCodeDateFilter.class, ContactByHcPartyPatientTagCodeDateFilter.class, ContactByServiceIdsFilter.class, ServiceByHcPartyTagCodeDateFilter.class})
 public abstract class Filter<O extends Identifiable<String>> implements org.taktik.icure.dto.filter.Filter<String,O>, Serializable {
 	String desc;
