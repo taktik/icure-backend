@@ -37,6 +37,7 @@
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../../spinner-style.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
 
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
@@ -687,13 +688,15 @@
 						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
                         <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <template is="dom-if" if="[[_isDeleted]]">
+                        <template is="dom-if" if="[[isDeleted]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                         </template>
                     </div>
-                    <div class="del-button">
-                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                    </div>
+                    <template is="dom-if" if="[[!isDeleted]]">
+                        <div class="del-button">
+                            <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        </div>
+                    </template>
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
@@ -710,9 +713,12 @@
                                 <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
                             </div>
                         </div>
-                        <template is="dom-if" if="[[msg.body]]">
-                            <div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
+                        <template is="dom-if" if="[[bodyDocument.id]]">
+                            <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
+                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
                         </template>
+
 
 
                     </paper-card>
@@ -869,36 +875,34 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return msgBody.length ? msgBody : "no content"
 	}
 
-    _isDeleted() {
-	    return this.messages[0].transportGuid.startsWith("BIN")
-    }
-
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
+	        console.log('focusChanged',this.selectMessage.selection.item)
 			this.set('isLoadingMessage',true)
-            this.selectMessage.selection.item.body = [];
+            this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
+            // this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => { if(docs.length) {
+				    // console.log('then docs',docs)
 					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-							.then(a =>
-								// With encryption key
-								// this.getDataUrls(doc)
-								// .then(dataUrl => {
-								// 	doc.dataUrl = dataUrl;
-								// 	if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-								// 	else this.set('documentAttachment', a);
-								// 	return doc
-								// })
-
-								//Without encryption key
-								{
-									doc.dataUrl = this.getDataUrls(doc)
-									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-									return doc
-								}
-							)
+						.map(doc => {
+						//     console.log('what is doc ??',doc)
+                            return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+                                .then(a => {
+                                        // console.log('what is a ??', a)
+                                        doc.dataUrl = this.getDataUrls(doc)
+                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                            console.log('this doc is the body', doc)
+                                            this.set('bodyDocument',doc)
+                                            // this.api.document().getAttachmentText(doc.id, doc.attachmentId).then(res => {
+                                            //     tempSelect.body = a
+                                            // });
+                                        }
+                                        return doc
+                                    }
+                                );
+                        }
 					)
 				}
 
@@ -926,65 +930,69 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	getChildren(item){
-        this.api.message().getChildren(item).then(function(m) {
+	    console.log('getChildren',item)
+        this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
 			if(m.length){
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    console.log('findByMessage',docs)
                     docs.length?
                     	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
-						:m.map(r => this.messages.push(r));
-                    this.set('messages',this.messages)
+						:m.map(r => this.push('messages',r));
                     m.map(r => this.getChildren(r));
                 })
 			}
-        }.bind(this))
+        })
+        // }.bind(this))
 	}
 
-	// With encryption key
-	// getDataUrls(doc){
-	// 	return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
-	// 				.then(decryptedAndImportedAesHcPartyKeys => {
-	// 					let collatedAesKeys = {};
-	// 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-	// 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
-	// 						.then(enckeys =>
-	// 							this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-	// 								this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-	// 									let xml = XML.parseXml(att);
-	// 									if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-	// 										xml.kmehrmessage.header.standard.specialisation &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd.S){
-	// 										this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-	// 									}else{
-	// 										this.set("type","Non Valid Type")
-	// 									}
-	// 								})
-	// 								: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
-	// 						);
-	// 				})
-	// }
+	getDataUrls(doc) {
+	    // console.log('getDataUrls',doc)
+        if (Object.keys(doc.encryptionKeys).length) { // if encryption keys
+            console.log(this.user.healthcarePartyId,doc.encryptionKeys)
+            return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+                .then(decryptedAndImportedAesHcPartyKeys => {
+                    let collatedAesKeys = {};
+                    decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
 
-	//Without encryption key
-	getDataUrls(doc){
-		this.set("type","");
-		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
-				let xml = XML.parseXml(att);
-				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-					xml.kmehrmessage.header.standard.specialisation &&
-					xml.kmehrmessage.header.standard.specialisation.cd &&
-					xml.kmehrmessage.header.standard.specialisation.cd.S){
-					this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-				}else{
-					this.set("type","Non Valid Type")
-				}
-				return att
-			})
-		}else {
-			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
-		}
-	}
+                    return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+                        .then(enckeys =>
+                            this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+                                    let xml = XML.parseXml(att);
+                                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                                        xml.kmehrmessage.header.standard.specialisation &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                                    }else{
+                                        this.set("type","Non Valid Type")
+                                    }
+                                })
+                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+                        );
+                })
+        } else { // no encryption keys
+            console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set("type","");
+            if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+                    let xml = XML.parseXml(att);
+                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                        xml.kmehrmessage.header.standard.specialisation &&
+                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                    }else{
+                        this.set("type","Non Valid Type")
+                    }
+                    return att
+                })
+            }else {
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+            }
+        } // encrypt? end
+    }
 
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
@@ -1046,7 +1054,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 this.api.message().deleteMessages(msg.id)
                     .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
             } else {
-                msg.transportGuid = "BIN" + msg.transportGuid;
+                msg.transportGuid = "BIN:" + msg.transportGuid;
                 this.api.message().modifyMessage(msg)
                     .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
             }
@@ -1063,7 +1071,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if(msg.transportGuid.startsWith("BIN")){
                 msg.transportGuid = msg.transportGuid.substring(3);
                 this.api.message().modifyMessage(msg)
-                    .then(()=> this._refresh());
+                    .then(()=> {
+                        const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
+                        mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+                    });
             }
         }
     }
@@ -1187,7 +1198,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 		// TEXT
 		else if(this._textType(mainUti, otherUtis)){
-			// if(this._checkHealthone()){
+			// if(this._checkHealthone(mainUti)){
 			this.api.patient().getPatientWithUser(this.user,"1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
 				this.api.contact().newInstance(this.user, patient, {
 					created: new Date().getTime() ,
@@ -1218,6 +1229,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 	}
+
+    _checkHealthone(file) {
+        const rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = () => {
+            if (rawFile.readyState === 4) {
+                return rawFile.responseText.startsWith('A1/')
+            }
+        }
+    }
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);
