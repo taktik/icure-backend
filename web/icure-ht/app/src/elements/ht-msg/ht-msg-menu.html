@@ -670,7 +670,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const msg = messages.rows.reduce((acc, m) => {
                 if (!(m.status && 1 << 1 == 0)) {//status unread
                     acc.push(m)
-                }return acc}, [])
+                }return acc.filter(msg => msg.fromAddress !== 'EFACT')}, []).filter(msg => !msg.transportGuid.startsWith('BIN'))
             return msg.length;
         }).then(num => {
             const displayNum = (num) ? (num > 999) ? "999+" : num : 0

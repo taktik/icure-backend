@@ -829,6 +829,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
 			this.saveCurrentContact().then(c => this._contactsChanged());
 		}
+		console.log(vaadinUpload.files)
 	}
 
 	_invoicing(){

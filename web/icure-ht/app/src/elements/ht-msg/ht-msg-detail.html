@@ -872,7 +872,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_displayLengthOrEmpty(msgBody){
-		return msgBody.length ? msgBody : "no content"
+        return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
     _focusChanged(){
@@ -968,7 +968,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
         } else { // no encryption keys
             console.log('no encryption keys',this.user.healthcarePartyId)
-            this.set('bodyDocument',null)
+            this.set('bodyDocument',{})
             this.set("type","");
             if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
                 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
@@ -999,7 +999,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: this.selectedDocuments,
             document: {
 	            title: 'Fw: '+origMsg.subject,
-                textContent: origMsg.body.length ? origMsg.body : 'no content'
+                textContent: origMsg.body != '' ? origMsg.body : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'fwd'
@@ -1027,7 +1027,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
-                textContent: origMsg.body.length ? origMsg.body : 'no content'
+                textContent: origMsg.body != '' ? origMsg.body : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'replyto'
