@@ -1699,7 +1699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerFedAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_registerNationalAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
@@ -1755,7 +1755,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button--save" on-tap="_revokeTherLink" hidden="[[!haveTherLinks]]" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
-                <paper-button class="modal-button--save" enabled="false" on-tap="_registerTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
+                <paper-button class="modal-button--save" enabled="false" on-tap="_registerNationalAndHubTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -2540,9 +2540,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerNationalAndHubTherLink(){
+                this._registerTherLink().then(resp => this.showPatientTherLinkState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientTherapeuticLink().then().catch(error=> console.log(error));
+            }
+
             _registerTherLink(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
@@ -2623,7 +2628,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            _registerFedAndHubConsent(){
+            _registerNationalAndHubConsent(){
                 this._registerConsent().then(resp => this.showPatientConsentState()).catch(error=> console.log(error));
                 this.$.patHubDialog._registerHubPatientConsent().then().catch(error=> console.log(error));
             }
