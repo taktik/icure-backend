@@ -86,7 +86,6 @@
 
                 }
 
-
                 vaadin-grid.material .cell {
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -151,7 +150,6 @@
                 .recipient-col{
                     width:  calc(100% / 11);
                 }
-
 
                 .oa-col{
                     min-width: 25px;
@@ -574,9 +572,10 @@
                 .batchArchived{background-color: var(--paper-purple-300);}
 
                 paper-spinner {
-                    margin-top:150px;
-                    height:80px;
-                    width:80px;
+                    margin-top:10px;
+                    margin-bottom:10px;
+                    height:50px;
+                    width:50px;
                 }
 
                 .tool-btn{
@@ -685,6 +684,10 @@
                     padding:35px;
                 }
 
+                .p-15px {
+                    padding:15px;
+                }
+
                 .p-r-15px {
                     padding-right:15px;
                 }
@@ -731,16 +734,16 @@
                 }
 
                 #warningMessageBody {
-                    display: inline-block;
                     padding:20px 35px;
                     color:#7E0000;
                     background-color: rgba(255, 0, 0, 0.15);
                     font-weight: 700;
                     border:1px dashed #7e0000;
                     text-transform: uppercase;
+                    text-align: center;
                 }
 
-                #spinnerContainer {
+                #loadingContainer {
                     position:absolute;
                     width: 100%;
                     height: 100%;
@@ -748,6 +751,25 @@
                     background-color: rgba(0,0,0,.3);
                     z-index: 10;
                     text-align: center;
+                }
+
+                #loadingContentContainer {
+                    position:relative;
+                    width: 400px;
+                    height: 250px;
+                    background-color: #ffffff;
+                    padding:20px;
+                    border:3px solid var(--app-secondary-color);
+                    margin:40px auto 0 auto;
+                    text-align: center;
+                }
+
+                .loadingIcon {
+                    margin-right:5px;
+                }
+
+                .loadingIcon.done {
+                    color: var(--app-secondary-color);
                 }
 
                 .f-s-1em {
@@ -764,12 +786,14 @@
                     font-weight: 700;
                 }
 
-                #spinnerMessageFeedback {
-                    background-color:#ffffff;
-                    max-width: 50%;
-                    margin: 20px auto;
-                    border: 1px solid #000;
-                    display:none;
+                .centerCenter {
+                    text-align:center;
+                    margin-top:30vh;
+                    text-align:center;
+                }
+
+                .bordered {
+                    border:1px solid #888888;
                 }
 
             </style>
@@ -802,15 +826,25 @@
 
 
 
-            <template is="dom-if" if="[[_isLoadingMessages]]"><div id="spinnerContainer"><paper-spinner class="spinner" alt="Loading invoices" active></paper-spinner><div id="spinnerMessageFeedback">Querying for data...</div></div></template>
+            <template is="dom-if" if="[[_isLoading]]">
+                <div id="loadingContainer">
+                    <div id="loadingContentContainer">
+                        <paper-spinner class="spinner" alt="Loading..." active></paper-spinner>
+                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> Collecting persphysicians...</p></div>
+                    </div>
+                </div>
+            </template>
+
             <div id="batchStatus" class="batch-status">[[localize(flatrateMenuSection, language)]]</div>
 
 
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
                 <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
-                <paper-button class="tool-btn p-35px m-t-20 f-s-1em" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
-                <div id="exportRangeNotification">(*) Période exportée: du <span>[[_startOfPreviousMonth()]]</span> au <span>[[_endOfPreviousMonth()]]</span></div>
+                <div class="centerCenter">
+                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
+                    <div id="exportRangeNotification">(*) Période exportée: du <span>[[_startOfPreviousMonth()]]</span> au <span>[[_endOfPreviousMonth()]]</span></div>
+                </div>
             </template>
 
 
@@ -845,6 +879,7 @@
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
         import * as models from 'icc-api/dist/icc-api/model/models'
+        import mustache from "mustache/mustache.js";
 
         class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -913,6 +948,19 @@
                         value: function () {
                             return [];
                         }
+                    },
+                    _isLoading: {
+                        type: Boolean,
+                        value: false,
+                        observer: '_loadingStatusChanged'
+                    },
+                    _loadingMessages: {
+                        type: Array,
+                        value: () => []
+                    },
+                    oaData: {
+                        type: Array,
+                        value: () => []
                     }
                 };
             }
@@ -932,9 +980,12 @@
                 })
             }
 
+            _loadingStatusChanged() {
+                if(!this._isLoading) this._resetLoadingMessage();
+            }
+
             _flatrateMenuSectionChanged(){
-                console.log('---_flatrateMenuSectionChanged---');
-                console.log(this.flatrateMenuSection);
+                console.log("Menu section: " + this.flatrateMenuSection);
             }
 
             formatDate(d,f) {
@@ -1401,6 +1452,22 @@
                 // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
             }
 
+
+            _setLoadingMessage( messageData ) {
+                if( messageData.updateLastMessage ) { this._loadingMessages.pop(); }
+                this._loadingMessages.push( messageData );
+
+                let loadingContentTarget = this.shadowRoot.querySelectorAll('#loadingContent')[0];
+                if(loadingContentTarget) { loadingContentTarget.innerHTML = ''; _.each(this._loadingMessages, (v)=>{ loadingContentTarget.innerHTML += "<p><iron-icon icon='"+v.icon+"' class='"+(v.done?"loadingIcon done":"loadingIcon")+"'></iron-icon>" + v.message + "</p>"; }); }
+            }
+
+
+            _resetLoadingMessage() {
+                this._loadingMessages = [];
+            }
+
+
+
             _getMyHcps() {
 
                 return this.api.getRowsUsingPagination(
@@ -1413,7 +1480,7 @@
                                         !!i
                                         && !!i.nihii
                                         && !!i.ssin
-                                        // && i.parentId === this.user.healthcarePartyId        // Must be uncommented (leave as such to have large test data)
+                                        // && i.parentId === this.user.healthcarePartyId        // Must be uncommented (leave as such for large data set)
                                     )})
                                     .uniqBy( 'nihii' )
                                     .value()
@@ -1425,7 +1492,7 @@
                                     done: !pl.nextKeyPair
                                 }
                             })
-                            .catch(()=>{})
+                            .catch(()=>{ return Promise.resolve(null); })
                 );
 
             }
@@ -1474,70 +1541,409 @@
                                     done: !pl.nextKeyPair
                                 }
                             })
-                            .catch(()=>{})
+                            .catch(()=>{ return Promise.resolve(); })
                 );
 
             }
 
             _getListingJ3() {
 
-                this._isLoadingMessages = true;
+                this.set('_isLoading', true );
 
-                // document.getElementById('spinnerMessageFeedback').innerHTML = 'Querying for data...';
-                // console.log(document.querySelector("#spinnerMessageFeedback"));
-                // console.log(this.shadowRoot.querySelector("#spinnerMessageFeedback"));
+                this._setLoadingMessage({ message:"Collecting persphysicians...", icon:"arrow-forward"});
 
                 // get my hcp children
                 this._getMyHcps()
                     .then(myHcps => {
 
+                        this._setLoadingMessage({ message:"Done collecting persphysicians", icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:"Collecting patients...", icon:"arrow-forward"});
+
                         let resolvedHcpPatients = 0;
                         const totalPatientToResolve = myHcps.length;
-                        if(!totalPatientToResolve) {this._isLoadingMessages = false; return;}
+                        if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
 
                         // Get patients of child hcp
                         _.forEach(myHcps, (singleHcp) => {
                             this._getPatientsByHcp(singleHcp.id)
                                 .then(hcpPat => {
                                     resolvedHcpPatients++;
-                                    // document.getElementById('spinnerMessageFeedback').innerHTML = 'Querying for patient ' + resolvedHcpPatients;
+                                    this._setLoadingMessage({ message:"Collecting patients for persphysician " + (resolvedHcpPatients) + '/' + totalPatientToResolve, icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this._splitFlatRatePatientsInGroups(); }
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.uniqBy( this.flatRateAllPatients, 'ssin' ); this._getInsurancesData(); }
                                 })
-                                .catch(()=>{this._isLoadingMessages = false;})
+                                .catch(()=>{this.set('_isLoading', false );})
                         })
                     })
-                    .catch(()=>{this._isLoadingMessages = false;})
+                    .catch(()=>{this.set('_isLoading', false );})
                 ;
 
             }
 
+            _getInsurancesData() {
 
-            _splitFlatRatePatientsInGroups() {
+                this._setLoadingMessage({ message:"Done collecting patients", icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:"Collecting insurances...", icon:"arrow-forward"});
 
-                // 1) Group by MUT
-                // 2) Ensuite group by
-                //     - subscriptionsWithoutTryOut
-                //     - subscriptionsWithTryOut
-                //     - unsubscriptions
-
-
-                // _.chain( this.flatRateAllPatients )
-                // .filter((i)=>{return(
-                //     i
-                //     && moment(i.startOfContract).isBefore(moment(), 'day')
-                //     && ( moment(i.endOfContract).isAfter(moment(), 'day') || !ii.endOfContract )
-                //     && moment(i.startOfCoverage).isBefore(moment(), 'day')
-                //     && ( moment(i.endOfCoverage).isAfter(moment(), 'day') || !ii.endOfCoverage )
-                // )})
-                // .value()
-
-                console.log(this.flatRateAllPatients);
-
-                // this._isLoadingMessages = false;
+                this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
+                    .then((ins) => {
+                        this._setLoadingMessage({ message:"Done collecting insurances", icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:"Preparing export...", icon:"arrow-forward"});
+                        this.oaData = _
+                          .chain(ins)
+                          .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                          .sortBy((i)=>{ return i.finalName; })
+                          .value();
+                        this._prepareExport();
+                    })
+                    .catch(()=>{this.set('_isLoading', false );});
 
             }
 
+            _prepareExport() {
+
+                // Contains changes in covered patients
+                //
+                //      01 : Inscription without try-out period
+                //      02 : Inscription with try-out period
+                //      03 : De-inscriptions
+                //
+                // Contains patients where invoicing is suspended
+                //      04 : Invoicing suspended: no reason given
+                //      06 : Invoicing suspended: patient is hospitalized
+                //      07 : Invoicing suspended: patient outside of country (for longer period)
+                //
+                // GROUP BY Mutuality, then by LIST 1,2,3,4,6,7
+                // ORDER BY Lastname ASC, firstname ASC
+
+
+
+
+                let pdfData = { "pageOne": { entries: [], tot: { totTotal: 0, totOa: 0 } } };
+                let patientData = null;
+
+                // Loop OA
+                _.forEach( this.oaData, (oa)=> {
+
+                    console.log( '--------------------');
+                    console.log( oa.id||'' );
+                    console.log( oa.finalName||'' );
+                    console.log( oa.code||'' );
+                    console.log( oa.address.street||'' + ' ' + oa.address.houseNumber||'' + ' ' + oa.address.postboxNumber||'' );
+                    console.log( oa.address.postalCode||'' );
+                    console.log( oa.address.city||'' );
+
+                    pdfData = {}
+
+                    patientData = _
+                        .chain(this.flatRateAllPatients)
+                            .map(i => {
+                                i.finalInsurability = _
+                                    .chain(i.insurabilities)
+                                        .filter((i)=>{return(
+                                            i
+                                            && i.identificationNumber
+                                            && i.insuranceId
+                                            && i.insuranceId === oa.id
+                                            && ( moment(i.startDate).isBefore(moment(), 'date') || !i.startDate )
+                                            && ( moment(i.endDate).isAfter(moment(), 'date') || !i.endDate )
+                                        )})
+                                        .head()
+                                    .value()||null;
+                                return i;
+                            })
+                            .filter((i)=>{return i.finalInsurability && typeof i.finalInsurability==='object'})
+                        .value()
+                    ;
+
+                    console.log(oa.id);
+                    console.log(patientData);
+
+                   //  _.forEach(patientData, (p) => {
+                   //      pdfData.pageOne.entries.push({
+                   //          externalId: p.externalId||'',
+                   //          firstName: p.firstName||'',
+                   //          lastName: p.lastName||'',
+                   //          dateOfBirth: p.dateOfBirth||'',
+                   //          ssin: p.ssin||'',
+                   //          tc1: p.finalInsurability.parameters.tc1||'',
+                   //          tc2: p.finalInsurability.parameters.tc2||'',
+                   //          medicalHouseContractSubscriptionStart: p.medicalHouseContracts[0].startOfContract||false,
+                   //          medicalHouseContractCoverageStart: p.medicalHouseContracts[0].startOfCoverage||false,
+                   //          personType: 'personType'||'',
+                   //          titulary: 'titulary'||''
+                   //      })
+                   // });
+
+
+                }); // Loop OA
+
+
+
+                const htmlTemplate = `<html>
+                    <head>
+                        <style>
+                            body {margin: 0;}
+                            @page {size: A4; margin: 0; }
+                            article.page {
+                                width: 210mm;
+                                height: 297mm;
+                                display: flex;
+                                flex-direction: column;
+                                padding: 25px;
+                                box-sizing: border-box;
+                                page-break-after: always;
+                                border-bottom: 1px dashed grey;
+                            }
+                            article.page:last-child { border-bottom: 0; }
+                            @media print { article.page { border-bottom: 0; } }
+                            table {
+                                display: table;
+                                box-sizing: border-box;
+                                border-spacing: 0;
+                                border-collapse: collapse;
+                                width: 100%;
+                            }
+                            table thead {font-size: 14px}
+                            table tr,
+                            table td {
+                                margin: 0;
+                                padding: 0;
+                                vertical-align: top;
+                            }
+                            table td {padding: 5px;}
+                            table.border,
+                            table.border tr,
+                            table.border td {
+                                border: 1px solid black;
+                            }
+                            *.half td {width: 50%;}
+                            *.no-border * {border: none !important;}
+                            #factBody {
+                                display: flex;
+                                flex-direction: column;
+                                flex: 1;
+                                border: 1px solid black;
+                            }
+                            #factBody * {border: none;}
+                            #factBody > * {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            #factBody > * > tr {
+                                display: flex;
+                                flex-direction: row;
+                                border-bottom: 1px solid black;
+                            }
+                            #factBody > * > tr.border > td {border-right: 1px solid black;}
+                            #factBody > * > tr.border > td:last-child {border-right: 0;            }
+                            #factBody > * > tr > td {flex: 1 100%;}
+                            #factBody > tbody {flex: 1;}
+                            #factBody .table-entry,
+                            #factBody .table-entry td {border: none; border-bottom: .5px solid lightgrey; }
+                            #factBody .table-entry td:last-child {border-bottom: none;}
+                            #factBody .table-entry > td {text-align: right;}
+                            #factBody .table-entry > td:first-child {text-align: left;}
+                            #factBody .row-total > td {text-align: right;}
+                            #factBody .row-total > td:first-child {text-align: left;}
+                            .txt-center {text-align: center;}
+                            .mt20 {margin-top: 20px;}
+                            .bleft {border-left:1px solid black !important;}
+                            .bleft-light {border-left:1px solid lightgrey !important;}
+                            .bbottom-light {border-bottom:1px solid lightgrey !important;}
+                            .bbzero {border-bottom: 0 !important;}
+                            .nopad {padding: 0;}
+                            .fleft {float: left;}
+                            .fright {float:right;}
+                            td.important { font-weight: bold; font-size: 1.1em; }
+                            td.indic {font-weight: 700;}
+                            *.min-txt {font-size: 11px;}
+                            .table-entry.min-txt {font-size: 16px;}
+                        </style>
+                    </head>
+                    <body>
+                        <article id="page-patient" class="page">
+                            <table id="docHeader" class="border">
+                                <thead>
+                                <tr>
+                                    <td class="important">Numéro d'ordre: ${this.selectedInvoice.invoiceReference}</td>
+                                    <td class="important txt-center">DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT</td>
+                                </tr>
+                                <tr>
+                                    <td class="indic txt-center">Patient</td>
+                                    <td class="indic txt-center">Dispensateur de soins</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td id="patient-info" class="nopad">
+                                        <table class="no-border">
+                                            <thead>
+                                                <tr>
+                                                    <td colspan="2">Identification</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr class="bbottom-light">
+                                                <td>Nom&nbsp;:</td>
+                                                <td class="indic">${this.patient.lastName}</td>
+                                            </tr>
+                                            <tr class="bbottom-light">
+                                                <td>Prénom&nbsp;:</td>
+                                                <td class="indic">${this.patient.firstName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>NISS&nbsp;:</td>
+                                                <td class="indic">${this.patient.ssin}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td class="nopad">
+                                        <table class="no-border half">
+                                            <tr>
+                                                <td class="nopad">
+                                                    <table class="no-border">
+                                                        <thead>
+                                                        <tr>
+                                                            <td colspan="2">Identification</td>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr class="bbottom-light">
+                                                            <td>Nom&nbsp;:</td>
+                                                            <td class="indic">${this.hcp.lastName}</td>
+                                                        </tr>
+                                                        <tr class="bbottom-light">
+                                                            <td>Prénom&nbsp;:</td>
+                                                            <td class="indic">${this.hcp.firstName}</td>
+                                                        </tr>
+                                                        <tr class="bbottom-light">
+                                                            <td>Adresse&nbsp;:</td>
+                                                            <td class="indic">${this.hcp.firstName}</td>
+                                                        </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                        <tr class="bbottom-light">
+                                                            <td>INAMI&nbsp;:</td>
+                                                            <td class="indic">${this.hcp.nihii}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>BCE&nbsp;:</td>
+                                                            <td class="indic">${this.hcp.cbe}</td>
+                                                        </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </td>
+                                                <td class="bleft nopad">
+                                                    <table class="no-border">
+                                                        <thead>
+                                                        <tr>
+                                                            <td class="txt-center">Les prestations de santé ont été effectuées pour le
+                                                                compte de :</td>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <table class="no-border">
+                                                            <tbody>
+                                                            <tr class="bbottom-light">
+                                                                <td>Nom&nbsp;:</td>
+                                                                <td class="indic">${this.hcp.firstName}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>BCE&nbsp;:</td>
+                                                                <td class="indic">${this.hcp.cbe}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table id="factBody" class="border mt20">
+                                <thead>
+                                <tr>
+                                    <td colspan="6" class="important txt-center">PRESTATION(S) DE SANTE REMBOURSABLE(S)</td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td style="flex: 1 0 15.15%;"></td>
+                                    <td class="indic txt-center bleft-light" colspan="5">Prestation(s) facturée(s) en tiers payant</td>
+                                </tr>
+                                <tr class="border min-txt">
+                                    <td>Date des prestations</td>
+                                    <td>Code prestation</td>
+                                    <td>Intervention OA</td>
+                                    <td>Intervention personnelle</td>
+                                    <td>Supplément</td>
+                                    <td>Total</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#pageOne.entries}}
+                                <tr class="table-entry min-txt">
+                                    <td>{{invDate}}</td>
+                                    <td class="bleft-light">{{code}}</td>
+                                    <td class="bleft-light">{{reimbursement}}</td>
+                                    <td class="bleft-light">{{patientIntervention}}</td>
+                                    <td class="bleft-light">{{doctorSupplement}}</td>
+                                    <td class="bleft-light">{{totalAmount}}</td>
+                                </tr>
+                                {{/pageOne.entries}}
+                                </tbody>
+                                <tfoot>
+                                <tr class="no-border row-total">
+                                    <td class="important">Total</td>
+                                    <td></td>
+                                    {{#pageOne.tot}}
+                                    <td class="indic">{{totOa}}</td>
+                                    <td class="indic">{{totPerso}}</td>
+                                    <td class="indic">{{totSupp}}</td>
+                                    <td class="indic">{{totTotal}}</td>
+                                    {{/pageOne.tot}}
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Total dû par le patient</div>
+                                        <div class="fright">{{pageOne.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total facturé à l'organisme assureur (OA)</div>
+                                        <div class="fright">{{pageOne.tot.totOa}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border bbzero">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total à payer par le patient</div>
+                                        <div class="fright">{{pageOne.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <small>Le présent document justificatif ne donne aucun droit au remboursement</small>
+                        </article>
+                    </body>
+                </html>`;
+
+                this.api.pdfReport(mustache.render(htmlTemplate, pdfData))
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
+                        let url = window.URL.createObjectURL(blob);
+                        let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
+                        a.download = "listing-" + moment() + ".pdf";
+                        a.click(); window.URL.revokeObjectURL(url);
+
+                        this.set('_isLoading', false );
+
+                    })
+
+            }
 
             _getListingJ20() {
                 console.log('_getListingJ20');

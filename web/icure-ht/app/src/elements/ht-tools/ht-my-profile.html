@@ -406,22 +406,23 @@
                                                 <paper-radio-button name="flatRate">[[localize('medicalHouse','Au forfait',language)]]</paper-radio-button>
                                             </paper-radio-group>
                                         </div>
+                                        <paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>
                                     </template>
 
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
 
                                         <vaadin-combo-box
-                                                id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
-                                                item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
-                                                label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
-                                                value="{{hcp.supervisorId}}">
+                                            id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
+                                            item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
+                                            label="[[localize('mhWhereIWork','Maison médicale où vous officiez (uniquement si d\'application)',language)]]"
+                                            value="{{hcp.parentId}}">
                                         </vaadin-combo-box>
 
                                         <vaadin-combo-box
-                                                id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
-                                                item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
-                                                label="[[localize('mhWhereIWork','Maison médicale où vous officiez (uniquement si d\'application)',language)]]"
-                                                value="{{hcp.parentId}}">
+                                            id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
+                                            item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
+                                            label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
+                                            value="{{hcp.supervisorId}}">
                                         </vaadin-combo-box>
 
                                     </template>
