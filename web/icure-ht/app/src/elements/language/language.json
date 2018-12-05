@@ -518,7 +518,10 @@
     "uplabel": "Drop files here...",
     "mail_cap": "Mailbox capacity",
     "buff_msgs": "Buffered messages",
-    "last_msgs": "Last messages"
+    "last_msgs": "Last messages",
+    "no_msg_content": "This mail has no message",
+    "done": "Done",
+    "uploaded": "Uploaded"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1100,7 +1103,10 @@
     "uplabel": "Glissez des fichiers ici...",
     "mail_cap": "Capacité boîte mail",
     "buff_msgs": "Messages tampon",
-    "last_msgs": "Derniers messages"
+    "last_msgs": "Derniers messages",
+    "no_msg_content": "Ce mail n'a pas de message",
+    "done": "Terminé",
+    "uploaded": "Téléchargé"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1719,6 +1725,9 @@
     "uplabel": "Zet hier bestanden neer...",
     "mail_cap": "Brievenbus capaciteit",
     "buff_msgs": "Buffered messages",
-    "last_msgs": "Laatste berichten"
+    "last_msgs": "Laatste berichten",
+    "no_msg_content": "This mail has no message",
+    "done": "Done",
+    "uploaded": "Uploaded"
   }
 }
