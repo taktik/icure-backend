@@ -4,6 +4,7 @@ import org.taktik.icure.entities.embed.FrontEndMigrationStatus;
 
 public class FrontEndMigrationDto {
     protected String name;
+    protected String userId;
     protected Long startDate;
     protected Long endDate;
     protected FrontEndMigrationStatus status;
@@ -15,6 +16,14 @@ public class FrontEndMigrationDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Long getStartDate() {
@@ -48,4 +57,6 @@ public class FrontEndMigrationDto {
     public void setLogs(String logs) {
         this.logs = logs;
     }
+
+
 }
