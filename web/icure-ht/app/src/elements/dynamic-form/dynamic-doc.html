@@ -101,31 +101,39 @@
 				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
 			}
 
+            .txt-container {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
 
 		</style>
 
-		<paper-card class="pat-details-card">
-			<span>[[title]]</span>
-			<template is="dom-if" if="[[!service]]">
-				<paper-spinner class="center" active></paper-spinner>
-			</template>
-			<template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<div class="img-container">
-					<img src$="[[dataUrl]]">
-				</div>
-			</template>
-			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
-			</template>
-			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button><vaadin-button id="todayButton" part="today-button" on-tap="importPatient">
-				import
-			</vaadin-button>
-				<template is="dom-if" if="[[showDetail]]">
-					[[documentAttachment]]
-				</template>
-			</template>
-		</paper-card>
+        <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+            <paper-card class="pat-details-card">
+                <span>[[title]]</span>
+                <template is="dom-if" if="[[!documentId]]">
+                    <paper-spinner class="center" active></paper-spinner>
+                </template>
+                <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <div class="img-container">
+                        <img src$="[[dataUrl]]">
+                    </div>
+                </template>
+                <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
+                </template>
+                <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+
+                </template>
+            </paper-card>
+        </template>
+        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+            <div class="txt-container">[[attachmentContent]]</div>
+        </template>
 	</template>
 
 	<script>
@@ -143,8 +151,8 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			user: {
 				type: Object
 			},
-			service: {
-				type: Object,
+            documentId: {
+				type: String,
 				value: null
 			},
 			document: {
@@ -179,19 +187,18 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     static get observers() {
-        return ['_serviceChanged(service, api, user)']
+        return ['_documentIdChanged(documentId, api, user)','_dataUrlChanged(dataUrl)']
     }
 
     constructor() {
 		super();
 	}
 
-	_serviceChanged() {
-		if (!this.service || !this.api || !this.user) {
+	_documentIdChanged() {
+		if (!this.documentId || !this.api || !this.user) {
 			return;
 		}
-		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');
-		const docId = serviceContent && serviceContent.documentId;
+		const docId = this.documentId;
 		this.api.document().getDocument(docId).then(doc => {
 			this.set('document', doc);
 			if (doc.delegations && Object.keys(doc.delegations).length) {
@@ -199,18 +206,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        if(this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-                            this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-                                console.log(typeof att);
-                                this.set('documentAttachment', att);
-                                const xml = XML.parseXml(att)
-                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
-							});
-                        }else {
-                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
-                            console.log('url is', url);
-                            this.set('dataUrl', url);
-                        }
+                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
+                        console.log('url is', url);
+                        this.set('dataUrl', url);
 					});
 				}.bind(this)).catch(() => {
 					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
@@ -237,6 +235,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
     }
 
+    _plainMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    }
+
+    _dataUrlChanged(dataUrl) {
+        if (dataUrl && dataUrl.length) {
+            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
+                    .then(response => response.text())
+                    .then(text => this.set('attachmentContent', text))
+            }
+        }
+	}
     mimeType(u){
 	    return this.api.document().mimeType(u)
 	}

@@ -4,7 +4,13 @@
             .modal-title {
                 background: var(--app-background-color-dark);
                 margin-top: 0;
-                padding: 16px 24px;
+                padding: 0 24px;
+                height: 48px;
+                padding: 0 24px;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+                align-items: center;
             }
 
             .modal-button {
@@ -25,9 +31,10 @@
                 height: 48px;
                 display: flex;
                 flex-flow: row wrap;
-                justify-content: space-between;
+                justify-content: flex-end;
                 padding: 4px 0;
                 box-sizing: border-box;
+                border-top: 1px solid var(--app-background-color-dark);
             }
 
             .modal-button--save {
@@ -36,6 +43,13 @@
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
             }
+
+            .content{
+				max-height: calc(100% - 48px - 48px);
+				overflow-y: auto;
+				margin-top: 0;
+				box-sizing: border-box;
+			}
         </style>
     </template>
 </dom-module>

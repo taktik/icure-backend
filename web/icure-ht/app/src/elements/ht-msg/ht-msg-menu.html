@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 				overflow-y: auto;
 				overflow-x: hidden;
-                z-index: 3;
+                z-index: 25;
 			}
 
 			.new-msg-btn{
@@ -678,8 +678,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         });
     }
 
-	_newMsg(){
-		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
+	_newMsg(params){
+		this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
 	}
 
     toggleMenu(e) {
@@ -778,11 +778,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.invoicebox.classList.remove('iron-selected')
         }
     }
-
-
-
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
 	}
 
 	selectedContactItemsChanged() {

@@ -1035,7 +1035,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getId: () => id,
             deleteSubForm: (key, id) => {
                 this.flushSave();
-                _.remove(root[key], root[key].find(a => a.id === id));
+                _.remove(root[key], a => a.id === id);
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },

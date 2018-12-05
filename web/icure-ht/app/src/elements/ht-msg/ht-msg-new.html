@@ -7,6 +7,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -117,12 +118,45 @@
                 padding: 10px 15px;
             }
 
+            .vertical {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
             .horizontal {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
                 flex-basis: 100%;
                 align-items: center;
+            }
+            .horizontal.first-line {
+                margin-top: 16px;
+            }
+            .cell {
+                display: flex;
+                flex-grow: 1;
+            }
+            .cell.colspan2 {
+                flex-grow: 2;
+            }
+            .cell.colspan3 {
+                flex-grow: 3;
+            }
+
+            .cell.colspan6 {
+                flex-grow: 6;
+            }
+            .type-to {
+                width: 160px;
+            }
+            .options-cell {
+                padding-left: 8px;
+                margin-left: 8px;
+                border-left: 1px solid var(--app-background-color-dark);
+            }
+            .destinations-list {
+                overflow-x: auto;
             }
 
             .horizontal--nowrap {
@@ -220,7 +254,8 @@
             }
 
             .modal-subtitle {
-               margin-right: 12px;
+                margin: 8px 12px 8px 0;
+                font-weight: bold;
             }
 
             .modal-button {
@@ -471,15 +506,35 @@
                 border-left: 1px solid var(--app-background-color-dark);
                 padding-left: 15px;
             }
+
+            #messageBodyText {
+                min-height: 200px;
+            }
+
             #new-msg {
-                height: calc(100vh - 80px);
+                display: flex;
+                flex-direction: column;
                 top: 70px !important;
                 right: 7px !important;
                 left: initial !important;
                 position: fixed;
                 max-width: initial !important;
                 width: 83vw !important;
+                max-height: initial !important;
+                height: calc(100vh - 78px);
             }
+
+            .spinner {
+                display: flex;
+                flex-grow: 1;
+                width: 47px; /* force circle */
+                transform: translateY(16px);
+            }
+
+            #newMsg-SSIN {
+                padding-right: 28px;
+            }
+
             @media screen and (max-width: 1030px) {
                 #new-msg {
                     right: initial !important;
@@ -492,77 +547,82 @@
         </style>
 
         <paper-dialog id="new-msg" >
-            <h2 class="modal-title">[[localize('new_mes','New message',language)]]</h2>
+            <h2 class="modal-title">[[localize('new_mes','New message',language)]] [[isForwardOrReply]]</h2>
             <div class="scrollbox">
-                <div class="field horizontal">
-                    <div class="modal-subtitle">[[localize('from','From',language)]]</div>
-                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>
 
-                </div>
-                <div class="field">
-                    <div class="horizontal horizontal--nowrap">
-                        <div class="modal-subtitle">[[localize('to','To',language)]]</div>
-                        <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
-                                        label="[[localize('sch_by', 'Search by', language)]]" selected-item="{{recipientType}}"></vaadin-combo-box>
-                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" filter="{{recipientFilter}}" filtered-items="[[hcpList]]" item-label-path="displayName"
-                                          allow-custom-value on-change="_AddDestinations">
-                            <template>[[item.displayName]]</template>
-                        </vaadin-combo-box>
+                <div class="horizontal first-line">
+                    <div class="cell colspan6">
+                        <div class="vertical">
+                            <!--<div class="cell collspan2">-->
+                                <!--<div class="modal-subtitle">[[localize('from','From',language)]]</div>-->
+                                <!--<paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>-->
+                            <div class="cell collspan2">
+                                <div class="horizontal">
+                                    <div class="modal-subtitle">[[localize('to','To',language)]]</div>
+                                    <div class="cell">
+                                        <vaadin-combo-box class="type-to" id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
+                                                          label="[[localize('sch_by', 'Search by', language)]]" selected-item="{{recipientType}}"></vaadin-combo-box>
+                                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" filter="{{recipientFilter}}" filtered-items="[[hcpList]]" item-label-path="displayName"
+                                                          allow-custom-value on-change="_AddDestinations">
+                                            <template>[[item.displayName]]</template>
+                                        </vaadin-combo-box>
+                                        <paper-spinner class="spinner" active="[[isLoadingDestinations]]" hidden="[[!isLoadingDestinations]]"></paper-spinner>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                                <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
+                                                  allow-custom-value on-change="_AddSSIN">
+                                    <template>[[item.displayName]]</template>
+                                </vaadin-combo-box>
+                                <!--<paper-spinner class="spinner" active="[[isAddingNiss]]" hidden="[[!isAddingNiss]]"></paper-spinner>-->
+                            </div>
+                        </div>
                     </div>
-                    <div class="horizontal">
-                            <template is="dom-if" if="[[newMessage.destinations]]">
-                                <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
-                                    <paper-item class="destination-tag" id="[[destination.displayName]]">
-                                        <div class="destination-type">[[destination.type]]</div>
-                                        <div class="one-line-menu list-title">
-                                            [[destination.displayName]]
-                                        </div>
+                    <div class="cell options-cell">
+                        <div class="vertical">
+                            <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
+                            <div class="cell">
+                                <div>
+                                    <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                                </div>
+                            </div>
+                            <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
+                            <div class="cell">
+                                <div>
+                                    <paper-checkbox checked="{{newMessage.usePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.useReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="{{newMessage.useReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                        <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
-                                                    on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
-                                    </paper-item>
-                                </template>
+                <div class="field horizontal destinations-list">
+                    <div class="cell">
+                        <template is="dom-if" if="[[newMessage.destinations]]">
+                            <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
+                                <paper-item class="destination-tag" id="[[destination.displayName]]">
+                                    <div class="destination-type">[[destination.type]]</div>
+                                    <div class="one-line-menu list-title">
+                                        [[destination.displayName]]
+                                    </div>
+
+                                    <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
+                                                       on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
+                                </paper-item>
                             </template>
-                        </div>
-                </div>
-
-                <div class="field">
-                    <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
-                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
-                                      allow-custom-value on-change="_AddSSIN">
-                        <template>[[item.displayName]]</template>
-                    </vaadin-combo-box>
-                </div>
-
-                <div class="field horizontal">
-                    <div class="col-half">
-                        <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
-                        <div>
-                            <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
-                        </div>
-                    </div>
-                    <div class="col-half bordered">
-                        <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
-                        <div>
-                            <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                            <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
-                        </div>
+                        </template>
                     </div>
                 </div>
-                <!--<div class="field horizontal">-->
-                    <!---->
-                <!--</div>-->
                 <div class="field">
                     <div class="modal-subtitle">[[localize('msg','Message',language)]]</div>
                     <div>
                         <paper-input id="newMsg-Subject" label="[[localize('sub','Subject',language)]]" value="{{newMessage.document.title}}" always-float-label></paper-input>
-                        <!--<paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"-->
-                                    <!--on-change="msgBodyFileInputSelected"></paper-input>-->
                         <paper-input-container alway-float-label="true">
-                            <!--<iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"-->
-                                                <!--value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>-->
                             <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('write_msg', 'Write a message', language)]]"
                                                     value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                         </paper-input-container>
@@ -572,17 +632,6 @@
                         <vaadin-upload id="vaadin-upload" auto files="{{files}}"  form-data-name="attachment" on-upload-before="_fileUploadBefore" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
-                <!--<div class="field">-->
-                    <!--<div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>-->
-                    <!--<vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"-->
-                                    <!--allow-custom-value on-change="_AddSSIN">-->
-                        <!--<template>[[item.displayName]]</template>-->
-                    <!--</vaadin-combo-box>-->
-                <!--</div>-->
-                <!--<div class="field">-->
-                    <!--<div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>-->
-                    <!--<paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>-->
-                <!--</div>-->
             </div>
             <div class="buttons">
                 <div class="force-left">
@@ -679,6 +728,14 @@
 					customMetas:{
                     	type:[],
                         value: []
+                    },
+                    isLoadingDestinations: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isAddingNiss: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -697,7 +754,33 @@
                 this.set("newMessage.destinations", [])
 			}
 
-            open() {
+            open(params) {
+                // const template= {
+                //     destinations: [],
+                //     patientInss: [],
+                //     annex:[],
+                //     document: {
+                //         title: '',
+                //         textContent: ''
+                //     },
+                //     type: 'fwd' || 'replyto'
+                // }
+                this.clearField();
+                let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
+                if (params) {
+                    this.set("newMessage.annex", params.annex ? params.annex : [])
+                    this.set("newMessage.customMetas", params.customMetas)
+                    this.set("newMessage.delegations", params.delegations)
+                    this.set('newMessage.destinations', params.destinations)
+                    this.set('newMessage.document.title', params.document.title)
+                    this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
+                    this.set("newMessage.patientInss", params.patientInss)
+                    vaadinUpload.files = this.newMessage.annex
+                    console.log('open with params : ',this.newMessage)
+                    this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
+                }
                 this.$['new-msg'].open()
             }
 
@@ -707,17 +790,26 @@
 			}
 
 			_recipientFilterChanged(type, filter) {
-            	if(filter && filter.length >1) {
-					Promise.all([this.api.hcparty().findByName(filter, null, null, 100, false), this.api.hcparty().findBySsinOrNihii(filter, null, null, 100, false)]).then(([hcps1, hcps2]) => {
-						this.set("hcpList", _.uniqBy(_.uniqBy(hcps1.rows.concat(hcps2.rows), 'id')
-							.map(hcp => this.getHcpLight(hcp, type))
-							.filter(hcp => !!this.getTypeValue(hcp, type))
-							.sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'))
-					})
-				}
-				else{
-					this.set("hcpList",[]);
-                }
+                setTimeout(()=>{
+                    if(filter && filter.length >2) {
+                        this.set('isLoadingDestinations',true)
+                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
+                            .then(hcps => {
+                            console.log(hcps)
+                            let setList = []
+                            hcps.map(hcp=>{
+                                hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
+                                setList.push(hcp)
+                            })
+                            this.set("hcpList", setList)
+                            this.set('isLoadingDestinations',false)
+                        })
+                    }
+                    else{
+                        this.set("hcpList",[]);
+                        this.set('isLoadingDestinations',false)
+                    }
+                },1500)
             }
 
 			getHcpLight(hcp, type){
@@ -839,6 +931,7 @@
             }
 
 			_AddSSIN(e){
+                this.set('isAddingNiss',true)
                 let newMsgSSIN = this.shadowRoot.querySelector("#newMsg-SSIN")
 				if( newMsgSSIN && newMsgSSIN.selectedItem){
                     let ssin = newMsgSSIN.selectedItem.ssin
@@ -847,6 +940,7 @@
 				else{
                     this.set("newMessage.patientInss", undefined)
                 }
+                this.set('isAddingNiss',false)
             }
 
 			manageMetadata(){
@@ -882,48 +976,39 @@
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
                     let message = {};
 
-                    message.id = null;
+                    message.id = this.api.crypto().randomUuid();
 					message.publicationId = (new Date).getTime();
 					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
 					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
 					message.customMetas = this.newMessage.customMetas;
 					message.document = this.newMessage.document;
-					if(this.newMessage.document.textContent){
-						message.document.filename = "MainDocument.txt";
-						message.document.mimeType = "text/plain";
-						message.document.textContent = this.newMessage.document.textContent;
-						message.document.signing = null;
-					}else if(!this.newMessage.document.content){
-						message.document.filename = "MainDocument.txt";
-						message.document.mimeType = "text/plain";
-						message.document.textContent = "";
-						message.document.signing = null;
-                    }
-					if(!this.newMessage.document.title) message.document.title = "";
-					message.freeText = null;
+					message.freeText = this.newMessage.document.textContent ? this.newMessage.document.textContent : '';
 					message.freeInformationTableTitle = null;
 					message.freeInformationTableRows = {};
 					message.patientInss = this.newMessage.patientInss;
-					message.annex = [];
+					message.annex = this.newMessage.annex;
 					message.copyMailTo = [];
-					message.documentTitle = null;
+					message.documentTitle = this.newMessage.document.title ? this.newMessage.document.title : '';
                     message.annexList = this.newMessage.annex;
-					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
-					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
+					message.useReceivedReceipt = this.newMessage.useReceivedReceipt;
+					message.useReadReceipt = this.newMessage.useReadReceipt;
 					message.hasAnnex = message.annex && message.annex.length > 0;
 					message.hasFreeInformations = false;
-					message.important = !!this.newMessage.Important;
-					message.encrypted = !!this.newMessage.crypted;
-					message.usePublicationReceipt = !!this.newMessage.UsePublicationReceipt;
+					message.important = this.newMessage.important;
+					message.encrypted = this.newMessage.crypted;
+					message.usePublicationReceipt = this.newMessage.usePublicationReceipt;
 					message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
 					message.sender = this.setSenderAddressee(currentHcp);
 
-                    // console.log(JSON.stringify(message));
+					console.log('request',this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
+                        this.newMessage.usePublicationReceipt? this.newMessage.usePublicationReceipt:false,
+                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
+                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
 
                     this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-						!!this.newMessage.UsePublicationReceipt?!!this.newMessage.UsePublicationReceipt:"false",
-                        !!this.newMessage.UseReceivedReceipt?!!this.newMessage.UseReceivedReceipt:"false",
-                        !!this.newMessage.UseReadReceipt?!!this.newMessage.UseReadReceipt:"false")
+						this.newMessage.usePublicationReceipt?this.newMessage.usePublicationReceipt:false,
+                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
+                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
                         .then(response => {
                         	console.log(response);
                         	if(response) {
@@ -980,8 +1065,8 @@
 				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
 				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
-				Addressee.lastName = null;//hcp.lastName || "";
-                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.lastName = hcp.lastName ? hcp.lastName : null;
+                Addressee.firstName = hcp.firstName ? hcp.firstName : null;
 				Addressee.organizationName = null;
 				Addressee.personInOrganisation = null;
                 // if(hcp.quality) Addressee.quality = hcp.quality;
@@ -995,8 +1080,8 @@
                 Addressee.id = this.getTypeValue(hcp, hcp.type);
 				Addressee.quality = hcp.quality?hcp.quality.toUpper():"DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
-				Addressee.lastName = null;//hcp.lastName || "";
-                Addressee.firstName = null;//hcp.firstName || "";
+                Addressee.lastName = hcp.lastName ? hcp.lastName : null;
+                Addressee.firstName = hcp.firstName ? hcp.firstName : null;
 				Addressee.organizationName = null;
 				Addressee.personInOrganisation = null;
                 // if(hcp.quality) Addressee.quality = hcp.quality;
@@ -1007,6 +1092,7 @@
             clearField(){
             	this.files = [];
 				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
+                this.set('isForwardOrReply','')
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";
             }

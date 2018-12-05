@@ -335,8 +335,11 @@ open class KmehrExport {
                     }}
                 }
             }
-            cnt?.medicationValue?.getPosology()?.let {
+            cnt?.medicationValue?.getPosologyText()?.let {
                 item.posology = ItemType.Posology().apply { text = TextType().apply { l = lang; value = it } }
+            }
+            cnt?.medicationValue?.instructionForPatient?.let {
+                item.instructionforpatient = TextType().apply { l = lang; value = it }
             }
         }
     }

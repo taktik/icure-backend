@@ -9,41 +9,21 @@
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../dialog-style.html">
+<link rel="import" href="../../scrollbar-style.html">
 
 <dom-module id="health-problem-selector">
 	<template>
-		<style>
+		<style include="dialog-style scrollbar-style">
 			paper-dialog {
-				width: 1024px;
+				width: 60%;
+				height: 70%;
+				max-width: 1024px;
 			}
+
 
 			paper-input{
-				--paper-input-container-focus-color: var(--app-primary-color);	
-			}
-
-			.modal-title{
-				background:  var(--app-background-color-dark);
-				margin-top: 0;
-				padding: 16px 24px;
-			}
-
-			.modal-button{
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-				color: var(--app-text-color);
-				font-weight: 400;
-				font-size: 14px;
-				height: 40px;
-				min-width: 100px;
-				padding: 10px 1.2em;
-				text-transform: capitalize;
-			}
-
-			.modal-button--save{
-				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-secondary-color);
-				color: var(--app-primary-color-dark);
-				font-weight: 700;
-				text-transform: capitalize;
+				--paper-input-container-focus-color: var(--app-primary-color);
 			}
 
 			dom-if {
@@ -72,10 +52,6 @@
                 padding: 0 0 0 8px;
 				justify-content: space-between;
 			}
-
-            paper-dialog {
-                overflow: auto;
-            }
 
             paper-radio-group{
                 --paper-radio-group-item-padding: 8px;
@@ -106,75 +82,80 @@
             tk-token-field{
                 margin:8px 0;
             }
-         
+
+
+
 		</style>
 
 		<paper-dialog id="dialog">
-            <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
-            <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-            <paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
-            <div class="flex">
-                <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
-                    <paper-radio-button name="healthcareelement">[[localize('healthcareelement','Problem',language)]]</paper-radio-button>
-                    <paper-radio-button name="allergy">[[localize('allergy','Allergy',language)]]</paper-radio-button>
-                    <paper-radio-button name="familyrisk">[[localize('familyrisk','Family Risk',language)]]</paper-radio-button>
-                    <paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
-					<paper-radio-button name="socialrisk">[[localize('socialrisk','Social risk',language)]]</paper-radio-button>
-					<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
-                </paper-radio-group>
-            </div>
-            <div class="flex">
-                <paper-item class="label">[[localize('sta','Status',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
-                    <paper-radio-button name="active-relevant">[[localize('act_rel','Active relevant',language)]]</paper-radio-button>
-                    <paper-radio-button name="active-irrelevant">[[localize('act_irr','Active irrelevant',language)]]</paper-radio-button>
-                    <paper-radio-button name="inactive">[[localize('ina','Inactive',language)]]</paper-radio-button>
-                    <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
-                </paper-radio-group>
-            </div>
-            <div class="flex">
-                <paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
-                    <paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
-                    <paper-radio-button name="proven">[[localize('proven','Proven',language)]]</paper-radio-button>
-                    <paper-radio-button name="unprobable">[[localize('unprobable','improbable',language)]]</paper-radio-button>
-                    <paper-radio-button name="excluded">[[localize('excluded','Excluded',language)]]</paper-radio-button>
-                </paper-radio-group>
-            </div>
-            <div class="flex">
-                <paper-item class="label">[[localize('sev','Severity',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
-                    <paper-radio-button name="normal">[[localize('normal','No problem',language)]]</paper-radio-button>
-                    <paper-radio-button name="verylow">[[localize('verylow','Light',language)]]</paper-radio-button>
-                    <paper-radio-button name="low">[[localize('low','Moderate',language)]]</paper-radio-button>
-                    <paper-radio-button name="high">[[localize('high','Severe',language)]]</paper-radio-button>
-                    <paper-radio-button name="veryhigh">[[localize('veryhigh','Total',language)]]</paper-radio-button>
-                </paper-radio-group>
-            </div>
-            <div class="flex">
-                <paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
-                    <paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
-                    <paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
-                    <paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>
-                    <paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
-                </paper-radio-group>
-            </div>
+			<h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
+			<div class="content">
+				<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
+				<paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
+				<div class="flex">
+					<paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
+						<paper-radio-button name="healthcareelement">[[localize('healthcareelement','Problem',language)]]</paper-radio-button>
+						<paper-radio-button name="allergy">[[localize('allergy','Allergy',language)]]</paper-radio-button>
+						<paper-radio-button name="familyrisk">[[localize('familyrisk','Family Risk',language)]]</paper-radio-button>
+						<paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
+						<paper-radio-button name="socialrisk">[[localize('socialrisk','Social risk',language)]]</paper-radio-button>
+						<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
+					</paper-radio-group>
+				</div>
+				<div class="flex">
+					<paper-item class="label">[[localize('sta','Status',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
+						<paper-radio-button name="active-relevant">[[localize('act_rel','Active relevant',language)]]</paper-radio-button>
+						<paper-radio-button name="active-irrelevant">[[localize('act_irr','Active irrelevant',language)]]</paper-radio-button>
+						<paper-radio-button name="inactive">[[localize('ina','Inactive',language)]]</paper-radio-button>
+						<paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
+					</paper-radio-group>
+				</div>
+				<div class="flex">
+					<paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
+						<paper-radio-button name="proven">[[localize('proven','Proven',language)]]</paper-radio-button>
+						<paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
+						<paper-radio-button name="unprobable">[[localize('unprobable','improbable',language)]]</paper-radio-button>
+						<paper-radio-button name="excluded">[[localize('excluded','Excluded',language)]]</paper-radio-button>
+					</paper-radio-group>
+				</div>
+				<div class="flex">
+					<paper-item class="label">[[localize('sev','Severity',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
+						<paper-radio-button name="normal">[[localize('normal','No problem',language)]]</paper-radio-button>
+						<paper-radio-button name="verylow">[[localize('verylow','Light',language)]]</paper-radio-button>
+						<paper-radio-button name="low">[[localize('low','Moderate',language)]]</paper-radio-button>
+						<paper-radio-button name="high">[[localize('high','Severe',language)]]</paper-radio-button>
+						<paper-radio-button name="veryhigh">[[localize('veryhigh','Total',language)]]</paper-radio-button>
+					</paper-radio-group>
+				</div>
+				<div class="flex">
+					<paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
+						<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
+						<paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
+						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]&nbsp;|</paper-radio-button>
+						<paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
+						<paper-radio-button name="relapse">[[localize('relapse','Relapse',language)]]</paper-radio-button>
+					</paper-radio-group>
+				</div>
 
 
-            <vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
-            <vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+				<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+				<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
 
-            <tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
-            <tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+				<tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
+				<tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
 
-			<slot name="suffix"></slot>
+				<slot name="suffix"></slot>
+			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
 			</div>
-		</paper-dialog> 
+		</paper-dialog>
 
 	</template>
 	<script>

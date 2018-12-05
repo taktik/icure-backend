@@ -260,7 +260,7 @@ open class KmehrExport {
                     }}
                 }
             }
-            cnt?.medicationValue?.posology?.let {
+            cnt?.medicationValue?.posologyText?.let {
                 item.posology = ItemType.Posology().apply { text = TextType().apply { l = lang; value = it } }
             }
         }
