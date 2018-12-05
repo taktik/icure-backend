@@ -592,16 +592,16 @@
                             <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.crypted]]" on-change="_isCryptedMessage">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.important]]" on-change="_isImportant">[[localize('significant','significant',language)]]</paper-checkbox>
                                 </div>
                             </div>
                             <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="{{newMessage.usePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.useReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.useReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.usePublicationReceipt]]" on-checked-changed="_isPublicationReceipt">[[localize('publication','publication',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.useReceivedReceipt]]" on-checked-changed="_isReceicedReceipt">[[localize('reception','reception',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.useReadReceipt]]"  on-checked-changed="_isReadReceipt">[[localize('read','read',language)]]</paper-checkbox>
                                 </div>
                             </div>
                         </div>
@@ -1008,18 +1008,18 @@
                         freeText : this.newMessage.document.textContent ? this.newMessage.document.textContent : '',
                         freeInformationTableTitle : null,
                         freeInformationTableRows : {},
-                        patientInss : this.newMessage.patientInss,
+                        patientInss : this.newMessage && this.newMessage.patientInss ? this.newMessage.patientInss : null,
                         annex : this.newMessage.annex,
                         copyMailTo : [],
                         documentTitle : this.newMessage.document.title ? this.newMessage.document.title : 'No title',
                         annexList : this.newMessage.annex,
-                        useReceivedReceipt : this.newMessage.useReceivedReceipt,
-                        useReadReceipt : this.newMessage.useReadReceipt,
+                        useReceivedReceipt : this.newMessage && this.newMessage.useReceivedReceipt ? this.newMessage.useReceivedReceipt : false,
+                        useReadReceipt : this.newMessage && this.newMessage.useReadReceipt ? this.newMessage.useReadReceipt : false,
+                        usePublicationReceipt : this.newMessage && this.newMessage.usePublicationReceipt ? this.newMessage.usePublicationReceipt : false,
                         hasAnnex : this.newMessage.annex && this.newMessage.annex.length > 0,
                         hasFreeInformations : false,
-                        important : this.newMessage.important,
-                        encrypted : this.newMessage.crypted,
-                        usePublicationReceipt : this.newMessage.usePublicationReceipt,
+                        important : this.newMessage && this.newMessage.important ? this.newMessage.important : false,
+                        encrypted : this.newMessage && this.newMessage.crypted ? this.newMessage.crypted : false,
                         destinations : this.newMessage.destinations.map(hcp => this.setAddressee(hcp)),
                         sender : this.setSenderAddressee(currentHcp)
                     };
@@ -1034,9 +1034,9 @@
                         this.api.tokenId,
                         this.credentials.ehpassword,
                         message,
-						message.usePublicationReceipt,
-                        message.useReceivedReceipt,
-                        message.useReadReceipt)
+						""+message.usePublicationReceipt,
+                        ""+message.useReceivedReceipt,
+                        ""+message.useReadReceipt)
                         .then(response => {
                         	console.log(response);
                         	if(response) {
@@ -1123,6 +1123,26 @@
                 this.set('isForwardOrReply','')
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";
+            }
+
+            _isPublicationReceipt(e){
+                this.set('newMessage.usePublicationReceipt', e.target.checked)
+            }
+
+            _isReceicedReceipt(e){
+                this.set('newMessage.useReceivedReceipt', e.target.checked)
+            }
+
+            _isReadReceipt(e){
+                this.set('newMessage.useReadReceipt', e.target.checked)
+            }
+
+            _isImportant(e){
+                this.set('newMessage.important', e.target.checked)
+            }
+
+            _isCryptedMessage(e){
+                this.set('newMessage.crypted', e.target.checked)
             }
 
 		}
