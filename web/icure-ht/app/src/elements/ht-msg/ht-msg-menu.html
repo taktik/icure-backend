@@ -224,7 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 20px;
 				width: 20px;
 				padding:4px;
-				opacity: 0.7;
 				color: var(--app-text-color);
 			}
 
@@ -424,8 +423,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-self: flex-start;
 				width:100%;
 				padding: 0 8px;
+                box-sizing: border-box;
 			}
-
+            .trash.selected {
+                background: var(--app-primary-color);
+                color: white;
+            }
+            .trash.selected iron-icon {
+                color: var(--app-secondary-color);
+            }
 
 			paper-item{
 				cursor: pointer;
@@ -560,7 +566,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="archive">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
-			<paper-item class="trash" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+			<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
 		</div>
 	</template>
 	<script>
@@ -700,6 +706,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
 
         this.$.inbox.classList.add('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
@@ -712,6 +719,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('sentboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
 
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
@@ -728,6 +736,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
 
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.add('iron-selected')
@@ -740,7 +749,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
-
+            this.set('trashSelected',null)
+            
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
@@ -760,7 +770,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
-
+        this.set('trashSelected',null)
+        
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.add('iron-selected')
@@ -772,7 +783,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
-
+            this.set('trashSelected',null)
+            
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
@@ -783,6 +795,9 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+
+        this.set('trashSelected','selected')
+        
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')

@@ -166,7 +166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                    user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
-                                   class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
+                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
                 </div>
             </template>
 

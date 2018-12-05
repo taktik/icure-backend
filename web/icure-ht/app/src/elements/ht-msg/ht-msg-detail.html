@@ -389,6 +389,10 @@
 				padding-bottom: 32px;
 			}
 
+            dynamic-doc {
+                overflow-y: auto;
+            }
+
 			.annexe-card{
 				flex-basis: calc(100% / 3);
 				max-width: calc((100% / 3) - 16px);
@@ -1036,29 +1040,37 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
 
-	_removeMsg(e){
-        let msg = this.messages[0]
-		// let msgId = e.target.getAttribute('msgId');
-		// let transportGuid = e.target.getAttribute('transportGuid');
+	// _removeMsg(e){
+    //     let msg = this.messages[0]
+    //     if (msg) {
+    //         if(msg.transportGuid.startsWith("BIN")){
+    //             this.api.message().deleteMessages(msg.id)
+    //                 .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
+    //         } else {
+    //             msg.transportGuid = "BIN:" + msg.transportGuid;
+    //             this.api.message().modifyMessage(msg)
+    //                 .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
+    //         }
+    //         this.set('messages', null);
+    //         const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
+    //         mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+    //     }
+	// }
 
-		// this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-		// 	.then(msg => {
-		// 		let m = msg.rows[0];
+    _removeMsg(){
+        let msg = this.messages[0]
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                this.api.message().deleteMessages(msg.id)
-                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-            } else {
-                msg.transportGuid = "BIN:" + msg.transportGuid;
-                this.api.message().modifyMessage(msg)
-                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-            }
-            this.set('messages', null);
-            const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
-            mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            if (!msg.transportGuid.startsWith("BIN")) {
+                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox))
+                    .finally(this.api.message().deleteMessages(idOfMsg))
+                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+            } else {console.log(msg.id+' is already in bin !')}
         }
-        // })
-	}
+    }
 
     _restoreMsgs(){
         let msg = this.messages[0]

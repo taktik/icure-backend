@@ -885,13 +885,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg =>{
                         if (!msg.transportGuid.startsWith("BIN")) {
-                            msgsToDelete.push(msg.id)
+                            msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))
+                            debugger
                         } else {console.log(msg.id+' is already in bin !')}
                     }) // forEach end
                     if(msgsToDelete.length){
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msgsToDelete], thisBox, delBox)
-                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msgsToDelete], delBox))
-                        checkedMsgs.forEach(msg=>this.api.message().deleteMessages(msg.id))
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
+                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox))
+                        msgsToDelete.forEach(idOfMsg=>this.api.message().deleteMessages(idOfMsg))
                         this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
@@ -901,30 +902,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _isEqual(a,b) {return (a === b)}
 
-			_restoreMsgs(){
-                let mailList = this.shadowRoot.querySelector('#mail-list');
-                let allCheckboxes = mailList.querySelectorAll('.checkbox');
-                let msgs = this.checkedMessages;
-				if(msgs) {
-					msgs.forEach(msg =>{
-						if (msg.transportGuid.startsWith("BIN:")){
-                            this.set('isLoadingMailList',true)
-							msg.transportGuid = msg.transportGuid.substring(3);
-                            this.api.message().modifyMessage(msg)
-                                .then(()=> this._refresh())
-                                .finally(()=>{this.set('isLoadingMailList',false)})
-						}
-				        else {
-				            console.log(msg.id,'not in bin')
-                        }
-                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-                    })
-                    allCheckboxes.forEach(box=>{
-                        box.checked = false;
-                    })
-				}
-                this._refresh()
-			}
+            _restoreMsgs(){
+                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToRestore = []
+                const thisBox = this.selectList.selection.item.toUpperCase()
+                const targetBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+                if(checkedMsgs.length) {
+                    checkedMsgs.forEach(msg =>{
+                        if (msg.transportGuid.startsWith("BIN")) {
+                            msgsToRestore.push(msg.id)
+                        } else {console.log(msg.id+' is already in bin !')}
+                    }) // forEach end
+                    if(msgsToRestore.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToRestore, thisBox, targetBox)
+                        //     .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToRestore, delBox))
+                        checkedMsgs.forEach(msg=>this.api.message().modifyMessage(msg.id))
+                        this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
+                    }
+                    allCheckboxes.forEach(box=>box.checked = false)
+                    this._refresh()
+                } // if checked length end
+            }
+
+			// _restoreMsgs(){
+            //     let mailList = this.shadowRoot.querySelector('#mail-list');
+            //     let allCheckboxes = mailList.querySelectorAll('.checkbox');
+            //     let msgs = this.checkedMessages;
+			// 	if(msgs) {
+			// 		msgs.forEach(msg =>{
+			// 			if (msg.transportGuid.startsWith("BIN:")){
+            //                 this.set('isLoadingMailList',true)
+			// 				msg.transportGuid = msg.transportGuid.substring(3);
+            //                 this.api.message().modifyMessage(msg)
+            //                     .then(()=> this._refresh())
+            //                     .finally(()=>{this.set('isLoadingMailList',false)})
+			// 			}
+			// 	        else {
+			// 	            console.log(msg.id,'not in bin')
+            //             }
+            //             this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
+            //         })
+            //         allCheckboxes.forEach(box=>{
+            //             box.checked = false;
+            //         })
+			// 	}
+            //     this._refresh()
+			// }
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
