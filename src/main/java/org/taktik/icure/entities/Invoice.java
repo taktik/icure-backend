@@ -254,7 +254,7 @@ public class Invoice extends StoredICureDocument {
 		return correctiveInvoiceId;
 	}
 
-	public void setCorrectiveInvoiceId(String recipientType) {
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
 		this.correctiveInvoiceId = correctiveInvoiceId;
 	}
 
@@ -262,7 +262,7 @@ public class Invoice extends StoredICureDocument {
 		return correctedInvoiceId;
 	}
 
-	public void setCorrectedInvoiceId(String recipientType) {
+	public void setCorrectedInvoiceId(String correctedInvoiceId) {
 		this.correctedInvoiceId = correctedInvoiceId;
 	}
 
