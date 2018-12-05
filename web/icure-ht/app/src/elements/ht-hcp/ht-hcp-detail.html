@@ -268,7 +268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-listbox class="padding-0" id="adminFileMenu" selected-item="{{selectedAdminFile}}">
 						<paper-item id="_admin_info" class="horizontal layout hcp-info-container">
 							<paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
-							<div class="hcp-picture-container"><img src$="[[picture(hcp)]]"></div>
+							<div class="hcp-picture-container"><img src$="[[picture(hcp,hcp.*)]]"></div>
 							<div class="hcp-info">
 								<div class="hcp-name">{{hcp.firstName}} {{hcp.lastName}}</div>
 								<div class="hcp-birthdate">{{hcp.nihii}}</div>
@@ -279,7 +279,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-material>
 			</div>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]"></ht-hcp-admin-card>
+				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
 			</template>
 		</div>
 	</template>
@@ -319,7 +319,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
 	}
 
-	hcpChanged() {
+	hcpChanged(){
+	}
+
+	hcpSaved(event) {
+        setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
+        this.$.savedIndicator.classList.add("saved");
 	}
 
 	unselectAdminFile() {

@@ -5,19 +5,17 @@
 				{
 					"formDataList": [
 						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 26,
-								"menuOptions" : [
-
-								],
-								"labelPosition" : "Left",
-								"width" : 82,
-								"multiline" : false,
-								"left" : 1080,
-								"top" : 8,
-								"key" : "PopupMenuEditor"
-							},
+                            "editor" : {
+                              "readOnly" : false,
+                              "height" : 26,
+                              "menuOptions": ["female","male","changed","indeterminate"],
+                              "labelPosition" : "Left",
+                              "width" : 100,
+                              "multiline" : false,
+                              "left" : 205,
+                              "top" : 33,
+                              "key" : "PopupMenuEditor"
+                            },
 							"sortOrder" : 1465341751,
 							"codeTypes" : [
 
@@ -54,21 +52,20 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 288,
+								"width" : 498,
 								"multiline" : false,
-								"left" : 457,
-								"top" : 61,
-								"key" : "StringEditor"
+								"left" : 664,
+								"top" : 143,
+								"key" : "TokenFieldEditor"
 							},
-							"sortOrder" : 1465341751,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
-
+								{"type":"ISO-639-1"}
 							],
-							"label" : "Language",
-							"type" : "TKString",
+							"label" : "Languages",
 							"subForm" : false,
-							"name" : "language",
-							"irrelevant" : true
+							"type" : "TKStringTable",
+							"name" : "languages"
 						},
 						{
 							"editor" : {
@@ -96,7 +93,28 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 404,
+								"width" : 330,
+								"multiline" : false,
+								"left" : 95,
+								"top" : 8,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341759,
+							"codeTypes" : [
+
+							],
+							"label" : "Name",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "name",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 330,
 								"multiline" : false,
 								"left" : 95,
 								"top" : 8,
@@ -117,7 +135,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 425,
+								"width" : 330,
 								"multiline" : false,
 								"left" : 597,
 								"top" : 8,
@@ -157,13 +175,20 @@
 						{
 							"editor" : {
 								"readOnly" : false,
-								"height" : 22,
+								"height" : 26,
+								"menuOptions" : [
+									"single",
+									"married",
+									"divorced",
+									"widowed",
+									"complicated"
+								],
 								"labelPosition" : "Left",
-								"width" : 404,
+								"width" : 200,
 								"multiline" : false,
-								"left" : 95,
-								"top" : 34,
-								"key" : "StringEditor"
+								"left" : 664,
+								"top" : 62,
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1465341751,
 							"codeTypes" : [
