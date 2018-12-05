@@ -521,7 +521,9 @@
     "last_msgs": "Last messages",
     "no_msg_content": "This mail has no message",
     "done": "Done",
-    "uploaded": "Uploaded"
+    "uploaded": "Uploaded",
+    "ready": "ready",
+    "refresh" : "Refresh"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1033,7 +1035,7 @@
     "e_dmg" : "e-DMG",
     "dmg-con" : "Consultation DMG",
     "dmg_not" : "Notification DMG",
-    "refresh" : "rafraîchir",
+    "refresh" : "Rafraîchir",
     "nomen" : "Nomenclature",
     "prest-dat" : "Date de prestation",
     "regNrWithMut" : "N° d'affiliation",
@@ -1106,7 +1108,8 @@
     "last_msgs": "Derniers messages",
     "no_msg_content": "Ce mail n'a pas de message",
     "done": "Terminé",
-    "uploaded": "Téléchargé"
+    "uploaded": "Téléchargé",
+    "ready": "Prêt"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1659,7 +1662,7 @@
     "e_dmg" : "e-GMD",
     "dmg-con" : "Raadpleging GMD",
     "dmg_not" : "Kennisgeving G%D",
-    "refresh" : "vernieuwen",
+    "refresh" : "Vernieuwen",
     "nomen" : "Presatiecode",
     "prest-dat" : "Prestatiedatum",
     "regNrWithMut" : "Aansluitingsnummer",
@@ -1728,6 +1731,7 @@
     "last_msgs": "Laatste berichten",
     "no_msg_content": "This mail has no message",
     "done": "Done",
-    "uploaded": "Uploaded"
+    "uploaded": "Uploaded",
+    "ready": "Klaar"
   }
 }

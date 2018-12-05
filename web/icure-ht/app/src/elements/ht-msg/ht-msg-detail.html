@@ -892,14 +892,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						.map(doc => {
                             return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
                                 .then(a => {
-                                        doc.dataUrl = this.getDataUrls(doc)
-                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                            console.log('this doc is the body', doc)
-                                            this.set('bodyDocument',doc)
-                                        }
-                                        return doc
+                                    doc.dataUrl = this.getDataUrls(doc)
+                                    if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                        console.log('this doc is the body', doc)
+                                        this.set('bodyDocument',doc)
+                                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                        fetch(url,{credentials:'include'})
+                                            .then(res=>res.text())
+                                            .then(res=>this.set('docTxt',res))
                                     }
-                                );
+                                    return doc
+                            });
                         }
 					)
 				}
@@ -1003,7 +1006,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: this.selectedDocuments,
             document: {
 	            title: 'Fw: '+origMsg.subject,
-                textContent: origMsg.body != '' ? origMsg.body : this.localize('no_msg_content','No message',this.language)
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'fwd'
@@ -1031,7 +1034,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
-                textContent: origMsg.body != '' ? origMsg.body : this.localize('no_msg_content','No message',this.language)
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'replyto'
@@ -1039,23 +1042,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const target = this.parentElement.parentNode.children[1]
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
-
-	// _removeMsg(e){
-    //     let msg = this.messages[0]
-    //     if (msg) {
-    //         if(msg.transportGuid.startsWith("BIN")){
-    //             this.api.message().deleteMessages(msg.id)
-    //                 .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-    //         } else {
-    //             msg.transportGuid = "BIN:" + msg.transportGuid;
-    //             this.api.message().modifyMessage(msg)
-    //                 .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-    //         }
-    //         this.set('messages', null);
-    //         const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
-    //         mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
-    //     }
-	// }
 
     _removeMsg(){
         let msg = this.messages[0]
@@ -1066,24 +1052,31 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
                     .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox))
-                    .finally(this.api.message().deleteMessages(idOfMsg))
-                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                    .finally(()=>{
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                    })
             } else {console.log(msg.id+' is already in bin !')}
+            const target = this.parentElement.parentNode.children[1]
+            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
         }
     }
 
     _restoreMsgs(){
         let msg = this.messages[0]
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                msg.transportGuid = msg.transportGuid.substring(3);
-                this.api.message().modifyMessage(msg)
-                    .then(()=> {
-                        const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
-                        mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
-                    });
-            }
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
+                .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .finally(()=>{
+                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                })
         }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
 	_imageMimeType(uti, utis, dataUrl) {

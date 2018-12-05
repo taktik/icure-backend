@@ -902,7 +902,7 @@
                         vaadinUpload.set(['files', fileIndex, 'progress'], 100);
 						vaadinUpload.set(['files', fileIndex, 'complete'], true);
 						vaadinUpload.set(['files', fileIndex, 'loaded'], vaadinUpload.files[fileIndex].size);
-						vaadinUpload.set(['files', fileIndex, 'status'], this.localize('uploaded','uploaded',this.language));
+						vaadinUpload.set(['files', fileIndex, 'status'], this.localize('ready','ready',this.language));
 						console.log(vaadinUpload.files)
 
 						this.dispatchEvent(new CustomEvent('file-received', file));
