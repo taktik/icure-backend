@@ -14,30 +14,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
 
 <link rel="import" href="./shared-styles.html">
 <link rel="import" href="./scrollbar-style.html">
 <link rel="import" href="./spinner-style.html">
+<link rel="import" href="./dialog-style.html">
 
 <script src="../bower_components/webcrypto-shim/webcrypto-shim.js"></script>
 
 <dom-module id="ht-main">
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
-		<style include="shared-styles scrollbar-style spinner-style">
+		<style include="shared-styles scrollbar-style spinner-style dialog-style">
 			:host {
 				display: block;
-				padding: 24px;
+				padding: 12px 24px 24px;
 				height: calc(100vh - 64px);
 				box-sizing: border-box;
+				--grid-columns: 1fr 1fr;
+				--grid-rows: 1fr 1fr 1fr;
 			}
 
 			.grid-container {
 				display:grid;
 				width:100%;
-				height:100%;
-				grid-template-columns: 1fr 1fr;
-				grid-template-rows: 1fr 1fr 1fr;
+				height: calc(100% - 52px);
+				grid-template-columns: var(--grid-columns);
+				grid-template-rows: var(--grid-rows);
 				grid-column-gap: 24px;
   				grid-row-gap: 24px;
 			}
@@ -56,7 +63,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			.card-title-container {
 				background: #ffffff;
-				padding: 16px;
+				padding: 0 16px;
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: space-between;
+				align-items: center;
+				height: 56px;
+    			box-sizing: border-box;
 			}
 
 			.card-title {
@@ -66,6 +79,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-weight: bold;
 				text-align: center;
 				color: var(--app-text-color);
+			}
+
+			.card-title-container paper-icon-button{
+				color: rgba(0,0,0,0);
+				height: 20px;
+				width: 20px;
+				padding: 2px;
+				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
+			}
+
+			.card-title-container:hover paper-icon-button, .card-title-container:focus-within paper-icon-button{
+				color: var(--app-text-color-disabled);
+				padding: 0;
 			}
 
 			.card-body {
@@ -115,13 +141,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-weight: bold;
 				margin-right: 16px;
 				text-transform: capitalize;
-				/*min-width: 30%;*/
 			}
 
 			.consultations-message-texte {
 				font-size: 14px;
 				margin-right: 16px;
-				/*min-width: 30%;*/
 			}
 
 			.consultations-patient-type {
@@ -152,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				position:sticky;
 				top:-16px;
 				background: var(--app-background-color);
-				z-index:900;
+				z-index:1;
 				border-bottom: 1px dotted var(--app-background-color-dark);
 				padding:4px 0;
 			}
@@ -205,9 +229,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin:0;
 			}
 
-			.latest-patients-card {
-				grid-area: 1 / 1 / span 3 / span 1;
-			}
+			
 
 			.latest-patients-row {
 				justify-content: flex-start;
@@ -231,17 +253,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-style:italic;
 			}
 
-			.todays-consultations {
-				grid-area: 1 / 2 / span 1 / span 1;
-
-			}
-
-			.latest-lab-result {
-				grid-area: 2 / 2 / span 1 / span 1;
-			}
-
-			 .todo-card {
-				grid-area: 3 / 2 / span 1 / span 1;
+			#latestPatientsWidget, .latest-patients-card, .todays-consultations, .latest-lab-result, .todo-card {
+				--columns: 1;
+				--rows: 1;
+				grid-area: span var(--rows) / span var(--columns);
 			}
 
 			a {
@@ -393,105 +408,333 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				transform: translate(-50%, -50%);
             }
 
+			.layout-buttons{
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: flex-end;
+				align-items: center;
+				margin: 0 0 12px;
+			}
+
+			.layout-buttons paper-icon-button{
+				--paper-icon-button: {
+					color: var(--app-text-color-disabled);
+					border-radius: 50%;
+				};
+				--paper-icon-button-hover: {
+					color: var(--app-text-color-dark);
+					background-color: var(--app-background-color-dark);
+				}
+			}
+
+			#layoutDialog, #widgetSettingsDialog{
+				height: 30%;
+				width: 30%;
+			}
+
+			#layoutDialog .content{
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: space-around;
+				align-items: center;
+				padding: 24px;
+			}
+
+			.layout-button{
+				height: 90%;
+				width: calc((100% / 3) - 24px);
+				border: 1px solid var(--app-background-color-dark);
+				padding: 4px;
+				display: grid;
+				grid-column-gap: 4px;
+ 				grid-row-gap: 4px;
+				transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+			}
+
+			.layout-button:hover{
+				background: var(--app-background-color-light)
+			}
+
+			.layout-button.selected{
+				margin-top: -1px;
+				box-shadow: var(--app-shadow-elevation-1);
+			}
+
+			.layout-button.selected span:nth-child(3n+1){
+				background: var(--app-secondary-color-highlight);
+			}
+
+			.layout-button.selected span{
+				background: var(--app-secondary-color);
+			}
+
+			
+			.layout-button span:after{
+				content: '';
+				display: block;
+				height: 100%;
+				width: 0;
+				position: absolute;
+				background: rgba(218, 107, 107, 0.05);
+				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
+			}
+
+			.layout-button span:nth-child(2n+1):after{
+				transition-delay: 0.06s;
+			}
+
+			.layout-button:hover span:after{
+				width: 100%;
+			}
+
+			.layout-a{
+				grid-template-columns: repeat(2, 1fr);
+				grid-template-rows: repeat(3, 1fr);
+			}
+
+			.layout-b{
+				grid-template-columns: repeat(3, 1fr);
+				grid-template-rows: repeat(2, 1fr);
+			}
+
+			.layout-c{
+				grid-template-columns: repeat(4, 1fr);
+				grid-template-rows: repeat(2, 1fr);
+			}
+
+			.layout-a span, .layout-b span, .layout-c span{
+				grid-column:  span 1;
+				grid-row: span 1;
+			}
+
+			.layout-button span{
+				background: var(--app-background-color-dark);
+				position: relative;
+			}
+
+			.layout-a span:first-child{
+				grid-column: 1 / span 1;
+				grid-row: 1 / span 3;
+			}
+
+			.layout-b span:last-child{
+				grid-column: 3 / span 1;
+				grid-row: 1 / span 2;
+			}
+
+			.layout-c span:first-child{
+				grid-column: 1 / span 4;
+				grid-row: span 1;
+			}
+
+			paper-menu-button.widget-settings-menu div{
+				width: 160px;
+				height: auto;			
+			}
+
+			paper-menu-button.widget-settings-menu div paper-button{
+				width: 100%;
+				margin: 0;
+				background-color: var(--app-secondary-color);
+				color: var(--app-text-color);
+				text-transform: capitalize;
+				font-size: 14px;
+				font-weight: 500;
+				border-radius: 0;
+			}
+
+			paper-menu-button.widget-settings-menu div paper-input{
+				margin: 0 8px;
+				--paper-input-container-input: {
+					padding: 0;
+				};
+				--paper-input-container-focus-color: var(--app-secondary-color);
+			}
+
+			.grid-container.dragging{
+				background: red;
+			}
+
 		</style>
 
-		<div class="grid-container">
-			<div class="card latest-patients-card">
-				<div class="card-title-container">
-					<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
-				</div>
-				<div class="card-body">
-                    <div class="card-table-header row">
-                        <div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-                        <div class="card-header-cell card-header-cell--date">[[localize('last_edi','last edit',language)]]</div>
-                    </div>
-					<template is="dom-repeat" items="[[accessLogs]]" as="access">
-						<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
-							<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-							<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
-							<div class="divider"></div>
-							<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
-						</div>
-					</template>
-					<paper-spinner class="spinner" alt="Loading latest patients" active=[[_isLoadingLatestPatients]]></paper-spinner>
-				</div>
-			</div>
-			<div class="card todays-consultations">
-				<div class="card-title-container">
-					<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
-				</div>
-				<div class="card-body">
-                    <div class="card-table-header row">
-                        <div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-                        <div class="card-header-cell">[[localize('type','Type',language)]]</div>
-                        <div class="card-header-cell card-header-cell--date">[[localize('hour','Hour',language)]]</div>
-                    </div>
-					<div class="consultations-list">
-						<template is="dom-repeat" items="[[appointments]]" as="appointment">
-							<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
-								<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
-								<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
-								<div class="consultations-patient-type">#[[appointment.type]]</div>
-								<div class="divider"></div>
-								<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
-							</div>
-						</template>
-					</div>
-					<paper-spinner class="spinner" alt="Loading today's consultations" active=[[_isLoadingTodaysConsultations]]></paper-spinner>
-
-				</div>
-			</div>
-			<div class="card latest-lab-result">
-				<div class="card-title-container">
-					<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
-				</div>
-				<div class="card-body">
-					<div class="card-table-header row">
-						<div class="card-header-cell">[[localize('sen','Sender',language)]]</div>
-						<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
-						<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
-					</div>
-					<template is="dom-repeat" items="[[messages]]" as="msg">
-						<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
-							<div class="card-table-cell">[[msg.fromAddress]]</div>
-							<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
-							<div class="card-table-cell">[[msg.subject]] </div>
-						</div>
-					</template>
-					<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
-				</div>
-			</div>
-			<div class="card todo-card">
-				<div class="card-title-container">
-					<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
-				</div>
-				<div class="card-body">
-					<div class="card-table-header row">
-						<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-						<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date',language)]]</div>
-						<div class="card-header-cell">[[localize('des','Description',language)]]</div>
-					</div>
-					<template is="dom-repeat" items="[[services]]" as="service">
-						<paper-listbox>
-							<paper-item>
-								<div class="row card-table-row" data-id$="[[service.service.id]]">
-									<div class="card-table-cell">
-										<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-										<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
-									</div>
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
-									<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
+		<div class="layout-buttons">
+			<paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button>
+			<paper-icon-button id="changeLayoutButton" icon="dashboard" on-tap="_layoutDialog"></paper-icon-button>
+			<paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip>
+			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
+		</div>
+		<div id="gridContainer" class="grid-container ">
+			<template is="dom-repeat" items="[[widgets]]" as="widget">
+				<template is="dom-if" if="[[_isEqual(widget.id,'latestPatientsWidget')]]">
+					<div id="[[widget.id]]" class="card latest-patients-card" draggable="true" ondragstart="_dragWidget" ondrop="drop(event)">
+						<div class="card-title-container">
+							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<div slot="dropdown-content">
+									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
+									<paper-button on-tap="_applySettings" data-item$="[[widget]]" data-item$="[[widget]]">Apply settings</paper-button>
 								</div>
-							</paper-item>
-						</paper-listbox>
-					</template>
-					<paper-spinner class="spinner" alt="Loading to-do list" active=[[_isLoadingToDoList]]></paper-spinner>
-				</div>
-			</div>
+							</paper-menu-button>					
+						</div>
+						<div class="card-body">
+							<div class="card-table-header row">
+								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date">[[localize('last_edi','last edit',language)]]</div>
+							</div>
+							<template is="dom-repeat" items="[[accessLogs]]" as="access">
+								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
+									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
+									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="divider"></div>
+									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
+								</div>
+							</template>
+							<paper-spinner class="spinner" alt="Loading latest patients" active=[[_isLoadingLatestPatients]]></paper-spinner>
+						</div>
+					</div>
+				</template>
+				<template is="dom-if" if="[[_isEqual(widget.id,'todaysConsultationsWidget')]]">
+					<div id="[[widget.id]]" class="card todays-consultations" draggable="true" ondrop="drop(event)">
+						<div class="card-title-container">
+							<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<div slot="dropdown-content">
+									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+								</div>
+							</paper-menu-button>
+						</div>
+						<div class="card-body">
+							<div class="card-table-header row">
+								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell">[[localize('type','Type',language)]]</div>
+								<div class="card-header-cell card-header-cell--date">[[localize('hour','Hour',language)]]</div>
+							</div>
+							<div class="consultations-list">
+								<template is="dom-repeat" items="[[appointments]]" as="appointment">
+									<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
+										<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
+										<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
+										<div class="consultations-patient-type">#[[appointment.type]]</div>
+										<div class="divider"></div>
+										<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
+									</div>
+								</template>
+							</div>
+							<paper-spinner class="spinner" alt="Loading today's consultations" active=[[_isLoadingTodaysConsultations]]></paper-spinner>
+
+						</div>
+					</div>
+				</template>
+				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
+					<div id="[[widget.id]]" class="card latest-lab-result"  draggable="true" ondrop="drop(event)">
+						<div class="card-title-container">
+							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<div slot="dropdown-content">
+									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+								</div>
+							</paper-menu-button>
+						</div>
+						<div class="card-body">
+							<div class="card-table-header row">
+								<div class="card-header-cell">[[localize('sen','Sender',language)]]</div>
+								<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
+								<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
+							</div>
+							<template is="dom-repeat" items="[[messages]]" as="msg">
+								<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+									<div class="card-table-cell">[[msg.fromAddress]]</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
+									<div class="card-table-cell">[[msg.subject]] </div>
+								</div>
+							</template>
+							<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
+						</div>
+					</div>
+				</template>
+				<template is="dom-if" if="[[_isEqual(widget.id,'todoWidget')]]">
+					<div id="[[widget.id]]" class="card todo-card" draggable="true" ondrop="drop(event)">
+						<div class="card-title-container">
+							<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<div slot="dropdown-content">
+									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+								</div>
+							</paper-menu-button>
+						</div>
+						<div class="card-body">
+							<div class="card-table-header row">
+								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date',language)]]</div>
+								<div class="card-header-cell">[[localize('des','Description',language)]]</div>
+							</div>
+							<template is="dom-repeat" items="[[services]]" as="service">
+								<paper-listbox>
+									<paper-item>
+										<div class="row card-table-row" data-id$="[[service.service.id]]">
+											<div class="card-table-cell">
+												<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
+												<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
+											</div>
+											<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
+											<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
+										</div>
+									</paper-item>
+								</paper-listbox>
+							</template>
+							<paper-spinner class="spinner" alt="Loading to-do list" active=[[_isLoadingToDoList]]></paper-spinner>
+						</div>
+					</div>	
+				</template>
+			</template>
 		</div>
 
+		<paper-dialog id="layoutDialog">
+			<h2 class="modal-title">Edit layout</h2>
+			<div class="content">
+				<div id="layoutA" class$="layout-button layout-a [[_isSelected(selectedLayout, 'layoutA')]]" on-tap="setSelectedLayout">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+				<div id="layoutB" class$="layout-button layout-b [[_isSelected(selectedLayout, 'layoutB')]]" on-tap="setSelectedLayout">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+				<div id="layoutC" class$="layout-button layout-c [[_isSelected(selectedLayout, 'layoutC')]]" on-tap="setSelectedLayout">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+				<slot name="suffix"></slot>
+			</div>
+			<div class="buttons">
+				<paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="applySelectedLayout">[[localize('apply','Apply',language)]]</paper-button>
+			</div>
+		</paper-dialog>
 
-
+		
 	</template>
 
 	<script>
@@ -546,6 +789,37 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: function () {
 					return [];
 				}
+			},
+			selectedLayout: {
+				type: String,
+				value: "layoutA"
+			},
+			widgets: {
+				type: Array,
+				value: () => [
+					{
+						id: "latestPatientsWidget",
+						nrRows: 3,
+						nrCols: 1,
+					},
+					{
+						id: "todaysConsultationsWidget",
+						nrRows: 1,
+						nrCols: 1,
+					},
+					{
+						id: "latestLabResultsWidget",
+						nrRows: 1,
+						nrCols: 1,
+					},
+					{
+						id: "todoWidget",
+						nrRows: 1,
+						nrCols: 1,
+					}
+				],
+				notify: true,
+				observers: this._applySettings
 			}
 		};
 	}
@@ -564,7 +838,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     ready() {
-        super.ready();
+		super.ready();
+		this.addEventListener('dragstart', () => this._dragWidget())
     }
 
     apiReady() {
@@ -685,6 +960,62 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			target = target.parentNode;
 		}
 		location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
+	}
+
+	_layoutDialog(e){
+		e.stopPropagation()
+		e.preventDefault()
+		this.$['layoutDialog'].open()
+	}
+
+	setSelectedLayout(e) {
+		this.set('selectedLayout', e.currentTarget.id)
+	}
+
+	_isSelected(a, b){
+		return (a === b ) ? 'selected' : ''
+	}
+
+	applySelectedLayout(){
+		switch(this.selectedLayout){
+			case 'layoutA': 
+				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				break;
+			case 'layoutB':
+				this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				break;
+			case 'layoutC':
+				this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				break;
+			default:
+				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				break;
+		}
+	}
+
+	_applySettings(e){
+		const widget = JSON.parse(e.target.dataset.item)
+		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
+		elem.style.setProperty('--rows', widget.nrRows)
+		elem.style.setProperty('--columns', widget.nrCols)
+
+	}
+
+	_isEqual(a,b) {
+		console.log(a+' ?= '+b)
+		return (a === b)
+	}
+
+	_dragWidget(e) {
+		e.dataTransfer.setData("widget", e.target.id);
+		this.$.gridContainer.classList.add('dragging')
+		console.log('zbra')
+	}
+
+	drop(e) {
+		e.preventDefault();
+		var data = e.dataTransfer.getData("widget");
+		e.target.appendChild(this.$.data);
 	}
 
 }
