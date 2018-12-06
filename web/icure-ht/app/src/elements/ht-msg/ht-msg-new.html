@@ -28,6 +28,8 @@
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="../../vaadin-icure-theme.html">
 
 <link rel="import" href="../filter-panel/filter-panel.html">
@@ -648,6 +650,9 @@
                 <div class="fright">
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[!newMessage.destinations.length]]">[[localize('send','Send',language)]]</paper-button>
+                    <template is="dom-if" if="[[isSendingMsg]]">
+                        <paper-spinner class="sendingSpinner" active="[[isSendingMsg]]"></paper-spinner>
+                    </template>
                 </div>
             </div>
         </paper-dialog>
@@ -762,6 +767,10 @@
                     },
                     files: {
                         type: Array
+                    },
+                    isSendingMsg:{
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1041,6 +1050,7 @@
             }
 
 			_SendNewMessage(){
+                this.set('isSendingMsg',true)
                 console.log(this.newMessage)
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
                     let message = {
@@ -1091,11 +1101,15 @@
                         	console.log(response);
                         	if(response) {
 								this.clearField();
+                                this.set('isSendingMsg',true)
+                                // TODO: Ajouter un message de confirmation
 								this.$['new-msg'].close()
 							}
                         })
                         .catch(ex =>{
 							console.log(ex);
+                            // TODO: Ajouter un message d'erreur
+                            this.set('isSendingMsg',true)
 						})
 
 				})
