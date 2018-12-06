@@ -392,7 +392,9 @@
 			}
 
             dynamic-doc {
+                overflow-x: hidden;
                 overflow-y: auto;
+                margin-top: 16px;
             }
 
 			.annexe-card{
@@ -739,7 +741,7 @@
             </div>
 
             <div class="attached">
-                <h3>[[localize('attachments','Attachments',language)]]</h3>
+                <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                             <div class="layout-vertical annexe-card">
@@ -811,6 +813,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isDeleted: {
 			    type: Boolean,
                 value: false
+            },
+            attachmentQuantity: {
+			    type: Number,
+                value: 0
             }
 		};
 	}
@@ -878,6 +884,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
+                        this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
                     })
 				}
@@ -885,6 +892,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set('isLoadingMessage',false)
 					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
+                        this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
                 console.log(this.messages)

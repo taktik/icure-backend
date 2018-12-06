@@ -155,9 +155,9 @@
                     </template>
                 </template>
             </paper-card>
-
         </template>
-        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+
+        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
             <template is="dom-if" if="[[downloadable]]">
                 <paper-card class="pat-details-card">
                     <span>[[document.name]]</span>
@@ -191,6 +191,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: String,
 				value: null
 			},
+            downloadable:{
+			    type: Boolean
+            },
 			document: {
 				type: Object,
 				value: null
@@ -217,11 +220,8 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             patient:{
 			    type: Object,
-				vadue: null
-			},
-            downloadable:{
-			    type: Boolean
-            }
+				value: null
+			}
 		};
 	}
 
