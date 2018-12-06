@@ -24,6 +24,8 @@
 
 <dom-module id="ht-msg-flatrate-invoice">
     <template>
+
+
         <custom-style>
             <style include="shared-styles vaadin-icure-theme spinner-style">
 
@@ -798,6 +800,8 @@
 
             </style>
         </custom-style>
+
+
         <div class="invoice-panel">
 
 
@@ -1452,7 +1456,6 @@
                 // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
             }
 
-
             _setLoadingMessage( messageData ) {
                 if( messageData.updateLastMessage ) { this._loadingMessages.pop(); }
                 this._loadingMessages.push( messageData );
@@ -1461,10 +1464,311 @@
                 if(loadingContentTarget) { loadingContentTarget.innerHTML = ''; _.each(this._loadingMessages, (v)=>{ loadingContentTarget.innerHTML += "<p><iron-icon icon='"+v.icon+"' class='"+(v.done?"loadingIcon done":"loadingIcon")+"'></iron-icon>" + v.message + "</p>"; }); }
             }
 
-
             _resetLoadingMessage() {
                 this._loadingMessages = [];
             }
+
+
+
+
+
+            _getExportPageHeader(data) {
+
+                return `
+                    <article id="" class="page">
+
+                        <table class="boderGrey bleft0 bright0">
+                            <tbody>
+                                <tr class="bleft0 bright0">
+                                    <td width="33%" class="important colorBlue bleft0 bright0 italic">`+ this.localize('flatrateMonthlyInvoicing',this.language) +`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+moment().format('dddd DD MMMM YYYY')+`</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="small-txt boderBottomGrey" cellspacing="0" cellpadding="0">
+                            <tbody>
+                                <tr class="">
+                                    <td width="55%">
+                                        <span class="bold uppercase">${this.user.name}</span><br />
+                                        ${this.hcp.addresses[0].street} ${this.hcp.addresses[0].houseNumber}<br />
+                                        ${this.hcp.addresses[0].postalCode} ${this.hcp.addresses[0].city}<br />
+                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${this.hcp.nihii}<br />
+                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.hcp.contactPerson} &nbsp;&nbsp; ${this.hcp.addresses[0].telecoms[0].telecomNumber}<br />
+                                    </td>
+                                    <td width="45%">
+                                        <table class="borderOa"><tbody><tr><td class="fs11">
+                                            <b>` +data.code + ` &nbsp;&nbsp; ` +data.finalName + `</b><br /><br />
+                                            ` +data.address + `<br />
+                                            ` +data.city + ` ` +data.postalCode + `<br />
+                                        </td></tr></tbody></table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> `;
+
+            }
+
+            _getExportListHeader(listIndex) {
+
+                return `
+                    <table id="documentHeader" class="boderBottomGrey" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr class="">
+                                <td width="100%">
+                                    <span class="bold uppercase colorBlue fs12">` + this.localize("flatrate_list_"+listIndex+"_header",this.language) + `</span><br />
+                                    <span class="bold uppercase colorBlue fs10">` + this.localize("flatrate_list_"+listIndex+"_subheader",this.language) + `</span><br />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+
+            }
+
+            _getExportListContent(listIndex,listEntries) {
+
+                let contentToReturn = "";
+
+                // Lists 1 & 2 don't require unsubscription infos
+                if( parseInt(listIndex)===1 || parseInt(listIndex)===2 ) {
+                    
+                    contentToReturn += `
+                        <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr class="fs10 colorBlue italic bold txt-left pb10">
+                                    <td class="contentBodyHeader" width="5%">` + this.localize("flatrate_column_1",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="30%">` + this.localize("flatrate_column_2",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_3",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_4",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_5",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="11%">` + this.localize("flatrate_column_6",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="13%">` + this.localize("flatrate_column_7",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="5%">` + this.localize("flatrate_column_8",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_9",this.language) + `</td>
+                                </tr>
+                            </thead>
+                        <tbody>`
+
+                    _.forEach(listEntries, (singleEntry)=>{
+                        _.forEach(singleEntry, _.trim);
+                            contentToReturn += `
+                                <tr class="fs9 borderTopLightThinGrey pt2 pb2">
+                                    <td width="5%" class="">`+((singleEntry.externalId)||"")+`</td>
+                                    <td width="30%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
+                                    <td width="10%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
+                                    <td width="10%" class="bold">`+((singleEntry.ssin)||"")+`</td>
+                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="5%" class="">`+((singleEntry.personType)||"")+`</td>
+                                    <td width="10%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                </tr>`
+
+                    })
+                                        
+                } else {
+                    
+                    contentToReturn += `
+                        <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr class="fs10 colorBlue italic bold txt-left pb10">
+                                    <td class="contentBodyHeader" width="4%">` + this.localize("flatrate_column_1",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="19%">` + this.localize("flatrate_column_2",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_3",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_4",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_5",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_6",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_7",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_10",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_11",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_12",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="4%">` + this.localize("flatrate_column_8",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_9",this.language) + `</td>
+                                </tr>
+                            </thead>
+                        <tbody>`
+
+                    _.forEach(listEntries, (singleEntry)=>{
+                        _.forEach(singleEntry, _.trim);
+                            contentToReturn += `
+                                <tr class="fs9 borderTopLightThinGrey pt2 pb2">
+                                    <td width="4%" class="">`+((singleEntry.externalId)||"")+`</td>
+                                    <td width="19%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
+                                    <td width="9%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
+                                    <td width="9%" class="bold">`+((singleEntry.ssin)||"")+`</td>
+                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="9%" class="">`+(singleEntry.MHC_listUnsubscriptions.startOfContract?moment(singleEntry.MHC_listUnsubscriptions.startOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="9%" class="colorGreen">`+(singleEntry.MHC_listUnsubscriptions.startOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.startOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfContract?moment(singleEntry.MHC_listUnsubscriptions.endOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="6%" class="">`+((singleEntry.MHC_listUnsubscriptions.unsubscriptionReasonId)||"")+`</td>
+                                    <td width="4%" class="">`+((singleEntry.personType)||"")+`</td>
+                                    <td width="9%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                </tr>`
+                    })
+
+                }
+
+                contentToReturn += `</tbody></table>`
+
+                return contentToReturn;
+
+            }
+
+            _getExportPageFooter(currentPage,totalPages,oaCode) {
+
+                return `
+                    </article>
+                    <article class="footerContainer">
+                        <table class="boderGreyTop pageFooter">
+                            <tbody>
+                                <tr class="fs9 bold">
+                                    <td width="40%" class="colorBlue txt-left italic">`+ this.localize('flatrate_footer_reply_before',this.language) +`</td>
+                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
+                                    <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </article>
+                `;
+            }
+
+            _getExportPdfFooter() {
+                return "</body></html>";
+            }
+
+            _getExportPdfHeader() {
+
+                return `<html>
+                            <head>
+                                <style>
+
+                                    body {margin: 0;}
+                                    @page {size: A4; margin: 0; }
+
+                                    article.page {
+                                        width: 210mm;
+                                        height: 283mm;
+                                        padding: 20px;
+                                        overflow:hidden;
+                                    }
+                                    article.footerContainer {
+                                        width: 210mm;
+                                        padding: 20px;
+                                    }
+
+                                    article.page:last-child { border-bottom: 0; }
+                                    @media print { article.page { border-bottom: 0; } }
+
+                                    table {
+                                        display: table;
+                                        box-sizing: border-box;
+                                        border-spacing: 0;
+                                        border-collapse: collapse;
+                                        width: 100%;
+                                        padding:0;
+                                        margin:0;
+                                    }
+
+                                    table thead {font-size: 14px}
+                                    table tr,
+                                    table td {
+                                        margin: 0;
+                                        padding: 0;
+                                        vertical-align: top;
+                                    }
+                                    table td {padding: 5px;}
+                                    table.border,
+                                    table.border tr,
+                                    table.border td { border: 1px solid black; }
+                                    table.boderGrey,
+                                    table.boderGrey tr,
+                                    table.boderGrey td {border: 2px solid #bbbbbb;}
+                                    table.boderGreyTop,
+                                    table.boderGreyTop tr,
+                                    table.boderGreyTop td {border-top: 2px solid #bbbbbb;}
+                                    .boderBottomGrey {border-bottom: 2px solid #bbbbbb;}
+                                    *.half td {width: 50%;}
+                                    *.no-border * {border: none !important;}
+
+                                    #factBody {
+                                        display: flex;
+                                        flex-direction: column;
+                                        flex: 1;
+                                        border: 0px;
+                                    }
+                                    #factBody * {border: none;}
+                                    #factBody > * {
+                                        display: flex;
+                                        flex-direction: column;
+                                    }
+                                    #factBody > * > tr.border > td {border-right: 0;}
+                                    #factBody > * > tr.border > td:last-child {border-right: 0;            }
+                                    #factBody .table-entry td {border: none; border-top: .3px solid lightgrey; margin-top:5px; }
+                                    .factBody td {border: none; border-top: .3px solid lightgrey; margin-top:5px; }
+                                    #factBody .row-total > td {text-align: right;}
+                                    #factBody .row-total > td:first-child {text-align: left;}
+
+                                    .txt-center {text-align: center;}
+                                    .txt-right {text-align: right;}
+                                    .txt-left tr td, .txt-left td, .txt-left {text-align: left;}
+                                    .mt5 {margin-top: 5px!important;}
+                                    .mt3 {margin-top: 3px!important;}
+                                    .mb5 {margin-bottom: 5px!important;}
+                                    .mt10 {margin-top: 10px!important;}
+                                    .mt20 {margin-top: 20px!important;}
+                                    .bleft0 {border-left:0!important;}
+                                    .bright0 {border-right:0!important;}
+                                    .bleft {border-left:1px solid black !important;}
+                                    .bleft-light {border-left:1px solid lightgrey !important;}
+                                    .bbottom-light {border-bottom:1px solid lightgrey !important;}
+                                    .btop0 {border-top: 0!important;}
+                                    .bbottom0 {border-bottom: 0 !important;}
+                                    .nopad {padding: 0;}
+
+                                    td.important { font-weight: bold; font-size: 1.1em; }
+                                    td.indic {font-weight: 700;}
+                                    .bold {font-weight: 700!important;}
+                                    .bold td {font-weight: 700!important;}
+                                    *.min-txt {font-size: 11px;}
+                                    .small-txt {font-size: 11px!important;}
+                                    .fs9 tr td, .fs9 td, .fs9 {font-size: 9px!important;}
+                                    .fs10 tr td, .fs10 td, .fs10 {font-size: 10px!important;}
+                                    .fs11 tr td, .fs11 td, .fs11 {font-size: 11px!important;}
+                                    .fs12 tr td, .fs12 td, .fs12 {font-size: 12px!important;}
+                                    .colorRed { color:#ff0000!important;}
+                                    .colorGreen { color:#02a102!important;}
+                                    .colorBlue { color:#101079!important;}
+                                    .uppercase {text-transform:uppercase!important;}
+                                    .italic {font-style:italic!important;}
+                                    .underlined {text-decoration:underline!important;}
+                                    .verticalAlignMiddle tr td, .verticalAlignMiddle {vertical-align: middle!important;}
+                                    .borderOa tr td { border:3px solid #101079!important;}
+                                    tr.bold td, .bold { font-weight:700!important;}
+                                    .padding0, .padding0 td {padding:0;}
+                                    .margin0, .margin td {margin:0;}
+
+                                    #contentBodyTable, #contentBodyTable tr, #contentBodyTable tr { width:100%; margin:0; padding:0; border:0; vertical-align:top }
+                                    #contentBodyTable tr td { padding:0; border:0; margin:0; vertical-align:top }
+                                    .borderTopLightThinGrey td { border-top: .3px solid lightgrey!important; }
+                                    .pt2, .pt2 td { padding-top:2px!important; }
+                                    .pb2, .pb2 td { padding-bottom:2px!important; }
+                                    .pb5, .pb5 td { padding-bottom:5px!important; }
+                                    .pb10, .pb10 td { padding-bottom:10px!important; }
+
+                                    .pageFooter {
+                                        page-break-after: always;
+                                    }
+
+                                </style>
+                                </head>
+                                <body>`
+                    }
+
+
+
 
 
 
@@ -1528,6 +1832,9 @@
                                     .uniqBy( 'ssin' )
                                     .value()
                                     .map((i) => {
+                                        i.lastName = (i.lastName||"").toUpperCase()
+                                        i.firstName = (i.firstName||"").toUpperCase()
+                                        i.dateOfBirth = (i.dateOfBirth?moment(i.dateOfBirth, "YYYYMMDD").format('DD/MM/YYYY'):"")
                                         i.personType = "T"  // Todo: Eval versus personalStatus / partnerships / birthdate / parents... Values = [T=titulaire,E=enfant,C=coinjoint]
                                         i.titulary = ""     // Todo: blank if personType = T ; LNAME + Fname (of titulaire) if personType = E ; LNAME + Fname (of titulaire) if personType = C (AND not titulaire itself) ;
                                         return i
@@ -1569,7 +1876,7 @@
                                     resolvedHcpPatients++;
                                     this._setLoadingMessage({ message:"Collecting patients of persphysician " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.uniqBy( this.flatRateAllPatients, 'ssin' ); this._getInsurancesData(); }
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName']).value(); this._getInsurancesData(); }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
                         })
@@ -1591,7 +1898,7 @@
                         this.oaData = _
                           .chain(ins)
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
-                          .sortBy((i)=>{ return i.finalName; })
+                          .sortBy((i)=>{ return i.code; })
                           .value();
                         this._prepareExport();
                     })
@@ -1599,21 +1906,11 @@
 
             }
 
-            _prepareExport() {
 
-                // Contains changes in covered patients
-                //
-                //      01 : Inscription without try-out period
-                //      02 : Inscription with try-out period
-                //      03 : De-inscriptions
-                //
-                // Contains patients where invoicing is suspended
-                //      04 : Invoicing suspended: no reason given
-                //      06 : Invoicing suspended: patient is hospitalized
-                //      07 : Invoicing suspended: patient outside of country (for longer period)
-                //
-                // GROUP BY Mutuality, then by LIST 1,2,3,4,6,7
-                // ORDER BY Lastname ASC, firstname ASC
+
+
+
+            _prepareExport() {
 
                 let pdfData = {};
 
@@ -1626,7 +1923,7 @@
                         .map((i)=>{ i.finalInsurability = (i.insurabilities&&i.insurabilities.length?i.insurabilities[0]:false); return i; })
                         .value();
 
-                    pdfData["oa_"+(k+1)] = {
+                    pdfData[oa.id] = {
                         oa: {
                             id: oa.id,
                             finalName: oa.finalName||'',
@@ -1636,217 +1933,112 @@
                             city: oa.address.city||'',
                         },
                         entries: {
-                            list1 :  _.chain(OaPatients).map((i)=>{ i.finalMedicalHouseContract_list1 = _.chain(i.medicalHouseContracts).filter((i)=>{return moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').valueOf() === moment().subtract(1, 'month').startOf('month').valueOf() && moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').valueOf() === moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month').valueOf() }).head().value()||false; return i; }).filter((i)=>{return !!i.finalMedicalHouseContract_list1;}).value(),
-                            list2 :  _.chain(OaPatients).map((i)=>{ i.finalMedicalHouseContract_list2 = _.chain(i.medicalHouseContracts).filter((i)=>{return moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').valueOf() === moment().subtract(1, 'month').startOf('month').valueOf() && moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').valueOf() !== moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month').valueOf() }).head().value()||false; return i; }).filter((i)=>{return !!i.finalMedicalHouseContract_list2;}).value(),
-                            list3 :  _.chain(OaPatients).map((i)=>{ i.finalMedicalHouseContract_list3 = _.chain(i.medicalHouseContracts).filter((i)=>{return(( i.endOfCoverage && moment(i.endOfCoverage||0, 'YYYYMMDD').endOf('month').valueOf() === moment().subtract(1, 'month').endOf('month').valueOf() ) || ( i.endOfContract && moment(i.endOfContract||0, 'YYYYMMDD').endOf('month').valueOf() === moment().subtract(1, 'month').endOf('month').valueOf() ))}).head().value()||false; return i; }).filter((i)=>{return !!i.finalMedicalHouseContract_list3;}).value()
+
+                            // 01 : Subscription without try-out period
+                            list1 :  _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_list1 = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(1, 'month').startOf('month') ) &&
+                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isSame( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month') )
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_list1}).value(),
+
+                            // 02 : Subscription with try-out period
+                            list2 : _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_list2 = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(1, 'month').startOf('month') ) &&
+                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isBefore( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month'))
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_list2}).value(),
+
+                            // 03 : Unsubscription / suspensions
+                            list3 : _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_listUnsubscriptions = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    ( i.endOfCoverage && moment(i.endOfCoverage||0, 'YYYYMMDD').endOf('month').isSame( moment().subtract(1, 'month').endOf('month') ) ) ||
+                                                    ( i.endOfContract && moment(i.endOfContract||0, 'YYYYMMDD').endOf('month').isSame ( moment().subtract(1, 'month').endOf('month') ) )
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_listUnsubscriptions}).value(),
+
                         }
                     };
 
+                    // Invoicing suspended: study reasons (take from list 03 = all unsubscriptions)
+
+                    // 04 : Invoicing suspended: no reason given
+                    // 06 : Invoicing suspended: patient is hospitalized
+                    // 07 : Invoicing suspended: patient outside of country (for longer period)
+                    // 09 : Invoicing suspended: for one month, patient changed mutuality
+                    // Todo: refine MedicalHouseContract.unsubscriptionReasonId with real codes + auto-complete combo-box in pat-admin-detail
+                    pdfData[oa.id].entries['list4'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (!i.unsubscriptionReasonId || i.unsubscriptionReasonId===0)}).length; })
+                    pdfData[oa.id].entries['list6'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===1)}).length; })
+                    pdfData[oa.id].entries['list7'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===2)}).length; })
+                    pdfData[oa.id].entries['list9'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===3)}).length; })
+
                 }); // Loop OA
+                
 
-                const htmlTemplate = `<html>
-                    <head>
-                        <style>
-                            body {margin: 0;}
-                            @page {size: A4; margin: 0; }
-                            article.page {
-                                width: 210mm;
-                                height: 297mm;
-                                display: flex;
-                                flex-direction: column;
-                                padding: 25px;
-                                box-sizing: border-box;
-                                page-break-after: always;
-                                border-bottom: 1px dashed grey;
-                            }
-                            article.page:last-child { border-bottom: 0; }
-                            @media print { article.page { border-bottom: 0; } }
-                            table {
-                                display: table;
-                                box-sizing: border-box;
-                                border-spacing: 0;
-                                border-collapse: collapse;
-                                width: 100%;
-                                padding:0;
-                                margin:0;
-                            }
-                            table thead {font-size: 14px}
-                            table tr,
-                            table td {
-                                margin: 0;
-                                padding: 0;
-                                vertical-align: top;
-                            }
-                            table td {padding: 5px;}
-                            table.border,
-                            table.border tr,
-                            table.border td {
-                                border: 1px solid black;
-                            }
-                            table.boderGrey,
-                            table.boderGrey tr,
-                            table.boderGrey td {
-                                border: 2px solid #bbbbbb;
-                            }
-                            .boderBottomGrey {
-                                border-bottom: 2px solid #bbbbbb;
-                            }
-                            *.half td {width: 50%;}
-                            *.no-border * {border: none !important;}
-                            #factBody {
-                                display: flex;
-                                flex-direction: column;
-                                flex: 1;
-                                border: 0px;
-                            }
-                            #factBody * {border: none;}
-                            #factBody > * {
-                                display: flex;
-                                flex-direction: column;
-                            }
-                            #factBody > * > tr {
-                                display: flex;
-                                flex-direction: row;
-                                border-bottom: 0;
-                            }
-                            #factBody > * > tr.border > td {border-right: 0;}
-                            #factBody > * > tr.border > td:last-child {border-right: 0;            }
-                            #factBody > * > tr > td {flex: 1 100%;}
-                            #factBody > tbody {flex: 1;}
-                            #factBody .table-entry,
-                            #factBody .table-entry td {border: none; border-bottom: .5px solid lightgrey; }
-                            #factBody .table-entry td:last-child {border-bottom: none;}
-                            #factBody .table-entry > td {text-align: right;}
-                            #factBody .table-entry > td:first-child {text-align: left;}
-                            #factBody .row-total > td {text-align: right;}
-                            #factBody .row-total > td:first-child {text-align: left;}
-                            .txt-center {text-align: center;}
-                            .txt-right {text-align: right;}
-                            .txt-left {text-align: left;}
-                            .mt5 {margin-top: 5px;}
-                            .mb5 {margin-bottom: 5px;}
-                            .mt10 {margin-top: 10px;}
-                            .mt20 {margin-top: 20px;}
-                            .bleft0 {border-left:0!important;}
-                            .bright0 {border-right:0!important;}
-                            .bleft {border-left:1px solid black !important;}
-                            .bleft-light {border-left:1px solid lightgrey !important;}
-                            .bbottom-light {border-bottom:1px solid lightgrey !important;}
-                            .btop0 {border-top: 0!important;}
-                            .bbottom0 {border-bottom: 0 !important;}
-                            .nopad {padding: 0;}
-                            .fleft {float: left;}
-                            .fright {float:right;}
-                            td.important { font-weight: bold; font-size: 1.1em; }
-                            td.indic {font-weight: 700;}
-                            .bold {font-weight: 700;}
-                            *.min-txt {font-size: 11px;}
-                            .small-txt {font-size: 11px!important;}
-                            .fs11 {font-size: 11px!important;}
-                            .fs12 {font-size: 12px!important;}
-                            .table-entry.min-txt {font-size: 16px;}
-                            .colorRed { color:#ff0000; }
-                            .colorGreen { color:#00ff00; }
-                            .colorBlue { color:#101079; }
-                            .uppercase {text-transform:uppercase}
-                            .italic {font-style:italic}
-                            .verticalAlignMiddle tr td, .verticalAlignMiddle {vertical-align: middle;}
-                            .borderOa tr td { border:1px solid #000000; }
-                        </style>
-                    </head>
-                    <body>
-                        <article id="" class="page">
 
-                            <table id="docHeader" class="boderGrey bleft0 bright0">
-                                <tbody>
-                                    <tr class="bleft0 bright0">
-                                        <td width="33%" class="important colorBlue bleft0 bright0 italic">Forfait maand</td>
-                                        <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
-                                        <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+moment().format('dddd DD MMMM YYYY')+`</td>
-                                    </tr>
-                                </tbody>
-                            </table>
 
-                            <table id="oaHeader" class="small-txt boderBottomGrey">
-                                <tbody>
-                                    <tr class="">
-                                        <td width="65%">
-                                            <span class="bold uppercase">${this.user.name}</span><br />
-                                            ${this.hcp.addresses[0].street} ${this.hcp.addresses[0].houseNumber}<br />
-                                            ${this.hcp.addresses[0].postalCode} ${this.hcp.addresses[0].city}<br />
-                                            R.I.Z.I.V: &nbsp;&nbsp; ${this.hcp.nihii}<br />
-                                            Gezonder door: &nbsp;&nbsp; ${this.hcp.contactPerson} &nbsp;&nbsp; ${this.hcp.addresses[0].telecoms[0].telecomNumber}<br />
-                                        </td>
-                                        <td class="">
-                                            <table class="borderOa"><tbody><tr><td class="fs11">
-                                                <b>${pdfData.oa_1.oa.code} &nbsp;&nbsp; ${pdfData.oa_1.oa.finalName}</b><br /><br />
-                                                ${pdfData.oa_1.oa.address}<br />
-                                                ${pdfData.oa_1.oa.city} ${pdfData.oa_1.oa.postalCode}<br />
-                                            </td></tr></tbody></table>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
 
-                            <table id="documentHeader" class="boderBottomGrey">
-                                <tbody>
-                                    <tr class="">
-                                        <td width="100%">
-                                            <span class="bold uppercase colorBlue fs12">Lijst 1 : Forfaitaire betaling</span><br />
-                                            <span class="bold uppercase colorBlue fs11">Heralingstabel der patienten niet in orde</span><br />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                // Namely for footer
+                let totalPages = 0; let currentPage = 0;
 
-                            <table id="factBody" class="mt10">
-                                <thead>
-                                <tr class="border min-txt colorBlue italic txt-center">
-                                    <td>Dos.</td>
-                                    <td>Naam Voornaam</td>
-                                    <td>Geb. datum</td>
-                                    <td>INSZ. Lidnr.</td>
-                                    <td>CT</td>
-                                    <td>Insch. Datum</td>
-                                    <td>Cov. start Datum</td>
-                                    <td>Dés. Datum</td>
-                                    <td>Cov. eind Datum</td>
-                                    <td>Mot.</td>
-                                    <td>Sit.</td>
-                                    <td>Gerec</td>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {{#pdfData.oa_1.entries.list1}}
-                                <tr class="table-entry min-txt">
-                                    <td>{{externalId}}</td>
-                                    <td class="bleft-light">{{lastName}} {{firstName}}</td>
-                                    <td class="bleft-light">{{dateOfBirth}}</td>
-                                    <td class="bleft-light">{{ssin}}</td>
-                                    <td class="bleft-light">{{finalMedicalHouseContract_list1.parameters.tc1}}{{finalMedicalHouseContract_list1.parameters.tc2}}</td>
-                                    <td class="bleft-light">{{finalMedicalHouseContract_list1.startOfCoverage}}</td>
-                                </tr>
-                                {{/pdfData.oa_1.entries.list1}}
-                                </tbody>
-                            </table>
-                        </article>
-                    </body>
-                </html>`;
+                // Hardcoded, see PDF output
+                const maxEntriesPerPage = 40;
+
+                // Whole document headers
+                let pdfTemplate = this._getExportPdfHeader();
+
+
+
+                // Eval total pages
+                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!listEntries.length||0) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
+
+                // Build document pages
+                _.forEach( pdfData, (oaData)=> {
+                    _.forEach( oaData.entries, (listEntries, listKey)=> {
+                        if(!listEntries.length||0) return;
+                        let listIndex = parseInt(listKey.replace('list',''));
+                        let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{ currentPage++; pdfTemplate += this._getExportPageHeader(oaData.oa) + this._getExportListHeader(listIndex) + this._getExportListContent(listIndex,entriesChunk) + this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)});
+                    })
+                })
+
+                // Close document
+                pdfTemplate += this._getExportPdfFooter();
+
+
+
+
 
                 this._setLoadingMessage({ message:"Done building listing data", icon:"check-circle", updateLastMessage: true, done:true});
                 this._setLoadingMessage({ message:"Creating PDF report...", icon:"arrow-forward"});
 
-                this.api.pdfReport(mustache.render(htmlTemplate, pdfData))
+                this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
                     .then(data =>{
+
+                        const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
                         let blob = new Blob([data],{type :'application/pdf'});
                         let url = window.URL.createObjectURL(blob);
                         let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
-                        a.download = moment().format('YYYY-MM-DD') + "-listing-patients" + ".pdf";
+                        a.download = downloadFileName;
                         a.click(); window.URL.revokeObjectURL(url);
-
-                        // this.set('_isLoading', false );
-
+                        this.set('_isLoading', false );
                     })
+
+
 
             }
 
@@ -1857,6 +2049,8 @@
             _getListingArchives() {
                 console.log('_getListingArchives');
             }
+
+
 
         }
 

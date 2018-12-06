@@ -167,6 +167,27 @@
               "subForm": false,
               "type": "TKBoolean",
               "name" : "nurse"
+            },
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 22,
+                "labelPosition" : "Left",
+                "width" : 502,
+                "multiline" : false,
+                "left" : 90,
+                "top" : 88,
+                "key" : "StringEditor"
+              },
+              "sortOrder" : 926365495,
+              "codeTypes" : [
+
+              ],
+              "label" : "Unsubscription reason",
+              "irrelevant" : true,
+              "subForm" : false,
+              "type" : "TKNumber",
+              "name" : "alias"
             }
           ]
         }

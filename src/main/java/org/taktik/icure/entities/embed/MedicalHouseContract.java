@@ -10,6 +10,7 @@ public class MedicalHouseContract {
 	private boolean gp;
 	private boolean nurse;
     private String hcpId;
+    private Integer unsubscriptionReasonId;
 
     public String getMmNihii() {
 		return mmNihii;
@@ -83,4 +84,11 @@ public class MedicalHouseContract {
         this.hcpId = hcpId;
     }
 
+	public Integer getUnsubscriptionReasonId() {
+		return unsubscriptionReasonId;
+	}
+
+	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
+		this.unsubscriptionReasonId = unsubscriptionReasonId;
+	}
 }

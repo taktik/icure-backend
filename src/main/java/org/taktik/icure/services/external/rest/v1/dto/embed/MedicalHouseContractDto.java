@@ -14,6 +14,7 @@ public class MedicalHouseContractDto implements Serializable {
     private boolean gp;
     private boolean nurse;
     private String hcpId;
+    private Integer unsubscriptionReasonId;
 
     public String getMmNihii() {
         return mmNihii;
@@ -85,5 +86,13 @@ public class MedicalHouseContractDto implements Serializable {
 
     public void setHcpId(String hcpId) {
         this.hcpId = hcpId;
+    }
+
+    public Integer getUnsubscriptionReasonId() {
+        return unsubscriptionReasonId;
+    }
+
+    public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
+        this.unsubscriptionReasonId = unsubscriptionReasonId;
     }
 }
