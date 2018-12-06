@@ -39,6 +39,8 @@
 <link rel="import" href="../../spinner-style.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 
+<link rel="import" href="../pdf-element/pdf-element.html">
+
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
 
@@ -394,9 +396,9 @@
             }
 
 			.annexe-card{
-				flex-basis: calc(100% / 3);
-				max-width: calc((100% / 3) - 16px);
-				margin: 4px;
+				padding: 4px;
+                width: 50%;
+                box-sizing: border-box;
 				background: var(--app-background-color)
 			}
 
@@ -408,6 +410,8 @@
 				background-color: white;
     			padding: 0 8px;
 				flex-flow: row nowrap!important;
+                overflow: hidden;
+                text-overflow: ellipsis;
 			}
 
 			.annexe-card--header span{
@@ -435,6 +439,7 @@
 				font-size: 14px;
 				font-weight: 400;
 				text-transform: capitalize;
+                margin: 0 auto;
 			}
 
 			.annexe-card--action-button:hover{
@@ -668,6 +673,10 @@
 
             .mobileOnly {display: none;}
 
+            .doc-container {
+                max-width: 50%;
+            }
+
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
                 .attached {
@@ -733,56 +742,53 @@
                 <h3>[[localize('attachments','Attachments',language)]]</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <paper-card class="annexe-card">
-                            <div class="layout-horizontal space-between annexe-card--header">
-                                <span>[[item.name]]</span>
-                                <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
+                        <!--<paper-card class="annexe-card">-->
+                            <div class="layout-vertical annexe-card">
+                                <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                             resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             </div>
-                            <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
-                                <div class="img-container annexe-card--content">
-                                    <img src$="[[item.dataUrl]]">
-                                </div>
-                                <div class="layout-horizontal space-between">
-                                    <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                </div>
-                            </template>
-                            <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                            </template>
-                            <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <div class="annexe-card--content">
-                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
-                                    <template is="dom-if" if="[[showDetail]]">
-                                        <div>[[documentAttachment]]</div>
-                                        <!--TODO: format annexe on display-->
-                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-                                    </template>
-                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                    </div>
-                                </div>
+                            <!--<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >-->
+                                <!--<div class="img-container annexe-card&#45;&#45;content">-->
+                                    <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
+                                    <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
+                                <!--</div>-->
+                                <!--<div class="layout-horizontal">-->
+                                    <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
+                                <!--</div>-->
+                            <!--</template>-->
+                            <!--<template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">-->
+                                <!--&lt;!&ndash;<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>&ndash;&gt;-->
+                                <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
+                                             <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
+                                <!--&lt;!&ndash;<vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>&ndash;&gt;-->
+                                <!--<div class="layout-horizontal">-->
+                                    <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
+                                <!--</div>-->
+                            <!--</template>-->
+                            <!--<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">-->
+                                <!--<div class="annexe-card&#45;&#45;content">-->
+                                    <!--<span>[[mimeType(item.mainUti)]] [[type]]</span>-->
+                                    <!--<template is="dom-if" if="[[showDetail]]">-->
+                                        <!--<div>[[documentAttachment]]</div>-->
+                                        <!--&lt;!&ndash;TODO: format annexe on display&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>&ndash;&gt;-->
+                                    <!--</template>-->
+                                    <!--<div class="layout-horizontal layout-horizontal&#45;&#45;nowrap">-->
+                                        <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>-->
+                                        <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
+                                    <!--</div>-->
+                                <!--</div>-->
 
-                            </template>
-                            <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
-                                <div class="annexe-card--content">
-                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
-                                    <template is="dom-if" if="[[showDetail]]">
-                                        <div>[[documentAttachment]]</div>
-                                        <!--TODO: format annexe on display-->
-                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-                                    </template>
-                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                    </div>
-                                </div>
-
-                            </template>
-                        </paper-card>
+                            <!--</template>-->
+                            <!--<template is="dom-if" if="[[_plainMimeType(item.mainUti, item.otherUtis, item.dataUrl)]]">-->
+                                <!--<paper-card class="annexe-card">-->
+                                    <!--&lt;!&ndash;[[item.name]]&ndash;&gt;-->
+                                    <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
+                                    <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
+                                <!--</paper-card>-->
+                            <!--</template>-->
+                        <!--</paper-card>-->
                     </template>
-                    <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
 
@@ -881,7 +887,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-	        console.log('focusChanged',this.selectMessage.selection.item)
+	        console.log('focusChanged, selectedDocuments',this.selectMessage)
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             // this.selectMessage.selection.item.body = [];
@@ -909,6 +915,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
+	    		    console.log('docs',docs)
                     Promise.all(docs).then(docs=>{
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
@@ -1096,6 +1103,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
+    _plainMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    }
+
 	_isEqualTo(title, string) {
 		return title == string;
 	}
@@ -1108,28 +1119,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
 	}
 
-	_download(e){
-		let dataUrl = e.target.getAttribute('dataUrl');
-		let name = e.target.getAttribute('name');
+    // _download(item) {
+    //     let file = new Blob([this.api.crypto().utils.ua2hex(item)] ,{type: "text/plain"})
+    //     let a = document.createElement("a");
+    //     document.body.appendChild(a);
+    //     a.style = "display: none";
+    //
+    //     let url = window.URL.createObjectURL(file);
+    //     a.href = url;
+    //     a.download = this.user.healthcarePartyId+".2048.key";
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //
+    //     // const origin = window.location.origin
+    //     // window.location.href = origin
+    // }
 
-		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+    _base64(data) {
+        return base64js.fromByteArray(data);
+    }
 
-		console.log("annexe data");
-		console.log(dataUrl);
-		console.log(name);
-
-		var a = document.createElement('a');
-		a.href = dataUrl;
-		a.target = '_parent';
-		a.download = decodeURIComponent(name);
-
-
-		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
-
-		htMsgDetail.appendChild(a);
-		a.click();
-		a.parentNode.removeChild(a);
-
+	_downloadAnnex(e){
+        const parent = this.parentNode
+        parent.dispatchEvent(new CustomEvent('file-dl', {detail: {bubbles: true, composed: true, url:this.dataUrl}}))
 	}
 
 	_getAttachment(e){

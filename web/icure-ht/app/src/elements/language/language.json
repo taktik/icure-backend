@@ -523,7 +523,8 @@
     "done": "Done",
     "uploaded": "Uploaded",
     "ready": "ready",
-    "refresh" : "Refresh"
+    "refresh" : "Refresh",
+    "dl": "Download"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1109,7 +1110,8 @@
     "no_msg_content": "Ce mail n'a pas de message",
     "done": "Terminé",
     "uploaded": "Téléchargé",
-    "ready": "Prêt"
+    "ready": "Prêt",
+    "dl": "Télécharger"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1732,6 +1734,7 @@
     "no_msg_content": "This mail has no message",
     "done": "Done",
     "uploaded": "Uploaded",
-    "ready": "Klaar"
+    "ready": "Klaar",
+    "dl": "Download"
   }
 }

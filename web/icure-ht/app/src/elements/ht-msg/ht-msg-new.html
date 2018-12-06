@@ -636,7 +636,8 @@
                     </div>
                     <div>
                         <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
-                        <vaadin-upload id="vaadin-upload" auto files="{{files}}" form-data-name="attachment" on-upload-before="_fileUpload" on-file-remove="_fileUploadRemove"></vaadin-upload>
+                        <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" target$="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                            form-data-name="attachment" on-upload-success="_fileUpload" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
             </div>
@@ -751,13 +752,24 @@
                     isAddingNiss: {
                         type: Boolean,
                         value: false
+                    },
+                    currentContact: {
+                        type: Object,
+                        value: {
+                            subContacts: [],
+                            services: []
+                        }
+                    },
+                    files: {
+                        type: Array
                     }
                 }
             }
 
             static get observers() {
                 return ['_recipientFilterChanged(recipientType, recipientFilter)',
-                    '_patientFilterChanged(patientFilter)'];
+                    '_patientFilterChanged(patientFilter)',
+                    '_filesChanged(files.*)'];
             }
 
             constructor() {
@@ -877,41 +889,82 @@
                 }
             }
 
+            edit(e, form) {
+                if (!this.currentContact.subContacts.find(sc => sc.formId === form.id)) {
+                    this.push('currentContact.subContacts',{ formId: form.id, services: [], healthElementId: form.healthElementId, planOfActionId: form.planOfActionId });
+                }
+            }
+
+            _filesChanged() {
+                // if (!this.currentContact) {
+                //     return;
+                // }
+                const files = _.clone(this.files);
+                console.log('cloned files',files)
+                const vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
+
+                Promise.all(files.filter(f => !f.attached).map(f => {
+                    f.attached = true;
+                    return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
+                        f.doc = d;
+                        f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
+                        return f;
+                    })
+                })).then(files => {
+                    files.map(file=>{
+                        console.log('enters in map',file)
+                        const fr = new FileReader();
+                        fr.onload = function (se) {
+                            let fileByteArray = [];
+                            new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
+                            this.push('newMessage.annex',{
+                                "content": fileByteArray,
+                                "filename": file.name,
+                                "mimeType": file.type,
+                                "title": file.name,
+                                "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
+                            });
+                            console.log('annexes',this.newMessage.annex)
+                            this.dispatchEvent(new CustomEvent('file-received', file));
+                        }.bind(this);
+                        fr.readAsArrayBuffer(file);
+                    })
+                    files.length && vaadinUpload.uploadFiles(files);
+                });
+            }
+
+            saveCurrentContact() {
+                return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
+            }
+
 			_fileUpload(e){
 				e.preventDefault();
 
 				if(e.detail && e.detail.file){
-					let file = e.detail.file;
-					const fr = new FileReader();
 
-					fr.onload = function (se) {
-						let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
-						let fileByteArray = [];
-						new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
+                    console.log('form',form)
+                    if (!this.currentContact) {
+                        console.log('no currentContact, return;')
+                        this.push('currentContact.subContacts',{services: []}); // return;
+                        // return;
+                    }
+                    const vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
+                    const f = e.detail.file;
+                    const d = f.doc;
 
-						this.push('newMessage.annex',{
-                            "content": fileByteArray,
-                            "filename": file.name,
-                            "mimeType": file.type,
-                            "title": file.name,
-                            "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-                        });
-
-						// vaadinUpload.files.push(file)
-						let fileIndex = vaadinUpload.files.indexOf(file);
-                        vaadinUpload.set(['files', fileIndex, 'progress'], 100);
-						vaadinUpload.set(['files', fileIndex, 'complete'], true);
-						vaadinUpload.set(['files', fileIndex, 'loaded'], vaadinUpload.files[fileIndex].size);
-						vaadinUpload.set(['files', fileIndex, 'status'], this.localize('ready','ready',this.language));
-						console.log(vaadinUpload.files)
-
-						this.dispatchEvent(new CustomEvent('file-received', file));
-						// this.fire('file-received', file);
-
-					}.bind(this);
-
-					fr.readAsArrayBuffer(file);
-					console.log(this.newMessage.annex)
+                    let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
+                    if (!sc) {
+                        sc = { status: 64, services: [] };
+                        this.currentContact.subContacts.push(sc);
+                    }
+                    const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+                    this.currentContact.services.push(svc);
+                    console.log('currentContact',this.currentContact)
+                    sc.services.push({ serviceId: svc.id });
+                    if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
+                        this.saveCurrentContact();
+                    }
+                    console.log('v-up.files',vaadinUpload.files)
 				}
 
             }
@@ -977,9 +1030,6 @@
 				newMsgMetadataKey.value = "";
 				let newMsgMetadataValue = this.shadowRoot.querySelector('#newMsgMetadataValue');
 				newMsgMetadataValue.value = "";
-
-
-
             }
 
 			_removeCustomMetas(e){
@@ -991,7 +1041,7 @@
             }
 
 			_SendNewMessage(){
-
+                console.log(this.newMessage)
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
                     let message = {
                         id : this.api.crypto().randomUuid(),
