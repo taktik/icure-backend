@@ -742,52 +742,10 @@
                 <h3>[[localize('attachments','Attachments',language)]]</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <!--<paper-card class="annexe-card">-->
                             <div class="layout-vertical annexe-card">
                                 <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                              resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             </div>
-                            <!--<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >-->
-                                <!--<div class="img-container annexe-card&#45;&#45;content">-->
-                                    <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
-                                    <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
-                                <!--</div>-->
-                                <!--<div class="layout-horizontal">-->
-                                    <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
-                                <!--</div>-->
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">-->
-                                <!--&lt;!&ndash;<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>&ndash;&gt;-->
-                                <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
-                                             <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
-                                <!--&lt;!&ndash;<vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>&ndash;&gt;-->
-                                <!--<div class="layout-horizontal">-->
-                                    <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
-                                <!--</div>-->
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">-->
-                                <!--<div class="annexe-card&#45;&#45;content">-->
-                                    <!--<span>[[mimeType(item.mainUti)]] [[type]]</span>-->
-                                    <!--<template is="dom-if" if="[[showDetail]]">-->
-                                        <!--<div>[[documentAttachment]]</div>-->
-                                        <!--&lt;!&ndash;TODO: format annexe on display&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>&ndash;&gt;-->
-                                    <!--</template>-->
-                                    <!--<div class="layout-horizontal layout-horizontal&#45;&#45;nowrap">-->
-                                        <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>-->
-                                        <!--<vaadin-button id="todayButton" class="annexe-card&#45;&#45;action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-
-                            <!--</template>-->
-                            <!--<template is="dom-if" if="[[_plainMimeType(item.mainUti, item.otherUtis, item.dataUrl)]]">-->
-                                <!--<paper-card class="annexe-card">-->
-                                    <!--&lt;!&ndash;[[item.name]]&ndash;&gt;-->
-                                    <!--<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"-->
-                                    <!--resources="[[resources]]" title="[[item.label]]"></dynamic-doc>-->
-                                <!--</paper-card>-->
-                            <!--</template>-->
-                        <!--</paper-card>-->
                     </template>
                 </template>
             </div>
