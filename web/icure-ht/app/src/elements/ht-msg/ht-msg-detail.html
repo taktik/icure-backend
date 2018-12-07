@@ -1004,7 +1004,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
         console.log('origMsg',origMsg)
-        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
@@ -1026,7 +1025,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let dest = [{
             delegations: origMsg.delegations,
             displayName: origMsg.fromAddress,
-            nihii: undefined,
+            nihii: origMsg.senderId,
             cbe: undefined,
             ssin: origMsg.senderInss,
             type: this.localize('replyto','In reply to',this.language)

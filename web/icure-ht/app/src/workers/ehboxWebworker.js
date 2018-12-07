@@ -103,6 +103,7 @@ onmessage = e => {
                         subject: (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
                         metas: fullMessage.customMetas,
                         patientInss: fullMessage.patientInss,
+                        sender: fullMessage.sender,
                         senderId: fullMessage.sender.id,
                         senderInss: fullMessage.sender.inss,
                         toAddresses: [boxId],
