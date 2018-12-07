@@ -384,6 +384,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 paper-progress {
                     --paper-progress-active-color: var(--app-secondary-color);
                 }
+                paper-progress.full {
+                    --paper-progress-active-color: var(--app-error-color);
+                }
 
                 @media screen and (max-width:1025px) {
                     .col-right {
@@ -426,13 +429,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <div class="indicators">
                     <template is="dom-if" if="[[!_isEqual(bufferedMsgs,0)]]">
-                        <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
+                        <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="warning"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
                         <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
                     </template>
                     <div id="capacity-indicator">
                         <div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)</span></div>
                         <paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress>
                     </div>
+                    <template is="dom-if" if="[[actualCapacity]] >= 100">
+                        <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
+                    </template>
                 </div>
 
             </div>
@@ -605,7 +611,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('bufferedMsgs',boxInfo.nbrMessagesInStandBy)
                             this.set('mailboxCapacity',boxInfo.currentSize)
                             this.set('mailboxMaxCapacity',boxInfo.maxSize)
-                            this.set('capacityPercent', ((this.mailboxCapacity / this.mailboxMaxCapacity)*100).toFixed(2))
+                            this.set('actualCapacity',((this.mailboxCapacity / this.mailboxMaxCapacity)*100).toFixed(2))
+                            if (this.actualCapacity >= 100) this.set('_mailBoxCapacityColor','full')
+                            this.set('capacityPercent', this.actualCapacity <= 100 ? this.actualCapacity : '+100')
                         })
                 }
             }
