@@ -21,7 +21,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
-import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.MedicationSchemeImport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
