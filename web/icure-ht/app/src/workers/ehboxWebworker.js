@@ -104,6 +104,7 @@ onmessage = e => {
                         metas: fullMessage.customMetas,
                         patientInss: fullMessage.patientInss,
                         senderId: fullMessage.sender.id,
+                        senderInss: fullMessage.sender.inss,
                         toAddresses: [boxId],
                         fromHealthcarePartyId: "",
                         transportGuid: boxId + ":" + fullMessage.id,
