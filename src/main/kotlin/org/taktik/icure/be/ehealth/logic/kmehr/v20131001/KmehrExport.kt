@@ -87,7 +87,7 @@ open class KmehrExport {
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
-    fun createPartyWithAddresses(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
+    fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
     }
 
@@ -170,7 +170,7 @@ open class KmehrExport {
                     CDLIFECYCLEvalues.INACTIVE
                 } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else ACTIVE
+                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
             } }
             if(cdItem == "medication") {

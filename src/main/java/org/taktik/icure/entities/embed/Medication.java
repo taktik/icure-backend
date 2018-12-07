@@ -59,6 +59,12 @@ public class Medication implements Serializable {
 	Map<String, Content> options;
 	Map<String, ParagraphAgreement> agreements;
 
+	String idOnSafes;
+	Long timestampOnSafe;
+	String medicationUse;
+	String beginCondition;
+	String endCondition;
+
 	public Map<String, Content> getOptions() {
 		return options;
 	}
@@ -173,6 +179,46 @@ public class Medication implements Serializable {
 
 	public void setAgreements(Map<String, ParagraphAgreement> agreements) {
 		this.agreements = agreements;
+	}
+
+	public @Nullable String getIdOnSafes() {
+		return idOnSafes;
+	}
+
+	public void setIdOnSafes(@Nullable String idOnSafes) {
+		this.idOnSafes = idOnSafes;
+	}
+
+	public @Nullable Long getTimestampOnSafe() {
+		return timestampOnSafe;
+	}
+
+	public void setTimestampOnSafe(@Nullable Long timestampOnSafe) {
+		this.timestampOnSafe = timestampOnSafe;
+	}
+
+	public  @Nullable String getMedicationUse() {
+		return medicationUse;
+	}
+
+	public void setMedicationUse( @Nullable String medicationUse) {
+		this.medicationUse = medicationUse;
+	}
+
+	public  @Nullable String getBeginCondition() {
+		return beginCondition;
+	}
+
+	public void setBeginCondition( @Nullable String beginCondition) {
+		this.beginCondition = beginCondition;
+	}
+
+	public  @Nullable String getEndCondition() {
+		return endCondition;
+	}
+
+	public void setEndCondition( @Nullable String endCondition) {
+		this.endCondition = endCondition;
 	}
 
 	public String toString() {
