@@ -1,6 +1,9 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
 
+import com.fasterxml.jackson.core.type.TypeReference
+import org.taktik.commons.uti.UTI
+import org.taktik.commons.uti.impl.SimpleUTIDetector
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
@@ -23,6 +26,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
@@ -39,6 +43,8 @@ import java.io.InputStream
 import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
+import com.fasterxml.jackson.databind.ObjectMapper
+import javax.xml.bind.JAXBElement
 
 
 @org.springframework.stereotype.Service
@@ -49,11 +55,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val formLogic: FormLogic,
                                 val idGenerator: UUIDGenerator) {
-
-    var subcontactLinks = mutableListOf<Map<String,Any>>()
-    var versionLinks = mutableListOf<heVersionType>()
-    var versionLinksByMFID = mapOf<String, List<heVersionType>>()
-    var hesByMFID = mutableMapOf<String,HealthElement>()
 
 
     fun importSMF(inputStream: InputStream,
@@ -66,39 +67,66 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        var allRes = LinkedList<ImportResult>()
-        subcontactLinks = mutableListOf<Map<String,Any>>()
-        versionLinks = mutableListOf<heVersionType>()
-        hesByMFID = mutableMapOf<String,HealthElement>()
+        val mymappings = if(!mappings.isEmpty()) mappings else {
+            val mapper = ObjectMapper()
+            val txt = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")
+                    .readBytes().toString(Charsets.UTF_8)
+            mapper.readValue(txt, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+        }
+
+        val allRes = LinkedList<ImportResult>()
+
+        val state = InternalState()
+        val prescForms = mutableMapOf<String, MutableList<Form>>()
 
         val standard = kmehrMessage.header.standard.cd.value
+        var senderPhcp : PatientHealthCareParty? = null
 
         //TODO Might want to have several implementations based on standards
-        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
+        kmehrMessage.header.sender.hcparties?.forEach {
+            createOrProcessHcp(it)?.let {
+                senderPhcp = PatientHealthCareParty().apply {
+                    healthcarePartyId = it.id
+                }
+            }
+        }
+
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
             createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
-                    val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "contactreport" -> parseContactReport(trn, author, res, language, mappings)
-                        "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mappings)
-                        "labresult" -> parseLabResult(trn, author, res, language, mappings)
-                        "result" -> parseResult(trn, author, res, language, mappings)
-                        "note" -> parseNote(trn, author, res, language, mappings)
-                        "prescription" -> parsePrescription(trn, author, res, language, mappings)
-                        "pharmaceuticalprescription" -> parsePharmaceuticalPrescription(trn, author, res, language, mappings)
-                        else -> parseGenericTransaction(trn, author, res, language, mappings)
+                    val ctc: Contact? = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
+                        "contactreport" -> parseContactReport(trn, author, res, language, mymappings, state)
+                        "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mymappings, state)
+                        "labresult", "result", "note", "prescription" -> {
+                            parseDocumentInTransaction(trn, author, res, language, mymappings, state)?.let{
+                                state.docLinks.add(it)
+                            }
+                            null
+                        }
+                        "pharmaceuticalprescription" -> {
+                            parsePharmaceuticalPrescription(trn, author, res, language, mymappings, state)?.let {
+                                state.prescLinks.add(it)
+                            }
+                            null
+                        }
+                        else -> parseGenericTransaction(trn, author, res, language, mymappings, state)
                     }
-                    contactLogic.createContact(ctc)
-                    res.ctcs.add(ctc)
+                    ctc?.let{con ->
+                        contactLogic.createContact(con)
+                        getTransactionMFID(trn)?.let {
+                            state.contactsByMFID[it] = con
+                        }
+                        res.ctcs.add(con)
+                    }
                 }
 
                 // convert links ISASERVICEFOR to subcontacts
-                subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
+                state.subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
                     val contact = it.key
                     it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
-                        val heid = hesByMFID[subentry.key]?.id
+                        val heid = state.hesByMFID[subentry.key]?.id
                         heid?.let {
                             contact.subContacts.add(
                                     SubContact().apply {
@@ -113,27 +141,82 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
 
                 // make sure all He versions have the same healthElementId
-                versionLinksByMFID = versionLinks.groupBy { it.mfId } // speed up lookup
-                makeHeVersioning(versionLinks)
+                state.versionLinksByMFID = state.versionLinks.groupBy { it.mfId } // speed up lookup
+                makeHeVersioning(state.versionLinks, state)
 
-                // make dynamic form for each service
-                res.ctcs.forEach {
+                // add prescriptions from separate transactions to linked contacts
+                state.prescLinks.forEach {(servlist, conid) ->
+                    state.contactsByMFID[conid]?.let { con ->
+                        servlist.forEach { serv ->
+                            con.services.add(serv)
+                            val form = decorateMedication(serv, con, res, state)
+                            if(prescForms[con.id] == null) {
+                                prescForms[con.id] = mutableListOf<Form>()
+                            }
+                            prescForms[con.id]?.add(form)
+                        }
+                    }
+                }
+
+                // add documents from separate transactions to linked contacts
+                state.docLinks.forEach {(serv, conid) ->
+                    state.contactsByMFID[conid]?.let {
+                        it.services?.add(serv)
+                        state.formServices[serv.id ?: ""] = serv
+                        it.subContacts.add(
+                                SubContact().apply {
+                                    services = listOf(ServiceLink().apply {
+                                        serviceId = serv.id
+                                    })
+                                }
+                        )
+                    }
+                }
+
+
+                // make consultation form
+                // (previously: make dynamic form for each service)
+                res.ctcs.forEach {con ->
+                    val formid = idGenerator.newGUID().toString()
+
                     val form = Form().apply {
-
+                        id =  formid
+                        formTemplateId =  "09b8db54-84a3-42e7-b8db-5484a352e77f" // Consultation FormTemplate
+                        contactId =  con.id
+                        responsible =  author.id
+                        descr =  "Consultation"
                     }
-                    val subcon = SubContact().apply {
-                        //formId = form.id
-                        formId = it.id // invalid formId so dynamic form is generated
-                        services = it.services.map { ServiceLink(it.id) }
+                    /*
+                    prescForms[con.id]?.forEach { pform ->
+                        pform.parent = formid
                     }
-                    it.subContacts.add(subcon)
+                    */
                     res.forms.add(form)
+                    con.services.filter{ state.formServices[it.id] == null }.map { ServiceLink(it.id) }.let {servlist ->
+                        if(servlist.isNotEmpty()) {
+                            val subcon = SubContact().apply {
+                                //formId = form.id
+                                //formId = con.id // non-existent formId so dynamic form is generated
+                                formId = formid // Consultation FormTemplate
+                                services = servlist
+                            }
+                            con.subContacts.add(subcon)
+                        }
+                    }
                 }
 
                 res.forms.forEach{
                     formLogic.createForm(it)
                 }
 
+                patient.patientHealthCareParties.addAll(res.hcps.map {
+                    PatientHealthCareParty().apply {
+                        healthcarePartyId = it.id
+                    }
+                })
+                senderPhcp?.let {
+                    patient.patientHealthCareParties.add(it)
+                }
                 Unit
             }
             Unit
@@ -141,11 +224,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun makeHeVersioning(hes : List<heVersionType>) {
+    private fun makeHeVersioning(hes : List<HeVersionType>, state: InternalState) {
         // this make all He linked by version have the same healthElementId
 
         hes.forEach { hev ->
-            hev.versionId = findHeAncestor(hev, null)
+            hev.versionId = findHeAncestor(hev, null, state)
         }
 
         hes.forEach { hev ->
@@ -153,7 +236,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
     }
-    private fun findHeAncestor(parentHe: heVersionType, walkedmap: MutableMap<String, String?>?) : String? {
+    private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
         var walked = walkedmap
         if(walked == null) {
             walked = mutableMapOf<String, String?>()
@@ -163,11 +246,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             // last ancestor
             return parentHe.he.healthElementId
         } else {
-            versionLinksByMFID[parentHe.isANewVersionOfId]?.find {
+            state.versionLinksByMFID[parentHe.isANewVersionOfId]?.find {
                 walked[it.he.id] == null && it.mfId == parentHe.isANewVersionOfId
             }?.let {
                 // found ancestor, look for his ancestor
-                val ancestorid = findHeAncestor(it, walked)
+                val ancestorid = findHeAncestor(it, walked, state)
                 return ancestorid
             }
         }
@@ -182,8 +265,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
-                                   mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                                   mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
@@ -192,8 +275,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                      author: User,
                                      v: ImportResult,
                                      language: String,
-                                     mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                                     mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
@@ -202,8 +285,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                author: User,
                                v: ImportResult,
                                language: String,
-                               mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                               mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
@@ -212,8 +295,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             author: User,
                             v: ImportResult,
                             language: String,
-                            mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                            mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
@@ -222,9 +305,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                           author: User,
                           v: ImportResult,
                           language: String,
-                          mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
-
+                          mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
         }
     }
 
@@ -232,8 +314,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                   author: User,
                                   v: ImportResult,
                                   language: String,
-                                  mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                                  mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
@@ -242,9 +324,83 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 author: User,
                                                 v: ImportResult,
                                                 language: String,
-                                                mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                                                mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<List<Service>, String?> {
 
+        val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
+            val cdItem = "medication"
+            val service = parseGenericItem( cdItem, "Prescription", item, author, language, v)
+            service.tags.addAll(
+                    listOf(
+                            CodeStub("ICURE", "PRESC", "1")
+                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
+                    )
+            )
+            service
+        }
+        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
+            extractMFIDFromUrl(lnk.url)
+        }?.firstOrNull()
+        return Pair(servlist, target)
+    }
+
+
+
+
+    private fun parseDocumentInTransaction(trn: TransactionType,
+                                           author: User,
+                                           v: ImportResult,
+                                           language: String,
+                                           mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<Service, String?>? {
+
+        val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
+            Service().apply {
+                id = idGenerator.newGUID().toString()
+                content.put(language, Content().apply {
+                    documentId = documentLogic!!.createDocument(Document().apply {
+                        id = idGenerator.newGUID().toString()
+                        this.author = author.id
+                        this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                            createOrProcessHcp(it)?.let {
+                                v.hcps.add(it)
+                                it
+                            }
+                        }?.firstOrNull()?.id ?:
+                                author.healthcarePartyId
+                        this.created = trn.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
+                        modified = created
+                        attachment = lnk.value
+                        name = "Document"
+
+                        var utis : List<UTI> = emptyList()
+                        lnk.mediatype?.value()?.let {
+                            utis = UTI.utisForMimeType(it).toList()
+                        } ?: let {
+                            utis = listOf(SimpleUTIDetector().detectUTI(lnk.value.inputStream(), null, null))
+                        }
+
+                        mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf"
+                        otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
+
+                        v.documents.add(this)
+                    }, author.healthcarePartyId).id
+                    stringValue = trn.cds.filter{ it.s == CDTRANSACTIONschemes.CD_TRANSACTION }.firstOrNull()?.let {
+                        it.dn
+                    } ?: "unnamed_document"
+                })
+                label = "document"
+                valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
+                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                        }
+            }
+        } ?: listOf()
+        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
+            extractMFIDFromUrl(lnk.url)
+        }?.firstOrNull()
+        return if(services.size == 1) {
+            Pair(services.single(), target)
+        } else {
+            null
         }
     }
 
@@ -252,65 +408,74 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         author: User,
                                         v: ImportResult,
                                         language: String,
-                                        mappings: Map<String, List<ImportMapping>>): Contact {
+                                        mappings: Map<String, List<ImportMapping>>,
+                                        state: InternalState): Contact {
         return Contact().apply {
             val contact = this
 
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
 
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
-                author.healthcarePartyId
-            this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                    it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                createOrProcessHcp(it)?.let {
+                    v.hcps.add(it)
+                    it
                 }
+            }?.firstOrNull()?.id ?:
+                    author.healthcarePartyId
+            this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
+                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    }
             this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
 
             this.location =
-                trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
-                    ?.let {
-                        it.contents?.flatMap { it.texts.map { it.value } }?.joinToString(",")
-                    }
+                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
+                            ?.let {
+                                it.contents?.flatMap { it.texts.map { it.value } }?.joinToString(",")
+                            }
 
             this.encounterType = trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encountertype" } }
-                ?.let {
-                    it.contents?.mapNotNull {
-                        it.cds?.find { it.s == CDCONTENTschemes.CD_ENCOUNTER }?.let {
-                            Code("CD-ENCOUNTER", it.value, "1.0")
-                        }
-                    }?.firstOrNull()
-                } ?: Code("CD-ENCOUNTER", "consultation", "1.0")
+                    ?.let {
+                        it.contents?.mapNotNull {
+                            it.cds?.find { it.s == CDCONTENTschemes.CD_ENCOUNTER }?.let {
+                                Code("CD-ENCOUNTER", it.value, "1.0")
+                            }
+                        }?.firstOrNull()
+                    } ?: Code("CD-ENCOUNTER", "consultation", "1.0")
 
             trn.findItems().forEach { item ->
                 val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
                 val mapping =
-                    mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
-                val label =
-                    item.cds.find { it.s == CDITEMschemes.LOCAL && it.sl == "org.taktik.icure.label" }?.value
-                            ?: item.contents.filter { it.texts?.size ?: 0 > 0 }
-                                    .flatMap{
-                                        it.texts.filter {
-                                            it.l == language
-                                        }.map {
-                                            it.value
+                        mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
+                var label =
+                        item.cds.find { it.s == CDITEMschemes.LOCAL && it.sl == "org.taktik.icure.label" }?.value
+                                ?: mapping?.label?.get(language)
+                                ?: item.contents.filter { it.texts?.size ?: 0 > 0 }
+                                        .flatMap{
+                                            it.texts.filter {
+                                                it.l == language
+                                            }.map {
+                                                it.value
+                                            }
                                         }
-                                    }
-                                    .let{ if (it.size > 0) it else null }
-                                    ?.joinToString(" ")
-                            ?: mapping?.label?.get(language)
-                            ?: mappings["note"]?.lastOrNull()?.label?.get(language)
-                            ?: "Note"
+                                        .let{ if (it.size > 0) it else null }
+                                        ?.joinToString(" ")
+                                ?: mappings["note"]?.lastOrNull()?.label?.get(language)
+                                ?: "Note"
 
+                if(cdItem == "parameter") {
+                    label = "Observation"
+                }
                 when (cdItem) {
-                    "healthcareelement" -> {
+                    "healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue" -> {
                         val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
                         he?.let { notNullHe ->
                             v.hes.add(healthElementLogic.createHealthElement(he))
                             // register new version links
                             val mfid = getItemMFID(item)
-                            versionLinks.add(
-                                    heVersionType(
+                            state.versionLinks.add(
+                                    HeVersionType(
                                             he = notNullHe,
                                             mfId = mfid!!,
                                             isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
@@ -319,57 +484,40 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                             versionId = null
                                     )
                             )
-                            hesByMFID[mfid] = notNullHe
+                            state.hesByMFID[mfid] = notNullHe
                         }
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
+                    "insurancystatus", "gmdmanager" -> Unit // not services
                 //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
                 //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
                     "incapacity" -> parseIncapacity(cdItem, label, item, author, language, v, contact.id).let {
                         val (services, subcontact, form) = it
                         this.services.addAll(services)
                         this.subContacts.add(subcontact)
+                        services.forEach {
+                            state.formServices[it.id ?: ""] = it
+                        }
                         v.forms.add(form)
                     }
                     else -> {
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
                         this.services.add(service)
                         if(isMedication(service)) {
-                            service.label = "Prescription"
+                            service.label = "Medication"
                             service.tags.addAll(
                                     listOf(
-                                            CodeStub("ICURE", "PRESC", "1")
+                                            CodeStub("CD-ITEM", "medication", "1")
                                             //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
                                     )
                             )
-                            val formid = idGenerator.newGUID().toString()
-                            v.forms.add(
-                                    Form().apply {
-                                        id = formid
-                                        formTemplateId = "744cf7f5-04ce-469e-8cf7-f504ce169eeb" // Ordonnance form template id                                    }
-                                        descr = "Ordonnance"
-                                        contactId = contact.id
-                                        created = service.created
-                                        modified = service.modified
-                                        this.author = service.author
-                                        responsible = service.responsible
-                                    }
-                            )
-                            contact.subContacts.add(
-                                    SubContact().apply {
-                                        formId = formid
-                                        services = listOf( ServiceLink().apply { serviceId = service.id })
-                                        created = service.created
-                                        modified = service.modified
-                                        this.author = service.author
-                                        responsible = service.responsible
-                                    }
-                            )
+                            //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
+                            state.formServices[service.id ?: ""] = service
                         }
                         item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
                             extractMFIDFromUrl(it.url)
                         }.filterNotNull().map {
-                            subcontactLinks.add(
+                            state.subcontactLinks.add(
                                     mapOf(
                                             "service" to service,
                                             "heMFID" to it,
@@ -379,6 +527,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                     }
                 }
+
                 Unit
             }
         }
@@ -386,6 +535,36 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private fun isMedication(service: Service): Boolean {
         return service.content.values.any { it.medicationValue != null }
+    }
+
+    private fun decorateMedication(service: Service, contact: Contact, result: ImportResult, state: InternalState) : Form {
+        // add form and subcontact for a medication
+        val formid = idGenerator.newGUID().toString()
+        val form : Form
+        state.formServices[service.id ?: ""] = service
+        form = Form().apply {
+                    id = formid
+                    formTemplateId = "744cf7f5-04ce-469e-8cf7-f504ce169eeb" // Ordonnance form template id
+                    descr = "Ordonnance"
+                    contactId = contact.id
+                    created = service.created
+                    modified = service.modified
+                    this.author = service.author
+                    responsible = service.responsible
+                }
+        result.forms.add( form )
+        contact.subContacts.add(
+                SubContact().apply {
+                    formId = formid
+                    services = listOf( ServiceLink().apply { serviceId = service.id })
+                    created = service.created
+                    modified = service.modified
+                    this.author = service.author
+                    responsible = service.responsible
+                }
+        )
+        return form
+
     }
 
     private fun parseIncapacity(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, contactId: String): Triple<List<Service>, SubContact, Form> {
@@ -494,8 +673,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     ): HealthElement? {
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
-	        this.healthElementId = idGenerator.newGUID().toString()
-	        descr = label
+            this.healthElementId = idGenerator.newGUID().toString()
+            descr = label
             if(item.texts.isNotEmpty()) {
                 descr = "${descr}, ${ item.texts.map{ it.value }.joinToString ( " " )}"
             }
@@ -505,7 +684,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.responsible = author.healthcarePartyId
             this.codes = extractCodes(item).toMutableSet()
             this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
+                    ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
             this.idOpeningContact = contactId
@@ -518,26 +697,26 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD  }.map { CodeStub(it.s.value(), it.value, it.sv) } +
-            item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
-                it.cds.filter {
-                    listOf(CDCONTENTschemes.CD_DRUG_CNK,
-                           CDCONTENTschemes.ICD,
-                           CDCONTENTschemes.ICPC,
-                           CDCONTENTschemes.CD_CLINICAL,
-                           CDCONTENTschemes.CD_ATC,
-                           CDCONTENTschemes.CD_PATIENTWILL,
-                           CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
-                }.map { CodeStub(it.s.value(), it.value, it.sv) }
-            }).toSet()
+                item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
+                    it.cds.filter {
+                        listOf(CDCONTENTschemes.CD_DRUG_CNK,
+                                CDCONTENTschemes.ICD,
+                                CDCONTENTschemes.ICPC,
+                                CDCONTENTschemes.CD_CLINICAL,
+                                CDCONTENTschemes.CD_ATC,
+                                CDCONTENTschemes.CD_PATIENTWILL,
+                                CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
+                    }.map { CodeStub(it.s.value(), it.value, it.sv) }
+                }).toSet()
     }
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
-            item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
-                it.cds.filter {
-                    listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
-                }.map { CodeStub(it.s.value(), it.value, it.sv) }
-            }).toSet()
+                item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
+                    it.cds.filter {
+                        listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
+                    }.map { CodeStub(it.s.value(), it.value, it.sv) }
+                }).toSet()
     }
 
     private fun parseGenericItem(cdItem: String,
@@ -550,11 +729,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.id = idGenerator.newGUID().toString()
             this.tags.add(CodeStub( "CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
-            this.codes = extractCodes(item).toMutableSet()
             this.label = label
+            this.tags.find { it.type == "CD-PARAMETER"}?.let {
+                consultationFormMeasureLabels[it.code]?.let {
+                    this.label = it
+                }
+            }
+            this.codes = extractCodes(item).toMutableSet()
+            item.temporality?.cd?.value?.let {
+                this.tags.add(
+                        CodeStub("CD-TEMPORALITY", it.toString(), "1")
+                )
+            }
             this.responsible = author.healthcarePartyId
             this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
+                    ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
@@ -575,16 +764,30 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }
                             medicinalProduct = item.contents.filter { it.medicinalproduct != null }.firstOrNull()?.let {
                                 it.medicinalproduct?.let { Medicinalproduct().apply {
-                                intendedcds = it.intendedcds?.map { CodeStub( it.s.value(), it.value, it.sv) }
-                                intendedname = it.intendedname.toString()
-                            } } }
-                            compoundPrescription = item.contents.map {
-                                // TODO: redo this
-                                //var con: List<TextType> = it.compoundprescription?.content as List<String>
-                                //con.map { it.value }.joinToString("")
-                                ""
-                            }.filterNotNull().firstOrNull()
+                                    intendedcds = it.intendedcds?.map { CodeStub( it.s.value(), it.value, it.sv) }
+                                    intendedname = it.intendedname.toString()
+                                } } }
+                            compoundPrescription = item.contents.filter {it.compoundprescription?.content?.isNotEmpty() ?: false }.firstOrNull()?.let {
+                                it.compoundprescription?.content?.map {
+                                    // spec is unclear, some software put text in <magistraltext> some put it directly in compoundprescription
+                                    // try to detect each case
+                                    if(it is TextType) {
+                                        it.value
+                                    } else {
+                                        try {
+                                            if((it as JAXBElement<*>).value is TextType) {
+                                                ((it as JAXBElement<*>).value as TextType).value
+                                            } else {
+                                                null
+                                            }
+                                        } catch(ex : Exception) {
+                                            null
+                                        }
+                                    }
+                                }?.filterNotNull()?.map{ (it as String).trim() }?.joinToString(" ")
+                            } ?: ""
                             instructionForPatient = item.instructionforpatient?.value
+                            posology = item.posology?.text?.value // posology can be complex but SMF spec recommends text type
                             regimen = item.regimen?.let { it.daynumbersAndQuantitiesAndDaytimes.map {
                                 RegimenItem().apply {
                                     //TODO finish this optional parsing
@@ -626,6 +829,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         booleanValue = it.isBoolean
                     }
                 }
+                Unit
             })
         }
     }
@@ -633,7 +837,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     private fun ItemType.hasContentOfType(content: String?): Boolean {
         if (content == null) return true
         return content == "m" && this.contents.any { it.medicinalproduct != null || it.substanceproduct != null || it.compoundprescription != null } ||
-            content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
+                content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
     protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
@@ -641,23 +845,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
-            ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
-            ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
-                this.nihii = nihii; this.ssin = niss;
-	            copyFromHcpToHcp(p, this)
-            }) } catch (e : MissingRequirementsException) { null })
+                ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
+                ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
+                    this.nihii = nihii; this.ssin = niss;
+                    copyFromHcpToHcp(p, this)
+                }) } catch (e : MissingRequirementsException) { null })
     }
 
     protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty) {
-	    if (hcp.firstName == null) {
-		    hcp.firstName = p.firstname
-	    }
-	    if (hcp.lastName == null) {
-		    hcp.lastName = p.familyname
-	    }
-	    if (hcp.name == null) {
-		    hcp.name = p.name
-	    }
+        if (hcp.firstName == null) {
+            hcp.firstName = p.firstname
+        }
+        if (hcp.lastName == null) {
+            hcp.lastName = p.familyname
+        }
+        if (hcp.name == null) {
+            hcp.name = p.name
+        }
         if (hcp.ssin == null) {
             hcp.ssin = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
         }
@@ -668,7 +872,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             hcp.addresses.addAll(addresses.map {
                 Address().apply {
                     addressType =
-                        it.cds.find { it.s == CDADDRESSschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
+                            it.cds.find { it.s == CDADDRESSschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
                     street = it.street
                     city = it.city
                     houseNumber = it.housenumber
@@ -683,7 +887,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val telecomType = it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }
 
             (hcp.addresses?.find { it.addressType == addressType }
-                ?: Address(addressType).apply { hcp.addresses.add(this) }).telecoms.add(Telecom(telecomType, it.telecomnumber))
+                    ?: Address(addressType).apply { hcp.addresses.add(this) }).telecoms.add(Telecom(telecomType, it.telecomnumber))
         }
     }
 
@@ -695,26 +899,26 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
-            dest ?: niss?.let {
-                patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
-                    ?.let { patientLogic.getPatient(it) }
-            }
-            ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
-                } else null
-            }
-            ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    it.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
-                        ?: false
-                } else null
-            }
+                dest ?: niss?.let {
+                    patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
+                            ?.let { patientLogic.getPatient(it) }
+                }
+                ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
+                    if (it.size > 0) patientLogic.getPatients(it).find {
+                        p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
+                    } else null
+                }
+                ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
+                    if (it.size > 0) patientLogic.getPatients(it).find {
+                        it.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
+                                ?: false
+                    } else null
+                }
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
 
-	        copyFromPersonToPatient(p, this, true)
+            copyFromPersonToPatient(p, this, true)
         }) else dbPatient
     }
 
@@ -725,7 +929,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         if (patient.ssin == null) {
             patient.ssin = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value ?:
-                p.ids.find { it.s == IDPATIENTschemes.INSS }?.value
+                    p.ids.find { it.s == IDPATIENTschemes.INSS }?.value
         }
 
         if (p.birthlocation != null && (force || patient.placeOfBirth == null)) {
@@ -747,7 +951,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             patient.addresses.addAll(addresses.map {
                 Address().apply {
                     addressType =
-                        it.cds.find { it.s == CDADDRESSschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
+                            it.cds.find { it.s == CDADDRESSschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
                     street = it.street
                     city = it.city
                     houseNumber = it.housenumber
@@ -762,7 +966,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val telecomType = it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }
 
             (patient.addresses.find { it.addressType == addressType }
-                ?: Address(addressType).apply { patient.addresses.add(this) }).telecoms.add(Telecom(telecomType, it.telecomnumber))
+                    ?: Address(addressType).apply { patient.addresses.add(this) }).telecoms.add(Telecom(telecomType, it.telecomnumber))
         }
 
         p.usuallanguage?.let {
@@ -784,6 +988,47 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
         return null
     }
+
+    fun getTransactionMFID(trn: TransactionType) : String? {
+        trn.ids.find { it.s == IDKMEHRschemes.LOCAL; it.sl == "MF-ID" }?.let {
+            return it.value
+        }
+        return null
+    }
+
+    val consultationFormMeasureLabels : Map<String, String>  = mapOf(
+            // theses labels are used to identify services associated to form consultation
+            // should be lower case
+            "weight" to  "Poids",
+            "height" to  "Taille",
+            "bmi" to  "BMI",
+            "heartpulse" to  "Pouls",
+            //"craneperim" to  "??",
+            "hipperim" to  "Tour de taille",
+            "glycemy" to  "Glyc.", // only in form Consultation 09b8db54-84a3-42e7-b8db-5484a352e77f
+            "glycemyhba1c" to  "HbA1c",
+            "pulse" to  "R\u00e9gularit\u00e9 du pouls",
+            //"apgarscore" to  "??",
+            "systolic" to  "Tension art\u00e9rielle systolique" ,
+            "diastolic" to  "Tension art\u00e9rielle diastolique",
+            "temperature" to  "T\u00b0"
+            // and compound "tension"
+    )
+
+    private data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
+    private data class DocumentLinkType(val document: Document, val service: Service, val isAChildOfId: String?)
+
+    // internal bookkeeping
+    private data class InternalState(
+            var subcontactLinks : MutableList<Map<String,Any>> = mutableListOf(),// bookkeeping for linking He to Services (map of heId and linked Service/He)
+            var versionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
+            var versionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
+            var hesByMFID : MutableMap<String,HealthElement> = mutableMapOf(),
+            var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
+            var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactId
+            var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactId
+            var formServices : MutableMap<String,Service> = mutableMapOf() // services to not add to dynamic form because already in a form
+    )
 }
 
 private fun selector(headingsAndItemsAndTexts: MutableList<Serializable>,
@@ -813,4 +1058,3 @@ private fun AddressTypeBase.getFullAddress(): String {
 }
 
 
-data class heVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
