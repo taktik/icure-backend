@@ -211,13 +211,85 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					font-weight: 700;
 
 				}
+
+				.hcp-photo {
+					background: rgba(0, 0, 0, 0.1);
+					height: 26px;
+					width: 26px;
+					min-width: 26px;
+					border-radius: 50%;
+					margin-right: 8px;
+					overflow: hidden !important;
+					padding-right: 0 !important;
+				}
+
+				.hcp-photo img {
+					width: 100%;
+					margin: 50%;
+					transform: translate(-50%, -50%);
+				}
+
+				#selectHcpOption {
+					height: 34px;
+					padding: 14px;
+					background: var(--app-background-color-dark);
+					-webkit-transition: background .15s;
+					transition: background .15s;
+					z-index: 2;
+					display: flex;
+					border-left: 1px solid rgba(0, 0, 0, .05);
+					border-right: 1px solid rgba(0, 0, 0, .05);
+
+				}
+
+				#selectHcpOption_back {
+					min-width: 80px;
+					cursor: pointer;
+					line-height: 35px;
+				}
+
+				#selectHcpOption_text {
+					margin: auto;
+				}
+
 			</style>
 		</custom-style>
 
 		<div class="container">
-			<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-            <paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
+			<template is="dom-if" if="{{modeGrid}}">
+				<div id="selectHcpOption">
+					<div id="selectHcpOption_back" on-tap="_switchMode">
+						<iron-icon icon="vaadin:arrow-left"></iron-icon>
+						<span>Back</span>
+					</div>
+					<div id="selectHcpOption_text">
+						[[nbHcpSelected]] prestataire(s) selected
+					</div>
+				</div>
+			</template>
+			<template is="dom-if" if="{{!modeGrid}}">
+				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+			</template>
+			<paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
 			<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
+
+
+				<vaadin-grid-column width="5%">
+					<template class="header">
+						<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+					</template>
+					<template>
+						<template is="dom-if" if="[[!modeGrid]]">
+							<div class="cell frozen hcp-photo"><img src$="[[picture(item)]]"></div>
+						</template>
+						<template is="dom-if" if="[[modeGrid]]">
+							<vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_hcpSelected(item, hcpSelected.*)]]"
+											 on-checked-changed="_checkHcp"></vaadin-checkbox>
+						</template>
+					</template>
+				</vaadin-grid-column>
+
+
 				<vaadin-grid-column width="100px">
 					<template class="header">
 						<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
@@ -269,8 +341,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid>
 
 			<div class="btn-container export-btn-container">
-				<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
-				<paper-button class="exportcsv-btn" on-tap="_openAddHcpDialog">[[localize('add_hcp','Add New HCP',language)]]</paper-button>
+				<template is="dom-if" if="{{!modeGrid}}">
+					<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
+					<paper-button class="exportcsv-btn" on-tap="_openAddHcpDialog">[[localize('add_hcp','Add New HCP',language)]]</paper-button>
+					<paper-button class="exportcsv-btn" on-tap="_switchMode">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
+				</template>
+				<template is="dom-if" if="{{modeGrid}}">
+					<paper-button class="exportcsv-btn" on-tap="_openFusionDialog">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
+				</template>
 			</div>
 
 			<paper-dialog id="newHcpDialog">
@@ -333,6 +411,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-button dialog-confirm autofocus on-tap="confirmAddHcp" class="modal-button modal-button--save">[[localize('add','Add',language)]]</paper-button>
 				</div>
 			</paper-dialog>
+
+			<paper-dialog id="fusionDialog">
+				<label slot="label">[[localize('chose_hcp_will_stay','Choisissez le prestataire qui restera',language)]]</label>
+				<paper-input-container>
+					<iron-input slot="input">
+						<input id="fusionHcpSelect" value="{{getNameHcp(idFusionHcp)}}" readonly on-tap="_openPopupMenu"></input>
+					</iron-input>
+					<paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+						<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+						<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{fusionSelected}}">
+							<template is="dom-repeat" items="{{hcpSelected}}">
+								<paper-item>{{item.name}}</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-menu-button>
+				</paper-input-container>
+				<template is="dom-if" if="[[fusionSelected>=0]]">
+					<label slot="label">[[localize('hcp_selected','prestataire sélectionné',language)]]</label><br/>
+					<label>[[localize('name','Nom',language)]] : [[getNameHcp(idFusionHcp)]]</label>
+					<label>[[localize('special','Spécialité',language)]] : [[getSpeciality(idFusionHcp)]]</label>
+				</template>
+			</paper-dialog>
 		</div>
 	</template>
 
@@ -378,7 +478,28 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					nihii : "",
 					email : ""
 				}
-			}
+			},
+            modeGrid :{
+			    type: Boolean,
+				value : false
+			},
+            hcpSelected: {
+                type: Array,
+                notify: true,
+                value: () => []
+            },
+            nbHcpSelected: {
+                type: Number,
+                value: 0
+            },
+            fusionSelected: {
+                type: Number,
+                observer: '_fusionSelectedChanged'
+            },
+            idFusionHcp: {
+                type: String,
+                notify: true
+            }
 		};
 	}
 
@@ -562,7 +683,7 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
     	}
 
     	this.api.hcparty().createHealthcareParty(newHcpData).then(hcp =>{
-
+			console.log(hcp)
 		})
 	}
 
@@ -697,6 +818,64 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 this._checkDoublon();
             }
         }, 5000) //Wait for the user to stop typing
+	}
+
+    _switchMode(){
+	    this.set('nbHcpSelected',0);
+	    this.set('hcpSelected',[]);
+	    this.set('modeGrid',!this.modeGrid)
+	}
+
+    _openFusionDialog(){
+		this.$['fusionDialog'].open()
+	}
+
+    _hcpSelected(item) {
+        if (item) {
+            const mark = this.hcpSelected.find(m => m.id === item.id)
+            return mark && mark.check
+        } else {
+            return false
+        }
+    }
+
+    _checkHcp(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const targetId = e.target.id
+
+        if (targetId !== "") {
+            const mark = this.hcpSelected.find(m => m.id === targetId)
+            if (!mark) {
+                this.api.hcparty().getHealthcareParty(targetId).then(hcp =>{
+                    this.push('hcpSelected', {id: targetId, check: true, name:hcp.name})
+                    this.set('nbHcpSelected', this.hcpSelected.filter(hcp => hcp.check).length)
+                })
+				} else {
+                mark.check = !mark.check
+                this.notifyPath('hcpSelected.*')
+                this.set('nbHcpSelected', this.hcpSelected.filter(hcp => hcp.check).length)
+            }
+        }
+
+    }
+
+    picture(hcp) {
+        if (!hcp) {
+            return require('../../../images/Male-128.jpg')
+        }
+        return hcp.picture ? 'data:image/jpeg;base64,' + hcp.picture : hcp.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+    }
+
+    _fusionSelectedChanged(selected) {
+        if (this.readOnly) {
+            return
+        }
+        this.set('idFusionHcp', this.hcpSelected[selected].id || null)
+    }
+
+    getNameHcp(id){
+	    return this.hcpSelected.find(hcp => hcp.id===id).name;
 	}
 
 }
