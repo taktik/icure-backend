@@ -102,6 +102,8 @@ onmessage = e => {
                         fromAddress: getFromAddress(fullMessage.sender),
                         subject: (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
                         metas: fullMessage.customMetas,
+                        patientInss: fullMessage.patientInss,
+                        senderId: fullMessage.sender.id,
                         toAddresses: [boxId],
                         fromHealthcarePartyId: "",
                         transportGuid: boxId + ":" + fullMessage.id,

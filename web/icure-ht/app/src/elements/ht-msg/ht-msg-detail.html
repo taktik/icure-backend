@@ -1028,7 +1028,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             displayName: origMsg.fromAddress,
             nihii: undefined,
             cbe: undefined,
-            ssin: undefined,
+            ssin: origMsg.senderId,
             type: this.localize('replyto','In reply to',this.language)
         }]
         this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
