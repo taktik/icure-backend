@@ -149,11 +149,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     state.contactsByMFID[conid]?.let { con ->
                         servlist.forEach { serv ->
                             con.services.add(serv)
+                            /*
                             val form = decorateMedication(serv, con, res, state)
                             if(prescForms[con.id] == null) {
                                 prescForms[con.id] = mutableListOf<Form>()
                             }
                             prescForms[con.id]?.add(form)
+                            */
                         }
                     }
                 }
@@ -176,6 +178,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
                 // make consultation form
                 // (previously: make dynamic form for each service)
+                val incapacityFormsByConId = state.incapacityForms.groupBy { it.contactId }
                 res.ctcs.forEach {con ->
                     val formid = idGenerator.newGUID().toString()
 
@@ -185,6 +188,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         contactId =  con.id
                         responsible =  author.id
                         descr =  "Consultation"
+                    }
+                    incapacityFormsByConId[con.id]?.map {
+                        it.parent = formid
                     }
                     /*
                     prescForms[con.id]?.forEach { pform ->
@@ -340,6 +346,32 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
             extractMFIDFromUrl(lnk.url)
         }?.firstOrNull()
+
+        if(target == null) {
+            // no link to a contact, should create a contact so it can appear in topaz
+            v.ctcs.add( Contact().apply {
+                this.id = idGenerator.newGUID().toString()
+                this.author = author.id
+
+
+                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                    createOrProcessHcp(it)?.let {
+                        v.hcps.add(it)
+                        it
+                    }
+                }?.firstOrNull()?.id ?:
+                        author.healthcarePartyId
+
+                this.services = servlist.toSet()
+                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
+                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                        }
+                this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
+            })
+
+        }
+
         return Pair(servlist, target)
     }
 
@@ -397,7 +429,33 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
             extractMFIDFromUrl(lnk.url)
         }?.firstOrNull()
-        return if(services.size == 1) {
+
+        if(target == null) {
+            // no link to a contact, should create a contact so it can appear in topaz
+            v.ctcs.add( Contact().apply {
+                this.id = idGenerator.newGUID().toString()
+                this.author = author.id
+
+
+                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                    createOrProcessHcp(it)?.let {
+                        v.hcps.add(it)
+                        it
+                    }
+                }?.firstOrNull()?.id ?:
+                        author.healthcarePartyId
+
+                this.services = services.toSet()
+                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
+                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                        }
+                this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
+            })
+
+        }
+
+        return if(services.size == 1) { // there can be only one document per contact
             Pair(services.single(), target)
         } else {
             null
@@ -489,10 +547,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
                     "insurancystatus", "gmdmanager" -> Unit // not services
-                //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
-                //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
+                    //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
+                    //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
                     "incapacity" -> parseIncapacity(cdItem, label, item, author, language, v, contact.id).let {
                         val (services, subcontact, form) = it
+                        state.incapacityForms.add(form)
                         this.services.addAll(services)
                         this.subContacts.add(subcontact)
                         services.forEach {
@@ -512,7 +571,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     )
                             )
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
-                            state.formServices[service.id ?: ""] = service
+                            state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
                         }
                         item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
                             extractMFIDFromUrl(it.url)
@@ -538,6 +597,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun decorateMedication(service: Service, contact: Contact, result: ImportResult, state: InternalState) : Form {
+        // not used anymore, medications are added to main consultation form
         // add form and subcontact for a medication
         val formid = idGenerator.newGUID().toString()
         val form : Form
@@ -579,7 +639,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
             item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-            descr= "Certificat d'interruption d'activité"
+            //descr= "Certificat d'interruption d'activité"
+            descr = "6FF898B0-2694-4973-83F3-1F93C6DADC61" // put this form as subform of consultation
         }
 
         val mapserv = mapOf(
@@ -1025,9 +1086,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             var versionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
             var hesByMFID : MutableMap<String,HealthElement> = mutableMapOf(),
             var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
-            var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactId
-            var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactId
-            var formServices : MutableMap<String,Service> = mutableMapOf() // services to not add to dynamic form because already in a form
+            var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactMFId
+            var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactMFId
+            var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
+            var incapacityForms : MutableList<Form> = mutableListOf() // to add them to parent consultation form
     )
 }
 
