@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
@@ -32,6 +33,7 @@ import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.PlanOfAction
@@ -44,6 +46,7 @@ import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.MainLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
@@ -60,17 +63,20 @@ import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
 open class KmehrExport {
-    var patientLogic: PatientLogic? = null
-    var codeLogic: CodeLogic? = null
-    var drugsLogic: DrugsLogic? = null
-    var healthElementLogic: HealthElementLogic? = null
-    var healthcarePartyLogic: HealthcarePartyLogic? = null
-    var contactLogic: ContactLogic? = null
-    var documentLogic: DocumentLogic? = null
-    var mainLogic: MainLogic? = null
-    var sessionLogic: SessionLogic? = null
-    var filters: Filters? = null
-    var mapper: MapperFacade? = null
+    @Autowired var patientLogic: PatientLogic? = null
+    @Autowired var codeLogic: CodeLogic? = null
+    @Autowired var drugsLogic: DrugsLogic? = null
+    @Autowired var healthElementLogic: HealthElementLogic? = null
+    @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
+    @Autowired var contactLogic: ContactLogic? = null
+    @Autowired var documentLogic: DocumentLogic? = null
+    @Autowired var mainLogic: MainLogic? = null
+    @Autowired var sessionLogic: SessionLogic? = null
+    @Autowired var userLogic: UserLogic?= null
+    @Autowired var filters: Filters? = null
+    @Autowired var mapper: MapperFacade? = null
+
+    val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20161201"
     internal val ICUREVERSION = "4.0.0"
@@ -81,7 +87,14 @@ open class KmehrExport {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
     }
 
-    fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? ) : HcpartyType {
+    fun createPartyWithAddresses(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf()) : HcpartyType {
+        return createParty(m, cds).apply {
+            addresses.addAll(makeAddresses(m.addresses))
+            telecoms.addAll(makeTelecoms(m.addresses))
+        }
+    }
+
+    fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
         return HcpartyType().apply {
             m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
             m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
@@ -99,8 +112,17 @@ open class KmehrExport {
         }
     }
 
-    fun makePerson(p : Patient) : PersonType {
-        return makePersonBase(p).apply {
+    fun makePatient(p : Patient, config: Config): PersonType {
+        val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
+        return makePerson(p, config).apply {
+            ids.clear()
+            ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
+            ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft.version; value= p.id})
+        }
+    }
+
+    fun makePerson(p : Patient, config: Config) : PersonType {
+        return makePersonBase(p, config).apply {
             p.dateOfDeath?.let { deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
@@ -112,12 +134,12 @@ open class KmehrExport {
         }
     }
 
-    fun makePersonBase(p : Patient) : PersonType {
+    fun makePersonBase(p : Patient, config: Config) : PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
 
         return PersonType().apply {
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-            ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "iCure-Patient"; sv= ICUREVERSION; value= p.id})
+            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft.version; sl = "${config.soft.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
@@ -126,19 +148,28 @@ open class KmehrExport {
         }
     }
 
-    open fun createItemWithContent(svc : Service, idx : Int, cdItem : String, contents : List<ContentType>) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "iCure-Service"; sv = ICUREVERSION; value = svc.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.0"
-                value = if (((svc.status ?: 0) and 2) != 0 || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if (((svc.status ?: 0) and 2) != 0 || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
-                else
-                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
+                } else {
+                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                }
 			} }
+            if(cdItem == "medication") {
+                svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
+                    temporality = TemporalityType().apply {
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                    }
+                }
+            }
             isIsrelevant = ((svc.status?: 0) and 2) == 0
             beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = svc.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
@@ -340,10 +371,10 @@ open class KmehrExport {
         }
     }
 
-    fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>): FolderType {
+    fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>, config: Config): FolderType {
         return FolderType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-            this.patient = makePerson(patient)
+            this.patient = makePerson(patient, config)
             transactions.add(TransactionType().apply {
                 cds.add(CDTRANSACTION().apply { s(transactionType); sv = "1.0"; value = cdTransaction })
                 author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
@@ -366,7 +397,7 @@ open class KmehrExport {
         }
     }
 
-    fun initializeMessage(sender : HealthcareParty) : Kmehrmessage {
+    fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD";sv = "1.1"; value = STANDARD } }
@@ -384,24 +415,24 @@ open class KmehrExport {
         }
     }
 
-    fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
+    fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
-            exportContactReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, stream)
+            exportContactReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
-            exportContactReport(patient, sender, null, dem, ssc, text, attachmentDocIds, stream)
+            exportContactReport(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
         }  else {
             throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
         }
     }
 
-    fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
-        val message = initializeMessage(sender)
+    fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
         })
 
-        val folder = createFolder (sender, patient, "contactreport", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds)
+        val folder = createFolder (sender, patient, "contactreport", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds, config)
         message.folders.add(folder)
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -409,50 +440,24 @@ open class KmehrExport {
         jaxbMarshaller.marshal(message, stream)
     }
 
-    fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
+    fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
-            exportReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, stream)
+            exportReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
-            exportReport(patient, sender, null, dem, ssc, text, attachmentDocIds, stream)
+            exportReport(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
         } else {
             throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
         }
     }
 
-    fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, stream : OutputStream) {
-        val message = initializeMessage(sender)
+    fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, config: Config, stream : OutputStream) {
+        val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
         })
 
-        val folder = createFolder (sender, patient, "report", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds)
-        message.folders.add(folder)
-
-        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-        jaxbMarshaller.marshal(message, stream)
-
-    }
-
-    fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
-        if (recipient is HealthcareParty) {
-            exportNote(patient, sender, recipient, dem, ssc, text, attachmentDocIds, stream)
-        } else if (recipient == null) {
-            exportNote(patient, sender, null, dem, ssc, text, attachmentDocIds, stream)
-        } else {
-            throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
-        }
-    }
-
-    fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
-        val message = initializeMessage(sender)
-
-        message.header.recipients.add(RecipientType().apply {
-            hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
-        })
-
-        val folder = createFolder(sender, patient, "note", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds)
+        val folder = createFolder (sender, patient, "report", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds, config)
         message.folders.add(folder)
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -461,24 +466,50 @@ open class KmehrExport {
 
     }
 
-    fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
+    fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
-            exportPrescription(patient, sender, recipient, dem, ssc, text, attachmentDocIds, stream)
+            exportNote(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
-            exportPrescription(patient, sender, null, dem, ssc, text, attachmentDocIds, stream)
+            exportNote(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
         } else {
             throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
         }
     }
 
-    fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, stream: OutputStream) {
-        val message = initializeMessage(sender)
+    fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
         })
 
-        val folder = createFolder(sender, patient, "prescription", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds)
+        val folder = createFolder(sender, patient, "note", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds, config)
+        message.folders.add(folder)
+
+        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+        jaxbMarshaller.marshal(message, stream)
+
+    }
+
+    fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        if (recipient is HealthcareParty) {
+            exportPrescription(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
+        } else if (recipient == null) {
+            exportPrescription(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
+        } else {
+            throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
+        }
+    }
+
+    fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        val message = initializeMessage(sender, config)
+
+        message.header.recipients.add(RecipientType().apply {
+            hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
+        })
+
+        val folder = createFolder(sender, patient, "prescription", CDTRANSACTIONschemes.CD_TRANSACTION, dem, ssc, text, attachmentDocIds, config)
         message.folders.add(folder)
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -499,5 +530,35 @@ open class KmehrExport {
     protected fun CDTRANSACTION.s(scheme: CDTRANSACTIONschemes) {
         s = scheme
         sv = scheme.version()?:"1.0"
+    }
+
+	fun idKmehr(index: Int) = IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = index.toString() }
+
+	fun localIdKmehrElement(itemIndex: Int, config: Config): IDKMEHR {
+		return localIdKmehr("Element", (itemIndex + 1).toString(), config)
+    }
+
+	fun localIdKmehr(itemType: String, id: String?, config: Config): IDKMEHR {
+		return IDKMEHR().apply {
+			s = IDKMEHRschemes.LOCAL
+			sv = config.soft.version
+			sl = "${config.soft.name}-$itemType-Id"
+			value = id
+		}
+    }
+
+	fun getCode(key:String) : Code? {
+		synchronized(unitCodes) {
+		if (unitCodes.size==0) {
+				codeLogic!!.findCodesBy("CD-UNIT", null, null).forEach { unitCodes[it.id] = it }
+		}}
+		return unitCodes[key]
+	}
+
+	companion object {
+		const val SMF_VERSION = "2.3"
+	}
+    data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String) {
+        data class Software(val name : String, val version : String)
     }
 }
