@@ -72,27 +72,6 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 325,
-								"multiline" : false,
-								"left" : 834,
-								"top" : 61,
-								"key" : "StringEditor"
-							},
-							"sortOrder" : 1465341751,
-							"codeTypes" : [
-
-							],
-							"label" : "Nationality",
-							"type" : "TKString",
-							"subForm" : false,
-							"name" : "nationality",
-							"irrelevant" : true
-						},
-						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 22,
-								"labelPosition" : "Left",
 								"width" : 330,
 								"multiline" : false,
 								"left" : 95,
@@ -219,6 +198,48 @@
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "nihii",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 238,
+								"multiline" : false,
+								"left" : 597,
+								"top" : 34,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341751,
+							"codeTypes" : [
+
+							],
+							"label" : "Company Name",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "companyName",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 400,
+								"multiline" : true,
+								"left" : 597,
+								"top" : 75,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341751,
+							"codeTypes" : [
+
+							],
+							"label" : "Notes",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "notes",
 							"irrelevant" : true
 						},
 						{

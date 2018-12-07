@@ -217,7 +217,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.hcp);
             }.bind(this),
-
             getValueContainers: function(key){
                 return getValue(key).map((l,idx)=>{
                     const code = codes.find(c => c.code === l)
