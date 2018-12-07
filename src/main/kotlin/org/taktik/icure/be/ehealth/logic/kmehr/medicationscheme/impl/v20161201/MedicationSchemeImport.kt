@@ -1,4 +1,4 @@
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
@@ -14,6 +14,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.HeVersionType
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -42,7 +43,7 @@ import javax.xml.bind.JAXBContext
 
 
 @org.springframework.stereotype.Service
-class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
+class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
                                 val healthElementLogic: HealthElementLogic,
                                 val contactLogic: ContactLogic,
@@ -812,5 +813,3 @@ private fun AddressTypeBase.getFullAddress(): String {
     return listOf(street, city, country?.let { it.cd?.value } ?: "").filter { it.isNotBlank() }.joinToString(";")
 }
 
-
-data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)

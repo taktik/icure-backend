@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -78,16 +79,23 @@ class SumehrExport : KmehrExport() {
 		recipient: HealthcareParty?,
 		language: String,
 		comment: String?,
-		decryptor: AsyncDecrypt?) {
-		val message = initializeMessage(sender)
+		decryptor: AsyncDecrypt?,
+		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+		                        date = makeXGC(Instant.now().toEpochMilli())!!,
+		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
+		                        clinicalSummaryType = "",
+		                        defaultLanguage = "en"
+		                       )) {
+		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
 		})
 
 		val folder = FolderType()
 		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-		folder.patient = makePerson(pat)
-		fillPatientFolder(folder, pat, sfks, sender, null, language, comment, decryptor)
+		folder.patient = makePerson(pat, config)
+		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
 		message.folders.add(folder)
 
 		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -121,16 +129,23 @@ class SumehrExport : KmehrExport() {
 		recipient: HealthcareParty?,
 		language: String,
 		comment: String?,
-		decryptor: AsyncDecrypt?) {
-		val message = initializeMessage(sender)
+		decryptor: AsyncDecrypt?,
+		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+		                        date = makeXGC(Instant.now().toEpochMilli())!!,
+		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
+		                        clinicalSummaryType = "",
+		                        defaultLanguage = "en"
+		                       )) {
+		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
 		})
 
 		val folder = FolderType()
 		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-		folder.patient = makePerson(pat)
-		fillPatientFolder(folder, pat, sfks, sender, labelsMap, language, comment, decryptor)
+		folder.patient = makePerson(pat, config)
+		fillPatientFolder(folder, pat, sfks, sender, labelsMap, language, config, comment, decryptor)
 		message.folders.add(folder)
 
 		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -142,7 +157,7 @@ class SumehrExport : KmehrExport() {
 		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, comment: String?, decryptor: AsyncDecrypt?): FolderType {
+	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, config: Config, comment: String?, decryptor: AsyncDecrypt?): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
@@ -162,7 +177,7 @@ class SumehrExport : KmehrExport() {
 		//itemIndex = addNonPassiveIrrelevantServiceUsingContent(p, trn, itemIndex, "familyrisk");
 
 		addGmdmanager(p, trn)
-		addContactPeople(p, trn)
+		addContactPeople(p, trn, config)
 
 		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "euthanasiarequest", "intubationrefusal"), decryptor)
 
@@ -423,10 +438,10 @@ class SumehrExport : KmehrExport() {
 		return item
 	}
 
-	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
+	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String): ItemType? {
 		if (((svc.status ?: 0) and 4) != 0 || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
-		return super.createItemWithContent(svc, idx, cdItem, contents)
+		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
@@ -436,7 +451,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	@NotNull
-	private fun addContactPeople(pat: Patient, trn: TransactionType) {
+	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config) {
 		patientLogic?.getPatients(pat.partnerships.mapNotNull { it?.partnerId })?.forEach { p ->
 			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 			try {
@@ -446,7 +461,7 @@ class SumehrExport : KmehrExport() {
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
 						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "contactperson" })
 						cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = "1.0"; value = rel })
-						contents.add(ContentType().apply { person = makePerson(p) })
+						contents.add(ContentType().apply { person = makePerson(p, config) })
 					})
 				}
 			} catch (e: RuntimeException) {
