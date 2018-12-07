@@ -20,11 +20,15 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr
 
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
+import org.taktik.icure.dto.mapping.ImportMapping
+import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import java.io.InputStream
 import java.io.OutputStream
 
 interface SumehrLogic {
@@ -36,4 +40,5 @@ interface SumehrLogic {
 	fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service>
 	fun getHealthElements(hcPartyId: String, sfks: List<String>): List<HealthElement>
 	fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): String
+    fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 }

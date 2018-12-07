@@ -63,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
-<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
+<!--<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">-->
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-transaction-view.html">
@@ -1308,8 +1308,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <collapse-button id="cb_gmhelb">
                             <paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleMenu">
                                 <div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
-                                <paper-icon-button class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
-                                <paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
+                                <paper-icon-button id="med-edit-btn-plan" class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
+                                <paper-tooltip position="left" offset="-1" for="med-edit-btn-plan">[[localize('med_plan','Medication Plan',language)]]</paper-tooltip>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1699,7 +1699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_registerNationalAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
@@ -1755,7 +1755,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button--save" on-tap="_revokeTherLink" hidden="[[!haveTherLinks]]" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
-                <paper-button class="modal-button--save" enabled="false" on-tap="_registerTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
+                <paper-button class="modal-button--save" enabled="false" on-tap="_registerNationalAndHubTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -1780,8 +1780,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
-        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></medication-plan-dialog>
-        <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
+        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
+        <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
         <ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
@@ -2540,9 +2540,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerNationalAndHubTherLink(){
+                this._registerTherLink().then(resp => this.showPatientTherLinkState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientTherapeuticLink().then().catch(error=> console.log(error));
+            }
+
             _registerTherLink(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
@@ -2623,15 +2628,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerNationalAndHubConsent(){
+                this._registerConsent().then(resp => this.showPatientConsentState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientConsent().then().catch(error=> console.log(error));
+            }
+
             _registerConsent(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                     ).then(consentResp => {
                             if(consentResp.consent) {
-                                this.showPatientConsentState()
                                 return(consentResp.consent)
                             }
                             else{
@@ -3004,10 +3013,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 ctc.userDescr = ctc.descr
                             }
                         })
-                        ;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, {
-                            descr: 'Contact du jour',
-                            userDescr: 'Contact du jour'
-                        })).then(newCtc => {
+
+                        ;(unclosedContact && (
+                            this.api.moment(unclosedContact.openingDate).isBefore(moment().subtract(1,'days')) ?
+                                this.api.contact()
+                                    .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
+                                    .then(c => this.api.contact().newInstance(this.user, patient, {
+                                        descr: 'Contact du jour',
+                                        userDescr: 'Contact du jour'
+                                    })
+                                    )
+                                : Promise.resolve(unclosedContact)) ||
+                            this.api.contact().newInstance(this.user, patient, {
+                                descr: 'Contact du jour',
+                                userDescr: 'Contact du jour'
+                            })
+                        ).then(newCtc => {
                             const thisYear = moment().year()
 
                             this.set('contacts', Object.values(ctcs.reduce((acc, it) => {
@@ -3262,15 +3283,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 var hcpHubCons = false;
                 if(!this.hubSupportsConsent){
                     this.$.hubStatus.classList.add('accessOk');
-                }
-                else {
+                } else {
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
                     this._getHubHcpConsent().then(consentResp => {
-                            this.set('hcpHubConsent', consentResp)
-                            if(consentResp.author.hcparties[0]) {
-                                hcpHubCons = true;
+                            if (consentResp) {
+                                this.set('hcpHubConsent', consentResp)
+                                hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
+                                this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
+                                Polymer.updateStyles(this.$.hubStatus)
                             }
-                            this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-                            Polymer.updateStyles(this.$.hubStatus)
                         }
                     )
                 }
@@ -3733,19 +3754,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _healthElementsSelectorDataProvider() {
                 return {
-                    filter: function (filterValue, limit, offset, sortKey, descending) {
+                    filter: function (cplxFilterValue, limit, offset, sortKey, descending) {
+                        const [cdItem, filterValue] = cplxFilterValue.split(':')
                         const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
                         const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
                         const words = noDiacFilterValue && noDiacFilterValue.toLowerCase().split(/\s+/);
-                        const sorter = x => [x.descr && x.descr.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) || x.name && x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) ? 0 : 1, x.descr, x.name]
+                        const sorter = x => { const key = (x.descr || x.name || '').normalize('NFD').replace(/[\u0300-\u036f ]/g, "").toLowerCase(); return [key.startsWith(words[0]), key]}
 
-                        return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
-                            const codes = results[0];
-                            const entityTemplates = results[1];
+                        const promises = [this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]
+                        if (cdItem !== 'surgery') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000))
+                        }
+                        if (cdItem === 'allergy' || cdItem === 'adr') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'CD-ATC', 'fr', words[0], null, null, 1000))
+                        }
+
+                        return Promise.all(promises).then(results => {
+                            const entityTemplates = results[0];
+                            const codes = _.flatMap(results.slice(1), cs => cs.rows);
                             const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).some(it => it.descr && it.descr.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp) || it.name && it.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp)))
                                 .map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
-                                .concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+                                .concat(codes.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
                             return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
                         });
                     }.bind(this)

@@ -251,23 +251,42 @@ class TarificationCodeImporter extends Importer {
 		List<String> relatedCodes
 	}
 
-	TarificationCodeImporter() {
-		initHttpClient(null, null)
-
-		this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarficationInfos[it.code] = it } }
-	}
-
-	private void initHttpClient(username, password) {
+	private void initHttpClient(username, password, couchdbBase = 'icure-base', couchdbPatient = 'icure-patient', couchdbContact = 'icure-healthdata', couchdbConfig = 'icure-config') {
 		HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL ?: "http"}://${DB_HOST ?: "127.0.0.1"}:" + DB_PORT).username(username ?: System.getProperty("dbuser") ?: "icure").password(password ?: System.getProperty("dbpass") ?: "S3clud3dM@x1m@").build()
 		CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 		// if the second parameter is true, the database will be created if it doesn't exists
-		couchdbBase = dbInstance.createConnector(DB_NAME + '-base', false);
-		couchdbPatient = dbInstance.createConnector(DB_NAME + '-patient', false);
-		couchdbContact = dbInstance.createConnector(DB_NAME + '-healthdata', false);
-		couchdbConfig = dbInstance.createConnector(DB_NAME + '-config', false);
+		this.couchdbBase = couchdbBase ? dbInstance.createConnector(couchdbBase, false) : null
+		this.couchdbPatient = couchdbPatient ? dbInstance.createConnector(couchdbPatient, false) : null
+		this.couchdbContact = couchdbContact ? dbInstance.createConnector(couchdbContact, false) : null
+		this.couchdbConfig = couchdbConfig ? dbInstance.createConnector(couchdbConfig, false) : null
+
 		Security.addProvider(new BouncyCastleProvider())
+		this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarficationInfos[it.code] = it } }
 	}
 
+	TarificationCodeImporter(dbprotocol, dbhost, dbport, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig, username, password, lang) {
+		this.DB_PROTOCOL = dbprotocol
+		this.DB_HOST = dbhost
+		this.DB_PORT = dbport
+		this.DB_NAME = null
+		this.language = lang
+
+		initHttpClient(username, password, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig)
+	}
+
+	TarificationCodeImporter(dbprotocol, dbhost, dbport, dbname, username, password, lang) {
+		this.DB_PROTOCOL = dbprotocol
+		this.DB_HOST = dbhost
+		this.DB_PORT = dbport
+		this.DB_NAME = dbname
+		this.language = lang
+
+		initHttpClient(username, password, DB_NAME + '-base', DB_NAME + '-patient', DB_NAME + '-healthdata', DB_NAME + '-config')
+	}
+
+	TarificationCodeImporter() {
+		initHttpClient(null, null)
+	}
 
 	static void main(String... args) {
 		def options = args

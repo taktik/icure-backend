@@ -11,6 +11,7 @@
 <link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../../atc-styles.html">
 <link rel="import" href="../../../scrollbar-style.html">
+<link rel="import" href="../../ht-pat/dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 
 <dom-module id="medication-plan-dialog">
     <template>
@@ -18,14 +19,6 @@
             paper-dialog {
                 width: 90%;
                 height: 80%;
-            }
-
-            .modal-title {
-                padding: 0 24px;
-                display: flex;
-                flex-flow: row wrap;
-                justify-content: space-between;
-                align-items: center;
             }
 
             paper-tabs {
@@ -38,6 +31,8 @@
             paper-tab {
                 --paper-tab-ink: var(--app-secondary-color);
             }
+
+            
 
             .patient {
                 height: calc(100% - 48px - 48px);
@@ -126,6 +121,13 @@
             .col--bef, .col--dur, .col--aft {
                 max-width: 56px;
                 min-width: 56px;
+                text-align: center;
+                flex-grow: 1;
+            }
+
+            .col--noMoment{
+                max-width: 168px;
+                min-width: 168px;
                 text-align: center;
                 flex-grow: 1;
             }
@@ -448,6 +450,10 @@
 
             /* HISTORY */
 
+            .history{
+                margin-top: 24px;
+            }
+
             .timeline-header{
                 display: flex;
                 flex-flow: row nowrap;
@@ -535,9 +541,40 @@
             }
 
             .medication-category{
+                display:flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-between;
                 color: var(--app-text-color);
                 font-size: 10px;
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
+            .medication-category span:first-child{
+                width: 10%;
+                flex-grow: 1;
                 padding-left: 8px;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            .medication-category span:nth-child(2){
+                max-width: calc(24px * 36 + 2px);
+                width: calc(24px * 36 + 2px);
+                display:block;
+                height: 20px;
+                box-sizing: border-box;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+            }
+            
+            .medication-category span:last-child{
+                width: 10%;
+                flex-grow: 1;
+                display:block;
+                height: 100%;
+                box-sizing: border-box;
             }
 
             .medication-line{
@@ -550,11 +587,12 @@
             }
 
             .medication-line:nth-child(even){
-                background: var(--app-background-color-light);
+                background: #FAFAFA;
             }
 
             .medication-line .type{
                 width: 10%;
+                height: 100%;
                 text-align: left;
                 flex-grow: 1;
                 padding-left: 8px;
@@ -563,6 +601,11 @@
             .medication-line .extra-info{
                 width: 10%;
                 flex-grow: 1;
+                padding: 0 8px; 
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                height: 100%;
             }
 
             .medication-line .line-container{
@@ -570,23 +613,32 @@
                 width: calc(24px * 36 + 2px);
                 overflow: hidden;
                 height: 24px;
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
             }
 
             .medication-line .line{
                 display: flex;
                 box-sizing: unset;
                 position: absolute;
-                background: red;
                 color: #fff;
-                width: 600px;
                 border-radius: 2px;
                 top: 0;
                 left: 0;
                 height: 100%;
-                margin: 1px 0;
                 flex-flow: row wrap;
                 align-items: center;
-                justify-content: flex-start;
+                justify-content: space-between;
+                margin: 1px 0;
+            }
+
+            .medication-line .line::after{
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                display: block;
+                content:'';
+                z-index: 0;
             }
 
             .medication-line .line.over{
@@ -599,394 +651,371 @@
             }
 
             .medication-line .line .name{
-                width: 100%;
                 text-align: left;
                 margin-left: 4px;
+                margin-bottom: 4px; 
+                z-index: 1;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 4px;
+            }
+
+            .medication-line .line .until{
+                text-align: right;
+                margin-right: 4px;
+                margin-bottom: 4px; 
+                z-index: 1;
             }
 
             .medication-line .reimbursement-line{
                 display: block;
                 position: absolute;
                 width: 100%;
-                background: green;
+                background: var(--app-status-color-ok);
                 height: 4px;
                 bottom: 0;
+                transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+                overflow: visible;
             }
+
+            .medication-line .reimbursement-line:hover{
+                height: 6px;
+            }
+
+            paper-tooltip{
+                --paper-tooltip: {
+                    position: fixed;
+                    z-index: 900;
+                    width: auto;
+                    left: 50%;
+                    top: calc(10% + 24px);
+                    transform: translate(-50%, -50%);
+                    box-sizing: border-box;
+                }
+            }
+
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
 
-            <h2 class="modal-title">[[localize('med_plan','Medication plan',language)]]
+            <h2 class="modal-title">[[_getModalTitle(selectedTab)]]
                 <paper-tabs selected="{{selectedTab}}">
-                    <paper-tab>History</paper-tab>
-                    <paper-tab>Present</paper-tab>
-                    <paper-tab>Patient</paper-tab>
+                    <paper-tab>[[localize('tab_pres','Present',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_pat','Patient',language)]]</paper-tab>
+                    <paper-tab>[[localize('tab_chap','Chapter IV',language)]]</paper-tab>
                 </paper-tabs>
             </h2>
 
+            <div class="content">
 
-            <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                <div class="history">
-                    <div class="timeline">
-                        <div class="timeline-header">
-                            <div class="btn-left">
-                                <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
-                            </div>
-                            <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
-                                <template is="dom-repeat" items=[[historyYears]] as="historyYear">
-                                    <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
-                                        <div class="year">[[historyYear.number]]</div>
-                                        <div class="quarter">Q1</div>
-                                        <div class="quarter">Q2</div>
-                                        <div class="quarter">Q3</div>
-                                        <div class="quarter">Q4</div>
-                                    </div>
-                                </template>
-                                <div class="futur-block">
-                                    <div>futur</div>
+                <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
+                    <div class="present">
+                        <div class="table">
+                            <div class="tr th">
+                                <div class="td reimbursed">
+
                                 </div>
+                                <div class="td"
+                                    style="flex-grow: 5;">
 
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_break','Breakfast',language)]]</span>
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_lunch','Lunch',language)]]</span>
+                                </div>
+                                <div class="td span-3" style="flex-grow: 3;">
+                                    <span>[[localize('mom_dinner','Dinner',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+
+                                </div>
+                                <div class="td" style="flex-grow: 4;">
+
+                                </div>
                             </div>
-                            <div class="btn-right">
-                                <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
+                            <div class="tr th">
+                                <div class="td">
+
+                                </div>
+                                <div class="td td--medicine"
+                                    style="flex-grow: 5; justify-content: flex-start">
+                                    <span class="left">[[localize('medic','Medicine',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+                                    <span>[[localize('freq','Frequency',language)]]</span>
+                                </div>
+                                <div class="td bf-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td bf-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td bf-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td lu-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td lu-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td lu-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td di-bef">
+                                    <span>[[localize('mom_before','Before',language)]]</span>
+                                </div>
+                                <div class="td di-dur">
+                                    <span>[[localize('mom_during','During',language)]]</span>
+                                </div>
+                                <div class="td di-aft">
+                                    <span>[[localize('mom_after','After',language)]]</span>
+                                </div>
+                                <div class="td" style="flex-grow: 2;">
+                                    <span>[[localize('endDate','End Date',language)]]</span>
+                                </div>
+                                <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
+                                    <span class="left">[[localize('com','Comments',language)]]</span>
+                                    <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
+                                </div>
                             </div>
+                            <!-- END HEADER -->
+                            <!-- START BODY -->
+                            <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
+                                <div class="tr category">
+                                    <div class="td"></div>
+                                    <div class="td td--category" style="flex-grow: 5;">
+                                        <iron-icon icon="history"></iron-icon>
+                                        <span class="left"><b>[[_localizedTitle(medicationsWithPosology)]]</b></span>
+                                    </div>
+                                    <div class="td" style="flex-grow: 2;"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td"></div>
+                                    <div class="td" style="flex-grow: 2;"></div>
+                                    <div class="td" style="flex-grow: 4;"></div>
+                                </div>
+                                <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
+                                <div class$="tr [[_medicationClass(m.medication)]]">
+                                    <div class="td reimbursed">
+                                        <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="reimbursed-status [[_hasValidChap4Class(m.medication)]]"></iron-icon>
+                                        <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
+                                    </div>
+                                    <div class="td td--medicine" style="flex-grow: 5;">
+                                        <span class="left">[[_serviceDescription(m.medication)]]</span>
+                                    </div>
+                                    <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
+                                    <template is="dom-repeat" items="[[combinedTableHeaders(medicationClassesWithPosology, 0, m.regimenTable.0, m.regimenTable.0.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]">
+                                                    <input value="{{regimen.administratedQuantity.quantity}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 4, m.regimenTable.4, m.regimenTable.4.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 8, m.regimenTable.8, m.regimenTable.8.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]" bind-value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity::input}}"></iron-input></div>
+                                    <template is="dom-repeat" items="[[combinedTable(medicationClassesWithPosology, 12, m.regimenTable.12, m.regimenTable.12.*, medicationsWithPosology.meds.*)]]" as="regimen">
+                                        <div class="td td-input bf-bef">
+                                            <span>
+                                                <iron-input allowed-pattern="[0-9]" bind-value="{{regimen.administratedQuantity.quantity}}">
+                                                    <input value="{{regimen.administratedQuantity.quantity::input}}">
+                                                </iron-input>
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <div class="td" style="flex-grow: 2;"><span>[[_getMedicationClosingDate(m.medication)]]</span></div>
+                                    <div class="td td--comments" style="flex-grow: 4;"><span class="left">[[m.medication.instructionForPatient]]</span></div>
+                                </div>
+                            </template>
+                            </template>
                         </div>
-                        <div class="timeline-body">
-                            <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
-                                <div class="medication-category">[[fakePatientMedication.category]]</div>
-                                <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
+                        <!-- END BODY -->
+                        <!-- END TABLE -->
+                    </div>
+
+                </template>
+
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                    <div class="history">
+                        <div class="timeline">
+                            <div class="timeline-header">
+                                <div class="btn-left">
+                                    <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
+                                </div>
+                                <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
+                                    <template is="dom-repeat" items=[[historyYears]] as="historyYear">
+                                        <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
+                                            <div class="year">[[historyYear.number]]</div>
+                                            <div class="quarter">Q1</div>
+                                            <div class="quarter">Q2</div>
+                                            <div class="quarter">Q3</div>
+                                            <div class="quarter">Q4</div>
+                                        </div>
+                                    </template>
+                                    <div class="futur-block">
+                                        <div>futur</div>
+                                    </div>
+
+                                </div>
+                                <div class="btn-right">
+                                    <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
+                                </div>
+                            </div>
+                            <div class="timeline-body">
+                                <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
+                                    <div class="medication-category">
+                                        <span>[[fakePatientMedication.category]]</span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
                                         <div class="medication-line" id="scrollable-element">
                                             <div class="type">[[medication.type]]</div>
                                             <div class="line-container">
-                                                <div class="line-total-width" style$="[[_totalWidth()]]">
-                                                    <div id="line" class$="line [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                <div class="line-total-width" style$="width: [[totalWidth]]px;">
+                                                    <div id="[[medication.id]]" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
                                                         <div class="name">[[medication.name]] - [[medication.posology]]</div>
+                                                        <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
                                                     </div>
-                                                    <template is="dom-if" if="[[medication.isReimbursed]]">
-                                                        <div class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div>
-                                                    </template>
+                                                    <paper-tooltip position="top" for="[[medication.id]]">[[medication.name]] - [[medication.posology]]</paper-tooltip>
+
+                                                    <div id="[[medication.id]]reimbursedLine" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div>
+                                                    <paper-tooltip position="top" for="[[medication.id]]reimbursedLine">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
                                                 </div>
                                             </div>
                                             <div class="extra-info">[[medication.extraInfo]]</div>
+
                                         </div>
                                     </template>
+                                </template>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
+                <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
+                    <div class="patient">
+                        <div class="general-infos">
+                            <div class="infos-block">
+                                <div class="infos--name"><span>GP</span>Dr. [[user.name]]</div>
+                                <div class="infos--address"><span>Address</span>50 street StreetName</div>
+                            </div>
+
+                            <div class="infos-block">
+                                <div class="infos--name"><span>Pharmacist</span>FirstName LastName</div>
+                                <div class="infos--address"><span>Address</span>250 street StreetName</div>
+                            </div>
+                        </div>
+
+                        <template is="dom-repeat" items="[[patientPlan]]" as="plan">
+                            <template is="dom-if" if="[[_isRegimen(plan.meds)]]">
+                                <div id="breakfast" class="table-container">
+                                    <div class="header">
+                                        <iron-icon icon="icure-svg-icons:[[plan.icon]]"></iron-icon>
+                                        <h3>[[plan.title]]</h3>
+                                    </div>
+                                    <div class="table-header">
+                                        <div class="col col--med">[[localize('medic','Medicine',language)]]</div>
+                                        <div class="col col--photo">Photo</div>
+                                        <div class="col col--ed">[[localize('endDate','End Date',language)]]</div>
+                                        <div class="col col--freq">[[localize('freq','Frequency',language)]]</div>
+                                        <template is="dom-if" if="[[_isMomentDetail(plan.title)]]">
+                                            <div class="col col--bef">[[localize('mom_before','Before',language)]]</div>
+                                            <div class="col col--dur">[[localize('mom_during','During',language)]]</div>
+                                            <div class="col col--aft">[[localize('mom_after','After',language)]]</div>
+                                        </template>
+                                        <template is="dom-if" if="[[!_isMomentDetail(plan.title)]]">
+                                            <div class="col col--bef"></div>
+                                            <div class="col col--dur"></div>
+                                            <div class="col col--aft"></div>
+                                        </template>
+                                        <div class="col col--com">[[localize('com','Comments',language)]]</div>
+                                    </div>
+                                    <div class="table-body">
+                                        <template is="dom-repeat" items="[[plan.meds]]" as="m">
+                                                <div class="table-row">
+                                                    <div class="col col--med"><span class="med--name">[[_serviceDescription(m.medication)]]</span><span class="med--comp">[[_servicePosology(m.medication)]]</span></div>
+                                                    <div class="col col--photo"></div>
+                                                    <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
+                                                    <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
+                                                    <template is="dom-if" if="[[_isMomentDetail(plan.title)]]">
+                                                        <div class="col col--bef">
+                                                            <template is="dom-if" if="[[_getRegimensMoment(m.before, 0)]]">
+                                                                <span class="dur-pill">[[_getRegimenQuantity(m.before)]]</span>
+                                                            </template>
+                                                        </div>
+                                                        <div class="col col--dur">
+                                                            <template is="dom-if" if="[[_getRegimensMoment(m.during, 1)]]">
+                                                                <span class="dur-pill">[[_getRegimenQuantity(m.during)]]</span>
+                                                            </template>
+                                                        </div>
+                                                        <div class="col col--aft">
+                                                            <template is="dom-if" if="[[_getRegimensMoment(m.after, 2)]]">
+                                                                <span class="dur-pill">[[_getRegimenQuantity(m.after)]]</span>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_isMomentDetail(plan.title)]]">
+                                                        <div class="col col--bef"></div>
+                                                        <div class="col col--dur"><span class="dur-pill">[[_getRegimenQuantity(m.during)]]</span></div>
+                                                        <div class="col col--aft"></div>
+                                                    </template>
+                                                    <div class="col col--com">[[m.medication.instructionForPatient]]</div>
+                                                </div>
+                                        </template>
+                                    </div>
+                                </div>
                             </template>
-                        </div>
-                    </div>
-
-                </div>
-            </template>
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
-                <div class="present">
-                    <div class="table">
-                        <div class="tr th">
-                            <div class="td reimbursed">
-
-                            </div>
-                            <div class="td"
-                                 style="flex-grow: 5;">
-
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>Breakfast</span>
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>Lunch</span>
-                            </div>
-                            <div class="td span-3" style="flex-grow: 3;">
-                                <span>Dinner</span>
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-
-                            </div>
-                            <div class="td" style="flex-grow: 4;">
-
-                            </div>
-                        </div>
-                        <div class="tr th">
-                            <div class="td">
-
-                            </div>
-                            <div class="td td--medicine"
-                                 style="flex-grow: 5; justify-content: flex-start">
-                                <span class="left">Medicine</span>
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-                                <span>Frequency</span>
-                            </div>
-                            <div class="td bf-bef">
-                                <span>Before</span>
-                            </div>
-                            <div class="td bf-dur">
-                                <span>During</span>
-                            </div>
-                            <div class="td bf-aft">
-                                <span>After</span>
-                            </div>
-                            <div class="td lu-bef">
-                                <span>Before</span>
-                            </div>
-                            <div class="td lu-dur">
-                                <span>During</span>
-                            </div>
-                            <div class="td lu-aft">
-                                <span>After</span>
-                            </div>
-                            <div class="td di-bef">
-                                <span>Before</span>
-                            </div>
-                            <div class="td di-dur">
-                                <span>During</span>
-                            </div>
-                            <div class="td di-aft">
-                                <span>After</span>
-                            </div>
-                            <div class="td" style="flex-grow: 2;">
-                                <span>End Date</span>
-                            </div>
-                            <div class="td td-comments" style="flex-grow: 4; justify-content: space-between;">
-                                <span class="left">Comments</span>
-                                <paper-icon-button class="add-period-btn" on-tap="" icon="add-circle"></paper-icon-button>
-                            </div>
-                        </div>
-                        <!-- END HEADER -->
-                        <!-- START BODY -->
-                        <template is="dom-repeat" items="[[medicationClassesWithPosology]]" as="medicationsWithPosology">
-                            <div class="tr category">
-                                <div class="td"></div>
-                                <div class="td td--category" style="flex-grow: 5;">
-                                    <iron-icon icon="history"></iron-icon>
-                                    <span class="left"><b>[[_localizedTitle(medicationsWithPosology)]]</b></span>
-                                </div>
-                                <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td"></div>
-                                <div class="td" style="flex-grow: 2;"></div>
-                                <div class="td" style="flex-grow: 4;"></div>
-                            </div>
-                            <template is="dom-repeat" items="[[medicationsWithPosology.meds]]" as="m">
-                            <div class$="tr [[_medicationClass(m.medication)]]">
-                                <div class="td reimbursed">
-                                    <iron-icon id="reimbursedStatus" icon="icons:euro-symbol" class$="reimbursed-status [[_hasValidChap4Class(m.medication)]]"></iron-icon>
-                                    <paper-tooltip for="reimbursedStatus">[[_chap4Status(m.medication)]]</paper-tooltip>
-                                </div>
-                                <div class="td td--medicine" style="flex-grow: 5;">
-                                    <span class="left">[[_serviceDescription(m.medication)]]</span>
-                                </div>
-                                <div class="td" style="flex-grow: 2;"><span>[[_servicePosology(m.medication)]]</span></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.0]]" as="regimen">
-                                    <div class="td td-input bf-bef"><span><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></span></div>
-                                </template>
-                                <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.1.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input bf-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.2.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input bf-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.3.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.4]]" as="regimen">
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
-                                </template>
-                                <div class="td td-input lu-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.5.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input lu-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.6.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input lu-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.7.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.8]]" as="regimen">
-                                    <div class="td td-input bf-bef">[[regimen.administratedQuantity.quantity]]</div>
-                                </template>
-                                <div class="td td-input di-bef"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.9.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input di-dur"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.10.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <div class="td td-input di-aft"><iron-input allowed-pattern="[0-9]"><input value="{{m.regimenTable.11.0.administratedQuantity.quantity}}"></iron-input></div>
-                                <template is="dom-repeat" items="[[m.regimenTable.12]]" as="regimen">
-                                    <div class="td td-input bf-bef"><iron-input allowed-pattern="[0-9]"><input value="{{regimen.administratedQuantity.quantity}}"></iron-input></div>
-                                </template>
-                                <div class="td" style="flex-grow: 2;"><span>10/02/2019</span></div>
-                                <div class="td td--comments" style="flex-grow: 4;"><span class="left"></span></div>
-                            </div>
-                        </template>
                         </template>
                     </div>
-                    <!-- END BODY -->
-                    <!-- END TABLE -->
-                </div>
+                </template>
+            </div>
 
-                </div>
+            <template is="dom-if" if="{{_isEqual(selectedTab,3)}}">
+                <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
             </template>
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
-                <div class="patient">
-                    <div class="general-infos">
-                        <div class="infos-block">
-                            <div class="infos--name"><span>GP</span>Dr. FirstName LastName</div>
-                            <div class="infos--address"><span>Address</span>50 street StreetName</div>
-                        </div>
-
-                        <div class="infos-block">
-                            <div class="infos--name"><span>Pharmacist</span>FirstName LastName</div>
-                            <div class="infos--address"><span>Address</span>250 street StreetName</div>
-                        </div>
-                    </div>
-                    <div id="breakfast" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:breakfast"></iron-icon>
-                            <h3>breakfast</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="lunch" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:lunch"></iron-icon>
-                            <h3>Lunch</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="dinner" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:dinner"></iron-icon>
-                            <h3>Dinner</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="beforeBed" class="table-container">
-                        <div class="header">
-                            <iron-icon icon="icure-svg-icons:bed"></iron-icon>
-                            <h3>Before Bed</h3>
-                        </div>
-                        <div class="table-header">
-                            <div class="col col--med">Medicine</div>
-                            <div class="col col--photo">Photo</div>
-                            <div class="col col--ed">End Date</div>
-                            <div class="col col--freq">Frequency</div>
-                            <div class="col col--bef">Before</div>
-                            <div class="col col--dur">During</div>
-                            <div class="col col--aft">After</div>
-                            <div class="col col--com">Comments</div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">30/03/2018</div>
-                                <div class="col col--freq">Everyday</div>
-                                <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                <div class="col col--dur"></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com">Drink with a glass of milk</div>
-                            </div>
-                            <div class="table-row">
-                                <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed"></div>
-                                <div class="col col--freq">Once a week</div>
-                                <div class="col col--bef"></div>
-                                <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                <div class="col col--aft"></div>
-                                <div class="col col--com"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
 
             <div class="buttons">
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">Close</paper-button>
@@ -1027,7 +1056,10 @@
                         type: Array,
                         value: () => []
                     },
-
+                    patientPlan:{
+                        type: Array,
+                        value: () => []
+                    },
                     scrollLeft: {
                         type: Number,
                         value: 0,
@@ -1035,9 +1067,23 @@
                         observer: '_scrollLeftChanged'
                     },
 
+                    totalWidth: {
+                        type: Number,
+                        value: 0,
+                        notify: true,
+                        observer: '_totalWidth'
+                    },
+                    user: {
+                        type: Object
+                    },
                     historyYears: {
                         type: Array,
                         value: () => [
+                            {
+                                id: "year-2014",
+                                number: 2014,
+                                isCurrent: false
+                            },
                             {
                                 id: "year-2015",
                                 number: 2015,
@@ -1067,17 +1113,20 @@
                                 category: "Anti-hypertenseurs",
                                 medications: [
                                     {
+                                        id: "selectol500mg",
                                         name: "Selectol 500mg",
                                         posology: "2x/d",
                                         type: "ß-bloquant",
                                         startDate: "01 jan 2017",
                                         endDate: "31 dec 2018",
-                                        extraInfo: "",
+                                        extraInfo: "Take with a glass of milk Take with a glass of milk Take with a glass of milk Take with a glass of milk",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 jan 2017",
-                                        reimmbursementDateEnd: "31 dec 2018"
+                                        reimmbursementDateEnd: "31 dec 2018",
+                                        colour: "ATC--L"
                                     },
                                     {
+                                        id: "Amlor200mg",
                                         name: "Amlor 200mg",
                                         posology: "2x/d",
                                         type: "Inhib.-Ca",
@@ -1086,18 +1135,49 @@
                                         extraInfo: "",
                                         isReimbursed: true,
                                         reimmbursementDateStart: "20 mar 2018",
-                                        reimmbursementDateEnd: "30 sept 2048"
+                                        reimmbursementDateEnd: "30 sept 2019",
+                                        colour: "ATC--L"
+                                    }
+                                ]
+                            },
+                            {
+                                category: "Anti-douleur",
+                                medications: [
+                                    {
+                                        id: "paracetamolTeva200mg",
+                                        name: "Paracétamol Téva 200mg",
+                                        posology: "2x/j",
+                                        type: "",
+                                        startDate: "01 mar 2017",
+                                        endDate: "15 dec 2017",
+                                        extraInfo: "",
+                                        isReimbursed: false,
+                                        reimmbursementDateStart: "20 jan 2017",
+                                        reimmbursementDateEnd: "31 dec 2018",
+                                        colour: "ATC--J"
+                                    },
+                                    {
+                                        id: "claradolCodeine20mg",
+                                        name: "Claradol Codéine 20mg",
+                                        posology: "1x/d",
+                                        type: "",
+                                        startDate: "01 sep 2018",
+                                        endDate: "30 sep 2018",
+                                        extraInfo: "",
+                                        isReimbursed: true,
+                                        reimmbursementDateStart: "20 mar 2018",
+                                        reimmbursementDateEnd: "30 sept 2019",
+                                        colour: "ATC--J"
                                     }
                                 ]
                             },
                         ]
                     }
-
                 }
             }
 
             static get observers() {
-                return ['_medicationsChanged(medications.*)']
+                return ['_medicationsChanged(medications.*)', '_patientPlanChanged(medications.*)']
             }
 
             constructor() {
@@ -1111,7 +1191,7 @@
             }
 
             attached() {
-                super.attached();
+                super.attached(); 
                 this.async(this.notifyResize, 1);
             }
 
@@ -1134,7 +1214,7 @@
 
             _setInitialScroll(){
                 const currentYear = this.shadowRoot.querySelector('.current')
-                this.set('scrollLeft', currentYear.offsetLeft)
+                this.set('scrollLeft', currentYear && currentYear.offsetLeft)
             }
 
             _scrollBack(e){
@@ -1154,7 +1234,13 @@
                 const historyYearStart = new Date("01 jan " + this.historyYears[0].number)
                 const left = Math.round((Date.parse(startDate) - Date.parse(historyYearStart))  * 3.8027E-10 * 24)
                 endDate = (endDate) ? new Date(endDate) : null
-                const width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                const currentYear = new Date().getFullYear()
+                let width = "0"
+                if (currentYear >= endDate.getFullYear()) {
+                    width = (startDate && endDate) ? Math.round((Date.parse(endDate) - Date.parse(startDate)) * 3.8027E-10 * 24) + 'px' : 100 + '%'
+                } else{
+                    width = this.totalWidth - left + "px"
+                }
 
                 return "left: " + left + "px; " + "width: " + width
             }
@@ -1167,15 +1253,13 @@
 
             _totalWidth(){
                 const width = this.historyYears.length * 12 * 24 + 24 * 4
-                return "width: " + width + "px;"
+                this.set('totalWidth',  width)
             }
-
-
 
             _isOver(endDate){
                 endDate = new Date(endDate)
-                // endDateYear = endDate.getFullYear()
-                if(endDate) return (Date.parse(endDate) < Date.now()) ? 'over' : ''
+                const endDateYear = endDate.getFullYear()
+                if(endDateYear) return (endDateYear < (new Date()).getFullYear()) ? 'over' : ''
             }
 
             _isCurrentYear(current){
@@ -1185,6 +1269,13 @@
             _isEqual(a,b) {
                 console.log(a+' ?= '+b)
                 return (a === b)
+            }
+
+            _endAfterCurrent(endDate){
+                const endDateYear = new Date(endDate).getFullYear()
+                const currentYear = new Date().getFullYear()
+                console.log("!!!!!! current !!!!!!!!", (endDateYear > currentYear))
+                return (endDateYear > currentYear)
             }
 
             open(medicationPlan, selectedMedicationContentWithId) {
@@ -1290,7 +1381,7 @@
                         }
                     }
                 })
-                return conditions.map(c => (regimen || []).filter(r => r.frequency === frequency && c(rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] ||  0)))
+                return regsTable
             }
 
             _medicationsChanged() {
@@ -1324,6 +1415,10 @@
 
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _serviceFrequency(s){
+                return this.api.contact().medication().frequencyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
 
             _chap4Status(s) {
@@ -1369,6 +1464,198 @@
                     l === 'R' ? this.localize('res_sys','Respiratory system') :
                     l === 'S' ? this.localize('sens_org','Sensory organs') :
                     l === 'V' ? this.localize('various','Various') : this.localize('unk','Unknown')
+            }
+
+            _getModalTitle(){
+                return this.selectedTab === 3 ? this.localize('tab_chap','Chapter IV') : this.localize('med_plan','Medication plan')
+            }
+
+            _getMedicationQuantity(quantity){
+                return quantity
+            }
+
+            _isEmptyRegiment(regiment){
+                return regiment && regiment.length !== 0 ? false : true
+            }
+
+            combinedTableHeaders(medicationClassesWithPosology, index){
+                return _(medicationClassesWithPosology)
+                    .flatMap(classe => classe.meds)
+                    .map(med => med.regimenTable)
+                    .compact()
+                    .map(reg => reg[index])
+                    .compact()
+                    .flatMap(r => r.administratedQuantity && r.administratedQuantity.quantity > 0 && (r.timeOfDay || r.dayPeriod && r.dayPeriod.code))
+                    .compact()
+                    .uniq()
+                    .value()
+            }
+
+            combinedTable(medicationClassesWithPosology, index, regimenTable) {
+                this.combinedTableHeaders(medicationClassesWithPosology, index).map(col =>
+                    regimenTable.find(r => r.timeOfDay === col || r.dayPeriod && r.dayPeriod.code === col)
+                )
+            }
+
+            _getMedicationClosingDate(medication){
+                return medication && medication.closingDate ? this.api.moment(medication.closingDate).format("DD/MM/YYYY") : ""
+            }
+
+            _patientPlanChanged(){
+               let medicationClass = this.medicationClassesWithPosology
+
+                const medications = medicationClass.flatMap(classe => classe.meds)
+
+                let regimensTableByDayPeriod = {
+                    beforeBreak : [],
+                    breakfast : [],
+                    betweenBAndL: [],
+                    lunch: [],
+                    betweenLAndD: [],
+                    dinner: [],
+                    night: []
+                }
+
+                medications.map(m => {
+
+                    const medication = m.medication
+                    const regimens = m.regimenTable
+
+                    if((regimens[0]).length > 0){
+                        regimensTableByDayPeriod.beforeBreak.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[0]),
+                            before: [],
+                            during: regimens[0],
+                            after: []
+                        })
+                    }
+
+                    if(((_.compact(_.concat(regimens[1], regimens[2], regimens[3]))).length) > 0){
+                        regimensTableByDayPeriod.breakfast.push({
+                            medication : medication,
+                            regimens: _.uniq((_.compact(_.concat(regimens[1], regimens[2], regimens[3])))),
+                            before: regimens[1],
+                            during: regimens[2],
+                            after: regimens[3]
+                        })
+                    }
+
+                    if(regimens[4].length > 0){
+                        regimensTableByDayPeriod.betweenBAndL.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[4]),
+                            before: [],
+                            during: regimens[4],
+                            after: []
+                        })
+                    }
+
+                    if(((_.compact(_.concat(regimens[5], regimens[6], regimens[7]))).length) > 0){
+                        regimensTableByDayPeriod.lunch.push({
+                            medication : medication,
+                            regimens: _.uniq((_.compact(_.concat(regimens[5], regimens[6], regimens[7])))),
+                            before: regimens[5],
+                            during: regimens[6],
+                            after: regimens[7]
+                        })
+                    }
+
+                    if(regimens[8].length > 0){
+                        regimensTableByDayPeriod.betweenLAndD.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[8]),
+                            before: [],
+                            during: regimens[8],
+                            after: []
+                        })
+                    }
+
+                    if(((_.compact(_.concat(regimens[9], regimens[10], regimens[11]))).length) > 0){
+                        regimensTableByDayPeriod.dinner.push({
+                            medication : medication,
+                            regimens: _.uniq((_.compact(_.concat(regimens[9], regimens[10], regimens[11])))),
+                            before: regimens[9],
+                            during: regimens[10],
+                            after: regimens[11]
+                        })
+                    }
+
+                    if(regimens[12].length > 0){
+                        regimensTableByDayPeriod.night.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[12]),
+                            before: [],
+                            during: regimens[12],
+                            after: []
+                        })
+                    }
+
+                })
+
+                const beforeBreak = {
+                   title: this.localize("mom_wakeup", "Wake-up", this.language),
+                   icon: "wakeup",
+                   meds : regimensTableByDayPeriod.beforeBreak
+                }
+                const breakfast = {
+                   title: this.localize("mom_break", "Breakfast", this.language),
+                   icon: "breakfast",
+                   meds : regimensTableByDayPeriod.breakfast
+                }
+                const betweenBAndL = {
+                   title: this.localize("mom_morning", "Morning", this.language),
+                   icon: "morning",
+                   meds : regimensTableByDayPeriod.betweenBAndL
+                }
+                const lunch = {
+                   title: this.localize("mom_lunch", "Lunch", this.language),
+                   icon: "lunch",
+                   meds : regimensTableByDayPeriod.lunch
+                }
+                const betweenLAndD = {
+                   title: this.localize("mom_afternoon", "Afternoon", this.language),
+                   icon: "afternoon",
+                   meds : regimensTableByDayPeriod.betweenLAndD
+                }
+                const dinner = {
+                   title: this.localize("mom_dinner", "Dinner", this.language),
+                   icon: "dinner",
+                   meds : regimensTableByDayPeriod.dinner
+                }
+                const night = {
+                   title: this.localize("mom_bef_bed", "Before bed", this.language),
+                   icon: "bed",
+                   meds : regimensTableByDayPeriod.night
+                }
+
+                const patientPlan = [beforeBreak, breakfast, betweenBAndL, lunch, betweenLAndD, dinner, night]
+
+                this.set("patientPlan", patientPlan)
+            }
+
+            _isRegimen(meds){
+                return (meds && meds.length > 0) ? true : false
+            }
+
+            _getRegimensMoment(regimen, moment){
+                const r = regimen && regimen[0]
+                if(r && r.administratedQuantity && r.administratedQuantity.quantity > 0 && (r.timeOfDay || r.dayPeriod && r.dayPeriod.code)){
+                    return moment === 0 && (r.dayPeriod.code === "beforebreakfast" || r.dayPeriod.code === "beforelunch" || r.dayPeriod.code === "beforedinner") ? true :
+                        moment === 1 && (r.dayPeriod.code === "duringbreakfast" || r.dayPeriod.code === "duringlunch" || r.dayPeriod.code === "duringdinner") ? true :
+                            moment === 2 && (r.dayPeriod.code === "afterbreakfast" || r.dayPeriod.code === "afterlunch" || r.dayPeriod.code === "afterdinner") ? true :
+                                false
+                }
+            }
+
+            _getRegimenQuantity(regimen){
+                const r = regimen
+                return (r && r.length == 1 && r[0].administratedQuantity && r[0].administratedQuantity.quantity > 0 && (r[0].timeOfDay || r[0].dayPeriod && r[0].dayPeriod.code)) ? r[0].administratedQuantity.quantity :
+                    r && r.length > 1 ? r.length : 1
+            }
+
+            _isMomentDetail(moment){
+                return (moment && (moment === this.localize("mom_break", "Breakfast", this.language) || moment === this.localize("mom_dinner", "Dinner", this.language) || moment === this.localize("mom_lunch", "Lunch", this.language))) ? true : false
             }
         }
 
