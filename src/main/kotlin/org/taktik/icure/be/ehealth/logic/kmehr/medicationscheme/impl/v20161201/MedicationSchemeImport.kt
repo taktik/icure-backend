@@ -1,4 +1,4 @@
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
@@ -14,6 +14,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.HeVersionType
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -51,8 +52,8 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 val idGenerator: UUIDGenerator) {
 
     var subcontactLinks = mutableListOf<Map<String,Any>>()
-    var versionLinks = mutableListOf<heVersionType>()
-    var versionLinksByMFID = mapOf<String, List<heVersionType>>()
+    var versionLinks = mutableListOf<HeVersionType>()
+    var versionLinksByMFID = mapOf<String, List<HeVersionType>>()
     var hesByMFID = mutableMapOf<String,HealthElement>()
 
 
@@ -68,7 +69,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
 
         var allRes = LinkedList<ImportResult>()
         subcontactLinks = mutableListOf<Map<String,Any>>()
-        versionLinks = mutableListOf<heVersionType>()
+        versionLinks = mutableListOf<HeVersionType>()
         hesByMFID = mutableMapOf<String,HealthElement>()
 
         val standard = kmehrMessage.header.standard.cd.value
@@ -141,7 +142,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun makeHeVersioning(hes : List<heVersionType>) {
+    private fun makeHeVersioning(hes : List<HeVersionType>) {
         // this make all He linked by version have the same healthElementId
 
         hes.forEach { hev ->
@@ -153,7 +154,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         }
 
     }
-    private fun findHeAncestor(parentHe: heVersionType, walkedmap: MutableMap<String, String?>?) : String? {
+    private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?) : String? {
         var walked = walkedmap
         if(walked == null) {
             walked = mutableMapOf<String, String?>()
@@ -310,14 +311,14 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                             // register new version links
                             val mfid = getItemMFID(item)
                             versionLinks.add(
-                                    heVersionType(
+                                HeVersionType(
                                             he = notNullHe,
                                             mfId = mfid!!,
                                             isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
                                                 extractMFIDFromUrl(it.url)
                                             },
                                             versionId = null
-                                    )
+                                             )
                             )
                             hesByMFID[mfid] = notNullHe
                         }

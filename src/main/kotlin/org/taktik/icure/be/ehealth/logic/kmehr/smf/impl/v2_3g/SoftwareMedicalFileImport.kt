@@ -51,8 +51,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val idGenerator: UUIDGenerator) {
 
     var subcontactLinks = mutableListOf<Map<String,Any>>()
-    var versionLinks = mutableListOf<heVersionType>()
-    var versionLinksByMFID = mapOf<String, List<heVersionType>>()
+    var versionLinks = mutableListOf<HeVersionType>()
+    var versionLinksByMFID = mapOf<String, List<HeVersionType>>()
     var hesByMFID = mutableMapOf<String,HealthElement>()
 
 
@@ -68,7 +68,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         var allRes = LinkedList<ImportResult>()
         subcontactLinks = mutableListOf<Map<String,Any>>()
-        versionLinks = mutableListOf<heVersionType>()
+        versionLinks = mutableListOf<HeVersionType>()
         hesByMFID = mutableMapOf<String,HealthElement>()
 
         val standard = kmehrMessage.header.standard.cd.value
@@ -141,7 +141,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun makeHeVersioning(hes : List<heVersionType>) {
+    private fun makeHeVersioning(hes : List<HeVersionType>) {
         // this make all He linked by version have the same healthElementId
 
         hes.forEach { hev ->
@@ -153,7 +153,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
     }
-    private fun findHeAncestor(parentHe: heVersionType, walkedmap: MutableMap<String, String?>?) : String? {
+    private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?) : String? {
         var walked = walkedmap
         if(walked == null) {
             walked = mutableMapOf<String, String?>()
@@ -310,14 +310,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             // register new version links
                             val mfid = getItemMFID(item)
                             versionLinks.add(
-                                    heVersionType(
+                                HeVersionType(
                                             he = notNullHe,
                                             mfId = mfid!!,
                                             isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
                                                 extractMFIDFromUrl(it.url)
                                             },
                                             versionId = null
-                                    )
+                                             )
                             )
                             hesByMFID[mfid] = notNullHe
                         }
@@ -813,4 +813,4 @@ private fun AddressTypeBase.getFullAddress(): String {
 }
 
 
-data class heVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
+data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
