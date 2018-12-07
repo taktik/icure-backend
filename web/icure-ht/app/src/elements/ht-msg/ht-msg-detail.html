@@ -728,6 +728,9 @@
                                 <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
                             </div>
                         </div>
+                        <template is="dom-if" if="[[msg.patientInss]]">
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss('displayName',msg.patientInss)]]</div>
+                        </template>
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
@@ -892,7 +895,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set('isLoadingMessage',false)
 					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
-                        this.set('attachmentQuantity',0)
+                    this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
                 console.log(this.messages)
@@ -919,6 +922,35 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
         // }.bind(this))
 	}
+
+    _getPatientDataByInss(wantedValue,inss){
+        if(inss && inss.length > 1) {
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
+                .then(patients => {
+                    console.log(patients);
+                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                        .map(pat => {
+                            let newPat = {};
+                            newPat.firstName = pat.firstName ? pat.firstName : "";
+                            newPat.lastName = pat.lastName ? pat.lastName : "";
+                            newPat.fullName = pat.firstName + " " + newPat.lastName;
+                            newPat.ssin = pat.ssin ? pat.ssin : "";
+                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                            const res =
+                                wantedValue == 'firstName' ? newPat.firstName :
+                                wantedValue == 'lastName' ? newPat.lastName :
+                                wantedValue == 'fullName' ? newPat.fullName :
+                                wantedValue == 'ssin' ? newPat.ssin :
+                                wantedValue == 'displayName' ? newPat.displayName :
+                                newPat
+                            return res
+                        })
+                })
+        }
+        else{
+            this.set("patientList", [])
+        }
+    }
 
 	getDataUrls(doc) {
 	    // console.log('getDataUrls',doc)

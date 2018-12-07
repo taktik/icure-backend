@@ -425,7 +425,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
 
                 <div class="indicators">
-                    <template is="dom-if" if="[[isEqual(capacityPercent,100)]]">
+                    <template is="dom-if" if="[[!isEqual(bufferedMsgs,0)]]">
                         <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
                         <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
                     </template>
