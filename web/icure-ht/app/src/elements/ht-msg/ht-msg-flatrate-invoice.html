@@ -340,8 +340,7 @@
                 .invoiceContainer{
                     overflow-x: hidden;
                     overflow-y: hidden;
-                    /*height: calc(100vh - 185px);*/
-                    height: calc(100vh - 120px);
+                    height: calc(100vh - 145px);
                     box-shadow: var(--app-shadow-elevation-1);
                 }
                 .invoiceSubContainerBig {
@@ -656,7 +655,7 @@
                 #rightPanelToggleContainer {
                     position:absolute;
                     right:20px;
-                    margin-top:10px;
+                    top:10px;
                 }
 
                 #rightPanelToggleContainer .header {
@@ -712,6 +711,10 @@
 
                 .m-t-20 {
                     margin-top:20px!important;
+                }
+
+                .m-t-25 {
+                    margin-top:25px!important;
                 }
 
                 .w-100-pc {
@@ -808,13 +811,13 @@
 
             <!--<div id="rightPanelToggleContainer" class="">-->
                 <!--<div class="header">-->
-                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; Outils</paper-button>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button>-->
                 <!--</div>-->
             <!--</div>-->
 
             <!--<div id="rightPanel" class="">-->
                 <!--<div class="header"  on-tap="_toggleRightPanel">-->
-                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;Outils</label>-->
+                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>-->
                     <!--<paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>-->
                 <!--</div>-->
                 <!--<div class="body">-->
@@ -834,7 +837,7 @@
                 <div id="loadingContainer">
                     <div id="loadingContentContainer">
                         <paper-spinner class="spinner" alt="Loading..." active></paper-spinner>
-                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> Collecting persphysicians...</p></div>
+                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> [[localize("mhListing.spinner.step_1", language)]]</p></div>
                     </div>
                 </div>
             </template>
@@ -847,7 +850,35 @@
                 <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
                 <div class="centerCenter">
                     <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
-                    <div id="exportRangeNotification">(*) Période exportée: du <span>[[_startOfPreviousMonth()]]</span> au <span>[[_endOfPreviousMonth()]]</span></div>
+                    <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej3')]]">
+
+                <div id="rightPanelToggleContainer" class=""><div class="header"><paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button></div></div>
+
+                <div id="rightPanel" class="">
+                    <div class="header"  on-tap="_toggleRightPanel">
+                        <label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>
+                        <paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>
+                    </div>
+                    <div class="body">
+                        <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('download','Filtrer par date',language)]]</h4>
+                        <vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>
+                        <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_dateRangerFilterResults" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
+                    </div>
+                </div>                
+                
+                <div class="gridContainer m-t-25">
+                    <div class="invoiceContainer">
+
+                        <a href="#" on-tap="_testFabien">Trigger generate PDF</a>
+
+                    </div>
                 </div>
             </template>
 
@@ -863,10 +894,10 @@
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archive')]]">
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej20')]]">
                 <div class="gridContainer">
                     <div class="invoiceContainer">
-                        Archives
+                        Archives J20
                     </div>
                 </div>
             </template>
@@ -1419,8 +1450,8 @@
 
             _dateRangerFilterResults() {
                 console.log('filter results by date range');
-                console.log(this.shadowRoot.getElementById("dateRangeStart").value);
-                console.log(this.shadowRoot.getElementById("dateRangeEnd").value);
+                console.log('Start: ' + this.shadowRoot.getElementById("dateRangeStart").value);
+                console.log('End: ' + this.shadowRoot.getElementById("dateRangeEnd").value);
             }
 
             _showWarningMessageEarlyInvoicing() {
@@ -1481,8 +1512,9 @@
                             <tbody>
                                 <tr class="bleft0 bright0">
                                     <td width="33%" class="important colorBlue bleft0 bright0 italic">`+ this.localize('flatrateMonthlyInvoicing',this.language) +`</td>
-                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
-                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+moment().format('dddd DD MMMM YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+ this.localize('day_' + parseInt(moment().day()), this.language) + ` ` + moment().format('DD') + ` `+ (this.localize('month_' + parseInt(moment().format('M')), this.language)).toLowerCase() + ` ` + moment().format('YYYY') + `</td>
+
                                 </tr>
                             </tbody>
                         </table>
@@ -1626,7 +1658,7 @@
                             <tbody>
                                 <tr class="fs9 bold">
                                     <td width="40%" class="colorBlue txt-left italic">`+ this.localize('flatrate_footer_reply_before',this.language) +`</td>
-                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
+                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
                                     <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
                                 </tr>
                             </tbody>
@@ -1856,14 +1888,14 @@
 
                 this.set('_isLoading', true );
 
-                this._setLoadingMessage({ message:"Collecting persphysicians...", icon:"arrow-forward"});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1',this.language), icon:"arrow-forward"});
 
                 // get my hcp children
                 this._getMyHcps()
                     .then(myHcps => {
 
-                        this._setLoadingMessage({ message:"Done collecting persphysicians", icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:"Collecting patients...", icon:"arrow-forward"});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
 
                         let resolvedHcpPatients = 0;
                         const totalPatientToResolve = myHcps.length;
@@ -1874,7 +1906,7 @@
                             this._getPatientsByHcp(singleHcp.id)
                                 .then(hcpPat => {
                                     resolvedHcpPatients++;
-                                    this._setLoadingMessage({ message:"Collecting patients of persphysician " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
+                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
                                     if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName']).value(); this._getInsurancesData(); }
                                 })
@@ -1888,13 +1920,13 @@
 
             _getInsurancesData() {
 
-                this._setLoadingMessage({ message:"Done collecting patients", icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:"Collecting insurances...", icon:"arrow-forward"});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
 
                 this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
                     .then((ins) => {
-                        this._setLoadingMessage({ message:"Done collecting insurances", icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:"Building listing data...", icon:"arrow-forward"});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         this.oaData = _
                           .chain(ins)
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
@@ -1986,6 +2018,24 @@
                     pdfData[oa.id].entries['list9'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===3)}).length; })
 
                 }); // Loop OA
+
+
+
+
+
+
+
+
+                // NOT FOR PROD, just to test page breaks with large records amount
+
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+
+
                 
 
 
@@ -1995,12 +2045,10 @@
                 let totalPages = 0; let currentPage = 0;
 
                 // Hardcoded, see PDF output
-                const maxEntriesPerPage = 40;
+                const maxEntriesPerPage = 47;
 
                 // Whole document headers
                 let pdfTemplate = this._getExportPdfHeader();
-
-
 
                 // Eval total pages
                 _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!listEntries.length||0) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
@@ -2011,7 +2059,14 @@
                         if(!listEntries.length||0) return;
                         let listIndex = parseInt(listKey.replace('list',''));
                         let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
-                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{ currentPage++; pdfTemplate += this._getExportPageHeader(oaData.oa) + this._getExportListHeader(listIndex) + this._getExportListContent(listIndex,entriesChunk) + this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)});
+                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                            currentPage++;
+                            pdfTemplate +=
+                                this._getExportPageHeader(oaData.oa) +
+                                this._getExportListHeader(listIndex) +
+                                this._getExportListContent(listIndex,entriesChunk) +
+                                this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)
+                        });
                     })
                 })
 
@@ -2022,11 +2077,16 @@
 
 
 
-                this._setLoadingMessage({ message:"Done building listing data", icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:"Creating PDF report...", icon:"arrow-forward"});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
 
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
                     .then(data =>{
+
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
 
                         const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
 
@@ -2048,6 +2108,36 @@
 
             _getListingArchives() {
                 console.log('_getListingArchives');
+            }
+
+
+
+            _testFabien() {
+
+                // this.api.message().createMessage({
+                //     abc:"def"
+                // }).then(res => {
+                //     console.log(res);
+                // });
+
+                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING:' + this.user.healthcarePartyId, null, null, 1000).then(messages => {
+                    console.log(messages);
+                });
+
+                return;
+
+                const htmlTemplate = '<html> <head> <style> body {margin: 0;} @page {size: A4; margin: 0; } article.page { width: 210mm; height: 283mm; padding: 20px; overflow:hidden; } article.footerContainer { width: 210mm; padding: 20px; } article.page:last-child { border-bottom: 0; } @media print { article.page { border-bottom: 0; } } table { display: table; box-sizing: border-box; border-spacing: 0; border-collapse: collapse; width: 100%; padding:0; margin:0; } table thead {font-size: 14px} table tr, table td { margin: 0; padding: 0; vertical-align: top; } table td {padding: 5px;} table.border, table.border tr, table.border td { border: 1px solid black; } table.boderGrey, table.boderGrey tr, table.boderGrey td {border: 2px solid #bbbbbb;} table.boderGreyTop, table.boderGreyTop tr, table.boderGreyTop td {border-top: 2px solid #bbbbbb;} .boderBottomGrey {border-bottom: 2px solid #bbbbbb;} *.half td {width: 50%;} *.no-border * {border: none !important;} #factBody { display: flex; flex-direction: column; flex: 1; border: 0px; } #factBody * {border: none;} #factBody > * { display: flex; flex-direction: column; } #factBody > * > tr.border > td {border-right: 0;} #factBody > * > tr.border > td:last-child {border-right: 0; } #factBody .table-entry td {border: none; border-top: .3px solid lightgrey; margin-top:5px; } .factBody td {border: none; border-top: .3px solid lightgrey; margin-top:5px; } #factBody .row-total > td {text-align: right;} #factBody .row-total > td:first-child {text-align: left;} .txt-center {text-align: center;} .txt-right {text-align: right;} .txt-left tr td, .txt-left td, .txt-left {text-align: left;} .mt5 {margin-top: 5px!important;} .mt3 {margin-top: 3px!important;} .mb5 {margin-bottom: 5px!important;} .mt10 {margin-top: 10px!important;} .mt20 {margin-top: 20px!important;} .bleft0 {border-left:0!important;} .bright0 {border-right:0!important;} .bleft {border-left:1px solid black !important;} .bleft-light {border-left:1px solid lightgrey !important;} .bbottom-light {border-bottom:1px solid lightgrey !important;} .btop0 {border-top: 0!important;} .bbottom0 {border-bottom: 0 !important;} .nopad {padding: 0;} td.important { font-weight: bold; font-size: 1.1em; } td.indic {font-weight: 700;} .bold {font-weight: 700!important;} .bold td {font-weight: 700!important;} *.min-txt {font-size: 11px;} .small-txt {font-size: 11px!important;} .fs9 tr td, .fs9 td, .fs9 {font-size: 9px!important;} .fs10 tr td, .fs10 td, .fs10 {font-size: 10px!important;} .fs11 tr td, .fs11 td, .fs11 {font-size: 11px!important;} .fs12 tr td, .fs12 td, .fs12 {font-size: 12px!important;} .colorRed { color:#ff0000!important;} .colorGreen { color:#02a102!important;} .colorBlue { color:#101079!important;} .uppercase {text-transform:uppercase!important;} .italic {font-style:italic!important;} .underlined {text-decoration:underline!important;} .verticalAlignMiddle tr td, .verticalAlignMiddle {vertical-align: middle!important;} .borderOa tr td { border:3px solid #101079!important;} tr.bold td, .bold { font-weight:700!important;} .padding0, .padding0 td {padding:0;} .margin0, .margin td {margin:0;} #contentBodyTable, #contentBodyTable tr, #contentBodyTable tr { width:100%; margin:0; padding:0; border:0; vertical-align:top } #contentBodyTable tr td { padding:0; border:0; margin:0; vertical-align:top } .borderTopLightThinGrey td { border-top: .3px solid lightgrey!important; } .pt2, .pt2 td { padding-top:2px!important; } .pb2, .pb2 td { padding-bottom:2px!important; } .pb5, .pb5 td { padding-bottom:5px!important; } .pb10, .pb10 td { padding-bottom:10px!important; } .pageFooter { page-break-after: always; } </style> </head> <body> <article id="" class="page"> <table class="boderGrey bleft0 bright0"> <tbody> <tr class="bleft0 bright0"> <td width="33%" class="important colorBlue bleft0 bright0 italic">Forfait mensuel</td> <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">Décembre 2018</td> <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">Vendredi 07 décembre 2018</td> </tr> </tbody> </table> <table class="small-txt boderBottomGrey" cellspacing="0" cellpadding="0"> <tbody> <tr class=""> <td width="55%"> <span class="bold uppercase">WGC Botermarkt_test test</span><br /> Désiré Fiévéstraat 31<br /> 9000 Gent<br /> INAMI: &nbsp;&nbsp; 84450178101<br /> Personnes de contact: &nbsp;&nbsp; Administrateur INFO 1 &nbsp;&nbsp; 09/223.29.23<br /> </td> <td width="45%"> <table class="borderOa"><tbody><tr><td class="fs11"> <b>120 &nbsp;&nbsp; Christelijke mutualiteit Middden- Vlaanderen</b><br /><br /> Martelaarslaan 17<br /> GENT 9000<br /> </td></tr></tbody></table> </td> </tr> </tbody> </table>  <table id="documentHeader" class="boderBottomGrey" cellspacing="0" cellpadding="0"> <tbody> <tr class=""> <td width="100%"> <span class="bold uppercase colorBlue fs12">ANNEXE 5 : PAIEMENT FORFAITAIRE</span><br /> <span class="bold uppercase colorBlue fs10">RELEVE RECAPITULATIF DES NOUVELLES INSCRIPTIONS SANS OPTION pour le paiement à l acte au cours des 3 ou 6 premiers mois</span><br /> </td> </tr> </tbody> </table> <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0"> <thead> <tr class="fs10 colorBlue italic bold txt-left pb10"> <td class="contentBodyHeader" width="5%">Ref.</td> <td class="contentBodyHeader" width="30%">Nom Prénom</td> <td class="contentBodyHeader" width="10%">Date naiss.</td> <td class="contentBodyHeader" width="10%">INAMI</td> <td class="contentBodyHeader" width="6%">C.T.</td> <td class="contentBodyHeader" width="11%">Inscr.</td> <td class="contentBodyHeader" width="13%">Début couv.</td> <td class="contentBodyHeader" width="5%">Type</td> <td class="contentBodyHeader" width="10%">Titulaire</td> </tr> </thead> <tbody> <tr class="fs9 borderTopLightThinGrey pt2 pb2"> <td width="5%" class="">7716B</td> <td width="30%" class="">DE VOS KWINTEN</td> <td width="10%" class="">17/05/1998</td> <td width="10%" class="bold">98051729923</td> <td width="6%" class="">110110</td> <td width="11%" class="">23/10/2018</td> <td width="13%" class="colorGreen">01/11/2018</td> <td width="5%" class="">T</td> <td width="10%" class=""></td> </tr> <tr class="fs9 borderTopLightThinGrey pt2 pb2"> <td width="5%" class="">8065B</td> <td width="30%" class="">GHYS MATHIAS</td> <td width="10%" class="">12/12/1982</td> <td width="10%" class="bold">82121210976</td> <td width="6%" class="">410460</td> <td width="11%" class="">23/10/2018</td> <td width="13%" class="colorGreen">01/11/2018</td> <td width="5%" class="">T</td> <td width="10%" class=""></td> </tr></tbody></table> </article> <article class="footerContainer"> <table class="boderGreyTop pageFooter"> <tbody> <tr class="fs9 bold"> <td width="40%" class="colorBlue txt-left italic">Veuillez svp nous envoyer ce document avant le 20 du mois</td> <td width="20%" class="colorBlue txt-center italic underlined">Décembre 2018</td> <td width="40%" class="colorBlue txt-right italic">Page 1 sur 20 - Mut. 120</td> </tr> </tbody> </table> </article> </body></html>';
+                const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
+                this.api.pdfReport(mustache.render(htmlTemplate, {}))
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
+                        let url = window.URL.createObjectURL(blob);
+                        let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
+                        a.download = downloadFileName;
+                        a.click(); window.URL.revokeObjectURL(url);
+                    })
+
             }
 
 
