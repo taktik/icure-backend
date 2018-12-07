@@ -312,7 +312,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 											item.cds.add(
 													CDITEM().apply {
 														s = CDITEMschemes.CD_PARAMETER
-														sv = "1.2"
+														sv = "1.0"
 														value = it.code
 													}
 											)
@@ -441,13 +441,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 							CDINCAPACITY().apply {
 								s = "CD-INCAPACITY"
-								sv = "1.0"
+								sv = "1.1"
 								value = CDINCAPACITYvalues.fromValue(getServiceFor("incapacité de", "work"))
 							}
 						} catch (ex: java.lang.IllegalArgumentException) {
 							CDINCAPACITY().apply {
 								s = "CD-INCAPACITY"
-								sv = "1.0"
+								sv = "1.1"
 								value = CDINCAPACITYvalues.WORK
 							}
 						}
@@ -455,7 +455,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				incapacityreason = IncapacityreasonType().apply {
 					cd = CDINCAPACITYREASON().apply {
 						s = "CD-INCAPACITYREASON"
-						sv = "1.0"
+						sv = "1.1"
 						value = CDINCAPACITYREASONvalues.fromValue(getServiceFor("pour cause de", "sickness"))
 					}
 				}
@@ -473,12 +473,12 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return ItemType().apply {
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = index.toString() })
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = form.id })
-			cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "incapacity" })
+			cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "incapacity" })
 
 			this.contents.add(content)
 			lifecycle = LifecycleType().apply {
 				cd = CDLIFECYCLE().apply {
-					s = "CD-LIFECYCLE"; sv = "1.0"
+					s = "CD-LIFECYCLE"; sv = "1.6"
 					value = form.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
 							?: CDLIFECYCLEvalues.ACTIVE
 				}
@@ -608,7 +608,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, comment: String?, decryptor: AsyncDecrypt?, config: Config): FolderType {
 		val trn = TransactionType().apply {
-			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
+			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createPartyWithAddresses(sender, emptyList())) }
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
 			ids.add(IDKMEHR().apply {
@@ -742,7 +742,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		if (history == null) {
 			history = HeadingType().apply {
 				ids.add(idKmehr(trn.headingsAndItemsAndTexts.size + 1))
-				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.0"; value = "assessment" })
+				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.2"; value = "assessment" })
 			}
 			trn.headingsAndItemsAndTexts.add(history)
 		}
@@ -913,8 +913,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = form.id })
-			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "prescription" })
-			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE ; sv = "1.0"; value = cdTransactionType })
+			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "prescription" })
+			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE ; sv = "1.1"; value = cdTransactionType })
 			contact.modified?.let {
 				date = makeXGC(it)
 				time = makeXGC(it, unsetMillis = true)
