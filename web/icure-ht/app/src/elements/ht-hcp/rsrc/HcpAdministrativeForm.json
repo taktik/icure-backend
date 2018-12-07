@@ -93,7 +93,28 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 330,
+								"width" : 325,
+								"multiline" : false,
+								"left" : 834,
+								"top" : 61,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341751,
+							"codeTypes" : [
+
+							],
+							"label" : "Contact person",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "contactPerson",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 404,
 								"multiline" : false,
 								"left" : 95,
 								"top" : 8,

@@ -25,6 +25,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
@@ -1080,6 +1081,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 codeId: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
                             })), sorter))
                         })).then(responses => _.flatMap(responses))
+                } else if (data.source === "mh") {
+                    return (id||'').length >= 1 ?
+                        this.api.hcparty().getHealthcareParty( id ).then(results => { return { 'id': results.id, 'name':_.upperFirst(_.lowerCase(results.name)) + ' ' +(typeof results.nihii === 'undefined' || !results.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + results.nihii) }}) :
+                        (text || '').length >= 2 ? Promise.all([this.api.hcparty().findBySsinOrNihii( text ),this.api.hcparty().findByName( text )]).then(results => {
+                        return _.flatten(_.chain( _.concat( results[0].rows, results[1].rows ) ).uniqBy( 'id' ).filter({ type : 'medicalHouse' }).value().map(i => ({
+                            'id': i.id,
+                            'name':_.upperFirst(_.lowerCase(i.name)) + ' ' +(typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +''
+                        })));
+                    }) : Promise.resolve([]);
                 }
                 return Promise.resolve(id ? null : [])
             }

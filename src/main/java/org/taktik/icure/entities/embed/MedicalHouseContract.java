@@ -9,8 +9,10 @@ public class MedicalHouseContract {
 	private boolean kine;
 	private boolean gp;
 	private boolean nurse;
+    private String hcpId;
+    private Integer unsubscriptionReasonId;
 
-	public String getMmNihii() {
+    public String getMmNihii() {
 		return mmNihii;
 	}
 
@@ -72,5 +74,21 @@ public class MedicalHouseContract {
 
 	public void setNurse(boolean nurse) {
 		this.nurse = nurse;
+	}
+
+    public String getHcpId() {
+        return hcpId;
+    }
+
+    public void setHcpId(String hcpId) {
+        this.hcpId = hcpId;
+    }
+
+	public Integer getUnsubscriptionReasonId() {
+		return unsubscriptionReasonId;
+	}
+
+	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
+		this.unsubscriptionReasonId = unsubscriptionReasonId;
 	}
 }

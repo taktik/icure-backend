@@ -77,6 +77,12 @@ public class HealthcarePartyDto extends StoredDto {
 
 	protected Map<String, String> options = new HashMap<>();
 
+
+    protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
+    protected String type;                              // "persphysician" or "medicalHouse"
+    protected String contactPerson;
+
+
 	public String getName() {
         return name;
     }
@@ -312,5 +318,29 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public String getBillingType() {
+        return billingType;
+    }
+
+    public void setBillingType(String billingType) {
+        this.billingType = billingType;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
     }
 }
