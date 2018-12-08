@@ -59,6 +59,9 @@ public class Medication implements Serializable {
 	Map<String, Content> options;
 	Map<String, ParagraphAgreement> agreements;
 
+	String MedicationSchemeIdOnSafe;
+	Integer MedicationSchemeSafeVersion;
+	Long MedicationSchemeTimeStampOnSafe;
 	String safeIdName; //can be: vitalinkuri, RSWID, RSBID
 	String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
 	Long timestampOnSafe; //transaction date+time
@@ -182,6 +185,18 @@ public class Medication implements Serializable {
 	public void setAgreements(Map<String, ParagraphAgreement> agreements) {
 		this.agreements = agreements;
 	}
+
+	public String getMedicationSchemeIdOnSafe() { return MedicationSchemeIdOnSafe; }
+
+	public void setMedicationSchemeIdOnSafe(String medicationSchemeIdOnSafe) { MedicationSchemeIdOnSafe = medicationSchemeIdOnSafe; }
+
+	public Integer getMedicationSchemeSafeVersion() { return MedicationSchemeSafeVersion; }
+
+	public void setMedicationSchemeSafeVersion(Integer medicationSchemeSafeVersion) { MedicationSchemeSafeVersion = medicationSchemeSafeVersion; }
+
+	public Long getMedicationSchemeTimeStampOnSafe() { return MedicationSchemeTimeStampOnSafe; }
+
+	public void setMedicationSchemeTimeStampOnSafe(Long medicationSchemeTimeStampOnSafe) { MedicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
 
 	public @Nullable String getSafeIdName() { return safeIdName; }
 
