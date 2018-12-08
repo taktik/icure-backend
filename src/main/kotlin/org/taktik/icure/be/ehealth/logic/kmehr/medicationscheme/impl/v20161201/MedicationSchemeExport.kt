@@ -28,6 +28,9 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
@@ -120,6 +123,9 @@ class MedicationSchemeExport : KmehrExport() {
             svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
             TransactionType().apply {
                 ids.add(idKmehr(0))
+                m.idOnSafes?.let{idOnSafe ->
+                    ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
+                }
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationschemeelement" })
                 date = config.date
                 time = config.time
@@ -131,7 +137,7 @@ class MedicationSchemeExport : KmehrExport() {
 
                 var itemsIdx = 1
 
-                headingsAndItemsAndTexts.addAll(
+                headingsAndItemsAndTexts.addAll(//This adds 1 adaptationflag ITEM and 1 medication ITEM
                     listOf(
                         ItemType().apply {
                             ids.add(idKmehr(itemsIdx++))
@@ -141,7 +147,7 @@ class MedicationSchemeExport : KmehrExport() {
                                 cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_MS_ADAPTATION; sv = CDCONTENTschemes.CD_MS_ADAPTATION.version(); value = when {
                                     m.timestampOnSafe == null -> "medication"
                                     m.timestampOnSafe == svc.modified -> "nochange"
-                                    else -> "adaptation"
+                                    else -> "medication" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension
                                 }})
                             })
                         },
@@ -150,22 +156,55 @@ class MedicationSchemeExport : KmehrExport() {
                 m.medicationUse?.let { usage ->
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
-
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            contents.add(ContentType().apply {
+                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "medicationuse" })
+                            })
+                            contents.add(ContentType().apply {
+                                texts.add(TextType().apply { l = language; value = m.medicationUse })
+                            })
                         })
                 }
 
                 m.beginCondition?.let { cond ->
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
-
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            contents.add(ContentType().apply {
+                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "begincondition" })
+                            })
+                            contents.add(ContentType().apply {
+                                texts.add(TextType().apply { l = language; value = m.beginCondition })
+                            })
                         })
                 }
 
                 m.endCondition?.let { cond ->
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
-
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            contents.add(ContentType().apply {
+                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "endcondition" })
+                            })
+                            contents.add(ContentType().apply {
+                                texts.add(TextType().apply { l = language; value = m.endCondition })
+                            })
                         })
+                }
+
+                m.origin?.let { cond ->
+                    headingsAndItemsAndTexts.add(
+                            ItemType().apply {
+                                ids.add(idKmehr(itemsIdx++))
+                                cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                                contents.add(ContentType().apply {
+                                    cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "origin" })
+                                    cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_MS_ADAPTATION; sv = CDCONTENTschemes.CD_MS_ADAPTATION.version(); value = m.origin })
+                                })
+                            })
                 }
 
             }}}

@@ -59,11 +59,13 @@ public class Medication implements Serializable {
 	Map<String, Content> options;
 	Map<String, ParagraphAgreement> agreements;
 
-	String idOnSafes;
-	Long timestampOnSafe;
-	String medicationUse;
-	String beginCondition;
-	String endCondition;
+	String safeIdName; //can be: vitalinkuri, RSWID, RSBID
+	String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
+	Long timestampOnSafe; //transaction date+time
+	String medicationUse; //free text
+	String beginCondition; //free text
+	String endCondition; //free text
+	String origin; // regularprocess, recorded
 
 	public Map<String, Content> getOptions() {
 		return options;
@@ -181,6 +183,10 @@ public class Medication implements Serializable {
 		this.agreements = agreements;
 	}
 
+	public @Nullable String getSafeIdName() { return safeIdName; }
+
+	public void setSafeIdName(@Nullable String safeIdName) { this.safeIdName = safeIdName; }
+
 	public @Nullable String getIdOnSafes() {
 		return idOnSafes;
 	}
@@ -220,6 +226,10 @@ public class Medication implements Serializable {
 	public void setEndCondition( @Nullable String endCondition) {
 		this.endCondition = endCondition;
 	}
+
+	public @Nullable String getOrigin() { return origin; }
+
+	public void setOrigin(@Nullable String origin) { this.origin = origin; }
 
 	public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());

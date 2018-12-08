@@ -57,7 +57,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 val idGenerator: UUIDGenerator) {
 
 
-    fun importSMF(inputStream: InputStream,
+    fun importMedicationSchemeFile(inputStream: InputStream,
                   author: User,
                   language: String,
                   mappings: Map<String, List<ImportMapping>>,

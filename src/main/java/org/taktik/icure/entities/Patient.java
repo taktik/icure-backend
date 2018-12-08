@@ -82,6 +82,11 @@ public class Patient extends StoredICureDocument implements Person {
     //No guarantee of unicity
     protected String externalId;
 
+    protected String MedicationSchemeIdOnSafe; //TODO: verify if this is the right place to store this info
+    protected Integer MedicationSchemeSafeVersion; //TODO: verify if this is the right place to store this info
+    protected Long MedicationSchemeTimeStampOnSafe; //TODO: verify if this is the right place to store this info
+
+
     protected Set<Address> addresses = new HashSet<>();
     protected List<Insurability> insurabilities = new ArrayList<>();
     protected List<String> languages = new ArrayList<>(); //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html
@@ -279,6 +284,18 @@ public class Patient extends StoredICureDocument implements Person {
     public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
+
+    public String getMedicationSchemeIdOnSafe() { return MedicationSchemeIdOnSafe; }
+
+    public void setMedicationSchemeIdOnSafe(String medicationSchemeIdOnSafe) { MedicationSchemeIdOnSafe = medicationSchemeIdOnSafe; }
+
+    public Integer getMedicationSchemeSafeVersion() { return MedicationSchemeSafeVersion; }
+
+    public void setMedicationSchemeSafeVersion(Integer medicationSchemeSafeVersion) { MedicationSchemeSafeVersion = medicationSchemeSafeVersion; }
+
+    public Long getMedicationSchemeTimeStampOnSafe() { return MedicationSchemeTimeStampOnSafe; }
+
+    public void setMedicationSchemeTimeStampOnSafe(Long medicationSchemeTimeStampOnSafe) { MedicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
 
     public Set<Address> getAddresses() {
         return addresses;
