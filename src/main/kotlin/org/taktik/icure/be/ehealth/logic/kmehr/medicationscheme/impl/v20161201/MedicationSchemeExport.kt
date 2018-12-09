@@ -114,8 +114,35 @@ class MedicationSchemeExport : KmehrExport() {
 				hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId }
 						?: healthcareParty.id)))
 			}
+
+            var _idOnSafeName : String?
+            _idOnSafeName = null
+            var _idOnSafe : String?
+            _idOnSafe = null
+            var _medicationSchemeSafeVersion : Int?
+            _medicationSchemeSafeVersion = null
+
+            //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
+            getActiveServices(healthcareParty.id, sfks, listOf("medication"), decryptor).map { svc ->
+                svc.content.values.find{c -> c.medicationValue != null}?.let{cnt -> cnt.medicationValue?.let{m ->
+                    m.idOnSafes?.let{idOnSafe ->
+                        _idOnSafe = idOnSafe
+                        m.safeIdName?.let{idName ->
+                            _idOnSafeName = idName
+                        }
+                    }
+                    m.medicationSchemeSafeVersion?.let{safeVersion ->
+                        _medicationSchemeSafeVersion = safeVersion
+                    }
+                }}
+            }
+            _idOnSafeName?.let{idName ->
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = idName; sv = "1.0"; value = _idOnSafe})
+            }
 			isIscomplete = true
 			isIsvalidated = true
+
+            //TODO: decide what tho do with the Version On Safe
             this.version = version.toString()
 		})
 
@@ -147,12 +174,15 @@ class MedicationSchemeExport : KmehrExport() {
                                 cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_MS_ADAPTATION; sv = CDCONTENTschemes.CD_MS_ADAPTATION.version(); value = when {
                                     m.timestampOnSafe == null -> "medication"
                                     m.timestampOnSafe == svc.modified -> "nochange"
-                                    else -> "medication" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension
+                                    else -> "posology" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension (medication cannot be changed in Topaz)
                                 }})
                             })
                         },
                         createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!))))
-
+                //TODO: handle treatmentsuspension
+                //      ITEM: transactionreason: Text
+                //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
+                //            Lifecycle: suspended (begin and enddate) or stopped (only begindate)
                 m.medicationUse?.let { usage ->
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {

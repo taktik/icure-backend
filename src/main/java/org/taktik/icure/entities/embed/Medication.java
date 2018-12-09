@@ -69,6 +69,8 @@ public class Medication implements Serializable {
 	String beginCondition; //free text
 	String endCondition; //free text
 	String origin; // regularprocess, recorded
+	Boolean MedicationChanged;
+	Boolean PosologyChanged;
 
 	public Map<String, Content> getOptions() {
 		return options;
@@ -245,6 +247,14 @@ public class Medication implements Serializable {
 	public @Nullable String getOrigin() { return origin; }
 
 	public void setOrigin(@Nullable String origin) { this.origin = origin; }
+
+	public @Nullable Boolean getMedicationChanged() { return MedicationChanged; }
+
+	public void setMedicationChanged(@Nullable Boolean medicationChanged) { MedicationChanged = medicationChanged; }
+
+	public @Nullable Boolean getPosologyChanged() { return PosologyChanged; }
+
+	public void setPosologyChanged(@Nullable Boolean posologyChanged) { PosologyChanged = posologyChanged; }
 
 	public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
