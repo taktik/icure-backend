@@ -552,6 +552,30 @@
             });
 
         }
+
+        triggerFileDownload(fileRawContent, mimeType, downloadFileName, appendTarget = false ) {
+
+            console.log('triggerFileDownload');
+            console.log(fileRawContent);
+            console.log(mimeType);
+            console.log(downloadFileName);
+            console.log(appendTarget);
+
+            let url = window.URL.createObjectURL( new Blob([fileRawContent],{type :mimeType}) );
+            let aObject = document.createElement("a");
+
+            (appendTarget?appendTarget:document.body).appendChild( aObject );
+
+            aObject.style = "display: none";
+            aObject.href = url;
+            aObject.download = downloadFileName;
+
+            aObject.click();
+
+            window.URL.revokeObjectURL(url);
+
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)

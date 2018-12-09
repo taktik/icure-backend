@@ -875,9 +875,7 @@
                 
                 <div class="gridContainer m-t-25">
                     <div class="invoiceContainer">
-
                         <a href="#" on-tap="_testFabien">Trigger generate PDF</a>
-
                     </div>
                 </div>
             </template>
@@ -996,6 +994,9 @@
                     oaData: {
                         type: Array,
                         value: () => []
+                    },
+					archiveListingMessage:{
+						type:Object
                     }
                 };
             }
@@ -2075,28 +2076,46 @@
 
 
 
-
-
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
 
+                const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
+                // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
-                    .then(data =>{
+                    .then(pdfFileContent =>{
 
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
 
-                        const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+                        console.log({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + downloadFilename });
 
-                        let blob = new Blob([data],{type :'application/pdf'});
-                        let url = window.URL.createObjectURL(blob);
-                        let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
-                        a.download = downloadFileName;
-                        a.click(); window.URL.revokeObjectURL(url);
-                        this.set('_isLoading', false );
-                    })
+                        // Create "internal" message, give it a document and attach file to document ([nesty] bind attachment back to message)
+                        this.api.message().createMessage({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + downloadFilename })
+                            .then(createMessageResponse => {
+                                this.api.document().newInstance(this.user,createMessageResponse.id,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: downloadFileName}).then(createMessageResponse =>
+                                    this.api.document().createDocument(createMessageResponse)).then((createDocumentResponse) => {
+                                        this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent)
+                                            .then((setAttachmentResponse) => {
+                                                createMessageResponse.metas["documentId"] = setAttachmentResponse.id;
+                                                this.api.message().modifyMessage(createMessageResponse).then((modifiedMessage) => {
+
+                                                    console.log(createMessageResponse);
+                                                    console.log(createDocumentResponse);
+                                                    console.log(setAttachmentResponse);
+                                                    console.log(modifiedMessage);
+
+                                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
+                                                    this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
+                                                    this.set('_isLoading', false );
+
+                                                })
+
+                                        }).catch(()=>{this.set('_isLoading', false );})
+                                    }).catch(()=>{this.set('_isLoading', false );})
+                            }).catch(()=>{this.set('_isLoading', false );})
+                    }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
 
 
 
@@ -2114,29 +2133,34 @@
 
             _testFabien() {
 
-                // this.api.message().createMessage({
-                //     abc:"def"
-                // }).then(res => {
-                //     console.log(res);
-                // });
+                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:*', null, null, null, 1000).then(messages => { console.log('---MH:ARCHIVES:*---'); console.log(messages); });
 
-                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING:' + this.user.healthcarePartyId, null, null, 1000).then(messages => {
-                    console.log(messages);
-                });
+            }
 
-                return;
 
-                const htmlTemplate = '<html> <head> <style> body {margin: 0;} @page {size: A4; margin: 0; } article.page { width: 210mm; height: 283mm; padding: 20px; overflow:hidden; } article.footerContainer { width: 210mm; padding: 20px; } article.page:last-child { border-bottom: 0; } @media print { article.page { border-bottom: 0; } } table { display: table; box-sizing: border-box; border-spacing: 0; border-collapse: collapse; width: 100%; padding:0; margin:0; } table thead {font-size: 14px} table tr, table td { margin: 0; padding: 0; vertical-align: top; } table td {padding: 5px;} table.border, table.border tr, table.border td { border: 1px solid black; } table.boderGrey, table.boderGrey tr, table.boderGrey td {border: 2px solid #bbbbbb;} table.boderGreyTop, table.boderGreyTop tr, table.boderGreyTop td {border-top: 2px solid #bbbbbb;} .boderBottomGrey {border-bottom: 2px solid #bbbbbb;} *.half td {width: 50%;} *.no-border * {border: none !important;} #factBody { display: flex; flex-direction: column; flex: 1; border: 0px; } #factBody * {border: none;} #factBody > * { display: flex; flex-direction: column; } #factBody > * > tr.border > td {border-right: 0;} #factBody > * > tr.border > td:last-child {border-right: 0; } #factBody .table-entry td {border: none; border-top: .3px solid lightgrey; margin-top:5px; } .factBody td {border: none; border-top: .3px solid lightgrey; margin-top:5px; } #factBody .row-total > td {text-align: right;} #factBody .row-total > td:first-child {text-align: left;} .txt-center {text-align: center;} .txt-right {text-align: right;} .txt-left tr td, .txt-left td, .txt-left {text-align: left;} .mt5 {margin-top: 5px!important;} .mt3 {margin-top: 3px!important;} .mb5 {margin-bottom: 5px!important;} .mt10 {margin-top: 10px!important;} .mt20 {margin-top: 20px!important;} .bleft0 {border-left:0!important;} .bright0 {border-right:0!important;} .bleft {border-left:1px solid black !important;} .bleft-light {border-left:1px solid lightgrey !important;} .bbottom-light {border-bottom:1px solid lightgrey !important;} .btop0 {border-top: 0!important;} .bbottom0 {border-bottom: 0 !important;} .nopad {padding: 0;} td.important { font-weight: bold; font-size: 1.1em; } td.indic {font-weight: 700;} .bold {font-weight: 700!important;} .bold td {font-weight: 700!important;} *.min-txt {font-size: 11px;} .small-txt {font-size: 11px!important;} .fs9 tr td, .fs9 td, .fs9 {font-size: 9px!important;} .fs10 tr td, .fs10 td, .fs10 {font-size: 10px!important;} .fs11 tr td, .fs11 td, .fs11 {font-size: 11px!important;} .fs12 tr td, .fs12 td, .fs12 {font-size: 12px!important;} .colorRed { color:#ff0000!important;} .colorGreen { color:#02a102!important;} .colorBlue { color:#101079!important;} .uppercase {text-transform:uppercase!important;} .italic {font-style:italic!important;} .underlined {text-decoration:underline!important;} .verticalAlignMiddle tr td, .verticalAlignMiddle {vertical-align: middle!important;} .borderOa tr td { border:3px solid #101079!important;} tr.bold td, .bold { font-weight:700!important;} .padding0, .padding0 td {padding:0;} .margin0, .margin td {margin:0;} #contentBodyTable, #contentBodyTable tr, #contentBodyTable tr { width:100%; margin:0; padding:0; border:0; vertical-align:top } #contentBodyTable tr td { padding:0; border:0; margin:0; vertical-align:top } .borderTopLightThinGrey td { border-top: .3px solid lightgrey!important; } .pt2, .pt2 td { padding-top:2px!important; } .pb2, .pb2 td { padding-bottom:2px!important; } .pb5, .pb5 td { padding-bottom:5px!important; } .pb10, .pb10 td { padding-bottom:10px!important; } .pageFooter { page-break-after: always; } </style> </head> <body> <article id="" class="page"> <table class="boderGrey bleft0 bright0"> <tbody> <tr class="bleft0 bright0"> <td width="33%" class="important colorBlue bleft0 bright0 italic">Forfait mensuel</td> <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">Décembre 2018</td> <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">Vendredi 07 décembre 2018</td> </tr> </tbody> </table> <table class="small-txt boderBottomGrey" cellspacing="0" cellpadding="0"> <tbody> <tr class=""> <td width="55%"> <span class="bold uppercase">WGC Botermarkt_test test</span><br /> Désiré Fiévéstraat 31<br /> 9000 Gent<br /> INAMI: &nbsp;&nbsp; 84450178101<br /> Personnes de contact: &nbsp;&nbsp; Administrateur INFO 1 &nbsp;&nbsp; 09/223.29.23<br /> </td> <td width="45%"> <table class="borderOa"><tbody><tr><td class="fs11"> <b>120 &nbsp;&nbsp; Christelijke mutualiteit Middden- Vlaanderen</b><br /><br /> Martelaarslaan 17<br /> GENT 9000<br /> </td></tr></tbody></table> </td> </tr> </tbody> </table>  <table id="documentHeader" class="boderBottomGrey" cellspacing="0" cellpadding="0"> <tbody> <tr class=""> <td width="100%"> <span class="bold uppercase colorBlue fs12">ANNEXE 5 : PAIEMENT FORFAITAIRE</span><br /> <span class="bold uppercase colorBlue fs10">RELEVE RECAPITULATIF DES NOUVELLES INSCRIPTIONS SANS OPTION pour le paiement à l acte au cours des 3 ou 6 premiers mois</span><br /> </td> </tr> </tbody> </table> <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0"> <thead> <tr class="fs10 colorBlue italic bold txt-left pb10"> <td class="contentBodyHeader" width="5%">Ref.</td> <td class="contentBodyHeader" width="30%">Nom Prénom</td> <td class="contentBodyHeader" width="10%">Date naiss.</td> <td class="contentBodyHeader" width="10%">INAMI</td> <td class="contentBodyHeader" width="6%">C.T.</td> <td class="contentBodyHeader" width="11%">Inscr.</td> <td class="contentBodyHeader" width="13%">Début couv.</td> <td class="contentBodyHeader" width="5%">Type</td> <td class="contentBodyHeader" width="10%">Titulaire</td> </tr> </thead> <tbody> <tr class="fs9 borderTopLightThinGrey pt2 pb2"> <td width="5%" class="">7716B</td> <td width="30%" class="">DE VOS KWINTEN</td> <td width="10%" class="">17/05/1998</td> <td width="10%" class="bold">98051729923</td> <td width="6%" class="">110110</td> <td width="11%" class="">23/10/2018</td> <td width="13%" class="colorGreen">01/11/2018</td> <td width="5%" class="">T</td> <td width="10%" class=""></td> </tr> <tr class="fs9 borderTopLightThinGrey pt2 pb2"> <td width="5%" class="">8065B</td> <td width="30%" class="">GHYS MATHIAS</td> <td width="10%" class="">12/12/1982</td> <td width="10%" class="bold">82121210976</td> <td width="6%" class="">410460</td> <td width="11%" class="">23/10/2018</td> <td width="13%" class="colorGreen">01/11/2018</td> <td width="5%" class="">T</td> <td width="10%" class=""></td> </tr></tbody></table> </article> <article class="footerContainer"> <table class="boderGreyTop pageFooter"> <tbody> <tr class="fs9 bold"> <td width="40%" class="colorBlue txt-left italic">Veuillez svp nous envoyer ce document avant le 20 du mois</td> <td width="20%" class="colorBlue txt-center italic underlined">Décembre 2018</td> <td width="40%" class="colorBlue txt-right italic">Page 1 sur 20 - Mut. 120</td> </tr> </tbody> </table> </article> </body></html>';
-                const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+            // <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
 
-                this.api.pdfReport(mustache.render(htmlTemplate, {}))
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
-                        let url = window.URL.createObjectURL(blob);
-                        let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
-                        a.download = downloadFileName;
-                        a.click(); window.URL.revokeObjectURL(url);
-                    })
+            _download(e){
+                let dataUrl = e.target.getAttribute('dataUrl');
+                let name = e.target.getAttribute('name');
+
+                if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+
+                console.log("annexe data");
+                console.log(dataUrl);
+                console.log(name);
+
+                var a = document.createElement('a');
+                a.href = dataUrl;
+                a.target = '_parent';
+                a.download = decodeURIComponent(name);
+
+
+                let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
+
+                htMsgDetail.appendChild(a);
+                a.click();
+                a.parentNode.removeChild(a);
 
             }
 
