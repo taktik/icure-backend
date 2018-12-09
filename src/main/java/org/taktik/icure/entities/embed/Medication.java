@@ -45,6 +45,10 @@ public class Medication implements Serializable {
 
 	String instructionForPatient;
 	String commentForDelivery;
+	String drugRoute; //CD-DRUG-ROUTE
+	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
+	String frequency; //CD-PERIODICITY
+
 
 	Long beginMoment;
 	Long endMoment;
@@ -128,6 +132,18 @@ public class Medication implements Serializable {
 		this.commentForDelivery = commentForDelivery;
 	}
 
+	public @Nullable String getDrugRoute() { return drugRoute; }
+
+	public void setDrugRoute(String drugRoute) { this.drugRoute = drugRoute; }
+
+	public @Nullable String getTemporality() { return temporality; }
+
+	public void setTemporality(String temporality) { this.temporality = temporality; }
+
+	public @Nullable String getFrequency() { return frequency; }
+
+	public void setFrequency(String frequency) { this.frequency = frequency; }
+
 	public @Nullable Long getBeginMoment() {
 		return beginMoment;
 	}
@@ -190,51 +206,51 @@ public class Medication implements Serializable {
 
 	public @Nullable String getMedicationSchemeIdOnSafe() { return medicationSchemeIdOnSafe; }
 
-	public void setMedicationSchemeIdOnSafe(@Nullable String medicationSchemeIdOnSafe) { this.medicationSchemeIdOnSafe = medicationSchemeIdOnSafe; }
+	public void setMedicationSchemeIdOnSafe(String medicationSchemeIdOnSafe) { this.medicationSchemeIdOnSafe = medicationSchemeIdOnSafe; }
 
 	public @Nullable Integer getMedicationSchemeSafeVersion() { return medicationSchemeSafeVersion; }
 
-	public void setMedicationSchemeSafeVersion(@Nullable Integer medicationSchemeSafeVersion) { this.medicationSchemeSafeVersion = medicationSchemeSafeVersion; }
+	public void setMedicationSchemeSafeVersion(Integer medicationSchemeSafeVersion) { this.medicationSchemeSafeVersion = medicationSchemeSafeVersion; }
 
 	public @Nullable Long getMedicationSchemeTimeStampOnSafe() { return medicationSchemeTimeStampOnSafe; }
 
-	public void setMedicationSchemeTimeStampOnSafe(@Nullable Long medicationSchemeTimeStampOnSafe) { this.medicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
+	public void setMedicationSchemeTimeStampOnSafe(Long medicationSchemeTimeStampOnSafe) { this.medicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
 
 	public @Nullable String getSafeIdName() { return safeIdName; }
 
-	public void setSafeIdName(@Nullable String safeIdName) { this.safeIdName = safeIdName; }
+	public void setSafeIdName(String safeIdName) { this.safeIdName = safeIdName; }
 
 	public @Nullable String getIdOnSafes() { return idOnSafes; }
 
-	public void setIdOnSafes(@Nullable String idOnSafes) { this.idOnSafes = idOnSafes; }
+	public void setIdOnSafes(String idOnSafes) { this.idOnSafes = idOnSafes; }
 
 	public @Nullable Long getTimestampOnSafe() { return timestampOnSafe; }
 
-	public void setTimestampOnSafe(@Nullable Long timestampOnSafe) { this.timestampOnSafe = timestampOnSafe; }
+	public void setTimestampOnSafe(Long timestampOnSafe) { this.timestampOnSafe = timestampOnSafe; }
 
 	public @Nullable String getMedicationUse() { return medicationUse; }
 
-	public void setMedicationUse(@Nullable String medicationUse) { this.medicationUse = medicationUse; }
+	public void setMedicationUse(String medicationUse) { this.medicationUse = medicationUse; }
 
 	public @Nullable String getBeginCondition() { return beginCondition; }
 
-	public void setBeginCondition(@Nullable String beginCondition) { this.beginCondition = beginCondition; }
+	public void setBeginCondition(String beginCondition) { this.beginCondition = beginCondition; }
 
 	public @Nullable String getEndCondition() { return endCondition; }
 
-	public void setEndCondition(@Nullable String endCondition) { this.endCondition = endCondition; }
+	public void setEndCondition(String endCondition) { this.endCondition = endCondition; }
 
 	public @Nullable String getOrigin() { return origin; }
 
-	public void setOrigin(@Nullable String origin) { this.origin = origin; }
+	public void setOrigin(String origin) { this.origin = origin; }
 
 	public @Nullable Boolean getMedicationChanged() { return medicationChanged; }
 
-	public void setMedicationChanged(@Nullable Boolean medicationChanged) { this.medicationChanged = medicationChanged; }
+	public void setMedicationChanged(Boolean medicationChanged) { this.medicationChanged = medicationChanged; }
 
 	public @Nullable Boolean getPosologyChanged() { return posologyChanged; }
 
-	public void setPosologyChanged(@Nullable Boolean posologyChanged) { this.posologyChanged = posologyChanged; }
+	public void setPosologyChanged(Boolean posologyChanged) { this.posologyChanged = posologyChanged; }
 
 	public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
