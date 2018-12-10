@@ -879,6 +879,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                             <div class="add-elem-mobile" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </div>
+                            <div class="add-elem-mobile" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
+                            </div>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                             <div class="add-elem-mobile" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
@@ -911,7 +913,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                         <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                         </paper-button>
-                        <paper-button class="exportcsv-btn" on-tap="_importPatientFromMf">[[localize('import_mf','Import patient from PMF/SMF',language)]]
+                        <paper-button class="exportcsv-btn" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -932,9 +934,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <paper-dialog id="patient-import-dialog">
-            <h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
+            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]]<span class="extra-info">(XML files)</span></h2>
             <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_mfFileUploaded"></vaadin-upload>
         </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
@@ -1870,42 +1872,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 });
             }
 
-            _fileUploaded(e) {
+            _mfFileUploaded(e) {
                 const vaadinUpload = this.$['vaadin-upload'];
                 const f = e.detail.file;
                 const d = f.doc;
                 this.importPatientFromDocument(d)
             }
 
-            _importPatientFromMf() {
+            _openImportPatientFromMfDialog() {
                 this.$['patient-import-dialog'].open()
             }
 
             importPatientFromDocument(document){
+                this.set('hideSpinner', false)
+                this.set('isLoadingPatient', true)
                 this.api.bekmehr().importSmf(document.id, "123245", null, this.user.language,{}).then(
                     results => {
                         results.forEach(result => {
                             this.api.patient().newInstance(this.user, result.patient, result.patient).then(p => {
                                 return this.api.patient().modifyPatientWithUser(this.user, p)
                             }).then(pat =>{
-                                Promise.all( [
+                                var prolist = [
                                     result.forms.map(form => {
-                                        this.api.form().newInstance(this.user, pat, form).then(f => {
+                                        return this.api.form().newInstance(this.user, pat, form).then(f => {
                                             return this.api.form().modifyForm(f)
                                         });
                                     }),
                                     result.ctcs.map(ctc => {
-                                        this.api.contact().newInstance(this.user, pat, ctc).then(c => {
+                                        return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
                                             return this.api.contact().modifyContactWithUser(this.user, c)
                                         });
                                     }),
                                     result.hes.map(he => {
-                                        this.api.helement().newInstance(this.user, pat, he).then(h => {
+                                        return this.api.helement().newInstance(this.user, pat, he).then(h => {
                                             return this.api.helement().modifyHealthElement(h)
                                         });
+                                    }),
+                                    result.documents.map(doc => {
+                                        return this.api.document().newInstance(this.user, pat, doc).then(d => {
+                                            return this.api.document().modifyDocument(d)
+                                        });
                                     })
-                                ].flat() ).then(() => {
+                                ].flat()
+                                return Promise.all( prolist ).then(() => {
+                                    console.log("done import")
                                     this.set('selectedPatient', pat)
+                                    this.set('hideSpinner', true)
+                                    this.set('isLoadingPatient', false)
                                 })
                             });
                         })
