@@ -1508,7 +1508,7 @@
                             before: [],
                             during: regimens[0],
                             after: [],
-                            times: regimens[0].map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[0].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1519,7 +1519,7 @@
                             before: regimens[1],
                             during: regimens[2],
                             after: regimens[3],
-                            times: _(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value().map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: _(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1530,7 +1530,7 @@
                             before: [],
                             during: regimens[4],
                             after: [],
-                            times: regimens[4].map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[4].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1541,7 +1541,7 @@
                             before: regimens[5],
                             during: regimens[6],
                             after: regimens[7],
-                            times: _(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value().map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: _(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1552,7 +1552,7 @@
                             before: [],
                             during: regimens[8],
                             after: [],
-                            times: regimens[8].filter(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[8].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1563,7 +1563,7 @@
                             before: regimens[9],
                             during: regimens[10],
                             after: regimens[11],
-                            times: _(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value().map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: _(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1574,7 +1574,7 @@
                             before: [],
                             during: regimens[12],
                             after: [],
-                            times: regimens[12].map(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[12].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1687,13 +1687,26 @@
             }
 
             _getRegimenQuantity(col, m){
-               return _.reduce(m.regimens, function (tot, r){
-                    return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
-               }, 0)
+
+                const colPeriod = col.tod || col.pc || "other"
+                const regimenTod = m.regimens.filter(r => ((r.timeOfDay && r.timeOfDay === colPeriod) || (r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code === colPeriod)))
+                let qty = 0
+
+                if(regimenTod && regimenTod.length){
+                    qty = _.reduce(regimenTod, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
+                }else{
+                    qty = _.reduce(m.regimens, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
+                }
+
+                return qty
             }
 
             _getHeaderTitle(col){
-                return col && col.pc && !col.tod ? col.pc : col && col.tod ? col.tod.toString().substr(0,2)+"h"+col.tod.toString().substr(2,2) : null
+                return col && col.pc && !col.tod ? this.localize("ms_"+col.pc, col.pc, this.language): col && col.tod ? col.tod.toString().substr(0,2)+"h"+col.tod.toString().substr(2,2) : null
             }
         }
 
