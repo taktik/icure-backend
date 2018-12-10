@@ -876,7 +876,7 @@
 
                 </template>
 
-                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                <template is="dom-if" if="{{_isEqual(selectedTab,5)}}">
                     <div class="history">
                         <div class="timeline">
                             <div class="timeline-header">
@@ -935,7 +935,7 @@
                     </div>
                 </template>
 
-                <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                     <div class="patient">
                         <div class="general-infos">
                             <div class="infos-block">
@@ -990,7 +990,7 @@
                 </template>
             </div>
 
-            <template is="dom-if" if="{{_isEqual(selectedTab,3)}}">
+            <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
                 <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
             </template>
 
