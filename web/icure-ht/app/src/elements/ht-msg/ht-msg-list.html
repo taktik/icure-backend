@@ -861,7 +861,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _itemSelected(e) {
                 // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
                 if (e.path[0].checked) {
-                    this.push('checkedMessages',JSON.parse(e.target.dataset.item))
+                    const checkedMsg = JSON.parse(e.target.dataset.item)
+                    this.push('checkedMessages',checkedMsg)
                 }
                 else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
@@ -878,38 +879,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			_removeMsgs(){
-                console.log('asked for removeMsgs')
-				// let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
-				let mailList = this.shadowRoot.querySelector('#mail-list');
-				let allCheckboxes = mailList.querySelectorAll('.checkbox');
-				let msgs = this.checkedMessages;
-				console.log('msgs',msgs)
-				if(msgs.length) {
-                    msgs.forEach(msg =>{
-                        if(msg.transportGuid.startsWith("BIN")){
-                            this.api.message().deleteMessages(msg.id)
-                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                        } else {
-                            msg.transportGuid = "BIN:" + msg.transportGuid;
-                            this.api.message().modifyMessage(msg)
-                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
-                        }
-                        // else {
-                        //     this.set('isLoadingMailList',true)
-                        //     this.api.message().deleteMessages(msg)
-                        //         .then(() => {
-                        //             this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                        //             this._refresh();
-                        //         })
-                        //         .finally(()=>{this.set('isLoadingMailList',false)})
-                        // }
-                    });
-					// mailListSelectionColumn.selectAll = false;
-                    allCheckboxes.forEach(box=>{
-                        box.checked = false;
-                    })
+				let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
+				const thisBox = this.selectList.selection.item.toUpperCase()
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+				if(checkedMsgs.length) {
+                    checkedMsgs.forEach(msg =>{
+                        if (!msg.transportGuid.startsWith("BIN")) {
+                            msgsToDelete.push(msg.id)
+                        } else {console.log(msg.id+' is already in bin !')}
+                    }) // forEach end
+                    if(msgsToDelete.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msgsToDelete], thisBox, delBox)
+                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msgsToDelete], delBox))
+                        checkedMsgs.forEach(msg=>this.api.message().deleteMessages(msg.id))
+                        this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                    }
+                    allCheckboxes.forEach(box=>box.checked = false)
                     this._refresh()
-				}
+				} // if checked length end
             }
 
             _isEqual(a,b) {return (a === b)}

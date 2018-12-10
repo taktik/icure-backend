@@ -215,7 +215,10 @@
                 };
                 --vaadin-upload-file-commands: {
                     color: var(--app-primary-color);
-                }
+                };
+                --vaadin-upload-file-meta: {
+                    min-height: 36px;
+                };
 
             }
 
@@ -275,6 +278,10 @@
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
                 text-transform: capitalize;
+            }
+            .modal-button:disabled {
+                background: var(--app-secondary-color-dark);
+                box-shadow: none;
             }
 
             .modal-button--delete {
@@ -427,13 +434,13 @@
                 display: none;
             }
 
-            .force-left {
-                position: absolute;
-                left: 5px;
+            .buttons {
+                display: flex;
+                flex-direction: row;
             }
 
-            .fright {
-                float: right;
+            .force-left {
+                flex-grow: 1;
             }
 
             .clearb {
@@ -585,16 +592,16 @@
                             <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.crypted]]" on-change="_isCryptedMessage">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.important]]" on-change="_isImportant">[[localize('significant','significant',language)]]</paper-checkbox>
                                 </div>
                             </div>
                             <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="{{newMessage.usePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.useReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                                    <paper-checkbox checked="{{newMessage.useReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.usePublicationReceipt]]" on-checked-changed="_isPublicationReceipt">[[localize('publication','publication',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.useReceivedReceipt]]" on-checked-changed="_isReceicedReceipt">[[localize('reception','reception',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.useReadReceipt]]"  on-checked-changed="_isReadReceipt">[[localize('read','read',language)]]</paper-checkbox>
                                 </div>
                             </div>
                         </div>
@@ -629,7 +636,7 @@
                     </div>
                     <div>
                         <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
-                        <vaadin-upload id="vaadin-upload" auto files="{{files}}"  form-data-name="attachment" on-upload-before="_fileUploadBefore" on-file-remove="_fileUploadRemove"></vaadin-upload>
+                        <vaadin-upload id="vaadin-upload" auto files="{{files}}" form-data-name="attachment" on-upload-before="_fileUpload" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
             </div>
@@ -639,7 +646,7 @@
                 </div>
                 <div class="fright">
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
-                    <paper-button class="modal-button--save" on-tap="_SendNewMessage">[[localize('send','Send',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[!newMessage.destinations.length]]">[[localize('send','Send',language)]]</paper-button>
                 </div>
             </div>
         </paper-dialog>
@@ -710,9 +717,17 @@
 						type:Object,
                         value: {
 							customMetas:{},
-							document:{},
+							document:{
+							    textContent: '',
+                                title: '',
+                                mimeType: 'text/plain',
+                                filename: ''
+                            },
                             annex: [],
-                            destinations:[]
+                            destinations:[],
+                            useReceivedReceipt:false,
+                            useReadReceipt:false,
+                            usePublicationReceipt:false,
 						}
                     },
                     type: {
@@ -862,7 +877,7 @@
                 }
             }
 
-			_fileUploadBefore(e){
+			_fileUpload(e){
 				e.preventDefault();
 
 				if(e.detail && e.detail.file){
@@ -870,22 +885,25 @@
 					const fr = new FileReader();
 
 					fr.onload = function (se) {
+						let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
 						let fileByteArray = [];
 						new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
 
 						this.push('newMessage.annex',{
-							"content": fileByteArray,
-							"filename": file.name,
-							"mimeType": file.type,
-							"title": file.name,
-							"size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-						});
+                            "content": fileByteArray,
+                            "filename": file.name,
+                            "mimeType": file.type,
+                            "title": file.name,
+                            "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
+                        });
 
-						let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
+						// vaadinUpload.files.push(file)
 						let fileIndex = vaadinUpload.files.indexOf(file);
-						vaadinUpload.set(['files', fileIndex, 'progress'], 100);
+                        vaadinUpload.set(['files', fileIndex, 'progress'], 100);
 						vaadinUpload.set(['files', fileIndex, 'complete'], true);
-
+						vaadinUpload.set(['files', fileIndex, 'loaded'], vaadinUpload.files[fileIndex].size);
+						vaadinUpload.set(['files', fileIndex, 'status'], this.localize('uploaded','uploaded',this.language));
+						console.log(vaadinUpload.files)
 
 						this.dispatchEvent(new CustomEvent('file-received', file));
 						// this.fire('file-received', file);
@@ -893,6 +911,7 @@
 					}.bind(this);
 
 					fr.readAsArrayBuffer(file);
+					console.log(this.newMessage.annex)
 				}
 
             }
@@ -974,41 +993,50 @@
 			_SendNewMessage(){
 
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
-                    let message = {};
-
-                    message.id = this.api.crypto().randomUuid();
-					message.publicationId = (new Date).getTime();
-					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
-					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
-					message.customMetas = this.newMessage.customMetas;
-					message.document = this.newMessage.document;
-					message.freeText = this.newMessage.document.textContent ? this.newMessage.document.textContent : '';
-					message.freeInformationTableTitle = null;
-					message.freeInformationTableRows = {};
-					message.patientInss = this.newMessage.patientInss;
-					message.annex = this.newMessage.annex;
-					message.copyMailTo = [];
-					message.documentTitle = this.newMessage.document.title ? this.newMessage.document.title : '';
-                    message.annexList = this.newMessage.annex;
-					message.useReceivedReceipt = this.newMessage.useReceivedReceipt;
-					message.useReadReceipt = this.newMessage.useReadReceipt;
-					message.hasAnnex = message.annex && message.annex.length > 0;
-					message.hasFreeInformations = false;
-					message.important = this.newMessage.important;
-					message.encrypted = this.newMessage.crypted;
-					message.usePublicationReceipt = this.newMessage.usePublicationReceipt;
-					message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
-					message.sender = this.setSenderAddressee(currentHcp);
+                    let message = {
+                        id : this.api.crypto().randomUuid(),
+                        publicationId : (new Date).getTime(),
+                        publicationDateTime : parseInt(moment().format('YYYYMMDD')),
+                        expirationDateTime : parseInt(moment().add(1,"years").format('YYYYMMDD')),
+                        customMetas : this.newMessage.customMetas,
+                        document : {
+                            title: this.newMessage.document.title ? this.newMessage.document.title : 'No title',
+                            textContent: this.newMessage.document.textContent,
+                            mimeType: 'text/plain',
+                            filename: this.newMessage.document.title ? this.newMessage.document.title : 'No title'
+                        },
+                        freeText : this.newMessage.document.textContent ? this.newMessage.document.textContent : '',
+                        freeInformationTableTitle : null,
+                        freeInformationTableRows : {},
+                        patientInss : this.newMessage && this.newMessage.patientInss ? this.newMessage.patientInss : null,
+                        annex : this.newMessage.annex,
+                        copyMailTo : [],
+                        documentTitle : this.newMessage.document.title ? this.newMessage.document.title : 'No title',
+                        annexList : this.newMessage.annex,
+                        useReceivedReceipt : this.newMessage && this.newMessage.useReceivedReceipt ? this.newMessage.useReceivedReceipt : false,
+                        useReadReceipt : this.newMessage && this.newMessage.useReadReceipt ? this.newMessage.useReadReceipt : false,
+                        usePublicationReceipt : this.newMessage && this.newMessage.usePublicationReceipt ? this.newMessage.usePublicationReceipt : false,
+                        hasAnnex : this.newMessage.annex && this.newMessage.annex.length > 0,
+                        hasFreeInformations : false,
+                        important : this.newMessage && this.newMessage.important ? this.newMessage.important : false,
+                        encrypted : this.newMessage && this.newMessage.crypted ? this.newMessage.crypted : false,
+                        destinations : this.newMessage.destinations.map(hcp => this.setAddressee(hcp)),
+                        sender : this.setSenderAddressee(currentHcp)
+                    };
 
 					console.log('request',this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-                        this.newMessage.usePublicationReceipt? this.newMessage.usePublicationReceipt:false,
-                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
-                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
+                        message.usePublicationReceipt,
+                        message.useReceivedReceipt,
+                        message.useReadReceipt)
 
-                    this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-						this.newMessage.usePublicationReceipt?this.newMessage.usePublicationReceipt:false,
-                        this.newMessage.useReceivedReceipt?this.newMessage.useReceivedReceipt:false,
-                        this.newMessage.useReadReceipt?this.newMessage.useReadReceipt:false)
+                    this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(
+                        this.api.keystoreId,
+                        this.api.tokenId,
+                        this.credentials.ehpassword,
+                        message,
+						""+message.usePublicationReceipt,
+                        ""+message.useReceivedReceipt,
+                        ""+message.useReadReceipt)
                         .then(response => {
                         	console.log(response);
                         	if(response) {
@@ -1095,6 +1123,26 @@
                 this.set('isForwardOrReply','')
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";
+            }
+
+            _isPublicationReceipt(e){
+                this.set('newMessage.usePublicationReceipt', e.target.checked)
+            }
+
+            _isReceicedReceipt(e){
+                this.set('newMessage.useReceivedReceipt', e.target.checked)
+            }
+
+            _isReadReceipt(e){
+                this.set('newMessage.useReadReceipt', e.target.checked)
+            }
+
+            _isImportant(e){
+                this.set('newMessage.important', e.target.checked)
+            }
+
+            _isCryptedMessage(e){
+                this.set('newMessage.crypted', e.target.checked)
             }
 
 		}
