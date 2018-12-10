@@ -1,11 +1,9 @@
 package org.taktik.icure.dao.impl;
 
 import org.ektorp.ComplexKey;
-import org.ektorp.CouchDbInstance;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.FrontEndMigrationDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
@@ -20,7 +18,7 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
 
 
     @Autowired
-    public FrontEndMigrationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
+    public FrontEndMigrationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(FrontEndMigration.class, couchdb, idGenerator);
         initStandardDesignDocument();
     }
@@ -28,7 +26,7 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
     @Override
     @View(name = "by_userid_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.deleted && doc.name && doc.userId) {\n" +
-            "            emit(doc.name,doc._id);\n" +
+            "            emit(doc.userId, doc.name,doc._id);\n" +
             "}\n" +
             "}")
     public FrontEndMigration getByUserIdName(String userId, String name) {
