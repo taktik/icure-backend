@@ -26,6 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+<link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 
@@ -722,24 +723,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 0 24px;
                 }
 
-                vaadin-upload{
-                    margin:16px;
-                    min-height:280px;
+                vaadin-upload {
+                    margin: 16px;
+                    min-height: 280px;
                     background: var(--app-background-color);
                     --vaadin-upload-buttons-primary: {
-                        padding:16px;
+                        padding: 16px;
                     };
                     --vaadin-upload-button-add: {
                         background: var(--app-secondary-color);
-                        color:var(--app-text-color);
+                        color: var(--app-text-color);
                     };
                     --vaadin-upload-file-progress: {
-                        --paper-progress-active-color:var(--app-secondary-color);
+                        --paper-progress-active-color: var(--app-secondary-color);
                     };
                     --vaadin-upload-file-commands: {
                         color: var(--app-primary-color);
                     }
+                }
 
+                .doNotDisplay {
+                    display:none;
                 }
             </style>
         </custom-style>
@@ -942,14 +946,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="add-patient-dialog" class="dialog">
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
-                    <paper-tab class="adm-tab">
-                        <iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon>
-                        [[localize('subscription_form_physical_person','Physical person',language)]]
-                    </paper-tab>
-                    <paper-tab class="adm-tab">
-                        <iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon>
-                        [[localize('subscription_form_medical_house','Medical houses',language)]]
-                    </paper-tab>
+                    <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon>[[localize('subscription_form_physical_person','Physical person',language)]]</paper-tab>
+                    <paper-tab class="adm-tab doNotDisplay" id="medicalHouseTabView"><iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon>[[localize('subscription_form_medical_house','Medical houses',language)]]</paper-tab>
                 </paper-tabs>
 
 
@@ -983,7 +981,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <page>
                         <!--Medical houses-->
                         <div class="horizontal" style="margin-top:20px">
-                            <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label style="width:20%"></paper-input>
+
+                            <vaadin-combo-box
+                                    id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel" style="width:30%"
+                                    item-value-path="id" on-filter-changed="_mhSearch" on-keydown=""
+                                    label="[[localize('mh','Maison médicale',language)]]"
+                                    value="{{medicalHouseContract.hcpId}}">
+                            </vaadin-combo-box>
+
                             <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
                                                 always-float-label on-value-changed="updateStartOfCoverage" style="width:20%"></vaadin-date-picker>
                             <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
@@ -1061,6 +1066,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
             </div>
         </paper-dialog>
+
+
 
         <paper-dialog id="saveFilterDialog">
             <h2 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h2>
@@ -1482,11 +1489,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             kine: '',
                             gp: '',
                             nurse: '',
+                            hcpId: ''
                         })
                     },
                     isLoadingPatient: {
                         type: Boolean,
                         value: false
+                    },
+                    hcpParentMedicalHouseData: {
+                        type: Object,
+                        value: null
+                    },
+                    mhListItem: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
                     }
                 }
             }
@@ -1507,6 +1525,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready()
 
                 this.medicalHouseContractShadowObject = {
+                    hcpId: null,
                     mmNihii: null,
                     startOfContract: null,
                     startOfCoverage: null,
@@ -1625,6 +1644,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                     })
                 }
+
+
+
+
+                // reset to tab one
+                this.tabs = 0;
+
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(myHcp => {
+                    if(myHcp && myHcp.parentId) {
+                        Promise.all([this.api.hcparty().getHealthcareParty(myHcp.parentId)]).then(results => {
+                            const parent = results[0];
+                            this.mhListItem = parent ? [{
+                                id: parent.id,
+                                name: _.upperFirst(_.lowerCase(parent.name)),
+                                hrLabel:
+                                    _.upperFirst(_.lowerCase(parent.name)) + ' ' +
+                                    (typeof parent.nihii === 'undefined' || !parent.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + parent.nihii) + ' ' +
+                                    ''
+                            }] : [];
+
+                            this.set('medicalHouseContract.hcpId', parent.id);
+
+                            // Check vs inami, last 3 digits = M K I == 1
+                            if( parent && parent.nihii && parent.nihii.slice(-2,-1) === '1' ) this.$['medicalHouseContractKineCheckBox'].click();
+                            if( parent && parent.nihii && parent.nihii.slice(-3,-2) === '1' ) this.$['medicalHouseContractGpCheckBox'].click();
+                            if( parent && parent.nihii && parent.nihii.slice(-1) === '1' ) this.$['medicalHouseContractNurseCheckBox'].click();
+
+
+                        });
+                    } else {
+                        this.mhListItem = [];
+                    }
+                });
+
+
             }
 
             _hcpFilterChanged(e) {
@@ -1708,6 +1762,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _addPatient() {
+                this.checkForParentMedicalHouse();
                 this.$['add-patient-dialog'].open()
             }
 
@@ -1968,6 +2023,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirm() {
+                // Trigger update
+                this.updateStartOfCoverage();
                 this.api.patient().newInstance(this.user, {
                     lastName: this.lastName,
                     firstName: this.firstName,
@@ -2562,13 +2619,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 let evalutationMonthsObject = this.$['evalutationMonths']
 
                 // No value defined yet (first call), set to today
-                if (object.value == "") startOfContractObject.value = moment().format('YYYY-MM-DD')
+                if (!object || ( object && object.value == "")) startOfContractObject.value = moment().format('YYYY-MM-DD')
 
                 // By default, start of coverage date = 1st day of next month
                 startOfCoverageObject.value = moment(startOfContractObject.value).add((1 + parseInt(evalutationMonthsObject.value || 0)), 'months').startOf('month').format('YYYY-MM-DD')
 
                 // Cast values
                 this.medicalHouseContractShadowObject = {
+                    hcpId: this.medicalHouseContract.hcpId,
                     mmNihii: this.medicalHouseContract.mmNihii,
                     startOfContract: this.medicalHouseContract.startOfContract.replace(/-/g, ''),
                     startOfCoverage: this.medicalHouseContract.startOfCoverage.replace(/-/g, ''),
@@ -2581,6 +2639,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.updateStartOfCoverageBusy = false
 
             }
+
+
+
+            checkForParentMedicalHouse() {
+                if( this.user && this.user.healthcarePartyId ) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{
+                        if(hcp && hcp.parentId) {
+                            this.api.hcparty().getHealthcareParty(hcp.parentId).then(parentHcp =>{
+                                if(parentHcp && parentHcp.type && parentHcp.type==='medicalHouse') {
+                                    this.shadowRoot.getElementById("medicalHouseTabView").classList.remove("doNotDisplay")
+                                    this.hcpParentMedicalHouseData = parentHcp;
+                                } else {
+                                    this.shadowRoot.getElementById("medicalHouseTabView").classList.add("doNotDisplay")
+                                }
+                            })
+                        } else { this.shadowRoot.getElementById("medicalHouseTabView").classList.add("doNotDisplay"); }
+                    })
+                } else { this.shadowRoot.getElementById("medicalHouseTabView").classList.add("doNotDisplay") }
+            }
+
+
+
+            _mhSearch(e) {
+                let mhLatestSearchValue = e && e.detail.value
+                this.mhLatestSearchValue = mhLatestSearchValue
+
+                if (!mhLatestSearchValue || mhLatestSearchValue.length < 2) { this.set('mhListItem', []); return; }
+                this._mhDataProvider() && this._mhDataProvider().filter(mhLatestSearchValue).then(res => {
+                    if (mhLatestSearchValue !== this.mhLatestSearchValue) return;
+                    this.set('mhListItem', res.rows)
+                })
+            }
+
+
+
+            _mhDataProvider() {
+                return {
+                    filter: function (mhFilterValue) {
+                        return Promise.all(
+                            [
+                                this.api.hcparty().findBySsinOrNihii( mhFilterValue ),
+                                this.api.hcparty().findByName( mhFilterValue )
+                            ]
+                        ).then(
+                            results => {
+                                const dataProviderResults =
+                                    _.flatten(
+                                        _
+                                            .chain( _.concat( results[0].rows, results[1].rows ) )
+                                            .uniqBy( 'id' )
+                                            .filter({ type : 'medicalHouse' })
+                                            .value()
+                                            .map(
+                                                i => ({
+                                                    id: i.id,
+                                                    name: _.upperFirst(_.lowerCase(i.name)),
+                                                    hrLabel:
+                                                        _.upperFirst(_.lowerCase(i.name)) + ' ' +
+                                                        (typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +
+                                                        ''
+                                                })
+                                            )
+                                    )
+                                ;
+                                return {totalSize: dataProviderResults.length, rows: _.sortBy( dataProviderResults, 'name')}
+                            }
+                        )
+
+                    }.bind(this)
+                }
+            }
+
 
 
         }
