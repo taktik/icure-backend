@@ -7,6 +7,7 @@ import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.FrontEndMigrationLogic;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class FrontEndMigrationLogicImpl extends GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO> implements FrontEndMigrationLogic {
 
@@ -33,7 +34,7 @@ public class FrontEndMigrationLogicImpl extends GenericLogicImpl<FrontEndMigrati
     }
 
     @Override
-    public FrontEndMigration getFrontEndMigrationByUserIdName(String userId, String name) {
+    public List<FrontEndMigration> getFrontEndMigrationByUserIdName(String userId, String name) {
         return frontEndMigrationDAO.getByUserIdName(userId, name);
     }
 

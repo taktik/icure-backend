@@ -7,21 +7,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.FrontEndMigration;
-import org.taktik.icure.entities.Insurance;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.*;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto;
-import org.taktik.icure.services.external.rest.v1.dto.InsuranceDto;
-import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,13 +32,10 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     private FrontEndMigrationLogic frontEndMigrationLogic;
     private MapperFacade mapper;
     private SessionLogic sessionLogic;
-    private UserLogic userLogic;
-    private UUIDGenerator uuidGenerator;
-
 
     @ApiOperation(response = AccessLogDto.class, value = "Creates a front end migration")
     @POST
-    public Response createInsurance(FrontEndMigrationDto frontEndMigrationDto) {
+    public Response createFrontEndMigration(FrontEndMigrationDto frontEndMigrationDto) {
         Response response;
 
         if (frontEndMigrationDto == null) {
@@ -65,7 +57,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     @ApiOperation(value = "Deletes a front end migration")
     @DELETE
     @Path("/{frontEndMigrationId}")
-    public Response deleteInsurance(@PathParam("frontEndMigrationId") String frontEndMigrationId) throws DeletionException {
+    public Response deleteFrontEndMigration(@PathParam("frontEndMigrationId") String frontEndMigrationId) throws DeletionException {
         Response response;
 
         if (frontEndMigrationId == null) {
@@ -105,11 +97,10 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = FrontEndMigrationDto.class,
-            value = "Gets an front end migration")
+    @ApiOperation(response = FrontEndMigrationDto.class, responseContainer = "Array", value = "Gets a front end migration")
     @GET
-    @Path("/byName/{frontEndMigrationName}")
-    public Response listInsurancesByCode(@PathParam("frontEndMigrationName") String frontEndMigrationName) {
+    @Path("/")
+    public Response getFrontEndMigrations() {
         Response response;
 
         String userId = sessionLogic.getCurrentSessionContext().getUserId();
@@ -117,9 +108,32 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
             return ResponseUtils.badRequest("Not authorized");
         }
 
-        FrontEndMigration migration = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName);
+        List<FrontEndMigration> migration = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null);
         if (migration != null) {
             response = ResponseUtils.ok(mapper.map(migration, FrontEndMigrationDto.class));
+        } else {
+            response = ResponseUtils.internalServerError("front end migration fetching failed");
+        }
+
+        return response;
+    }
+
+    @ApiOperation(response = FrontEndMigrationDto.class,
+            value = "Gets an front end migration",
+            responseContainer = "Array")
+    @GET
+    @Path("/byName/{frontEndMigrationName}")
+    public Response getFrontEndMigrationByName(@PathParam("frontEndMigrationName") String frontEndMigrationName) {
+        Response response;
+
+        String userId = sessionLogic.getCurrentSessionContext().getUserId();
+        if(userId == null){
+            return ResponseUtils.badRequest("Not authorized");
+        }
+
+        List<FrontEndMigration> migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName);
+        if (migrations != null) {
+            response = ResponseUtils.ok(migrations.stream().map(i->mapper.map(i, FrontEndMigrationDto.class)).collect(Collectors.toList()));
         } else {
             response = ResponseUtils.internalServerError("front end migration fetching failed");
         }
@@ -140,7 +154,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
             if (migration != null) {
                 response = ResponseUtils.ok(mapper.map(migration, FrontEndMigrationDto.class));
             } else {
-                response = ResponseUtils.internalServerError("Insurance modification failed");
+                response = ResponseUtils.internalServerError("Front end migration modification failed");
             }
         }
 
@@ -160,16 +174,6 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     @Context
     public void setSessionLogic(SessionLogic sessionLogic) {
         this.sessionLogic = sessionLogic;
-    }
-
-    @Context
-    public void setUserLogic(UserLogic userLogic) {
-        this.userLogic = userLogic;
-    }
-
-    @Context
-    public void setUuidGenerator(UUIDGenerator uuidGenerator) {
-        this.uuidGenerator = uuidGenerator;
     }
 
     @ExceptionHandler(Exception.class)

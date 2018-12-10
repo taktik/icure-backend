@@ -29,9 +29,9 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
             "            emit(doc.userId, doc.name,doc._id);\n" +
             "}\n" +
             "}")
-    public FrontEndMigration getByUserIdName(String userId, String name) {
+    public List<FrontEndMigration> getByUserIdName(String userId, String name) {
         List<FrontEndMigration> result = queryView("by_userid_name", ComplexKey.of(userId, name));
-        return result != null && result.size() == 1 ? result.get(0):null;
+        return result;
     }
 
 }
