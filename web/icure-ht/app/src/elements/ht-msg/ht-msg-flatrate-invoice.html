@@ -39,9 +39,7 @@
                 }
 
                 vaadin-grid {
-                    /*height: calc(100% - 41px - 32px - 32px);*/
-                    height: auto;
-                    /*width: calc(100vw - 16%);*/
+                    height: calc(100vh - 145px);
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
                     box-sizing: border-box;
@@ -149,10 +147,6 @@
                     position:relative;
                 }
 
-                .recipient-col{
-                    width:  calc(100% / 11);
-                }
-
                 .oa-col{
                     min-width: 25px;
                 }
@@ -231,7 +225,7 @@
                     }
                 }
                 .gridContainer{
-                    height: auto;
+                    height: 100%;
                     overflow-y: hidden;
                     overflow-x: hidden;
                     box-shadow: var(--app-shadow-elevation-1);
@@ -348,8 +342,7 @@
                 }
 
                 .invoiceSubContainerMiddle {
-                    /*height: 50%;*/
-                    height: calc(100vh - 185px);
+                    height: calc(100%);
                     transition: all .5s ease;
                 }
                 .invoiceSubContainerMiddle vaadin-grid {
@@ -801,6 +794,14 @@
                     border:1px solid #888888;
                 }
 
+                .textRed {
+                    color:#A80000;
+                }
+
+                .textAlignCenter {
+                    text-align: center;
+                }
+
             </style>
         </custom-style>
 
@@ -866,18 +867,46 @@
                         <paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>
                     </div>
                     <div class="body">
-                        <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('download','Filtrer par date',language)]]</h4>
+                        <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('filterByDate','Filtrer par date',language)]]</h4>
                         <vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>
                         <vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>
-                        <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_dateRangerFilterResults" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
-                    </div>
-                </div>                
-                
-                <div class="gridContainer m-t-25">
-                    <div class="invoiceContainer">
-                        <a href="#" on-tap="_testFabien">Trigger generate PDF</a>
+                        <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_getListingArchives" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
                     </div>
                 </div>
+
+                <div class="gridContainer m-t-25">
+                    <div class="invoiceContainer">
+                        <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
+                            <div class="gridContainer grid-archives-listing">
+                                <div class="containScroll">
+                                    <vaadin-grid id="noscroll" items="[[archiveListingMessages]]">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="" >
+                                            <template class="header"><vaadin-grid-sorter path="hrDate">[[localize('date','Date',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrDate]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="9%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="hrTime">[[localize('time','Heure',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrTime]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="35%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="filename">[[localize('filename','Fichier',language)]]</vaadin-grid-sorter></template>
+                                            <template><iron-icon icon="image:picture-as-pdf" class="force-left textRed"></iron-icon> &nbsp; [[item.filename]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="15%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="totalPages">[[localize('totalPages','Nombre de pages',language)]]</vaadin-grid-sorter></template>
+                                            <template class="textAlignCenter">[[item.totalPages]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="1" class="">
+                                            <template class="header"><vaadin-grid-sorter path="id">[[localize('downloadArchive',"Télécharger l'archive",language)]]</template>
+                                            <template><paper-button class="tool-btn p-r-15px p-l-15px downloadListingArchive" on-tap="_downloadListingArchive" documentId="[[item.documentId]]" ><iron-icon icon="icons:cloud-download" class="force-left"></iron-icon> &nbsp; [[localize('download','Télécharger',language)]]</paper-button></vaadin-grid-sorter></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </template>
 
 
@@ -995,8 +1024,13 @@
                         type: Array,
                         value: () => []
                     },
-					archiveListingMessage:{
-						type:Object
+					archiveListingMessages:{
+						type:Object,
+						value: {}
+                    },
+                    downloadFileName: {
+                        type: String,
+                        value: ""
                     }
                 };
             }
@@ -1022,6 +1056,7 @@
 
             _flatrateMenuSectionChanged(){
                 console.log("Menu section: " + this.flatrateMenuSection);
+                if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
             }
 
             formatDate(d,f) {
@@ -1449,12 +1484,6 @@
                 this.shadowRoot.getElementById("rightPanel").classList.toggle("opened")
             }
 
-            _dateRangerFilterResults() {
-                console.log('filter results by date range');
-                console.log('Start: ' + this.shadowRoot.getElementById("dateRangeStart").value);
-                console.log('End: ' + this.shadowRoot.getElementById("dateRangeEnd").value);
-            }
-
             _showWarningMessageEarlyInvoicing() {
                 return parseInt(moment().date()) > 5;
             }
@@ -1524,17 +1553,17 @@
                             <tbody>
                                 <tr class="">
                                     <td width="55%">
-                                        <span class="bold uppercase">${this.user.name}</span><br />
-                                        ${this.hcp.addresses[0].street} ${this.hcp.addresses[0].houseNumber}<br />
-                                        ${this.hcp.addresses[0].postalCode} ${this.hcp.addresses[0].city}<br />
-                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${this.hcp.nihii}<br />
-                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.hcp.contactPerson} &nbsp;&nbsp; ${this.hcp.addresses[0].telecoms[0].telecomNumber}<br />
+                                        <span class="bold uppercase">${_.get(this.user, "name", "")}</span><br />
+                                        ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
+                                        ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
+                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
+                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "contactPerson", "")} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
                                     </td>
                                     <td width="45%">
                                         <table class="borderOa"><tbody><tr><td class="fs11">
-                                            <b>` +data.code + ` &nbsp;&nbsp; ` +data.finalName + `</b><br /><br />
-                                            ` +data.address + `<br />
-                                            ` +data.city + ` ` +data.postalCode + `<br />
+                                            <b>` +_.get(data, "code", "") + ` &nbsp;&nbsp; ` +_.get(data, "finalName", "") + `</b><br /><br />
+                                            ` +_.get(data, "address", "") + `<br />
+                                            ` +_.get(data, "city", "") + ` ` +_.get(data, "postalCode", "") + `<br />
                                         </td></tr></tbody></table>
                                     </td>
                                 </tr>
@@ -1588,15 +1617,15 @@
                         _.forEach(singleEntry, _.trim);
                             contentToReturn += `
                                 <tr class="fs9 borderTopLightThinGrey pt2 pb2">
-                                    <td width="5%" class="">`+((singleEntry.externalId)||"")+`</td>
-                                    <td width="30%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
-                                    <td width="10%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
-                                    <td width="10%" class="bold">`+((singleEntry.ssin)||"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="30%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="10%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
                                     <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
                                     <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="5%" class="">`+((singleEntry.personType)||"")+`</td>
-                                    <td width="10%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
                                 </tr>`
 
                     })
@@ -1627,18 +1656,18 @@
                         _.forEach(singleEntry, _.trim);
                             contentToReturn += `
                                 <tr class="fs9 borderTopLightThinGrey pt2 pb2">
-                                    <td width="4%" class="">`+((singleEntry.externalId)||"")+`</td>
-                                    <td width="19%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
-                                    <td width="9%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
-                                    <td width="9%" class="bold">`+((singleEntry.ssin)||"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="4%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="19%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
                                     <td width="9%" class="">`+(singleEntry.MHC_listUnsubscriptions.startOfContract?moment(singleEntry.MHC_listUnsubscriptions.startOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="9%" class="colorGreen">`+(singleEntry.MHC_listUnsubscriptions.startOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.startOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfContract?moment(singleEntry.MHC_listUnsubscriptions.endOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.MHC_listUnsubscriptions.unsubscriptionReasonId)||"")+`</td>
-                                    <td width="4%" class="">`+((singleEntry.personType)||"")+`</td>
-                                    <td width="9%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "MHC_listUnsubscriptions.unsubscriptionReasonId", "")+`</td>
+                                    <td width="4%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
                                 </tr>`
                     })
 
@@ -1909,7 +1938,7 @@
                                     resolvedHcpPatients++;
                                     this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName']).value(); this._getInsurancesData(); }
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value(); this._getInsurancesData(); }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
                         })
@@ -2079,7 +2108,9 @@
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
 
-                const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
+
+                this.downloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
 
                 // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
@@ -2088,83 +2119,66 @@
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
 
-                        console.log({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + downloadFilename });
-
                         // Create "internal" message, give it a document and attach file to document ([nesty] bind attachment back to message)
-                        this.api.message().createMessage({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + downloadFilename })
-                            .then(createMessageResponse => {
-                                this.api.document().newInstance(this.user,createMessageResponse.id,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: downloadFileName}).then(createMessageResponse =>
-                                    this.api.document().createDocument(createMessageResponse)).then((createDocumentResponse) => {
-                                        this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent)
-                                            .then((setAttachmentResponse) => {
-                                                createMessageResponse.metas["documentId"] = setAttachmentResponse.id;
-                                                this.api.message().modifyMessage(createMessageResponse).then((modifiedMessage) => {
-
-                                                    console.log(createMessageResponse);
-                                                    console.log(createDocumentResponse);
-                                                    console.log(setAttachmentResponse);
-                                                    console.log(modifiedMessage);
-
-                                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
-                                                    this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
-                                                    this.set('_isLoading', false );
-
-                                                })
-
+                        this.api.message().createMessage({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName }).then(createMessageResponse => {
+                            this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
+                                this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
+                                    this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent).then((setAttachmentResponse) => {
+                                        createMessageResponse.metas["documentId"] = setAttachmentResponse.id;
+                                        createMessageResponse.delegations = setAttachmentResponse.delegations;
+                                        createMessageResponse.cryptedForeignKeys = setAttachmentResponse.cryptedForeignKeys;
+                                        this.api.message().modifyMessage(createMessageResponse).then((modifiedMessage) => {
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
+                                            this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName );
+                                            this.set('_isLoading', false );
                                         }).catch(()=>{this.set('_isLoading', false );})
                                     }).catch(()=>{this.set('_isLoading', false );})
+                                }).catch(()=>{this.set('_isLoading', false );})
                             }).catch(()=>{this.set('_isLoading', false );})
-                    }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
+                        }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
 
 
 
             }
+
+            _getListingArchives() {
+
+                this.archiveListingMessages = {}
+                let dateRangeStart = _.trim(_.get(this.shadowRoot.getElementById("dateRangeStart"), "value", "" ));
+                let dateRangeEnd = _.trim(_.get(this.shadowRoot.getElementById("dateRangeEnd"), "value", "" ));
+
+                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING', null, null, null, 1000).then(m => {
+                    this.archiveListingMessages = _
+                        .chain(m.rows)
+                            .filter((m)=>{return _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId && (!dateRangeStart?true:(!moment(m.created).isBefore(moment(dateRangeStart, "YYYY-MM-DD")))) && (!dateRangeEnd?true:(moment(m.created).isBefore(moment(dateRangeEnd, "YYYY-MM-DD"))))})
+                            .map((i)=>{
+                                i.hrDate = moment(i.created).format('DD/MM/YYYY');
+                                i.hrTime = moment(i.created).format("HH:mm:ss");
+                                i.filename = _.get(i.metas,"filename", "listing-patients.pdf");
+                                i.documentId = _.get(i.metas,"documentId", false);
+                                i.totalPages = _.get(i.metas,"totalPages",1);
+                                return i;
+                            })
+                            .orderBy("created", "desc")
+                        .value();
+                });
+
+            }
+
+            _downloadListingArchive(e) {
+                let documentId = _.get(_.head(_.chain(e.path).filter((i)=>{return _.get(_.get(i,"classList",[]), "value","").indexOf('downloadListingArchive')!==-1}).value()),"documentid",false);
+                if(documentId) this.api.document().getAttachment(documentId, null, null).then((attachmentResponse)=>{this.api.triggerFileDownload(attachmentResponse,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"documentId":_.trim(documentId)})), "filename","listing-patients.pdf"));}).catch(()=>{})
+            }
+
+
 
             _getListingJ20() {
                 console.log('_getListingJ20');
             }
 
-            _getListingArchives() {
-                console.log('_getListingArchives');
-            }
-
-
-
-            _testFabien() {
-
-                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:*', null, null, null, 1000).then(messages => { console.log('---MH:ARCHIVES:*---'); console.log(messages); });
-
-            }
-
-
-            // <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
-
-            _download(e){
-                let dataUrl = e.target.getAttribute('dataUrl');
-                let name = e.target.getAttribute('name');
-
-                if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
-
-                console.log("annexe data");
-                console.log(dataUrl);
-                console.log(name);
-
-                var a = document.createElement('a');
-                a.href = dataUrl;
-                a.target = '_parent';
-                a.download = decodeURIComponent(name);
-
-
-                let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
-
-                htMsgDetail.appendChild(a);
-                a.click();
-                a.parentNode.removeChild(a);
-
-            }
-
-
+            
+            
 
         }
 
