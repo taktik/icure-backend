@@ -17,11 +17,10 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import org.springframework.stereotype.Service
-import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201.MedicationSchemeExport
-import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
@@ -36,8 +35,8 @@ import java.io.OutputStream
  * @author Bernard Paulus on 24/05/17.
  */
 @Service
-class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
-                                   val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
+class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExport,
+                                   val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
 
     override fun importSmfFile(inputStream: InputStream,
                                author: User,
@@ -45,10 +44,10 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
                                dest: Patient?,
                                mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputStream, author, language, mappings, dest)
+        return medicationSchemeImport!!.importSMF(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor)
+    override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
+        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, version, decryptor, progressor)
 	}
 }
