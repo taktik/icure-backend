@@ -2508,12 +2508,12 @@
                     });
 
                     if(nmcl.code!="109955") {
-                        nmcl.valorisations.map(val => {
+                        nmcl.valorisations.forEach(val => {
                             const gen = (env.gen(val.predicate)())
                             let status = {done: false}
 
                             while (!status.done) {
-                                status = gen.next()
+                                status = gen.next() //Execute lines one by one
                             }
 
                             val.reimbursement = Number(val.reimbursement).toFixed(2)

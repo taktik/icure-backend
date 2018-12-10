@@ -61,6 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
+<link rel="import" href="elements/ht-app/ht-app-welcome-tz.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 
@@ -493,6 +494,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-weight: 700;
 
             }
+
+            ht-app-welcome-tz{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2000;
+                background: white;
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -500,6 +511,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
+
+        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" hidden="[[!showWelcomePage]]"></ht-app-welcome-tz>
 
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
@@ -1293,6 +1306,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     keyPairKeystore:{
                     	type: Array,
                         value: () => []
+                    },
+                    showWelcomePage: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1335,6 +1352,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                this.api.icure().isReady().then(res => this.set('showWelcomePage', res === 'ok'))
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
