@@ -703,7 +703,7 @@
             <h2 class="modal-title">[[_getModalTitle(selectedTab)]]
                 <paper-tabs selected="{{selectedTab}}">
                     <paper-tab>[[localize('tab_pres','Present',language)]]</paper-tab>
-                    <paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>
+                    <!--<paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>-->
                     <paper-tab>[[localize('tab_pat','Patient',language)]]</paper-tab>
                     <paper-tab>[[localize('tab_chap','Chapter IV',language)]]</paper-tab>
                 </paper-tabs>
@@ -876,7 +876,7 @@
 
                 </template>
 
-                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                <template is="dom-if" if="{{_isEqual(selectedTab,5)}}">
                     <div class="history">
                         <div class="timeline">
                             <div class="timeline-header">
@@ -935,7 +935,7 @@
                     </div>
                 </template>
 
-                <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                     <div class="patient">
                         <div class="general-infos">
                             <div class="infos-block">
@@ -948,7 +948,6 @@
                                 <div class="infos--address"><span>Address</span>250 street StreetName</div>
                             </div>
                         </div>
-
                         <template is="dom-repeat" items="[[patientPlan]]" as="plan">
                             <template is="dom-if" if="[[_isRegimen(plan.meds)]]">
                                 <div id="breakfast" class="table-container">
@@ -961,57 +960,27 @@
                                         <div class="col col--photo">Photo</div>
                                         <div class="col col--ed">[[localize('endDate','End Date',language)]]</div>
                                         <div class="col col--freq">[[localize('freq','Frequency',language)]]</div>
-                                        <template is="dom-if" if="[[_isMomentDetail(plan.title)]]">
-                                            <div class="col col--bef">[[localize('mom_before','Before',language)]]</div>
-                                            <div class="col col--dur">[[localize('mom_during','During',language)]]</div>
-                                            <div class="col col--aft">[[localize('mom_after','After',language)]]</div>
-                                        </template>
-                                        <template is="dom-if" if="[[!_isMomentDetail(plan.title)]]">
-                                            <template is="dom-repeat" items="[[plan.meds]]" as="m">
-                                                <template is="dom-repeat" items="[[m.timeOfDay]]" as="time">
-                                                    <div class="col col--bef">[[_getRegimenTime(time)]]</div>
-                                                </template>
-                                            </template>
-                                            <div class="col col--bef">Au choix</div>
+                                        <template is="dom-repeat" items="[[plan.cols]]" as="col">
+                                            <div class="col col--bef">[[_getHeaderTitle(col)]]</div>
                                         </template>
                                         <div class="col col--com">[[localize('com','Comments',language)]]</div>
                                     </div>
                                     <div class="table-body">
                                         <template is="dom-repeat" items="[[plan.meds]]" as="m">
-                                                <div class="table-row">
-                                                    <div class="col col--med"><span class="med--name">[[_getTimeOfDay(m.during)]] [[_serviceDescription(m.medication)]]</span></div>
-                                                    <div class="col col--photo"></div>
-                                                    <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
-                                                    <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
-                                                    <template is="dom-if" if="[[_isMomentDetail(plan.title)]]">
-                                                        <div class="col col--bef">
-                                                            <template is="dom-if" if="[[_getRegimenMoment(m.before, 0)]]">
-                                                                <span class="dur-pill">[[_getRegimenQuantity(m.before)]]</span>
-                                                            </template>
-                                                        </div>
+                                            <div class="table-row">
+                                                <div class="col col--med"><span class="med--name">[[_getTimeOfDay(m.during)]] [[_serviceDescription(m.medication)]]</span></div>
+                                                <div class="col col--photo"></div>
+                                                <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
+                                                <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
+                                                    <template is="dom-repeat" items="[[plan.cols]]" as="col">
                                                         <div class="col col--dur">
-                                                            <template is="dom-if" if="[[_getRegimenMoment(m.during, 1)]]">
-                                                                <span class="dur-pill">[[_getRegimenQuantity(m.during)]]</span>
-                                                            </template>
-                                                        </div>
-                                                        <div class="col col--aft">
-                                                            <template is="dom-if" if="[[_getRegimenMoment(m.after, 2)]]">
-                                                                <span class="dur-pill">[[_getRegimenQuantity(m.after)]]</span>
+                                                            <template is="dom-if" if="[[_getRegimen(col, m)]]">
+                                                                <span class="dur-pill">[[_getRegimenQuantity(col, m)]]</span>
                                                             </template>
                                                         </div>
                                                     </template>
-                                                    <template is="dom-if" if="[[!_isMomentDetail(plan.title)]]">
-                                                        <template is="dom-if" if="[[_isTimeOfDay(m.timeOfDay)]]">
-                                                            <template is="dom-repeat" items="[[m.timeOfDay]]" as="time">
-                                                                <div class="col col--dur"><span class="dur-pill">[[_getRegimenQuantity(m.during)]]</span></div>
-                                                            </template>
-                                                        </template>
-                                                       <template is="dom-if" if="[[!_isTimeOfDay(m.timeOfDay)]]">
-                                                           <div class="col col--dur"><span class="dur-pill">[[_getRegimenQuantity(m.during)]]</span></div>
-                                                       </template>
-                                                    </template>
-                                                    <div class="col col--com">[[m.medication.instructionForPatient]]</div>
-                                                </div>
+                                                <div class="col col--com">[[m.medication.instructionForPatient]]</div>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
@@ -1021,7 +990,7 @@
                 </template>
             </div>
 
-            <template is="dom-if" if="{{_isEqual(selectedTab,3)}}">
+            <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
                 <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
             </template>
 
@@ -1414,7 +1383,7 @@
                         x => x > scores.afterdinner
                     ])
                 })).reduce((acc,m) => {
-                    const letter = (m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code.substr(0,1)
+                    const letter = ((m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0,1)
                     ;(acc[letter] || (acc[letter] = {letter:letter, meds:[]})).meds.push(m)
                     return acc
                 }, {})), 'letter')
@@ -1539,7 +1508,7 @@
                             before: [],
                             during: regimens[0],
                             after: [],
-                            times: regimens[0].filter(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[0].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1550,7 +1519,7 @@
                             before: regimens[1],
                             during: regimens[2],
                             after: regimens[3],
-                            times: []
+                            times: _(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1561,7 +1530,7 @@
                             before: [],
                             during: regimens[4],
                             after: [],
-                            times: regimens[4].filter(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[4].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1572,7 +1541,7 @@
                             before: regimens[5],
                             during: regimens[6],
                             after: regimens[7],
-                            times: []
+                            times: _(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1583,7 +1552,7 @@
                             before: [],
                             during: regimens[8],
                             after: [],
-                            times: regimens[8].filter(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[8].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1594,7 +1563,7 @@
                             before: regimens[9],
                             during: regimens[10],
                             after: regimens[11],
-                            times: []
+                            times: _(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1605,7 +1574,7 @@
                             before: [],
                             during: regimens[12],
                             after: [],
-                            times: regimens[12].filter(r => ({tod: r.timeOfDay, pc: r.dayPeriod && r.dayPeriod.code}))
+                            times: regimens[12].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
                         })
                     }
 
@@ -1617,7 +1586,7 @@
                     meds: regimensTableByDayPeriod.beforeBreak,
                     cols: regimensTableByDayPeriod.beforeBreak.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1630,7 +1599,7 @@
                     meds: regimensTableByDayPeriod.breakfast,
                     cols: regimensTableByDayPeriod.breakfast.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1643,7 +1612,7 @@
                     meds: regimensTableByDayPeriod.betweenBAndL,
                     cols: regimensTableByDayPeriod.betweenBAndL.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1656,7 +1625,7 @@
                     meds: regimensTableByDayPeriod.lunch,
                     cols: regimensTableByDayPeriod.lunch.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1669,7 +1638,7 @@
                     meds: regimensTableByDayPeriod.betweenLAndD,
                     cols: regimensTableByDayPeriod.betweenLAndD.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1682,7 +1651,7 @@
                     meds: regimensTableByDayPeriod.dinner,
                     cols: regimensTableByDayPeriod.dinner.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1695,7 +1664,7 @@
                     meds: regimensTableByDayPeriod.night,
                     cols: regimensTableByDayPeriod.night.reduce((acc, med) => {
                         med.times.forEach(t => {
-                            if (!acc.some(col => col.tod === t.tod || col.dp === t.dp)) {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
                                 acc.push(t)
                             }
                         })
@@ -1712,32 +1681,32 @@
                 return (meds && meds.length > 0) ? true : false
             }
 
-            _getRegimenMoment(regimen, moment){
-                const r = regimen && regimen[0]
-                if(r && r.administratedQuantity && r.administratedQuantity.quantity > 0 && (r.timeOfDay || r.dayPeriod && r.dayPeriod.code)){
-                    return moment === 0 && (r.dayPeriod.code === "beforebreakfast" || r.dayPeriod.code === "beforelunch" || r.dayPeriod.code === "beforedinner") ? true :
-                        moment === 1 && (r.dayPeriod.code === "duringbreakfast" || r.dayPeriod.code === "duringlunch" || r.dayPeriod.code === "duringdinner") ? true :
-                            moment === 2 && (r.dayPeriod.code === "afterbreakfast" || r.dayPeriod.code === "afterlunch" || r.dayPeriod.code === "afterdinner") ? true :
-                                false
+            _getRegimen(col, m){
+                const colPeriod = col.tod || col.pc || "other"
+                return m.regimens.find(r => ((r.timeOfDay && r.timeOfDay === colPeriod) || (r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code === colPeriod))) ? true : colPeriod === "other"
+            }
+
+            _getRegimenQuantity(col, m){
+
+                const colPeriod = col.tod || col.pc || "other"
+                const regimenTod = m.regimens.filter(r => ((r.timeOfDay && r.timeOfDay === colPeriod) || (r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code === colPeriod)))
+                let qty = 0
+
+                if(regimenTod && regimenTod.length){
+                    qty = _.reduce(regimenTod, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
+                }else{
+                    qty = _.reduce(m.regimens, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
                 }
+
+                return qty
             }
 
-            _getRegimenQuantity(regimen){
-                const r = regimen
-                return (r && r.length == 1 && r[0].administratedQuantity && r[0].administratedQuantity.quantity > 0 && (r[0].timeOfDay || r[0].dayPeriod && r[0].dayPeriod.code)) ? r[0].administratedQuantity.quantity :
-                        r && r.length > 1 ? r.length : 1
-            }
-
-            _isMomentDetail(moment){
-                return (moment && (moment === this.localize("mom_break", "Breakfast", this.language) || moment === this.localize("mom_dinner", "Dinner", this.language) || moment === this.localize("mom_lunch", "Lunch", this.language))) ? true : false
-            }
-
-            _getRegimenTime(regimen){
-                return regimen && regimen.timeOfDay ?  regimen.timeOfDay : null
-            }
-
-            _isTimeOfDay(regimen){
-                return regimen && regimen.length > 0 ? true : false
+            _getHeaderTitle(col){
+                return col && col.pc && !col.tod ? this.localize("ms_"+col.pc, col.pc, this.language): col && col.tod ? col.tod.toString().substr(0,2)+"h"+col.tod.toString().substr(2,2) : null
             }
         }
 

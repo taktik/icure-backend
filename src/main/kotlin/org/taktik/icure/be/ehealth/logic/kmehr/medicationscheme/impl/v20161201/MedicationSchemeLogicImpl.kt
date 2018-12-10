@@ -38,13 +38,13 @@ import java.io.OutputStream
 class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExport,
                                    val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
 
-    override fun importSmfFile(inputStream: InputStream,
+    override fun importMedicationSchemeFile(inputStream: InputStream,
                                author: User,
                                language: String,
                                dest: Patient?,
                                mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
-        return medicationSchemeImport!!.importSMF(inputStream, author, language, mappings, dest)
+        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, dest)
     }
 
     override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {

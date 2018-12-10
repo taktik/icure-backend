@@ -3093,7 +3093,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code || 'V').substr(0,1)}` }) ), sorter))
                     )
                     this._updateFilterPanels()
                 })
@@ -3515,7 +3515,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             compareContacts(a, b) {
-                return b.created - a.created;
+                return b.openingDate - a.openingDate;
             }
 
             close() {

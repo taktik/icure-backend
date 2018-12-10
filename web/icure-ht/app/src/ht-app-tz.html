@@ -1353,7 +1353,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
-                this.api.icure().isReady().then(res => this.set('showWelcomePage', res === 'ok'))
+                this.api.icure().isReady().then(ok => {
+                    this.set('showWelcomePage', !ok)
+                })
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
