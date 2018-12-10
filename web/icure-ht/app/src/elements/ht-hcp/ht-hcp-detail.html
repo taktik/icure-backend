@@ -249,6 +249,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow-y:scroll;
 
 			}
+
+			#savedIndicator{
+				position: fixed;
+				top:50%;
+				right: 0;
+				z-index:1000;
+				color: white;
+				font-size: 13px;
+				background:rgba(0,0,0,0.42);
+				height: 24px;
+				padding: 0 8px 0 12px;
+				border-radius: 3px 0 0 3px;
+				width: 0;
+				opacity: 0;
+			}
+			.saved{
+				animation: savedAnim 2.5s ease-in;
+			}
+			.saved iron-icon{
+				margin-left: 4px;
+				padding: 4px;
+			}
+
+			@keyframes savedAnim {
+				0%{
+					width: 0;
+					opacity: 0;
+				}
+				20%{
+					width: 114px;
+					opacity: 1;
+				}
+				25%{
+					width: 96px;
+					opacity: 1;
+				}
+				75%{
+					width: 96px;
+					opacity: 1;
+				}
+				100%{
+					width: 0;
+					opacity: 0;
+				}
+			}
+
 			@media screen and (max-width:1025px){
 				.first-panel{
 					width:30%;
@@ -263,12 +309,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
+			<paper-item id="savedIndicator">
+				[[localize('sav','SAVED',language)]]
+				<iron-icon icon="icons:check"></iron-icon>
+			</paper-item>
 			<div class="first-panel">
 				<paper-material class="zone compact-menu">
 					<paper-listbox class="padding-0" id="adminFileMenu" selected-item="{{selectedAdminFile}}">
 						<paper-item id="_admin_info" class="horizontal layout hcp-info-container">
 							<paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
-							<div class="hcp-picture-container"><img src$="[[picture(hcp)]]"></div>
+							<div class="hcp-picture-container"><img src$="[[picture(hcp,hcp.*)]]"></div>
 							<div class="hcp-info">
 								<div class="hcp-name">{{hcp.firstName}} {{hcp.lastName}}</div>
 								<div class="hcp-birthdate">{{hcp.nihii}}</div>
@@ -278,8 +328,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</paper-listbox>
 				</paper-material>
 			</div>
-			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]"></ht-hcp-admin-card>
+			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile,hcp)]]">
+				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
 			</template>
 		</div>
 	</template>
@@ -319,7 +369,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
 	}
 
-	hcpChanged() {}
+	hcpChanged(){
+	}
+
+	hcpSaved(event) {
+        setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
+        this.$.savedIndicator.classList.add("saved");
+	}
 
 	unselectAdminFile() {
 		this.$.adminFileMenu.select(null);
@@ -355,8 +411,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		return hcp.picture ? 'data:image/jpeg;base64,' + hcp.picture : hcp.gender === 'F' || hcp.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
 	}
 
-	localize(e, lng) {
-		return this.api && this.api.contact().localize(e, lng) || "";
+	localize(e, other, lng) {
+		return this.api && this.api.localize(e, lng) || other;
 	}
 
 }

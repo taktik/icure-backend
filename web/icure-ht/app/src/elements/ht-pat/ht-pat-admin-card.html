@@ -25,9 +25,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
+<link rel="import" href="./dialogs/medicalhouse/ht-pat-medicalhouse-timeline.html">
 
 <dom-module id="ht-pat-admin-card">
 	<template>
@@ -438,6 +440,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
@@ -542,6 +545,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </vaadin-grid-column>
                                 </vaadin-grid>
                             </div>
+                    </div>
+                </page>
+                <page>
+                    <div class="page-container">
+                        <ht-pat-medicalhouse-timeline class="page-content printable"  api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]" no-print/>
                     </div>
                 </page>
             </iron-pages>
@@ -1051,25 +1059,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return (text || '').length >= 2 ?
                         (text.match(/^[0-9]+$/) ? this.api.insurance().listInsurancesByCode(text) : this.api.insurance().listInsurancesByName(text))
                             .then(res => res.map(i => ({
-                                'id': i.id,
+                                'codeId': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
-                                'id': i.id,
+                                'codeId': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
                     const s = text && text.toLowerCase()
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u => (u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
-                        .map(u => ({id: u.id, name: u.name || u.login || u.email})) : [])
+                        .map(u => ({codeId: u.id, name: u.name || u.login || u.email})) : [])
                 } else if (data.source === "codes" && data.types.length && (id || (text && text.length > 1))) {
                     return id ?
                         Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct.type, id, '1')))
                             .then(x => _.compact(x)[0])
                             .then(c => {
                                 const typeLng = this.api.code().languageForType(c.type, this.language)
-                                return {id: c.code, name: c.label[typeLng]}
+                                return {codeId: c.code, name: c.label[typeLng]}
                             }) :
                         Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language)
@@ -1077,9 +1085,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
 
                             return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
-                                id: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
+                                codeId: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
                             })), sorter))
                         })).then(responses => _.flatMap(responses))
+                } else if (data.source === "mh") {
+                    return (id||'').length >= 1 ?
+                        this.api.hcparty().getHealthcareParty( id ).then(results => { return { 'id': results.id, 'name':_.upperFirst(_.lowerCase(results.name)) + ' ' +(typeof results.nihii === 'undefined' || !results.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + results.nihii) }}) :
+                        (text || '').length >= 2 ? Promise.all([this.api.hcparty().findBySsinOrNihii( text ),this.api.hcparty().findByName( text )]).then(results => {
+                        return _.flatten(_.chain( _.concat( results[0].rows, results[1].rows ) ).uniqBy( 'id' ).filter({ type : 'medicalHouse' }).value().map(i => ({
+                            'id': i.id,
+                            'name':_.upperFirst(_.lowerCase(i.name)) + ' ' +(typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +''
+                        })));
+                    }) : Promise.resolve([]);
                 }
                 return Promise.resolve(id ? null : [])
             }

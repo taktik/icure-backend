@@ -39,6 +39,8 @@
 <link rel="import" href="../../spinner-style.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 
+<link rel="import" href="../pdf-element/pdf-element.html">
+
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
 
@@ -129,7 +131,7 @@
 
 			.msg-detail-card {
 				width: 100%;
-				padding: 0 12px;
+                padding: 0 0 0 12px;
                 height: calc(80vh - 20%);
 				display: flex;
 				flex-flow: column nowrap;
@@ -389,10 +391,16 @@
 				padding-bottom: 32px;
 			}
 
+            dynamic-doc {
+                overflow-x: hidden;
+                overflow-y: auto;
+                margin-top: 16px;
+            }
+
 			.annexe-card{
-				flex-basis: calc(100% / 3);
-				max-width: calc((100% / 3) - 16px);
-				margin: 4px;
+				padding: 4px;
+                width: 50%;
+                box-sizing: border-box;
 				background: var(--app-background-color)
 			}
 
@@ -404,6 +412,8 @@
 				background-color: white;
     			padding: 0 8px;
 				flex-flow: row nowrap!important;
+                overflow: hidden;
+                text-overflow: ellipsis;
 			}
 
 			.annexe-card--header span{
@@ -431,6 +441,7 @@
 				font-size: 14px;
 				font-weight: 400;
 				text-transform: capitalize;
+                margin: 0 auto;
 			}
 
 			.annexe-card--action-button:hover{
@@ -664,6 +675,10 @@
 
             .mobileOnly {display: none;}
 
+            .doc-container {
+                max-width: 50%;
+            }
+
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
                 .attached {
@@ -713,6 +728,9 @@
                                 <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
                             </div>
                         </div>
+                        <template is="dom-if" if="[[msg.patientInss]]">
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss('displayName',msg.patientInss)]]</div>
+                        </template>
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
@@ -726,59 +744,14 @@
             </div>
 
             <div class="attached">
-                <h3>[[localize('attachments','Attachments',language)]]</h3>
+                <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <paper-card class="annexe-card">
-                            <div class="layout-horizontal space-between annexe-card--header">
-                                <span>[[item.name]]</span>
-                                <paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
+                            <div class="layout-vertical annexe-card">
+                                <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                             resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             </div>
-                            <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
-                                <div class="img-container annexe-card--content">
-                                    <img src$="[[item.dataUrl]]">
-                                </div>
-                                <div class="layout-horizontal space-between">
-                                    <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                </div>
-                            </template>
-                            <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                            </template>
-                            <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <div class="annexe-card--content">
-                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
-                                    <template is="dom-if" if="[[showDetail]]">
-                                        <div>[[documentAttachment]]</div>
-                                        <!--TODO: format annexe on display-->
-                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-                                    </template>
-                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                    </div>
-                                </div>
-
-                            </template>
-                            <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
-                                <div class="annexe-card--content">
-                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
-                                    <template is="dom-if" if="[[showDetail]]">
-                                        <div>[[documentAttachment]]</div>
-                                        <!--TODO: format annexe on display-->
-                                        <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-                                    </template>
-                                    <div class="layout-horizontal layout-horizontal--nowrap space-between">
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                        <vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                                    </div>
-                                </div>
-
-                            </template>
-                        </paper-card>
                     </template>
-                    <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
 
@@ -843,6 +816,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isDeleted: {
 			    type: Boolean,
                 value: false
+            },
+            attachmentQuantity: {
+			    type: Number,
+                value: 0
             }
 		};
 	}
@@ -872,46 +849,45 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_displayLengthOrEmpty(msgBody){
-		return msgBody.length ? msgBody : "no content"
+        return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-	        console.log('focusChanged',this.selectMessage.selection.item)
+	        console.log('focusChanged, selectedDocuments',this.selectMessage)
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             // this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => { if(docs.length) {
-				    // console.log('then docs',docs)
 					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
 						.map(doc => {
-						//     console.log('what is doc ??',doc)
                             return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
                                 .then(a => {
-                                        // console.log('what is a ??', a)
-                                        doc.dataUrl = this.getDataUrls(doc)
-                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                            console.log('this doc is the body', doc)
-                                            this.set('bodyDocument',doc)
-                                            // this.api.document().getAttachmentText(doc.id, doc.attachmentId).then(res => {
-                                            //     tempSelect.body = a
-                                            // });
-                                        }
-                                        return doc
+                                    doc.dataUrl = this.getDataUrls(doc)
+                                    if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                        console.log('this doc is the body', doc)
+                                        this.set('bodyDocument',doc)
+                                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                        fetch(url,{credentials:'include'})
+                                            .then(res=>res.text())
+                                            .then(res=>this.set('docTxt',res))
                                     }
-                                );
+                                    return doc
+                            });
                         }
 					)
 				}
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
+	    		    console.log('docs',docs)
                     Promise.all(docs).then(docs=>{
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
+                        this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
                     })
 				}
@@ -919,6 +895,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set('isLoadingMessage',false)
 					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
+                    this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
                 console.log(this.messages)
@@ -945,6 +922,35 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
         // }.bind(this))
 	}
+
+    _getPatientDataByInss(wantedValue,inss){
+        if(inss && inss.length > 1) {
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
+                .then(patients => {
+                    console.log(patients);
+                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                        .map(pat => {
+                            let newPat = {};
+                            newPat.firstName = pat.firstName ? pat.firstName : "";
+                            newPat.lastName = pat.lastName ? pat.lastName : "";
+                            newPat.fullName = pat.firstName + " " + newPat.lastName;
+                            newPat.ssin = pat.ssin ? pat.ssin : "";
+                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                            const res =
+                                wantedValue == 'firstName' ? newPat.firstName :
+                                wantedValue == 'lastName' ? newPat.lastName :
+                                wantedValue == 'fullName' ? newPat.fullName :
+                                wantedValue == 'ssin' ? newPat.ssin :
+                                wantedValue == 'displayName' ? newPat.displayName :
+                                newPat
+                            return res
+                        })
+                })
+        }
+        else{
+            this.set("patientList", [])
+        }
+    }
 
 	getDataUrls(doc) {
 	    // console.log('getDataUrls',doc)
@@ -974,6 +980,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
         } else { // no encryption keys
             console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set('bodyDocument',{})
             this.set("type","");
             if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
                 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
@@ -997,14 +1004,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
         console.log('origMsg',origMsg)
-        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
             annex: this.selectedDocuments,
             document: {
 	            title: 'Fw: '+origMsg.subject,
-                textContent: origMsg.body.length ? origMsg.body : 'no content'
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'fwd'
@@ -1019,9 +1025,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let dest = [{
             delegations: origMsg.delegations,
             displayName: origMsg.fromAddress,
-            nihii: undefined,
+            nihii: origMsg.senderId,
             cbe: undefined,
-            ssin: undefined,
+            ssin: origMsg.senderInss,
             type: this.localize('replyto','In reply to',this.language)
         }]
         this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
@@ -1032,7 +1038,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
-                textContent: origMsg.body.length ? origMsg.body : 'no content'
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
             },
             customMetas: origMsg.metas,
             type: 'replyto'
@@ -1041,42 +1047,40 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
 
-	_removeMsg(e){
+    _removeMsg(){
         let msg = this.messages[0]
-		// let msgId = e.target.getAttribute('msgId');
-		// let transportGuid = e.target.getAttribute('transportGuid');
-
-		// this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-		// 	.then(msg => {
-		// 		let m = msg.rows[0];
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                this.api.message().deleteMessages(msg.id)
-                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-            } else {
-                msg.transportGuid = "BIN:" + msg.transportGuid;
-                this.api.message().modifyMessage(msg)
-                    .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-            }
-            this.set('messages', null);
-            const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
-            mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            if (!msg.transportGuid.startsWith("BIN")) {
+                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox))
+                    .finally(()=>{
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                    })
+            } else {console.log(msg.id+' is already in bin !')}
+            const target = this.parentElement.parentNode.children[1]
+            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
         }
-        // })
-	}
+    }
 
     _restoreMsgs(){
         let msg = this.messages[0]
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                msg.transportGuid = msg.transportGuid.substring(3);
-                this.api.message().modifyMessage(msg)
-                    .then(()=> {
-                        const mailList = this.parentElement.children[0].shadowRoot.getElementById('mail-list')
-                        mailList.dispatchEvent(new CustomEvent('removed-opened', {detail: {bubbles: true, composed: true}}))
-                    });
-            }
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
+                .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .finally(()=>{
+                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                })
         }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
@@ -1096,6 +1100,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
+    _plainMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    }
+
 	_isEqualTo(title, string) {
 		return title == string;
 	}
@@ -1108,28 +1116,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
 	}
 
-	_download(e){
-		let dataUrl = e.target.getAttribute('dataUrl');
-		let name = e.target.getAttribute('name');
+    // _download(item) {
+    //     let file = new Blob([this.api.crypto().utils.ua2hex(item)] ,{type: "text/plain"})
+    //     let a = document.createElement("a");
+    //     document.body.appendChild(a);
+    //     a.style = "display: none";
+    //
+    //     let url = window.URL.createObjectURL(file);
+    //     a.href = url;
+    //     a.download = this.user.healthcarePartyId+".2048.key";
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //
+    //     // const origin = window.location.origin
+    //     // window.location.href = origin
+    // }
 
-		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+    _base64(data) {
+        return base64js.fromByteArray(data);
+    }
 
-		console.log("annexe data");
-		console.log(dataUrl);
-		console.log(name);
-
-		var a = document.createElement('a');
-		a.href = dataUrl;
-		a.target = '_parent';
-		a.download = decodeURIComponent(name);
-
-
-		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
-
-		htMsgDetail.appendChild(a);
-		a.click();
-		a.parentNode.removeChild(a);
-
+	_downloadAnnex(e){
+        const parent = this.parentNode
+        parent.dispatchEvent(new CustomEvent('file-dl', {detail: {bubbles: true, composed: true, url:this.dataUrl}}))
 	}
 
 	_getAttachment(e){

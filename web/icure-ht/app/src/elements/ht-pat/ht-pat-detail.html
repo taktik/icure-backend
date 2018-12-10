@@ -3093,7 +3093,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code || 'V').substr(0,1)}` }) ), sorter))
                     )
                     this._updateFilterPanels()
                 })
@@ -3515,7 +3515,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             compareContacts(a, b) {
-                return b.created - a.created;
+                return b.openingDate - a.openingDate;
             }
 
             close() {
@@ -3754,19 +3754,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _healthElementsSelectorDataProvider() {
                 return {
-                    filter: function (filterValue, limit, offset, sortKey, descending) {
+                    filter: function (cplxFilterValue, limit, offset, sortKey, descending) {
+                        const [cdItem, filterValue] = cplxFilterValue.split(':')
                         const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
                         const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
                         const words = noDiacFilterValue && noDiacFilterValue.toLowerCase().split(/\s+/);
-                        const sorter = x => [x.descr && x.descr.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) || x.name && x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) ? 0 : 1, x.descr, x.name]
+                        const sorter = x => { const key = (x.descr || x.name || '').normalize('NFD').replace(/[\u0300-\u036f ]/g, "").toLowerCase(); return [key.startsWith(words[0]), key]}
 
-                        return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
-                            const codes = results[0];
-                            const entityTemplates = results[1];
+                        const promises = [this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]
+                        if (cdItem !== 'surgery') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000))
+                        }
+                        if (cdItem === 'allergy' || cdItem === 'adr') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'CD-ATC', 'fr', words[0], null, null, 1000))
+                        }
+
+                        return Promise.all(promises).then(results => {
+                            const entityTemplates = results[0];
+                            const codes = _.flatMap(results.slice(1), cs => cs.rows);
                             const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).some(it => it.descr && it.descr.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp) || it.name && it.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp)))
                                 .map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
-                                .concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+                                .concat(codes.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
                             return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
                         });
                     }.bind(this)

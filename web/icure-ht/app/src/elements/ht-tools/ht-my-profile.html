@@ -25,7 +25,7 @@
 		<style>
 			paper-dialog {
 				width: 90%;
-				min-height:320px;
+				min-height:380px;
 				display:flex;
 				flex-flow: row wrap;
 				justify-content: space-between;
@@ -275,7 +275,7 @@
 
 			.marginRight10 { margin-right:10px; }
 
-			#supervisor-search {
+			#supervisor-search, #mh-search {
 				flex: 1;
 			}
 
@@ -339,6 +339,10 @@
                 box-sizing: border-box;
             }
 
+            .p-l-0 {
+                padding-left:0;
+            }
+
 		</style>
 
 
@@ -367,7 +371,6 @@
                                     <paper-input label="Full name" value="{{user.name}}"></paper-input>
                                     <paper-input label="Login" value="{{user.login}}"></paper-input>
                                     <paper-input label="Email" value="{{user.email}}"></paper-input>
-                                    <paper-input label="MedicalHouse" value="{{userMedicalHouseNihii}}"></paper-input>
                                     <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
                                         <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
                                             <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
@@ -387,12 +390,42 @@
                                         </paper-radio-group>
                                     </div>
 
-                                    <vaadin-combo-box
+                                    <div class="horizontal" style="margin-top:10px">
+                                        <paper-radio-group selected="{{hcp.type}}">
+                                            <label class="p-l-0">[[localize('accountType','Type de compte',language)]]: </label>
+                                            <paper-radio-button name="persphysician">[[localize('praticien','Praticien',language)]]</paper-radio-button>
+                                            <paper-radio-button name="medicalHouse">[[localize('medicalHouse','Maison médicale',language)]]</paper-radio-button>
+                                        </paper-radio-group>
+                                    </div>
+
+                                    <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
+                                        <div class="horizontal" style="margin-top:10px">
+                                            <paper-radio-group selected="{{hcp.billingType}}">
+                                                <label class="p-l-0">[[localize('billingType','Type de facturation',language)]]: </label>
+                                                <paper-radio-button name="serviceFee">[[localize('serviceFee','A l\'acte',language)]]</paper-radio-button>
+                                                <paper-radio-button name="flatRate">[[localize('medicalHouse','Au forfait',language)]]</paper-radio-button>
+                                            </paper-radio-group>
+                                        </div>
+                                        <paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>
+                                    </template>
+
+                                    <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+
+                                        <vaadin-combo-box
+                                            id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
+                                            item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
+                                            label="[[localize('mhWhereIWork','Maison médicale où vous officiez (uniquement si d\'application)',language)]]"
+                                            value="{{hcp.parentId}}">
+                                        </vaadin-combo-box>
+
+                                        <vaadin-combo-box
                                             id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
                                             item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
                                             label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
-                                            value="{{hcp.supervisorId}}" autofocus>
-                                    </vaadin-combo-box>
+                                            value="{{hcp.supervisorId}}">
+                                        </vaadin-combo-box>
+
+                                    </template>
 
                                 </div>
                                 <div class="col-lg-6">
@@ -711,6 +744,12 @@
                         value: function () {
                             return [];
                         }
+                    },
+                    mhListItem: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
                     }
 
                 };
@@ -905,33 +944,53 @@
             apiReady() {
                 if (this.user && this.api && this.opened) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+
                         if (!hcp.languages || !hcp.languages.length) hcp.languages = ['en'];
+                        if (!hcp.type) hcp.type='persphysician';
+                        if (!hcp.billingType) hcp.billingType='flatRate';
 
-                        // Resolve by the time we have a supervisor id
-                        if(hcp.supervisorId) {
 
-                            this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(supervisor => {
+
+                        // Resolve for dataprovider / combobox
+                        if( hcp.supervisorId || hcp.parentId ) {
+
+                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId].join(',') )]).then(results => {
+
+                                const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
+                                const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();
+
                                 this.supervisorListItem = supervisor ? [{
-                                        id: supervisor.id,
-                                        lastName: _.upperFirst(_.lowerCase(supervisor.lastName)),
-                                        hrLabel:
-                                            _.upperFirst(_.lowerCase(supervisor.lastName)) + ' ' +
-                                            _.upperFirst(_.lowerCase(supervisor.firstName)) + ' ' +
-                                            (typeof supervisor.nihii === 'undefined' || !supervisor.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + supervisor.nihii) + ' ' +
-                                            (typeof supervisor.ssin === 'undefined' || !supervisor.ssin ? '' : ' - ' + this.localize('ssin', 'Registre national', language) + ': ' + supervisor.ssin.substr(0, 6) + '-' + supervisor.ssin.substr(6, 3) + '-' + supervisor.ssin.substr(8, 2)) + ' ' +
-                                            ''
-                                    }] : []
+                                    id: supervisor.id,
+                                    lastName: _.upperFirst(_.lowerCase(supervisor.lastName)),
+                                    hrLabel:
+                                        _.upperFirst(_.lowerCase(supervisor.lastName)) + ' ' +
+                                        _.upperFirst(_.lowerCase(supervisor.firstName)) + ' ' +
+                                        (typeof supervisor.nihii === 'undefined' || !supervisor.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + supervisor.nihii) + ' ' +
+                                        (typeof supervisor.ssin === 'undefined' || !supervisor.ssin ? '' : ' - ' + this.localize('ssin', 'Registre national', language) + ': ' + supervisor.ssin.substr(0, 6) + '-' + supervisor.ssin.substr(6, 3) + '-' + supervisor.ssin.substr(8, 2)) + ' ' +
+                                        ''
+                                }] : [];
 
-                                // Only cast by the time we've got our answers
+                                this.mhListItem = parent ? [{
+                                    id: parent.id,
+                                    name: _.upperFirst(_.lowerCase(parent.name)),
+                                    hrLabel:
+                                        _.upperFirst(_.lowerCase(parent.name)) + ' ' +
+                                        (typeof parent.nihii === 'undefined' || !parent.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + parent.nihii) + ' ' +
+                                        ''
+                                }] : [];
+
+                                // Only affect when computed
                                 this.hcp = hcp;
+
                             });
 
                         } else {
 
-                            // No supervisor id to resolve, cast value directly
+                            // Affect directly
                             this.hcp = hcp;
 
                         }
+
 
                     });
 
@@ -983,7 +1042,7 @@
                     propMHNihii.typedValue.stringValue = this.userMedicalHouseNihii;
 
                     // Only save if we actually have data
-                    this.hcp.financialInstitutionInformation =  _.filter( this.hcp.financialInstitutionInformation, 'bankAccount' );
+                    if( this.hcp && this.hcp.financialInstitutionInformation ) this.hcp.financialInstitutionInformation =  _.filter( this.hcp.financialInstitutionInformation, 'bankAccount' );
 
                     // this.api.user().modifyUser(this.user)
                     //     .then(user => this.api.register(user,"user"))
@@ -1044,18 +1103,59 @@
                 let latestSearchValue = e && e.detail.value
                 this.latestSearchValue = latestSearchValue
 
-                if (!latestSearchValue || latestSearchValue.length < 2) {
-                    console.log("Cancelling empty search")
-                    this.set('supervisorListItem', [])
-                    return
-                }
+                if (!latestSearchValue || latestSearchValue.length < 2) { this.set('supervisorListItem', []); return; }
                 this._supervisorDataProvider() && this._supervisorDataProvider().filter(latestSearchValue).then(res => {
-                    if (latestSearchValue !== this.latestSearchValue) {
-                        console.log("Cancelling obsolete search")
-                        return
-                    }
+                    if (latestSearchValue !== this.latestSearchValue) return;
                     this.set('supervisorListItem', res.rows)
                 })
+            }
+
+            _mhSearch(e) {
+                let mhLatestSearchValue = e && e.detail.value
+                this.mhLatestSearchValue = mhLatestSearchValue
+
+                if (!mhLatestSearchValue || mhLatestSearchValue.length < 2) { this.set('mhListItem', []); return; }
+                this._mhDataProvider() && this._mhDataProvider().filter(mhLatestSearchValue).then(res => {
+                    if (mhLatestSearchValue !== this.mhLatestSearchValue) return;
+                    this.set('mhListItem', res.rows)
+                })
+            }
+
+            _mhDataProvider() {
+                return {
+                    filter: function (mhFilterValue) {
+                        return Promise.all(
+                            [
+                                this.api.hcparty().findBySsinOrNihii( mhFilterValue ),
+                                this.api.hcparty().findByName( mhFilterValue )
+                            ]
+                        ).then(
+                            results => {
+                                const dataProviderResults =
+                                    _.flatten(
+                                        _
+                                            .chain( _.concat( results[0].rows, results[1].rows ) )
+                                            .uniqBy( 'id' )
+                                            .filter({ type : 'medicalHouse' })
+                                            .value()
+                                        .map(
+                                            i => ({
+                                                id: i.id,
+                                                name: _.upperFirst(_.lowerCase(i.name)),
+                                                hrLabel:
+                                                    _.upperFirst(_.lowerCase(i.name)) + ' ' +
+                                                    (typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +
+                                                    ''
+                                            })
+                                        )
+                                    )
+                                ;
+                                return {totalSize: dataProviderResults.length, rows: _.sortBy( dataProviderResults, 'name')}
+                            }
+                        )
+
+                    }.bind(this)
+                }
             }
 
             _supervisorDataProvider() {
@@ -1068,26 +1168,28 @@
                             ]
                         ).then(
                             results => {
-
-                                const supervisorResults = _.concat( results[0].rows, results[1].rows );
-                                _.uniqBy( supervisorResults, 'id' )
-
-                                const filtered =
+                                const dataProviderResults =
                                     _.flatten(
-                                        supervisorResults.map(
-                                            supervisor => ({
-                                                id: supervisor.id,
-                                                lastName: _.upperFirst(_.lowerCase(supervisor.lastName)),
+                                        _
+                                            .chain( _.concat( results[0].rows, results[1].rows ) )
+                                            .uniqBy( 'id' )
+                                            .filter((i)=>{ return i.type !== 'medicalHouse' })
+                                            .value()
+                                        .map(
+                                            i => ({
+                                                id: i.id,
+                                                lastName: _.upperFirst(_.lowerCase(i.lastName)),
                                                 hrLabel:
-                                                    _.upperFirst(_.lowerCase(supervisor.lastName)) + ' ' +
-                                                    _.upperFirst(_.lowerCase(supervisor.firstName)) + ' ' +
-                                                    ( typeof supervisor.nihii === 'undefined' || !supervisor.nihii ? '' : ' - ' + this.localize('nihii','INAMI',language) + ': '+supervisor.nihii ) + ' ' +
-                                                    ( typeof supervisor.ssin === 'undefined' || !supervisor.ssin ? '' : ' - ' + this.localize('ssin','Registre national',language) + ': ' + supervisor.ssin.substr(0,6) + '-' + supervisor.ssin.substr(6,3) + '-' + supervisor.ssin.substr(8,2) ) + ' ' +
+                                                    _.upperFirst(_.lowerCase(i.lastName)) + ' ' +
+                                                    _.upperFirst(_.lowerCase(i.firstName)) + ' ' +
+                                                    ( typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii','INAMI',language) + ': '+i.nihii ) + ' ' +
+                                                    ( typeof i.ssin === 'undefined' || !i.ssin ? '' : ' - ' + this.localize('ssin','Registre national',language) + ': ' + i.ssin.substr(0,6) + '-' + i.ssin.substr(6,3) + '-' + i.ssin.substr(8,2) ) + ' ' +
                                                     ''
                                             })
                                         )
                                     )
-                                return {totalSize: filtered.length, rows: _.sortBy( filtered, 'lastName')}
+                                ;
+                                return {totalSize: dataProviderResults.length, rows: _.sortBy( dataProviderResults, 'lastName')}
                             }
                         )
 
@@ -1100,6 +1202,10 @@
                     // this._addSupervisor(e);
                 }
             }
+
+
+            _isMedicalHouse(hcpType) {return hcpType==="medicalHouse";}
+
 
         }
 
