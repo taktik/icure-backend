@@ -42,7 +42,7 @@
                 width: calc(100% / 3);
                 display: inline-flex;
                 flex-flow: column wrap;
-                align-items: center; 
+                align-items: center;
                 justify-content: space-between;
                 height: 100%;
                 padding: 32px 24px;
@@ -136,7 +136,7 @@
             }
 
         </style>
-        
+
         <div class="backdrop">
             <div class="container">
                 <div class="left">
@@ -145,14 +145,32 @@
                         <h2>thank you for joining Topaz</h2>
                     </div>
                     <div>
-                        <p>If you already have access to the database. You can click on the button bellow to upload your key. </p>
-                        <paper-button>Upload Key</paper-button>
+                        <p>If you already have a database in the cloud. You can copy your cloud key below and start using Topaz. </p>
+                        <paper-input label="Cloud key"></paper-input>
+                        <paper-button>Sync from the cloud</paper-button>
                     </div>
                 </div>
                 <div class="middle">
                     <p>Please fill in this form to request an access to Topaz.</p>
-                    <paper-input label="Profession"></paper-input>
-                    <paper-input label="Specialty"></paper-input>
+                    <paper-dropdown-menu label="Profession" value="{{profession}}">
+                        <paper-listbox slot="dropdown-content" class="dropdown-content">
+                            <paper-item>Physician</paper-item>
+                            <paper-item>Nurse</paper-item>
+                            <paper-item>Physiotherapist</paper-item>
+                            <paper-item>Psychologist</paper-item>
+                            <paper-item>Social assistant</paper-item>
+                            <paper-item>Secretary</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <paper-dropdown-menu label="Speciality">
+                        <paper-listbox slot="dropdown-content" class="dropdown-content">
+                            <paper-item>Physician</paper-item>
+                            <paper-item>Nurse</paper-item>
+                            <paper-item>Physiotherapist</paper-item>
+                            <paper-item>Psychologist</paper-item>
+                            <paper-item>Social assistant</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
                     <paper-input label="First Name"></paper-input>
                     <paper-input label="Last Name"></paper-input>
                     <paper-input label="Unami Number"></paper-input>
@@ -164,11 +182,11 @@
                 </div>
                 <div class="right"></div>
             </div>
-           
+
 
         </div>
 
-		
+
 
 	</template>
 	<script>

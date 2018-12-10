@@ -129,7 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 ht-msg-list.selected {
-                    height: calc(30vh - 24px);
+                    height: calc(40vh - 24px);
                     width: initial;
                 }
 
@@ -137,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 0 16px;
                     z-index: 2;
                     width: 100vw;
-                    height: calc(70vh - 32px);
+                    height: calc(60vh - 32px);
                     bottom: 0;
                     position: fixed;
                     transform: translateY(100vh);
@@ -155,7 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
-                         on-selection-change="handleMenuChange" on-new-msg="_newMsg"></ht-msg-menu>
+                         on-selection-change="handleMenuChange" on-new-msg="_newMsg" on-fw-msg="_fwMsg" on-re-msg="_reMsg"></ht-msg-menu>
             <template is="dom-if" if="[[otherLayout]]">
                 <div class="sub-container">
                     <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
@@ -299,6 +299,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _newMsg() {
                 this.$['new-msg'].open()
+            }
+
+            _fwMsg(e) {
+                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+            }
+            _reMsg(e) {
+                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
 
             callInitializeBatchCounter(e){

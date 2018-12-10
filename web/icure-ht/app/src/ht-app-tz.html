@@ -512,7 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
 
-        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"></ht-app-welcome-tz>
+        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" hidden="[[!showWelcomePage]]"></ht-app-welcome-tz>
 
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
@@ -1306,6 +1306,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     keyPairKeystore:{
                     	type: Array,
                         value: () => []
+                    },
+                    showWelcomePage: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1348,6 +1352,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                this.api.icure().isReady().then(res => this.set('showWelcomePage', res === 'ok'))
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)

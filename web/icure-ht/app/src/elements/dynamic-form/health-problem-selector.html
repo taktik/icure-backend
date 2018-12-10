@@ -23,7 +23,7 @@
 
 
 			paper-input{
-				--paper-input-container-focus-color: var(--app-primary-color);	
+				--paper-input-container-focus-color: var(--app-primary-color);
 			}
 
 			dom-if {
@@ -84,14 +84,12 @@
             }
 
 
-         
+
 		</style>
 
 		<paper-dialog id="dialog">
 			<h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
 			<div class="content">
-				<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-				<paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
 				<div class="flex">
 					<paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
@@ -103,6 +101,7 @@
 						<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
+				<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
 				<div class="flex">
 					<paper-item class="label">[[localize('sta','Status',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
@@ -115,8 +114,8 @@
 				<div class="flex">
 					<paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
-						<paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
 						<paper-radio-button name="proven">[[localize('proven','Proven',language)]]</paper-radio-button>
+						<paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
 						<paper-radio-button name="unprobable">[[localize('unprobable','improbable',language)]]</paper-radio-button>
 						<paper-radio-button name="excluded">[[localize('excluded','Excluded',language)]]</paper-radio-button>
 					</paper-radio-group>
@@ -136,11 +135,12 @@
 					<paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
 						<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
 						<paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
-						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>
+						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]&nbsp;|</paper-radio-button>
 						<paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
+						<paper-radio-button name="relapse">[[localize('relapse','Relapse',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
-
+				<paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
 
 				<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
 				<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
@@ -154,7 +154,7 @@
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
 			</div>
-		</paper-dialog> 
+		</paper-dialog>
 
 	</template>
 	<script>
@@ -241,7 +241,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			return;
 		}
 
-		this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false).then(res => {
+		this.dataProvider && this.dataProvider.filter((this._cdItemTagForEntity(this.entity, true).code || '') + ':' + latestSearchValue, 500, 0, 'descr', false).then(res => {
 			if (latestSearchValue !== this.latestSearchValue) {
 				console.log("Cancelling obsolete search");
 				return;
