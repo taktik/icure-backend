@@ -1,6 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import org.taktik.icure.entities.embed.FrontEndMigrationStatus;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FrontEndMigrationStatus;
 
 public class FrontEndMigrationDto {
     protected String name;

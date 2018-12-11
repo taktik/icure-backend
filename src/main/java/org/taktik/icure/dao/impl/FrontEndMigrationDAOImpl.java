@@ -26,10 +26,17 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
     @Override
     @View(name = "by_userid_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.deleted && doc.name && doc.userId) {\n" +
-            "            emit(doc.userId, doc.name,doc._id);\n" +
+            "            emit([doc.userId, doc.name],doc._id);\n" +
             "}\n" +
             "}")
     public List<FrontEndMigration> getByUserIdName(String userId, String name) {
+        if(name == null){
+            // This is a range query
+            ComplexKey startKey = ComplexKey.of(userId);
+            ComplexKey endKey = ComplexKey.of(userId, ComplexKey.emptyObject());
+            List<FrontEndMigration> result = queryView("by_userid_name", startKey, endKey);
+            return result;
+        }
         List<FrontEndMigration> result = queryView("by_userid_name", ComplexKey.of(userId, name));
         return result;
     }

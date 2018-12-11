@@ -1,6 +1,7 @@
 package org.taktik.icure.logic.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.FrontEndMigrationDAO;
 import org.taktik.icure.entities.FrontEndMigration;
 import org.taktik.icure.exceptions.DeletionException;
@@ -9,6 +10,7 @@ import org.taktik.icure.logic.FrontEndMigrationLogic;
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class FrontEndMigrationLogicImpl extends GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO> implements FrontEndMigrationLogic {
 
     private FrontEndMigrationDAO frontEndMigrationDAO;

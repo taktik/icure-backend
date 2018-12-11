@@ -33,7 +33,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     private MapperFacade mapper;
     private SessionLogic sessionLogic;
 
-    @ApiOperation(response = AccessLogDto.class, value = "Creates a front end migration")
+    @ApiOperation(response = FrontEndMigrationDto.class, value = "Creates a front end migration")
     @POST
     public Response createFrontEndMigration(FrontEndMigrationDto frontEndMigrationDto) {
         Response response;
@@ -99,7 +99,6 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
 
     @ApiOperation(response = FrontEndMigrationDto.class, responseContainer = "Array", value = "Gets a front end migration")
     @GET
-    @Path("/")
     public Response getFrontEndMigrations() {
         Response response;
 
@@ -108,9 +107,9 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
             return ResponseUtils.badRequest("Not authorized");
         }
 
-        List<FrontEndMigration> migration = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null);
-        if (migration != null) {
-            response = ResponseUtils.ok(mapper.map(migration, FrontEndMigrationDto.class));
+        List<FrontEndMigration> migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null);
+        if (migrations != null) {
+            response = ResponseUtils.ok(migrations.stream().map(i->mapper.map(i, FrontEndMigrationDto.class)).collect(Collectors.toList()));
         } else {
             response = ResponseUtils.internalServerError("front end migration fetching failed");
         }
