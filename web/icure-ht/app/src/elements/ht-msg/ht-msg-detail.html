@@ -395,6 +395,8 @@
                 overflow-x: hidden;
                 overflow-y: auto;
                 margin-top: 16px;
+                word-break: break-all;
+                hyphens: auto;
             }
 
 			.annexe-card{
@@ -727,7 +729,7 @@
                             </div>
                         </div>
                         <template is="dom-if" if="[[msg.patientInss]]">
-                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss('displayName',msg.patientInss)]]</div>
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss(msg.patientInss)]]</div>
                         </template>
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
@@ -852,30 +854,32 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-	        console.log('focusChanged',this.selectMessage.selection.item)
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
-            // this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
+	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => { if(docs.length) {
-					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-						.map(doc => {
-                            return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-                                .then(a => {
-                                    doc.dataUrl = this.getDataUrls(doc)
-                                    if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                        this.set('bodyDocument',doc)
-                                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
-                                        fetch(url,{credentials:'include'})
-                                            .then(res=>res.text())
-                                            .then(res=>this.set('docTxt',res))
-                                    }
-                                    return doc
-                            });
-                        }
-					)
-				}
+				.then(docs => {
+                    console.log('docs',docs)
+				    if(docs.length) {
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                            .map(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+                                    .then(a => {
+                                        doc.dataUrl = this.getDataUrls(doc)
+                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                            console.log('this is doc',doc)
+                                            this.set('bodyDocument',doc)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                            fetch(url,{credentials:'include'})
+                                                .then(res=>res.text())
+                                                .then(res=>this.set('docTxt',res))
+                                        }
+                                        return doc
+                                });
+                            }
+                        )
+                    }
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
@@ -918,28 +922,30 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         // }.bind(this))
 	}
 
-    _getPatientDataByInss(wantedValue,inss){
+    _getPatientDataByInss(inss){
         if(inss && inss.length > 1) {
             this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
                 .then(patients => {
                     console.log(patients);
-                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
-                        .map(pat => {
-                            let newPat = {};
-                            newPat.firstName = pat.firstName ? pat.firstName : "";
-                            newPat.lastName = pat.lastName ? pat.lastName : "";
-                            newPat.fullName = pat.firstName + " " + newPat.lastName;
-                            newPat.ssin = pat.ssin ? pat.ssin : "";
-                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
-                            const res =
-                                wantedValue == 'firstName' ? newPat.firstName :
-                                wantedValue == 'lastName' ? newPat.lastName :
-                                wantedValue == 'fullName' ? newPat.fullName :
-                                wantedValue == 'ssin' ? newPat.ssin :
-                                wantedValue == 'displayName' ? newPat.displayName :
-                                newPat
-                            return res
-                        })
+                    const newPat = patients.rows[0]
+                    return `${newPat.firstName} ${newPat.lastName} (INSS:${newPat.ssin})`;
+                    // let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                    //     .map(pat => {
+                    //         let newPat = {};
+                    //         newPat.firstName = pat.firstName ? pat.firstName : "";
+                    //         newPat.lastName = pat.lastName ? pat.lastName : "";
+                    //         newPat.fullName = pat.firstName + " " + newPat.lastName;
+                    //         newPat.ssin = pat.ssin ? pat.ssin : "";
+                    //         newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                    //         const res =
+                    //             wantedValue == 'firstName' ? newPat.firstName :
+                    //             wantedValue == 'lastName' ? newPat.lastName :
+                    //             wantedValue == 'fullName' ? newPat.fullName :
+                    //             wantedValue == 'ssin' ? newPat.ssin :
+                    //             wantedValue == 'displayName' ? newPat.displayName :
+                    //             newPat
+                    //         return res
+                    //     })
                 })
         }
         else{
@@ -1016,13 +1022,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg)
+        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
         let dest = []
-        this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
-            hcp.filter(p=>p.some(s=>s.lastName === origMsg.senderReferences.lastName)).then(h=>{
-                dest.push(h)
+        if (origMsg.fromHealthcarePartyId.length == 11) {
+            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+                let hcp = paginated.rows[0]
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
             })
-        })
+        } else {
+            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        }
         // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToRe = {
 	        // delegations: origMsg.delegations,

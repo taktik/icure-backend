@@ -473,15 +473,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <template>
                                 <div class="cell frozen">
                                     <b>[[item.fromAddress]]</b> - [[item.subject]]
-                                    <template is="dom-if" if="[[item.important]]">
+                                    <template is="dom-if" if="[[isImportant(item)]]">
                                         <iron-icon id="[[item.id]]-important" icon="warning"></iron-icon>
                                         <paper-tooltip for="[[item.id]]-important">Important</paper-tooltip>
                                     </template>
-                                    <template is="dom-if" if="[[item.encrypted]]">
+                                    <template is="dom-if" if="[[isCrypted(item)]]">
                                         <iron-icon id="[[item.id]]-crypted" icon="lock"></iron-icon>
                                         <paper-tooltip for="[[item.id]]-crypted">Crypted</paper-tooltip>
                                     </template>
-                                    <template is="dom-if" if="[[item.hasAnnex]]">
+                                    <template is="dom-if" if="[[hasAnnex(item)]]">
                                         <iron-icon id="[[item.id]]-hasAnnex" icon="editor:attach-file"></iron-icon>
                                         <paper-tooltip for="[[item.id]]-hasAnnex">Attachments</paper-tooltip>
                                     </template>
@@ -493,10 +493,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 [[localize('is_read','Read',language)]]
                             </template>
                             <template>
-                                <template is="dom-if" if="[[!item.unread]]">
+                                <template is="dom-if" if="[[!isUnread(item)]]">
                                     <iron-icon icon="done"></iron-icon>
                                 </template>
-                                <template is="dom-if" if="[[item.unread]]">
+                                <template is="dom-if" if="[[isUnread(item)]]">
                                     <iron-icon icon="mail"></iron-icon>
                                 </template>
                             </template>

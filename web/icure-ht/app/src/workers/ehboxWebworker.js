@@ -91,6 +91,7 @@ onmessage = e => {
 
                     return (existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) ? fullMessage.id : null
                 } else {
+                    console.log('fullMessage',fullMessage)
                     let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
                     let receivedDate = new Date().getTime()
 
@@ -99,26 +100,15 @@ onmessage = e => {
                         fromAddress: getFromAddress(fullMessage.sender),
                         subject: (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
                         metas: fullMessage.customMetas,
-                        patientInss: fullMessage.patientInss,
-                        senderId: fullMessage.sender.id,
-                        senderInss: fullMessage.sender.inss,
-                        senderReferences: fullMessage.sender,
                         toAddresses: [boxId],
-                        fromHealthcarePartyId: fullMessage.sender.id,
                         transportGuid: boxId + ":" + fullMessage.id,
-                        received: receivedDate,
-                        important: isImportant(fullMessage),
-                        encrypted: isCrypted(fullMessage),
-                        encryptedSelf: fullMessage.encryptedSelf,
-                        hasAnnex: hasAnnex(fullMessage)
+                        fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
+                        received: receivedDate
                     }
                     console.log('Unknown message : ',newMessage)
 
                     return iccMessageXApi.newInstance(user, newMessage)
-                        .then(messageInstance => {
-                            console.log('messageInstance',messageInstance)
-                            msgApi.createMessage(messageInstance)
-                        })
+                        .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
                             console.log('createdMessage',createdMessage)
                             Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&

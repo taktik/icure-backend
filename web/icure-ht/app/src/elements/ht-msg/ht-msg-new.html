@@ -824,7 +824,7 @@
                     this.set('newMessage.destinations',params.destinations)
                     this.set('newMessage.document.title', params.document.title)
                     this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
-                    this.set("newMessage.patientInss", params.patientInss)
+                    // this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
                     console.log('open with params : ',this.newMessage)
                     this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
@@ -1071,6 +1071,7 @@
                 this.set('hideSendBtn',true)
                 console.log(this.newMessage)
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
+				    console.log('currentHcp',currentHcp)
                     let message = {
                         id : this.api.crypto().randomUuid(),
                         publicationId : (new Date).getTime(),
@@ -1099,7 +1100,8 @@
                         important : this.newMessage && this.newMessage.important ? this.newMessage.important : false,
                         encrypted : this.newMessage && this.newMessage.crypted ? this.newMessage.crypted : false,
                         destinations : this.newMessage.destinations.map(hcp => this.setAddressee(hcp)),
-                        sender : this.setSenderAddressee(currentHcp)
+                        sender : this.setSenderAddressee(currentHcp),
+                        fromHealthcarePartyId: currentHcp.id
                     };
 
 					console.log('request',this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
