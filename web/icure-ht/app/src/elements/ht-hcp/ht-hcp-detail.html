@@ -326,6 +326,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</div>
 						</paper-item>
 						<paper-item class="menu-item" id="_patient_list">[[localize('pat','Patients',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<template is="dom-if" if="[[_isMedicalHouse(hcp,hcp.*)]]">
+							<paper-item class="menu-item" id="_member_list">[[localize('member','Members',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						</template>
 					</paper-listbox>
 				</paper-material>
 			</div>
@@ -333,7 +336,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<ht-hcp-admin-card class="second-third-panel" id="hcp-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" language="[[language]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
 			</template>
 			<template is="dom-if" if="[[isPatientListSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-pat-list class="second-third-panel" id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-pat-list>
+				<ht-hcp-pat-list id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-pat-list>
+			</template>
+			<template is="dom-if" if="[[isMemberListSelected(selectedAdminFile,hcp)]]">
+
 			</template>
 		</div>
 	</template>
@@ -412,11 +418,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return el && el.id === '_patient_list';
 	}
 
+	isMemberListSelected(el){
+        return el && el.id === '_member_list';
+	}
+
 	picture(hcp) {
 		if (!hcp) {
 			return require('../../../images/Male-128.jpg');
 		}
 		return hcp.picture ? 'data:image/jpeg;base64,' + hcp.picture : hcp.gender === 'F' || hcp.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+	}
+
+	_isMedicalHouse(){
+		return this.hcp.type==="medicalHouse"
 	}
 
 	localize(e, other, lng) {
