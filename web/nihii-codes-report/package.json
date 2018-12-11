@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc & node $NODE_DEBUG_OPTION dist/index.js abdemo knalou 103132",
+    "dev": "tsc && node $NODE_DEBUG_OPTION dist/index.js abdemo knalou 103132",
     "test": "tsc && mocha dist/**/*.spec.js",
     "tsc": "tsc"
   },
