@@ -1372,12 +1372,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <template is="dom-repeat" items="[[events]]" as="e">
                                         <paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
                                             <h4><label class="todo-due-date">[[_dateFormat(e.valueDate)]]</label>[[shortServiceDescription(e)]]</h4>
-                                            <div class="todo-actions"><paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
+                                            <div class="todo-actions">
+                                                <paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-edit_[[e.id]]">[[localize('edi','Edit',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip></div>
+                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                            </div>
                                         </paper-item>
                                     </template>
                                 </paper-listbox>
@@ -4016,7 +4018,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _ebmPicture(){
                 return require('../../../images/EbpracticeNet-logo-square.png')
             }
-
 
         }
 
