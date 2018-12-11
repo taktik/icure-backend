@@ -107,7 +107,6 @@ onmessage = e => {
                         fromHealthcarePartyId: fullMessage.sender.id,
                         transportGuid: boxId + ":" + fullMessage.id,
                         received: receivedDate,
-                        unread: isUnread(fullMessage),
                         important: isImportant(fullMessage),
                         encrypted: isCrypted(fullMessage),
                         encryptedSelf: fullMessage.encryptedSelf,
