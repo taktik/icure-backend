@@ -50,6 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../collapse-button/collapse-button.html">
 
 <link rel="import" href="ht-hcp-admin-card.html">
+<link rel="import" href="ht-hcp-pat-list.html">
 <link rel="import" href="../icons/icure-icons.html">
 
 <dom-module id="ht-hcp-detail">
@@ -324,12 +325,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="hcp-birthdate">{{hcp.nihii}}</div>
 							</div>
 						</paper-item>
-						<paper-item class="menu-item" id="_complete_file">[[localize('pat','Patients',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<paper-item class="menu-item" id="_patient_list">[[localize('pat','Patients',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 				</paper-material>
 			</div>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
+				<ht-hcp-admin-card class="second-third-panel" id="hcp-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" language="[[language]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
+			</template>
+			<template is="dom-if" if="[[isPatientListSelected(selectedAdminFile,hcp)]]">
+				<ht-hcp-pat-list class="second-third-panel" id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-pat-list>
 			</template>
 		</div>
 	</template>
@@ -404,6 +408,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		return el && el.id === '_admin_info';
 	}
 
+	isPatientListSelected(el){
+        return el && el.id === '_patient_list';
+	}
+
 	picture(hcp) {
 		if (!hcp) {
 			return require('../../../images/Male-128.jpg');
@@ -412,7 +420,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	localize(e, other, lng) {
-		return this.api && this.api.localize(e, lng) || other;
+		return other;
 	}
 
 }

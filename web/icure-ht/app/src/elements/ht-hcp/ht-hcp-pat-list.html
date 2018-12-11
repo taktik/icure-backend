@@ -1,0 +1,170 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="ht-hcp-pat-list">
+    <template>
+        <style include="iron-flex iron-flex-alignment"></style>
+        <style>
+            :host {
+                height: 100%;
+                padding-top:32px;
+            }
+
+            .container {
+                width: 100%;
+                height: 100%;
+            }
+
+            paper-material.card {
+                background-color: #fff;
+                padding: 10px;
+                margin-left: 5px;
+                margin-right: 5px;
+                margin-bottom: 10px;
+            }
+
+            paper-input {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            paper-dropdown-menu {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+        </style>
+
+        <template is="dom-if" if="[[hasHcpPatients]]">
+            <vaadin-grid id="patients-list" class="grid" items="[[patientsList]]">
+                <vaadin-grid-column flex-grow="0" width="20%">
+                    <template class="header">
+                        <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.lastName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column flex-grow="0" width="20%">
+                    <template class="header">
+                        <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.firstName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column flex-grow="0" width="7%">
+                    <template class="header">
+                        <vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[_formatDate(item.dateOfBirth)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column flex-grow="0" width="20%">
+                    <template class="header">
+                        <div class="cell frozen">[[localize('ema','Email',language)]]</div>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[_getEmail(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column flex-grow="0" width="14%">
+                    <template class="header">
+                        <div class="cell numeric">[[localize('pho','Phone',language)]]</div>
+                    </template>
+                    <template>
+                        <div class="cell numeric">[[_getPhone(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column flex-grow="0" width="14%">
+                    <template class="header">
+                        <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
+                    </template>
+                    <template>
+                        <div class="cell numeric">[[_getMobile(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+        </template>
+    </template>
+    <script>class HtHcpPatList extends Polymer.Element {
+        static get is() {
+            return 'ht-hcp-pat-list';
+        }
+
+        static get properties() {
+            return {
+                api: {
+                    type: Object
+                },
+                user: {
+                    type: Object
+                },
+                hcp: {
+                    type: Object,
+                    notify: true
+                },
+                patientsList:{
+                    type: Array,
+                    value: ()=>[],
+                    notify:true
+                },
+                hasHcpPatients:{
+                    type: Boolean,
+                    value: false
+                }
+            };
+        }
+
+        static get observers() {
+            return [];
+        }
+
+        constructor() {
+            super();
+        }
+
+        ready(){
+            super.ready()
+
+            if(!this.hcp || !this.hcp.id) this.set('patientList',[])
+
+            this.api.patient().listPatientsByHcPartyWithUser(this.user,this.hcp.id,"name",null,null,500,"asc").then(patients =>{
+                console.log(patients)
+                this.set("patientsList",patients && patients.rows)
+                this.set("hasHcpPatients",this.patientsList.length>0)
+            })
+        }
+
+        localize(e, other, lng) {
+            return other;
+        }
+
+        _formatDate(date){
+            return this.api.moment(date).format("DD/MM/YYYY")
+        }
+    }
+
+    customElements.define(HtHcpPatList.is, HtHcpPatList);
+    </script>
+</dom-module>

@@ -628,6 +628,7 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	click(e) {
+	    if(this.modeGrid)return;
 		const selected = this.activeItem;
 		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
