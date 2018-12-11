@@ -110,6 +110,14 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	private Map<String,String> senderReferences;
 
+    private String senderId;
+    private String senderInss;
+    private String patientInss;
+    private Boolean unread;
+    private Boolean important;
+    private Boolean encrypted;
+    private Boolean hasAnnex;
+
 	public Message solveConflictWith(Message other) {
 		super.solveConflictsWith(other);
 
@@ -135,6 +143,62 @@ public class Message extends StoredICureDocument implements Serializable {
 
 		return this;
 	}
+
+    public String getSenderId () {
+        return senderId;
+    }
+
+    public void setSenderId (String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderInss () {
+        return senderInss;
+    }
+
+    public void setSenderInss (String senderInss) {
+        this.senderInss = senderInss;
+    }
+
+    public String getPatientInss () {
+        return patientInss;
+    }
+
+    public void setPatientInss (String patientInss) {
+        this.patientInss = patientInss;
+    }
+
+    public Boolean getUnread () {
+        return important;
+    }
+
+    public void setUnread (Boolean unread) {
+        this.unread = unread;
+    }
+
+    public Boolean getImportant () {
+        return important;
+    }
+
+    public void setImportant (Boolean important) {
+        this.important = important;
+    }
+
+    public Boolean getEncrypted () {
+        return encrypted;
+    }
+
+    public void setEncrypted (Boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public Boolean getHasAnnex () {
+        return important;
+    }
+
+    public void setHasAnnex (Boolean hasAnnex) {
+        this.hasAnnex = hasAnnex;
+    }
 
 	public String getFormId() {
         return formId;

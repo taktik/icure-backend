@@ -707,11 +707,9 @@
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                         </template>
                     </div>
-                    <template is="dom-if" if="[[!isDeleted]]">
-                        <div class="del-button">
-                            <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                        </div>
-                    </template>
+                    <div class="del-button">
+                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                    </div>
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
@@ -734,7 +732,7 @@
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+                                         resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
                         </template>
 
 
@@ -854,7 +852,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-	        console.log('focusChanged, selectedDocuments',this.selectMessage)
+	        console.log('focusChanged',this.selectMessage.selection.item)
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             // this.selectMessage.selection.item.body = [];
@@ -867,7 +865,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 .then(a => {
                                     doc.dataUrl = this.getDataUrls(doc)
                                     if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                        console.log('this doc is the body', doc)
                                         this.set('bodyDocument',doc)
                                         const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
                                         fetch(url,{credentials:'include'})
@@ -882,7 +879,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
-	    		    console.log('docs',docs)
                     Promise.all(docs).then(docs=>{
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
@@ -898,7 +894,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
-                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
@@ -1022,19 +1017,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
         console.log('origMsg',origMsg)
-        let dest = [{
-            delegations: origMsg.delegations,
-            displayName: origMsg.fromAddress,
-            nihii: origMsg.senderId,
-            cbe: undefined,
-            ssin: origMsg.senderInss,
-            type: this.localize('replyto','In reply to',this.language)
-        }]
-        this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        let dest = []
+        this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
+            hcp.filter(p=>p.some(s=>s.lastName === origMsg.senderReferences.lastName)).then(h=>{
+                dest.push(h)
+            })
+        })
+        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToRe = {
-	        delegations: origMsg.delegations,
+	        // delegations: origMsg.delegations,
             destinations: dest,
-            patientInss: origMsg.patientINSS,
+            patientInss: origMsg.patientInss,
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
@@ -1052,15 +1045,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (msg) {
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
             if (!msg.transportGuid.startsWith("BIN")) {
-                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
-                    .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox))
-                    .finally(()=>{
+                    .then(()=>{
                         msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                         this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                     })
-            } else {console.log(msg.id+' is already in bin !')}
+            } else {
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
             const target = this.parentElement.parentNode.children[1]
             target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
         }
@@ -1072,9 +1067,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            console.log('restore',idOfMsg,thisBox,restoreBox)
             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
-                .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
-                .finally(()=>{
+                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .then(()=>{
                     msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                     this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                 })

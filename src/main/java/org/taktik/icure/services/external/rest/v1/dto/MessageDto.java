@@ -43,6 +43,14 @@ public class MessageDto extends IcureDto {
 
 	protected String subject;
 
+	protected String senderId;
+	protected String senderInss;
+	protected String patientInss;
+	protected Boolean unread;
+	protected Boolean important;
+	protected Boolean encrypted;
+	protected Boolean hasAnnex;
+
 	protected List<String> invoiceIds;
 	protected String parentId; //ID of parent in a message conversation
 	private String externalRef;
@@ -58,6 +66,62 @@ public class MessageDto extends IcureDto {
 	public void setFormId(String formId) {
 		this.formId = formId;
 	}
+
+    public String getSenderId () {
+        return senderId;
+    }
+
+    public void setSenderId (String senderId) {
+        this.senderId = senderId;
+    }
+
+	public String getSenderInss () {
+	    return senderInss;
+    }
+
+    public void setSenderInss (String senderInss) {
+        this.senderInss = senderInss;
+    }
+
+    public String getPatientInss () {
+        return patientInss;
+    }
+
+    public void setPatientInss (String patientInss) {
+        this.patientInss = patientInss;
+    }
+
+    public Boolean getUnread () {
+        return important;
+    }
+
+    public void setUnread (Boolean unread) {
+        this.unread = unread;
+    }
+
+    public Boolean getImportant () {
+        return important;
+    }
+
+    public void setImportant (Boolean important) {
+        this.important = important;
+    }
+
+    public Boolean getEncrypted () {
+        return encrypted;
+    }
+
+    public void setEncrypted (Boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public Boolean getHasAnnex () {
+        return important;
+    }
+
+    public void setHasAnnex (Boolean hasAnnex) {
+        this.hasAnnex = hasAnnex;
+    }
 
 	public String getFromAddress() {
 		return fromAddress;

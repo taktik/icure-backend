@@ -572,7 +572,9 @@
     "uploaded": "Uploaded",
     "ready": "ready",
     "refresh" : "Refresh",
-    "dl": "Download"
+    "dl": "Download",
+    "is_read": "Read",
+    "del_forever": "Delete forever"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1208,7 +1210,9 @@
     "of" : "sur",
     "uploaded": "Téléchargé",
     "ready": "Prêt",
-    "dl": "Télécharger"
+    "dl": "Télécharger",
+    "is_read": "Lu",
+    "del_forever": "Suppr. définitivement"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1881,6 +1885,8 @@
     "of" : "op",
     "uploaded": "Uploaded",
     "ready": "Klaar",
-    "dl": "Download"
+    "dl": "Download",
+    "is_read": "Lezen",
+    "del_forever": "Permanent verwijderen"
   }
 }

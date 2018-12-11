@@ -44,6 +44,16 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
     protected Long modified;
     protected Long endOfLife;
 
+    protected String fromHealthcarePartyId;
+    protected String patientInss;
+    protected String senderId;
+    protected String senderInss;
+    protected Boolean unread;
+    protected Boolean important;
+    protected Boolean encrypted;
+    protected Boolean hasAnnex;
+    protected Map<String,String> senderReferences;
+
     @NotNull(autoFix = AutoFix.CURRENTUSERID)
     protected String author; //userId
     @NotNull(autoFix = AutoFix.CURRENTHCPID)
@@ -226,4 +236,76 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 		this.delegations  = MergeUtil.mergeMapsOfSets(this.delegations, other.delegations, Objects::equals, (a,b)->a);
 		this.encryptionKeys  = MergeUtil.mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys, Objects::equals, (a,b)->a);
 	}
+
+    public String getFromHealthcarePartyId() {
+        return fromHealthcarePartyId;
+    }
+
+    public void setFromHealthcarePartyId(String fromHealthcarePartyId) {
+        this.fromHealthcarePartyId = fromHealthcarePartyId;
+    }
+
+    public String getPatientInss () {
+        return patientInss;
+    }
+
+    public void setPatientInss (String patientInss) {
+        this.patientInss = patientInss;
+    }
+
+    public String getSenderId () {
+        return senderId;
+    }
+
+    public void setSenderId (String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderInss () {
+        return senderInss;
+    }
+
+    public void setSenderInss (String senderInss) {
+        this.senderInss = senderInss;
+    }
+
+    public Boolean getUnread () {
+        return important;
+    }
+
+    public void setUnread (Boolean unread) {
+        this.unread = unread;
+    }
+
+    public Boolean getImportant () {
+        return important;
+    }
+
+    public void setImportant (Boolean important) {
+        this.important = important;
+    }
+
+    public Boolean getEncrypted () {
+        return encrypted;
+    }
+
+    public void setEncrypted (Boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public Boolean getHasAnnex () {
+        return important;
+    }
+
+    public void setHasAnnex (Boolean hasAnnex) {
+        this.hasAnnex = hasAnnex;
+    }
+
+    public Map<String, String> getSenderReferences() {
+        return senderReferences;
+    }
+
+    public void setSenderReferences(Map<String, String> senderReferences) {
+        this.senderReferences = senderReferences;
+    }
 }

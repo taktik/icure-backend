@@ -540,6 +540,10 @@
                 transform: translateY(16px);
             }
 
+            .sendingSpinner {
+                transform: translateY(8px);
+            }
+
             #newMsg-SSIN {
                 padding-right: 28px;
             }
@@ -649,7 +653,7 @@
                 </div>
                 <div class="fright">
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
-                    <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[!newMessage.destinations.length]]">[[localize('send','Send',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[hideSendBtn]]">[[localize('send','Send',language)]]</paper-button>
                     <template is="dom-if" if="[[isSendingMsg]]">
                         <paper-spinner class="sendingSpinner" active="[[isSendingMsg]]"></paper-spinner>
                     </template>
@@ -771,6 +775,10 @@
                     isSendingMsg:{
                         type: Boolean,
                         value: false
+                    },
+                    hideSendBtn: {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -805,17 +813,22 @@
                 let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
                 vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
                 vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
+                this.set('isSendingMsg',false)
+                this.set('hideSendBtn',true)
                 if (params) {
+                    console.log('has params',params)
                     this.set("newMessage.annex", params.annex ? params.annex : [])
                     this.set("newMessage.customMetas", params.customMetas)
-                    this.set("newMessage.delegations", params.delegations)
-                    this.set('newMessage.destinations', params.destinations)
+                    // this.set("newMessage.delegations", params.delegations)
+                    // params.destinations.forEach(d=>delete d.delegations)
+                    this.set('newMessage.destinations',params.destinations)
                     this.set('newMessage.document.title', params.document.title)
                     this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
                     this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
                     console.log('open with params : ',this.newMessage)
                     this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
+                    this.set('hideSendBtn',false)
                 }
                 this.$['new-msg'].open()
             }
@@ -988,6 +1001,7 @@
                 let newMsgTo = this.shadowRoot.querySelector('#newMsg-To')
                 let typeTo = this.shadowRoot.querySelector('#type-To')
 				if(newMsgTo.selectedItem || (!newMsgTo.selectedItem && parseInt(newMsgTo.value))) {
+				    console.log('addDest',newMsgTo.selectedItem)
                     let hcp = {}
                     if(newMsgTo.selectedItem) {
                     	hcp = newMsgTo.selectedItem
@@ -1000,6 +1014,9 @@
 					}
                     hcp.type = typeTo.value
                     this.push('newMessage.destinations', hcp)
+                    if (this.newMessage.destinations.length) {
+                        this.set('hideSendBtn',false)
+                    }
 					newMsgTo.value = ""
 				}
             }
@@ -1051,6 +1068,7 @@
 
 			_SendNewMessage(){
                 this.set('isSendingMsg',true)
+                this.set('hideSendBtn',true)
                 console.log(this.newMessage)
 				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
                     let message = {
