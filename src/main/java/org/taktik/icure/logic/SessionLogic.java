@@ -64,7 +64,7 @@ public interface SessionLogic {
 
 		User getUser();
 
-		String getUserId();
+		String getGroupIdUserId();
 
 		String getLocale();
 

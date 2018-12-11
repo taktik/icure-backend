@@ -1,11 +1,17 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../../shared-styles.html">
 
 <dom-module id="ht-app-welcome">
 	<template>
-		<style>
+		<style include="shared-styles">
             .backdrop{
                 position: absolute;
                 height: 100%;
@@ -27,6 +33,7 @@
                 transform: translate(-50%, -50%);
                 height: 60%;
                 width: 80%;
+                min-height: 800px;
                 border-radius: 8px;
                 display: flex;
                 flex-flow: row wrap;
@@ -42,7 +49,7 @@
                 width: calc(100% / 3);
                 display: inline-flex;
                 flex-flow: column wrap;
-                align-items: center; 
+                align-items: center;
                 justify-content: space-between;
                 height: 100%;
                 padding: 32px 24px;
@@ -122,6 +129,12 @@
                 box-sizing: border-box;
             }
 
+            paper-dropdown-menu{
+                width: 100%;
+                --paper-input-container-focus-color: var(--app-secondary-color);
+                box-sizing: border-box;
+            }
+
             @media screen and (max-width: 1024px) {
                 .right{
                     display: none!important;
@@ -136,7 +149,7 @@
             }
 
         </style>
-        
+
         <div class="backdrop">
             <div class="container">
                 <div class="left">
@@ -145,17 +158,36 @@
                         <h2>thank you for joining iCure</h2>
                     </div>
                     <div>
-                        <p>If you already have access to the database. You can click on the button bellow to upload your key. </p>
-                        <paper-button>Upload Key</paper-button>
+                        <p>If you already have a database in the cloud. You can copy your cloud key below and start using iCure. </p>
+                        <paper-input label="Cloud key"></paper-input>
+                        <paper-button>Sync from the cloud</paper-button>
                     </div>
                 </div>
                 <div class="middle">
                     <p>Please fill in this form to request an access to iCure Cloud.</p>
-                    <paper-input label="Profession"></paper-input>
-                    <paper-input label="Specialty"></paper-input>
+                    <paper-dropdown-menu label="Profession" selected-item="{{professionItem}}">
+                        <paper-listbox slot="dropdown-content" class="dropdown-content">
+                            <paper-item id="persphysician">Physician</paper-item>
+                            <paper-item id="persnurse">Nurse</paper-item>
+                            <paper-item id="persphysiotherapist">Physiotherapist</paper-item>
+                            <paper-item id="perspsychologist">Psychologist</paper-item>
+                            <paper-item id="perssocialworker ">Social worker</paper-item>
+                            <paper-item id="persadministrative">Secretary</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <template is="dom-if" if="[[_equal(selectedProfessionId,'persphysician')]]">
+                        <paper-dropdown-menu label="Speciality" selected-item="{{specialityItem}}">
+                            <paper-listbox slot="dropdown-content" class="dropdown-content">
+                                <template is="dom-repeat" items="[[specialities]]" as="spec">
+                                    <paper-item id="spec_[[spec.id]] ">[[localize(spec.descr, spec.descr, language)]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </template>
+
                     <paper-input label="First Name"></paper-input>
                     <paper-input label="Last Name"></paper-input>
-                    <paper-input label="Unami Number"></paper-input>
+                    <paper-input label="Inami Number"></paper-input>
                     <paper-input label="SSIN Number"></paper-input>
                     <paper-input label="Email"></paper-input>
                     <paper-input label="Password" type="password"></paper-input>
@@ -164,11 +196,11 @@
                 </div>
                 <div class="right"></div>
             </div>
-           
+
 
         </div>
 
-		
+
 
 	</template>
 	<script>
@@ -188,13 +220,29 @@ class HtAppWelcome extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Boolean,
 				value: true,
 				notify: true
+			},
+            specialities: {
+			    type: Array,
+                value: [{id:'003',descr:'general practitioner'}, {id:'690',descr:'pediatrics'}, {id:'055',descr:'dermatology'}, {id:'055',descr:'gastroenterology'}, {id:'340',descr:'gynecologyobstetrics'}]
 			}
 		};
 	}
 
+    static get observers() {
+	    return ['_professionChanged(professionItem)']
+    }
+
 	constructor() {
 		super();
 	}
+
+    _professionChanged(item) {
+	    if (item) {
+	        this.set('selectedProfessionId', item.id)
+        }
+    }
+
+    _equal(a,b) { return a === b }
 
 	login() {
         this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
