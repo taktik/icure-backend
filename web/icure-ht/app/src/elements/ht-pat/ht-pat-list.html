@@ -442,6 +442,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-sizing: border-box;
                 }
 
+                #importPatientStatus {
+                    width: 920px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #importPatientStatus vaadin-grid {
+                    width: calc(100% - 96px);
+                    margin: auto;
+                }
+
                 #sharingPatientStatus {
                     width: 920px;
                     display: flex;
@@ -707,6 +718,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     transform: translateX(-50%);
                 }
 
+                import-spinner {
+                    position: fixed;
+                    top: 210px;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translateX(-60%);
+                }
+
                 #add-patient-dialog {
                     border-radius: 2px;
                 }
@@ -940,7 +959,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="patient-import-dialog">
             <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]]<span class="extra-info">(XML files)</span></h2>
             <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_mfFileUploaded"></vaadin-upload>
+            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_mfFileUploaded"></vaadin-upload>
         </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
@@ -1239,6 +1258,76 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+        <paper-dialog id="importPatientStatus">
+            <h4>[[localize("pat_import_sta","Patient import status",language)]] <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files")]])</span></h4>
+            <vaadin-grid items="[[patientImportStatuses]]">
+                <vaadin-grid-column width="150px">
+                    <template class="header">
+                        Fichier
+                    </template>
+                    <template>
+                        [[item.filename]]
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="150px">
+                    <template class="header">
+                        Patient
+                    </template>
+                    <template>
+                        [[item.patient.firstName]] [[item.patient.lastName]]
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Dossier
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Contacts
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Health elements
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Invoices
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Documents
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+            <div class="buttons">
+                <paper-spinner class="import-spinner" active="[[isImportingPatients]]"></paper-spinner>
+                <paper-button dialog-dismiss>[[localize('close','Close',language)]]</paper-button>
+                </paper-button>
+                <paper-button on-click="abortImport" >[[localize('abort','Abort',language)]]</paper-button>
+                </paper-button>
+                <paper-button on-click="saveImportLog" >[[localize('save_import_log','Save import log',language)]]</paper-button>
+                </paper-button>
+            </div>
+        </paper-dialog>
 
         <paper-dialog id="fusionDialog">
             <div>
@@ -1505,6 +1594,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: function () {
                             return [];
                         }
+                    },
+                    isImportingPatients: {
+                        type: Boolean,
+                        value: false
+                    },
+                    importPromiseChain: {
+                        type: Object,
+                        value: Promise.resolve([])
+                    },
+                    remainingPatientImports: {
+                        type: Array,
+                        value: []
                     }
                 }
             }
@@ -1931,52 +2032,169 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const vaadinUpload = this.$['vaadin-upload'];
                 const f = e.detail.file;
                 const d = f.doc;
-                this.importPatientFromDocument(d)
+                this.push('remainingPatientImports', d)
+                this.importPromiseChain = this.importPromiseChain.then(res => {
+                    return this.importPatientFromDocument(d)
+                })
+                this.$['importPatientStatus'].open()
+                console.log("file uploaded: " + d.name)
             }
 
             _openImportPatientFromMfDialog() {
-                this.$['patient-import-dialog'].open()
+                if(this.remainingPatientImports === undefined || this.remainingPatientImports.length === 0) {
+                    this.remainingPatientImports = []
+                    this.patientImportStatuses = []
+                    this.importPromiseChain = Promise.resolve([])
+                    this.importAborted = false
+                    this.$['patient-import-dialog'].open()
+                } else {
+                    this.$['importPatientStatus'].open()
+                }
             }
 
-            importPatientFromDocument(document){
+            removeFromRemainingPatientImports(doc) {
+                this.remainingPatientImports = this.remainingPatientImports.filter(item => {
+                    return item.id !== doc.id
+                });
+                console.log("remaining: " + this.remainingPatientImports.length);
+                if(this.remainingPatientImports.length === 0) {
+                    this.importAborted = false
+                    console.log("ALL IMPORT DONE")
+                    this.set('hideSpinner', true)
+                    this.set('isLoadingPatient', false)
+                    this.set('isImportingPatients', false)
+                }
+            }
+
+            abortImport() {
+                this.importAborted = true
+            }
+
+            saveImportLog() {
+                this.generateXlsFile(this.patientImportStatuses.map(stat => {
+                    return {
+                        filename: stat.filename,
+                        firstName: stat.patient.firstName,
+                        lastName: stat.patient.lastName,
+                        folder: this._statusDetail(stat.statuses.patient),
+                        contacts: this._statusDetail(stat.statuses.contacts),
+                        healthElements: this._statusDetail(stat.statuses.healthElements),
+                        invoices: this._statusDetail(stat.statuses.invoices),
+                        documents: this._statusDetail(stat.statuses.documents),
+                    }
+                }))
+            }
+
+            importPatientFromDocument(document) {
+                if (this.importAborted) {
+                    console.log("import aborted: " + document.name)
+                    this.set('hideSpinner', true)
+                    this.set('isLoadingPatient', false)
+                    this.set('isImportingPatients', false)
+                    let fakepat = {
+                        firstName: "Document",
+                        lastName: document.name
+                    };
+                    this.push('patientImportStatuses', {
+                        patient: fakepat, filename: document.name, statuses: {
+                            contacts: {success: null, error: null},
+                            healthElements: {success: null, error: null},
+                            invoices: {success: null, error: null},
+                            documents: {success: null, error: null},
+                            patient: {success: false, error: {message: "Aborted"}}
+                        }
+                    })
+                    this.removeFromRemainingPatientImports(document)
+                    return Promise.resolve()
+                }
                 this.set('hideSpinner', false)
                 this.set('isLoadingPatient', true)
-                this.api.bekmehr().importSmf(document.id, "123245", null, this.user.language,{}).then(
-                    results => {
-                        results.forEach(result => {
-                            this.api.patient().newInstance(this.user, result.patient, result.patient).then(p => {
-                                return this.api.patient().modifyPatientWithUser(this.user, p)
-                            }).then(pat =>{
-                                var prolist = [
-                                    result.forms.map(form => {
-                                        return this.api.form().newInstance(this.user, pat, form).then(f => {
-                                            return this.api.form().modifyForm(f)
-                                        });
-                                    }),
-                                    result.ctcs.map(ctc => {
-                                        return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
-                                            return this.api.contact().modifyContactWithUser(this.user, c)
-                                        });
-                                    }),
-                                    result.hes.map(he => {
-                                        return this.api.helement().newInstance(this.user, pat, he).then(h => {
-                                            return this.api.helement().modifyHealthElement(h)
-                                        });
-                                    }),
-                                    result.documents.map(doc => {
-                                        return this.api.document().newInstance(this.user, pat, doc).then(d => {
-                                            return this.api.document().modifyDocument(d)
-                                        });
-                                    })
-                                ].flat()
-                                return Promise.all( prolist ).then(() => {
-                                    console.log("done import")
-                                    this.set('selectedPatient', pat)
-                                    this.set('hideSpinner', true)
-                                    this.set('isLoadingPatient', false)
+                this.set('isImportingPatients', true)
+                console.log("importing: " + document.name)
+                return this.api.bekmehr().importSmf(document.id, "123245", null, this.user.language, {}).then(results => {
+                    let patpromises = results.map(result => {
+                        return this.api.patient().newInstance(this.user, result.patient, result.patient).then(p => {
+                            return this.api.patient().modifyPatientWithUser(this.user, p)
+                        }).then(pat => {
+                            let prolist = [
+                                result.forms.map(form => {
+                                    return this.api.form().newInstance(this.user, pat, form).then(f => {
+                                        return this.api.form().modifyForm(f)
+                                    });
+                                }),
+                                result.ctcs.map(ctc => {
+                                    return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
+                                        return this.api.contact().modifyContactWithUser(this.user, c)
+                                    });
+                                }),
+                                result.hes.map(he => {
+                                    return this.api.helement().newInstance(this.user, pat, he).then(h => {
+                                        return this.api.helement().modifyHealthElement(h)
+                                    });
+                                }),
+                                result.documents.map(doc => {
+                                    return this.api.document().newInstance(this.user, pat, doc).then(d => {
+                                        return this.api.document().modifyDocument(d)
+                                    });
                                 })
-                            });
+                            ].map(pl => Promise.all(pl));
+                            return prolist.reduce((acc, prom) => acc.then(res => prom.then(innerRes => res.concat(innerRes))), Promise.resolve([]))
+                                .then(
+                                    datastatus => {
+                                        console.log("done import: " + document.name + ":" + pat.firstName + " " + pat.lastName + "; " + pat.id)
+                                        console.log(datastatus)
+
+                                        this.push('patientImportStatuses', {
+                                            patient: pat, filename: document.name, statuses: {
+                                                contacts: {success: null, error: null},
+                                                healthElements: {success: null, error: null},
+                                                invoices: {success: null, error: null},
+                                                documents: {success: null, error: null},
+                                                patient: {success: true, error: null}
+                                            }
+                                        })
+                                        return Promise.resolve()
+                                    },
+                                    // patient imported but error importing patient data
+                                    err => {
+                                        // TODO: check specific error for contacts, he, etc
+                                        console.log(err)
+                                        this.push('patientImportStatuses', {
+                                            patient: pat, filename: document.name, statuses: {
+                                                contacts: {success: null, error: null},
+                                                healthElements: {success: null, error: null},
+                                                invoices: {success: null, error: null},
+                                                documents: {success: null, error: null},
+                                                patient: {success: false, error: err}
+                                            }
+                                        })
+                                        return Promise.resolve()
+                                    }
+                                )
                         })
+                    });
+                    return Promise.all(patpromises)
+                }).then(
+                    () => {
+                        // import status already pushed at patient level
+                        this.removeFromRemainingPatientImports(document)
+                        return Promise.resolve()
+                    },
+                    err => {
+                        console.log(err)
+                        let fakepat = {
+                            firstName: "Document",
+                            lastName: document.name
+                        };
+                        this.push('patientImportStatuses', {patient:fakepat,  filename: document.name, statuses:{
+                                contacts: {success:null, error: null},
+                                healthElements: {success:null, error: null},
+                                invoices: {success: null, error: null},
+                                documents: {success:null, error: null},
+                                patient: {success:false, error: err}}
+                        })
+                        this.removeFromRemainingPatientImports(document)
+                        return Promise.resolve()
                     }
                 )
             }
