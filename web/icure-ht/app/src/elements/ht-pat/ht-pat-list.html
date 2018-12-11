@@ -2067,7 +2067,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             abortImport() {
-                this.importAborted = true
+                if(this.remainingPatientImports.length) {
+                    this.importAborted = true
+                }
             }
 
             saveImportLog() {
