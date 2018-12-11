@@ -422,7 +422,7 @@
                         this.set('selectedMedicationContentWithId.medicationUnit', mppInfos.gal && mppInfos.gal.name ||  this.localize('generic_unit','unit',this.language))
 
                         med.id.id && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-DRUG-CNK') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-DRUG-CNK', version:'1'})).code = med.id.id)
-                        med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
+                        mppInfos.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = mppInfos.atcCode)
 
                         if (this.selectedMedicationContentWithId.isNew) {
                             this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))

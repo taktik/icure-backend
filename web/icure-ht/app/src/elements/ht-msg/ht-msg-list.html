@@ -62,7 +62,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-row: 1 / span 1;
                     background:var(--app-background-color);
                     float:left;
-                    @apply --shadow-elevation-2dp;
                     padding:20px;
                     padding-top: 0;
                     display:flex;
@@ -385,6 +384,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 paper-progress {
                     --paper-progress-active-color: var(--app-secondary-color);
                 }
+                paper-progress.full {
+                    --paper-progress-active-color: var(--app-error-color);
+                }
 
                 @media screen and (max-width:1025px) {
                     .col-right {
@@ -403,11 +405,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template is="dom-if" if="[[selectList]]">
             <div class="table-top">
                 <div class="checkbox">
-                    <vaadin-checkbox on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
+                    <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
                 </div>
 
-                <template is="dom-if" if="[[checkedMessages.length]]">
-                    <div class="actions">
+                <div class="actions">
+                    <template is="dom-if" if="[[!checkedMessages.length]]">
+                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
+                            <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[checkedMessages.length]]">
                         <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
                             <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
@@ -416,17 +424,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                         </template>
-                    </div>
-                </template>
+                    </template>
+                </div>
 
                 <div class="indicators">
-                    <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
-                    <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
+                    <template is="dom-if" if="[[!_isEqual(bufferedMsgs,0)]]">
+                        <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="warning"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
+                        <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
+                    </template>
                     <div id="capacity-indicator">
-                        <div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]]</span></div>
+                        <div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)</span></div>
                         <paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress>
                     </div>
-                    <paper-tooltip for="capacity-indicator" offset="0">[[capacityPercent]] %</paper-tooltip>
+                    <template is="dom-if" if="[[actualCapacity]] >= 100">
+                        <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
+                    </template>
                 </div>
 
             </div>
@@ -599,7 +611,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('bufferedMsgs',boxInfo.nbrMessagesInStandBy)
                             this.set('mailboxCapacity',boxInfo.currentSize)
                             this.set('mailboxMaxCapacity',boxInfo.maxSize)
-                            this.set('capacityPercent', ((this.mailboxCapacity / this.mailboxMaxCapacity)*100).toFixed(2))
+                            this.set('actualCapacity',((this.mailboxCapacity / this.mailboxMaxCapacity)*100).toFixed(2))
+                            if (this.actualCapacity >= 100) this.set('_mailBoxCapacityColor','full')
+                            this.set('capacityPercent', this.actualCapacity <= 100 ? this.actualCapacity : '+100')
                         })
                 }
             }
@@ -632,7 +646,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     console.log('getInbox',messages)
                     return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getUnreadEmail() {
@@ -645,14 +658,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, [])
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
                     return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getSubmitMessages(){
@@ -665,7 +676,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, [])
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getLabResult(){
@@ -678,7 +688,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, [])
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getReport(){
@@ -686,7 +695,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
                     this.set('messages', msgs || [])
                 });
-                
             }
 
             getEInv(){
@@ -695,7 +703,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     console.log(messages.rows)
                     return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
-                
             }
 
             getReportIn(){
@@ -703,17 +710,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
                     this.set('messages', msgs || [])
                 });
-                
             }
 
             getMycarenetIn() {
                 this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getEInvIn(){
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getEheIn(){
@@ -721,42 +725,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
                     this.set('messages', msgs || [])
                 });
-                
             }
 
 			getChap4In(){
 				this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
-				
 			}
 
             getProtIn(){
                 this.findMessagesByTransportGUID('BININBOX:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getEheOut(){
                 this.findMessagesByTransportGUID('SENTBOX:*').then(messages => this.set('messages', messages || []));
-                
             }
 
 			getChap4Out(){
 				this.findMessagesByTransportGUID('CHAP4OUT:*').then(messages => this.set('messages', messages || []));
-				
 			}
 
             getProtOut(){
                 this.findMessagesByTransportGUID('BINSENTBOX:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getEFactBatch(){
                 this.findMessagesByTransportGUID('EFACT:BATCH:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getGMD(){
                 this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
-                
             }
 
             getEhealthMessages(){
@@ -778,7 +774,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getTrash(){
 				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*','BIN:*'], null, null, 1000)
 					.then(messages => this.set('messages', messages || []));
-                
             }
 
             findMessagesByTransportGUID(guid){
@@ -872,7 +867,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         	break;
                     }
                 }
-                this._getBoxCapacity()
+                this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                this._deselectAll();
             }
 
             sortByDates(messages){
@@ -904,7 +900,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem;
                 this.set('selectedMessages', selected);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
-                
+                // this._deselectAll();
             }
 
             _deselectMessages() {
@@ -932,75 +928,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
             }
 
+            _deselectAll() {
+                let checkerAll = this.shadowRoot.querySelector('#checkerAll')
+                    , mailList = this.shadowRoot.querySelector('#mail-list')
+                let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
+                // checkerAll.checked = false;
+                allCheckboxes.forEach(box=>{
+                    box.checked = false;
+                })
+                this.set('checkedMessages',[])
+            }
+
 			_removeMsgs(){
 				let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
                 const selectedBox = this.selectList.selection.item.toUpperCase()
 				const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : 'INBOX'
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
 				if(checkedMsgs.length) {
-                    checkedMsgs.forEach(msg =>{
-                        if (!msg.transportGuid.startsWith("BIN")) {
-                            msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))
-                        } else {console.log('is already in bin !')}
-                    }) // forEach end
+                    checkedMsgs.forEach(msg =>{if (!msg.transportGuid.startsWith("BIN")) {msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))}}) // forEach end
                     if(msgsToDelete.length){
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
                             .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox))
-                        msgsToDelete.forEach(idOfMsg=>this.api.message().deleteMessages(idOfMsg))
-                        this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                        checkedMsgs.forEach(msg=>{
+                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            this._refresh()
+                        })
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
-                    this._refresh()
+                    this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                    this._deselectAll();
 				} // if checked length end
             }
 
             _isEqual(a,b) {return (a === b)}
 
             _restoreMsgs(){
-                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToRestore = []
-                const thisBox = this.selectList.selection.item.toUpperCase()
-                const targetBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+                const checkedMsgs = this.checkedMessages
                 if(checkedMsgs.length) {
+                    let mailList = this.shadowRoot.querySelector('#mail-list')
+                        , allCheckboxes = mailList.querySelectorAll('.checkbox')
+                        , tempBinInbox = []
+                        , tempBinSentbox = []
+                        , msgsToRestore = []
                     checkedMsgs.forEach(msg =>{
-                        if (msg.transportGuid.startsWith("BIN")) {
-                            msgsToRestore.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))
-                        } else {console.log('is already in bin !')}
+                        const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+                        if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)}
+                        if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)}
+                        msgsToRestore.push(msg)
                     }) // forEach end
-                    if(msgsToRestore.length){
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToRestore, thisBox, targetBox)
-                        //     .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToRestore, delBox))
-                        msgsToRestore.forEach(idOfMsg=>this.api.message().modifyMessage(idOfMsg))
-                        this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
+                    if(tempBinInbox.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
+                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'INBOX'))
                     }
+                    if(tempBinSentbox.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
+                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'SENTBOX'))
+                    }
+                    msgsToRestore.forEach(msg=>{
+                        if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) {
+                            msg.transportGuid = 'INBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        } else {
+                            msg.transportGuid = 'SENTBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        }
+                        this.api.message().modifyMessage(msg.id)
+                    })
+                    this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
                     allCheckboxes.forEach(box=>box.checked = false)
                     this._refresh()
                 } // if checked length end
             }
-
-			// _restoreMsgs(){
-            //     let mailList = this.shadowRoot.querySelector('#mail-list');
-            //     let allCheckboxes = mailList.querySelectorAll('.checkbox');
-            //     let msgs = this.checkedMessages;
-			// 	if(msgs) {
-			// 		msgs.forEach(msg =>{
-			// 			if (msg.transportGuid.startsWith("BIN:")){
-            //                 this.set('isLoadingMailList',true)
-			// 				msg.transportGuid = msg.transportGuid.substring(3);
-            //                 this.api.message().modifyMessage(msg)
-            //                     .then(()=> this._refresh())
-            //                     .finally(()=>{this.set('isLoadingMailList',false)})
-			// 			}
-			// 	        else {
-			// 	            console.log(msg.id,'not in bin')
-            //             }
-            //             this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-            //         })
-            //         allCheckboxes.forEach(box=>{
-            //             box.checked = false;
-            //         })
-			// 	}
-            //     this._refresh()
-			// }
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
