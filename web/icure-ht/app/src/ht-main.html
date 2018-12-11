@@ -59,6 +59,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-radius: 2px;
 				@apply --shadow-elevation-2dp;
 				overflow:auto;
+				position: relative;
+				z-index:0;
+				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
 			}
 
 			.card-title-container {
@@ -253,7 +256,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-style:italic;
 			}
 
-			#latestPatientsWidget, .latest-patients-card, .todays-consultations, .latest-lab-result, .todo-card {
+			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
 				--columns: 1;
 				--rows: 1;
 				grid-area: span var(--rows) / span var(--columns);
@@ -551,8 +554,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-input-container-focus-color: var(--app-secondary-color);
 			}
 
-			.grid-container.dragging{
-				background: red;
+			.card.dragging{
+				opacity: 0.4;
+				transform-origin: center center;
+				transform: scale(.9);
+			}
+
+			.card.over{
+				border: 3px dashed var(--app-text-color-disabled);
 			}
 
 		</style>
@@ -564,9 +573,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
 		</div>
 		<div id="gridContainer" class="grid-container ">
-			<template is="dom-repeat" items="[[widgets]]" as="widget">
+			<template is="dom-repeat" items="{{widgets}}" as="widget">
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestPatientsWidget')]]">
-					<div id="[[widget.id]]" class="card latest-patients-card" draggable="true" ondragstart="_dragWidget" ondrop="drop(event)">
+					<div id="[[widget.id]]" class="card latest-patients-card" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -574,7 +583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]" data-item$="[[widget]]">Apply settings</paper-button>
+									<paper-button on-tap="_applySettings" data-item$="{{widget}}">Apply settings</paper-button>
 								</div>
 							</paper-menu-button>					
 						</div>
@@ -596,7 +605,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'todaysConsultationsWidget')]]">
-					<div id="[[widget.id]]" class="card todays-consultations" draggable="true" ondrop="drop(event)">
+					<div id="[[widget.id]]" class="card todays-consultations" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -631,7 +640,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
-					<div id="[[widget.id]]" class="card latest-lab-result"  draggable="true" ondrop="drop(event)">
+					<div id="[[widget.id]]" class="card latest-lab-result"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -661,7 +670,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'todoWidget')]]">
-					<div id="[[widget.id]]" class="card todo-card" draggable="true" ondrop="drop(event)">
+					<div id="[[widget.id]]" class="card todo-card" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -794,12 +803,16 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: String,
 				value: "layoutA"
 			},
+			dragSrcEl: {
+				type: Object,
+				value: null
+			},
 			widgets: {
 				type: Array,
 				value: () => [
 					{
 						id: "latestPatientsWidget",
-						nrRows: 3,
+						nrRows: 1,
 						nrCols: 1,
 					},
 					{
@@ -819,13 +832,13 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					}
 				],
 				notify: true,
-				observers: this._applySettings
+				observers: this._applySettings,
 			}
 		};
 	}
 
     static get observers() {
-        return ['apiReady(user,api)'];
+        return ['apiReady(user,api)', 'widgetsChanged(widgets.*)'];
     }
 
     constructor() {
@@ -839,7 +852,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
 		super.ready();
-		this.addEventListener('dragstart', () => this._dragWidget())
     }
 
     apiReady() {
@@ -998,7 +1010,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
 		elem.style.setProperty('--rows', widget.nrRows)
 		elem.style.setProperty('--columns', widget.nrCols)
-
+		console.log(widget.id, widget.nrRows)
 	}
 
 	_isEqual(a,b) {
@@ -1006,16 +1018,50 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (a === b)
 	}
 
-	_dragWidget(e) {
-		e.dataTransfer.setData("widget", e.target.id);
-		this.$.gridContainer.classList.add('dragging')
-		console.log('zbra')
+	_dragWidgetStart(e) {
+		e.target.classList.add('dragging')
+		this.dragSrcEl = e.target.id
 	}
 
-	drop(e) {
-		e.preventDefault();
-		var data = e.dataTransfer.getData("widget");
-		e.target.appendChild(this.$.data);
+	_dragWidgetOver(e){
+		e.preventDefault()	
+		return false
+	}
+
+	_dragWidgetEnter(e){
+		e.target.parentNode.classList.add('over')
+	}
+
+	_dragWidgetLeave(e){
+		e.target.parentNode.classList.remove('over')
+	}
+
+	_dragWidgetEnd() {
+		this.shadowRoot.querySelectorAll('.card').forEach(card => card.classList.remove('over') )
+		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
+		console.log("drag end")
+	}
+
+	_dropWidget(e) {
+		e.stopPropagation();
+		this._swap(e.currentTarget.id)
+		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
+		return false;
+	}
+
+	_swap(elToSwap) {
+		const idx1 = this.widgets.findIndex(k => k.id === this.dragSrcEl)
+		const idx2 = this.widgets.findIndex(k => k.id === elToSwap )
+		let temp = 	this.widgets[idx2];
+		this.widgets[idx2] = this.widgets[idx1];
+		this.widgets[idx1] = temp;
+		const copy = this.widgets; 
+		this.set('widgets', []); 
+		this.set('widgets', copy);
+	}
+
+	widgetsChanged(widget){
+		console.log('changed ', widget)
 	}
 
 }
