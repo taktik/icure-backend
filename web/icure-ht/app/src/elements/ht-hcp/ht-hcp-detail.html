@@ -51,6 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="ht-hcp-admin-card.html">
 <link rel="import" href="ht-hcp-pat-list.html">
+<link rel="import" href="ht-hcp-member-list.html">
 <link rel="import" href="../icons/icure-icons.html">
 
 <dom-module id="ht-hcp-detail">
@@ -339,7 +340,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<ht-hcp-pat-list id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-pat-list>
 			</template>
 			<template is="dom-if" if="[[isMemberListSelected(selectedAdminFile,hcp)]]">
-
+				<ht-hcp-member-list id="hcp-member-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-member-list>
 			</template>
 		</div>
 	</template>
