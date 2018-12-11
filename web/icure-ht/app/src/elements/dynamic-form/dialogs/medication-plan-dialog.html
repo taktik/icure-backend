@@ -1383,7 +1383,7 @@
                         x => x > scores.afterdinner
                     ])
                 })).reduce((acc,m) => {
-                    const letter = (m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code.substr(0,1)
+                    const letter = ((m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0,1)
                     ;(acc[letter] || (acc[letter] = {letter:letter, meds:[]})).meds.push(m)
                     return acc
                 }, {})), 'letter')
