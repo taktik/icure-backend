@@ -344,7 +344,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</template>
 		</div>
 	</template>
-	<script>class HtHcpDetail extends Polymer.Element {
+	<script>class HtHcpDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'ht-hcp-detail';
 	}
@@ -431,12 +431,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	_isMedicalHouse(){
-		return this.hcp.type==="medicalHouse"
+		return this.hcp && this.hcp.type && this.hcp.type==="medicalHouse"
 	}
 
-	localize(e, other, lng) {
-		return other;
-	}
 
 }
 

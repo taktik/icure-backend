@@ -219,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
     </template>
     <script>
-    class HtHcpMemberList extends Polymer.Element {
+    class HtHcpMemberList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         static get is() {
             return 'ht-hcp-member-list';
         }
@@ -269,10 +269,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('membersList',hcps && hcps.rows && _.uniqBy(hcps.rows,"id"))
                 this.set("hasHcpMembers", this.membersList.length > 0)
             })
-        }
-
-        localize(e, other, lng) {
-            return other;
         }
 
         _formatDate(date){

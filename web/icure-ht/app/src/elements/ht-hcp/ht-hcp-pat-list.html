@@ -221,7 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
         </div>
     </template>
-    <script>class HtHcpPatList extends Polymer.Element {
+    <script>class HtHcpPatList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         static get is() {
             return 'ht-hcp-pat-list';
         }
@@ -287,9 +287,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             })
         }
 
-        localize(e, other, lng) {
-            return other;
-        }
 
         _formatDate(date){
             return date ? this.api.moment(date).format("DD/MM/YYYY") : ""
