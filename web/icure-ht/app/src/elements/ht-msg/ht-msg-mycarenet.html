@@ -203,7 +203,7 @@
                                         <template is="dom-if" if="[[_tack(item.metas,io)]]">
                                             <iron-icon class="status" id="status_[[item.id]]_[[io]]" class="status" icon="done"></iron-icon>
                                             <paper-tooltip position="right" id="tt_status_[[item.id]]_[[io]]" for="status_[[item.id]]_[[io]]">
-                                                [[io]]: [[localize("req_rec","request received",language)]]
+                                                [[io]]: [[localize("req_rec","request received",language)]]e
                                             </paper-tooltip>
                                         </template>
                                         <template is="dom-if" if="[[!_tack(item.metas,io)]]">

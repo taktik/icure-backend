@@ -1079,7 +1079,6 @@
                     let customMetas = this.newMessage.customMetas
                     Object.keys(forcedMetas).forEach(k=>customMetas[k] = forcedMetas[k])
                     console.log('customMetas',customMetas)
-                    debugger
 
                     let message = {
                         id : this.api.crypto().randomUuid(),
@@ -1247,11 +1246,9 @@
 
             _isMedical(file) {
                 let fileInfos
-                this.api.beresultimport().getInfos(file.doc.id).then(res=>fileInfos = res)
+                // this.api.beresultimport().getInfos(file.doc.id).then(res=>fileInfos = res)
                 const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
                 // const content = this._readFile(file)
-                console.log('fileInfos',fileInfos)
-                debugger
                 return
                     ext.startsWith('DMA-') || ext.startsWith('HDM-') || ext.startsWith('ALA-') || ext.startsWith('CI-') || ext.startsWith('COG-') || ext == 'KMEHR' || ext == 'SUMEHR' ||
                     ext.includes('TEC') || ext.includes('REP') || ext.includes('REC') || ext.includes('LAB') || ext.includes('KOM') || ext.includes("IMA")
@@ -1287,7 +1284,6 @@
             }
 
             _setMetaDatas(author,sender,recipient,files) {
-                console.log('_setMetaDatas',author,sender,recipient,files)
                 const isPerson = (person) => {return person.lastName ? true : false},
                     isText = (file) => {return file.mimeType === 'text/plain'},
                     getMediaType = (file) => {
@@ -1353,8 +1349,6 @@
                 Object.keys(recipientMetas).forEach(k=>finalMetas[k] = recipientMetas[k])
                 Object.keys(encodingMetas).forEach(k=>finalMetas[k] = encodingMetas[k])
 
-                console.log('return',finalMetas)
-                debugger
                 return finalMetas
             }
 
