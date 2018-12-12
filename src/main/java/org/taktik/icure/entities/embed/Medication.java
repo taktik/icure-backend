@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.base.Code;
 
 import java.io.Serializable;
 import java.util.List;
@@ -47,13 +48,15 @@ public class Medication implements Serializable {
 	String commentForDelivery;
 	String drugRoute; //CD-DRUG-ROUTE
 	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
-	String frequency; //CD-PERIODICITY
-
+	Code frequency; //CD-PERIODICITY
+	Code reimbursementReason;
+	Boolean substitutionAllowed;
 
 	Long beginMoment;
 	Long endMoment;
 
 	Duration duration;
+	Renewal renewal;
 
 	Boolean knownUsage;
 
@@ -66,9 +69,12 @@ public class Medication implements Serializable {
 	String medicationSchemeIdOnSafe;
 	Integer medicationSchemeSafeVersion;
 	Long medicationSchemeTimeStampOnSafe;
+	String medicationSchemeDocumentId;
 	String safeIdName; //can be: vitalinkuri, RSWID, RSBID
 	String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
 	Long timestampOnSafe; //transaction date+time
+	Boolean changeValidated; //accept change on safe
+	Boolean newSafeMedication; //new medication on safe
 	String medicationUse; //free text
 	String beginCondition; //free text
 	String endCondition; //free text
@@ -139,10 +145,6 @@ public class Medication implements Serializable {
 	public @Nullable String getTemporality() { return temporality; }
 
 	public void setTemporality(String temporality) { this.temporality = temporality; }
-
-	public @Nullable String getFrequency() { return frequency; }
-
-	public void setFrequency(String frequency) { this.frequency = frequency; }
 
 	public @Nullable Long getBeginMoment() {
 		return beginMoment;
@@ -216,6 +218,18 @@ public class Medication implements Serializable {
 
 	public void setMedicationSchemeTimeStampOnSafe(Long medicationSchemeTimeStampOnSafe) { this.medicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
 
+	public @Nullable Boolean getChangeValidated() { return changeValidated; }
+
+	public void setChangeValidated(Boolean changeValidated) { this.changeValidated = changeValidated; }
+
+	public @Nullable Boolean getNewSafeMedication() { return newSafeMedication; }
+
+	public void setNewSafeMedication(Boolean newSafeMedication) { this.newSafeMedication = newSafeMedication; }
+
+	public @Nullable String getMedicationSchemeDocumentId() { return medicationSchemeDocumentId; }
+
+	public void setMedicationSchemeDocumentId(String medicationSchemeDocumentId) { this.medicationSchemeDocumentId = medicationSchemeDocumentId; }
+
 	public @Nullable String getSafeIdName() { return safeIdName; }
 
 	public void setSafeIdName(String safeIdName) { this.safeIdName = safeIdName; }
@@ -251,6 +265,23 @@ public class Medication implements Serializable {
 	public @Nullable Boolean getPosologyChanged() { return posologyChanged; }
 
 	public void setPosologyChanged(Boolean posologyChanged) { this.posologyChanged = posologyChanged; }
+
+
+	public Boolean getSubstitutionAllowed() { return substitutionAllowed; }
+
+	public void setSubstitutionAllowed(Boolean substitutionAllowed) { this.substitutionAllowed = substitutionAllowed; }
+
+	public Code getFrequency() { return frequency; }
+
+	public void setFrequency(Code frequency) { this.frequency = frequency; }
+
+	public Code getReimbursementReason() { return reimbursementReason; }
+
+	public void setReimbursementReason(Code reimbursementReason) { this.reimbursementReason = reimbursementReason; }
+
+	public Renewal getRenewal() { return renewal; }
+
+	public void setRenewal(Renewal renewal) { this.renewal = renewal; }
 
 	public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());

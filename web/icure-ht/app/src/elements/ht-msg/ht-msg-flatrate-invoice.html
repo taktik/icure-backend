@@ -39,9 +39,7 @@
                 }
 
                 vaadin-grid {
-                    /*height: calc(100% - 41px - 32px - 32px);*/
-                    height: auto;
-                    /*width: calc(100vw - 16%);*/
+                    height: calc(100vh - 145px);
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
                     box-sizing: border-box;
@@ -149,10 +147,6 @@
                     position:relative;
                 }
 
-                .recipient-col{
-                    width:  calc(100% / 11);
-                }
-
                 .oa-col{
                     min-width: 25px;
                 }
@@ -231,7 +225,7 @@
                     }
                 }
                 .gridContainer{
-                    height: auto;
+                    height: 100%;
                     overflow-y: hidden;
                     overflow-x: hidden;
                     box-shadow: var(--app-shadow-elevation-1);
@@ -340,8 +334,7 @@
                 .invoiceContainer{
                     overflow-x: hidden;
                     overflow-y: hidden;
-                    /*height: calc(100vh - 185px);*/
-                    height: calc(100vh - 120px);
+                    height: calc(100vh - 145px);
                     box-shadow: var(--app-shadow-elevation-1);
                 }
                 .invoiceSubContainerBig {
@@ -349,8 +342,7 @@
                 }
 
                 .invoiceSubContainerMiddle {
-                    /*height: 50%;*/
-                    height: calc(100vh - 185px);
+                    height: calc(100%);
                     transition: all .5s ease;
                 }
                 .invoiceSubContainerMiddle vaadin-grid {
@@ -656,7 +648,7 @@
                 #rightPanelToggleContainer {
                     position:absolute;
                     right:20px;
-                    margin-top:10px;
+                    top:10px;
                 }
 
                 #rightPanelToggleContainer .header {
@@ -712,6 +704,10 @@
 
                 .m-t-20 {
                     margin-top:20px!important;
+                }
+
+                .m-t-25 {
+                    margin-top:25px!important;
                 }
 
                 .w-100-pc {
@@ -798,6 +794,14 @@
                     border:1px solid #888888;
                 }
 
+                .textRed {
+                    color:#A80000;
+                }
+
+                .textAlignCenter {
+                    text-align: center;
+                }
+
             </style>
         </custom-style>
 
@@ -808,13 +812,13 @@
 
             <!--<div id="rightPanelToggleContainer" class="">-->
                 <!--<div class="header">-->
-                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; Outils</paper-button>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button>-->
                 <!--</div>-->
             <!--</div>-->
 
             <!--<div id="rightPanel" class="">-->
                 <!--<div class="header"  on-tap="_toggleRightPanel">-->
-                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;Outils</label>-->
+                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>-->
                     <!--<paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>-->
                 <!--</div>-->
                 <!--<div class="body">-->
@@ -834,7 +838,7 @@
                 <div id="loadingContainer">
                     <div id="loadingContentContainer">
                         <paper-spinner class="spinner" alt="Loading..." active></paper-spinner>
-                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> Collecting persphysicians...</p></div>
+                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> [[localize("mhListing.spinner.step_1", language)]]</p></div>
                     </div>
                 </div>
             </template>
@@ -847,8 +851,62 @@
                 <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
                 <div class="centerCenter">
                     <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
-                    <div id="exportRangeNotification">(*) Période exportée: du <span>[[_startOfPreviousMonth()]]</span> au <span>[[_endOfPreviousMonth()]]</span></div>
+                    <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
                 </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej3')]]">
+
+                <div id="rightPanelToggleContainer" class=""><div class="header"><paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button></div></div>
+
+                <div id="rightPanel" class="">
+                    <div class="header"  on-tap="_toggleRightPanel">
+                        <label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>
+                        <paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>
+                    </div>
+                    <div class="body">
+                        <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('filterByDate','Filtrer par date',language)]]</h4>
+                        <vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>
+                        <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_getListingArchives" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
+                    </div>
+                </div>
+
+                <div class="gridContainer m-t-25">
+                    <div class="invoiceContainer">
+                        <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
+                            <div class="gridContainer grid-archives-listing">
+                                <div class="containScroll">
+                                    <vaadin-grid id="noscroll" items="[[archiveListingMessages]]">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="" >
+                                            <template class="header"><vaadin-grid-sorter path="hrDate">[[localize('date','Date',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrDate]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="9%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="hrTime">[[localize('time','Heure',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrTime]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="35%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="filename">[[localize('filename','Fichier',language)]]</vaadin-grid-sorter></template>
+                                            <template><iron-icon icon="image:picture-as-pdf" class="force-left textRed"></iron-icon> &nbsp; [[item.filename]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="15%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="totalPages">[[localize('totalPages','Nombre de pages',language)]]</vaadin-grid-sorter></template>
+                                            <template class="textAlignCenter">[[item.totalPages]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="1" class="">
+                                            <template class="header"><vaadin-grid-sorter path="id">[[localize('downloadArchive',"Télécharger l'archive",language)]]</template>
+                                            <template><paper-button class="tool-btn p-r-15px p-l-15px downloadListingArchive" on-tap="_downloadListingArchive" documentId="[[item.documentId]]" ><iron-icon icon="icons:cloud-download" class="force-left"></iron-icon> &nbsp; [[localize('download','Télécharger',language)]]</paper-button></vaadin-grid-sorter></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </template>
 
 
@@ -863,10 +921,10 @@
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archive')]]">
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej20')]]">
                 <div class="gridContainer">
                     <div class="invoiceContainer">
-                        Archives
+                        Archives J20
                     </div>
                 </div>
             </template>
@@ -965,6 +1023,14 @@
                     oaData: {
                         type: Array,
                         value: () => []
+                    },
+					archiveListingMessages:{
+						type:Object,
+						value: {}
+                    },
+                    downloadFileName: {
+                        type: String,
+                        value: ""
                     }
                 };
             }
@@ -990,6 +1056,7 @@
 
             _flatrateMenuSectionChanged(){
                 console.log("Menu section: " + this.flatrateMenuSection);
+                if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
             }
 
             formatDate(d,f) {
@@ -1417,12 +1484,6 @@
                 this.shadowRoot.getElementById("rightPanel").classList.toggle("opened")
             }
 
-            _dateRangerFilterResults() {
-                console.log('filter results by date range');
-                console.log(this.shadowRoot.getElementById("dateRangeStart").value);
-                console.log(this.shadowRoot.getElementById("dateRangeEnd").value);
-            }
-
             _showWarningMessageEarlyInvoicing() {
                 return parseInt(moment().date()) > 5;
             }
@@ -1481,8 +1542,9 @@
                             <tbody>
                                 <tr class="bleft0 bright0">
                                     <td width="33%" class="important colorBlue bleft0 bright0 italic">`+ this.localize('flatrateMonthlyInvoicing',this.language) +`</td>
-                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
-                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+moment().format('dddd DD MMMM YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+ this.localize('day_' + parseInt(moment().day()), this.language) + ` ` + moment().format('DD') + ` `+ (this.localize('month_' + parseInt(moment().format('M')), this.language)).toLowerCase() + ` ` + moment().format('YYYY') + `</td>
+
                                 </tr>
                             </tbody>
                         </table>
@@ -1491,17 +1553,17 @@
                             <tbody>
                                 <tr class="">
                                     <td width="55%">
-                                        <span class="bold uppercase">${this.user.name}</span><br />
-                                        ${this.hcp.addresses[0].street} ${this.hcp.addresses[0].houseNumber}<br />
-                                        ${this.hcp.addresses[0].postalCode} ${this.hcp.addresses[0].city}<br />
-                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${this.hcp.nihii}<br />
-                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.hcp.contactPerson} &nbsp;&nbsp; ${this.hcp.addresses[0].telecoms[0].telecomNumber}<br />
+                                        <span class="bold uppercase">${_.get(this.user, "name", "")}</span><br />
+                                        ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
+                                        ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
+                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
+                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "contactPerson", "")} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
                                     </td>
                                     <td width="45%">
                                         <table class="borderOa"><tbody><tr><td class="fs11">
-                                            <b>` +data.code + ` &nbsp;&nbsp; ` +data.finalName + `</b><br /><br />
-                                            ` +data.address + `<br />
-                                            ` +data.city + ` ` +data.postalCode + `<br />
+                                            <b>` +_.get(data, "code", "") + ` &nbsp;&nbsp; ` +_.get(data, "finalName", "") + `</b><br /><br />
+                                            ` +_.get(data, "address", "") + `<br />
+                                            ` +_.get(data, "city", "") + ` ` +_.get(data, "postalCode", "") + `<br />
                                         </td></tr></tbody></table>
                                     </td>
                                 </tr>
@@ -1555,15 +1617,15 @@
                         _.forEach(singleEntry, _.trim);
                             contentToReturn += `
                                 <tr class="fs9 borderTopLightThinGrey pt2 pb2">
-                                    <td width="5%" class="">`+((singleEntry.externalId)||"")+`</td>
-                                    <td width="30%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
-                                    <td width="10%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
-                                    <td width="10%" class="bold">`+((singleEntry.ssin)||"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="30%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="10%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
                                     <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
                                     <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="5%" class="">`+((singleEntry.personType)||"")+`</td>
-                                    <td width="10%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
                                 </tr>`
 
                     })
@@ -1594,18 +1656,18 @@
                         _.forEach(singleEntry, _.trim);
                             contentToReturn += `
                                 <tr class="fs9 borderTopLightThinGrey pt2 pb2">
-                                    <td width="4%" class="">`+((singleEntry.externalId)||"")+`</td>
-                                    <td width="19%" class="">`+((singleEntry.lastName)||"")+` `+((singleEntry.firstName)||"")+`</td>
-                                    <td width="9%" class="">`+((singleEntry.dateOfBirth)||"")+`</td>
-                                    <td width="9%" class="bold">`+((singleEntry.ssin)||"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.finalInsurability.parameters.tc1)||"")+``+((singleEntry.finalInsurability.parameters.tc2)||"")+`</td>
+                                    <td width="4%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="19%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
                                     <td width="9%" class="">`+(singleEntry.MHC_listUnsubscriptions.startOfContract?moment(singleEntry.MHC_listUnsubscriptions.startOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="9%" class="colorGreen">`+(singleEntry.MHC_listUnsubscriptions.startOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.startOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfContract?moment(singleEntry.MHC_listUnsubscriptions.endOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="6%" class="">`+((singleEntry.MHC_listUnsubscriptions.unsubscriptionReasonId)||"")+`</td>
-                                    <td width="4%" class="">`+((singleEntry.personType)||"")+`</td>
-                                    <td width="9%" class="">`+((singleEntry.titulary)||"")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "MHC_listUnsubscriptions.unsubscriptionReasonId", "")+`</td>
+                                    <td width="4%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
                                 </tr>`
                     })
 
@@ -1626,7 +1688,7 @@
                             <tbody>
                                 <tr class="fs9 bold">
                                     <td width="40%" class="colorBlue txt-left italic">`+ this.localize('flatrate_footer_reply_before',this.language) +`</td>
-                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ moment().subtract(1, 'month').startOf('month').format('MMMM YYYY')+`</td>
+                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
                                     <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
                                 </tr>
                             </tbody>
@@ -1856,14 +1918,14 @@
 
                 this.set('_isLoading', true );
 
-                this._setLoadingMessage({ message:"Collecting persphysicians...", icon:"arrow-forward"});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1',this.language), icon:"arrow-forward"});
 
                 // get my hcp children
                 this._getMyHcps()
                     .then(myHcps => {
 
-                        this._setLoadingMessage({ message:"Done collecting persphysicians", icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:"Collecting patients...", icon:"arrow-forward"});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
 
                         let resolvedHcpPatients = 0;
                         const totalPatientToResolve = myHcps.length;
@@ -1874,9 +1936,9 @@
                             this._getPatientsByHcp(singleHcp.id)
                                 .then(hcpPat => {
                                     resolvedHcpPatients++;
-                                    this._setLoadingMessage({ message:"Collecting patients of persphysician " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
+                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName']).value(); this._getInsurancesData(); }
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value(); this._getInsurancesData(); }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
                         })
@@ -1888,13 +1950,13 @@
 
             _getInsurancesData() {
 
-                this._setLoadingMessage({ message:"Done collecting patients", icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:"Collecting insurances...", icon:"arrow-forward"});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
 
                 this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
                     .then((ins) => {
-                        this._setLoadingMessage({ message:"Done collecting insurances", icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:"Building listing data...", icon:"arrow-forward"});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         this.oaData = _
                           .chain(ins)
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
@@ -1986,6 +2048,24 @@
                     pdfData[oa.id].entries['list9'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===3)}).length; })
 
                 }); // Loop OA
+
+
+
+
+
+
+
+
+                // NOT FOR PROD, just to test page breaks with large records amount
+
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+
+
                 
 
 
@@ -1995,12 +2075,10 @@
                 let totalPages = 0; let currentPage = 0;
 
                 // Hardcoded, see PDF output
-                const maxEntriesPerPage = 40;
+                const maxEntriesPerPage = 47;
 
                 // Whole document headers
                 let pdfTemplate = this._getExportPdfHeader();
-
-
 
                 // Eval total pages
                 _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!listEntries.length||0) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
@@ -2011,7 +2089,14 @@
                         if(!listEntries.length||0) return;
                         let listIndex = parseInt(listKey.replace('list',''));
                         let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
-                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{ currentPage++; pdfTemplate += this._getExportPageHeader(oaData.oa) + this._getExportListHeader(listIndex) + this._getExportListContent(listIndex,entriesChunk) + this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)});
+                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                            currentPage++;
+                            pdfTemplate +=
+                                this._getExportPageHeader(oaData.oa) +
+                                this._getExportListHeader(listIndex) +
+                                this._getExportListContent(listIndex,entriesChunk) +
+                                this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)
+                        });
                     })
                 })
 
@@ -2020,37 +2105,80 @@
 
 
 
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
 
 
-                this._setLoadingMessage({ message:"Done building listing data", icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:"Creating PDF report...", icon:"arrow-forward"});
 
+                this.downloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
+                // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
-                    .then(data =>{
+                    .then(pdfFileContent =>{
 
-                        const downloadFileName = moment().format('YYYY-MM-DD-H[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
 
-                        let blob = new Blob([data],{type :'application/pdf'});
-                        let url = window.URL.createObjectURL(blob);
-                        let a = document.createElement("a"); document.body.appendChild(a); a.style = "display: none"; a.href = url;
-                        a.download = downloadFileName;
-                        a.click(); window.URL.revokeObjectURL(url);
-                        this.set('_isLoading', false );
-                    })
+                        // Create "internal" message, give it a document and attach file to document ([nesty] bind attachment back to message)
+                        this.api.message().createMessage({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName }).then(createMessageResponse => {
+                            this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
+                                this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
+                                    this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent).then((setAttachmentResponse) => {
+                                        createMessageResponse.metas["documentId"] = setAttachmentResponse.id;
+                                        createMessageResponse.delegations = setAttachmentResponse.delegations;
+                                        createMessageResponse.cryptedForeignKeys = setAttachmentResponse.cryptedForeignKeys;
+                                        this.api.message().modifyMessage(createMessageResponse).then((modifiedMessage) => {
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
+                                            this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName );
+                                            this.set('_isLoading', false );
+                                        }).catch(()=>{this.set('_isLoading', false );})
+                                    }).catch(()=>{this.set('_isLoading', false );})
+                                }).catch(()=>{this.set('_isLoading', false );})
+                            }).catch(()=>{this.set('_isLoading', false );})
+                        }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
 
 
 
             }
+
+            _getListingArchives() {
+
+                this.archiveListingMessages = {}
+                let dateRangeStart = _.trim(_.get(this.shadowRoot.getElementById("dateRangeStart"), "value", "" ));
+                let dateRangeEnd = _.trim(_.get(this.shadowRoot.getElementById("dateRangeEnd"), "value", "" ));
+
+                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING', null, null, null, 1000).then(m => {
+                    this.archiveListingMessages = _
+                        .chain(m.rows)
+                            .filter((m)=>{return _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId && (!dateRangeStart?true:(!moment(m.created).isBefore(moment(dateRangeStart, "YYYY-MM-DD")))) && (!dateRangeEnd?true:(moment(m.created).isBefore(moment(dateRangeEnd, "YYYY-MM-DD"))))})
+                            .map((i)=>{
+                                i.hrDate = moment(i.created).format('DD/MM/YYYY');
+                                i.hrTime = moment(i.created).format("HH:mm:ss");
+                                i.filename = _.get(i.metas,"filename", "listing-patients.pdf");
+                                i.documentId = _.get(i.metas,"documentId", false);
+                                i.totalPages = _.get(i.metas,"totalPages",1);
+                                return i;
+                            })
+                            .orderBy("created", "desc")
+                        .value();
+                });
+
+            }
+
+            _downloadListingArchive(e) {
+                let documentId = _.get(_.head(_.chain(e.path).filter((i)=>{return _.get(_.get(i,"classList",[]), "value","").indexOf('downloadListingArchive')!==-1}).value()),"documentid",false);
+                if(documentId) this.api.document().getAttachment(documentId, null, null).then((attachmentResponse)=>{this.api.triggerFileDownload(attachmentResponse,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"documentId":_.trim(documentId)})), "filename","listing-patients.pdf"));}).catch(()=>{})
+            }
+
+
 
             _getListingJ20() {
                 console.log('_getListingJ20');
             }
 
-            _getListingArchives() {
-                console.log('_getListingArchives');
-            }
-
-
+            
+            
 
         }
 

@@ -354,7 +354,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 text-transform: capitalize;
             }
             .patient-info-container{
-                height:96px;
+                height:95px;
                 @apply --padding-right-left-32;
                 cursor:pointer;
             }
@@ -376,6 +376,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 line-height:14px;
             }
             .patient-birthdate{
+                font-size: 13px;
+            }
+
+            .patient-profession{
                 font-size: 13px;
             }
 
@@ -411,7 +415,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .submenus-container{
                 overflow-y: overlay;
-                height: calc(100% - 215px);
+                height: calc(100% - 195px);
                 margin-bottom:16px;
             }
 
@@ -817,7 +821,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
             }
 
-            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
+            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus, #ebmPracticeNet  {
                 --paper-fab-background: var(--app-background-color-dark);
                 --paper-fab-keyboard-focus-background: var(--app-background-color);
                 color: var(--app-primary-color-dark);
@@ -839,6 +843,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             #insuranceStatus.insuranceOk, #hubStatus.accessOk, #tlStatus.tlOk, #consentStatus.consentOk, #edmgStatus.edmgOk {
                 --paper-fab-background: var(--app-status-color-ok);
+            }
+
+            #ebmPracticeNet{
+
             }
 
             .display-left-menu{
@@ -1163,6 +1171,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-ink-color:var(--app-text-color);
             }
 
+            .icon-prof{
+                height: 14px;
+                width: 14px;
+            }
+
+            .icon-doc{
+                height: 14px;
+                width: 14px;
+            }
+
         </style>
 
         <div class="container">
@@ -1181,7 +1199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
-                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]]</div>
+                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
                                 <div class="statusContainer">
                                     <paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
                                     <paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
@@ -1197,6 +1215,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             <p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
                                         </template>
                                     </div></paper-tooltip>
+                                    <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
+                                    <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
                                 </div>
                             </div>
                         </paper-item>
@@ -1366,12 +1386,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <template is="dom-repeat" items="[[events]]" as="e">
                                         <paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
                                             <h4><label class="todo-due-date">[[_dateFormat(e.valueDate)]]</label>[[shortServiceDescription(e)]]</h4>
-                                            <div class="todo-actions"><paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
+                                            <div class="todo-actions">
+                                                <paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-edit_[[e.id]]">[[localize('edi','Edit',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip></div>
+                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                            </div>
                                         </paper-item>
                                     </template>
                                 </paper-listbox>
@@ -4003,6 +4025,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _linkToEbPracticeNet(){
+                window.open("https://www.ebpnet.be/fr/Pages/default.aspx",'_blank');
+            }
+
+            _ebmPicture(){
+                return require('../../../images/EbpracticeNet-logo-square.png')
+            }
 
         }
 

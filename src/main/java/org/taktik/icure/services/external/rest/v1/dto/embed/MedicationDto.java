@@ -37,6 +37,7 @@ public class MedicationDto implements Serializable {
 	String commentForDelivery;
 
 	DurationDto duration;
+	RenewalDto renewal;
 
 	Long beginMoment;
 	Long endMoment;
@@ -44,9 +45,13 @@ public class MedicationDto implements Serializable {
 	Boolean knownUsage;
 
 	CodeDto frequency;
+	CodeDto reimbursementReason;
+	Boolean substitutionAllowed;
+
 
 	List<RegimenItemDto> regimen;
 	String posology;
+
 
 	Map<String, ContentDto> options;
 	Map<String, ParagraphAgreementDto> agreements;
@@ -139,14 +144,6 @@ public class MedicationDto implements Serializable {
 		this.endMoment = endMoment;
 	}
 
-	public CodeDto getFrequency() {
-		return frequency;
-	}
-
-	public void setFrequency(CodeDto frequency) {
-		this.frequency = frequency;
-	}
-
 	public List<RegimenItemDto> getRegimen() {
 		return regimen;
 	}
@@ -174,4 +171,20 @@ public class MedicationDto implements Serializable {
 	public void setAgreements(Map<String, ParagraphAgreementDto> agreements) {
 		this.agreements = agreements;
 	}
+
+	public CodeDto getFrequency() { return frequency; }
+
+	public void setFrequency(CodeDto frequency) { this.frequency = frequency; }
+
+	public CodeDto getReimbursementReason() { return reimbursementReason; }
+
+	public void setReimbursementReason(CodeDto reimbursementReason) { this.reimbursementReason = reimbursementReason; }
+
+	public Boolean getSubstitutionAllowed() { return substitutionAllowed; }
+
+	public void setSubstitutionAllowed(Boolean substitutionAllowed) { this.substitutionAllowed = substitutionAllowed; }
+
+	public RenewalDto getRenewal() { return renewal; }
+
+	public void setRenewal(RenewalDto renewal) { this.renewal = renewal; }
 }

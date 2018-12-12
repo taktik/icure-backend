@@ -71,7 +71,7 @@ onmessage = e => {
 									iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
 									beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
 									.then(c => {
-										console.log("Contact id " + c.id);
+										// console.log("Contact id " + c.id);
 										return {id:c.id,protocolId:docInfo.protocol}
 									})
 								)
@@ -84,16 +84,14 @@ onmessage = e => {
         const treatMessage =  (message,boxId) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
             .then(([fullMessage, existingMess]) => {
-                console.log(fullMessage)
                 if (existingMess.rows.length > 0) {
-                    console.log("Message found")
+                    console.log("Message found",existingMess.rows)
 
                     const existingMessage = existingMess.rows[0]
 
                     return (existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) ? fullMessage.id : null
                 } else {
-                    console.log('Message not found')
-
+                    console.log('fullMessage',fullMessage)
                     let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
                     let receivedDate = new Date().getTime()
 
@@ -102,21 +100,17 @@ onmessage = e => {
                         fromAddress: getFromAddress(fullMessage.sender),
                         subject: (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
                         metas: fullMessage.customMetas,
-                        patientInss: fullMessage.patientInss,
-                        sender: fullMessage.sender,
-                        senderId: fullMessage.sender.id,
-                        senderInss: fullMessage.sender.inss,
                         toAddresses: [boxId],
-                        fromHealthcarePartyId: "",
                         transportGuid: boxId + ":" + fullMessage.id,
+                        fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
                         received: receivedDate
-
                     }
+                    console.log('Unknown message : ',newMessage)
 
                     return iccMessageXApi.newInstance(user, newMessage)
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
-                            // console.log(createdMessage)
+                            console.log('createdMessage',createdMessage)
                             Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
 									docxApi.newInstance(user, createdMessage, {
 										documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
@@ -126,6 +120,7 @@ onmessage = e => {
 									})
 										.then(d => docApi.createDocument(d))
 										.then(createdDocument => {
+										    console.log('createdDocument',createdDocument)
 											let byteContent = iccUtils.base64toArrayBuffer(a.content);
 											return [createdDocument, byteContent]
 										})
@@ -148,15 +143,20 @@ onmessage = e => {
                             )
                         })
                         .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
-                }
+                } // else end
             })
 
-        boxIds && boxIds.forEach(boxId =>
+        boxIds && boxIds.forEach(boxId =>{
+            console.log('boxids foreach',keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
             ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
                 .then(messages => {
                     let p = Promise.resolve([])
                     messages.forEach(m => {
-                        p = p.then(acc => treatMessage(m, boxId).then(id => id ? acc.concat([id]) : acc).catch(e => {console.log("Error loading message "+m.id); return acc}))
+                        p = p.then(acc => {
+                            treatMessage(m, boxId).then(id => {
+                                id ? acc.concat([id]) : acc
+                            }).catch(e => {console.log("Error loading message "+m.id); return acc})
+                        })
                     })
                     return p
                 })
@@ -164,9 +164,22 @@ onmessage = e => {
                     (!boxId.startsWith("BIN")) ? Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN" + boxId))) : Promise.resolve([])
                 )
                 .catch(() => console.log("Error while fetching messages"))
-        )
+        })
     }
 };
+
+function isUnread(m) {
+    return ((m.status & (1 << 1)) !== 0)
+}
+function isImportant(m) {
+    return ((m.status & (1 << 2)) !== 0)
+}
+function isCrypted(m) {
+    return ((m.status & (1 << 3)) !== 0)
+}
+function hasAnnex(m) {
+    return ((m.status & (1 << 4)) !== 0)
+}
 
 function getFromAddress(sender){
     if (!sender) { return "" }

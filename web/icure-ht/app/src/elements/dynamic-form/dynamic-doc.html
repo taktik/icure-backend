@@ -166,7 +166,7 @@
                     </div>
                 </paper-card>
             </template>
-            <template is="dom-if" if="[[!downloadable]]">
+            <template is="dom-if" if="[[mailbody]]">
                 <div class="txt-container">[[attachmentContent]]</div>
             </template>
         </template>
@@ -192,6 +192,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: null
 			},
             downloadable:{
+			    type: Boolean
+            },
+            mailbody:{
 			    type: Boolean
             },
 			document: {

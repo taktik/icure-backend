@@ -31,6 +31,7 @@ import org.taktik.icure.exceptions.UserRegistrationException;
 import org.taktik.icure.logic.listeners.UserLogicListener;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
