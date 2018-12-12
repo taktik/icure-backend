@@ -354,7 +354,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 text-transform: capitalize;
             }
             .patient-info-container{
-                height:96px;
+                height:95px;
                 @apply --padding-right-left-32;
                 cursor:pointer;
             }
@@ -376,6 +376,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 line-height:14px;
             }
             .patient-birthdate{
+                font-size: 13px;
+            }
+
+            .patient-profession{
                 font-size: 13px;
             }
 
@@ -411,7 +415,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .submenus-container{
                 overflow-y: overlay;
-                height: calc(100% - 215px);
+                height: calc(100% - 195px);
                 margin-bottom:16px;
             }
 
@@ -1167,6 +1171,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-ink-color:var(--app-text-color);
             }
 
+            .icon-prof{
+                height: 14px;
+                width: 14px;
+            }
+
+            .icon-doc{
+                height: 14px;
+                width: 14px;
+            }
+
         </style>
 
         <div class="container">
@@ -1185,7 +1199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
-                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]]</div>
+                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
                                 <div class="statusContainer">
                                     <paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
                                     <paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
