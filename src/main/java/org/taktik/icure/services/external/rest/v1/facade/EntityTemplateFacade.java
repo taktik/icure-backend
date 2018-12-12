@@ -104,7 +104,7 @@ public class EntityTemplateFacade implements OpenApiFacade{
 	)
 	@GET
 	@Path("/findAll/{type}")
-	public Response finAllEntityTemplates(
+	public Response findAllEntityTemplates(
 			@PathParam(value = "type") String entityType,
 			@ApiParam(value = "searchString", required = false) @QueryParam("searchString") String searchString,
 			@ApiParam(value = "includeEntities", required = false) @QueryParam("includeEntities") Boolean includeEntities) {
