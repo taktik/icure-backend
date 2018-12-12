@@ -166,25 +166,7 @@
                                  on-keydown="refreshFilter">
                     </paper-input>
                     <vaadin-grid id="messages-vaadin-grid" active-item="{{activeItem}}" selected-items="{{selectedItems}}" data-provider="[[_messagesDataProvider()]]">
-                        <vaadin-grid-column class="icon-col" width="70px">
-                            <template class="header">
-                            </template>
-                            <template>
-                                <vaadin-grid-tree-toggle leaf="[[!item.children.length]]" expanded="{{expanded}}" level="[[level]]">
-                                    <div class="icon-container">
-                                    <template is="dom-if" if="[[_isList(item)]]">
-                                        <iron-icon class="icon type-icon list" icon="list"></iron-icon>
-                                    </template>
-                                    <template is="dom-if" if="[[_isClosure(item)]]">
-                                        <iron-icon class="icon type-icon closure" icon="vaadin:ban"></iron-icon>
-                                    </template>
-                                    <template is="dom-if" if="[[_isExtension(item)]]">
-                                        <iron-icon class="icon type-icon extension" icon="alarm-add"></iron-icon>
-                                    </template>
-                                    </div>
-                                </vaadin-grid-tree-toggle>
-                            </template>
-                        </vaadin-grid-column>
+                        <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
                         <vaadin-grid-column class="received-col" width="120px">
                             <template class="header">
                                 <vaadin-grid-sorter path="sentreceived">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
@@ -234,7 +216,25 @@
                                 </template>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
+                        <vaadin-grid-column class="icon-col" width="70px">
+                            <template class="header">
+                            </template>
+                            <template>
+                                <vaadin-grid-tree-toggle leaf="[[!item.children.length]]" expanded="{{expanded}}" level="[[level]]">
+                                    <div class="icon-container">
+                                        <template is="dom-if" if="[[_isList(item)]]">
+                                            <iron-icon class="icon type-icon list" icon="list"></iron-icon>
+                                        </template>
+                                        <template is="dom-if" if="[[_isClosure(item)]]">
+                                            <iron-icon class="icon type-icon closure" icon="vaadin:ban"></iron-icon>
+                                        </template>
+                                        <template is="dom-if" if="[[_isExtension(item)]]">
+                                            <iron-icon class="icon type-icon extension" icon="alarm-add"></iron-icon>
+                                        </template>
+                                    </div>
+                                </vaadin-grid-tree-toggle>
+                            </template>
+                        </vaadin-grid-column>
                     </vaadin-grid>
                 </div>
                 <div id="detailGrid" class$="[[detailPanelClass(tempoSubMessages)]]">

@@ -1288,15 +1288,13 @@
 
             _setMetaDatas(author,sender,recipient,files) {
                 console.log('_setMetaDatas',author,sender,recipient,files)
-                const isPerson = (person) => {return person.lastName ? true : false}
-                const isText = (file) => {return file.mimeType === 'text/plain'}
-                const isTransaction = (isPerson(recipient) && this.uploadFiles.length ? this._isMedical(this.uploadFiles[0]) : false) // bool
-
-                const private_getMediaType = (file) => {
-                    const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
-                    // const content = this._readFile(file)
-                    return 'TODO MediaType.'+ext
-                }
+                const isPerson = (person) => {return person.lastName ? true : false},
+                    isText = (file) => {return file.mimeType === 'text/plain'},
+                    getMediaType = (file) => {
+                        const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
+                        return 'TODO MediaType.'+ext
+                    },
+                    isTransaction = (isPerson(recipient) && this.uploadFiles.length ? this._isMedical(this.uploadFiles[0]) : false) // bool
 
                 // initialize metas //
                 let encodingMetas = {}
@@ -1310,7 +1308,7 @@
                 }
                 // required
                 const neededMetas = {
-                    // "CM-MediaType" : files.length ? private_getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
+                    // "CM-MediaType" : files.length ? getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
                     "CM-AuthorID" : author.nihii ? author.nihii : author.ssin, // 12345625001
                     "CM-AuthorIDType" : author.nihii ? "NIHII" : "SSIN", // NIHII
                     "CM-AuthorType" : author.civility.toUpperCase(), // doctor
@@ -1323,7 +1321,7 @@
                     "CM-EhrMessageType" : isTransaction ? "Transactionnal" : "Functionnal",
                     "CM-EhrMessage" : isTransaction || false, // bool
                     "CM-EtkApplicationID": this.api.tokenId ? this.api.tokenId : '', // certificate ID
-                    "CM-AttachmentTransportType": files.length ? this._getTransportType(files[0]) : '' // main message format (first annex)
+                    // "CM-AttachmentTransportType": files.length ? this._getTransportType(files[0]) : '' // main message format (first annex) TODO
                 }
                 // author
                 , authorMetas = isPerson(author) ? {
