@@ -4,19 +4,19 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 import com.fasterxml.jackson.core.type.TypeReference
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -37,7 +37,7 @@ import org.taktik.icure.logic.HealthElementLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.FormLogic
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
 import java.io.InputStream
 import java.io.Serializable
@@ -57,6 +57,13 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 val idGenerator: UUIDGenerator) {
 
 
+    fun convertToKmehr(inputStream: InputStream): Kmehrmessage {
+        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+        val unmarshaller = jc.createUnmarshaller()
+        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+        return kmehrMessage
+    }
+
     fun importMedicationSchemeFile(inputStream: InputStream,
                   author: User,
                   language: String,
@@ -65,6 +72,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
+
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
         val mymappings = if(!mappings.isEmpty()) mappings else {
@@ -97,20 +105,9 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact? = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "contactreport" -> parseContactReport(trn, author, res, language, mymappings, state)
-                        "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mymappings, state)
-                        "labresult", "result", "note", "prescription" -> {
-                            parseDocumentInTransaction(trn, author, res, language, mymappings, state)?.let{
-                                state.docLinks.add(it)
-                            }
-                            null
-                        }
-                        "pharmaceuticalprescription" -> {
-                            parsePharmaceuticalPrescription(trn, author, res, language, mymappings, state)?.let {
-                                state.prescLinks.add(it)
-                            }
-                            null
-                        }
+                        "medicationscheme" -> parseMedicationScheme(trn, author, res, language, mymappings, state)
+                        "medicationschemeelement" -> parseMedicationSchemeElement(trn, author, res, language, mymappings, state)
+                        "treatmentsuspension" -> parseTreatmentSuspension(trn, author, res, language, mymappings, state)
                         else -> parseGenericTransaction(trn, author, res, language, mymappings, state)
                     }
                     ctc?.let{con ->
@@ -143,73 +140,6 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                 // make sure all He versions have the same healthElementId
                 state.versionLinksByMFID = state.versionLinks.groupBy { it.mfId } // speed up lookup
                 makeHeVersioning(state.versionLinks, state)
-
-                // add prescriptions from separate transactions to linked contacts
-                state.prescLinks.forEach {(servlist, conid) ->
-                    state.contactsByMFID[conid]?.let { con ->
-                        servlist.forEach { serv ->
-                            con.services.add(serv)
-                            /*
-                            val form = decorateMedication(serv, con, res, state)
-                            if(prescForms[con.id] == null) {
-                                prescForms[con.id] = mutableListOf<Form>()
-                            }
-                            prescForms[con.id]?.add(form)
-                            */
-                        }
-                    }
-                }
-
-                // add documents from separate transactions to linked contacts
-                state.docLinks.forEach {(serv, conid) ->
-                    state.contactsByMFID[conid]?.let {
-                        it.services?.add(serv)
-                        state.formServices[serv.id ?: ""] = serv
-                        it.subContacts.add(
-                                SubContact().apply {
-                                    services = listOf(ServiceLink().apply {
-                                        serviceId = serv.id
-                                    })
-                                }
-                        )
-                    }
-                }
-
-
-                // make consultation form
-                // (previously: make dynamic form for each service)
-                val incapacityFormsByConId = state.incapacityForms.groupBy { it.contactId }
-                res.ctcs.forEach {con ->
-                    val formid = idGenerator.newGUID().toString()
-
-                    val form = Form().apply {
-                        id =  formid
-                        formTemplateId =  "09b8db54-84a3-42e7-b8db-5484a352e77f" // Consultation FormTemplate
-                        contactId =  con.id
-                        responsible =  author.id
-                        descr =  "Consultation"
-                    }
-                    incapacityFormsByConId[con.id]?.map {
-                        it.parent = formid
-                    }
-                    /*
-                    prescForms[con.id]?.forEach { pform ->
-                        pform.parent = formid
-                    }
-                    */
-                    res.forms.add(form)
-                    con.services.filter{ state.formServices[it.id] == null }.map { ServiceLink(it.id) }.let {servlist ->
-                        if(servlist.isNotEmpty()) {
-                            val subcon = SubContact().apply {
-                                //formId = form.id
-                                //formId = con.id // non-existent formId so dynamic form is generated
-                                formId = formid // Consultation FormTemplate
-                                services = servlist
-                            }
-                            con.subContacts.add(subcon)
-                        }
-                    }
-                }
 
                 res.forms.forEach{
                     formLogic.createForm(it)
@@ -266,199 +196,33 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
 
     }
 
-
-    private fun parseContactReport(trn: TransactionType,
-                                   author: User,
-                                   v: ImportResult,
-                                   language: String,
-                                   mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+    private fun parseMedicationScheme(trn: TransactionType,
+                                      author: User,
+                                      v: ImportResult,
+                                      language: String,
+                                      mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
         return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
 
-    private fun parseClinicalSummary(trn: TransactionType,
-                                     author: User,
-                                     v: ImportResult,
-                                     language: String,
-                                     mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+    private fun parseMedicationSchemeElement(trn: TransactionType,
+                                      author: User,
+                                      v: ImportResult,
+                                      language: String,
+                                      mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
         return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
         }
     }
 
-    private fun parseLabResult(trn: TransactionType,
-                               author: User,
-                               v: ImportResult,
-                               language: String,
-                               mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
+    private fun parseTreatmentSuspension(trn: TransactionType,
+                                             author: User,
+                                             v: ImportResult,
+                                             language: String,
+                                             mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
         return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
 
-        }
-    }
-
-    private fun parseResult(trn: TransactionType,
-                            author: User,
-                            v: ImportResult,
-                            language: String,
-                            mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
-
-        }
-    }
-
-    private fun parseNote(trn: TransactionType,
-                          author: User,
-                          v: ImportResult,
-                          language: String,
-                          mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
-        }
-    }
-
-    private fun parsePrescription(trn: TransactionType,
-                                  author: User,
-                                  v: ImportResult,
-                                  language: String,
-                                  mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
-
-        }
-    }
-
-    private fun parsePharmaceuticalPrescription(trn: TransactionType,
-                                                author: User,
-                                                v: ImportResult,
-                                                language: String,
-                                                mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<List<Service>, String?> {
-
-        val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
-            val cdItem = "medication"
-            val service = parseGenericItem( cdItem, "Prescription", item, author, language, v)
-            service.tags.addAll(
-                    listOf(
-                            CodeStub("ICURE", "PRESC", "1")
-                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
-                    )
-            )
-            service
-        }
-        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
-            extractMFIDFromUrl(lnk.url)
-        }?.firstOrNull()
-
-        if(target == null) {
-            // no link to a contact, should create a contact so it can appear in topaz
-            v.ctcs.add( Contact().apply {
-                this.id = idGenerator.newGUID().toString()
-                this.author = author.id
-
-
-                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                    createOrProcessHcp(it)?.let {
-                        v.hcps.add(it)
-                        it
-                    }
-                }?.firstOrNull()?.id ?:
-                        author.healthcarePartyId
-
-                this.services = servlist.toSet()
-                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
-                this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
-            })
-
-        }
-
-        return Pair(servlist, target)
-    }
-
-
-
-
-    private fun parseDocumentInTransaction(trn: TransactionType,
-                                           author: User,
-                                           v: ImportResult,
-                                           language: String,
-                                           mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<Service, String?>? {
-
-        val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
-            Service().apply {
-                id = idGenerator.newGUID().toString()
-                content.put(language, Content().apply {
-                    documentId = documentLogic!!.createDocument(Document().apply {
-                        id = idGenerator.newGUID().toString()
-                        this.author = author.id
-                        this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                            createOrProcessHcp(it)?.let {
-                                v.hcps.add(it)
-                                it
-                            }
-                        }?.firstOrNull()?.id ?:
-                                author.healthcarePartyId
-                        this.created = trn.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
-                        modified = created
-                        attachment = lnk.value
-                        name = "Document"
-
-                        var utis : List<UTI> = emptyList()
-                        lnk.mediatype?.value()?.let {
-                            utis = UTI.utisForMimeType(it).toList()
-                        } ?: let {
-                            utis = listOf(SimpleUTIDetector().detectUTI(lnk.value.inputStream(), null, null))
-                        }
-
-                        mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf"
-                        otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
-
-                        v.documents.add(this)
-                    }, author.healthcarePartyId).id
-                    stringValue = trn.cds.filter{ it.s == CDTRANSACTIONschemes.CD_TRANSACTION }.firstOrNull()?.let {
-                        it.dn
-                    } ?: "unnamed_document"
-                })
-                label = "document"
-                valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
-            }
-        } ?: listOf()
-        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
-            extractMFIDFromUrl(lnk.url)
-        }?.firstOrNull()
-
-        if(target == null) {
-            // no link to a contact, should create a contact so it can appear in topaz
-            v.ctcs.add( Contact().apply {
-                this.id = idGenerator.newGUID().toString()
-                this.author = author.id
-
-
-                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                    createOrProcessHcp(it)?.let {
-                        v.hcps.add(it)
-                        it
-                    }
-                }?.firstOrNull()?.id ?:
-                        author.healthcarePartyId
-
-                this.services = services.toSet()
-                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
-                this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
-            })
-
-        }
-
-        return if(services.size == 1) { // there can be only one document per contact
-            Pair(services.single(), target)
-        } else {
-            null
         }
     }
 
@@ -526,7 +290,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                     label = "Observation"
                 }
                 when (cdItem) {
-                    "healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue" -> {
+                    "healthcareelement" -> {
                         val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
                         he?.let { notNullHe ->
                             v.hes.add(healthElementLogic.createHealthElement(he))
@@ -549,16 +313,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                     "insurancystatus", "gmdmanager" -> Unit // not services
                     //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
                     //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
-                    "incapacity" -> parseIncapacity(cdItem, label, item, author, language, v, contact.id).let {
-                        val (services, subcontact, form) = it
-                        state.incapacityForms.add(form)
-                        this.services.addAll(services)
-                        this.subContacts.add(subcontact)
-                        services.forEach {
-                            state.formServices[it.id ?: ""] = it
-                        }
-                        v.forms.add(form)
-                    }
+
                     else -> {
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
                         this.services.add(service)
@@ -625,103 +380,6 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         )
         return form
 
-    }
-
-    private fun parseIncapacity(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, contactId: String): Triple<List<Service>, SubContact, Form> {
-
-        val ittform = Form().apply {
-            id= idGenerator.newGUID().toString()
-            formTemplateId= "81dfd8bc-b8c8-45af-9fd8-bcb8c8d5afaf" // ITT form template
-            this.contactId = contactId
-            this.responsible = author.healthcarePartyId
-            this.author = author.healthcarePartyId
-            this.codes = extractCodes(item).toMutableSet()
-            this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
-            this.modified = this.created
-            item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-            //descr= "Certificat d'interruption d'activité"
-            descr = "6FF898B0-2694-4973-83F3-1F93C6DADC61" // put this form as subform of consultation
-        }
-
-        val mapserv = mapOf(
-                "incapacité de" to
-                        item.contents.find { it.incapacity != null }?.let {
-                            it.cds.find { it.s is CDINCAPACITY }?.let {
-                                it.value
-                            }
-                        }?.let {
-                            Pair(
-                                    Content().apply { stringValue = it },
-                                    listOf(CodeStub("CD-INCAPACITY", it, "1"))
-                            )
-                        },
-                "du" to  Content().apply{
-                    item.beginmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                },
-                "au" to  Content().apply {
-                    item.endmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                },
-                "inclus/exclus" to  Content().apply{ stringValue = "inclus" }, // no kmehr equivalent
-                "pour cause de" to
-                        item.contents.find { it.incapacity != null }?.let {
-                            it.cds.find { it.s is CDINCAPACITYREASON }?.let {
-                                it.value
-                            }
-                        }?.let {
-                            Pair(
-                                    Content().apply {
-                                        stringValue = it
-                                    },
-                                    listOf(CodeStub("CD-INCAPACITYREASON", it, "1"))
-                            )
-
-                        },
-                "Commentaire" to  Content().apply {stringValue= item.texts.map{it.value}.joinToString(" ")}
-                // missing:
-                //"Accident suvenu le"
-                //"Sortie"
-                //"autres"
-                //"reprise d'activité partielle"
-                //"pourcentage"
-                //"totale"
-        )
-
-        var service_index = 0L
-        val services = mapserv.map {entry ->
-            entry.value?.let {
-                Service().apply {
-                    id= idGenerator.newGUID().toString()
-                    this.label = entry.key
-                    this.contactId = contactId
-                    responsible = author.healthcarePartyId
-                    index = service_index++
-                    this.author = author.healthcarePartyId
-                    created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
-                    modified = this.created
-                    valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-
-                    if(it is Pair<*, *>) {
-                        content = mapOf(
-                                language to (it as Pair<Content,List<CodeStub>>).first
-                        )
-                        tags = it.second as Set<CodeStub>
-                    } else {
-                        content = mapOf(language to it as Content)
-                    }
-                }
-            }
-        }.filterNotNull()
-
-        val subcon = SubContact().apply {
-            formId = ittform.id
-            this.services = services.map {
-                ServiceLink().apply {
-                    serviceId = it.id
-                }
-            }
-        }
-
-        return Triple(services, subcon, ittform)
     }
 
     private fun parseHealthcareElement(cdItem: String,
@@ -818,7 +476,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                             substanceProduct = item.contents.filter { it.substanceproduct != null }.firstOrNull()?.let {
                                 it.substanceproduct?.let {
                                     Substanceproduct().apply {
-                                        intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s, it.value, it.sv)) }
+                                        intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s.value(), it.value, it.sv)) }
                                         intendedname = it.intendedname.toString()
                                     }
                                 }
@@ -849,7 +507,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                             } ?: ""
                             instructionForPatient = item.instructionforpatient?.value
                             posology = item.posology?.text?.value // posology can be complex but SMF spec recommends text type
-                            regimen = item.regimen?.let { it.daynumbersAndQuantitiesAndDaytimes.map {
+                            regimen = item.regimen?.let { it.daynumbersAndQuantitiesAndDates.map {
                                 RegimenItem().apply {
                                     //TODO finish this optional parsing
                                 }

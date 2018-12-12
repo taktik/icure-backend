@@ -47,7 +47,7 @@ public class Medication implements Serializable {
 	String commentForDelivery;
 	String drugRoute; //CD-DRUG-ROUTE
 	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
-	String frequency; //CD-PERIODICITY
+	String frequency; //CD-PERIODICITY : result is combination of frequency and regimen
 
 
 	Long beginMoment;
