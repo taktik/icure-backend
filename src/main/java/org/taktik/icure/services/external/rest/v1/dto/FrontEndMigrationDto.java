@@ -9,6 +9,8 @@ public class FrontEndMigrationDto {
     protected Long endDate;
     protected FrontEndMigrationStatus status;
     protected String logs;
+    protected String startKey;
+    protected String startKeyDocId;
 
     public String getName() {
         return name;
@@ -58,5 +60,11 @@ public class FrontEndMigrationDto {
         this.logs = logs;
     }
 
+    public String getStartKey() { return startKey; }
 
+    public void setStartKey(String startKey) { this.startKey = startKey; }
+
+    public String getStartKeyDocId() { return startKeyDocId; }
+
+    public void setStartKeyDocId(String startKeyDocId) { this.startKeyDocId = startKeyDocId; }
 }

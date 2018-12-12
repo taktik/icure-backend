@@ -17,6 +17,8 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
     protected FrontEndMigrationStatus status;
     protected String logs;
     protected String userId;
+    protected String startKey;
+    protected String startKeyDocId;
 
 
     public FrontEndMigration() {
@@ -82,6 +84,22 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
 
     public void setLogs(String logs) {
         this.logs = logs;
+    }
+
+    public String getStartKey() {
+        return startKey;
+    }
+
+    public void setStartKey(String startKey) {
+        this.startKey = startKey;
+    }
+
+    public String getStartKeyDocId() {
+        return startKeyDocId;
+    }
+
+    public void setStartKeyDocId(String startKeyDocId) {
+        this.startKeyDocId = startKeyDocId;
     }
 
     @Override
