@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.base.Code;
 
 import java.io.Serializable;
 import java.util.List;
@@ -47,13 +48,15 @@ public class Medication implements Serializable {
 	String commentForDelivery;
 	String drugRoute; //CD-DRUG-ROUTE
 	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
-	String frequency; //CD-PERIODICITY : result is combination of frequency and regimen
-
+	Code frequency; //CD-PERIODICITY
+	Code reimbursementReason;
+	Boolean substitutionAllowed;
 
 	Long beginMoment;
 	Long endMoment;
 
 	Duration duration;
+	Renewal renewal;
 
 	Boolean knownUsage;
 
@@ -142,10 +145,6 @@ public class Medication implements Serializable {
 	public @Nullable String getTemporality() { return temporality; }
 
 	public void setTemporality(String temporality) { this.temporality = temporality; }
-
-	public @Nullable String getFrequency() { return frequency; }
-
-	public void setFrequency(String frequency) { this.frequency = frequency; }
 
 	public @Nullable Long getBeginMoment() {
 		return beginMoment;
@@ -266,6 +265,23 @@ public class Medication implements Serializable {
 	public @Nullable Boolean getPosologyChanged() { return posologyChanged; }
 
 	public void setPosologyChanged(Boolean posologyChanged) { this.posologyChanged = posologyChanged; }
+
+
+	public Boolean getSubstitutionAllowed() { return substitutionAllowed; }
+
+	public void setSubstitutionAllowed(Boolean substitutionAllowed) { this.substitutionAllowed = substitutionAllowed; }
+
+	public Code getFrequency() { return frequency; }
+
+	public void setFrequency(Code frequency) { this.frequency = frequency; }
+
+	public Code getReimbursementReason() { return reimbursementReason; }
+
+	public void setReimbursementReason(Code reimbursementReason) { this.reimbursementReason = reimbursementReason; }
+
+	public Renewal getRenewal() { return renewal; }
+
+	public void setRenewal(Renewal renewal) { this.renewal = renewal; }
 
 	public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
