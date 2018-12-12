@@ -151,7 +151,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 
 	@Override
 	public List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId) {
-		return patientDAO.listIdsByHcPartyAndActive(active, healthcarePartyId);
+		return patientDAO.listIdsByActive(active, healthcarePartyId);
 	}
 
 	@Override

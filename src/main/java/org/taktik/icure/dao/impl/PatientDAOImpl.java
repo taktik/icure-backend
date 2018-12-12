@@ -76,8 +76,8 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	}
 
 	@Override
-	@View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-	public List<String> listIdsByHcPartyAndActive(boolean active, String healthcarePartyId) {
+	@View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+	public List<String> listIdsByActive(boolean active, String healthcarePartyId) {
 		return listIdsForActive(active, healthcarePartyId, "by_hcparty_active");
 	}
 
@@ -189,13 +189,11 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	}
 
 	private List<String> listIdsForActive(boolean active, String healthcarePartyId, String viewName) {
-		ComplexKey startKey = ComplexKey.of(healthcarePartyId, active);
-		ComplexKey endKey = ComplexKey.of(healthcarePartyId, active);
-
-		ViewQuery viewQuery = createQuery(viewName).reduce(false).startKey(startKey).endKey(endKey).includeDocs(false);
-
-		return db.queryView(viewQuery, String.class);
+		ComplexKey onlyKey = ComplexKey.of(healthcarePartyId, active ? 1 : 0);
+		ViewQuery viewQuery = createQuery(viewName).reduce(false).startKey(onlyKey).endKey(onlyKey).includeDocs(false);
+		return db.queryView(viewQuery,String.class);
 	}
+
 	@Override
 	@View(name = "by_hcparty_externalid", map = "classpath:js/patient/By_hcparty_externalid_map.js")
 	public List<String> listIdsByHcPartyAndExternalId(String externalId, String healthcarePartyId) {
