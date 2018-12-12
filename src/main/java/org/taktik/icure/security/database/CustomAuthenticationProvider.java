@@ -49,7 +49,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
-	private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 	private AuthenticationProperties authenticationProperties;
 
 	public CustomAuthenticationProvider(UserLogic userLogic, PermissionLogic permissionLogic) {
@@ -115,7 +114,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			}
 		}
 		if ((user == null)) {
-			log.warn("Invalid username or password for user "+username+", no user matched out of "+users.size()+" candidates");
+			logger.warn("Invalid username or password for user "+username+", no user matched out of "+users.size()+" candidates");
 			throw new BadCredentialsException("Invalid username or password");
 		}
 		if (user.isUse2fa() != null && (user.isUse2fa() != null && user.isUse2fa()) && !user.isSecretEmpty()) {
