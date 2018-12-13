@@ -43,21 +43,17 @@ public class UserDetailsService implements org.springframework.security.core.use
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		boolean isToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
+		boolean isToken = username.matches("(.+:)?[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 
-		User user = isToken?userLogic.getUser(username):userLogic.getUserByLogin(username);
+		User user = isToken ? userLogic.getUser(username):userLogic.getUserByLogin(username);
 
 		if (user != null && user.getGroupId()!=null) {
-			user = userLogic.getUserOnUserDb(user.getId(), user.getGroupId());
+			user = userLogic.getUserOnUserDb(user.getId().contains(":") ? user.getId().split(":")[1] : user.getId(), user.getGroupId());
 		}
 
 		// Check user exists, is not disabled and is of DATABASE type
 		if (user == null) {
-			if (username.equals("bootstrap") && userLogic.getAllEntities().size()==0) {
-				user = userLogic.getBootstrapUser();
-			} else {
-				throw new UsernameNotFoundException(username);
-			}
+			throw new UsernameNotFoundException(username);
 		} else if (!userLogic.isUserActive(user.getId())) {
 			throw new UsernameNotFoundException(username);
 		} else if (!user.getType().equals(Users.Type.database)) {
