@@ -877,14 +877,14 @@
                             this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
                             this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
 
-                            this.set('reimbursementItemIdx', this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code))
+                            this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
 
                             this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
                             this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
 
                             this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal : 1)
                             this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value : 1)
-                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : 6)
+                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
                             this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? true : false)
 
 

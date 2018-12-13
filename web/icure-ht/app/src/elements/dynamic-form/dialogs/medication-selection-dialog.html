@@ -186,8 +186,8 @@
                 </paper-tab>
             </paper-tabs>
             <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
-                <paper-input id="filter" label="Search a medicine" value="{{filterChronicalValue}}" on-keydown="refresh"></paper-input>
-                <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" items="[[medications]]">
+                <paper-input id="filter" label="Search a chronical medicine" value="{{filterChronicalValue}}" on-keydown="refresh"></paper-input>
+                <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
                     <vaadin-grid-column>
                         <template class="header">
                             <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
@@ -288,6 +288,10 @@
                         type: Object,
                         value: null,
                         observer: "_selectedMedicationFromListChanged"
+                    },
+                    selectedChronicalMedicationFromList:{
+                        type: Object,
+                        value: null
                     },
                     newMedication: {
                         type: Object,
@@ -498,6 +502,14 @@
                         this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                     }
                 }
+            }
+
+            selectChronicalMedication(e){
+                const selected = this.selectedChronicalMedicationFromList
+                const medication = selected.content[this.language]
+                console.log(medication)
+
+                this.dispatchEvent(new CustomEvent('display-medication-details', {detail:selected, bubbles: true, composed: true}))
             }
 
             click(e) {
