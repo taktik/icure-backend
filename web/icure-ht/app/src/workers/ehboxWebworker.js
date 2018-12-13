@@ -60,8 +60,8 @@ onmessage = e => {
 						modified: new Date().getTime() ,
 						author: user.healthcarePartyId,
 						responsible: user.healthcarePartyId,
-						openingDate: moment().format('YYYYMMDD') || '',
-						closingDate: moment().format('YYYYMMDD') || '',
+						openingDate: moment().format('YYYYMMDDhhmmss') || '',
+						closingDate: moment().format('YYYYMMDDhhmmss') || '',
 						encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
 						descr: docInfo.labo,
 						subContacts: []
@@ -130,7 +130,7 @@ onmessage = e => {
 												beResultApi.getInfos(createdDocument.id)
 												.then(docInfos => docInfos?[docInfos,Promise.all(docInfos.map( docInfo => {
 												    console.log('will assignAttachment',fullMessage.id,docInfo,createdDocument)
-												    assignAttachment(fullMessage.id,docInfo,createdDocument)
+												    assignAttachment(docInfo.documentId,docInfo,createdDocument)
                                                 }))]:[null,null])
 												.then(([docInfos,assignedAttachment]) => {
 													assignedAttachment && assignedAttachment.then(data => {
