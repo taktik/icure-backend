@@ -416,10 +416,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
-                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
-                        </template>
+                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
+                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="debugRemove"></paper-icon-button>-->
+                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
+                        <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
@@ -469,7 +471,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen"><b>[[item.fromAddress]]</b> - [[item.subject]]</div>
+                                <div class="cell frozen">
+                                    <b>[[item.fromAddress]]</b> - [[item.subject]]
+                                    <template is="dom-if" if="[[isImportant(item)]]">
+                                        <iron-icon id="[[item.id]]-important" icon="warning"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-important">Important</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[isCrypted(item)]]">
+                                        <iron-icon id="[[item.id]]-crypted" icon="lock"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-crypted">Crypted</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[hasAnnex(item)]]">
+                                        <iron-icon id="[[item.id]]-hasAnnex" icon="editor:attach-file"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-hasAnnex">Attachments</paper-tooltip>
+                                    </template>
+                                </div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="48px">
+                            <template class="header">
+                                [[localize('is_read','Read',language)]]
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[!isUnread(item)]]">
+                                    <iron-icon icon="done"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[isUnread(item)]]">
+                                    <iron-icon icon="mail"></iron-icon>
+                                </template>
                             </template>
                         </vaadin-grid-column>
                     </template>
@@ -643,9 +672,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    console.log('getInbox',messages)
                     return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
-                }).then(messages => this.set('messages', messages || []));
+                }).then(messages => {
+                    console.log('getInbox',messages)
+                    this.set('messages', messages || [])
+                });
+            }
+
+            isUnread(m) {
+                return ((m.status & (1 << 1)) !== 0)
+            }
+            isImportant(m) {
+                return ((m.status & (1 << 2)) !== 0)
+            }
+            isCrypted(m) {
+                return ((m.status & (1 << 3)) !== 0)
+            }
+            hasAnnex(m) {
+                return ((m.status & (1 << 4)) !== 0)
             }
 
             getUnreadEmail() {
@@ -772,7 +816,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getTrash(){
-				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*','BIN:*'], null, null, 1000)
+				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
 					.then(messages => this.set('messages', messages || []));
             }
 
@@ -940,26 +984,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			_removeMsgs(){
-				let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
+                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
                 const selectedBox = this.selectList.selection.item.toUpperCase()
-				const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : 'INBOX'
+                const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : selectedBox == 'TRASH' ? 'BIN' : 'INBOX'
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
-				if(checkedMsgs.length) {
-                    checkedMsgs.forEach(msg =>{if (!msg.transportGuid.startsWith("BIN")) {msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))}}) // forEach end
+                if(checkedMsgs.length) {
+                    let msgsToDelete = []
+                    checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
+                    console.log('remove',msgsToDelete,thisBox,delBox)
                     if(msgsToDelete.length){
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
-                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox))
+                        if (thisBox == 'BIN') {
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
+                        }
                         checkedMsgs.forEach(msg=>{
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                            this._refresh()
                         })
+                        this._refresh()
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                     this._deselectAll();
-				} // if checked length end
+                } // if checked length end
             }
+
 
             _isEqual(a,b) {return (a === b)}
 
@@ -977,14 +1026,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)}
                         if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)}
                         msgsToRestore.push(msg)
+                        console.log('restore',msgId,thisBox)
                     }) // forEach end
+                    console.log(tempBinInbox,tempBinSentbox)
                     if(tempBinInbox.length){
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
-                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'INBOX'))
                     }
                     if(tempBinSentbox.length){
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
-                            .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'SENTBOX'))
                     }
                     msgsToRestore.forEach(msg=>{
                         if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) {
