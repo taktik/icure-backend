@@ -294,11 +294,13 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
 
 	@JsonIgnore
 	public boolean isSecretEmpty() {
-		return secret==null;
+		return secret == null;
 	}
 
 	public String getSecret() {
-		if (secret==null) { this.secret = Base32.random(); }
+		if (secret == null) {
+			this.secret = Base32.random();
+		}
 		return secret;
 	}
 

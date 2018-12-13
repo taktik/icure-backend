@@ -64,6 +64,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_DELETED_ON_SERVER 		= 1 << 19;
 	public final static int STATUS_SHOULD_BE_DELETED_ON_SERVER 	= 1 << 20;
 
+	public final static int STATUS_ARCHIVED					= 1 << 21;
+
 	private String fromAddress;
 	private String fromHealthcarePartyId;
 	private String formId;

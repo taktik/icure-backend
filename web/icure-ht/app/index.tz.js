@@ -1,6 +1,12 @@
 import * as OfflinePluginRuntime from 'offline-plugin/runtime';
 OfflinePluginRuntime.install();
 
+import promiseFinally from 'promise.prototype.finally';
+import flatMap from 'array.prototype.flatmap';
+
+promiseFinally.shim();
+flatMap.shim();
+
 document.addEventListener('WebComponentsReady', function componentsReady() {
     document.removeEventListener('WebComponentsReady', componentsReady, false);
     import( /* webpackChunkName: "ht-app" */ "./src/ht-app-tz.html")

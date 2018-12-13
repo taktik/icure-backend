@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> PRESCRIPTION DE SOINS INFIRMIERS </title>
+</head>
+<body>
+
+<pre>
+
+Patient (Vignette de l’organisme assureur)
+PATIENT.NAME  PATIENT.FIRSTNAME  °PATIENT.DN
+PATIENT.STREET  PATIENT.ZIPCODE  PATIENT.TOWN
+niss:    PATIENT.NN   mut: PATIENT.MUTDES   ct12: PATIENT.HLCD
+
+{{nurseprescription3.TitleMedication="Administration ou application de médicaments"}}
+{{nurseprescription2.medication}}  {{nurseprescription2.medicationdose}}
+{{nurseprescription2.medicationfrequency}}
+{{nurseprescription2.medicationinjection}}{{nurseprescription2.medicationapplication}}
+{{nurseprescription2.medicationapplicationother}}
+
+{{nurseprescription3.TitleSonde="Sondes"}}
+{{nurseprescription2.sonde}}
+{{nurseprescription2.sondefrequency}}
+
+{{nurseprescription3.TitleConstipation="Constipation"}}
+{{nurseprescription2.constipation}}
+{{nurseprescription2.constipationfrequency}}
+
+{{nurseprescription3.TitleCompressionTherapy="Thérapie de compression"}}
+{{nurseprescription2.compression}}
+{{nurseprescription2.compressionfrequency}}
+
+{{nurseprescription3.TitleEnteralNutrition="Nutrition entérale"}}
+{{nurseprescription2.enteralfeed}}
+{{nurseprescription2.enteralfeedfrequency}}
+
+{{nurseprescription3.TitleWoundCare="Soins de plaie"}}
+{{nurseprescription2.wound}}
+
+{{nurseprescription2.woundcare}}
+{{nurseprescription2.woundcarefrequency}}
+
+{{nurseprescription3.TitleOtherTreatments="Autres soins/techniques spécifiques"}}
+{{nurseprescription.othercare}}
+
+{{nurseprescription3.TitleImportantInformation="Informations médicales importantes"}}
+{{nurseprescription.importantmedicalinfo}}
+
+{{nurseprescription3.TitleEvolution="Evolution : "}}
+{{nurseprescription2.feedback}}
+
+{{nurseprescription3.TitleComMode="Mode de communication : "}}
+{{nurseprescription2.contact}}
+
+-----------------------------------------------------------------------------
+        MEDECIN                                   SIGNATURE
+
+Dr. {{user.fname}} {{user.lname}} ,
+{{site.name}}
+{{site.address}}
+{{site.postcode}} {{site.city}}
+Tél.:  {{site.phone}}
+INAMI : {{user.inami}} 		Date:  {{nurseprescription.valuedate}}
+-----------------------------------------------------------------------------
+
+</pre>
+</body>
+</html>

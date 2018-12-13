@@ -37,6 +37,9 @@
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../../spinner-style.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+
+<link rel="import" href="../pdf-element/pdf-element.html">
 
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
@@ -128,7 +131,7 @@
 
 			.msg-detail-card {
 				width: 100%;
-				padding: 0 12px;
+                padding: 0 0 0 12px;
                 height: calc(80vh - 20%);
 				display: flex;
 				flex-flow: column nowrap;
@@ -136,6 +139,7 @@
 				align-items: stretch;
 				background: transparent;
 				box-shadow: none;
+                flex-grow: 1;
 			}
 
 			.horizontal {
@@ -387,10 +391,18 @@
 				padding-bottom: 32px;
 			}
 
+            dynamic-doc {
+                overflow-x: hidden;
+                overflow-y: auto;
+                margin-top: 16px;
+                word-break: break-all;
+                hyphens: auto;
+            }
+
 			.annexe-card{
-				flex-basis: calc(100% / 3);
-				max-width: calc((100% / 3) - 16px);
-				margin: 4px;
+				padding: 4px;
+                width: 50%;
+                box-sizing: border-box;
 				background: var(--app-background-color)
 			}
 
@@ -402,6 +414,8 @@
 				background-color: white;
     			padding: 0 8px;
 				flex-flow: row nowrap!important;
+                overflow: hidden;
+                text-overflow: ellipsis;
 			}
 
 			.annexe-card--header span{
@@ -429,6 +443,7 @@
 				font-size: 14px;
 				font-weight: 400;
 				text-transform: capitalize;
+                margin: 0 auto;
 			}
 
 			.annexe-card--action-button:hover{
@@ -444,7 +459,7 @@
 
             .action-buttons {
                 width: 100%;
-                padding: 12px 0;
+                padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
 				height: 40px;
             }
@@ -473,12 +488,13 @@
             }
 
             .read-txt {
-                min-height: 600px;
                 width: 100%;
+                max-height: 50vh;
                 overflow-y: auto;
 				flex-grow: 1;
-				margin: 12px 0;
 				border-top: 1px solid var(--app-background-color-dark);
+                padding: 0 10px;
+                box-sizing: border-box;
             }
 
 			.read-txt p{
@@ -487,6 +503,7 @@
 
             .attached {
                 width: 100%;
+                max-height: 176px;
                 padding: 10px;
                 overflow-y: auto;
                 border-top: 1px solid var(--app-background-color-dark);
@@ -540,6 +557,7 @@
 
 			.space-between{
 				justify-content: space-between;
+                height: 80px;
 			}
 
 			.layout-horizontal--flex-end{
@@ -646,6 +664,10 @@
                 width: 100%;
             }
 
+            h2.subject {
+                margin-bottom: 0;
+            }
+
             .message-box {
                 padding: 4px;
                 width: 100%;
@@ -654,6 +676,10 @@
             }
 
             .mobileOnly {display: none;}
+
+            .doc-container {
+                max-width: 50%;
+            }
 
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
@@ -676,110 +702,59 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-						<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+						<!--<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>-->
+                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
+                        <template is="dom-if" if="[[isDeleted]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        </template>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
-					<template is="dom-repeat" items="[[messages]]" as="msg">
-							<paper-card class="msg-detail-card" >
-								<h2 class="subject">[[msg.subject]]</h2>
-								<div class="layout-horizontal space-between">
-									<div class="msg-header-grid">
-										<div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
-										<div class="from">[[msg.fromAddress]]</div>
-										<div class="to">to [[msg.toAddresses]]</div>
-									</div>
-									<div class="layout-horizontal layout-horizontal--flex-end">
-										<div class="date">[[_timeFormat(msg.received)]]</div>
-										<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
-										<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>
-										<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>
-									</div>
-								</div>
-                                <!-- <div>
-                                    <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
-                                </div> -->
-                                <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
-
-								<!-- <template is="dom-if" if="[[msg.body]]">
-                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-								</template> -->
-
-								<template is="dom-if" if="[[msg.body]]">
-									<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
-								</template>
-
-
-                            </paper-card>
+                <template is="dom-repeat" items="[[messages]]" as="msg">
+                    <paper-card class="msg-detail-card" >
+                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal space-between">
+                            <div class="msg-header-grid">
+                                <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
+                                <div class="from">[[msg.fromAddress]]</div>
+                                <div class="to">[[localize('to','To',language)]] [[msg.toAddresses]]</div>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <div class="date">[[_timeFormat(msg.received)]]</div>
+                                <!--<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>-->
+                                <!--<paper-tooltip for="print-btn" position="bottom" offset="4">[[localize('pri','Print',language)]]</paper-tooltip>-->
+                            </div>
                         </div>
-                    </template>
+                        <template is="dom-if" if="[[msg.patientInss]]">
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss(msg.patientInss)]]</div>
+                        </template>
+                        <template is="dom-if" if="[[bodyDocument.id]]">
+                            <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
+                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
+                        </template>
+
+
+
+                    </paper-card>
+                </template>
             </div>
 
             <div class="attached">
-                <h3>Pièces jointes</h3>
+                <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <paper-card class="annexe-card">
-							<div class="layout-horizontal space-between annexe-card--header">
-								<span>[[item.name]]</span>
-								<paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
-							</div>
-                            <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
-                                <div class="img-container annexe-card--content">
-                                    <img src$="[[item.dataUrl]]">
-								</div>
-								<div class="layout-horizontal space-between">
-									<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-								</div>
-                            </template>
-                            <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                            </template>
-                            <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
-
-                            </template>
-                            <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
-                                <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
-
-                            </template>
-                        </paper-card>
+                            <div class="layout-vertical annexe-card">
+                                <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                             resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                            </div>
                     </template>
-                    <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
+
 		</template>
 	</template>
 	<script>
@@ -837,7 +812,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			isLoadingMessage: {
 				type: Boolean,
 				value: false
-			}
+			},
+            isDeleted: {
+			    type: Boolean,
+                value: false
+            },
+            attachmentQuantity: {
+			    type: Number,
+                value: 0
+            }
 		};
 	}
 
@@ -866,37 +849,37 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_displayLengthOrEmpty(msgBody){
-		return msgBody.length ? msgBody : "no content"
+        return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 			this.set('isLoadingMessage',true)
-            this.selectMessage.selection.item.body = [];
+            this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
 	        let tempSelect = this.selectMessage.selection.item;
+	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => { if(docs.length) {
-					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-							.then(a =>
-								// With encryption key
-								// this.getDataUrls(doc)
-								// .then(dataUrl => {
-								// 	doc.dataUrl = dataUrl;
-								// 	if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-								// 	else this.set('documentAttachment', a);
-								// 	return doc
-								// })
-
-								//Without encryption key
-								{
-									doc.dataUrl = this.getDataUrls(doc)
-									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-									return doc
-								}
-							)
-					)
-				}
+				.then(docs => {
+                    console.log('docs',docs)
+				    if(docs.length) {
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                            .map(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+                                    .then(a => {
+                                        doc.dataUrl = this.getDataUrls(doc)
+                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                            console.log('this is doc',doc)
+                                            this.set('bodyDocument',doc)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                            fetch(url,{credentials:'include'})
+                                                .then(res=>res.text())
+                                                .then(res=>this.set('docTxt',res))
+                                        }
+                                        return doc
+                                });
+                            }
+                        )
+                    }
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
@@ -904,6 +887,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
+                        this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
                     })
 				}
@@ -911,6 +895,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set('isLoadingMessage',false)
 					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
+                    this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
             })
@@ -921,84 +906,193 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	getChildren(item){
-        this.api.message().getChildren(item).then(function(m) {
+	    console.log('getChildren',item)
+        this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
 			if(m.length){
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    console.log('findByMessage',docs)
                     docs.length?
                     	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
-						:m.map(r => this.messages.push(r));
-                    this.set('messages',this.messages)
+						:m.map(r => this.push('messages',r));
                     m.map(r => this.getChildren(r));
                 })
 			}
-        }.bind(this))
+        })
+        // }.bind(this))
 	}
 
-	// With encryption key
-	// getDataUrls(doc){
-	// 	return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
-	// 				.then(decryptedAndImportedAesHcPartyKeys => {
-	// 					let collatedAesKeys = {};
-	// 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-	// 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
-	// 						.then(enckeys =>
-	// 							this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-	// 								this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-	// 									let xml = XML.parseXml(att);
-	// 									if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-	// 										xml.kmehrmessage.header.standard.specialisation &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd.S){
-	// 										this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-	// 									}else{
-	// 										this.set("type","Non Valid Type")
-	// 									}
-	// 								})
-	// 								: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
-	// 						);
-	// 				})
-	// }
+    _getPatientDataByInss(inss){
+        if(inss && inss.length > 1) {
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
+                .then(patients => {
+                    console.log(patients);
+                    const newPat = patients.rows[0]
+                    return `${newPat.firstName} ${newPat.lastName} (INSS:${newPat.ssin})`;
+                    // let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                    //     .map(pat => {
+                    //         let newPat = {};
+                    //         newPat.firstName = pat.firstName ? pat.firstName : "";
+                    //         newPat.lastName = pat.lastName ? pat.lastName : "";
+                    //         newPat.fullName = pat.firstName + " " + newPat.lastName;
+                    //         newPat.ssin = pat.ssin ? pat.ssin : "";
+                    //         newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                    //         const res =
+                    //             wantedValue == 'firstName' ? newPat.firstName :
+                    //             wantedValue == 'lastName' ? newPat.lastName :
+                    //             wantedValue == 'fullName' ? newPat.fullName :
+                    //             wantedValue == 'ssin' ? newPat.ssin :
+                    //             wantedValue == 'displayName' ? newPat.displayName :
+                    //             newPat
+                    //         return res
+                    //     })
+                })
+        }
+        else{
+            this.set("patientList", [])
+        }
+    }
 
-	//Without encryption key
-	getDataUrls(doc){
-		this.set("type","");
-		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
-				let xml = XML.parseXml(att);
-				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-					xml.kmehrmessage.header.standard.specialisation &&
-					xml.kmehrmessage.header.standard.specialisation.cd &&
-					xml.kmehrmessage.header.standard.specialisation.cd.S){
-					this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-				}else{
-					this.set("type","Non Valid Type")
-				}
-				return att
-			})
-		}else {
-			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
-		}
-	}
+	getDataUrls(doc) {
+	    // console.log('getDataUrls',doc)
+        if (Object.keys(doc.encryptionKeys).length) { // if encryption keys
+            console.log(this.user.healthcarePartyId,doc.encryptionKeys)
+            return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+                .then(decryptedAndImportedAesHcPartyKeys => {
+                    let collatedAesKeys = {};
+                    decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
 
-	_removeMsg(e){
-		let msgId = e.target.getAttribute('msgId');
-		let transportGuid = e.target.getAttribute('transportGuid');
-		this.set('messages', null);
+                    return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+                        .then(enckeys =>
+                            this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+                                    let xml = XML.parseXml(att);
+                                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                                        xml.kmehrmessage.header.standard.specialisation &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                                    }else{
+                                        this.set("type","Non Valid Type")
+                                    }
+                                })
+                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+                        );
+                })
+        } else { // no encryption keys
+            console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set('bodyDocument',{})
+            this.set("type","");
+            if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+                    let xml = XML.parseXml(att);
+                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                        xml.kmehrmessage.header.standard.specialisation &&
+                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                    }else{
+                        this.set("type","Non Valid Type")
+                    }
+                    return att
+                })
+            }else {
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+            }
+        } // encrypt? end
+    }
 
-		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-			.then(msg => {
-				let m = msg.rows[0];
-				if(m.transportGuid.startsWith("BIN")){
-		this.api.message().deleteMessages(msgId)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-				} else {
-					m.transportGuid = "BIN" + m.transportGuid;
-					this.api.message().modifyMessage(m)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-				}
-			})
-	}
+	_forwardMsgs(e) {
+	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg)
+        const msgToFw = {
+	        destinations: [],
+            patientInss: origMsg.patientINSS,
+            annex: this.selectedDocuments,
+            document: {
+	            title: 'Fw: '+origMsg.subject,
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+            },
+            customMetas: origMsg.metas,
+            type: 'fwd'
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
+    }
+
+    _replyMsgs(e) {
+	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
+        let dest = []
+        if (origMsg.fromHealthcarePartyId.length == 11) {
+            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+                let hcp = paginated.rows[0]
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        } else {
+            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        }
+        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        const msgToRe = {
+	        // delegations: origMsg.delegations,
+            destinations: dest,
+            patientInss: origMsg.patientInss,
+            annex: undefined,
+            document: {
+                title: 'Re: '+origMsg.subject,
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+            },
+            customMetas: origMsg.metas,
+            type: 'replyto'
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
+    }
+
+    _removeMsg(){
+        let msg = this.messages[0]
+        if (msg) {
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
+            if (!msg.transportGuid.startsWith("BIN")) {
+                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(()=>{
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                    })
+            } else {
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
+            const target = this.parentElement.parentNode.children[1]
+            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+        }
+    }
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            console.log('restore',idOfMsg,thisBox,restoreBox)
+            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
+                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .then(()=>{
+                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                })
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+    }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
@@ -1017,6 +1111,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
+    _plainMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    }
+
 	_isEqualTo(title, string) {
 		return title == string;
 	}
@@ -1029,28 +1127,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
 	}
 
-	_download(e){
-		let dataUrl = e.target.getAttribute('dataUrl');
-		let name = e.target.getAttribute('name');
+    // _download(item) {
+    //     let file = new Blob([this.api.crypto().utils.ua2hex(item)] ,{type: "text/plain"})
+    //     let a = document.createElement("a");
+    //     document.body.appendChild(a);
+    //     a.style = "display: none";
+    //
+    //     let url = window.URL.createObjectURL(file);
+    //     a.href = url;
+    //     a.download = this.user.healthcarePartyId+".2048.key";
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //
+    //     // const origin = window.location.origin
+    //     // window.location.href = origin
+    // }
 
-		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+    _base64(data) {
+        return base64js.fromByteArray(data);
+    }
 
-		console.log("annexe data");
-		console.log(dataUrl);
-		console.log(name);
-
-		var a = document.createElement('a');
-		a.href = dataUrl;
-		a.target = '_parent';
-		a.download = decodeURIComponent(name);
-
-
-		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
-
-		htMsgDetail.appendChild(a);
-		a.click();
-		a.parentNode.removeChild(a);
-
+	_downloadAnnex(e){
+        const parent = this.parentNode
+        parent.dispatchEvent(new CustomEvent('file-dl', {detail: {bubbles: true, composed: true, url:this.dataUrl}}))
 	}
 
 	_getAttachment(e){
@@ -1119,7 +1218,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 		// TEXT
 		else if(this._textType(mainUti, otherUtis)){
-			// if(this._checkHealthone()){
+			// if(this._checkHealthone(mainUti)){
 			this.api.patient().getPatientWithUser(this.user,"1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
 				this.api.contact().newInstance(this.user, patient, {
 					created: new Date().getTime() ,
@@ -1150,6 +1249,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 	}
+
+    _checkHealthone(file) {
+        const rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = () => {
+            if (rawFile.readyState === 4) {
+                return rawFile.responseText.startsWith('A1/')
+            }
+        }
+    }
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);

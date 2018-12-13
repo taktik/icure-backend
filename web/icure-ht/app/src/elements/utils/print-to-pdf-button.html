@@ -1,0 +1,108 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../tk-localizer.html">
+
+<dom-module id="print-to-pdf-button">
+  <template>
+      <style>
+          paper-button {
+              --paper-button-ink-color: var(--app-secondary-color-dark);
+              color: var(--app-text-color);
+              font-weight: 400;
+              font-size: 14px;
+              height: 40px;
+              min-width: 100px;
+              padding: 10px 1.2em;
+              text-transform: capitalize;
+          }
+      </style>
+      <paper-button on-tap="_print">[[localize('print','Print',language)]]</paper-button>
+  </template>
+</dom-module>
+<script>
+import styx from '../../../scripts/styx';
+import moment from 'moment/src/moment'
+
+class PrintToPdfButton extends Polymer.TkLocalizerMixin(Polymer.Element) {
+  static get is() {
+    return 'print-to-pdf-button';
+  }
+  static get properties() {
+    // Support for some of the iron-collapse attributes
+    // Check their source code for more information.
+    return {
+      css: {
+        type: String,
+        value: ''
+      },
+      language: {
+          value: 'en',
+          type: String
+      },
+      title: {
+          value: 'iCure Cloud',
+          type: String
+      }
+    };
+  }
+  constructor() {
+    super();
+  }
+  _print(e) {
+      const el = styx.parent(this, el => el.classList.contains('printable'))
+      const css = []
+      const extCss = []
+      for (let idx = 0; idx < document.styleSheets.length; idx++) {
+          const ss = document.styleSheets.item(idx)
+          if (ss.href) {
+              extCss.push(`<link rel="stylesheet" href="${ss.href}">`)
+          } else {
+              for (let iidx = 0; iidx < ss.cssRules.length; iidx++) {
+                  css.push(ss.cssRules.item(iidx).cssText)
+              }
+          }
+      }
+      this.api.pdfReport(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+	<title>${this.title}</title>
+	${extCss.join('\\n')}
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Roboto', 'Noto', sans-serif;
+			line-height: 1.5;
+			min-height: 100vh;
+			background-color: #FCFCFC;
+		}
+		* {
+			outline: 0 !important;
+			outline-color: #00ff00;
+		}
+		${css.join('\n')}
+		${this.css}
+	</style>
+</head>
+<body>
+${el.outerHTML}
+</body></html>`)
+          .then(data =>{
+              let blob = new Blob([data],{type :'application/pdf'});
+
+              let url = window.URL.createObjectURL(blob)
+
+              let a = document.createElement("a");
+              document.body.appendChild(a);
+              a.style = "display: none";
+
+              a.href = url;
+              a.download = `${this.title}_${moment()}.pdf`;
+              a.click();
+              window.URL.revokeObjectURL(url);
+          })
+  }
+}
+customElements.define(PrintToPdfButton.is, PrintToPdfButton);
+</script>
