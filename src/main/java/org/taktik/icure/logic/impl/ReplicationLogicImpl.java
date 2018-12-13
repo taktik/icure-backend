@@ -105,7 +105,7 @@ public class ReplicationLogicImpl extends GenericLogicImpl<Replication, Replicat
 			return result;
 		})).forEach((databaseSynchronization) -> {
 			try {
-				replicationDAO.startReplication(databaseSynchronization);
+				replicationDAO.startReplication(databaseSynchronization, true);
 			} catch (Exception e) {
 				log.error("Cannot start replication", e);
 			}
@@ -159,7 +159,7 @@ public class ReplicationLogicImpl extends GenericLogicImpl<Replication, Replicat
 		String couchUrl = (protocol == null ? "http" : protocol) + "://" + replicationHost + ":" + (port == null ? "5984" : port) + "/";
 		replication.setDatabaseSynchronizations(Collections.singletonList(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base")));
 
-		replicationDAO.startReplication(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base"));
+		replicationDAO.startReplication(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base"), true);
 
 		return replication;
 	}
