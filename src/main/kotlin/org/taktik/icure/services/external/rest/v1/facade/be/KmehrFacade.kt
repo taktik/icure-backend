@@ -167,4 +167,17 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 
+	@ApiOperation(value = "Import MedicationScheme into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
+	@POST
+	@Path("/medicationscheme/{documentId}/import")
+	fun importMedicationScheme(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+		val user = sessionLogic.currentSessionContext.user
+		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
+		val document = documentLogic.get(documentId)
+
+		return ResponseUtils.ok(medicationSchemeLogic.importMedicationSchemeFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
+				patientId?.let { patientLogic.getPatient(patientId) },
+				mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+	}
+
 }

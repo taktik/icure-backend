@@ -57,7 +57,6 @@ public class WebSocket extends WebSocketAdapter {
 
 	@Override
 	public void onWebSocketText(String message) {
-		System.out.println("Received TEXT message: " + message);
 		if (operation == null) {
 			JsonParser parser = new JsonParser();
 			JsonObject parameters = parser.parse(message).getAsJsonObject().get("parameters").getAsJsonObject();

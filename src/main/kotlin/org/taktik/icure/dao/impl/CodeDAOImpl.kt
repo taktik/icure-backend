@@ -37,7 +37,7 @@ import java.util.stream.Collectors
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
 class CodeDAOImpl @Autowired
-constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("cacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
+constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
     init {
         initStandardDesignDocument()
     }

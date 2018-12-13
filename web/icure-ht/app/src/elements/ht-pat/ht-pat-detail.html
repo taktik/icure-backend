@@ -821,7 +821,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
             }
 
-            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
+            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus, #ebmPracticeNet  {
                 --paper-fab-background: var(--app-background-color-dark);
                 --paper-fab-keyboard-focus-background: var(--app-background-color);
                 color: var(--app-primary-color-dark);
@@ -1215,7 +1215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             <p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
                                         </template>
                                     </div></paper-tooltip>
-                                    <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet"><img src$="[[_ebmPricture]]"></paper-fab>
+                                    <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
                                     <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
                                 </div>
                             </div>
@@ -4029,7 +4029,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 window.open("https://www.ebpnet.be/fr/Pages/default.aspx",'_blank');
             }
 
-            _ebmPricture(){
+            _ebmPicture(){
                 return require('../../../images/EbpracticeNet-logo-square.png')
             }
 

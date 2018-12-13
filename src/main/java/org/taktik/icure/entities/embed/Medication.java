@@ -69,9 +69,12 @@ public class Medication implements Serializable {
 	String medicationSchemeIdOnSafe;
 	Integer medicationSchemeSafeVersion;
 	Long medicationSchemeTimeStampOnSafe;
+	String medicationSchemeDocumentId;
 	String safeIdName; //can be: vitalinkuri, RSWID, RSBID
 	String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
 	Long timestampOnSafe; //transaction date+time
+	Boolean changeValidated; //accept change on safe
+	Boolean newSafeMedication; //new medication on safe
 	String medicationUse; //free text
 	String beginCondition; //free text
 	String endCondition; //free text
@@ -214,6 +217,18 @@ public class Medication implements Serializable {
 	public @Nullable Long getMedicationSchemeTimeStampOnSafe() { return medicationSchemeTimeStampOnSafe; }
 
 	public void setMedicationSchemeTimeStampOnSafe(Long medicationSchemeTimeStampOnSafe) { this.medicationSchemeTimeStampOnSafe = medicationSchemeTimeStampOnSafe; }
+
+	public @Nullable Boolean getChangeValidated() { return changeValidated; }
+
+	public void setChangeValidated(Boolean changeValidated) { this.changeValidated = changeValidated; }
+
+	public @Nullable Boolean getNewSafeMedication() { return newSafeMedication; }
+
+	public void setNewSafeMedication(Boolean newSafeMedication) { this.newSafeMedication = newSafeMedication; }
+
+	public @Nullable String getMedicationSchemeDocumentId() { return medicationSchemeDocumentId; }
+
+	public void setMedicationSchemeDocumentId(String medicationSchemeDocumentId) { this.medicationSchemeDocumentId = medicationSchemeDocumentId; }
 
 	public @Nullable String getSafeIdName() { return safeIdName; }
 
