@@ -15,10 +15,11 @@
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
 <link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../atc-styles.html">
 
 <dom-module id="medication-selection-dialog">
     <template>
-        <style>
+        <style include="atc-styles">
             paper-dialog {
                 width: 80%;
             }
@@ -171,6 +172,9 @@
             <paper-spinner class="center" active="[[isLoadingEntities]]"></paper-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
             <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
+                <paper-tab name="chronical" on-tap="setMedicationType">
+                    [[localize('medication-by-product-name','Chronical medication',language)]]
+                </paper-tab>
                 <paper-tab name="medicinalProduct" on-tap="setMedicationType">
                     [[localize('medication-by-product-name','By product name',language)]]
                 </paper-tab>
@@ -181,6 +185,35 @@
                     [[localize('medication-compound','Compound prescription',language)]]
                 </paper-tab>
             </paper-tabs>
+            <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
+                <paper-input id="filter" label="Search a medicine" value="{{filterChronicalValue}}" on-keydown="refresh"></paper-input>
+                <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" items="[[medications]]">
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div>[[atcCat(item.atcCat)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <vaadin-grid-sorter path="[[column.key]]">[[localize('med','Medication',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div>[[_serviceDescription(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <vaadin-grid-sorter path="[[column.key]]">[[localize('pos','Posology',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div>[[_servicePosology(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </template>
             <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
                 <paper-input-container always-float-label="true">
                     <label slot="label">Compound Prescription</label>
@@ -272,6 +305,10 @@
                     isLoadingEntities: {
                         type: Boolean,
                         value: false
+                    },
+                    medications: {
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -307,6 +344,14 @@
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(m, false))
                 }
                 this.$['medication-selection'].open()
+
+                this.medications.map(m => {
+                    const letter = ((m && m.codes && m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0,1)
+                    m.atcCat = letter
+                })
+
+                this.set('medications', _.orderBy(this.medications, ['atcCat'], ['asc']))
+
             }
 
             ready() {
@@ -581,7 +626,7 @@
             }
 
             _noGridClass(medicationType) {
-                return this._isCompoundPrescription(medicationType) ? 'no-grid' : ''
+                return this._isCompoundPrescription(medicationType) || this._isChronicalView(medicationType) ? 'no-grid' : ''
             }
 
             _noColumnClass(medicationType) {
@@ -623,6 +668,34 @@
                 return medicationType === 'medicinalProduct';
             }
 
+            _isChronicalView(medicationType){
+                return medicationType === "chronical"
+            }
+
+            atcCat(l) {
+                return  l === 'A' ? this.localize('ali_trac_meta','Alimentary tract and metabolism') :
+                        l === 'B' ? this.localize('blo_blo_for','Blood and blood forming organs') :
+                        l === 'C' ? this.localize('car_sys','Cardiovascular system') :
+                        l === 'D' ? this.localize('dermatologicals','Dermatologicals') :
+                        l === 'G' ? this.localize('gen_uri_sys','Genito-urinary system and sex hormones') :
+                        l === 'H' ? this.localize('sys_hor_pre','Systemic hormonal preparations, excluding sex hormones and insulins') :
+                        l === 'J' ? this.localize('anti_inf_sys','Antiinfectives for systemic use') :
+                        l === 'L' ? this.localize('anti_neo_imm','Antineoplastic and immunomodulating agents') :
+                        l === 'M' ? this.localize('mus_ske_sys','Musculo-skeletal system') :
+                        l === 'N' ? this.localize('ner_sys','Nervous system') :
+                        l === 'P' ? this.localize('Anti_para_pro','Antiparasitic products, insecticides and repellents') :
+                        l === 'R' ? this.localize('res_sys','Respiratory system') :
+                        l === 'S' ? this.localize('sens_org','Sensory organs') :
+                        l === 'V' ? this.localize('various','Various') : this.localize('unk','Unknown')
+            }
+
+            _serviceDescription(s) {
+                return this.api.contact().medication().medicationNameToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _servicePosology(s) {
+                return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
         }
 
         customElements.define(MedicationSelectionDialog.is, MedicationSelectionDialog)
