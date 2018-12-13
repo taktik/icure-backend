@@ -71,7 +71,7 @@ onmessage = e => {
 									iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
 									beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
 									.then(c => {
-										// console.log("Contact id " + c.id);
+										console.log("Contact id " + c.id);
 										return {id:c.id,protocolId:docInfo.protocol}
 									})
 								)
@@ -128,7 +128,10 @@ onmessage = e => {
 											.then(att =>
 												createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)?
 												beResultApi.getInfos(createdDocument.id)
-												.then(docInfos => docInfos?[docInfos,Promise.all(docInfos.map( docInfo => assignAttachment(fullMessage.id,docInfo,createdDocument)))]:[null,null])
+												.then(docInfos => docInfos?[docInfos,Promise.all(docInfos.map( docInfo => {
+												    console.log('will assignAttachment',fullMessage.id,docInfo,createdDocument)
+												    assignAttachment(fullMessage.id,docInfo,createdDocument)
+                                                }))]:[null,null])
 												.then(([docInfos,assignedAttachment]) => {
 													assignedAttachment && assignedAttachment.then(data => {
 														data = data.filter(d=>d)
@@ -147,7 +150,7 @@ onmessage = e => {
             })
 
         boxIds && boxIds.forEach(boxId =>{
-            console.log('boxids foreach',keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
+            // console.log('boxids foreach',keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
             ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
                 .then(messages => {
                     let p = Promise.resolve([])

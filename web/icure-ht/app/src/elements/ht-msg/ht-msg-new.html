@@ -729,6 +729,8 @@
                                 mimeType: 'text/plain',
                                 filename: ''
                             },
+                            encrypted: false,
+                            patientInss: '',
                             annex: [],
                             destinations:[],
                             useReceivedReceipt:false,
@@ -795,7 +797,7 @@
 
 			ready() {
 				super.ready()
-                this.set("newMessage.destinations", [])
+                // this.set("newMessage.destinations", [])
 			}
 
             open(params) {
@@ -816,6 +818,10 @@
                 this.set('isSendingMsg',false)
                 this.set('hideSendBtn',true)
                 this.set('uploadFiles',[])
+
+                this.set('newMessage.useReceivedReceipt',false)
+                this.set('newMessage.useReadReceipt',false)
+                this.set('newMessage.usePublicationReceipt',false)
                 if (params) {
                     console.log('has params',params)
                     this.set("newMessage.annex", params.annex ? params.annex : [])
@@ -943,7 +949,7 @@
                             this.push('newMessage.annex',{
                                 "content": fileByteArray,
                                 "filename": file.name,
-                                "mimeType": file.type,
+                                "mimeType": file.type ? file.type : 'text/plain',
                                 "title": file.name,
                                 "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
                             });
