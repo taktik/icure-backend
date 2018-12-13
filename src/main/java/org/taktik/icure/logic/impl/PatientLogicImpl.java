@@ -150,6 +150,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	}
 
 	@Override
+	public List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId) {
+		return patientDAO.listIdsByActive(active, healthcarePartyId);
+	}
+
+	@Override
 	public List<Patient> listOfMergesAfter(Long date) {
 		return patientDAO.listOfMergesAfter(date);
 	}

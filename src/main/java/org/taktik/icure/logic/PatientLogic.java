@@ -95,6 +95,8 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
     List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId);
 
+	List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId);
+
 	Patient findByUserId(String id);
 
 	Patient getPatient(String patientId);
