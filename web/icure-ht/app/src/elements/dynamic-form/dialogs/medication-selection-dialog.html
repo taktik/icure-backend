@@ -186,7 +186,6 @@
                 </paper-tab>
             </paper-tabs>
             <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
-                <paper-input id="filter" label="Search a chronical medicine" value="{{filterChronicalValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
                     <vaadin-grid-column>
                         <template class="header">
@@ -245,9 +244,10 @@
             </div>
             <div class="buttons">
                 <paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+                <template is="dom-if" if="[[!_isChronicalView(medicationType)]]">
+                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+                </template>
                 <!--<paper-button class="modal-button modal-button--save" on-tap="getAlternatives">[[localize('get-alt','Alternatives',language)]]</paper-button>-->
-
             </div>
         </paper-dialog>
     </template>
@@ -505,11 +505,12 @@
             }
 
             selectChronicalMedication(e){
-                const selected = this.selectedChronicalMedicationFromList
-                const medication = selected.content[this.language]
-                console.log(medication)
-
-                this.dispatchEvent(new CustomEvent('display-medication-details', {detail:selected, bubbles: true, composed: true}))
+                if(this.selectedChronicalMedicationFromList){
+                    const selected = this.selectedChronicalMedicationFromList
+                    console.log('selected ',selected);
+                    this.$['medication-selection'].close();
+                    this.dispatchEvent(new CustomEvent('new-medication', {detail:selected, bubbles: true, composed: true}))
+                }
             }
 
             click(e) {

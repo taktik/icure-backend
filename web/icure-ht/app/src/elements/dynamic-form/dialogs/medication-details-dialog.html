@@ -664,6 +664,9 @@
             </div>
 
             <div class="buttons">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
+                    Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox>
+                </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
                     <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
@@ -791,6 +794,10 @@
                     renewalDecimalValue:{
                         type: Number,
                         value: 0
+                    },
+                    medicationMustBeCreated:{
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1182,6 +1189,10 @@
                         }
                     })
                 }
+            }
+
+            _createMedication(e){
+                this.set('medicationMustBeCreated', e.target.checked)
             }
         }
 
