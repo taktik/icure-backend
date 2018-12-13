@@ -232,7 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin:0;
 			}
 
-			
+
 
 			.latest-patients-row {
 				justify-content: flex-start;
@@ -471,7 +471,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: var(--app-secondary-color);
 			}
 
-			
+
 			.layout-button span:after{
 				content: '';
 				display: block;
@@ -532,7 +532,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-menu-button.widget-settings-menu div{
 				width: 160px;
-				height: auto;			
+				height: auto;
 			}
 
 			paper-menu-button.widget-settings-menu div paper-button{
@@ -585,7 +585,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
 									<paper-button on-tap="_applySettings" data-item$="{{widget}}">Apply settings</paper-button>
 								</div>
-							</paper-menu-button>					
+							</paper-menu-button>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
@@ -704,7 +704,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</template>
 							<paper-spinner class="spinner" alt="Loading to-do list" active=[[_isLoadingToDoList]]></paper-spinner>
 						</div>
-					</div>	
+					</div>
 				</template>
 			</template>
 		</div>
@@ -743,7 +743,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 		</paper-dialog>
 
-		
+
 	</template>
 
 	<script>
@@ -866,7 +866,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			language && this.set('language', language);
 			return hcp;
 		}).then(hcp => {
-			this.api.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', +new Date() - 1000 * 3600 * 24 * 365, null, null, 1000, true).then(accessLogs => {
+			this.api.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', +new Date() - 1000 * 3600 * 24 * 365, null, null, 100, true).then(accessLogs => {
 				const accesses = accessLogs.rows.reduce((acc, access) => {
 					const latestAccessForPatId = acc[access.patientId] || (acc[access.patientId] = { access: access });
 					if (latestAccessForPatId.access.date < access.date) {
@@ -990,7 +990,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	applySelectedLayout(){
 		switch(this.selectedLayout){
-			case 'layoutA': 
+			case 'layoutA':
 				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
 				break;
 			case 'layoutB':
