@@ -104,7 +104,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public void removeListener(UserLogicListener listener) {
 		listeners.remove(listener);
 	}
-
+	
 	@Override
 	public User getUser(String id) {
 		return userDAO.get(id);
@@ -748,7 +748,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUserOnFallbackDb(String userId) {
-		return userDAO.getOnFallback(userId, false);
+		return userDAO.getOnFallback(userId);
 	}
 
 	@Override

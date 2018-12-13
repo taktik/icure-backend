@@ -105,7 +105,7 @@ public class ReplicationLogicImpl extends GenericLogicImpl<Replication, Replicat
 			return result;
 		})).forEach((databaseSynchronization) -> {
 			try {
-				replicationDAO.startReplication(databaseSynchronization, true);
+				replicationDAO.startReplication(databaseSynchronization);
 			} catch (Exception e) {
 				log.error("Cannot start replication", e);
 			}
@@ -159,13 +159,24 @@ public class ReplicationLogicImpl extends GenericLogicImpl<Replication, Replicat
 		String couchUrl = (protocol == null ? "http" : protocol) + "://" + replicationHost + ":" + (port == null ? "5984" : port) + "/";
 		replication.setDatabaseSynchronizations(Collections.singletonList(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base")));
 
-		replicationDAO.startReplication(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base"), true);
+		replicationDAO.startReplication(new DatabaseSynchronization(couchUrl + "icure-_template_-" + specialtyCode.replaceAll("^dept", "") + "-" + language, "http://127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base"));
 
 		return replication;
 	}
 
 	@Override
-	public void startDatabaseSynchronisations(Replication replication, boolean continuous) {
-		replication.getDatabaseSynchronizations().forEach(sync -> replicationDAO.startReplication(sync, continuous));
+	public void createUserGroupReplications(List<Group> allGroups) {
+		List<Replication> allReplication = this.getAllEntities();
+
+		allGroups.forEach(group -> {
+			if (allReplication.stream().noneMatch(rep -> rep.getContext().equals("hcp-usr:" + group.getId()))) {
+				try {
+					allReplication.add(this.createReplication(new Replication("UserHcpReplication", "hcp-usr:" + group.getId(),
+							Collections.singletonList(new DatabaseSynchronization("http://" + URLEncoder.encode(group.getId(), "UTF-8") + ":" + URLEncoder.encode(group.getPassword(), "UTF-8") + "@127.0.0.1:5984/icure-" + group.getId() + "-base", "http://" + URLEncoder.encode(couchDbProperties.getUsername(), "UTF-8") + ":" + URLEncoder.encode(couchDbProperties.getPassword(), "UTF-8") + "@127.0.0.1:5984/" + couchDbProperties.getPrefix() + "-base", "User/db_replication_filter")))));
+				} catch (UnsupportedEncodingException e) {
+					log.error("Invalid username/password/group", e);
+				}
+			}
+		});
 	}
 }

@@ -93,8 +93,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+	public User getOnFallback(String userId) {
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, user);
@@ -110,8 +110,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+	public User findOnFallback(String userId) {
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
 		if (valueWrapper == null) {
 			User res = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, res);
