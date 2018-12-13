@@ -30,6 +30,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+
 <dom-module id="ht-pat-list">
     <template>
         <custom-style>
@@ -1666,7 +1668,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     let svcFilter = null
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
-
                         if (this.selectedFilters && this.selectedFilters.length) {
                             svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
                         } else {
@@ -1778,8 +1779,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.mhListItem = [];
                     }
                 });
-
-
             }
 
             _hcpFilterChanged(e) {

@@ -1,6 +1,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
 
+
 import com.fasterxml.jackson.core.type.TypeReference
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
@@ -47,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import javax.xml.bind.JAXBElement
 
 
+
 @org.springframework.stereotype.Service
 class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
@@ -55,7 +57,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val formLogic: FormLogic,
                                 val idGenerator: UUIDGenerator) {
-
 
     fun importSMF(inputStream: InputStream,
                   author: User,
@@ -223,6 +224,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 senderPhcp?.let {
                     patient.patientHealthCareParties.add(it)
                 }
+
                 Unit
             }
             Unit
@@ -242,7 +244,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
     }
+
     private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
+
         var walked = walkedmap
         if(walked == null) {
             walked = mutableMapOf<String, String?>()
@@ -473,7 +477,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
-
             this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                 createOrProcessHcp(it)?.let {
                     v.hcps.add(it)
@@ -586,7 +589,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                     }
                 }
-
                 Unit
             }
         }
@@ -1118,5 +1120,3 @@ private fun AddressTypeBase.getFullAddress(): String {
     val city = "${zip ?: ""}${city?.let { " $it" } ?: ""}"
     return listOf(street, city, country?.let { it.cd?.value } ?: "").filter { it.isNotBlank() }.joinToString(";")
 }
-
-
