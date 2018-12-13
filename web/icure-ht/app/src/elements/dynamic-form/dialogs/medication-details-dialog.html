@@ -664,6 +664,9 @@
             </div>
 
             <div class="buttons">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
+                    Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox>
+                </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
                     <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
@@ -791,6 +794,10 @@
                     renewalDecimalValue:{
                         type: Number,
                         value: 0
+                    },
+                    medicationMustBeCreated:{
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -877,14 +884,14 @@
                             this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
                             this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
 
-                            this.set('reimbursementItemIdx', this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code))
+                            this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
 
                             this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
                             this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
 
                             this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal : 1)
                             this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value : 1)
-                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : 6)
+                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
                             this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? true : false)
 
 
@@ -1182,6 +1189,10 @@
                         }
                     })
                 }
+            }
+
+            _createMedication(e){
+                this.set('medicationMustBeCreated', e.target.checked)
             }
         }
 
