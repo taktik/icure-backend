@@ -115,7 +115,6 @@
             }
 
 		</style>
-
         <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
             <paper-card class="pat-details-card">
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
@@ -166,7 +165,7 @@
                     </div>
                 </paper-card>
             </template>
-            <template is="dom-if" if="[[!downloadable]]">
+            <template is="dom-if" if="[[mailbody]]">
                 <div class="txt-container">[[attachmentContent]]</div>
             </template>
         </template>
@@ -192,6 +191,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: null
 			},
             downloadable:{
+			    type: Boolean
+            },
+            mailbody:{
 			    type: Boolean
             },
 			document: {

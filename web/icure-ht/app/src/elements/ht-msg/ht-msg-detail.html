@@ -395,6 +395,8 @@
                 overflow-x: hidden;
                 overflow-y: auto;
                 margin-top: 16px;
+                word-break: break-all;
+                hyphens: auto;
             }
 
 			.annexe-card{
@@ -707,11 +709,9 @@
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                         </template>
                     </div>
-                    <template is="dom-if" if="[[!isDeleted]]">
-                        <div class="del-button">
-                            <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                        </div>
-                    </template>
+                    <div class="del-button">
+                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                    </div>
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
@@ -729,16 +729,13 @@
                             </div>
                         </div>
                         <template is="dom-if" if="[[msg.patientInss]]">
-                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss('displayName',msg.patientInss)]]</div>
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss(msg.patientInss)]]</div>
                         </template>
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <!--<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>-->
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+                                         resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
                         </template>
-
-
-
                     </paper-card>
                 </template>
             </div>
@@ -852,37 +849,41 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
+    _isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
+
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-	        console.log('focusChanged, selectedDocuments',this.selectMessage)
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
-            // this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
+	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => { if(docs.length) {
-					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-						.map(doc => {
-                            return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-                                .then(a => {
-                                    doc.dataUrl = this.getDataUrls(doc)
-                                    if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                        console.log('this doc is the body', doc)
-                                        this.set('bodyDocument',doc)
-                                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
-                                        fetch(url,{credentials:'include'})
-                                            .then(res=>res.text())
-                                            .then(res=>this.set('docTxt',res))
-                                    }
-                                    return doc
-                            });
-                        }
-					)
-				}
+				.then(docs => {
+                    console.log('docs',docs)
+				    if(docs.length) {
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                            .map(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+                                    .then(a => {
+                                        doc.dataUrl = this.getDataUrls(doc)
+                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                            console.log('this is doc',doc)
+                                            this.set('bodyDocument',doc)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                            fetch(url,{credentials:'include'})
+                                                .then(res=>res.text())
+                                                .then(res=>this.set('docTxt',res))
+                                        }
+                                        return doc
+                                });
+                            }
+                        )
+                    }
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
-	    		    console.log('docs',docs)
                     Promise.all(docs).then(docs=>{
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
@@ -923,28 +924,30 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         // }.bind(this))
 	}
 
-    _getPatientDataByInss(wantedValue,inss){
+    _getPatientDataByInss(inss){
         if(inss && inss.length > 1) {
             this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
                 .then(patients => {
                     console.log(patients);
-                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
-                        .map(pat => {
-                            let newPat = {};
-                            newPat.firstName = pat.firstName ? pat.firstName : "";
-                            newPat.lastName = pat.lastName ? pat.lastName : "";
-                            newPat.fullName = pat.firstName + " " + newPat.lastName;
-                            newPat.ssin = pat.ssin ? pat.ssin : "";
-                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
-                            const res =
-                                wantedValue == 'firstName' ? newPat.firstName :
-                                wantedValue == 'lastName' ? newPat.lastName :
-                                wantedValue == 'fullName' ? newPat.fullName :
-                                wantedValue == 'ssin' ? newPat.ssin :
-                                wantedValue == 'displayName' ? newPat.displayName :
-                                newPat
-                            return res
-                        })
+                    const newPat = patients.rows[0]
+                    return `${newPat.firstName} ${newPat.lastName} (INSS:${newPat.ssin})`;
+                    // let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                    //     .map(pat => {
+                    //         let newPat = {};
+                    //         newPat.firstName = pat.firstName ? pat.firstName : "";
+                    //         newPat.lastName = pat.lastName ? pat.lastName : "";
+                    //         newPat.fullName = pat.firstName + " " + newPat.lastName;
+                    //         newPat.ssin = pat.ssin ? pat.ssin : "";
+                    //         newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                    //         const res =
+                    //             wantedValue == 'firstName' ? newPat.firstName :
+                    //             wantedValue == 'lastName' ? newPat.lastName :
+                    //             wantedValue == 'fullName' ? newPat.fullName :
+                    //             wantedValue == 'ssin' ? newPat.ssin :
+                    //             wantedValue == 'displayName' ? newPat.displayName :
+                    //             newPat
+                    //         return res
+                    //     })
                 })
         }
         else{
@@ -1021,20 +1024,27 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg)
-        let dest = [{
-            delegations: origMsg.delegations,
-            displayName: origMsg.fromAddress,
-            nihii: origMsg.senderId,
-            cbe: undefined,
-            ssin: origMsg.senderInss,
-            type: this.localize('replyto','In reply to',this.language)
-        }]
-        this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
+        let dest = []
+        if (origMsg.fromHealthcarePartyId.length == 11) {
+            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+                let hcp = paginated.rows[0]
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        } else {
+            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        }
+        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
         const msgToRe = {
-	        delegations: origMsg.delegations,
+	        // delegations: origMsg.delegations,
             destinations: dest,
-            patientInss: origMsg.patientINSS,
+            patientInss: origMsg.patientInss,
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
@@ -1052,15 +1062,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (msg) {
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
             if (!msg.transportGuid.startsWith("BIN")) {
-                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
-                    .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox))
-                    .finally(()=>{
+                    .then(()=>{
                         msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                         this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                     })
-            } else {console.log(msg.id+' is already in bin !')}
+            } else {
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
             const target = this.parentElement.parentNode.children[1]
             target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
         }
@@ -1072,15 +1084,27 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            console.log('restore',idOfMsg,thisBox,restoreBox)
             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
-                .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
-                .finally(()=>{
+                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .then(()=>{
                     msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                     this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                 })
         }
         const target = this.parentElement.parentNode.children[1]
         target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+    }
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
     }
 
 	_imageMimeType(uti, utis, dataUrl) {

@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Reimbursement reason for recipe</NAME>
+    <VALUE>
+        <CODE>notreimbursable</CODE>
+        <DESCRIPTION L='fr'>Non remboursable</DESCRIPTION>
+        <DESCRIPTION L='nl'>Non refundable</DESCRIPTION>
+        <DESCRIPTION L='en'>Non refundable</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tirdpartypaid</CODE>
+        <DESCRIPTION L='fr'>Tiers payant applicable</DESCRIPTION>
+        <DESCRIPTION L='nl'>Third-party pay applicable</DESCRIPTION>
+        <DESCRIPTION L='en'>Third-party pay applicable</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>firstdose</CODE>
+        <DESCRIPTION L='fr'>1ère dose</DESCRIPTION>
+        <DESCRIPTION L='nl'>1e dosis dosis</DESCRIPTION>
+        <DESCRIPTION L='en'>1st dose</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>seconddose</CODE>
+        <DESCRIPTION L='fr'>2ème dose</DESCRIPTION>
+        <DESCRIPTION L='nl'>2e dosis</DESCRIPTION>
+        <DESCRIPTION L='en'>2nd dose</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>thirddose</CODE>
+        <DESCRIPTION L='fr'>3ème dose</DESCRIPTION>
+        <DESCRIPTION L='nl'>3e dosis</DESCRIPTION>
+        <DESCRIPTION L='en'>3rd dose</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>chronicalrenalcarepath</CODE>
+        <DESCRIPTION L='fr'>Trajet de soins chronique</DESCRIPTION>
+        <DESCRIPTION L='nl'>Chronic renal failure care path</DESCRIPTION>
+        <DESCRIPTION L='en'>Chronic renal failure care path</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diabetescarepath</CODE>
+        <DESCRIPTION L='fr'>Trajet de soins diabète</DESCRIPTION>
+        <DESCRIPTION L='nl'>Diabetes Care Path</DESCRIPTION>
+        <DESCRIPTION L='en'>Diabetes Care Path</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diabeteconvention</CODE>
+        <DESCRIPTION L='fr'>Convention diabète</DESCRIPTION>
+        <DESCRIPTION L='nl'>Diabetes Convention</DESCRIPTION>
+        <DESCRIPTION L='en'>Diabetes Convention</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

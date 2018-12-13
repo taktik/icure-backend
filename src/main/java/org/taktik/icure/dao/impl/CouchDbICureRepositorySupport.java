@@ -109,7 +109,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 		return pagedQueryView(viewName, startKey, endKey, pagination, includeDocs, descending, LongNode::valueOf);
 	}
 
-	private <P> PaginatedList<T> pagedQueryView(String viewName, P startKey, P endKey, PaginationOffset pagination, boolean includeDocs, boolean descending, Function<P, ValueNode> startToNode) {
+	private <P> PaginatedList<T> pagedQueryView(String viewName, P startKey, P endKey, PaginationOffset<P> pagination, boolean includeDocs, boolean descending, Function<P, ValueNode> startToNode) {
 		int limit = pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
 		int page = pagination.getPage() != null ? pagination.getPage() : 0;
 		String startDocId = pagination.getStartDocumentId();
@@ -128,7 +128,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 		PageRequest.Builder builder = new PageRequest.Builder().pageSize(limit).page(page);
 
 		if (startKey !=null || startDocId != null) {
-			builder.nextKey(new PageRequest.KeyIdPair(startKey == null ? NullNode.getInstance() : startToNode.apply(startKey), startDocId)).page(Math.max(page,1));
+			builder.nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? NullNode.getInstance() : startToNode.apply(pagination.getStartKey()), startDocId)).page(Math.max(page,1));
 		}
 
 		PageRequest pr = builder.build();

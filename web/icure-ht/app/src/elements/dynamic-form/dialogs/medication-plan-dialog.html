@@ -12,6 +12,8 @@
 <link rel="import" href="../../../atc-styles.html">
 <link rel="import" href="../../../scrollbar-style.html">
 <link rel="import" href="../../ht-pat/dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
+<link rel="import" href="../../icons/medication-icons.html">
+
 
 <dom-module id="medication-plan-dialog">
     <template>
@@ -31,8 +33,6 @@
             paper-tab {
                 --paper-tab-ink: var(--app-secondary-color);
             }
-
-
 
             .patient {
                 height: calc(100% - 48px - 48px);
@@ -124,7 +124,7 @@
                 text-align: center;
                 flex-grow: 1;
             }
-
+          
             .col--noMoment{
                 max-width: 168px;
                 min-width: 168px;
@@ -710,7 +710,6 @@
             </h2>
 
             <div class="content">
-
                 <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
                     <div class="present">
                         <div class="table">
@@ -969,7 +968,7 @@
                                         <template is="dom-repeat" items="[[plan.meds]]" as="m">
                                             <div class="table-row">
                                                 <div class="col col--med"><span class="med--name">[[_getTimeOfDay(m.during)]] [[_serviceDescription(m.medication)]]</span></div>
-                                                <div class="col col--photo"></div>
+                                                <div class="col col--photo"><iron-icon icon="medication-svg-icons:[[_getMedIcon(m)]]"></iron-icon></div>
                                                 <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
                                                 <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
                                                     <template is="dom-repeat" items="[[plan.cols]]" as="col">
@@ -989,7 +988,6 @@
                     </div>
                 </template>
             </div>
-
             <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
                 <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
             </template>
@@ -1391,6 +1389,10 @@
 
             _serviceDescription(s) {
                 return this.api.contact().medication().medicationNameToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _getMedIcon(s){
+                return "tablet"
             }
 
             _servicePosology(s) {
