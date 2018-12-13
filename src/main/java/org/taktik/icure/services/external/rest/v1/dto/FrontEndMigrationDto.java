@@ -2,7 +2,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import org.taktik.icure.services.external.rest.v1.dto.embed.FrontEndMigrationStatus;
 
-public class FrontEndMigrationDto {
+public class FrontEndMigrationDto extends StoredDto {
     protected String name;
     protected String userId;
     protected Long startDate;
