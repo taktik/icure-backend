@@ -1,0 +1,2187 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-tree-toggle.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+<link rel="import" href="../../vaadin-icure-theme.html">
+<link rel="import" href="../../spinner-style.html">
+
+<link rel="import" href="../ht-pat/dialogs/ht-pat-invoicing-dialog.html">
+
+<dom-module id="ht-msg-flatrate-invoice">
+    <template>
+
+
+        <custom-style>
+            <style include="shared-styles vaadin-icure-theme spinner-style">
+
+                :host {
+                    display: block;
+                    z-index:2;
+                }
+
+                :host *:focus {
+                    outline: 0 !important;
+                }
+
+                vaadin-grid {
+                    height: calc(100vh - 145px);
+                    box-shadow: var(--app-shadow-elevation-1);
+                    border: none;
+                    box-sizing: border-box;
+                }
+
+                vaadin-grid.material {
+                    outline: 0 !important;
+                    font-family: Roboto, sans-serif;
+                    background: rgba(0, 0, 0, 0);
+                    border: none;
+                    --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                    --vaadin-grid-cell: {
+                        padding: 8px;
+                    };
+
+                    --vaadin-grid-header-cell: {
+                        height: 48px;
+                        padding: 11.2px;
+                        color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                        font-size: 12px;
+                        background: rgba(0, 0, 0, 0);
+                        border-top: 0;
+                    };
+
+                    --vaadin-grid-body-cell: {
+                        height: 48px;
+                        color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                        font-size: 13px;
+                    };
+
+                    --vaadin-grid-body-row-hover-cell: {
+                        background-color: var(--app-background-color-dark);
+                    };
+
+                    --vaadin-grid-body-row-selected-cell: {
+                        background-color: var(--paper-grey-100);
+                    };
+
+                    --vaadin-grid-focused-cell: {
+                        box-shadow: none;
+                        font-weight: bold;
+                    };
+
+                }
+
+                vaadin-grid.material .cell {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    height: 100%;
+                }
+
+                vaadin-grid.material .cell.last {
+                    padding-right: 24px;
+                    text-align: center;
+                }
+
+                vaadin-grid.material .cell.numeric {
+                    text-align: right;
+                }
+
+                vaadin-grid.material paper-checkbox {
+                    --primary-color: var(--paper-indigo-500);
+                    margin: 0 24px;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter {
+                    --vaadin-grid-sorter-arrow: {
+                        display: none !important;
+                    };
+                }
+
+                vaadin-grid.material vaadin-grid-sorter .cell {
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter iron-icon {
+                    transform: scale(0.8);
+                }
+
+                vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                    color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction] {
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                    transform: scale(0.8) rotate(180deg);
+                }
+
+                vaadin-grid.material::slotted(div) {
+                    outline: 0 !important;
+                }
+
+                .invoice-panel{
+                    height: 100%;
+                    width: 100%;
+                    padding: 0 20px;
+                    box-sizing: border-box;
+                    position:relative;
+                }
+
+                .oa-col{
+                    min-width: 25px;
+                }
+
+                .ref-col{
+                    min-width: 75px;
+                }
+
+                .invoice-col{
+                    min-width: 40px;
+                }
+
+                .month-col{
+                    min-width: 40px;
+                }
+
+                .invoiceDate-col{
+                    min-width: 50px;
+                }
+
+                .invAmount-col{
+                    min-width: 50px;
+                }
+
+                .accAmount-col{
+                    min-width: 50px;
+                }
+
+                .refAmount-col{
+                    min-width: 50px;
+                }
+
+                .stat-col{
+                    min-width: 50px;
+                }
+
+                .reject-col{
+                    min-width: 100px;
+                }
+
+                .payRef-col{
+                    min-width: 50px;
+                }
+
+                .payDate-col{
+                    min-width: 40px;
+                }
+
+                .payTot-col{
+                    min-width: 40px;
+                }
+
+                .payBank-col{
+                    min-width: 50px;
+                }
+
+                .payPaid-col{
+                    min-width: 50px;
+                }
+
+                .facture-title {
+                    padding: 15px;
+                    font-size: 25px;
+                    text-transform: capitalize;
+                    margin: 0;
+                    color: #212121;
+                    height: 25px;
+                    line-height: 25px;
+                }
+
+
+                @media screen and (max-width:1025px){
+                    .invoice-panel {
+                        left: 0;
+                        width: 100%;
+                    }
+                }
+                .gridContainer{
+                    height: 100%;
+                    overflow-y: hidden;
+                    overflow-x: hidden;
+                    box-shadow: var(--app-shadow-elevation-1);
+                }
+
+                .invoice-status {
+                    border-radius: 20px;
+                    padding: 1px 12px 1px 8px;
+                    font-size: 12px;
+                    display: block;
+                    width: auto;
+                    max-width: fit-content;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+
+                .invoice-status--orangeStatus{
+                    background: #fcdf354d;
+                }
+
+                .invoice-status--greenStatus{
+                    background: #07f8804d;
+                }
+
+                .invoice-status--blueStatus {
+                    background: #84c8ff;
+                }
+
+                .invoice-status--redStatus{
+                    background: #ff4d4d4d;
+                }
+
+                .statusIcon{
+                    height: 8px;
+                    width: 8px;
+                }
+                .statusIcon.invoice-status--orangeStatus {
+                    color: var(--app-status-color-pending);
+                }
+                .statusIcon.invoice-status--greenStatus {
+                    color: var(--app-status-color-ok);
+                }
+                .statusIcon.invoice-status--blueStatus {
+                    color: var(--paper-blue-400);
+                }
+                .statusIcon.invoice-status--redStatus {
+                    color: var(--app-status-color-nok);
+                }
+                .statusIcon.invoice-status--orangeStatus,
+                .statusIcon.invoice-status--greenStatus,
+                .statusIcon.invoice-status--redStatus {
+                    background: transparent !important;
+                }
+
+                *.txtcolor--orangeStatus {
+                    color: var(--app-status-color-pending);
+                }
+                *.txtcolor--greenStatus {
+                    color: var(--app-status-color-ok);
+                }
+                *.txtcolor--blueStatus {
+                    color: var(--paper-blue-400);
+                }
+                *.txtcolor--redStatus {
+                    color: var(--app-status-color-nok);
+                }
+
+                #pendingDetailDialog{
+                    height: calc(100vh - 40px);
+                    width: calc(85% - 40px);
+                    z-index: 1100;
+                    position: fixed;
+                    top: 64px;
+                }
+
+                #pendingGridDetail{
+                    height: calc(100% - 185px);
+                    padding: 0;
+                    width: 100%;
+                }
+
+                .batch-status {
+                    font-size: 24px;
+                    text-transform: capitalize;
+                    padding-top: 5px;
+                    display: flex;
+                    flex-flow: row wrap;
+                    align-items: center;
+                    justify-content: flex-start;
+                }
+
+                .unlockBtn {
+                    height: 12px;
+                    width: 12px;
+                }
+
+                .hidden {
+                    display: none;
+                }
+
+                #messagesGridContainer {
+                    overflow-y: auto;
+                }
+
+                .invoiceContainer{
+                    overflow-x: hidden;
+                    overflow-y: hidden;
+                    height: calc(100vh - 145px);
+                    box-shadow: var(--app-shadow-elevation-1);
+                }
+                .invoiceSubContainerBig {
+                   height: 100%;
+                }
+
+                .invoiceSubContainerMiddle {
+                    height: calc(100%);
+                    transition: all .5s ease;
+                }
+                .invoiceSubContainerMiddle vaadin-grid {
+                    /*height: 100%;*/
+                }
+                .invoiceSubContainerMiddle.half {
+                    height: 49%;
+                }
+
+                .invoiceDetailContainer,
+                .toBeCorrectedDetailContainerC{
+                    height: 50%;
+                    opacity: 0;
+                    transition: all .75s ease-out;
+                    overflow-y: auto;
+                }
+                .invoiceDetailContainer.open,
+                .toBeCorrectedDetailContainerC.open {
+                    opacity: 1;
+                    width: 100%;
+                    height: 37%;
+                }
+
+                tr.hidden {
+                    display: none !important;
+                }
+
+                .mb0 {
+                    margin-bottom: 0;
+                }
+
+                #pendingDetailDialog {
+                    max-height: 80vh;
+                }
+
+                .helpdeskIcon {
+                    height: 12px;
+                    width: 12px;
+                    cursor: pointer;
+                    opacity: 0.7;
+                    transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
+                }
+
+                .helpdeskIcon:hover{
+                    transform: scale(1.05);
+                    opacity: 1;
+                }
+
+                iron-collapse-button #trigger{
+                    height: 45px;
+                    background: var(--app-background-color-dark);
+                    display: initial;
+                }
+
+                #invoiceCollapser {
+                    display: block;
+                    background: white;
+                    height: calc(100% - 75px);
+                    overflow-y: auto;
+                }
+
+                h3.header {
+                    margin: 0 auto
+                }
+                #collapse-grid .recipient-col {
+                    background: grey;
+                }
+
+                .rejectionReason-col {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    max-width: 100%;
+                }
+
+                .containScroll {
+                    overflow: auto;
+                    height: 100%;
+                }
+
+                .scrollBox {
+                    width: 100%;
+                    overflow: hidden;
+                    height: 100%;
+                }
+                .scrollBox > #messagesGrid {
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .flex-header{
+                    width: 100%;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                }
+
+                iron-collapse-button:hover{
+                    background: var(--app-background-color-dark);
+                }
+
+                .flex-header span{
+                    display:block;
+                    font-size: 12px;
+                    font-weight: 400;
+                    padding: 4px 12px;
+                    box-sizing:border-box;
+                    cursor: pointer;
+                    color: rgb(115,115,115);
+                }
+
+                .flex-header span.center{
+                    text-align: center;
+                }
+
+                #invoiceGrid .footer{
+                    background: red;
+                }
+
+                #helpdeskInfoDialog{
+                    position: fixed;
+                    width: 50%;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    max-width: none !important;
+                    max-height: none !important;
+                    overflow-y: auto;
+                }
+
+                .modal-title {
+                    background: var(--app-background-color-dark);
+                    margin-top: 0;
+                    padding: 16px 24px;
+                }
+
+                .modal-content{
+                    display: flex;
+                    flex-flow: row wrap;
+                    align-items: center;
+                    justify-content: flex-start;
+                }
+
+                .modal-button{
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    color: var(--app-text-color);
+                    font-weight: 400;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
+                }
+
+                .modal-input{
+                    margin: 0 12px;
+                    flex-grow: 1;
+                }
+
+                paper-input{
+                    --paper-input-container-focus-color: var(--app-primary-color);
+                }
+
+                .buttons {
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+                    margin: 8px 16px;
+                }
+
+                .modal-button{
+                    --paper-button-ink-color: var(--app-secondary-color);
+                    background-color: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: 700;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
+                }
+
+                .modal-button--close,
+                .modal-button--cancel{
+                    background: transparent;
+                    color: var(--app-primary-color-dark);
+                    font-weight: 400;
+                }
+
+                .modal-button--save{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-secondary-color);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+
+                }
+
+                .modal-button[disabled] {
+                    background: var(--app-secondary-color-dark);
+                }
+
+                .batchNumber{
+                    color: var(--app-text-color-light);
+                    border-radius: 25px;
+                    min-height: 0;
+                    margin-left: 8px;
+                    font-size: .6em;
+                    display: inline-block;
+                    padding: 4px 6px;
+                    line-height: 0.8;
+                    text-align: center;
+                    height: 10px;
+                }
+                .batchPending{background-color: var(--paper-orange-400);}
+                .batchToBeCorrected{background-color: var(--paper-red-400);}
+                .batchProcessed{background-color: var(--paper-blue-400);}
+                .batchRejected{background-color: var(--paper-red-400);}
+                .batchAccepted{background-color: var(--paper-green-400);}
+                .batchArchived{background-color: var(--paper-purple-300);}
+
+                paper-spinner {
+                    margin-top:10px;
+                    margin-bottom:10px;
+                    height:50px;
+                    width:50px;
+                }
+
+                .tool-btn{
+                    margin: 0;
+                    box-sizing: border-box;
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    display: inline-block;
+                    text-align: center;
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: auto;
+                        margin: 0 auto;
+                        font-size: 13px;
+                        font-weight: 700;
+                        padding:10px;
+                    };
+                }
+
+                #rightPanel {
+                    position: absolute;
+                    right: -350px;
+                    width:300px;
+                    top: 0px;
+                    background: rgba(255,255,255,1);
+                    border-left:1px solid #dddddd;
+                    box-shadow:0px 0px 3px 0px #dddddd;
+                    height: 100%;
+                    z-index: 5;
+                    transition: all 400ms ease;
+                    -moz-transition: all 400ms ease;
+                    -webkit-transition: all 400ms ease;
+                    -o-transition: all 400ms ease;
+                    -ms-transition: all 400ms ease;
+                }
+
+                #rightPanel.opened {
+                    right:0;
+                }
+
+                .header {
+                    padding: 10px;
+                    color: #ffffff;
+                    text-transform: uppercase;
+                    margin: 0;
+                    font-weight: 700;
+                    background-color: #777777;
+                    cursor: pointer;
+                }
+
+                #rightPanel label {
+                    margin:0;
+                    padding:0;
+                }
+
+                #rightPanel .pullRightIcon {
+                    margin:0;
+                    padding:0;
+                    min-width:1px;
+                    float:right;
+                }
+
+                #rightPanel .body {
+                    padding: 10px;
+                }
+
+                #rightPanel .body h4 {
+                    text-transform: uppercase;
+                    margin-bottom: 20px;
+                    border-bottom: 1px solid #000000;
+                    font-weight: 700;
+                    margin-top:12px;
+                    padding-bottom:2px;
+                }
+
+                #rightPanelToggleContainer {
+                    position:absolute;
+                    right:20px;
+                    top:10px;
+                }
+
+                #rightPanelToggleContainer .header {
+                    margin:0;
+                    color:#000000;
+                    background-color: initial;
+                    padding:0;
+                }
+
+                .w30px {
+                    width:30px
+                }
+
+                .h30px {
+                    height:30px
+                }
+
+                .w20px {
+                    width:20px
+                }
+
+                .h20px {
+                    height:20px
+                }
+
+                .p-35px {
+                    padding:35px;
+                }
+
+                .p-15px {
+                    padding:15px;
+                }
+
+                .p-r-15px {
+                    padding-right:15px;
+                }
+
+                .p-l-15px {
+                    padding-left:15px;
+                }
+
+                .datePicker {
+                    width:95%;
+                }
+
+                .m-t-40 {
+                    margin-top:40px;
+                }
+
+                .m-t-50 {
+                    margin-top:50px!important;
+                }
+
+                .m-t-20 {
+                    margin-top:20px!important;
+                }
+
+                .m-t-25 {
+                    margin-top:25px!important;
+                }
+
+                .w-100-pc {
+                    width:100%;
+                }
+
+                .fr {
+                    float:right
+                }
+
+                .m-t-20 {
+                    margin-top:20px;
+                }
+
+                @media screen and (max-width: 1024px) {
+                    .hideOnMobile {display: none;opacity: 0;}
+                }
+
+                #warningMessage {
+                    margin-top: 20px;
+                    margin-bottom: 30px;
+                }
+
+                #warningMessageBody {
+                    padding:20px 35px;
+                    color:#7E0000;
+                    background-color: rgba(255, 0, 0, 0.15);
+                    font-weight: 700;
+                    border:1px dashed #7e0000;
+                    text-transform: uppercase;
+                    text-align: center;
+                }
+
+                #loadingContainer {
+                    position:absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;left: 0;
+                    background-color: rgba(0,0,0,.3);
+                    z-index: 10;
+                    text-align: center;
+                }
+
+                #loadingContentContainer {
+                    position:relative;
+                    width: 400px;
+                    min-height: 200px;
+                    background-color: #ffffff;
+                    padding:20px;
+                    border:3px solid var(--app-secondary-color);
+                    margin:40px auto 0 auto;
+                    text-align: center;
+                }
+
+                .loadingIcon {
+                    margin-right:5px;
+                }
+
+                .loadingIcon.done {
+                    color: var(--app-secondary-color);
+                }
+
+                .f-s-1em {
+                    font-size:1em;
+                }
+
+                #exportRangeNotification {
+                    font-style:italic;
+                    margin-top:10px;
+                    color:#555555;
+                }
+
+                #exportRangeNotification span {
+                    font-weight: 700;
+                }
+
+                .centerCenter {
+                    text-align:center;
+                    margin-top:30vh;
+                    text-align:center;
+                }
+
+                .bordered {
+                    border:1px solid #888888;
+                }
+
+                .textRed {
+                    color:#A80000;
+                }
+
+                .textAlignCenter {
+                    text-align: center;
+                }
+
+            </style>
+        </custom-style>
+
+
+        <div class="invoice-panel">
+
+
+
+            <!--<div id="rightPanelToggleContainer" class="">-->
+                <!--<div class="header">-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button>-->
+                <!--</div>-->
+            <!--</div>-->
+
+            <!--<div id="rightPanel" class="">-->
+                <!--<div class="header"  on-tap="_toggleRightPanel">-->
+                    <!--<label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>-->
+                    <!--<paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>-->
+                <!--</div>-->
+                <!--<div class="body">-->
+                    <!--<h4><iron-icon icon="vaadin:invoice"></iron-icon> &nbsp; [[localize('invoices','Factures',language)]]</h4>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_downloadInvoices" ><iron-icon icon="icons:file-download" class="force-left"></iron-icon> &nbsp; [[localize('downloadFlatrateInvoices','Télécharger les factures',language)]]</paper-button>-->
+                    <!--<h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('download','Filtrer par date',language)]]</h4>-->
+                    <!--<vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>-->
+                    <!--<vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>-->
+                    <!--<paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_dateRangerFilterResults" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>-->
+                <!--</div>-->
+            <!--</div>-->
+
+
+
+
+            <template is="dom-if" if="[[_isLoading]]">
+                <div id="loadingContainer">
+                    <div id="loadingContentContainer">
+                        <paper-spinner class="spinner" alt="Loading..." active></paper-spinner>
+                        <div id="loadingContent"><p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> [[localize("mhListing.spinner.step_1", language)]]</p></div>
+                    </div>
+                </div>
+            </template>
+
+            <div id="batchStatus" class="batch-status">[[localize(flatrateMenuSection, language)]]</div>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <div class="centerCenter">
+                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
+                    <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej3')]]">
+
+                <div id="rightPanelToggleContainer" class=""><div class="header"><paper-button class="tool-btn p-r-15px p-l-15px w-100-pc" on-tap="_toggleRightPanel"><iron-icon icon="icons:build" class="w20px h20px"></iron-icon> &nbsp; [[localize('tools', language)]]</paper-button></div></div>
+
+                <div id="rightPanel" class="">
+                    <div class="header"  on-tap="_toggleRightPanel">
+                        <label><iron-icon icon="icons:build"  class="w20px h20px"></iron-icon> &nbsp;[[localize('tools', language)]]</label>
+                        <paper-button class="pullRightIcon"><iron-icon icon="icons:arrow-forward"></iron-icon></paper-button>
+                    </div>
+                    <div class="body">
+                        <h4 class="m-t-50"><iron-icon icon="date-range"></iron-icon> &nbsp; [[localize('filterByDate','Filtrer par date',language)]]</h4>
+                        <vaadin-date-picker label="[[localize('begin','Début',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeStart" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="[[localize('end','Fin',language)]]" i18n="[[i18n]]" class="datePicker" value="" id="dateRangeEnd" always-float-label></vaadin-date-picker>
+                        <paper-button class="tool-btn p-r-15px p-l-15px m-t-20 w-100-pc" on-tap="_getListingArchives" ><iron-icon icon="icons:update" class="force-left"></iron-icon> &nbsp; [[localize('filterResults','Filtrer les résultats',language)]]</paper-button>
+                    </div>
+                </div>
+
+                <div class="gridContainer m-t-25">
+                    <div class="invoiceContainer">
+                        <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
+                            <div class="gridContainer grid-archives-listing">
+                                <div class="containScroll">
+                                    <vaadin-grid id="noscroll" items="[[archiveListingMessages]]">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="" >
+                                            <template class="header"><vaadin-grid-sorter path="hrDate">[[localize('date','Date',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrDate]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="9%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="hrTime">[[localize('time','Heure',language)]]</vaadin-grid-sorter></template>
+                                            <template>[[item.hrTime]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="35%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="filename">[[localize('filename','Fichier',language)]]</vaadin-grid-sorter></template>
+                                            <template><iron-icon icon="image:picture-as-pdf" class="force-left textRed"></iron-icon> &nbsp; [[item.filename]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="0" width="15%" class="">
+                                            <template class="header"><vaadin-grid-sorter path="totalPages">[[localize('totalPages','Nombre de pages',language)]]</vaadin-grid-sorter></template>
+                                            <template class="textAlignCenter">[[item.totalPages]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column flex-grow="1" class="">
+                                            <template class="header"><vaadin-grid-sorter path="id">[[localize('downloadArchive',"Télécharger l'archive",language)]]</template>
+                                            <template><paper-button class="tool-btn p-r-15px p-l-15px downloadListingArchive" on-tap="_downloadListingArchive" documentId="[[item.documentId]]" ><iron-icon icon="icons:cloud-download" class="force-left"></iron-icon> &nbsp; [[localize('download','Télécharger',language)]]</paper-button></vaadin-grid-sorter></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20')]]">
+                <div class="gridContainer">
+                    <div class="invoiceContainer">
+                        J20
+                    </div>
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej20')]]">
+                <div class="gridContainer">
+                    <div class="invoiceContainer">
+                        Archives J20
+                    </div>
+                </div>
+            </template>
+
+
+
+
+        </div>
+
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+        import * as models from 'icc-api/dist/icc-api/model/models'
+        import mustache from "mustache/mustache.js";
+
+        class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-msg-flatrate-invoice';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    hcp: {
+                        type : Object
+                    },
+                    i18n: {
+                        type: Object,
+                        value: function () {
+                            moment.locale('fr');
+                            const res = {
+                                monthNames: moment.months(),
+                                weekdays: moment.weekdays(),
+                                weekdaysShort: moment.weekdaysShort(),
+                                firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                                week: 'Semaine',
+                                calendar: 'Calendrier',
+                                clear: 'Clear',
+                                today: 'Aujourd\'hui',
+                                cancel: 'Annuler',
+                                formatDate: function (d) {
+                                    //return moment(d).format(moment.localeData().longDateFormat('L'))
+                                    return moment(d).format('DD/MM/YYYY');
+                                },
+                                parseDate: function (s) {
+                                    return moment(s, 'DD/MM/YYYY').toDate();
+                                },
+                                formatTitle: function (monthName, fullYear) {
+                                    return monthName + ' ' + fullYear;
+                                }
+                            };
+                            return res;
+                        }
+                    },
+                    flatrateMenuSection: {
+                        type: String,
+                        observer: '_flatrateMenuSectionChanged'
+                    },
+                    activeGridItem:{
+                        type: Object,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    displayedYear: {
+                        type: Number,
+                        value: () => Number(moment().format('YYYY'))
+                    },
+                    processing:{
+                        type: Boolean,
+                        value: false
+                    },
+                    flatRateAllPatients : {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    _isLoading: {
+                        type: Boolean,
+                        value: false,
+                        observer: '_loadingStatusChanged'
+                    },
+                    _loadingMessages: {
+                        type: Array,
+                        value: () => []
+                    },
+                    oaData: {
+                        type: Array,
+                        value: () => []
+                    },
+					archiveListingMessages:{
+						type:Object,
+						value: {}
+                    },
+                    downloadFileName: {
+                        type: String,
+                        value: ""
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            static get observers() {
+                // return [];
+            }
+
+            ready() {
+                super.ready();
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
+                    this.set("hcp",response)
+                })
+            }
+
+            _loadingStatusChanged() {
+                if(!this._isLoading) this._resetLoadingMessage();
+            }
+
+            _flatrateMenuSectionChanged(){
+                console.log("Menu section: " + this.flatrateMenuSection);
+                if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
+            }
+
+            formatDate(d,f) {
+                const input = d.toString()
+                const yyyy = input.slice(0,4), mm = input.slice(4,6), dd = input.slice(6,8)
+                switch(f) {
+                    case 'date' :
+                        return `${dd}/${mm}/${yyyy}`;
+                    case 'month' :
+                        const monthStr =
+                            (mm.toString() == '01') ? this.localize('Jan',this.language) :
+                            (mm.toString() == '02') ? this.localize('Feb',this.language) :
+                            (mm.toString() == '03') ? this.localize('Mar',this.language) :
+                            (mm.toString() == '04') ? this.localize('Apr',this.language) :
+                            (mm.toString() == '05') ? this.localize('May',this.language) :
+                            (mm.toString() == '06') ? this.localize('Jun',this.language) :
+                            (mm.toString() == '07') ? this.localize('Jul',this.language) :
+                            (mm.toString() == '08') ? this.localize('Aug',this.language) :
+                            (mm.toString() == '09') ? this.localize('Sep',this.language) :
+                            (mm.toString() == '10') ? this.localize('Oct',this.language) :
+                            (mm.toString() == '11') ? this.localize('Nov',this.language) :
+                            this.localize('Dec',this.language)
+                        return `${monthStr} ${yyyy}`
+                }
+            }
+
+            SEG_getErrSegment_200(zones){
+                var erreur = '';
+
+                //Erreur sur le nom du message
+                if(zones.find(z => z.zone === "2001") != '00'){
+                    if(zones.find(z => z.zone === "2001") == '10'){
+                        erreur += 'Nom du message => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "2001") == '11'){
+                        erreur += 'Nom du message => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "2001") == '20'){
+                        erreur += 'Nom du message => Codification inconnue<br>';
+                    }else if(zones.find(z => z.zone === "2001") == '21'){
+                        erreur += 'Nom du message => Message non autorisé pour cet émetteur<br>';
+                    }else if(zones.find(z => z.zone === "2001") == '22'){
+                        erreur += 'Nom du message => # de 920000<br>';
+                    }
+                }
+
+                //Erreur sur le n° de version du message
+                if(zones.find(z => z.zone === "2011") != '00'){
+                    if(zones.find(z => z.zone === "2011") == '10'){
+                        erreur += 'N° version mess => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "2011") == '11'){
+                        erreur += 'N° version mess => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "2011") == '20'){
+                        erreur += 'N° version mess => N° de version n\'est plus d\'application<br>';
+                    }else if(zones.find(z => z.zone === "2011") == '21'){
+                        erreur += 'N° version mess => N° de version pas encore d\'application<br>';
+                    }else if(zones.find(z => z.zone === "2011") == '30'){
+                        erreur += 'N° version mess => N° de version non autorisé pour ce flux<br>';
+                    }
+                }
+
+                //Erreur sur le type de message
+                if(zones.find(z => z.zone === "2021") != '00'){
+                    if(zones.find(z => z.zone === "2021") == '10'){
+                        erreur += 'Type de mess => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "2021") == '11'){
+                        erreur += 'Type de mess => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "2021") == '20'){
+                        erreur += 'Type de mess => Valeur non permise<br>';
+                    }else if(zones.find(z => z.zone === "2021") == '30'){
+                        erreur += 'Type de mess => Message test dans un buffer de production (1er car zone 107 = P)<br>';
+                    }else if(zones.find(z => z.zone === "2021") == '31'){
+                        erreur += 'Type de mess => Message de production dans un buffer de test (1er car zone 107 = T)<br>';
+                    }
+                }
+
+                //Erreur sur le statut du message
+                if(zones.find(z => z.zone === "2031") != '00'){
+                    if(zones.find(z => z.zone === "2031") == '10'){
+                        erreur += 'Statut mess => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "2031") == '20'){
+                        erreur += 'Statut mess => Valeur non permise<br>';
+                    }
+                }
+
+                //Erreur sur la référence message institution ou prestataire de soins
+                if(zones.find(z => z.zone === "2041") != '00'){
+                    if(zones.find(z => z.zone === "2041") == '10'){
+                        erreur += 'Réf mess => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "2041") == '11'){
+                        erreur += 'Réf mess => Erreur format<br>';
+                    }
+                }
+
+                //Erreur sur la référence message O.A
+                if(zones.find(z => z.zone === "2051") != '00'){
+                    if(zones.find(z => z.zone === "2051") == '10'){
+                        erreur += 'Réf mess OA => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "2051") == '11'){
+                        erreur += 'Réf mess OA => Erreur format<br>';
+                    }
+                }
+
+                return erreur;
+            }
+
+            SEG_getErrSegment_300(zones){
+                var erreur = '';
+
+                //Erreur sur l'année et le mois de facturation
+                if(zones.find(z => z.zone === "3001") != '00'){
+                    if(zones.find(z => z.zone === "3001") == '10'){
+                        erreur += 'Année mois fact => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3001") == '11'){
+                        erreur += 'Année mois fact => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3001") == '20'){
+                        erreur += 'Année mois fact => Valeur non permise<br>';
+                    }
+                }
+
+                //Erreur sur le n° d'envoi
+                if(zones.find(z => z.zone === "3011") != '00'){
+                    if(zones.find(z => z.zone === "3011") == '10'){
+                        erreur += 'N° envoi => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3011") == '11'){
+                        erreur += 'N° envoi => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3011") == '40'){
+                        erreur += 'N° envoi => Signalisation de double fichier de facturation transmis<br>';
+                    }
+                }
+
+                //Erreur sur la date de création de la facture
+                if(zones.find(z => z.zone === "3021") != '00'){
+                    if(zones.find(z => z.zone === "3021") == '10'){
+                        erreur += 'Date création facture => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3021") == '11'){
+                        erreur += 'Date création facture => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3021") == '20'){
+                        erreur += 'Date création facture => Date > date du jour<br>';
+                    }else if(zones.find(z => z.zone === "3021") == '21'){
+                        erreur += 'Date création facture => Date invraisemblable ( date < 01/01/2002)<br>';
+                    }
+                }
+
+
+                //Erreur sur le n° de version des instruction
+                if(zones.find(z => z.zone === "3041") != '00'){
+                    if(zones.find(z => z.zone === "3041") == '10'){
+                        erreur += 'N° version instruction => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3041") == '11'){
+                        erreur += 'N° version instruction => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3041") == '20'){
+                        erreur += 'N° version instruction => Valeur non permise<br>';
+                    }else if(zones.find(z => z.zone === "3041") == '21'){
+                        erreur += 'N° version instruction => Incompatibilité avec valeur reprise en zone 202<br>';
+                    }
+                }
+
+                //Erreur sur le nom de la personne de contact
+                if(zones.find(z => z.zone === "3051") != '00'){
+                    if(zones.find(z => z.zone === "3051") == '10'){
+                        erreur += 'Nom personne de contact => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3051") == '11'){
+                        erreur += 'Nom personne de contact => Erreur format<br>';
+                    }
+                }
+
+                //Erreur sur le prenom de la personne de contact
+                if(zones.find(z => z.zone === "3061") != '00'){
+                    if(zones.find(z => z.zone === "3061") == '10'){
+                        erreur += 'Prénom personne de contact => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3061") == '11'){
+                        erreur += 'Prénom personne de contact => Erreur format<br>';
+                    }
+                }
+
+                //Erreru sur le n° de tel de contact
+                if(zones.find(z => z.zone === "3071") != '00'){
+                    if(zones.find(z => z.zone === "3071") == '10'){
+                        erreur += 'N° téléphone => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3071") == '11'){
+                        erreur += 'N° téléphone => Erreur format<br>';
+                    }
+                }
+
+                //Erreur sur le type de la facture
+                if(zones.find(z => z.zone === "3081") != '00'){
+                    if(zones.find(z => z.zone === "3081") == '10'){
+                        erreur += 'Type de la facture => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3081") == '11'){
+                        erreur += 'Type de la facture => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3081") == '20'){
+                        erreur += 'Type de la facture => Valeur non permise en fonction du secteur qui émet la facturation';
+                    }
+                }
+
+                //Erreur sur le type de facturation
+                if(zones.find(z => z.zone === "3091") != '00'){
+                    if(zones.find(z => z.zone === "3091") == '10'){
+                        erreur += 'Type de facturation => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "3091") == '11'){
+                        erreur += 'Type de facturation => Erreur format<br>';
+                    }else if(zones.find(z => z.zone === "3091") == '20'){
+                        erreur += 'Type de facturation => Valeur non permise en fonction du secteur qui émet la facturation';
+                    }else if(zones.find(z => z.zone === "3091") == '30'){
+                        erreur += 'Type de facturation => Valeur # de 1 ou 2 alors que la zone 308 = 3';
+                    }
+                }
+
+                return erreur;
+
+            }
+
+            SEG_getErrSegment_400(zones){
+                var erreur = '';
+
+                //Erreur sur le type de record
+                if(zones.find(z => z.zone === "4001") != '00'){
+                    if(zones.find(z => z.zone === "4001") == '10'){
+                        erreur +='Type de record => Zone obligatoire<br>';
+                    }else if(zones.find(z => z.zone === "4001") == '11'){
+                        erreur += 'Type de record => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4001") == '20'){
+                        erreur += 'Type de record => Valeur non permise<br>';
+                    }
+                }
+
+                //Erreur sur le num de mut
+                if(zones.find(z => z.zone === "4011") != '00'){
+                    if(zones.find(z => z.zone === "4011") == '10'){
+                        erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "4011") == '11'){
+                        erreur +='N° de mutualité => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4011") == '20'){
+                        erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
+                    }else if(zones.find(z => z.zone === "4011") == '21'){
+                        erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
+                    }
+                }
+
+                //Erreur sur le num fact
+                if(zones.find(z => z.zone === "4021") != '00'){
+                    if(zones.find(z => z.zone === "4021") == '10'){
+                        erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "4021") == '11'){
+                        erreur += 'N° de facture récapitulative => Erreur de format<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant a ou montant demande a
+                if(zones.find(z => z.zone === "4041") != '00'){
+                    if(zones.find(z => z.zone === "4041") == '11'){
+                        erreur += 'Montant demandé cpt a => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4041") == '40'){
+                        erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
+                    }else if(zones.find(z => z.zone === "4041") == '41'){
+                        erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
+                    }else if(zones.find(z => z.zone === "4041") == '20'){
+                        erreur += 'Montant demandé cpt a => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant b ou montant demande b
+                if(zones.find(z => z.zone === "4061") != '00'){
+                    if(zones.find(z => z.zone === "4061") == '11'){
+                        erreur += 'Montant demandé cpt b => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4061") == '15'){
+                        erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
+                    }else if(zones.find(z => z.zone === "4061") == '40'){
+                        erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
+                    }else if(zones.find(z => z.zone === "4061") == '41'){
+                        erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
+                    }else if(zones.find(z => z.zone === "4061") == '20'){
+                        erreur +='Montant demandé cpt b => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant a + b ou montant demande a + b
+                if(zones.find(z => z.zone === "4081") != '00'){
+                    if(zones.find(z => z.zone === "4081") == '11'){
+                        erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4081") == '20'){
+                        erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
+                    }else if(zones.find(z => z.zone === "4081") == '40'){
+                        erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
+                    }
+                }
+
+                //Erreur sur le nb d'enreg
+                if(zones.find(z => z.zone === "4091") != '00'){
+                    if(zones.find(z => z.zone === "4091") == '10'){
+                        erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "4091") == '11'){
+                        erreur +='Nb de records détail => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "4091") == '20'){
+                        erreur += 'Nb de records détail => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
+                if(zones.find(z => z.zone === "4101") != '00'){
+                    if(zones.find(z => z.zone === "400") == '95'){
+                        if(zones.find(z => z.zone === "4101") == '10'){
+                            erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "4101") == '11'){
+                            erreur +='N° de contrôle par mutualité => Erreur de format<br>';
+                        }
+                    }else if(zones.find(z => z.zone === "400") == '96'){
+                        if(zones.find(z => z.zone === "4101") == '10'){
+                            erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "4101") == '11'){
+                            erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
+                        }
+                    }
+                }
+
+                return erreur;
+            }
+
+            SEG_getErrSegment_500(zones){
+                var erreur = '';
+
+                //Erreur sur le type de record
+                if(zones.find(z => z.zone === "5001") != '00'){
+                    if(zones.find(z => z.zone === "5001") == '10'){
+                        erreur +='Type de record => Zone obligatoire<br>';
+                    }else if(zones.find(z => z.zone === "5001") == '11'){
+                        erreur += 'Type de record => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5001") == '20'){
+                        erreur += 'Type de record => Valeur non permise<br>';
+                    }
+                }
+
+                //Erreur sur le num de mut
+                if(zones.find(z => z.zone === "5011") != '00'){
+                    if(zones.find(z => z.zone === "5011") == '10'){
+                        erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "5011") == '11'){
+                        erreur +='N° de mutualité => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5011") == '20'){
+                        erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
+                    }else if(zones.find(z => z.zone === "5011") == '21'){
+                        erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
+                    }
+                }
+
+                //Erreur sur le num fact
+                if(zones.find(z => z.zone === "5021") != '00'){
+                    if(zones.find(z => z.zone === "5021") == '10'){
+                        erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "5021") == '11'){
+                        erreur += 'N° de facture récapitulative => Erreur de format<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant a ou montant demande a
+                if(zones.find(z => z.zone === "5041") != '00'){
+                    if(zones.find(z => z.zone === "5041") == '11'){
+                        erreur += 'Montant demandé cpt a => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5041") == '40'){
+                        erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
+                    }else if(zones.find(z => z.zone === "5041") == '41'){
+                        erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
+                    }else if(zones.find(z => z.zone === "5041") == '20'){
+                        erreur += 'Montant demandé cpt a => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant b ou montant demande b
+                if(zones.find(z => z.zone === "5061") != '00'){
+                    if(zones.find(z => z.zone === "5061") == '11'){
+                        erreur += 'Montant demandé cpt b => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5061") == '15'){
+                        erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
+                    }else if(zones.find(z => z.zone === "5061") == '40'){
+                        erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
+                    }else if(zones.find(z => z.zone === "5061") == '41'){
+                        erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
+                    }else if(zones.find(z => z.zone === "5061") == '20'){
+                        erreur +='Montant demandé cpt b => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le signe montant a + b ou montant demande a + b
+                if(zones.find(z => z.zone === "5081") != '00'){
+                    if(zones.find(z => z.zone === "5081") == '11'){
+                        erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5081") == '20'){
+                        erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
+                    }else if(zones.find(z => z.zone === "5081") == '40'){
+                        erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
+                    }
+                }
+
+                //Erreur sur le nb d'enreg
+                if(zones.find(z => z.zone === "5091") != '00'){
+                    if(zones.find(z => z.zone === "5091") == '10'){
+                        erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
+                    }else if(zones.find(z => z.zone === "5091") == '11'){
+                        erreur +='Nb de records détail => Erreur de format<br>';
+                    }else if(zones.find(z => z.zone === "5091") == '20'){
+                        erreur += 'Nb de records détail => Somme erronée<br>';
+                    }
+                }
+
+                //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
+                if(zones.find(z => z.zone === "5101") != '00'){
+                    if(zones.find(z => z.zone === "500" === '95')){
+                        if(zones.find(z => z.zone === "5101") == '10'){
+                            erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "5101") == '11'){
+                            erreur +='N° de contrôle par mutualité => Erreur de format<br>';
+                        }
+                    }else if(zones.find(z => z.zone === "500" === '96')){
+                        if(zones.find(z => z.zone === "5101") == '10'){
+                            erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "5101") == '11'){
+                            erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
+                        }
+                    }
+                }
+
+                return erreur;
+            }
+
+            _toggleRightPanel(){
+                this.shadowRoot.getElementById("rightPanel").classList.toggle("opened")
+            }
+
+            _showWarningMessageEarlyInvoicing() {
+                return parseInt(moment().date()) > 5;
+            }
+
+            _startOfPreviousMonth() {
+                return moment().subtract(1, 'month').startOf('month').format('DD/MM/YYYY')
+            }
+
+            _endOfPreviousMonth() {
+                return moment().subtract(1, 'month').endOf('month').format('DD/MM/YYYY')
+            }
+
+            _isEqual(a,b) {
+                return a === b
+            }
+
+            _downloadInvoices() {
+
+                console.log('_downloadInvoices');
+
+                // var invoicingYear: Int = 0
+                // var invoicingMonth: Int = 0
+                // var fileRef: String? = null //13 alphanumeric internal reference. Typically, we use a base36 representation of the 16 first hex of the UUID id of the Message
+                // var batchRef: String? = null //25 alphanumeric internal reference. Typically, we use a base36 representation of the UUID id of the Message
+                // var ioFederationCode: String? = null //3 digits code of the IO federation
+                // var uniqueSendNumber : Long? = null //3 digits number for batch (typically the number of the day * 2 + 1 if 306)
+                // var sender:  InvoiceSender? = null
+                // var numericalRef : Long? = null
+                // var invoices: MutableList<Invoice> = LinkedList()
+
+                // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
+            }
+
+            _setLoadingMessage( messageData ) {
+                if( messageData.updateLastMessage ) { this._loadingMessages.pop(); }
+                this._loadingMessages.push( messageData );
+
+                let loadingContentTarget = this.shadowRoot.querySelectorAll('#loadingContent')[0];
+                if(loadingContentTarget) { loadingContentTarget.innerHTML = ''; _.each(this._loadingMessages, (v)=>{ loadingContentTarget.innerHTML += "<p><iron-icon icon='"+v.icon+"' class='"+(v.done?"loadingIcon done":"loadingIcon")+"'></iron-icon>" + v.message + "</p>"; }); }
+            }
+
+            _resetLoadingMessage() {
+                this._loadingMessages = [];
+            }
+
+
+
+
+
+            _getExportPageHeader(data) {
+
+                return `
+                    <article id="" class="page">
+
+                        <table class="boderGrey bleft0 bright0">
+                            <tbody>
+                                <tr class="bleft0 bright0">
+                                    <td width="33%" class="important colorBlue bleft0 bright0 italic">`+ this.localize('flatrateMonthlyInvoicing',this.language) +`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-center uppercase italic">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
+                                    <td width="33%" class="important colorBlue bleft0 bright0 txt-right small-txt italic lineHeight14px verticalAlignMiddle">`+ this.localize('day_' + parseInt(moment().day()), this.language) + ` ` + moment().format('DD') + ` `+ (this.localize('month_' + parseInt(moment().format('M')), this.language)).toLowerCase() + ` ` + moment().format('YYYY') + `</td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="small-txt boderBottomGrey" cellspacing="0" cellpadding="0">
+                            <tbody>
+                                <tr class="">
+                                    <td width="55%">
+                                        <span class="bold uppercase">${_.get(this.user, "name", "")}</span><br />
+                                        ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
+                                        ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
+                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
+                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "contactPerson", "")} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
+                                    </td>
+                                    <td width="45%">
+                                        <table class="borderOa"><tbody><tr><td class="fs11">
+                                            <b>` +_.get(data, "code", "") + ` &nbsp;&nbsp; ` +_.get(data, "finalName", "") + `</b><br /><br />
+                                            ` +_.get(data, "address", "") + `<br />
+                                            ` +_.get(data, "city", "") + ` ` +_.get(data, "postalCode", "") + `<br />
+                                        </td></tr></tbody></table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> `;
+
+            }
+
+            _getExportListHeader(listIndex) {
+
+                return `
+                    <table id="documentHeader" class="boderBottomGrey" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr class="">
+                                <td width="100%">
+                                    <span class="bold uppercase colorBlue fs12">` + this.localize("flatrate_list_"+listIndex+"_header",this.language) + `</span><br />
+                                    <span class="bold uppercase colorBlue fs10">` + this.localize("flatrate_list_"+listIndex+"_subheader",this.language) + `</span><br />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+
+            }
+
+            _getExportListContent(listIndex,listEntries) {
+
+                let contentToReturn = "";
+
+                // Lists 1 & 2 don't require unsubscription infos
+                if( parseInt(listIndex)===1 || parseInt(listIndex)===2 ) {
+                    
+                    contentToReturn += `
+                        <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr class="fs10 colorBlue italic bold txt-left pb10">
+                                    <td class="contentBodyHeader" width="5%">` + this.localize("flatrate_column_1",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="30%">` + this.localize("flatrate_column_2",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_3",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_4",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_5",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="11%">` + this.localize("flatrate_column_6",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="13%">` + this.localize("flatrate_column_7",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="5%">` + this.localize("flatrate_column_8",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="10%">` + this.localize("flatrate_column_9",this.language) + `</td>
+                                </tr>
+                            </thead>
+                        <tbody>`
+
+                    _.forEach(listEntries, (singleEntry)=>{
+                        _.forEach(singleEntry, _.trim);
+                            contentToReturn += `
+                                <tr class="fs9 borderTopLightThinGrey pt2 pb2">
+                                    <td width="5%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="30%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="10%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
+                                    <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
+                                </tr>`
+
+                    })
+                                        
+                } else {
+                    
+                    contentToReturn += `
+                        <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr class="fs10 colorBlue italic bold txt-left pb10">
+                                    <td class="contentBodyHeader" width="4%">` + this.localize("flatrate_column_1",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="19%">` + this.localize("flatrate_column_2",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_3",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_4",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_5",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_6",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_7",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_10",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_11",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_12",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="4%">` + this.localize("flatrate_column_8",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_9",this.language) + `</td>
+                                </tr>
+                            </thead>
+                        <tbody>`
+
+                    _.forEach(listEntries, (singleEntry)=>{
+                        _.forEach(singleEntry, _.trim);
+                            contentToReturn += `
+                                <tr class="fs9 borderTopLightThinGrey pt2 pb2">
+                                    <td width="4%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                                    <td width="19%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                                    <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
+                                    <td width="9%" class="">`+(singleEntry.MHC_listUnsubscriptions.startOfContract?moment(singleEntry.MHC_listUnsubscriptions.startOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="9%" class="colorGreen">`+(singleEntry.MHC_listUnsubscriptions.startOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.startOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfContract?moment(singleEntry.MHC_listUnsubscriptions.endOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="6%" class="">`+_.get(singleEntry, "MHC_listUnsubscriptions.unsubscriptionReasonId", "")+`</td>
+                                    <td width="4%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
+                                </tr>`
+                    })
+
+                }
+
+                contentToReturn += `</tbody></table>`
+
+                return contentToReturn;
+
+            }
+
+            _getExportPageFooter(currentPage,totalPages,oaCode) {
+
+                return `
+                    </article>
+                    <article class="footerContainer">
+                        <table class="boderGreyTop pageFooter">
+                            <tbody>
+                                <tr class="fs9 bold">
+                                    <td width="40%" class="colorBlue txt-left italic">`+ this.localize('flatrate_footer_reply_before',this.language) +`</td>
+                                    <td width="20%" class="colorBlue txt-center italic underlined">`+ this.localize('month_' + parseInt(moment().format('M')), this.language) + ` `+ moment().format('YYYY')+`</td>
+                                    <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </article>
+                `;
+            }
+
+            _getExportPdfFooter() {
+                return "</body></html>";
+            }
+
+            _getExportPdfHeader() {
+
+                return `<html>
+                            <head>
+                                <style>
+
+                                    body {margin: 0;}
+                                    @page {size: A4; margin: 0; }
+
+                                    article.page {
+                                        width: 210mm;
+                                        height: 283mm;
+                                        padding: 20px;
+                                        overflow:hidden;
+                                    }
+                                    article.footerContainer {
+                                        width: 210mm;
+                                        padding: 20px;
+                                    }
+
+                                    article.page:last-child { border-bottom: 0; }
+                                    @media print { article.page { border-bottom: 0; } }
+
+                                    table {
+                                        display: table;
+                                        box-sizing: border-box;
+                                        border-spacing: 0;
+                                        border-collapse: collapse;
+                                        width: 100%;
+                                        padding:0;
+                                        margin:0;
+                                    }
+
+                                    table thead {font-size: 14px}
+                                    table tr,
+                                    table td {
+                                        margin: 0;
+                                        padding: 0;
+                                        vertical-align: top;
+                                    }
+                                    table td {padding: 5px;}
+                                    table.border,
+                                    table.border tr,
+                                    table.border td { border: 1px solid black; }
+                                    table.boderGrey,
+                                    table.boderGrey tr,
+                                    table.boderGrey td {border: 2px solid #bbbbbb;}
+                                    table.boderGreyTop,
+                                    table.boderGreyTop tr,
+                                    table.boderGreyTop td {border-top: 2px solid #bbbbbb;}
+                                    .boderBottomGrey {border-bottom: 2px solid #bbbbbb;}
+                                    *.half td {width: 50%;}
+                                    *.no-border * {border: none !important;}
+
+                                    #factBody {
+                                        display: flex;
+                                        flex-direction: column;
+                                        flex: 1;
+                                        border: 0px;
+                                    }
+                                    #factBody * {border: none;}
+                                    #factBody > * {
+                                        display: flex;
+                                        flex-direction: column;
+                                    }
+                                    #factBody > * > tr.border > td {border-right: 0;}
+                                    #factBody > * > tr.border > td:last-child {border-right: 0;            }
+                                    #factBody .table-entry td {border: none; border-top: .3px solid lightgrey; margin-top:5px; }
+                                    .factBody td {border: none; border-top: .3px solid lightgrey; margin-top:5px; }
+                                    #factBody .row-total > td {text-align: right;}
+                                    #factBody .row-total > td:first-child {text-align: left;}
+
+                                    .txt-center {text-align: center;}
+                                    .txt-right {text-align: right;}
+                                    .txt-left tr td, .txt-left td, .txt-left {text-align: left;}
+                                    .mt5 {margin-top: 5px!important;}
+                                    .mt3 {margin-top: 3px!important;}
+                                    .mb5 {margin-bottom: 5px!important;}
+                                    .mt10 {margin-top: 10px!important;}
+                                    .mt20 {margin-top: 20px!important;}
+                                    .bleft0 {border-left:0!important;}
+                                    .bright0 {border-right:0!important;}
+                                    .bleft {border-left:1px solid black !important;}
+                                    .bleft-light {border-left:1px solid lightgrey !important;}
+                                    .bbottom-light {border-bottom:1px solid lightgrey !important;}
+                                    .btop0 {border-top: 0!important;}
+                                    .bbottom0 {border-bottom: 0 !important;}
+                                    .nopad {padding: 0;}
+
+                                    td.important { font-weight: bold; font-size: 1.1em; }
+                                    td.indic {font-weight: 700;}
+                                    .bold {font-weight: 700!important;}
+                                    .bold td {font-weight: 700!important;}
+                                    *.min-txt {font-size: 11px;}
+                                    .small-txt {font-size: 11px!important;}
+                                    .fs9 tr td, .fs9 td, .fs9 {font-size: 9px!important;}
+                                    .fs10 tr td, .fs10 td, .fs10 {font-size: 10px!important;}
+                                    .fs11 tr td, .fs11 td, .fs11 {font-size: 11px!important;}
+                                    .fs12 tr td, .fs12 td, .fs12 {font-size: 12px!important;}
+                                    .colorRed { color:#ff0000!important;}
+                                    .colorGreen { color:#02a102!important;}
+                                    .colorBlue { color:#101079!important;}
+                                    .uppercase {text-transform:uppercase!important;}
+                                    .italic {font-style:italic!important;}
+                                    .underlined {text-decoration:underline!important;}
+                                    .verticalAlignMiddle tr td, .verticalAlignMiddle {vertical-align: middle!important;}
+                                    .borderOa tr td { border:3px solid #101079!important;}
+                                    tr.bold td, .bold { font-weight:700!important;}
+                                    .padding0, .padding0 td {padding:0;}
+                                    .margin0, .margin td {margin:0;}
+
+                                    #contentBodyTable, #contentBodyTable tr, #contentBodyTable tr { width:100%; margin:0; padding:0; border:0; vertical-align:top }
+                                    #contentBodyTable tr td { padding:0; border:0; margin:0; vertical-align:top }
+                                    .borderTopLightThinGrey td { border-top: .3px solid lightgrey!important; }
+                                    .pt2, .pt2 td { padding-top:2px!important; }
+                                    .pb2, .pb2 td { padding-bottom:2px!important; }
+                                    .pb5, .pb5 td { padding-bottom:5px!important; }
+                                    .pb10, .pb10 td { padding-bottom:10px!important; }
+
+                                    .pageFooter {
+                                        page-break-after: always;
+                                    }
+
+                                </style>
+                                </head>
+                                <body>`
+                    }
+
+
+
+
+
+
+            _getMyHcps() {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.hcparty().listHealthcareParties( key && JSON.stringify(key), docId, 1000)
+                            .then(pl => {
+                                pl.rows = _
+                                    .chain(pl.rows)
+                                    .filter((i)=>{return(
+                                        !!i
+                                        && !!i.nihii
+                                        && !!i.ssin
+                                        // Todo: must be uncommented (leave as such for large data set)
+                                        // && i.parentId === this.user.healthcarePartyId
+                                    )})
+                                    .uniqBy( 'nihii' )
+                                    .value()
+                                ;
+                                return {
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done: !pl.nextKeyPair
+                                }
+                            })
+                            .catch(()=>{ return Promise.resolve(null); })
+                );
+
+            }
+
+            _getPatientsByHcp( hcpId ) {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        // this.api.patient().listPatientsByHcParty( hcpId, null, key && JSON.stringify(key), docId, 1000)
+                        this.api.patient().listPatientsByHcPartyWithUser(this.user, hcpId, null, key && JSON.stringify(key), docId, 1000)
+                            .then(pl => {
+                                pl.rows = _
+                                    .chain(pl.rows)
+                                    .filter((i)=>{return(
+                                        !!i
+                                        && !!i.active
+                                        && !!i.dateOfBirth
+                                        && !!i.ssin
+                                        && !!i.insurabilities.length
+                                        && !!_.chain(i.insurabilities).filter((i)=>{return(i && i.identificationNumber && i.insuranceId && ( moment(i.startDate||0, 'YYYYMMDD').isBefore(moment(), 'date') || !i.startDate ) && ( moment(i.endDate||0, 'YYYYMMDD').isAfter(moment(), 'date') || !i.endDate ) )}).value().length
+                                        && !!i.medicalHouseContracts.length
+                                        && !!_
+                                            .chain(i.medicalHouseContracts)
+                                            .filter((i)=>{return(
+                                                i
+                                                // Todo: must be uncommented (leave as such for large data set)
+                                                // && i.hcpId === this.user.healthcarePartyId
+                                            )})
+                                            .value()
+                                        .length
+                                    )})
+                                    .uniqBy( 'ssin' )
+                                    .value()
+                                    .map((i) => {
+                                        i.lastName = (i.lastName||"").toUpperCase()
+                                        i.firstName = (i.firstName||"").toUpperCase()
+                                        i.dateOfBirth = (i.dateOfBirth?moment(i.dateOfBirth, "YYYYMMDD").format('DD/MM/YYYY'):"")
+                                        i.personType = "T"  // Todo: Eval versus personalStatus / partnerships / birthdate / parents... Values = [T=titulaire,E=enfant,C=coinjoint]
+                                        i.titulary = ""     // Todo: blank if personType = T ; LNAME + Fname (of titulaire) if personType = E ; LNAME + Fname (of titulaire) if personType = C (AND not titulaire itself) ;
+                                        return i
+                                    })
+                                ;
+                                return {
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done: !pl.nextKeyPair
+                                }
+                            })
+                            .catch(()=>{ return Promise.resolve(); })
+                );
+
+            }
+
+            _getListingJ3() {
+
+                this.set('_isLoading', true );
+
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1',this.language), icon:"arrow-forward"});
+
+                // get my hcp children
+                this._getMyHcps()
+                    .then(myHcps => {
+
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
+
+                        let resolvedHcpPatients = 0;
+                        const totalPatientToResolve = myHcps.length;
+                        if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
+
+                        // Get patients of child hcp
+                        _.forEach(myHcps, (singleHcp) => {
+                            this._getPatientsByHcp(singleHcp.id)
+                                .then(hcpPat => {
+                                    resolvedHcpPatients++;
+                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
+                                    if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
+                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value(); this._getInsurancesData(); }
+                                })
+                                .catch(()=>{this.set('_isLoading', false );})
+                        })
+                    })
+                    .catch(()=>{this.set('_isLoading', false );})
+                ;
+
+            }
+
+            _getInsurancesData() {
+
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
+
+                this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
+                    .then((ins) => {
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
+                        this.oaData = _
+                          .chain(ins)
+                          .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                          .sortBy((i)=>{ return i.code; })
+                          .value();
+                        this._prepareExport();
+                    })
+                    .catch(()=>{this.set('_isLoading', false );});
+
+            }
+
+
+
+
+
+            _prepareExport() {
+
+                let pdfData = {};
+
+                // Loop OA
+                _.forEach( this.oaData, (oa,k)=> {
+
+                    let OaPatients = _
+                        .chain(this.flatRateAllPatients)
+                        .filter((i)=>{return ( _.chain(i.insurabilities).filter((i)=>{ return i.insuranceId === oa.id }).head().value()||false); })
+                        .map((i)=>{ i.finalInsurability = (i.insurabilities&&i.insurabilities.length?i.insurabilities[0]:false); return i; })
+                        .value();
+
+                    pdfData[oa.id] = {
+                        oa: {
+                            id: oa.id,
+                            finalName: oa.finalName||'',
+                            code: oa.code||'',
+                            address: _.trim([oa.address.street||'', oa.address.houseNumber||'', oa.address.postboxNumber||''].join(' ')),
+                            postalCode: oa.address.postalCode,
+                            city: oa.address.city||'',
+                        },
+                        entries: {
+
+                            // 01 : Subscription without try-out period
+                            list1 :  _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_list1 = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(1, 'month').startOf('month') ) &&
+                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isSame( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month') )
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_list1}).value(),
+
+                            // 02 : Subscription with try-out period
+                            list2 : _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_list2 = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(1, 'month').startOf('month') ) &&
+                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isBefore( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(1, 'month').startOf('month'))
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_list2}).value(),
+
+                            // 03 : Unsubscription / suspensions
+                            list3 : _.chain(OaPatients)
+                                        .map((i)=>{
+                                            i.MHC_listUnsubscriptions = _
+                                                .chain(i.medicalHouseContracts)
+                                                .filter((i)=>{return(
+                                                    ( i.endOfCoverage && moment(i.endOfCoverage||0, 'YYYYMMDD').endOf('month').isSame( moment().subtract(1, 'month').endOf('month') ) ) ||
+                                                    ( i.endOfContract && moment(i.endOfContract||0, 'YYYYMMDD').endOf('month').isSame ( moment().subtract(1, 'month').endOf('month') ) )
+                                                )}).head().value()||false;
+                                            return i;
+                                        }).filter((i)=>{return !!i.MHC_listUnsubscriptions}).value(),
+
+                        }
+                    };
+
+                    // Invoicing suspended: study reasons (take from list 03 = all unsubscriptions)
+
+                    // 04 : Invoicing suspended: no reason given
+                    // 06 : Invoicing suspended: patient is hospitalized
+                    // 07 : Invoicing suspended: patient outside of country (for longer period)
+                    // 09 : Invoicing suspended: for one month, patient changed mutuality
+                    // Todo: refine MedicalHouseContract.unsubscriptionReasonId with real codes + auto-complete combo-box in pat-admin-detail
+                    pdfData[oa.id].entries['list4'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (!i.unsubscriptionReasonId || i.unsubscriptionReasonId===0)}).length; })
+                    pdfData[oa.id].entries['list6'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===1)}).length; })
+                    pdfData[oa.id].entries['list7'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===2)}).length; })
+                    pdfData[oa.id].entries['list9'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===3)}).length; })
+
+                }); // Loop OA
+
+
+
+
+
+
+
+
+                // NOT FOR PROD, just to test page breaks with large records amount
+
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+
+
+                
+
+
+
+
+                // Namely for footer
+                let totalPages = 0; let currentPage = 0;
+
+                // Hardcoded, see PDF output
+                const maxEntriesPerPage = 47;
+
+                // Whole document headers
+                let pdfTemplate = this._getExportPdfHeader();
+
+                // Eval total pages
+                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!listEntries.length||0) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
+
+                // Build document pages
+                _.forEach( pdfData, (oaData)=> {
+                    _.forEach( oaData.entries, (listEntries, listKey)=> {
+                        if(!listEntries.length||0) return;
+                        let listIndex = parseInt(listKey.replace('list',''));
+                        let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                            currentPage++;
+                            pdfTemplate +=
+                                this._getExportPageHeader(oaData.oa) +
+                                this._getExportListHeader(listIndex) +
+                                this._getExportListContent(listIndex,entriesChunk) +
+                                this._getExportPageFooter(currentPage,totalPages,oaData.oa.code)
+                        });
+                    })
+                })
+
+                // Close document
+                pdfTemplate += this._getExportPdfFooter();
+
+
+
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
+
+
+
+                this.downloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+
+                // Generate, archive & download pdf report
+                this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
+                    .then(pdfFileContent =>{
+
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
+
+                        // Create "internal" message, give it a document and attach file to document ([nesty] bind attachment back to message)
+                        this.api.message().createMessage({transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName }).then(createMessageResponse => {
+                            this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
+                                this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
+                                    this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent).then((setAttachmentResponse) => {
+                                        createMessageResponse.metas["documentId"] = setAttachmentResponse.id;
+                                        createMessageResponse.delegations = setAttachmentResponse.delegations;
+                                        createMessageResponse.cryptedForeignKeys = setAttachmentResponse.cryptedForeignKeys;
+                                        this.api.message().modifyMessage(createMessageResponse).then((modifiedMessage) => {
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
+                                            this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName );
+                                            this.set('_isLoading', false );
+                                        }).catch(()=>{this.set('_isLoading', false );})
+                                    }).catch(()=>{this.set('_isLoading', false );})
+                                }).catch(()=>{this.set('_isLoading', false );})
+                            }).catch(()=>{this.set('_isLoading', false );})
+                        }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
+
+
+
+            }
+
+            _getListingArchives() {
+
+                this.archiveListingMessages = {}
+                let dateRangeStart = _.trim(_.get(this.shadowRoot.getElementById("dateRangeStart"), "value", "" ));
+                let dateRangeEnd = _.trim(_.get(this.shadowRoot.getElementById("dateRangeEnd"), "value", "" ));
+
+                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING', null, null, null, 1000).then(m => {
+                    this.archiveListingMessages = _
+                        .chain(m.rows)
+                            .filter((m)=>{return _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId && (!dateRangeStart?true:(!moment(m.created).isBefore(moment(dateRangeStart, "YYYY-MM-DD")))) && (!dateRangeEnd?true:(moment(m.created).isBefore(moment(dateRangeEnd, "YYYY-MM-DD"))))})
+                            .map((i)=>{
+                                i.hrDate = moment(i.created).format('DD/MM/YYYY');
+                                i.hrTime = moment(i.created).format("HH:mm:ss");
+                                i.filename = _.get(i.metas,"filename", "listing-patients.pdf");
+                                i.documentId = _.get(i.metas,"documentId", false);
+                                i.totalPages = _.get(i.metas,"totalPages",1);
+                                return i;
+                            })
+                            .orderBy("created", "desc")
+                        .value();
+                });
+
+            }
+
+            _downloadListingArchive(e) {
+                let documentId = _.get(_.head(_.chain(e.path).filter((i)=>{return _.get(_.get(i,"classList",[]), "value","").indexOf('downloadListingArchive')!==-1}).value()),"documentid",false);
+                if(documentId) this.api.document().getAttachment(documentId, null, null).then((attachmentResponse)=>{this.api.triggerFileDownload(attachmentResponse,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"documentId":_.trim(documentId)})), "filename","listing-patients.pdf"));}).catch(()=>{})
+            }
+
+
+
+            _getListingJ20() {
+                console.log('_getListingJ20');
+            }
+
+            
+            
+
+        }
+
+        customElements.define(HtMsgFlatrateInvoice.is, HtMsgFlatrateInvoice);
+    </script>
+</dom-module>

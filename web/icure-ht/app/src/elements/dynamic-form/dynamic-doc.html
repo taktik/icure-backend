@@ -34,11 +34,10 @@
 			}
 
 			.pat-details-card {
-				min-height: 200px;
-				width: calc(100% - 64px);
-				margin: 0 32px 32px;
+				/*margin: 0 32px 32px;*/
 				padding:0 8px 8px;
 				overflow: hidden;
+                width: 100%;
 			}
 
 			.horizontal {
@@ -73,6 +72,7 @@
 				display:inline-block;
 				width:calc(100% - 32px);
 				text-align:left;
+                word-break: break-word;
 			}
 
 			pdf-element {
@@ -101,29 +101,74 @@
 				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
 			}
 
+            .txt-container {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .hoverpointer {
+                cursor: pointer;
+                text-align: center;
+            }
 
 		</style>
+        <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+            <paper-card class="pat-details-card">
+                <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <template is="dom-if" if="[[!documentId]]">
+                        <paper-spinner class="center" active></paper-spinner>
+                    </template>
+                    <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                        <span>[[document.name]]</span>
+                        <template is="dom-if" if="[[downloadable]]">
+                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                            </div>
+                        </template>
+                        <div class="img-container">
+                            <img src$="[[dataUrl]]">
+                        </div>
+                    </template>
+                    <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                        <span>[[document.name]]</span>
+                        <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
+                    </template>
+                    <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                        <span>[[document.name]]</span>
+                        <template is="dom-if" if="[[downloadable]]">
+                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                            </div>
+                        </template>
+                    </template>
+                </template>
+                <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+                    <span>[[document.name]]</span>
+                    <template is="dom-if" if="[[downloadable]]">
+                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                            [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                        </div>
+                    </template>
+                </template>
+            </paper-card>
+        </template>
 
-		<paper-card class="pat-details-card">
-			<span>[[title]]</span>
-			<template is="dom-if" if="[[!documentId]]">
-				<paper-spinner class="center" active></paper-spinner>
-			</template>
-			<template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<div class="img-container">
-					<img src$="[[dataUrl]]">
-				</div>
-			</template>
-			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
-			</template>
-			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-
-			</template>
-			<template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<div>[[attachmentContent]]</div>
-			</template>
-		</paper-card>
+        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
+            <template is="dom-if" if="[[downloadable]]">
+                <paper-card class="pat-details-card">
+                    <span>[[document.name]]</span>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                </paper-card>
+            </template>
+            <template is="dom-if" if="[[mailbody]]">
+                <div class="txt-container">[[attachmentContent]]</div>
+            </template>
+        </template>
 	</template>
 
 	<script>
@@ -145,6 +190,12 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: String,
 				value: null
 			},
+            downloadable:{
+			    type: Boolean
+            },
+            mailbody:{
+			    type: Boolean
+            },
 			document: {
 				type: Object,
 				value: null
@@ -171,7 +222,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             patient:{
 			    type: Object,
-				vadue: null
+				value: null
 			}
 		};
 	}
@@ -213,6 +264,26 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		});
 	}
 
+    _downloadAnnex(e){
+        let url = this.dataUrl;
+
+        // const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'png' :
+        //     this._pdfMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'pdf' :
+        //     this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'xml' :
+        //     'txt'
+
+        let a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+
+        a.href = url;
+        a.download = this.document.name;
+
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+    }
+
 	_imageMimeType(uti, utis, dataUrl) {
 		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
@@ -229,14 +300,33 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
     }
 
+    _unknownMimeType(uti, utis, dataUrl) {
+        return (!this._imageMimeType(uti, utis, dataUrl) && !this._pdfMimeType(uti, utis, dataUrl) && !this._xmlMimeType(uti, utis) && !this._plainMimeType(uti, utis))
+    }
+
     _dataUrlChanged(dataUrl) {
-	    if (dataUrl && dataUrl.length) {
-	        if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl)
+        if (dataUrl && dataUrl.length) {
+            if (this._imageMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
+                    .then(response => response.text())
+                    .then(img => this.set('attachmentContent', img))
+            }
+            if (this._pdfMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
+                    .then(response => response.text())
+                    .then(pdf => this.set('attachmentContent', pdf))
+            }
+            if (this._xmlMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
+                    .then(response => response.text())
+                    .then(xml => this.set('attachmentContent', xml.toString()))
+            }
+            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl,{credentials:'include'})
                     .then(response => response.text())
                     .then(text => this.set('attachmentContent', text))
-			}
-		}
+            }
+        }
 	}
     mimeType(u){
 	    return this.api.document().mimeType(u)

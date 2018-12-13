@@ -32,8 +32,6 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            
-
             .patient {
                 height: calc(100% - 48px - 48px);
                 overflow-y: auto;
@@ -121,6 +119,13 @@
             .col--bef, .col--dur, .col--aft {
                 max-width: 56px;
                 min-width: 56px;
+                text-align: center;
+                flex-grow: 1;
+            }
+          
+            .col--noMoment{
+                max-width: 168px;
+                min-width: 168px;
                 text-align: center;
                 flex-grow: 1;
             }
@@ -561,7 +566,7 @@
                 border-left: 1px solid var(--app-background-color-dark);
                 border-right: 1px solid var(--app-background-color-dark);
             }
-            
+
             .medication-category span:last-child{
                 width: 10%;
                 flex-grow: 1;
@@ -594,7 +599,7 @@
             .medication-line .extra-info{
                 width: 10%;
                 flex-grow: 1;
-                padding: 0 8px; 
+                padding: 0 8px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -646,7 +651,7 @@
             .medication-line .line .name{
                 text-align: left;
                 margin-left: 4px;
-                margin-bottom: 4px; 
+                margin-bottom: 4px;
                 z-index: 1;
                 max-width: 100%;
                 overflow: hidden;
@@ -657,7 +662,7 @@
             .medication-line .line .until{
                 text-align: right;
                 margin-right: 4px;
-                margin-bottom: 4px; 
+                margin-bottom: 4px;
                 z-index: 1;
             }
 
@@ -696,7 +701,7 @@
             <h2 class="modal-title">[[_getModalTitle(selectedTab)]]
                 <paper-tabs selected="{{selectedTab}}">
                     <paper-tab>[[localize('tab_pres','Present',language)]]</paper-tab>
-                    <paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>
+                    <!--<paper-tab>[[localize('tab_hist','History',language)]]</paper-tab>-->
                     <paper-tab>[[localize('tab_pat','Patient',language)]]</paper-tab>
                     <paper-tab>[[localize('tab_chap','Chapter IV',language)]]</paper-tab>
                 </paper-tabs>
@@ -704,65 +709,6 @@
 
             <div class="content">
                 <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                    <div class="history">
-                        <div class="timeline">
-                            <div class="timeline-header">
-                                <div class="btn-left">
-                                    <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
-                                </div>
-                                <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
-                                    <template is="dom-repeat" items=[[historyYears]] as="historyYear">
-                                        <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
-                                            <div class="year">[[historyYear.number]]</div>
-                                            <div class="quarter">Q1</div>
-                                            <div class="quarter">Q2</div>
-                                            <div class="quarter">Q3</div>
-                                            <div class="quarter">Q4</div>
-                                        </div>
-                                    </template>
-                                    <div class="futur-block">
-                                        <div>futur</div>
-                                    </div>
-
-                                </div>
-                                <div class="btn-right">
-                                    <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
-                                </div>
-                            </div>
-                            <div class="timeline-body">
-                                <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
-                                    <div class="medication-category">
-                                        <span>[[fakePatientMedication.category]]</span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                    <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
-                                        <div class="medication-line" id="scrollable-element">
-                                            <div class="type">[[medication.type]]</div>
-                                            <div class="line-container">
-                                                <div class="line-total-width" style$="width: [[totalWidth]]px;">
-                                                    <div id="[[medication.id]]" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
-                                                        <div class="name">[[medication.name]] - [[medication.posology]]</div>
-                                                        <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
-                                                    </div>
-                                                    <paper-tooltip position="top" for="[[medication.id]]">[[medication.name]] - [[medication.posology]]</paper-tooltip>
-
-                                                    <div id="[[medication.id]]reimbursedLine" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div> 
-                                                    <paper-tooltip position="top" for="[[medication.id]]reimbursedLine">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
-                                                </div>
-                                            </div>
-                                            <div class="extra-info">[[medication.extraInfo]]</div>
-
-                                        </div>
-                                    </template>
-                                </template>
-                            </div>
-                        </div>
-
-                    </div>
-                </template>
-
-                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                     <div class="present">
                         <div class="table">
                             <div class="tr th">
@@ -927,12 +873,71 @@
 
                 </template>
 
-                <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
+                <template is="dom-if" if="{{_isEqual(selectedTab,5)}}">
+                    <div class="history">
+                        <div class="timeline">
+                            <div class="timeline-header">
+                                <div class="btn-left">
+                                    <paper-icon-button on-tap="_scrollBack" icon="arrow-back"></paper-icon-button>
+                                </div>
+                                <div class="years-container" id="yearsContainer" on-scroll="_scrollHandler">
+                                    <template is="dom-repeat" items=[[historyYears]] as="historyYear">
+                                        <div id="[[historyYear.id]]" class$="year-block [[_isCurrentYear(historyYear.isCurrent)]]">
+                                            <div class="year">[[historyYear.number]]</div>
+                                            <div class="quarter">Q1</div>
+                                            <div class="quarter">Q2</div>
+                                            <div class="quarter">Q3</div>
+                                            <div class="quarter">Q4</div>
+                                        </div>
+                                    </template>
+                                    <div class="futur-block">
+                                        <div>futur</div>
+                                    </div>
+
+                                </div>
+                                <div class="btn-right">
+                                    <paper-icon-button on-tap="_scrollForward" icon="arrow-forward"></paper-icon-button>
+                                </div>
+                            </div>
+                            <div class="timeline-body">
+                                <template is="dom-repeat" items=[[fakePatientMedications]] as="fakePatientMedication">
+                                    <div class="medication-category">
+                                        <span>[[fakePatientMedication.category]]</span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <template is="dom-repeat" items=[[fakePatientMedication.medications]] as="medication">
+                                        <div class="medication-line" id="scrollable-element">
+                                            <div class="type">[[medication.type]]</div>
+                                            <div class="line-container">
+                                                <div class="line-total-width" style$="width: [[totalWidth]]px;">
+                                                    <div id="[[medication.id]]" class$="line [[_medicationClass(medication)]] [[_isOver(medication.endDate)]]" style$="[[_linePosition(medication.startDate, medication.endDate)]]">
+                                                        <div class="name">[[medication.name]] - [[medication.posology]]</div>
+                                                        <template is="dom-if" if="[[_endAfterCurrent(medication.endDate)]]"><div class="until">until [[medication.endDate]]</div></template>
+                                                    </div>
+                                                    <paper-tooltip position="top" for="[[medication.id]]">[[medication.name]] - [[medication.posology]]</paper-tooltip>
+
+                                                    <div id="[[medication.id]]reimbursedLine" class="reimbursement-line" style$="[[_linePosition(medication.reimmbursementDateStart, medication.reimmbursementDateEnd)]]"></div>
+                                                    <paper-tooltip position="top" for="[[medication.id]]reimbursedLine">This medication is reimbursed until [[medication.reimmbursementDateEnd]]</paper-tooltip>
+                                                </div>
+                                            </div>
+                                            <div class="extra-info">[[medication.extraInfo]]</div>
+
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                     <div class="patient">
                         <div class="general-infos">
                             <div class="infos-block">
                                 <div class="infos--name"><span>GP</span>Dr. [[user.name]]</div>
-                                <div class="infos--address"><span>Address</span>50 street StreetName</div>
+                                <div class="infos--address"><span>Address</span>[[_getHcpAdress]]</div>
                             </div>
 
                             <div class="infos-block">
@@ -940,163 +945,48 @@
                                 <div class="infos--address"><span>Address</span>250 street StreetName</div>
                             </div>
                         </div>
-                        <div id="breakfast" class="table-container">
-                            <div class="header">
-                                <iron-icon icon="icure-svg-icons:breakfast"></iron-icon>
-                                <h3>breakfast</h3>
-                            </div>
-                            <div class="table-header">
-                                <div class="col col--med">[[localize('medic','Medicine',language)]]</div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">[[localize('endDate','End Date',language)]]</div>
-                                <div class="col col--freq">[[localize('freq','Frequency',language)]]</div>
-                                <div class="col col--bef">[[localize('mom_before','Before',language)]]</div>
-                                <div class="col col--dur">[[localize('mom_during','During',language)]]</div>
-                                <div class="col col--aft">[[localize('mom_after','After',language)]]</div>
-                                <div class="col col--com">[[localize('com','Comments',language)]]</div>
-                            </div>
-                            <div class="table-body">
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed">30/03/2018</div>
-                                    <div class="col col--freq">Everyday</div>
-                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                    <div class="col col--dur"></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com">Drink with a glass of milk</div>
+                        <template is="dom-repeat" items="[[patientPlan]]" as="plan">
+                            <template is="dom-if" if="[[_isRegimen(plan.meds)]]">
+                                <div id="breakfast" class="table-container">
+                                    <div class="header">
+                                        <iron-icon icon="icure-svg-icons:[[plan.icon]]"></iron-icon>
+                                        <h3>[[plan.title]]</h3>
+                                    </div>
+                                    <div class="table-header">
+                                        <div class="col col--med">[[localize('medic','Medicine',language)]]</div>
+                                        <div class="col col--photo">Photo</div>
+                                        <div class="col col--ed">[[localize('endDate','End Date',language)]]</div>
+                                        <div class="col col--freq">[[localize('freq','Frequency',language)]]</div>
+                                        <template is="dom-repeat" items="[[plan.cols]]" as="col">
+                                            <div class="col col--bef">[[_getHeaderTitle(col)]]</div>
+                                        </template>
+                                        <div class="col col--com">[[localize('com','Comments',language)]]</div>
+                                    </div>
+                                    <div class="table-body">
+                                        <template is="dom-repeat" items="[[plan.meds]]" as="m">
+                                            <div class="table-row">
+                                                <div class="col col--med"><span class="med--name">[[_getTimeOfDay(m.during)]] [[_serviceDescription(m.medication)]]</span></div>
+                                                <div class="col col--photo"></div>
+                                                <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
+                                                <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
+                                                    <template is="dom-repeat" items="[[plan.cols]]" as="col">
+                                                        <div class="col col--dur">
+                                                            <template is="dom-if" if="[[_getRegimen(col, m)]]">
+                                                                <span class="dur-pill">[[_getRegimenQuantity(col, m)]]</span>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                <div class="col col--com">[[m.medication.instructionForPatient]]</div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed"></div>
-                                    <div class="col col--freq">Once a week</div>
-                                    <div class="col col--bef"></div>
-                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="lunch" class="table-container">
-                            <div class="header">
-                                <iron-icon icon="icure-svg-icons:lunch"></iron-icon>
-                                <h3>Lunch</h3>
-                            </div>
-                            <div class="table-header">
-                                <div class="col col--med">Medicine</div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">End Date</div>
-                                <div class="col col--freq">Frequency</div>
-                                <div class="col col--bef">Before</div>
-                                <div class="col col--dur">During</div>
-                                <div class="col col--aft">After</div>
-                                <div class="col col--com">Comments</div>
-                            </div>
-                            <div class="table-body">
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed">30/03/2018</div>
-                                    <div class="col col--freq">Everyday</div>
-                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                    <div class="col col--dur"></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com">Drink with a glass of milk</div>
-                                </div>
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed"></div>
-                                    <div class="col col--freq">Once a week</div>
-                                    <div class="col col--bef"></div>
-                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="dinner" class="table-container">
-                            <div class="header">
-                                <iron-icon icon="icure-svg-icons:dinner"></iron-icon>
-                                <h3>Dinner</h3>
-                            </div>
-                            <div class="table-header">
-                                <div class="col col--med">Medicine</div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">End Date</div>
-                                <div class="col col--freq">Frequency</div>
-                                <div class="col col--bef">Before</div>
-                                <div class="col col--dur">During</div>
-                                <div class="col col--aft">After</div>
-                                <div class="col col--com">Comments</div>
-                            </div>
-                            <div class="table-body">
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed">30/03/2018</div>
-                                    <div class="col col--freq">Everyday</div>
-                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                    <div class="col col--dur"></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com">Drink with a glass of milk</div>
-                                </div>
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed"></div>
-                                    <div class="col col--freq">Once a week</div>
-                                    <div class="col col--bef"></div>
-                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="beforeBed" class="table-container">
-                            <div class="header">
-                                <iron-icon icon="icure-svg-icons:bed"></iron-icon>
-                                <h3>Before Bed</h3>
-                            </div>
-                            <div class="table-header">
-                                <div class="col col--med">Medicine</div>
-                                <div class="col col--photo">Photo</div>
-                                <div class="col col--ed">End Date</div>
-                                <div class="col col--freq">Frequency</div>
-                                <div class="col col--bef">Before</div>
-                                <div class="col col--dur">During</div>
-                                <div class="col col--aft">After</div>
-                                <div class="col col--com">Comments</div>
-                            </div>
-                            <div class="table-body">
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Burinex Leo</span><span class="med--comp">comp 30x 1mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed">30/03/2018</div>
-                                    <div class="col col--freq">Everyday</div>
-                                    <div class="col col--bef"><span class="dur-pill">1</span></div>
-                                    <div class="col col--dur"></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com">Drink with a glass of milk</div>
-                                </div>
-                                <div class="table-row">
-                                    <div class="col col--med"><span class="med--name">Omeprazole Mylan</span><span class="med--comp">caps 100 x 2mg</span></div>
-                                    <div class="col col--photo">Photo</div>
-                                    <div class="col col--ed"></div>
-                                    <div class="col col--freq">Once a week</div>
-                                    <div class="col col--bef"></div>
-                                    <div class="col col--dur"><span class="dur-pill">1</span></div>
-                                    <div class="col col--aft"></div>
-                                    <div class="col col--com"></div>
-                                </div>
-                            </div>
-                        </div>
+                            </template>
+                        </template>
                     </div>
                 </template>
             </div>
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,3)}}">
+            <template is="dom-if" if="{{_isEqual(selectedTab,2)}}">
                 <ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
             </template>
 
@@ -1135,11 +1025,17 @@
                         type: Array,
                         value: () => []
                     },
+                    hcp:{
+                        type: Object
+                    },
                     medicationClassesWithPosology: {
                         type: Array,
                         value: () => []
                     },
-
+                    patientPlan:{
+                        type: Array,
+                        value: () => []
+                    },
                     scrollLeft: {
                         type: Number,
                         value: 0,
@@ -1257,7 +1153,7 @@
             }
 
             static get observers() {
-                return ['_medicationsChanged(medications.*)']
+                return ['_medicationsChanged(medications.*)', '_patientPlanChanged(medications.*)']
             }
 
             constructor() {
@@ -1271,7 +1167,7 @@
             }
 
             attached() {
-                super.attached(); 
+                super.attached();
                 this.async(this.notifyResize, 1);
             }
 
@@ -1483,7 +1379,7 @@
                         x => x > scores.afterdinner
                     ])
                 })).reduce((acc,m) => {
-                    const letter = (m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code.substr(0,1)
+                    const letter = ((m.medication && m.medication.codes && m.medication.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0,1)
                     ;(acc[letter] || (acc[letter] = {letter:letter, meds:[]})).meds.push(m)
                     return acc
                 }, {})), 'letter')
@@ -1495,6 +1391,10 @@
 
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _serviceFrequency(s){
+                return this.api.contact().medication().frequencyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
 
             _chap4Status(s) {
@@ -1575,6 +1475,234 @@
 
             _getMedicationClosingDate(medication){
                 return medication && medication.closingDate ? this.api.moment(medication.closingDate).format("DD/MM/YYYY") : ""
+            }
+
+            _patientPlanChanged(){
+               let medicationClass = this.medicationClassesWithPosology
+
+                const medications = medicationClass.flatMap(classe => classe.meds)
+
+                let regimensTableByDayPeriod = {
+                    beforeBreak : [],
+                    breakfast : [],
+                    betweenBAndL: [],
+                    lunch: [],
+                    betweenLAndD: [],
+                    dinner: [],
+                    night: []
+                }
+
+                medications.map(m => {
+
+                    const medication = m.medication
+                    const regimens = m.regimenTable
+
+                    if((regimens[0]).length > 0){
+                        regimensTableByDayPeriod.beforeBreak.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[0]),
+                            before: [],
+                            during: regimens[0],
+                            after: [],
+                            times: regimens[0].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if(_(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value().length > 0){
+                        regimensTableByDayPeriod.breakfast.push({
+                            medication : medication,
+                            regimens: _(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value(),
+                            before: regimens[1],
+                            during: regimens[2],
+                            after: regimens[3],
+                            times: _(_.concat(regimens[1], regimens[2], regimens[3])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if(regimens[4].length > 0){
+                        regimensTableByDayPeriod.betweenBAndL.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[4]),
+                            before: [],
+                            during: regimens[4],
+                            after: [],
+                            times: regimens[4].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if(_(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value().length > 0){
+                        regimensTableByDayPeriod.lunch.push({
+                            medication : medication,
+                            regimens: _(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value(),
+                            before: regimens[5],
+                            during: regimens[6],
+                            after: regimens[7],
+                            times: _(_.concat(regimens[5], regimens[6], regimens[7])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if(regimens[8].length > 0){
+                        regimensTableByDayPeriod.betweenLAndD.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[8]),
+                            before: [],
+                            during: regimens[8],
+                            after: [],
+                            times: regimens[8].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if((_(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value()).length > 0){
+                        regimensTableByDayPeriod.dinner.push({
+                            medication : medication,
+                            regimens: _(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value(),
+                            before: regimens[9],
+                            during: regimens[10],
+                            after: regimens[11],
+                            times: _(_.concat(regimens[9], regimens[10], regimens[11])).compact().uniq().value().map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                    if(regimens[12].length > 0){
+                        regimensTableByDayPeriod.night.push({
+                            medication : medication,
+                            regimens: _.uniq(regimens[12]),
+                            before: [],
+                            during: regimens[12],
+                            after: [],
+                            times: regimens[12].map(r => ({tod: r.timeOfDay && r.timeOfDay !== "" ? r.timeOfDay : null, pc: r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code !== "" ? r.dayPeriod.code : null , oth: (!r.timeOfDay && !r.dayPeriod) ? r.administratedQuantity : null}))
+                        })
+                    }
+
+                })
+
+                const beforeBreak = {
+                    title: this.localize("mom_wakeup", "Wake-up", this.language),
+                    icon: "wakeup",
+                    meds: regimensTableByDayPeriod.beforeBreak,
+                    cols: regimensTableByDayPeriod.beforeBreak.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const breakfast = {
+                    title: this.localize("mom_break", "Breakfast", this.language),
+                    icon: "breakfast",
+                    meds: regimensTableByDayPeriod.breakfast,
+                    cols: regimensTableByDayPeriod.breakfast.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const betweenBAndL = {
+                    title: this.localize("mom_morning", "Morning", this.language),
+                    icon: "morning",
+                    meds: regimensTableByDayPeriod.betweenBAndL,
+                    cols: regimensTableByDayPeriod.betweenBAndL.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const lunch = {
+                    title: this.localize("mom_lunch", "Lunch", this.language),
+                    icon: "lunch",
+                    meds: regimensTableByDayPeriod.lunch,
+                    cols: regimensTableByDayPeriod.lunch.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const betweenLAndD = {
+                    title: this.localize("mom_afternoon", "Afternoon", this.language),
+                    icon: "afternoon",
+                    meds: regimensTableByDayPeriod.betweenLAndD,
+                    cols: regimensTableByDayPeriod.betweenLAndD.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const dinner = {
+                    title: this.localize("mom_dinner", "Dinner", this.language),
+                    icon: "dinner",
+                    meds: regimensTableByDayPeriod.dinner,
+                    cols: regimensTableByDayPeriod.dinner.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+                const night = {
+                    title: this.localize("mom_bef_bed", "Before bed", this.language),
+                    icon: "bed",
+                    meds: regimensTableByDayPeriod.night,
+                    cols: regimensTableByDayPeriod.night.reduce((acc, med) => {
+                        med.times.forEach(t => {
+                            if (!acc.some(col => col.tod && (col.tod === t.tod) || col.pc === t.pc)) {
+                                acc.push(t)
+                            }
+                        })
+                        return acc
+                    }, [])
+                }
+
+                const patientPlan = [beforeBreak, breakfast, betweenBAndL, lunch, betweenLAndD, dinner, night]
+
+                this.set("patientPlan", patientPlan)
+            }
+
+            _isRegimen(meds){
+                return (meds && meds.length > 0) ? true : false
+            }
+
+            _getRegimen(col, m){
+                const colPeriod = col.tod || col.pc || "other"
+                return m.regimens.find(r => ((r.timeOfDay && r.timeOfDay === colPeriod) || (r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code === colPeriod))) ? true : colPeriod === "other"
+            }
+
+            _getRegimenQuantity(col, m){
+
+                const colPeriod = col.tod || col.pc || "other"
+                const regimenTod = m.regimens.filter(r => ((r.timeOfDay && r.timeOfDay === colPeriod) || (r.dayPeriod && r.dayPeriod.code && r.dayPeriod.code === colPeriod)))
+                let qty = 0
+
+                if(regimenTod && regimenTod.length){
+                    qty = _.reduce(regimenTod, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
+                }else{
+                    qty = _.reduce(m.regimens, function (tot, r){
+                        return tot + Number(r.administratedQuantity && r.administratedQuantity.quantity)
+                    }, 0)
+                }
+
+                return qty
+            }
+
+            _getHeaderTitle(col){
+                return col && col.pc && !col.tod ? this.localize("ms_"+col.pc, col.pc, this.language): col && col.tod ? col.tod.toString().substr(0,2)+"h"+col.tod.toString().substr(2,2) : null
             }
         }
 

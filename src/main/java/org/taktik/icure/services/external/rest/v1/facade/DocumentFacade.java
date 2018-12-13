@@ -164,7 +164,7 @@ public class DocumentFacade implements OpenApiFacade{
 						try {
 							attachment = CryptoUtils.decryptAES(attachment, bb.array());
 							break;
-						} catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
+						} catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalArgumentException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
 						}
 					}
 				}

@@ -1,0 +1,262 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="ht-app-welcome-tz">
+	<template>
+		<style include="shared-styles">
+            .backdrop{
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                top: 0;
+                left: 0;
+                z-index: 2000;
+                background-color: white;
+                background: url('../../../images/topaz-welcome-background.svg');
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-size: 95% 95%;
+            }
+
+            .container{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                height: 60%;
+                min-height: 800px;
+                width: 80%;
+                border-radius: 8px;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 16px 24px 2px rgba(0,0,0,0.14), 0 6px 30px 5px rgba(0,0,0,0.12), 0 8px 10px 0 rgba(0,0,0,0.2);
+                background: white;
+                overflow: hidden;
+            }
+
+            .container > div{
+                flex-grow: 1;
+                width: calc(100% / 3);
+                display: inline-flex;
+                flex-flow: column wrap;
+                align-items: center;
+                justify-content: space-between;
+                height: 100%;
+                padding: 32px 24px;
+                box-sizing: border-box;
+            }
+
+            .left > div{
+                width: 100%;
+            }
+
+            .left h1{
+                width: 100%;
+                text-align: left;
+                font-size: 44px;
+                font-weight: 700;
+                color: var(--app-text-color);
+                margin: 0;
+                box-sizing: border-box;
+                line-height: 44px;
+            }
+
+            .left h2{
+                width: 100%;
+                text-align: left;
+                font-size: 32px;
+                font-weight: 400;
+                color: var(--app-text-color);
+                margin: 0;
+                box-sizing: border-box;
+                line-height: 28px;
+            }
+
+            p{
+                font-size: 14px;
+                color: var(--app-text-color);
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0;
+            }
+
+            .middle{
+                background: var(--app-background-color-light);
+            }
+
+            .right{
+                background: url('../../../images/topaz-welcome-img-right.jpg');
+                background-position: center center;
+                background-size: cover;
+                height: 100%;
+            }
+
+            paper-button{
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-size: 14px;
+                font-weight: 500;
+                text-transform: capitalize;
+                min-width: 160px;
+                margin: 0 auto;
+                position: relative;
+            }
+
+            paper-button:hover{
+                box-shadow: var(--app-shadow-elevation-1);
+            }
+
+            .left paper-button{
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 24px;
+            }
+
+            paper-input{
+                width: 100%;
+                --paper-input-container-focus-color: var(--app-secondary-color);
+                box-sizing: border-box;
+            }
+
+            paper-dropdown-menu{
+                width: 100%;
+                --paper-input-container-focus-color: var(--app-secondary-color);
+                box-sizing: border-box;
+            }
+
+            @media screen and (max-width: 1024px) {
+                .right{
+                    display: none!important;
+                }
+                .container{
+                    height: 80%;
+                }
+
+                .container > div{
+                    width: 50%;
+                }
+            }
+
+        </style>
+
+        <div class="backdrop">
+            <div class="container">
+                <div class="left">
+                    <div>
+                        <h1>Welcome</h1>
+                        <h2>thank you for joining Topaz</h2>
+                    </div>
+                    <div>
+                        <p>If you already have a database in the cloud. You can copy your cloud key below and start using Topaz. </p>
+                        <paper-input label="Cloud key"></paper-input>
+                        <paper-button>Sync from the cloud</paper-button>
+                    </div>
+                </div>
+                <div class="middle">
+                    <p>Please fill in this form to request an access to Topaz.</p>
+                    <paper-dropdown-menu label="Profession" selected-item="{{professionItem}}">
+                        <paper-listbox slot="dropdown-content" class="dropdown-content">
+                            <paper-item id="persphysician">Physician</paper-item>
+                            <paper-item id="persnurse">Nurse</paper-item>
+                            <paper-item id="persphysiotherapist">Physiotherapist</paper-item>
+                            <paper-item id="perspsychologist">Psychologist</paper-item>
+                            <paper-item id="perssocialworker ">Social worker</paper-item>
+                            <paper-item id="persadministrative">Secretary</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <template is="dom-if" if="[[_equal(selectedProfessionId,'persphysician')]]">
+                        <paper-dropdown-menu label="Speciality" selected-item="{{specialityItem}}">
+                            <paper-listbox slot="dropdown-content" class="dropdown-content">
+                                <template is="dom-repeat" items="[[specialities]]" as="spec">
+                                    <paper-item id="spec_[[spec.id]] ">[[localize(spec.descr, spec.descr, language)]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </template>
+
+                    <paper-input label="First Name"></paper-input>
+                    <paper-input label="Last Name"></paper-input>
+                    <paper-input label="Inami Number"></paper-input>
+                    <paper-input label="SSIN Number"></paper-input>
+                    <paper-input label="Email"></paper-input>
+                    <paper-input label="Password" type="password"></paper-input>
+                    <paper-input label="Confirm Password" type="password"></paper-input>
+                    <paper-button>Request Access</paper-button>
+                </div>
+                <div class="right"></div>
+            </div>
+
+
+        </div>
+
+
+
+	</template>
+	<script>
+
+//noinspection JSUnusedGlobalSymbols
+class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
+	static get is() {
+		return "ht-app-welcome-tz";
+	}
+
+	static get properties() {
+		return {
+			credentials: {
+				type: Object
+			},
+			opened: {
+				type: Boolean,
+				value: true,
+				notify: true
+			},
+            specialities: {
+			    type: Array,
+                value: [{id:'003',descr:'general practitioner'}, {id:'690',descr:'pediatrics'}, {id:'055',descr:'dermatology'}, {id:'055',descr:'gastroenterology'}, {id:'340',descr:'gynecologyobstetrics'}]
+            }
+		};
+	}
+
+    static get observers() {
+	    return ['_professionChanged(professionItem)']
+    }
+
+	constructor() {
+		super();
+	}
+
+    _professionChanged(item) {
+	    if (item) {
+	        this.set('selectedProfessionId', item.id)
+        }
+    }
+
+    _equal(a,b) { return a === b }
+
+	login() {
+        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+	}
+
+	checkForEnter(e) {
+		// check if 'enter' was pressed
+		if (e.keyCode === 13) {
+            this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+		}
+	}
+
+}
+
+customElements.define(HtAppWelcomeTz.is, HtAppWelcomeTz);
+</script>
+</dom-module>

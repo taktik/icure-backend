@@ -59,6 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
 <link rel="import" href="elements/ht-tools/ht-access-log.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
+<link rel="import" href="elements/ht-app/ht-app-welcome.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
@@ -453,6 +454,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            ht-app-welcome{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2000;
+                background: white;
+            }
+
 
         </style>
 
@@ -462,11 +473,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              <iron-icon icon="icons:warning"></iron-icon>
          </paper-item>
 
+         <ht-app-welcome id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"></ht-app-welcome>
+
          <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                               on-login="login"></ht-app-login-dialog>
          <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                     route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
          <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                        keyhcpid="[[keyHcpId]]"
                                          message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
                                          on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
          <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
@@ -503,13 +517,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
                                     [[localize('hc_par')]]
                                 </paper-button>
-                                <paper-tab name="msg" on-tap="doRoute">
-                                    <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                <paper-button name="msg" on-tap="doRoute">
+                                    <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
-                                </paper-tab>
-                                <paper-button name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -573,10 +583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-tab>
-                                <paper-tab name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
-                                </paper-tab>
+
                             </paper-tabs>
                         </div>
                         <div class="log-info">
@@ -635,6 +642,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-item class="extra-menu-item" on-tap="_myProfile">
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
+                                    </paper-item>
+                                    <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
+                                        <iron-icon icon="power-settings-new"></iron-icon>
+                                        [[localize('log_out')]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
@@ -833,6 +844,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     keyPairKeystore:{
                     	type: Array,
                         value: () => []
+                    },
+                    showWelcomePage: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -851,7 +866,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
             }
 
@@ -875,6 +890,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                this.api.icure().isReady().then(ok => {
+                    this.set('showWelcomePage', !ok)
+                })
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)

@@ -224,7 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 20px;
 				width: 20px;
 				padding:4px;
-				opacity: 0.7;
 				color: var(--app-text-color);
 			}
 
@@ -424,8 +423,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-self: flex-start;
 				width:100%;
 				padding: 0 8px;
+                box-sizing: border-box;
 			}
-
+            .trash.selected {
+                background: var(--app-primary-color);
+                color: white;
+            }
+            .trash.selected iron-icon {
+                color: var(--app-secondary-color);
+            }
 
 			paper-item{
 				cursor: pointer;
@@ -518,6 +524,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 9999;
                 transform: translate(-50% -50%);
             }
+
+            #flatrateinvoiceboxcollapse {
+
+            }
+
+            .doNotDisplay {
+                display:none;
+            }
+
 		</style>
 		<div class="col-left">
             <template is="dom-if" if="[[isLoadingMailList]]"><paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner></template>
@@ -560,7 +575,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="archive">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
-			<paper-item class="trash" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+
+            <collapse-button id="flatrateinvoiceboxcollapse" class="doNotDisplay">
+                <paper-item id="flatrateinvoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_flatrateinvoicebox" elevation="">
+                    <div class="one-line-menu list-title"><iron-icon icon="accessibility"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('flatrateInvoicing','Facturation au forfait',language)]]</span></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="flatrateinvoiceboxlist" class="menu-content sublist"  selected="{{flatrateinvoiceSelectionIndex}}" selected-item="{{flatrateinvoiceSelectionItem}}" selectable="paper-item">
+                    <!--<paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="process">[[localize('_e_flatrateinv_download','A télécharger',language)]]</paper-item>-->
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j3">[[localize('_e_flatrateinv_listing','Listing',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej3">[[localize('_e_flatrateinv_archives_listing','Archives listing',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20">[[localize('_e_flatrateinv_invoicing','Facturation',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej20">[[localize('_e_flatrateinv_archives_invoicing','Archives facturation',language)]]</paper-item>
+                </paper-listbox>
+            </collapse-button>
+
+			<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
 		</div>
 	</template>
 	<script>
@@ -657,7 +687,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)'];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)'];
 	}
 
 	constructor() {
@@ -670,7 +700,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const msg = messages.rows.reduce((acc, m) => {
                 if (!(m.status && 1 << 1 == 0)) {//status unread
                     acc.push(m)
-                }return acc}, [])
+                }return acc.filter(msg => msg.fromAddress !== 'EFACT')}, []).filter(msg => !msg.transportGuid.startsWith('BIN'))
             return msg.length;
         }).then(num => {
             const displayNum = (num) ? (num > 999) ? "999+" : num : 0
@@ -700,10 +730,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
+        this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.add('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
+        this.$.flatrateinvoicebox.classList.remove('iron-selected')
 	}
 
     _inboxSelectionIndexChanged() {
@@ -712,10 +745,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('sentboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
+            this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
         }
     }
 
@@ -728,10 +764,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
+        this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.add('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
+        this.$.flatrateinvoicebox.classList.remove('iron-selected')
     }
 
     _sentboxSelectionIndexChanged() {
@@ -740,10 +779,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
+            this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
         }
     }
 
@@ -760,10 +802,29 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
+        this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.add('iron-selected')
+        this.$.flatrateinvoicebox.classList.remove('iron-selected')
+    }
+
+    _flatrateinvoicebox(e){
+        e.stopPropagation()
+        e.preventDefault()
+
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_flatrateinvOut', status: 'j3'} } }));
+
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
+        this.$.flatrateinvoicebox.classList.add('iron-selected')
     }
 
     _invoiceSelectionIndexChanged() {
@@ -772,17 +833,43 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
+            this.set('trashSelected',null)
+            this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
         }
     }
 
+    _flatrateinvoiceSelectionIndexChanged() {
+        if (this.flatrateinvoiceSelectionIndex !== null && this.flatrateinvoiceSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.flatrateinvoiceSelectionItem.id, status: this.flatrateinvoiceSelectionItem.dataset.status } } }));
 
+            this.set('inboxSelectionIndex', null)
+            this.set('sentboxSelectionIndex', null)
+            this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
 
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        }
+    }
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.set('flatrateinvoiceSelectionIndex', null)
+
+        this.set('trashSelected','selected')
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
 	}
 
 	selectedContactItemsChanged() {
@@ -876,6 +963,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("batchCounter.accepted", e.detail.accepted)
         this.set("batchCounter.archived", e.detail.archived)
 
+    }
+
+    _checkForMedicalHouse() {
+        if( this.user && this.user.healthcarePartyId ) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{ if(hcp && hcp.type && hcp.type==='medicalHouse') { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.remove("doNotDisplay") } else { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay") } })
+        } else {
+            this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay");
+        }
     }
 
 }

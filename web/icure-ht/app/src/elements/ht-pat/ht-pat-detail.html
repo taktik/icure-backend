@@ -354,7 +354,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 text-transform: capitalize;
             }
             .patient-info-container{
-                height:96px;
+                height:95px;
                 @apply --padding-right-left-32;
                 cursor:pointer;
             }
@@ -376,6 +376,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 line-height:14px;
             }
             .patient-birthdate{
+                font-size: 13px;
+            }
+
+            .patient-profession{
                 font-size: 13px;
             }
 
@@ -411,7 +415,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .submenus-container{
                 overflow-y: overlay;
-                height: calc(100% - 215px);
+                height: calc(100% - 195px);
                 margin-bottom:16px;
             }
 
@@ -817,7 +821,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
             }
 
-            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
+            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus, #ebmPracticeNet  {
                 --paper-fab-background: var(--app-background-color-dark);
                 --paper-fab-keyboard-focus-background: var(--app-background-color);
                 color: var(--app-primary-color-dark);
@@ -839,6 +843,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             #insuranceStatus.insuranceOk, #hubStatus.accessOk, #tlStatus.tlOk, #consentStatus.consentOk, #edmgStatus.edmgOk {
                 --paper-fab-background: var(--app-status-color-ok);
+            }
+
+            #ebmPracticeNet{
+
             }
 
             .display-left-menu{
@@ -1163,6 +1171,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-ink-color:var(--app-text-color);
             }
 
+            .icon-prof{
+                height: 14px;
+                width: 14px;
+            }
+
+            .icon-doc{
+                height: 14px;
+                width: 14px;
+            }
+
         </style>
 
         <div class="container">
@@ -1181,7 +1199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
-                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]]</div>
+                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
                                 <div class="statusContainer">
                                     <paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
                                     <paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
@@ -1197,6 +1215,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             <p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
                                         </template>
                                     </div></paper-tooltip>
+                                    <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
+                                    <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
                                 </div>
                             </div>
                         </paper-item>
@@ -1366,12 +1386,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <template is="dom-repeat" items="[[events]]" as="e">
                                         <paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
                                             <h4><label class="todo-due-date">[[_dateFormat(e.valueDate)]]</label>[[shortServiceDescription(e)]]</h4>
-                                            <div class="todo-actions"><paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
+                                            <div class="todo-actions">
+                                                <paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-edit_[[e.id]]">[[localize('edi','Edit',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
                                                 <paper-tooltip position="top" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip></div>
+                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                            </div>
                                         </paper-item>
                                     </template>
                                 </paper-listbox>
@@ -1699,7 +1721,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerFedAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_registerNationalAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
@@ -1755,7 +1777,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button--save" on-tap="_revokeTherLink" hidden="[[!haveTherLinks]]" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
-                <paper-button class="modal-button--save" enabled="false" on-tap="_registerTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
+                <paper-button class="modal-button--save" enabled="false" on-tap="_registerNationalAndHubTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -2540,9 +2562,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _registerNationalAndHubTherLink(){
+                this._registerTherLink().then(resp => this.showPatientTherLinkState()).catch(error=> console.log(error));
+                this.$.patHubDialog._registerHubPatientTherapeuticLink().then().catch(error=> console.log(error));
+            }
+
             _registerTherLink(){
                 if (this.patient.ssin && this.api.tokenId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
@@ -2623,7 +2650,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            _registerFedAndHubConsent(){
+            _registerNationalAndHubConsent(){
                 this._registerConsent().then(resp => this.showPatientConsentState()).catch(error=> console.log(error));
                 this.$.patHubDialog._registerHubPatientConsent().then().catch(error=> console.log(error));
             }
@@ -3088,7 +3115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${(m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code.substr(0,1)}` }) ), sorter))
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code || 'V').substr(0,1)}` }) ), sorter))
                     )
                     this._updateFilterPanels()
                 })
@@ -3510,7 +3537,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             compareContacts(a, b) {
-                return b.created - a.created;
+                return b.openingDate - a.openingDate;
             }
 
             close() {
@@ -3749,19 +3776,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _healthElementsSelectorDataProvider() {
                 return {
-                    filter: function (filterValue, limit, offset, sortKey, descending) {
+                    filter: function (cplxFilterValue, limit, offset, sortKey, descending) {
+                        const [cdItem, filterValue] = cplxFilterValue.split(':')
                         const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
                         const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
                         const words = noDiacFilterValue && noDiacFilterValue.toLowerCase().split(/\s+/);
-                        const sorter = x => [x.descr && x.descr.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) || x.name && x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) ? 0 : 1, x.descr, x.name]
+                        const sorter = x => { const key = (x.descr || x.name || '').normalize('NFD').replace(/[\u0300-\u036f ]/g, "").toLowerCase(); return [key.startsWith(words[0]), key]}
 
-                        return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
-                            const codes = results[0];
-                            const entityTemplates = results[1];
+                        const promises = [this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]
+                        if (cdItem !== 'surgery') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000))
+                        }
+                        if (cdItem === 'allergy' || cdItem === 'adr') {
+                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'CD-ATC', 'fr', words[0], null, null, 1000))
+                        }
+
+                        return Promise.all(promises).then(results => {
+                            const entityTemplates = results[0];
+                            const codes = _.flatMap(results.slice(1), cs => cs.rows);
                             const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).some(it => it.descr && it.descr.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp) || it.name && it.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp)))
                                 .map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
-                                .concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+                                .concat(codes.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
                             return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
                         });
                     }.bind(this)
@@ -3989,6 +4025,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _linkToEbPracticeNet(){
+                window.open("https://www.ebpnet.be/fr/Pages/default.aspx",'_blank');
+            }
+
+            _ebmPicture(){
+                return require('../../../images/EbpracticeNet-logo-square.png')
+            }
 
         }
 

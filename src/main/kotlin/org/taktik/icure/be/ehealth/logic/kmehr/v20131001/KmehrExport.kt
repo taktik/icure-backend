@@ -87,7 +87,7 @@ open class KmehrExport {
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
-    fun createPartyWithAddresses(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
+    fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
     }
 
@@ -162,21 +162,21 @@ open class KmehrExport {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
-            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = cdItem } )
+            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
-            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.0"
+            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.6"
                 value = if (((svc.status ?: 0) and 2) != 0 || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate())) {
                     CDLIFECYCLEvalues.INACTIVE
                 } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else ACTIVE
+                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
             } }
             if(cdItem == "medication") {
                 svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
             }
@@ -202,10 +202,10 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.healthElementId })
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "icure-id"; sv = ICUREVERSION; value = he.id })
-            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = cdItem } )
+            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
-            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.0"
+            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.6"
                 value = if (((he.status ?: 0) and 2) != 0 || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
                 CDLIFECYCLEvalues.INACTIVE
                 else
@@ -261,9 +261,9 @@ open class KmehrExport {
                 content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply { l = language; value = content.stringValue }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
-                    mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode -> if (unitCode.isNotEmpty()) {unit = UnitType().apply { cd = CDUNIT().apply { s = CDUNITschemes.CD_UNIT; sv = "1.0"; value = unitCode } } } }
+                    mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode -> if (unitCode.isNotEmpty()) {unit = UnitType().apply { cd = CDUNIT().apply { s = CDUNITschemes.CD_UNIT; sv = "1.4"; value = unitCode } } } }
 					if (unit == null) {
-						mv.unit?.let { getCode(it)?.let {unit = UnitType().apply { cd = CDUNIT().apply { s = CDUNITschemes.CD_UNIT; sv = "1.0"; value = it.code }}}}
+						mv.unit?.let { getCode(it)?.let {unit = UnitType().apply { cd = CDUNIT().apply { s = CDUNITschemes.CD_UNIT; sv = "1.4"; value = it.code }}}}
 					}
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
@@ -331,7 +331,7 @@ open class KmehrExport {
             cnt?.medicationValue?.substanceProduct.let {sp->
                 cnt?.medicationValue?.duration?.let { d ->
                     item.duration = DurationType().apply { decimal= BigDecimal.valueOf(d.value); unit = d.unit?.code?.let {
-                        TimeunitType().apply { cd=CDTIMEUNIT().apply { s=CDTIMEUNITschemes.CD_TIMEUNIT; sv="1.0"; value=it } }
+                        TimeunitType().apply { cd=CDTIMEUNIT().apply { s=CDTIMEUNITschemes.CD_TIMEUNIT; sv="2.1"; value=it } }
                     }}
                 }
             }
@@ -368,7 +368,7 @@ open class KmehrExport {
                     val idt = CDITEMschemes.fromValue(c.type)
                     val prevIcc = item.cds.find { cc -> idt == cc.s }
                     if (prevIcc == null) {
-                        item.cds.add(CDITEM().apply { s(idt); sv = "1.0"; value = c.code })
+                        item.cds.add(CDITEM().apply { s(idt); sv = "1.6"; value = c.code })
                     } else if (prevIcc.value != c.code) {
                         item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
                     }
@@ -423,7 +423,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
             this.patient = makePerson(patient, config)
             transactions.add(TransactionType().apply {
-                cds.add(CDTRANSACTION().apply { s(transactionType); sv = "1.0"; value = cdTransaction })
+                cds.add(CDTRANSACTION().apply { s(transactionType); sv = "1.5"; value = cdTransaction })
                 author = AuthorType().apply { hcparties.add(createPartyWithAddresses(sender, emptyList())) }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = ssc.id ?: dem.id ?: patient.id })
@@ -449,7 +449,12 @@ open class KmehrExport {
             header = HeaderType().apply {
                 standard = StandardType().apply {
 					cd = CDSTANDARD().apply { s = "CD-STANDARD"; sv = "1.8"; value = STANDARD }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; sv = "1.1"; value = CDMESSAGEvalues.GPSOFTWAREMIGRATION } ; version = SMF_VERSION }
+                    val filetype = if(config.exportAsPMF) {
+                        CDMESSAGEvalues.GPPATIENTMIGRATION
+                    } else {
+                        CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    }
+					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; sv = "1.1"; value = filetype } ; version = SMF_VERSION }
 				}
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + config._kmehrId })
 				date = config.date
@@ -520,7 +525,7 @@ open class KmehrExport {
 	companion object {
 		const val SMF_VERSION = "2.3"
 	}
-	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String) {
+	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val exportAsPMF: Boolean) {
 		data class Software(val name : String, val version : String)
 	}
 }

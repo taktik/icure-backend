@@ -62,7 +62,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-row: 1 / span 1;
                     background:var(--app-background-color);
                     float:left;
-                    @apply --shadow-elevation-2dp;
                     padding:20px;
                     padding-top: 0;
                     display:flex;
@@ -312,6 +311,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
+                .table-top > div.actions paper-icon-button {
+                    margin: 8px 0;
+                }
+
+                .mb4 {margin-bottom: 4px !important;}
 
                 .mb4 {margin-bottom: 4px !important;}
 
@@ -386,6 +390,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-progress-active-color: var(--app-secondary-color);
                 }
 
+                paper-progress.full {
+                    --paper-progress-active-color: var(--app-error-color);
+                }
+
                 @media screen and (max-width:1025px) {
                     .col-right {
                         width: 100vw;
@@ -403,29 +411,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template is="dom-if" if="[[selectList]]">
             <div class="table-top">
                 <div class="checkbox">
-                    <vaadin-checkbox on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
+                    <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
                 </div>
 
-                <template is="dom-if" if="[[checkedMessages.length]]">
-                    <div class="actions">
-                        <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                        <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
-                        <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                        <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
-                    </div>
-                </template>
+                <div class="actions">
+                    <template is="dom-if" if="[[!checkedMessages.length]]">
+                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
+                            <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[checkedMessages.length]]">
+                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
+                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="debugRemove"></paper-icon-button>-->
+                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
+                        <!--</template>-->
+                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                            <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                        </template>
+                    </template>
+                </div>
 
                 <div class="indicators">
-                    <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="markunread-mailbox"></iron-icon><span class="label">0</span></div>
-                    <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
-                    <div id="capacity-indicator"><div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]]</span></div> <paper-progress value="0" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress></div>
-                    <paper-tooltip for="capacity-indicator" offset="0">0 %</paper-tooltip>
+                    <template is="dom-if" if="[[!_isEqual(bufferedMsgs,0)]]">
+                        <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="warning"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
+                        <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
+                    </template>
+                    <div id="capacity-indicator">
+                        <div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)</span></div>
+                        <paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress>
+                    </div>
+                    <template is="dom-if" if="[[actualCapacity]] >= 100">
+                        <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
+                    </template>
                 </div>
 
             </div>
             <div class="second-panel col-right">
                 <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
-
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
                              active-item="{{activeItem}}" items="[[messages]]" 
                              on-tap="click" on-removed-opened="_deselectMessages"
@@ -450,7 +476,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen"><b>[[item.fromAddress]]</b> - [[item.subject]]</div>
+                                <div class="cell frozen">
+                                    <b>[[item.fromAddress]]</b> - [[item.subject]]
+                                    <template is="dom-if" if="[[isImportant(item)]]">
+                                        <iron-icon id="[[item.id]]-important" icon="warning"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-important">Important</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[isCrypted(item)]]">
+                                        <iron-icon id="[[item.id]]-crypted" icon="lock"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-crypted">Crypted</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[hasAnnex(item)]]">
+                                        <iron-icon id="[[item.id]]-hasAnnex" icon="editor:attach-file"></iron-icon>
+                                        <paper-tooltip for="[[item.id]]-hasAnnex">Attachments</paper-tooltip>
+                                    </template>
+                                </div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="48px">
+                            <template class="header">
+                                [[localize('is_read','Read',language)]]
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[!isUnread(item)]]">
+                                    <iron-icon icon="done"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[isUnread(item)]]">
+                                    <iron-icon icon="mail"></iron-icon>
+                                </template>
                             </template>
                         </vaadin-grid-column>
                     </template>
@@ -552,6 +605,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     pages: {
                         type: Array,
                         value: [1,2,3,4]
+                    },
+                    bufferedMsgs: {
+                        type: Number,
+                        value: 0
+                    },
+                    mailboxCapacity: {
+                        type: Number,
+                        value: 0
+                    },
+                    mailboxMaxCapacity: {
+                        type: Number,
+                        value: 0
+                    },
+                    capacityPercent: {
+                        type: Number,
+                        value: 0
                     }
                 };
             }
@@ -566,6 +635,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+                this._getBoxCapacity()
+            }
+
+            _getBoxCapacity() {
+                if (this.api.keystoreId && this.api.tokenId && this.api.credentials.ehpassword) {
+                    this.api.fhc().Ehboxcontroller().getInfosUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword)
+                        .then(boxInfo=>{
+                            this.set('bufferedMsgs',boxInfo.nbrMessagesInStandBy)
+                            this.set('mailboxCapacity',boxInfo.currentSize)
+                            this.set('mailboxMaxCapacity',boxInfo.maxSize)
+                            this.set('actualCapacity',((this.mailboxCapacity / this.mailboxMaxCapacity)*100).toFixed(2))
+                            if (this.actualCapacity >= 100) this.set('_mailBoxCapacityColor','full')
+                            this.set('capacityPercent', this.actualCapacity <= 100 ? this.actualCapacity : '+100')
+                        })
+                }
             }
 
             _isPage(page,item) {return page === item -1}
@@ -593,8 +677,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDatesAndGUID(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                    return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
+                }).then(messages => {
+                    console.log('getInbox',messages)
+                    this.set('messages', messages || [])
+                });
+            }
+
+            isUnread(m) {
+                return ((m.status & (1 << 1)) !== 0)
+            }
+            isImportant(m) {
+                return ((m.status & (1 << 2)) !== 0)
+            }
+            isCrypted(m) {
+                return ((m.status & (1 << 3)) !== 0)
+            }
+            hasAnnex(m) {
+                return ((m.status & (1 << 4)) !== 0)
             }
 
             getUnreadEmail() {
@@ -605,13 +705,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -623,7 +723,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -635,25 +735,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getReport(){
-                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => this.set('messages', messages || []));
-
+                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
             getEInv(){
                 console.log(this.messages)
                 this.api.message().findMessagesByTransportGuid('EFACT:OUT:*', null, null, 1000).then(messages => {
                     console.log(messages.rows)
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getReportIn(){
-                this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
             getMycarenetIn() {
@@ -665,7 +770,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEheIn(){
-                this.findMessagesByTransportGUID('INBOX:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
             }
 
 			getChap4In(){
@@ -709,6 +817,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, [])
                     return this.sortByDates(msg);
                 }).then(messages => this.set('messages', messages || []));
+                
             }
 
             getTrash(){
@@ -718,6 +827,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
+                    // console.log('findMessagesByTransportGUID',messages)
                     return this.sortByDatesAndGUID(messages.rows);
                 })
             }
@@ -735,12 +845,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
+                console.log('refresh',this.selectList.selection)
                 if (this.selectList && this.selectList.selection) {
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
-					let restoreButton = this.shadowRoot.querySelector('#restore-button');
-					// restoreButton && (restoreButton.hidden = true);
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -800,7 +909,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.getGMD();
                             break;
                         case 'trash' :
-							restoreButton && (restoreButton.hidden = false);
                         	this.getTrash();
                         	break;
                         case 'Refresh':
@@ -808,6 +916,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         	break;
                     }
                 }
+                this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                this._deselectAll();
             }
 
             sortByDates(messages){
@@ -839,6 +949,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem;
                 this.set('selectedMessages', selected);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
+                // this._deselectAll();
             }
 
             _deselectMessages() {
@@ -849,81 +960,99 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _itemSelected(e) {
                 // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
                 if (e.path[0].checked) {
-                    this.push('checkedMessages',JSON.parse(e.target.dataset.item))
+                    const checkedMsg = JSON.parse(e.target.dataset.item)
+                    this.push('checkedMessages',checkedMsg)
                 }
                 else {
-                    this.splice('checkedMessages', this.checkedMessages.indexOf(JSON.parse(e.target.dataset.item)))
+                    this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
                 }
                 console.log(this.checkedMessages.length+' checked',this.checkedMessages)
             }
 
             _toggleSelectAll() {
                 let mailList = this.shadowRoot.querySelector('#mail-list');
-                let allCheckboxes = mailList.querySelectorAll('.checkbox');
+                let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 allCheckboxes.forEach(box=>{
                     box.checked = !box.checked;
                 })
             }
 
-			_removeMsgs(){
-                console.log('asked for removeMsgs')
-				// let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
-				let mailList = this.shadowRoot.querySelector('#mail-list');
-				let allCheckboxes = mailList.querySelectorAll('.checkbox');
-				let msgs = this.checkedMessages;
-				console.log('msgs',msgs)
-				if(msgs.length) {
-                    msgs.forEach(msg =>{
-                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-                        if (!(msg.transportGuid).startsWith("BIN")) {
-                            this.set('isLoadingMailList',true)
-                            this.api.message().deleteMessages(msg.id)
-                                .then(() => {
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                    this._refresh();
-                                })
-                                .finally(()=>{this.set('isLoadingMailList',false)})
-                        } else {
-                            msg.transportGuid = "BIN" + msg.transportGuid;
-                            this.set('isLoadingMailList',true)
-                            this.api.message().modifyMessage(msg)
-                                .then(() => {
-                                    this._refresh();
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                })
-                                .finally(()=>{this.set('isLoadingMailList',false)})
-                        }
-                    });
-					// mailListSelectionColumn.selectAll = false;
-                    allCheckboxes.forEach(box=>{
-                        box.checked = false;
-                    })
-				}
+            _deselectAll() {
+                let checkerAll = this.shadowRoot.querySelector('#checkerAll')
+                    , mailList = this.shadowRoot.querySelector('#mail-list')
+                let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
+                // checkerAll.checked = false;
+                allCheckboxes.forEach(box=>{
+                    box.checked = false;
+                })
+                this.set('checkedMessages',[])
             }
 
-			_restoreMsgs(){
-                let mailList = this.shadowRoot.querySelector('#mail-list');
-                let allCheckboxes = mailList.querySelectorAll('.checkbox');
-                let msgs = this.checkedMessages;
-				if(msgs) {
-					msgs.forEach(msg =>{
-                        this.splice('checkedMessages', this.checkedMessages.indexOf(msg))
-						if (msg.transportGuid.startsWith("BIN")){
-                            this.set('isLoadingMailList',true)
-							msg.transportGuid = msg.transportGuid.substring(3);
-                            this.api.message().modifyMessage(msg)
-                                .then(()=> this._refresh())
-                                .finally(()=>{this.set('isLoadingMailList',false)})
-						}
-				        else {
-				            console.log(msg.id,'not in bin')
+			_removeMsgs(){
+                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
+                const selectedBox = this.selectList.selection.item.toUpperCase()
+                const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : selectedBox == 'TRASH' ? 'BIN' : 'INBOX'
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                if(checkedMsgs.length) {
+                    let msgsToDelete = []
+                    checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
+                    console.log('remove',msgsToDelete,thisBox,delBox)
+                    if(msgsToDelete.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
+                        if (thisBox == 'BIN') {
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
                         }
+                        checkedMsgs.forEach(msg=>{
+                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                        })
+                        this._refresh()
+                    }
+                    allCheckboxes.forEach(box=>box.checked = false)
+                    this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                    this._deselectAll();
+                } // if checked length end
+            }
+
+
+            _isEqual(a,b) {return (a === b)}
+
+            _restoreMsgs(){
+                const checkedMsgs = this.checkedMessages
+                if(checkedMsgs.length) {
+                    let mailList = this.shadowRoot.querySelector('#mail-list')
+                        , allCheckboxes = mailList.querySelectorAll('.checkbox')
+                        , tempBinInbox = []
+                        , tempBinSentbox = []
+                        , msgsToRestore = []
+                    checkedMsgs.forEach(msg =>{
+                        const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+                        if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)}
+                        if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)}
+                        msgsToRestore.push(msg)
+                        console.log('restore',msgId,thisBox)
+                    }) // forEach end
+                    console.log(tempBinInbox,tempBinSentbox)
+                    if(tempBinInbox.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
+                    }
+                    if(tempBinSentbox.length){
+                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
+                    }
+                    msgsToRestore.forEach(msg=>{
+                        if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) {
+                            msg.transportGuid = 'INBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        } else {
+                            msg.transportGuid = 'SENTBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        }
+                        this.api.message().modifyMessage(msg.id)
                     })
-                    allCheckboxes.forEach(box=>{
-                        box.checked = false;
-                    })
-				}
-			}
+                    this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
+                    allCheckboxes.forEach(box=>box.checked = false)
+                    this._refresh()
+                } // if checked length end
+            }
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';

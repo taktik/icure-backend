@@ -25,6 +25,8 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -399,6 +401,16 @@
                 border-top: 1px solid var(--app-background-color-dark);
             }
 
+            paper-radio-group {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            paper-radio-group paper-radio-button {
+                line-height: 48px;
+            }
+
 			.buttons{
                 display: flex;
                 flex-grow: 1;
@@ -406,6 +418,18 @@
                 justify-content: flex-end;
                 padding-top: 16px;
 			}
+
+            @media screen and (max-width: 800px) {
+                .endline {
+                    padding-bottom: 16px;
+                }
+                paper-radio-group, .buttons {
+                    flex-direction: column;
+                }
+                paper-radio-group paper-radio-button {
+                    line-height: normal;
+                }
+            }
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -552,12 +576,10 @@
 			</vaadin-grid>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-                <paper-dropdown-menu id="preferredHub" label="Format prescription">
-                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{selectedFormat}}">
-                        <paper-item name="A4">Format A4</paper-item>
-                        <paper-item name="presc">Format prescription</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
+                <paper-radio-group selected="{{selectedFormat}}" on-selected-changed="_setPrefillFormat">
+                    <paper-radio-button name="A4">Format A4</paper-radio-button>
+                    <paper-radio-button name="presc">Format prescription</paper-radio-button>
+                </paper-radio-group>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
@@ -719,11 +741,18 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	ready() {
 	    super.ready();
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+
+        this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : this.selectedFormat)
     }
 
 	_activeIconClass(selected) {
 	    return selected ? 'icn-selected' : ''
 	}
+
+    _setPrefillFormat() {
+	    console.log(this.selectedFormat)
+        localStorage.setItem('prefillFormat', this.selectedFormat)
+    }
 
 	_onDrag(e) {
 		if (this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
@@ -800,6 +829,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
 			this.saveCurrentContact().then(c => this._contactsChanged());
 		}
+		console.log(vaadinUpload.files)
 	}
 
 	_invoicing(){
@@ -982,14 +1012,17 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
 	}
 
-	_pdfReport(drugsToBePrescribed,toPrint) {
-        this.api.pdfReport(mustache.render(toPrint, null))
+	_pdfReport(drugsToBePrescribed,toPrint,size) {
+        this.api.pdfReport(mustache.render(toPrint, null),{
+            paperWidth: size == 'A4' ? 210 : 105,
+            paperHeight: size == 'A4' ? 297 : 210
+        })
             .then(data => {
                 let blob = new Blob([data], {type: 'application/pdf'});
                 let url = window.URL.createObjectURL(blob)
                 let a = document.createElement("a");
                 document.body.appendChild(a);
-                a.style = "display: none";
+                a.style = "display: none;";
                 a.href = url;
                 a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
                 a.click();
@@ -1027,12 +1060,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 console.log('prescri',prescri)
                 rid = prescri.rid;
                 toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-                this._pdfReport(drugsToBePrescribed,toPrint)
+                this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
             } ))))
         } else {
             console.log("no recip-e")
             toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-            this._pdfReport(drugsToBePrescribed,toPrint)
+            this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
         }
         this.$.loadingPrescriptionDialog.close();
 	} // print end
@@ -1067,11 +1100,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             let medicName = ""
             prescArray.map(that => { // create prescription content
                 prescriContent += `<article>
-                    <p><span class="bold">R/</span> ${that.R}</p>
-                    <p><span class="bold">S/</span> ${that.S}</p>
+                    <p class="bigtxt"><span class="bold bigtxt">R/</span> ${that.R}</p>
+                    <p class="bigtxt"><span class="bold bigtxt">S/</span> ${that.S}</p>
                 </article>`;
                 articlePoso.push(that.poso) // add posology to the list
-                medicName = that.S
+                medicName = that.R
             }) // map end
             const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
                 <header>
@@ -1150,7 +1183,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     let singleName = single.name
                     thatBody += single.body
                     if (this.patient.ssin && this.api.tokenId) {
-                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+single.name+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
                     }
                 })
                 if (this.patient.ssin && this.api.tokenId) {
@@ -1263,15 +1296,16 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             body {margin: 0;padding: 0;}
             div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
-            * {font-size:.95em;font-family: Arial,sans-serif;}
+            * {font-size:10px;font-family: Arial,sans-serif;}
+            *.bigtxt {font-size:13px;}
             /* flex */
             *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
             /* elems */
-            img.codbar {height:75px;width:auto;background: black;margin-bottom: 5px;} *.signdate {border-bottom: 2px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
+            img.codbar {height:auto;width:100%;background: black;margin-bottom: 5px;} *.signdate {border-bottom: .25px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
             /* style */
             *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
             *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
-            *.br {border-right: 2px solid black;} *.bt {border-top: 2px solid black} *.bb {border-bottom: 2px solid black}
+            *.br {border-right: .25px solid black;} *.bt {border-top: .25px solid black} *.bb {border-bottom: .25px solid black}
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
         </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
