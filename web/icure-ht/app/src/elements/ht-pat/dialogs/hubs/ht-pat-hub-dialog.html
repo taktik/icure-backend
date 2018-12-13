@@ -1033,11 +1033,19 @@
                 }
             }
 
-            _openTransactionViewer(e){
+            _openTransactionViewer_old(e){
                 e.stopPropagation();
                 if(e && e.target && e.target.item) {
                     this.set("selectedTransaction", e.target.item)
                     this.$.transactionViewDialog.open( e.target.item, this._getHubTransaction( e.target.item));
+                }
+            }
+
+            _openTransactionViewer(e){
+                e.stopPropagation();
+                if(e && e.target && e.target.item) {
+                    this.set("selectedTransaction", e.target.item)
+                    this.$.transactionViewDialog.open( e.target.item, this._getHubTransactionMessage( e.target.item));
                 }
             }
 
@@ -1064,6 +1072,40 @@
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp =>
                                 this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId,
+                                    this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                    this.patient.ssin,
+                                    transaction.ids.find(id => id.s === 'LOCAL').sv, transaction.ids.find(id => id.s === 'LOCAL').sl, transaction.ids.find(id => id.s === 'LOCAL').value,
+                                    this.hubPackageId, this.breakTheGlassReason
+                                )
+                            ).then(tranResp => {
+                                    if (tranResp) {
+                                        return tranResp;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            )
+                    } else {
+                        return Promise.resolve(null)
+                    }
+                }
+            }
+
+            _getHubTransactionMessage(transaction){
+                //getTransactionUsingGET(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // ssin: string, sv: string, sl: string, id: string,
+                // hubPackageId?: string, breakTheGlassReason?: string): Promise<string | any>;
+                if(transaction && this._isTransactionSet(transaction)) {
+                    return this._getHubTransactionSetMessage(transaction);
+                } else {
+                    if (this.patient.ssin && this.api.tokenId && transaction) {
+                        return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                            .then(hcp =>
+                                this.api.fhc().Hubcontroller().getTransactionMessageUsingGET(this.hubEndPoint, this.api.keystoreId,
                                     this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                     this.patient.ssin,
@@ -1136,6 +1178,36 @@
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId,
+                                this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                this.patient.ssin,
+                                transaction.ids.find(id => id.s==='LOCAL').sv, transaction.ids.find(id => id.s==='LOCAL').sl, transaction.ids.find(id => id.s==='LOCAL').value,
+                                this.hubPackageId, this.breakTheGlassReason
+                            )
+                        ).then(tranResp => {
+                                if (tranResp) {
+                                    return tranResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                } else {
+                    return Promise.resolve(null)
+                }
+            }
+
+            _getHubTransactionSetMessage(transaction){
+                //getTransactionSetUsingGET(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // ssin: string, sv: string, sl: string, id: string,
+                // hubPackageId?: string, breakTheGlassReason?: string): Promise<string | any>;
+                if (this.patient.ssin && this.api.tokenId && transaction) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp =>
+                            this.api.fhc().Hubcontroller().getTransactionSetMessageUsingGET(this.hubEndPoint, this.api.keystoreId,
                                 this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                 this.patient.ssin,
