@@ -59,7 +59,7 @@ public class EntityTemplateFacade implements OpenApiFacade{
 	private EntityTemplateLogic entityTemplateLogic;
 
 	@ApiOperation(
-			value = "Finding entityTemplates by entityTemplate, type and version with pagination.",
+			value = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.",
 			response = EntityTemplateDto.class,
 			responseContainer = "Array",
 			httpMethod = "GET",
@@ -77,6 +77,42 @@ public class EntityTemplateFacade implements OpenApiFacade{
 
 		List<EntityTemplate> entityTemplatesList;
 		entityTemplatesList = entityTemplateLogic.findEntityTemplates(userId, entityType, searchString, includeEntities);
+
+		if (entityTemplatesList != null) {
+			response = ResponseUtils.ok(entityTemplatesList.stream().map(e -> {
+				EntityTemplateDto dto = mapper.map(e, EntityTemplateDto.class);
+
+				if (includeEntities != null && includeEntities) {
+					dto.setEntity(e.getEntity());
+				}
+
+				return dto;
+			}).collect(Collectors.toList()));
+		} else {
+			response = ResponseUtils.internalServerError("Finding entityTemplates failed");
+		}
+
+		return response;
+	}
+
+	@ApiOperation(
+			value = "Finding entityTemplates by entityTemplate, type and version with pagination.",
+			response = EntityTemplateDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Returns a list of entityTemplates matched with given input."
+	)
+	@GET
+	@Path("/findAll/{type}")
+	public Response findAllEntityTemplates(
+			@PathParam(value = "type") String entityType,
+			@ApiParam(value = "searchString", required = false) @QueryParam("searchString") String searchString,
+			@ApiParam(value = "includeEntities", required = false) @QueryParam("includeEntities") Boolean includeEntities) {
+
+		Response response;
+
+		List<EntityTemplate> entityTemplatesList;
+		entityTemplatesList = entityTemplateLogic.findAllEntityTemplates(entityType, searchString, includeEntities);
 
 		if (entityTemplatesList != null) {
 			response = ResponseUtils.ok(entityTemplatesList.stream().map(e -> {

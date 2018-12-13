@@ -27,4 +27,7 @@ public interface EntityTemplateDAO extends GenericDAO<EntityTemplate> {
 
 	@View(name = "by_user_type_descr", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
 	List<EntityTemplate> getByUserIdTypeDescr(String userId, String type, String searchString, Boolean includeEntities);
+
+	@View(name = "by_type_descr", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
+	List<EntityTemplate> getByTypeDescr(String type, String searchString, Boolean includeEntities);
 }
