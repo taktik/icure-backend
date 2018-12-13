@@ -53,6 +53,7 @@ onmessage = e => {
 		const assignAttachment = (messageId,docInfo,document) =>
 			textType(document.mainUti, document.otherUtis)?
 				iccPatientApi.findByNameBirthSsinAuto(user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc").then(patients =>
+                {
 					(patients && patients.rows && patients.rows.length === 1)?
 						iccContactXApi.newInstance(user, patients.rows[0], {
 						groupId : messageId,
@@ -65,33 +66,35 @@ onmessage = e => {
 						encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
 						descr: docInfo.labo,
 						subContacts: []
-					}).then(c =>
-							iccContactApi.createContact(c).then(c =>
+					}).then(c => {
+					        // console.log('newInstance',c)
+							iccContactApi.createContact(c).then(c => {
+							    // console.log('createContact',c)
 								iccFormXApi.newInstance(user, patients.rows[0], {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f =>iccFormXApi.createForm(f)).then(f =>
 									iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
 									beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
 									.then(c => {
-										console.log("Contact id " + c.id);
+										// console.log("Contact id " + c.id);
 										return {id:c.id,protocolId:docInfo.protocol}
 									})
 								)
 							)
-						)
-					):null
-				)
+                        })
+                    }):null
+                })
 			:null
 
         const treatMessage =  (message,boxId) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
             .then(([fullMessage, existingMess]) => {
                 if (existingMess.rows.length > 0) {
-                    console.log("Message found",existingMess.rows)
+                    // console.log("Message found",existingMess.rows)
 
                     const existingMessage = existingMess.rows[0]
 
                     return (existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) ? fullMessage.id : null
                 } else {
-                    console.log('fullMessage',fullMessage)
+                    // console.log('fullMessage',fullMessage)
                     let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
                     let receivedDate = new Date().getTime()
 
@@ -105,12 +108,12 @@ onmessage = e => {
                         fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
                         received: receivedDate
                     }
-                    console.log('Unknown message : ',newMessage)
+                    // console.log('Unknown message : ',newMessage)
 
                     return iccMessageXApi.newInstance(user, newMessage)
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
-                            console.log('createdMessage',createdMessage)
+                            // console.log('createdMessage',createdMessage)
                             Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
 									docxApi.newInstance(user, createdMessage, {
 										documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
@@ -120,7 +123,7 @@ onmessage = e => {
 									})
 										.then(d => docApi.createDocument(d))
 										.then(createdDocument => {
-										    console.log('createdDocument',createdDocument)
+										    // console.log('createdDocument',createdDocument)
 											let byteContent = iccUtils.base64toArrayBuffer(a.content);
 											return [createdDocument, byteContent]
 										})
@@ -129,11 +132,13 @@ onmessage = e => {
 												createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)?
 												beResultApi.getInfos(createdDocument.id)
 												.then(docInfos => docInfos?[docInfos,Promise.all(docInfos.map( docInfo => {
-												    console.log('will assignAttachment',fullMessage.id,docInfo,createdDocument)
-												    assignAttachment(docInfo.documentId,docInfo,createdDocument)
+												    // console.log('will assignAttachment',fullMessage.id,docInfo,createdDocument)
+												    assignAttachment(fullMessage.id,docInfo,createdDocument)
                                                 }))]:[null,null])
 												.then(([docInfos,assignedAttachment]) => {
+												    console.log('assignedAttachment',assignedAttachment)
 													assignedAttachment && assignedAttachment.then(data => {
+													    console.log('data',data)
 														data = data.filter(d=>d)
 														createdMessage.unassignedResults = docInfos.filter(docinfo => (data.map(p => p.protocolId) || []).indexOf(docinfo) === -1);
 														createdMessage.assignedResults = data.map(p => p.id) || [];
