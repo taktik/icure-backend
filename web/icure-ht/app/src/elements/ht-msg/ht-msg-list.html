@@ -1001,12 +1001,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
                         if (thisBox == 'BIN') {
                             this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
+                            .then(()=>this._refresh())
                         }
                         checkedMsgs.forEach(msg=>{
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            .finally(()=>this._refresh())
                         })
-                        this._refresh()
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
