@@ -263,6 +263,7 @@
                     <paper-button on-tap="_getTSfromFileAndPut">Put TSet</paper-button>
                     <!--<paper-button on-tap="_runRevokeHubTransaction">Revoke transaction</paper-button>-->
                     <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
+                    <paper-button on-tap="_runGenerateMedicationScheme">Generate medicationscheme</paper-button>
                 </template>
                 <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
                     <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
@@ -632,6 +633,46 @@
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
                                         return this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
+                                            recipient: hcp,
+                                            comment: "mycomment"
+                                        }).then(output => {
+                                            //creation of the xml file
+                                            let file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+
+                                            //creation the downloading link
+                                            let a = document.createElement("a");
+                                            document.body.appendChild(a);
+                                            a.style = "display: none";
+
+                                            //download the new file
+                                            let url = window.URL.createObjectURL(file);
+                                            a.href = url;
+                                            a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
+                                            a.click();
+                                            window.URL.revokeObjectURL(url);
+
+                                            document.body.removeChild(a);
+                                        }).catch( error=> console.log(error))
+                                    })
+                            ))
+                }
+            }
+
+            _runGenerateMedicationScheme(){
+                this._generateMedicationScheme(1)
+            }
+
+            //generateMedicationSchemeExport(patientId: string,language?: string,version?: number,body?: models.MedicationSchemeExportInfoDto
+            _generateMedicationScheme(versionNumber){
+                if (this.patient) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
+                            .then(patientDto =>
+                                this.api.crypto()
+                                    .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                    .then(secretForeignKeys => {
+                                        return this.api.bekmehr().generateMedicationSchemeWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", versionNumber, {
                                             secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
