@@ -544,6 +544,35 @@
                 transform: translateY(8px);
             }
 
+            #success,
+            #failed {
+                display: block;
+                position: fixed;
+                top: 50vh;
+                right: 0;
+                transform: translate(100vw,-50%);
+                z-index: 999;
+                padding: 16px;
+                border-radius: 4px 0 0 4px;
+                transition: 1s ease-in;
+            }
+            #success {
+                background: rgba(0,255,0,.55);
+            }
+            #failed {
+                background: rgba(255,0,0,.55);
+            }
+            .displayNotif {
+                animation: displaySent 7.5s ease-in;
+            }
+
+            @keyframes displaySent {
+                0% {transform: translate(100vw,-50%);}
+                10% {transform: translate(0,-50%);}
+                88% {transform: translate(0,-50%);}
+                100% {transform: translate(100vw,-50%);}
+            }
+
             @media screen and (max-width: 1030px) {
                 #new-msg {
                     right: initial !important;
@@ -657,6 +686,9 @@
             </div>
         </paper-dialog>
 
+        <div id="success"><iron-icon icon="check"></iron-icon> [[localize('sen_succ','Success',language)]] !</div>
+        <div id="failed"><iron-icon icon="clear"></iron-icon> [[localize('inv_err','Error',language)]]</div>
+
         <paper-dialog id="metadataDialog">
             <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
             <div>
@@ -729,6 +761,8 @@
                                 mimeType: 'text/plain',
                                 filename: ''
                             },
+                            encrypted: false,
+                            patientInss: '',
                             annex: [],
                             destinations:[],
                             useReceivedReceipt:false,
@@ -795,7 +829,7 @@
 
 			ready() {
 				super.ready()
-                this.set("newMessage.destinations", [])
+                // this.set("newMessage.destinations", [])
 			}
 
             open(params) {
@@ -816,6 +850,10 @@
                 this.set('isSendingMsg',false)
                 this.set('hideSendBtn',true)
                 this.set('uploadFiles',[])
+
+                this.set('newMessage.useReceivedReceipt',false)
+                this.set('newMessage.useReadReceipt',false)
+                this.set('newMessage.usePublicationReceipt',false)
                 if (params) {
                     console.log('has params',params)
                     this.set("newMessage.annex", params.annex ? params.annex : [])
@@ -943,7 +981,7 @@
                             this.push('newMessage.annex',{
                                 "content": fileByteArray,
                                 "filename": file.name,
-                                "mimeType": file.type,
+                                "mimeType": file.type ? file.type : 'text/plain',
                                 "title": file.name,
                                 "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
                             });
@@ -1069,6 +1107,8 @@
             }
 
 			_SendNewMessage(){
+                this.$['success'].classList.remove('displayNotif')
+                this.$['failed'].classList.remove('displayNotif')
                 this.set('isSendingMsg',true)
                 this.set('hideSendBtn',true)
                 console.log(this.newMessage)
@@ -1079,7 +1119,6 @@
                     let customMetas = this.newMessage.customMetas
                     Object.keys(forcedMetas).forEach(k=>customMetas[k] = forcedMetas[k])
                     console.log('customMetas',customMetas)
-                    debugger
 
                     let message = {
                         id : this.api.crypto().randomUuid(),
@@ -1130,15 +1169,16 @@
                         	console.log(response);
                         	if(response) {
 								this.clearField();
-                                this.set('isSendingMsg',true)
-                                // TODO: Ajouter un message de confirmation
+                                this.set('isSendingMsg',false)
+                                this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}
                         })
                         .catch(ex =>{
 							console.log(ex);
-                            // TODO: Ajouter un message d'erreur
-                            this.set('isSendingMsg',true)
+                            this.$['failed'].classList.add('displayNotif')
+                            this.set('isSendingMsg',false)
+                            this.set('hideSendBtn',false)
 						})
 
 				})
@@ -1247,11 +1287,9 @@
 
             _isMedical(file) {
                 let fileInfos
-                this.api.beresultimport().getInfos(file.doc.id).then(res=>fileInfos = res)
+                // this.api.beresultimport().getInfos(file.doc.id).then(res=>fileInfos = res)
                 const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
                 // const content = this._readFile(file)
-                console.log('fileInfos',fileInfos)
-                debugger
                 return
                     ext.startsWith('DMA-') || ext.startsWith('HDM-') || ext.startsWith('ALA-') || ext.startsWith('CI-') || ext.startsWith('COG-') || ext == 'KMEHR' || ext == 'SUMEHR' ||
                     ext.includes('TEC') || ext.includes('REP') || ext.includes('REC') || ext.includes('LAB') || ext.includes('KOM') || ext.includes("IMA")
@@ -1287,16 +1325,13 @@
             }
 
             _setMetaDatas(author,sender,recipient,files) {
-                console.log('_setMetaDatas',author,sender,recipient,files)
-                const isPerson = (person) => {return person.lastName ? true : false}
-                const isText = (file) => {return file.mimeType === 'text/plain'}
-                const isTransaction = (isPerson(recipient) && this.uploadFiles.length ? this._isMedical(this.uploadFiles[0]) : false) // bool
-
-                const private_getMediaType = (file) => {
-                    const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
-                    // const content = this._readFile(file)
-                    return 'TODO MediaType.'+ext
-                }
+                const isPerson = (person) => {return person.lastName ? true : false},
+                    isText = (file) => {return file.mimeType === 'text/plain'},
+                    getMediaType = (file) => {
+                        const ext = (/[^.]+$/.exec(file.filename ? file.filename : file.name)).toString().toUpperCase()
+                        return 'TODO MediaType.'+ext
+                    },
+                    isTransaction = (isPerson(recipient) && this.uploadFiles.length ? this._isMedical(this.uploadFiles[0]) : false) // bool
 
                 // initialize metas //
                 let encodingMetas = {}
@@ -1310,7 +1345,7 @@
                 }
                 // required
                 const neededMetas = {
-                    // "CM-MediaType" : files.length ? private_getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
+                    // "CM-MediaType" : files.length ? getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
                     "CM-AuthorID" : author.nihii ? author.nihii : author.ssin, // 12345625001
                     "CM-AuthorIDType" : author.nihii ? "NIHII" : "SSIN", // NIHII
                     "CM-AuthorType" : author.civility.toUpperCase(), // doctor
@@ -1323,7 +1358,7 @@
                     "CM-EhrMessageType" : isTransaction ? "Transactionnal" : "Functionnal",
                     "CM-EhrMessage" : isTransaction || false, // bool
                     "CM-EtkApplicationID": this.api.tokenId ? this.api.tokenId : '', // certificate ID
-                    "CM-AttachmentTransportType": files.length ? this._getTransportType(files[0]) : '' // main message format (first annex)
+                    // "CM-AttachmentTransportType": files.length ? this._getTransportType(files[0]) : '' // main message format (first annex) TODO
                 }
                 // author
                 , authorMetas = isPerson(author) ? {
@@ -1355,8 +1390,6 @@
                 Object.keys(recipientMetas).forEach(k=>finalMetas[k] = recipientMetas[k])
                 Object.keys(encodingMetas).forEach(k=>finalMetas[k] = encodingMetas[k])
 
-                console.log('return',finalMetas)
-                debugger
                 return finalMetas
             }
 

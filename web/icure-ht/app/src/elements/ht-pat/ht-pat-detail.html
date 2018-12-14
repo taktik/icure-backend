@@ -2886,6 +2886,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             patientOpened(patientId, api, user) {
                 if (api && user && patientId && patientId !== this.latestPatientId) {
                     this.api.unregisterAll('contact')
+                    console.log('patientOpened',patientId, api, user)
 
                     this.latestPatientId = patientId;
                     this.api.accesslog().createAccessLog(new AccessLogDto({
@@ -3112,7 +3113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     }
                                 }), 0)
                         })
-                    })
+                    }) // icc contact then end
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
                         this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code || 'V').substr(0,1)}` }) ), sorter))
