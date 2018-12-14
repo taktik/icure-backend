@@ -33,6 +33,7 @@ import org.taktik.icure.dao.UserDAO;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.PropertyType;
@@ -53,14 +54,7 @@ import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -122,6 +116,16 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		}
 
 		return byEmail.get(0);
+	}
+
+	@Override
+	public List<String> findByHcpartyId(String hcpartyId) {
+		return userDAO.findByHcpId(hcpartyId).parallelStream()
+				.filter(v -> v != null)
+				.map(v -> v.getId())
+//				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(1), v.getValue()))
+//				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
+				.collect(Collectors.toList());
 	}
 
 	@Override

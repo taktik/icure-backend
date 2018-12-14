@@ -225,6 +225,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
 						hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
+            
 						hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
 						// forms
@@ -607,7 +608,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	private fun cdItem(v: String): CDITEM {
 		return CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = v }
 	}
-
 
 	private fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
 		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate }
@@ -1126,7 +1126,5 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	data class ServiceAndMainIssue(val service: Service, val cdItemCode: String, val mainIssueThesaurus: Code?, val linkedCodes: Set<Code>)
-
-
 }
 

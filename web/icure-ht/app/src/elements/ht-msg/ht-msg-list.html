@@ -311,6 +311,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
+                .table-top > div.actions paper-icon-button {
+                    margin: 8px 0;
+                }
+
+                .mb4 {margin-bottom: 4px !important;}
 
                 .mb4 {margin-bottom: 4px !important;}
 
@@ -384,6 +389,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 paper-progress {
                     --paper-progress-active-color: var(--app-secondary-color);
                 }
+
                 paper-progress.full {
                     --paper-progress-active-color: var(--app-error-color);
                 }
@@ -446,7 +452,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="second-panel col-right">
                 <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
-
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
                              active-item="{{activeItem}}" items="[[messages]]" 
                              on-tap="click" on-removed-opened="_deselectMessages"

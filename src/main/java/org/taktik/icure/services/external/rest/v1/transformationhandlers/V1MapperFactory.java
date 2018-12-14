@@ -37,6 +37,9 @@ import org.taktik.icure.dto.filter.predicate.NotPredicate;
 import org.taktik.icure.dto.filter.predicate.OrPredicate;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeFlag;
+import org.taktik.icure.logic.impl.filter.patient.*;
+import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
 import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.logic.impl.filter.contact.ContactByHcPartyTagCodeDateFilter;
 import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyAndExternalIdFilter;
@@ -46,8 +49,6 @@ import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyDateOfBirthFil
 import org.taktik.icure.logic.impl.filter.patient.PatientByHcPartyNameContainsFuzzyFilter;
 import org.taktik.icure.logic.impl.filter.service.ServiceByContactsAndSubcontactsFilter;
 import org.taktik.icure.logic.impl.filter.service.ServiceByHcPartyTagCodeDateFilter;
-import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
-import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -82,7 +83,8 @@ public class V1MapperFactory {
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyAndSsinsFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class).byDefault().toClassMap());
-		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.Filters.ComplementFilter.class, Filters.ComplementFilter.class).byDefault().toClassMap());
+        factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyNameFilter.class, PatientByHcPartyNameFilter.class).byDefault().toClassMap());
+        factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.Filters.ComplementFilter.class, Filters.ComplementFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.Filters.IntersectionFilter.class, Filters.IntersectionFilter.class).byDefault().toClassMap());
 		factory.registerClassMap(factory.classMap(org.taktik.icure.services.external.rest.v1.dto.filter.Filters.UnionFilter.class, Filters.UnionFilter.class).byDefault().toClassMap());
 
