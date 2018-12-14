@@ -214,6 +214,7 @@
                 </vaadin-grid>
             </template>
             <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+                <paper-input value="{{compoundName}}" label="Compound name"></paper-input>
                 <paper-input-container always-float-label="true">
                     <label slot="label">Compound Prescription</label>
                     <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
@@ -313,6 +314,10 @@
                     medications: {
                         type: Array,
                         value: () => []
+                    },
+                    compoundName:{
+                        type: String,
+                        value: ""
                     }
                 }
             }
@@ -491,7 +496,7 @@
                         med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
                     } else {
                         this.set('selectedMedicationContentWithId.medicationValue', {
-                            "compoundPrescription": med.name
+                            compoundPrescription: med.name
                         })
                     }
                     this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
