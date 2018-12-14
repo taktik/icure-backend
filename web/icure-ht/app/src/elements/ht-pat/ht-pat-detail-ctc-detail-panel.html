@@ -583,7 +583,7 @@
 			</vaadin-grid>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-                <paper-radio-group selected="{{selectedFormat}}" on-selected-changed="_setPrefillFormat">
+                <paper-radio-group selected="{{selectedFormat}}">
                     <paper-radio-button name="A4">Format A4</paper-radio-button>
                     <paper-radio-button name="presc">Format prescription</paper-radio-button>
                 </paper-radio-group>
@@ -731,14 +731,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 value: null
             },
             selectedFormat: {
-			    type: String,
-                value: 'A4'
+			    type: String
             }
 		};
 	}
 
 	static get observers() {
-		return ['_filesChanged(files.*)'];
+		return ['_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
 	}
 
 	constructor() {
@@ -749,15 +748,14 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	    super.ready();
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
 
-        this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : this.selectedFormat)
+        this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
     }
 
 	_activeIconClass(selected) {
 	    return selected ? 'icn-selected' : ''
 	}
 
-    _setPrefillFormat() {
-	    console.log(this.selectedFormat)
+    _setPrintSize() {
         localStorage.setItem('prefillFormat', this.selectedFormat)
     }
 
@@ -1266,7 +1264,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             }
             thatI++
         }) // allPage map end
-        const toPrint = (this.patient.ssin && this.api.tokenId) ?
+        const toPrint = ((this.patient.ssin && this.api.tokenId) && this.selectedFormat == 'A4') ?
             `<html>
             <head><style>
             body {margin: 0;width: 210mm;}
@@ -1301,7 +1299,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             `<html><head><style>
             /* body */
             body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: column;margin: 0;padding:40px 15px;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+            div.page {display:flex;flex-direction: column;margin: 0;padding:0;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
             * {font-size:10px;font-family: Arial,sans-serif;}
             *.bigtxt {font-size:13px;}
