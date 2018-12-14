@@ -435,6 +435,7 @@
 
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
+            // Antoine IP => http://quadbeat:9222/pdf
             return fetch(`https://report.icure.cloud/pdf${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin

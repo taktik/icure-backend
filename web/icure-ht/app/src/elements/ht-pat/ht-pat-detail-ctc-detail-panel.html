@@ -583,10 +583,12 @@
 			</vaadin-grid>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-                <paper-radio-group selected="{{selectedFormat}}">
-                    <paper-radio-button name="A4">Format A4</paper-radio-button>
-                    <paper-radio-button name="presc">Format prescription</paper-radio-button>
-                </paper-radio-group>
+                <template is="dom-if" if="[[isAuth]]">
+                    <paper-radio-group selected="{{selectedFormat}}">
+                        <paper-radio-button name="A4">Format A4</paper-radio-button>
+                        <paper-radio-button name="presc">Format prescription</paper-radio-button>
+                    </paper-radio-group>
+                </template>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
@@ -1017,10 +1019,18 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
 	}
 
+	isAuth() {
+	    return this.patient.ssin && this.api.tokenId
+    }
+
 	_pdfReport(drugsToBePrescribed,toPrint,size) {
         this.api.pdfReport(mustache.render(toPrint, null),{
             paperWidth: size == 'A4' ? 210 : 105,
-            paperHeight: size == 'A4' ? 297 : 210
+            paperHeight: size == 'A4' ? 297 : 210,
+            marginLeft: 5,
+            marginRight: 5,
+            marginTop: 5,
+            marginBottom: 5
         })
             .then(data => {
                 let blob = new Blob([data], {type: 'application/pdf'});
