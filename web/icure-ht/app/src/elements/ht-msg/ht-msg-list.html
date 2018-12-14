@@ -67,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:flex;
                     flex-flow: column nowrap;
                     align-items: flex-start;
-                    height: 100%;
+                    height: calc(100% - 56px);
                     width: calc(100vw - 38%)
                 }
 
@@ -311,13 +311,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
-                .table-top > div.actions paper-icon-button {
-                    margin: 8px 0;
+
+                .mb4 {
+                    margin-bottom: 4px !important;
                 }
 
-                .mb4 {margin-bottom: 4px !important;}
+                .mb4 iron-icon{
+                    opacity: 0.7;
+                    margin-right: 4px;
+                }
 
-                .mb4 {margin-bottom: 4px !important;}
+                .mb4 span{
+                    font-size: 12px;
+                    font-weight: 400;
+                }
+
+                paper-progress {
+                    --paper-progress-active-color: var(--app-secondary-color);
+                }
+
+                paper-progress.full {
+                    --paper-progress-active-color: var(--app-error-color);
+                }
 
                 #actions-spinner {
                     position: absolute;
@@ -386,13 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
-                paper-progress {
-                    --paper-progress-active-color: var(--app-secondary-color);
-                }
 
-                paper-progress.full {
-                    --paper-progress-active-color: var(--app-error-color);
-                }
 
                 @media screen and (max-width:1025px) {
                     .col-right {
