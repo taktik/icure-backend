@@ -736,9 +736,6 @@
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
                         </template>
-
-
-
                     </paper-card>
                 </template>
             </div>
@@ -852,6 +849,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
+    _isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
+
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 			this.set('isLoadingMessage',true)
@@ -898,6 +899,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
                 }
+                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
@@ -1092,6 +1094,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
         const target = this.parentElement.parentNode.children[1]
         target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+    }
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
     }
 
 	_imageMimeType(uti, utis, dataUrl) {

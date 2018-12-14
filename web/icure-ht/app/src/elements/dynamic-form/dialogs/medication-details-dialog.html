@@ -408,6 +408,8 @@
                                         class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
                     <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
                                         class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
+            </div>
+            <div class="regimen-line display-type-regimen">
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
@@ -416,6 +418,29 @@
                         <paper-item id="high">[[localize('high','High',language)]]</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
+
+                <paper-dropdown-menu id="medicReimbursement" label="Reimbursement" class="regimen--reimbursement">
+                    <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
+                        <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
+                            <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+
+                Substitution: <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged"></vaadin-checkbox>
+                Renewal: <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged"></vaadin-checkbox>
+                <template is="dom-if" if="[[isRenewal]]">
+                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDecimalValue}}"></paper-input>
+                    x tous les
+                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDurationValue}}"></paper-input>
+                    <paper-dropdown-menu id="medicRenewalTimeUnit" label="Time unit" class="regimen--renewalTimeUnit">
+                        <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
+                            <template is="dom-repeat" items="[[timeUnit]]" as="tu">
+                                <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                </template>
             </div>
 
             <div class="regimen-lines">
@@ -639,6 +664,9 @@
             </div>
 
             <div class="buttons">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
+                    Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox>
+                </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
                     <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
@@ -730,12 +758,52 @@
                     openAddColDropDown: {
                         type: Boolean,
                         value: false
+                    },
+                    reimbursementCodeRecipe: {
+                        type: Array,
+                        value: () => []
+                    },
+                    reimbursementItem:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    reimbursementItemIdx:{
+                        type: Number,
+                        value: 0
+                    },
+                    timeUnit:{
+                        type: Array,
+                        value: () => []
+                    },
+                    renewalDurationUnitItem: {
+                        type: Object,
+                        value: () => {}
+                    },
+                    renewalTimeUnitIdx:{
+                        type: Number,
+                        value: 0
+                    },
+                    renewalDurationValue: {
+                        type: Number,
+                        value: 0
+                    },
+                    isRenewal:{
+                        type: Boolean,
+                        value: false
+                    },
+                    renewalDecimalValue:{
+                        type: Number,
+                        value: 0
+                    },
+                    medicationMustBeCreated:{
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
 
             static get observers() {
-                return ['_regimenChanged(selectedMedicationContentWithId.medicationValue.regimen.*)'];
+                return ['_regimenChanged(selectedMedicationContentWithId.medicationValue.regimen.*)', '_changeReimbursementItem(reimbursementItem)', '_changeRenewalTimeUnitItem(renewalDurationUnitItem, renewalDurationValue, renewalDecimalValue)'];
             }
 
             constructor() {
@@ -802,20 +870,37 @@
 
             open(medicationDetail, selectedMedicationContentWithId) {
                 if (medicationDetail) {
-                    this.set('medicationDetail', medicationDetail)
-                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId ||  this.extractContentWithIdFromMedicationService(medicationDetail, false))
-                    this.set('previousMedication', this.selectedMedicationContentWithId)
 
-                    this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
-                    this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
+                    this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
+                        .then(reimb => this.set("reimbursementCodeRecipe", _.orderBy(reimb.rows, ['label.fr'], ['asc'])))
+                        .then(() => this.api.code().findPaginatedCodes('be', 'CD-TIMEUNIT', ''))
+                        .then(timeunit => this.set("timeUnit", _.orderBy(timeunit.rows, ['label.fr'], ['asc'])))
+                        .finally(() =>  {
 
-                    this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
-                    this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
+                            this.set('medicationDetail', medicationDetail)
+                            this.set('selectedMedicationContentWithId', selectedMedicationContentWithId ||  this.extractContentWithIdFromMedicationService(medicationDetail, false))
+                            this.set('previousMedication', this.selectedMedicationContentWithId)
 
-                    this.set('openAddDropDown',false)
-                }
-                this.$['medication-detail'].open()
+                            this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
+                            this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
+
+                            this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
+
+                            this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
+                            this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
+
+                            this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal : 1)
+                            this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value : 1)
+                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
+                            this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? true : false)
+
+
+                            this.set('openAddDropDown',false)
+
+                            this.$['medication-detail'].open()
+                })
             }
+        }
 
             _clearPosologyRegimen(event) {
                 if (this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
@@ -942,7 +1027,7 @@
                 , false) && (console.log('Regimen changed'))
             }
 
-            _selectDayPeriod(event) {
+            _selectDayPeriod(event){
                 // console.log("select day period",event,target)
                 const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (!rgModel) {
@@ -1070,6 +1155,44 @@
                 const middayRegimens = (regimen || []).filter(r => ( r.frequency || 'daily' ) === frequency && this.selectRegimen(scores, r, 110000, 155959))
                 const eveningRegimens = (regimen || []).filter(r => ( r.frequency || 'daily' ) === frequency && this.selectRegimen(scores, r, 160000, 240000))
                 return {morningRegimens, middayRegimens, eveningRegimens}
+            }
+
+            _getCodeLabel(code){
+                return code && code[this.language]
+            }
+
+            _changeReimbursementItem(item){
+                if(item && item.id){
+                    const reimbursementItem = this.reimbursementCodeRecipe.find(r => r.id === item.id)
+                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason", reimbursementItem)
+                }
+            }
+
+            _substitutionAllowedChanged(e){
+                this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed', e.target.checked)
+            }
+            _renewalValueChanged(e){
+                this.set('isRenewal', e.target.checked)
+                if(e.target.checked === false){
+                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal", null)
+                }
+            }
+
+            _changeRenewalTimeUnitItem(item, unitValue, decimalValue){
+                if(item && item.id){
+                    const timeUnitItem = this.timeUnit.find(r => r.id === item.id)
+                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal", {
+                        decimal: decimalValue,
+                        duration: {
+                            value: unitValue,
+                            unit: timeUnitItem
+                        }
+                    })
+                }
+            }
+
+            _createMedication(e){
+                this.set('medicationMustBeCreated', e.target.checked)
             }
         }
 

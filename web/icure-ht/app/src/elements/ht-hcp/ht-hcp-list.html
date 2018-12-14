@@ -313,7 +313,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 				<vaadin-grid-column width="100px">
 					<template class="header">
-						<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
+						<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
 					</template>
 					<template>
 						<div class="cell frozen">[[item.firstName]]</div>
@@ -321,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 				<vaadin-grid-column width="100px">
 					<template class="header">
-						<div path="speciality">[[localize('spe','Speciality',language)]]</div>
+						<vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]</vaadin-grid-sorter>
 					</template>
 					<template>
 						<div class="cell frozen">[[item.speciality]]</div>
@@ -628,6 +628,7 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	click(e) {
+	    if(this.modeGrid)return;
 		const selected = this.activeItem;
 		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {

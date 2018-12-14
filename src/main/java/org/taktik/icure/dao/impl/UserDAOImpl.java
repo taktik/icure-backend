@@ -19,7 +19,9 @@
 package org.taktik.icure.dao.impl;
 
 import com.fasterxml.uuid.Generators;
+import org.ektorp.ComplexKey;
 import org.ektorp.DocumentNotFoundException;
+import org.ektorp.ViewQuery;
 import org.ektorp.support.Filter;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,8 +95,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+	public User getOnFallback(String userId) {
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, user);
@@ -110,8 +112,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+	public User findOnFallback(String userId) {
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
 		if (valueWrapper == null) {
 			User res = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, res);
@@ -124,6 +126,12 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	@View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
 	public List<User> getUsersByPartialIdOnFallback(String id) {
 		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_id").includeDocs(true).key(id), type);
+	}
+
+	@Override
+	@View(name = "by_hcp_id", map = "classpath:js/user/by_hcp_id.js")
+	public List<User> findByHcpId(String hcPartyId) {
+		return queryView("by_hcp_id", hcPartyId);
 	}
 
 	@Override

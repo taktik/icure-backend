@@ -176,7 +176,7 @@ open class KmehrExport {
             if(cdItem == "medication") {
                 svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
             }
@@ -449,7 +449,12 @@ open class KmehrExport {
             header = HeaderType().apply {
                 standard = StandardType().apply {
 					cd = CDSTANDARD().apply { s = "CD-STANDARD"; sv = "1.8"; value = STANDARD }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; sv = "1.1"; value = CDMESSAGEvalues.GPSOFTWAREMIGRATION } ; version = SMF_VERSION }
+                    val filetype = if(config.exportAsPMF) {
+                        CDMESSAGEvalues.GPPATIENTMIGRATION
+                    } else {
+                        CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    }
+					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; sv = "1.1"; value = filetype } ; version = SMF_VERSION }
 				}
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + config._kmehrId })
 				date = config.date
@@ -520,7 +525,7 @@ open class KmehrExport {
 	companion object {
 		const val SMF_VERSION = "2.3"
 	}
-	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String) {
+	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val exportAsPMF: Boolean) {
 		data class Software(val name : String, val version : String)
 	}
 }
