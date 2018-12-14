@@ -48,6 +48,25 @@
 			.remove-msgKeystore-btn{
 				background: var(--app-status-color-nok);
 			}
+
+            h5 {
+                margin-bottom: 0;
+            }
+
+            .buttons {
+                margin: 0 12px;
+            }
+
+            #ehKeychainFileInput {
+                margin-bottom: 8px;
+                padding: 8px;
+                border: 1px solid var(--app-background-color-darker);
+            }
+            #ehKeychainFileInput:hover,
+            #ehKeychainFileInput:focus
+            {
+                background: var(--app-background-color-dark);
+            }
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}" style="overflow: auto">
@@ -55,6 +74,10 @@
 				<div class="layout vertical center">
 
 					<h3>[[localize('ehe_key','eHealth keychain',language)]]</h3>
+
+                    <h4>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h4>
+                    <h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
+                    <paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
 
 					<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
 						<vaadin-grid-column flex-grow="15">
@@ -101,10 +124,6 @@
 							</template>
 						</vaadin-grid-column>
 					</vaadin-grid>
-
-					<h3>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h3>
-					<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
-					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
 
 				</div>
 				<div>{{message}}</div>
