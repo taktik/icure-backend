@@ -544,6 +544,35 @@
                 transform: translateY(8px);
             }
 
+            #success,
+            #failed {
+                display: block;
+                position: fixed;
+                top: 50vh;
+                right: 0;
+                transform: translate(100vw,-50%);
+                z-index: 999;
+                padding: 16px;
+                border-radius: 4px 0 0 4px;
+                transition: 1s ease-in;
+            }
+            #success {
+                background: rgba(0,255,0,.55);
+            }
+            #failed {
+                background: rgba(255,0,0,.55);
+            }
+            .displayNotif {
+                animation: displaySent 7.5s ease-in;
+            }
+
+            @keyframes displaySent {
+                0% {transform: translate(100vw,-50%);}
+                10% {transform: translate(0,-50%);}
+                88% {transform: translate(0,-50%);}
+                100% {transform: translate(100vw,-50%);}
+            }
+
             @media screen and (max-width: 1030px) {
                 #new-msg {
                     right: initial !important;
@@ -656,6 +685,9 @@
                 </div>
             </div>
         </paper-dialog>
+
+        <div id="success"><iron-icon icon="check"></iron-icon> [[localize('sen_succ','Success',language)]] !</div>
+        <div id="failed"><iron-icon icon="clear"></iron-icon> [[localize('inv_err','Error',language)]]</div>
 
         <paper-dialog id="metadataDialog">
             <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
@@ -1075,6 +1107,8 @@
             }
 
 			_SendNewMessage(){
+                this.$['success'].classList.remove('displayNotif')
+                this.$['failed'].classList.remove('displayNotif')
                 this.set('isSendingMsg',true)
                 this.set('hideSendBtn',true)
                 console.log(this.newMessage)
@@ -1135,15 +1169,16 @@
                         	console.log(response);
                         	if(response) {
 								this.clearField();
-                                this.set('isSendingMsg',true)
-                                // TODO: Ajouter un message de confirmation
+                                this.set('isSendingMsg',false)
+                                this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}
                         })
                         .catch(ex =>{
 							console.log(ex);
-                            // TODO: Ajouter un message d'erreur
-                            this.set('isSendingMsg',true)
+                            this.$['failed'].classList.add('displayNotif')
+                            this.set('isSendingMsg',false)
+                            this.set('hideSendBtn',false)
 						})
 
 				})
