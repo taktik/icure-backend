@@ -285,22 +285,21 @@
                     selectedProfessionItem:{
                         type : Object,
                         value : ""
+                    },
+                    service : {
+                        type : Object,
+                        value : {}
                     }
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)',"hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
+                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
             }
 
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
-            }
-
-            apiReady() {
-                if (!this.api || !this.user || !this.user.id || !this.opened) return;
-
                 try {
                     this.set('plannedAction.HcpId', this.user.healthcarePartyId)
                     this.api.cacheRowsUsingPagination(
@@ -502,40 +501,36 @@
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
                 const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
-                let act = {
-                    label: "Actes",
-
-                    modified: +new Date(),
-                    responsible: responsible,
-                    content: {
-                        fr: {
-                            stringValue: action.ProcedureInfo.label.fr
-                        },
-                        nl: {
-                            stringValue: action.ProcedureInfo.label.nl
-                        }
+                this.service.label="Actes"
+                this.service.modified= +new Date()
+                this.service.responsible= responsible
+                this.service.content= {
+                    fr: {
+                        stringValue: action.ProcedureInfo.label.fr
                     },
-                    codes: [
-                        {
-                            region: action.ProcedureInfo.regions,
-                            type: action.ProcedureInfo.type,
-                            code: action.ProcedureId,
-                            version: action.ProcedureInfo.version,
-                            label: action.ProcedureInfo.label
-                        },
-                        {
-                            region: action.ProfessionInfo.regions,
-                            type: action.ProfessionInfo.type,
-                            version: action.ProfessionInfo.version,
-                            code: action.ProfessionInfo.code,
-                            label: action.ProfessionInfo.label
-                        }
-                    ],
-                    comment: action.Description,
-                    valueDate: valueDate,
-                    tags: []
+                    nl: {
+                        stringValue: action.ProcedureInfo.label.nl
+                    }
                 }
-
+                this.service.codes= [
+                    {
+                        region: action.ProcedureInfo.regions,
+                        type: action.ProcedureInfo.type,
+                        code: action.ProcedureId,
+                        version: action.ProcedureInfo.version,
+                        label: action.ProcedureInfo.label
+                    },
+                    {
+                        region: action.ProfessionInfo.regions,
+                        type: action.ProfessionInfo.type,
+                        version: action.ProfessionInfo.version,
+                        code: action.ProfessionInfo.code,
+                        label: action.ProfessionInfo.label
+                    }
+                ]
+                this.service.comment= action.Description
+                this.service.valueDate= valueDate
+                this.service.tags= []
 
                 const status = {
                     type: "CD-LIFECYCLE",
@@ -543,8 +538,7 @@
                     version: "1.0",
                 }
                 if (action.Status === "refused") status.label = {fr: action.ReasonOfRef}
-                act.tags.push(status)
-
+                this.service.tags.push(status)
 
                 if (this.plannedAction.VaccineCommercialNameId !== "") {
 
@@ -556,7 +550,7 @@
                         id: "CD-ITEM|vaccine|1.0"
                     }
 
-                    act.tags.push(vaccine)
+                    this.service.tags.push(vaccine)
 
 
                     const medication = {
@@ -578,30 +572,30 @@
                         }
                     }
 
-                    act.content.medication = {
+                    this.service.content.medication = {
                         medicationValue: medication
                     }
                 }
 
                 if (action.isSurgical) {
-                    act.content.isSurgical = {
+                    this.service.content.isSurgical = {
                         booleanValue: action.isSurgical
                     }
                 }
 
-                if(!this.isExistingSvc){act.created= +new Date()}
-
-                console.log(act)
+                console.log(this.service)
                 if (!this.isExistingSvc) {
+                    this.service.created= +new Date()
+
                     this.dispatchEvent(new CustomEvent("create-service", {
-                        detail: {service: act, hes: this.linkedHes},
+                        detail: {service: this.service, hes: this.linkedHes},
                         bubbles: true,
                         composed: true
                     }))
                 }
                 else{
                     this.dispatchEvent(new CustomEvent("update-service", {
-                        detail: {service: act, hes: this.linkedHes},
+                        detail: {service: this.service, hes: this.linkedHes},
                         bubbles: true,
                         composed: true
                     }))
@@ -631,6 +625,7 @@
                 this.set("isExistingSvc",false)
                 if(service!==null && service.id) {
                     this.set("isExistingSvc",true)
+                    this.set("service",service);
 
                     const codeProcedure = (service.codes || []).find( code => code.type==="BE-THESAURUS-PROCEDURES")
                     const codeProfession = (service.codes || []).find( code => code.type==="CD-HCPARTY")
@@ -648,9 +643,6 @@
 
                         const date = this.api.moment(service.valueDate).format("YYYY-MM-DD");
 
-
-
-                        console.log("ca :",service,codeVaccine)
                         this.push("proceduresListItem",{
                             id:codeProcedure.id,
                             code:codeProcedure.code,
@@ -731,7 +723,7 @@
             }
 
             professionItemChanged(){
-                if(!(this.hcpartyTypeList && this.hcpartyTypeList.length))return;
+                if(!(this.selectedProfessionItem && this.selectedProfessionItem.id))return;
                 this.set("plannedAction.ProfessionId",this.selectedProfessionItem.id)
             }
         }
