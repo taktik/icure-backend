@@ -399,10 +399,6 @@
                     <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
                                  disabled="true"></paper-input>
                 </template>
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"
-                                 disabled="true"></paper-input>
-                </template>
 
                     <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
                                         class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
