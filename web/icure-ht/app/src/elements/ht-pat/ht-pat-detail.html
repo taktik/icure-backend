@@ -92,6 +92,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .zone {
+                display: flex;
+                flex-direction: column;
                 height: 100%;
             }
 
@@ -130,6 +132,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .first-panel{
+                display: flex;
+                flex-direction: column;
                 height:100%;
                 background: var(--app-background-color-dark);
                 top:64px;
@@ -321,12 +325,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .add-btn-container{
-                position: relative;
-                bottom: 6px;
-                display:flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
+                display:block;
+                margin: 8px auto;
             }
 
             .new-ctc-btn-container {
@@ -414,9 +414,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .submenus-container{
-                overflow-y: overlay;
-                height: calc(100% - 195px);
-                margin-bottom:16px;
+                overflow-y: auto;
+                flex-grow: 1;
             }
 
 
@@ -1372,8 +1371,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                     </div>
+                    <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
                 </paper-material>
-                <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
             </div>
             <template is="dom-if" if="[[!isAdminSelected(selectedAdminOrCompleteFileIndex)]]" restamp>
                 <div class="second-panel">

@@ -28,8 +28,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				:host #hcps-list {
-					height: calc(100% - 62px);
 					outline: none;
+                    flex-grow: 1;
 				}
 
 				vaadin-grid.material {
@@ -135,13 +135,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				.container {
 					height: 100%;
+                    display: flex;
+                    flex-direction: column;
 				}
 
 				.btn-container {
 					width: 80%;
 					left: 20%;
 					position: absolute;
-					bottom: 16px;
+					bottom: 8px;
 
 					display: flex;
 					flex-direction: row;
