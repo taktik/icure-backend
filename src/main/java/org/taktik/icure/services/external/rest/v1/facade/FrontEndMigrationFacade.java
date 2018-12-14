@@ -47,7 +47,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
                 response = ResponseUtils.ok(mapper.map(frontEndMigration, FrontEndMigrationDto.class));
 
             } else {
-                response = ResponseUtils.internalServerError("Insurance creation failed");
+                response = ResponseUtils.internalServerError("Frontend migration creation failed");
             }
         }
 
@@ -69,7 +69,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
                 response = ResponseUtils.ok();
 
             } else {
-                response = ResponseUtils.internalServerError("Insurance deletion failed");
+                response = ResponseUtils.internalServerError("Frontend migration deletion failed");
             }
         }
 
@@ -102,7 +102,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     public Response getFrontEndMigrations() {
         Response response;
 
-        String userId = sessionLogic.getCurrentSessionContext().getUserId();
+        String userId = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
         if(userId == null){
             return ResponseUtils.badRequest("Not authorized");
         }
@@ -125,7 +125,7 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     public Response getFrontEndMigrationByName(@PathParam("frontEndMigrationName") String frontEndMigrationName) {
         Response response;
 
-        String userId = sessionLogic.getCurrentSessionContext().getUserId();
+        String userId = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
         if(userId == null){
             return ResponseUtils.badRequest("Not authorized");
         }

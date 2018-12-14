@@ -31,6 +31,8 @@ import org.springframework.session.hazelcast.HazelcastSessionRepository
 import com.hazelcast.config.MapIndexConfig
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
+import com.hazelcast.kubernetes.KubernetesProperties
+import com.hazelcast.spi.properties.GroupProperty
 import com.hazelcast.spring.context.SpringManagedContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -63,10 +65,12 @@ class HazelcastConfiguration {
     @ConditionalOnMissingBean
     fun hazelcastInstance(configuration: Config): HazelcastInstance {
         if (kubernetesNamespace != null && kubernetesServiceName != null) {
+            configuration.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED.name, "true")
             configuration.networkConfig.join.multicastConfig.isEnabled = false
             configuration.networkConfig.join.tcpIpConfig.isEnabled = false
-
+            configuration.networkConfig.join.awsConfig.isEnabled = false
             configuration.networkConfig.join.discoveryConfig.discoveryStrategyConfigs.add(DiscoveryStrategyConfig("com.hazelcast.kubernetes.HazelcastKubernetesDiscoveryStrategy").apply {
+                addProperty(KubernetesProperties.RESOLVE_NOT_READY_ADDRESSES.key(), "true")
                 addProperty("namespace", kubernetesNamespace)
                 addProperty("service-name", kubernetesServiceName)
             })
