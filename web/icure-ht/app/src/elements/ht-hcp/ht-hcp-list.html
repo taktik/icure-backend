@@ -882,9 +882,9 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     picture(hcp) {
         if (!hcp) {
-            return require('../../../images/Male-128.jpg')
+            return require('../../../images/male-placeholder.png')
         }
-        return hcp.picture ? 'data:image/jpeg;base64,' + hcp.picture : hcp.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+        return hcp.picture ? 'data:image/png;base64,' + hcp.picture : hcp.gender === 'female' ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png')
     }
 
     _fusionSelectedChanged(selected) {

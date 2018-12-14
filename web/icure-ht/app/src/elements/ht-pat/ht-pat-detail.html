@@ -322,7 +322,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .add-btn-container{
                 position: relative;
-                bottom: 6px;
+                bottom: 12px;
                 display:flex;
                 flex-direction: row;
                 justify-content: center;
@@ -3670,9 +3670,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             picture(pat) {
                 if (!pat) {
-                    return require('../../../images/Male-128.jpg');
+                    return require('../../../images/male-placeholder.png');
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+                return pat.picture ? 'data:image/png;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png');
             }
 
             serviceDescriptions(ctc, label) {
