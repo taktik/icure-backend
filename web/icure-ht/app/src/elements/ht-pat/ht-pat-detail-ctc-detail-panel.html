@@ -158,7 +158,7 @@
 			.contact-card-container {
 				position: relative;
 				overflow-y: auto;
-				height: calc(100% - 85px);
+				height: 100%;
 				padding-bottom: 32px;
 			}
 
@@ -418,6 +418,13 @@
                 justify-content: flex-end;
                 padding-top: 16px;
 			}
+
+            #dynamicallyListForm,
+            #dynamicallyTableForm {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
 
             @media screen and (max-width: 800px) {
                 .endline {
