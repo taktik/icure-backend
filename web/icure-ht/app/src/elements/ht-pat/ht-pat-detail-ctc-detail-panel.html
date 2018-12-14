@@ -583,7 +583,7 @@
 			</vaadin-grid>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-                <template is="dom-if" if="[[isAuth]]">
+                <template is="dom-if" if="[[patient.ssin]] && [[api.tokenId]]">
                     <paper-radio-group selected="{{selectedFormat}}">
                         <paper-radio-button name="A4">Format A4</paper-radio-button>
                         <paper-radio-button name="presc">Format prescription</paper-radio-button>
@@ -953,7 +953,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		const drugs = this._drugsToBePrescribed();
 		const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
 			const id = mark.id;
-			const column = mark.column;(columns[column] || (columns[column] = [])).push(id);
+            if (this.patient.ssin && this.api.tokenId) {
+			    const column = mark.column;
+                (columns[column] || (columns[column] = [])).push(id)
+            } else {
+                (columns[0]).push(id)
+            }
 			return columns;
 		}, [[]]);
 
@@ -1020,13 +1025,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	isAuth() {
-	    return this.patient.ssin && this.api.tokenId
+	    return (this.patient.ssin && this.api.tokenId)
     }
 
 	_pdfReport(drugsToBePrescribed,toPrint,size) {
         this.api.pdfReport(mustache.render(toPrint, null),{
-            paperWidth: size == 'A4' ? 210 : 105,
-            paperHeight: size == 'A4' ? 297 : 210,
+            paperWidth: this.patient.ssin && this.api.tokenId && size == 'A4' ? 210 : 105,
+            paperHeight: this.patient.ssin && this.api.tokenId && size == 'A4' ? 297 : 210,
             marginLeft: 5,
             marginRight: 5,
             marginTop: 5,
@@ -1063,6 +1068,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
         const element = this.root.querySelector("#barCode");
         let rid = undefined
         let toPrint = undefined
+        this.set('selectedFormat', (this.patient.ssin && this.api.tokenId) ? this.selectedFormat : 'presc')
 		if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
             console.log("with recip-e")
             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
@@ -1071,12 +1077,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 feedback: false,
                 medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
                 deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
-            }).then(prescri => {
-                console.log('prescri',prescri)
-                rid = prescri.rid;
+            }).then(prescri => rid = prescri.rid ))))
+            .finally(()=>{
                 toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
                 this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
-            } ))))
+            })
         } else {
             console.log("no recip-e")
             toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
@@ -1094,7 +1099,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
         const ridIdx = (rid ? rid : hcp.nihii).split('').join('&nbsp;')
         splitColumns.forEach((c, idx) => {
             prescNum += 1
-            if (prescNum > 2 * pageNum) { // if doesn't fit in page
+            const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
+            if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
                 pageNum += 1 // add a page
             } // will be set on next page
 
@@ -1274,15 +1280,15 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             }
             thatI++
         }) // allPage map end
-        const toPrint = ((this.patient.ssin && this.api.tokenId) && this.selectedFormat == 'A4') ?
+        const toPrint = (this.patient.ssin && this.api.tokenId) ?
             `<html>
             <head><style>
-            body {margin: 0;width: 210mm;}
-            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+            body {margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};}
+            body > div.page {display:block;size: A4;margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};page-break-after: always;display:flex;flex-direction:column;}
             body > div.page:last-child {page-break-after: avoid;}
             body > div.page >main {display: flex;width: 100%;}
-            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
-            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+            body > div.page > main > article.prescription {padding-top: 15px;width: ${this.selectedFormat == 'A4' ? '105mm' : '100%'};height: ${this.selectedFormat == 'A4' ? '200mm' : '210mm'};overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+            body > div.page > main > article.prescription:first-child{border-right: ${this.selectedFormat == 'A4' ? '.5px dashed lightgrey' : 'none'};}
             body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
             body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
             body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
@@ -1296,7 +1302,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
             body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
             body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
-            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+            body > div.page > footer {${this.selectedFormat != 'A4' ? 'display:none;' : ''}border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
             body > div.page > footer table:first-child {border-top:none;}
             body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
@@ -1309,7 +1315,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             `<html><head><style>
             /* body */
             body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: column;margin: 0;padding:0;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+            div.page {display:flex;flex-direction: column;margin: 0;padding:0;padding-top:20mm;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
             * {font-size:10px;font-family: Arial,sans-serif;}
             *.bigtxt {font-size:13px;}
