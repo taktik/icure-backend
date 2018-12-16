@@ -171,7 +171,7 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	public Message get(String messageId) throws LoginException {
 		String loggedHealthcarePartyId = getLoggedHealthCarePartyUser().getHealthcarePartyId();
 		Message message = messageDAO.get(messageId);
-		if (loggedHealthcarePartyId.equals(message.getFromHealthcarePartyId()) || message.getRecipients().contains(loggedHealthcarePartyId)) {
+		if (loggedHealthcarePartyId.equals(message.getFromHealthcarePartyId()) || message.getRecipients().contains(loggedHealthcarePartyId) || message.getAuthor().equals(getLoggedHealthCarePartyUser().getId())) {
 			return message;
 		}
 		throw new AccessDeniedException("You do not have the rights to read this message");
