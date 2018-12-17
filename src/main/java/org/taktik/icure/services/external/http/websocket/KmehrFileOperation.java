@@ -20,11 +20,7 @@ package org.taktik.icure.services.external.http.websocket;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -64,9 +60,15 @@ public class KmehrFileOperation extends BinaryOperation implements AsyncDecrypt 
 
 		if (dto.get("command").getAsString().equals("decryptResponse")) {
 			DecodingSession decodingSession = decodingSessions.get(dto.get("uuid").getAsString());
-			if (decodingSession != null) {
-				decodingSession.getFuture().complete(StreamSupport.stream(dto.get("body").getAsJsonArray().spliterator(), false).map(e->gsonMapper.fromJson(e.getAsJsonObject(), decodingSession.getClazz())).collect(Collectors.toList()));
-			}
+            if (decodingSession != null) {
+                decodingSession.getFuture().complete(StreamSupport.stream(dto.get("body").getAsJsonArray().spliterator(), false).map(e -> {
+                    try {
+                        return gsonMapper.fromJson(e.getAsJsonObject(), decodingSession.getClazz());
+                    } catch (com.google.gson.JsonSyntaxException ee) {
+                        return null;
+                    }
+                }).collect(Collectors.toList()));
+            }
 		}
 	}
 

@@ -58,7 +58,7 @@ onmessage = e => {
                 console.log('remove',idOfMsg,thisBox,delBox)
                 if (!msg.transportGuid.startsWith("BIN")) {
                     console.log('remove:move to bin',idOfMsg,thisBox,delBox)
-                    ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
+                    return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
                             console.log('remove:move to bin done, modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
@@ -72,10 +72,8 @@ onmessage = e => {
                         })
                 } else {
                     console.log('remove: delete from bin',idOfMsg,thisBox,delBox)
-                    ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
                 }
-                const target = this.parentElement.parentNode.children[1]
-                target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
             }
         }
 
@@ -165,9 +163,9 @@ onmessage = e => {
 									docxApi.newInstance(user, createdMessage, {
 										documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
 										documentType:       'result', //Todo identify message and set type accordingly
-										//mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
-                                        mainUti: "public.plainText",
-										name:               a.title
+										mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
+                                        //mainUti: "public.plainText",
+										name:               a.filename
 									})
 										.then(d => docApi.createDocument(d))
 										.then(createdDocument => {
@@ -190,7 +188,8 @@ onmessage = e => {
                                                                 data.forEach(datum => {
                                                                     assignedMap[datum.id] = datum.protocolId
                                                                 })
-                                                                createdMessage.unassignedResults = docInfos.filter(docinfo => (data.map(p => p.protocolId) || []).indexOf(docinfo.protocol) === -1);
+                                                                createdMessage.unassignedResults = docInfos.filter(docinfo => (data.map(p => p.protocolId) || []).indexOf(docinfo.protocol) === -1)
+                                                                    .map(d => d.protocol);
                                                                 createdMessage.assignedResults = assignedMap
                                                                 return msgApi.modifyMessage(createdMessage).then(msg => {
                                                                     if(createdMessage.unassignedResults.length == 0) {
@@ -202,14 +201,13 @@ onmessage = e => {
                                                         })
                                                 } else {
                                                     console.log("annex is body or not text file: " + createdDocument.documentLocation + ": " + [createdDocument.mainUti, createdDocument.otherUtis])
-                                                    return att
+                                                    return Promise.resolve()
                                                 }
                                             })
 										)
 								)
                             )
                         })
-                        .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
                 } // else end
             })
 
@@ -219,10 +217,9 @@ onmessage = e => {
                 .then(messages => {
                     let p = Promise.resolve([])
                     messages.forEach(m => {
-                        p = p.then(acc => {
-                            return treatMessage(m, boxId).then(id => {
-                                return id ? acc.concat([id]) : acc
-                            }).catch(e => {console.log("Error loading message "+m.id); return acc})
+                        p = p.then(() => {
+                            return treatMessage(m, boxId)
+                                .catch(e => {console.log("Error processing message "+m.id); return Promise.resolve()})
                         })
                     })
                     return p
