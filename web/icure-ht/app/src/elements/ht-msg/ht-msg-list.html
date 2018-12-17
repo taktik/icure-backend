@@ -21,6 +21,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-list">
@@ -67,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:flex;
                     flex-flow: column nowrap;
                     align-items: flex-start;
-                    height: 100%;
+                    height: calc(100% - 56px);
                     width: calc(100vw - 38%)
                 }
 
@@ -311,13 +313,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
-                .table-top > div.actions paper-icon-button {
-                    margin: 8px 0;
+
+                .mb4 {
+                    margin-bottom: 4px !important;
                 }
 
-                .mb4 {margin-bottom: 4px !important;}
+                .mb4 iron-icon{
+                    opacity: 0.7;
+                    margin-right: 4px;
+                }
 
-                .mb4 {margin-bottom: 4px !important;}
+                .mb4 span{
+                    font-size: 12px;
+                    font-weight: 400;
+                }
+
+                paper-progress {
+                    --paper-progress-active-color: var(--app-secondary-color);
+                }
+
+                paper-progress.full {
+                    --paper-progress-active-color: var(--app-error-color);
+                }
 
                 #actions-spinner {
                     position: absolute;
@@ -386,13 +403,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
-                paper-progress {
-                    --paper-progress-active-color: var(--app-secondary-color);
-                }
 
-                paper-progress.full {
-                    --paper-progress-active-color: var(--app-error-color);
-                }
 
                 @media screen and (max-width:1025px) {
                     .col-right {
@@ -422,12 +433,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
-                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
-                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
-                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
-                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="debugRemove"></paper-icon-button>-->
-                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
-                        <!--</template>-->
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
+                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                            <paper-icon-button id="del-button" icon="delete" on-tap="debugRemove"></paper-icon-button>
+                            <paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>
+                        </template>
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
@@ -781,7 +792,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
             getProtIn(){
-                this.findMessagesByTransportGUID('BININBOX:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
+                    let assignedMsgs = []
+                    messages.map(msg=>{
+                        if (msg.assignedResults && msg.assignedResults.length >= 1) assignedMsgs.push(msg)
+                    })
+                    this.set('messages', assignedMsgs || [])
+                });
             }
 
             getEheOut(){
@@ -1001,12 +1018,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
                         if (thisBox == 'BIN') {
                             this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
+                            .then(()=>this._refresh())
                         }
                         checkedMsgs.forEach(msg=>{
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            .finally(()=>this._refresh())
                         })
-                        this._refresh()
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
@@ -1022,26 +1040,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(checkedMsgs.length) {
                     let mailList = this.shadowRoot.querySelector('#mail-list')
                         , allCheckboxes = mailList.querySelectorAll('.checkbox')
-                        , tempBinInbox = []
-                        , tempBinSentbox = []
-                        , msgsToRestore = []
+                        , tempBinInbox = [] // msgs to recover to inbox
+                        , tempBinSentbox = [] // msgs to recover to sentbox
+                        , msgsToRestore = [] // all msgs to restore
                     checkedMsgs.forEach(msg =>{
-                        const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                        const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                        if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)}
-                        if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)}
-                        msgsToRestore.push(msg)
+                        const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                        const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
+                        if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
+                        if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
+                        msgsToRestore.push(msg) // in any case, add to restore selection
                         console.log('restore',msgId,thisBox)
                     }) // forEach end
                     console.log(tempBinInbox,tempBinSentbox)
-                    if(tempBinInbox.length){
+                    if(tempBinInbox.length){ // for all msgs to send to inbox
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
                     }
-                    if(tempBinSentbox.length){
+                    if(tempBinSentbox.length){ // for all msgs to send to sentbox
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
                     }
-                    msgsToRestore.forEach(msg=>{
-                        if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) {
+                    msgsToRestore.forEach(msg=>{ // for all msgs
+                        if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) { // if present in tempBinbox
                             msg.transportGuid = 'INBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                         } else {
                             msg.transportGuid = 'SENTBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))

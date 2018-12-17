@@ -544,6 +544,53 @@
                 transform: translateY(8px);
             }
 
+            #success,
+            #failed {
+                display: flex;
+                position: fixed;
+                top: 50vh;
+                right: 0;
+                transform: translate(100vw,-50%);
+                z-index: 999;
+                padding: 16px;
+                border-radius: 4px 0 0 4px;
+                transition: 1s ease-in;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
+                background: rgba(0,0 ,0,.42);
+                color: var(--app-text-color-light);
+                box-shadow: 0 9px 12px 1px rgba(0,0,0,.14),
+                            0 3px 16px 2px rgba(0,0,0,.12),
+                            0 5px 6px 0 rgba(0,0,0,.2);
+            }
+
+            #success iron-icon, #failed iron-icon{
+                border-radius: 50%;
+                padding: 2px;
+                margin-right: 8px;
+                box-sizing: border-box;
+            }
+
+            #success iron-icon{
+                background: var(--app-status-color-ok);
+            }
+
+            #failed iron-icon{
+                background: var(--app-status-color-nok);
+            }
+
+            .displayNotif {
+                animation: displaySent 7.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+            @keyframes displaySent {
+                0% {transform: translate(100vw,-50%);}
+                10% {transform: translate(0,-50%);}
+                88% {transform: translate(0,-50%);}
+                100% {transform: translate(100vw,-50%);}
+            }
+
             @media screen and (max-width: 1030px) {
                 #new-msg {
                     right: initial !important;
@@ -656,6 +703,9 @@
                 </div>
             </div>
         </paper-dialog>
+
+        <div id="success"><iron-icon icon="check"></iron-icon> [[localize('sen_succ','Success',language)]] !</div>
+        <div id="failed"><iron-icon icon="clear"></iron-icon> [[localize('inv_err','Error',language)]]</div>
 
         <paper-dialog id="metadataDialog">
             <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
@@ -1075,6 +1125,8 @@
             }
 
 			_SendNewMessage(){
+                this.$['success'].classList.remove('displayNotif')
+                this.$['failed'].classList.remove('displayNotif')
                 this.set('isSendingMsg',true)
                 this.set('hideSendBtn',true)
                 console.log(this.newMessage)
@@ -1135,15 +1187,16 @@
                         	console.log(response);
                         	if(response) {
 								this.clearField();
-                                this.set('isSendingMsg',true)
-                                // TODO: Ajouter un message de confirmation
+                                this.set('isSendingMsg',false)
+                                this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}
                         })
                         .catch(ex =>{
 							console.log(ex);
-                            // TODO: Ajouter un message d'erreur
-                            this.set('isSendingMsg',true)
+                            this.$['failed'].classList.add('displayNotif')
+                            this.set('isSendingMsg',false)
+                            this.set('hideSendBtn',false)
 						})
 
 				})
@@ -1187,8 +1240,8 @@
 
 			setSenderAddressee(hcp){
                 let Addressee = {};
-				Addressee.identifierType = {type: hcp.type ? hcp.type : "NIHII"};
-				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
+				Addressee.identifierType = {type: hcp.nihii ? "NIHII" : hcp.cbe ? "CBE" : hcp.bic ? "BIC" : ""};
+				Addressee.id = this.getTypeValue(hcp, hcp.nihii ? "NIHII" : hcp.cbe ? "CBE" : hcp.bic ? "BIC" : "");
 				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
 				Addressee.lastName = hcp.lastName ? hcp.lastName : null;

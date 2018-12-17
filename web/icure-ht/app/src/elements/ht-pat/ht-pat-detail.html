@@ -92,6 +92,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .zone {
+                display: flex;
+                flex-direction: column;
                 height: 100%;
             }
 
@@ -130,6 +132,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .first-panel{
+                display: flex;
+                flex-direction: column;
                 height:100%;
                 background: var(--app-background-color-dark);
                 top:64px;
@@ -322,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .add-btn-container{
                 position: relative;
-                bottom: 6px;
+                bottom: 12px;
                 display:flex;
                 flex-direction: row;
                 justify-content: center;
@@ -414,9 +418,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .submenus-container{
-                overflow-y: overlay;
-                height: calc(100% - 195px);
-                margin-bottom:16px;
+                overflow-y: auto;
+                flex-grow: 1;
             }
 
 
@@ -1372,8 +1375,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                     </div>
+                    <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
                 </paper-material>
-                <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
             </div>
             <template is="dom-if" if="[[!isAdminSelected(selectedAdminOrCompleteFileIndex)]]" restamp>
                 <div class="second-panel">
@@ -1798,8 +1801,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-radio-group>
             </div>
         </paper-dialog>
-
-        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
+        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices"></ht-pat-action-plan-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
@@ -3671,9 +3673,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             picture(pat) {
                 if (!pat) {
-                    return require('../../../images/Male-128.jpg');
+                    return require('../../../images/male-placeholder.png');
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+                return pat.picture ? 'data:image/png;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png');
             }
 
             serviceDescriptions(ctc, label) {
