@@ -1,21 +1,21 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
 
+
 import com.fasterxml.jackson.core.type.TypeReference
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -31,20 +31,15 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.logic.ContactLogic
-import org.taktik.icure.logic.DocumentLogic
-import org.taktik.icure.logic.HealthElementLogic
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.FormLogic
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
 import java.io.InputStream
 import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.taktik.icure.logic.*
 import javax.xml.bind.JAXBElement
+
 
 
 @org.springframework.stereotype.Service
@@ -54,8 +49,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val contactLogic: ContactLogic,
                                 val documentLogic: DocumentLogic,
                                 val formLogic: FormLogic,
+                                val formTemplateLogic: FormTemplateLogic,
+                                val insuranceLogic: InsuranceLogic,
                                 val idGenerator: UUIDGenerator) {
-
 
     fun importSMF(inputStream: InputStream,
                   author: User,
@@ -123,20 +119,34 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
 
                 // convert links ISASERVICEFOR to subcontacts
+                val approachsByMFID = state.approachLinks.groupBy { it.second }
                 state.subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
                     val contact = it.key
                     it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
+                        // in kmehr, a service can be linked to an He or to an HealthcareApproach which is linked to an He
                         val heid = state.hesByMFID[subentry.key]?.id
-                        heid?.let {
+                        val approachHeId = approachsByMFID[subentry.key]?.firstOrNull()?.let {
+                            state.hesByMFID[it.third]?.id
+                        }
+                        (heid ?: approachHeId) ?.let { hid ->
                             contact.subContacts.add(
                                     SubContact().apply {
-                                        healthElementId = heid
+                                        healthElementId = hid
                                         services = subentry.value.map {
                                             ServiceLink( (it["service"] as Service).id )
                                         }
                                     }
                             )
                         }
+                    }
+                }
+
+                // add approachs to HEs
+                state.approachLinks.forEach { alink ->
+                    state.hesByMFID[alink.third]?.let {
+                        it.plansOfAction.add(
+                                alink.first
+                        )
                     }
                 }
 
@@ -182,9 +192,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 res.ctcs.forEach {con ->
                     val formid = idGenerator.newGUID().toString()
 
+
                     val form = Form().apply {
                         id =  formid
-                        formTemplateId =  "09b8db54-84a3-42e7-b8db-5484a352e77f" // Consultation FormTemplate
+                        formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION") // Consultation FormTemplate
                         contactId =  con.id
                         responsible =  author.id
                         descr =  "Consultation"
@@ -223,6 +234,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 senderPhcp?.let {
                     patient.patientHealthCareParties.add(it)
                 }
+
                 Unit
             }
             Unit
@@ -242,7 +254,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
     }
+
     private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
+
         var walked = walkedmap
         if(walked == null) {
             walked = mutableMapOf<String, String?>()
@@ -473,7 +487,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
-
             this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                 createOrProcessHcp(it)?.let {
                     v.hcps.add(it)
@@ -546,9 +559,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
-                    "insurancystatus", "gmdmanager" -> Unit // not services
+                    "gmdmanager" -> Unit // not services
+                    "insurancystatus" -> parseInsurancyStatus(cdItem, label, item, author, language, v, contact.id)
                     //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
-                    //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
+                    "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v, state)
                     "incapacity" -> parseIncapacity(cdItem, label, item, author, language, v, contact.id).let {
                         val (services, subcontact, form) = it
                         state.incapacityForms.add(form)
@@ -586,10 +600,63 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                     }
                 }
-
                 Unit
             }
         }
+    }
+
+    private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, state: InternalState) {
+        PlanOfAction().apply {
+            this.id = idGenerator.newGUID().toString()
+            descr = label
+            if(item.texts.isNotEmpty()) {
+                descr = "${descr}, ${ item.texts.map{ it.value }.joinToString ( " " )}"
+            }
+            this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
+            this.tags.addAll(extractTags(item))
+            this.author = author.id
+            this.responsible = author.healthcarePartyId
+            this.codes = extractCodes(item).toMutableSet()
+            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
+            this.openingDate = this.valueDate
+            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            //this.idOpeningContact = contactId
+            this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
+            this.modified = this.created
+            item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
+
+            val target = item.lnks?.filter{it.type == CDLNKvalues.ISAPPROACHFOR }?.map { lnk ->
+                extractMFIDFromUrl(lnk.url)
+            }?.firstOrNull()
+            val mfid = getItemMFID(item)
+            state.approachLinks.add(Triple(this, mfid, target))
+        }
+
+    }
+
+    private fun parseInsurancyStatus(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, conid: String?) {
+        if(v.patient?.insurabilities == null) {
+            v.patient?.insurabilities = mutableListOf<Insurability>()
+        }
+        v.patient?.insurabilities?.add( Insurability().apply {
+            item.contents.find{ it.insurance != null }?.insurance?.let {
+                if(it.id.s == IDINSURANCEschemes.ID_INSURANCE) {
+                    insuranceLogic.listInsurancesByCode(it.id.value).firstOrNull()?.let {
+                        insuranceId = it.id
+                    }
+                }
+                it.cg1?.let {
+                    this.parameters.set("tc1", it)
+                }
+                it.cg2?.let {
+                    this.parameters.set("tc2", it)
+                }
+                it.membership?.let {
+                    this.identificationNumber = it
+                }
+            }
+        })
     }
 
     private fun isMedication(service: Service): Boolean {
@@ -604,7 +671,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         state.formServices[service.id ?: ""] = service
         form = Form().apply {
                     id = formid
-                    formTemplateId = "744cf7f5-04ce-469e-8cf7-f504ce169eeb" // Ordonnance form template id
+                    //formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-PRESCRIPTION") // Ordonnance form template id
                     descr = "Ordonnance"
                     contactId = contact.id
                     created = service.created
@@ -631,7 +698,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val ittform = Form().apply {
             id= idGenerator.newGUID().toString()
-            formTemplateId= "81dfd8bc-b8c8-45af-9fd8-bcb8c8d5afaf" // ITT form template
+            formTemplateId= getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") // ITT form template
             this.contactId = contactId
             this.responsible = author.healthcarePartyId
             this.author = author.healthcarePartyId
@@ -1076,6 +1143,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             // and compound "tension"
     )
 
+    fun getFormTemplateIdByGuid(author: User, guid: String) : String? {
+        return formTemplateLogic.getFormTemplatesByGuid(author.id,"deptgeneralpractice", guid).firstOrNull()?.id
+    }
+
     private data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
     private data class DocumentLinkType(val document: Document, val service: Service, val isAChildOfId: String?)
 
@@ -1088,6 +1159,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
             var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactMFId
             var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactMFId
+            var approachLinks : MutableList<Triple<PlanOfAction, String?, String?>> = mutableListOf(), // planOfAction, MFId, linked target heMFId
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
             var incapacityForms : MutableList<Form> = mutableListOf() // to add them to parent consultation form
     )
@@ -1118,5 +1190,3 @@ private fun AddressTypeBase.getFullAddress(): String {
     val city = "${zip ?: ""}${city?.let { " $it" } ?: ""}"
     return listOf(street, city, country?.let { it.cd?.value } ?: "").filter { it.isNotBlank() }.joinToString(";")
 }
-
-

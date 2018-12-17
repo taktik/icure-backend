@@ -31,7 +31,6 @@ import org.taktik.icure.exceptions.UserRegistrationException;
 import org.taktik.icure.logic.listeners.UserLogicListener;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -148,4 +147,6 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 	List<User> getUsersByPartialIdOnFallbackDb(String id);
 
 	List<User> findUsersByLoginOnFallbackDb(String username);
+
+	List<String> findByHcpartyId(String hcpartyId);
 }
