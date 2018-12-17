@@ -171,7 +171,7 @@
                             <paper-item id="persnurse">Nurse</paper-item>
                             <paper-item id="persphysiotherapist">Physiotherapist</paper-item>
                             <paper-item id="perspsychologist">Psychologist</paper-item>
-                            <paper-item id="perssocialworker ">Social worker</paper-item>
+                            <paper-item id="perssocialworker">Social worker</paper-item>
                             <paper-item id="persadministrative">Secretary</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
@@ -185,14 +185,14 @@
                         </paper-dropdown-menu>
                     </template>
 
-                    <paper-input label="First Name"></paper-input>
-                    <paper-input label="Last Name"></paper-input>
-                    <paper-input label="Inami Number"></paper-input>
-                    <paper-input label="SSIN Number"></paper-input>
-                    <paper-input label="Email"></paper-input>
-                    <paper-input label="Password" type="password"></paper-input>
-                    <paper-input label="Confirm Password" type="password"></paper-input>
-                    <paper-button>Request Access</paper-button>
+                    <paper-input label="First Name" value="{{healthcareParty.firstName}}"></paper-input>
+                    <paper-input label="Last Name" value="{{healthcareParty.lastName}}"></paper-input>
+                    <paper-input label="Inami Number" value="{{healthcareParty.inami}}"></paper-input>
+                    <paper-input label="SSIN Number" value="{{healthcareParty.ssin}}"></paper-input>
+                    <paper-input label="Email" value="{{healthcareParty.userName}}"></paper-input>
+                    <paper-input label="Password" type="password" value="{{pswrd}}"></paper-input>
+                    <paper-input label="Confirm Password" type="password" value="{{pswrdCheck}}"></paper-input>
+                    <paper-button id="login">Request Access</paper-button>
                 </div>
                 <div class="right"></div>
             </div>
@@ -205,6 +205,9 @@
 	</template>
 	<script>
 
+        import { HealthcarePartyDto } from 'icc-api/dist/icc-api/model/models'
+        
+
 //noinspection JSUnusedGlobalSymbols
 class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -213,6 +216,16 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	static get properties() {
 		return {
+            user: {
+                type: Object,
+                value: {}
+            },
+
+            healthcareParty: {
+                type: Object,
+                value: () => new HealthcarePartyDto()
+            },
+
 			credentials: {
 				type: Object
 			},
@@ -229,12 +242,22 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     static get observers() {
-	    return ['_professionChanged(professionItem)']
+	    return [
+            '_professionChanged(professionItem)'
+        ]
     }
 
 	constructor() {
 		super();
+
 	}
+
+    ready() {
+        super.ready();
+
+        this.addEventListener('keypress',this.checkForEnter.bind(this))
+        this.$.login.addEventListener('click',e => this.register())
+    }
 
     _professionChanged(item) {
 	    if (item) {
@@ -244,14 +267,20 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _equal(a,b) { return a === b }
 
-	login() {
+	register() {
+
+        const hcp = this.healthcareParty;
+
+        if( !hcp.firstName || !hcp.lastName || !hcp.userName || !this.get("pswrd") ) return
+
         this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+        
 	}
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
 		if (e.keyCode === 13) {
-            this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+            this.register()
 		}
 	}
 
