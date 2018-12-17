@@ -26,6 +26,7 @@ import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -61,5 +62,6 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
 
     @Bean fun sslContextFactory() = SslContextFactory()
     @Bean fun userReplicator(hazelcastInstance: HazelcastInstance, userDAO: UserDAO) = UserReplicator(hazelcastInstance, userDAO)
+    @ConditionalOnProperty("icure.sync.global.databases", havingValue = "true", matchIfMissing = true)
     @Bean fun newGroupObserver(hazelcastInstance: HazelcastInstance, sslContextFactory: SslContextFactory, groupDAO: GroupDAO, replicators: List<FilteredReplicator>, allDaos : List<GenericDAO<*>>) = NewGroupObserver(hazelcastInstance, sslContextFactory, groupDAO, replicators, allDaos)
 }

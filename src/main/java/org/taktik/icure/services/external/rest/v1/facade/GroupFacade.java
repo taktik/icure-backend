@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.taktik.icure.entities.Group;
@@ -13,6 +14,7 @@ import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.services.external.rest.v1.dto.GroupDto;
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
+import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -56,7 +58,14 @@ public class GroupFacade implements OpenApiFacade {
 			return Response.ok(groupLogic.createGroup(newGroup, mapper.map(initialReplication, Replication.class))).build();
 		} catch (IllegalAccessException e) {
 			return Response.status(403).type("text/plain").entity("Unauthorized access.").build();
+		} catch (IllegalArgumentException e) {
+			return ResponseUtils.internalServerError(e.getMessage());
 		}
+	}
+
+	@ExceptionHandler(Exception.class)
+	Response exceptionHandler(Exception e) {
+		return ResponseUtils.internalServerError(e.getMessage());
 	}
 
 }

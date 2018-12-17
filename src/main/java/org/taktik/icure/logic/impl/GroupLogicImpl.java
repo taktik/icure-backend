@@ -11,6 +11,7 @@ import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.Replication;
 import org.taktik.icure.entities.base.Security;
 import org.taktik.icure.entities.base.User;
+import org.taktik.icure.entities.embed.DatabaseSynchronization;
 import org.taktik.icure.logic.ReplicationLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -78,16 +79,36 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 			throw new IllegalAccessException("No registered user");
 		}
 
-		User dbUser = new User(group.getId(), group.getPassword());
-		couchdbInstance.createConnector("_users", false).create("org.couchdb.user:" + group.getId(), dbUser);
-
-		Security security = new Security(group.getId());
-
 		List<String> paths = Arrays.asList(
 				"icure-" + group.getId() + "-base",
 				"icure-" + group.getId() + "-patient",
 				"icure-" + group.getId() + "-healthdata"
 		);
+
+		List<DatabaseSynchronization> sanitizedDatabaseSynchronizations = initialReplication != null ? initialReplication.getDatabaseSynchronizations().stream().filter(ds -> {
+			try {
+				URI couch = new URI(couchDbProperties.getUrl());
+				URI dest = new URI(ds.getTarget());
+
+				if (!(dest.getPort() == 443 || dest.getPort() == 5984 || dest.getPort() == -1 && dest.getScheme().equals("https"))) {
+					throw new IllegalArgumentException("Cannot start replication: invalid destination port (must be 5984 or 443)");
+				}
+				if (!(dest.getHost().equals(couch.getHost()) || dest.getHost().equals("127.0.0.1") || dest.getHost().equals("localhost"))) {
+					throw new IllegalArgumentException("Cannot start replication: invalid destination " + dest.getHost() + "(must be " + couch.getHost() + " or localhost/127.0.0.1 )");
+				}
+				if (paths.stream().noneMatch(p -> dest.getPath().startsWith("/" + p))) {
+					throw new IllegalArgumentException("Cannot start replication: invalid destination path " + dest.getPath() + " ( must match start with any of /" + String.join(", /", paths));
+				}
+				return true;
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Cannot start replication: invalid target");
+			}
+		}).collect(Collectors.toList()) : null;
+
+		User dbUser = new User(group.getId(), group.getPassword());
+		couchdbInstance.createConnector("_users", false).create("org.couchdb.user:" + group.getId(), dbUser);
+
+		Security security = new Security(group.getId());
 
 		paths.forEach(c -> {
 			CouchDbConnector connector = couchdbInstance.createConnector(c, true);
@@ -97,15 +118,7 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 		Group result = groupDAO.save(group);
 
 		if (initialReplication != null) {
-			initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> {
-				try {
-					URI couch = new URI(couchDbProperties.getUrl());
-					URI dest = new URI(ds.getTarget());
-					return (dest.getPort() == 443 || dest.getPort() == 5984 || dest.getPort() == -1 && dest.getScheme().equals("https")) && (dest.getHost().equals(couch.getHost())) && (paths.stream().anyMatch(p->dest.getPath().startsWith("/"+p)));
-				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException("Cannot start replication: invalid target");
-				}
-			}).collect(Collectors.toList()));
+			initialReplication.setDatabaseSynchronizations(sanitizedDatabaseSynchronizations);
 			threadPoolTaskExecutor.execute(() -> replicationLogic.startDatabaseSynchronisations(initialReplication, false));
 		}
 
