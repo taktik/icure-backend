@@ -227,9 +227,6 @@ onmessage = e => {
                     })
                     return p
                 })
-                .then(toBeDeletedIds =>
-                    (!boxId.startsWith("BIN")) ? Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN" + boxId))) : Promise.resolve([])
-                )
                 .catch(err => console.log("Error while fetching messages: " + err))
         })
     }
