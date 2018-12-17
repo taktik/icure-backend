@@ -377,6 +377,56 @@
                 </paper-tab>
             </paper-tabs>
 
+
+            <div class="regimen-line display-type-regimen">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
+                                 disabled="true"></paper-input>
+                </template>
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
+                                 disabled="true"></paper-input>
+                </template>
+
+                    <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
+                                        class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
+                    <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
+                                        class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
+            </div>
+            <div class="regimen-line display-type-regimen">
+
+                <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
+                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
+                        <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
+                        <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
+                        <paper-item id="high">[[localize('high','High',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+
+                <paper-dropdown-menu id="medicReimbursement" label="Reimbursement" class="regimen--reimbursement">
+                    <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
+                        <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
+                            <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+
+                Substitution: <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged"></vaadin-checkbox>
+                Renewal: <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged"></vaadin-checkbox>
+                <template is="dom-if" if="[[isRenewal]]">
+                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDecimalValue}}"></paper-input>
+                    x tous les
+                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDurationValue}}"></paper-input>
+                    <paper-dropdown-menu id="medicRenewalTimeUnit" label="Time unit" class="regimen--renewalTimeUnit">
+                        <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
+                            <template is="dom-repeat" items="[[timeUnit]]" as="tu">
+                                <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                </template>
+            </div>
+
             <div class="content">
                 <div class="regimen-line display-type-regimen">
                         <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
