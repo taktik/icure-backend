@@ -132,7 +132,7 @@ onmessage = e => {
 												createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)?
 												beResultApi.getInfos(createdDocument.id)
 												.then(docInfos => docInfos?[docInfos,Promise.all(docInfos.map( docInfo => {
-												    // console.log('will assignAttachment',fullMessage.id,docInfo,createdDocument)
+												    console.log('will try to assign to :',docInfo)
 												    assignAttachment(fullMessage.id,docInfo,createdDocument)
                                                 }))]:[null,null])
 												.then(([docInfos,assignedAttachment]) => {
