@@ -768,17 +768,25 @@
             <div class="attached">
                 <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
+                    <template is="dom-if" if="[[alreadyImportedPats.length]]">
+                        Already attached to : 
+                        <ul>
+                            <template is="dom-repeat" items="[[alreadyImportedPats]]" as="pat">
+                                <li>[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</li>
+                            </template>
+                        </ul>
+                    </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             <template is="dom-if" if="[[hasUnnassignedAttachments]]">
-                                <template is="dom-if" if="[[knownUnimportedPats.length]]">
+                                <template is="dom-if" if="[[unimportedPats.length]]">
                                     <div id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
                                         Assigner l'annexe <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                                     </div>
                                     <paper-tooltip for="patients-importBtn" offset="0">
-                                        <template is="dom-repeat" items="[[knownUnimportedPats]]" as="pat">[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</template>
+                                        <template is="dom-repeat" items="[[unimportedPats]]" as="pat">[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</template>
                                     </paper-tooltip>
                                 </template>
                             </template>
@@ -857,8 +865,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Boolean,
                 value: false
             },
-            knownUnimportedPats: {
+            unimportedPats: {
 			    type: Array,
+                value: []
+            },
+            knownUnimportedPats: {
+                type: Array,
                 value: []
             },
             alreadyImportedPats: {
@@ -979,22 +991,24 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_getPatsFromDoc(document) {
         const docInfo = this.api.beresultimport().getInfos(document.id)
-        this.set('knownUnimportedPats', [])
+        this.set('unimportedPats', [])
         this.set('alreadyImportedPats', document.assignedResults ? document.assignedResults.length ? document.assignedResults : [] : [])
         if (document.unassignedResults && document.unassignedResults.length) {
-            this.api.patient().findByNameBirthSsinAuto(user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
+            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
                 .then(patients =>{
-                    patients.rows.map(row=> row.forEach(pat=>{
-                        if (!this.alreadyImportedPats.indexOf(pat)) {
-                            this.push('knownUnimportedPats', pat)
-                        }
-                    }))
+                    patients.rows.map(row=> {
+                        row.forEach(pat=>{
+                            if (!this.alreadyImportedPats.indexOf(pat)) {
+                                this.push('unimportedPats', pat)
+                            }
+                        })
+                    })
                 })
         }
     }
 
     _assignAnnexToPat() {
-        this.knownUnimportedPats.map(pat=>{
+        this.unimportedPats.map(pat=>{
             this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, pat.lastName + " " + pat.firstName, null, null, 100, "asc").then(patients =>
             {
                 (patients && patients.rows && patients.rows.length === 1)?
