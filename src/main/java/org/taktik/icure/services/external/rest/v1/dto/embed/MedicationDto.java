@@ -52,7 +52,6 @@ public class MedicationDto implements Serializable {
 	List<RegimenItemDto> regimen;
 	String posology;
 
-
 	Map<String, ContentDto> options;
 	Map<String, ParagraphAgreementDto> agreements;
 

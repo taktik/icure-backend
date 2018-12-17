@@ -147,4 +147,6 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 	List<User> getUsersByPartialIdOnFallbackDb(String id);
 
 	List<User> findUsersByLoginOnFallbackDb(String username);
+
+	List<String> findByHcpartyId(String hcpartyId);
 }
