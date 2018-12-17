@@ -180,5 +180,4 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 				patientId?.let { patientLogic.getPatient(patientId) },
 				mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
-
 }

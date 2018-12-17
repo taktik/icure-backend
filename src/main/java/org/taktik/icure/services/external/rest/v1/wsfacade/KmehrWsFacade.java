@@ -58,7 +58,9 @@ public class KmehrWsFacade {
 	public void generateSumehr(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogic.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation);
+			sumehrLogic.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
+					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -111,7 +113,9 @@ public class KmehrWsFacade {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
 			//fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
-			medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), language, version, operation, operation);
+			medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
+					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
+					language, version, operation, null);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -133,6 +137,9 @@ public class KmehrWsFacade {
 	public void setSumehrLogic(SumehrLogic sumehrLogic) {
 		this.sumehrLogic = sumehrLogic;
 	}
+
+	@Autowired
+	public void setMedicationSchemeLogic(MedicationSchemeLogic medicationSchemeLogic) { this.medicationSchemeLogic = medicationSchemeLogic; }
 
 	@Autowired
 	public void setHealthcarePartyLogic(HealthcarePartyLogic healthcarePartyLogic) {
