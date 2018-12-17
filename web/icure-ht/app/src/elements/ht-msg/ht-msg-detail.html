@@ -685,6 +685,31 @@
                 max-width: 50%;
             }
 
+            .assignToPat {
+                background: var(--app-secondary-color);
+                padding: 4px 8px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                border-radius: 4px;
+                font-size: .8em;
+                text-align: center;
+                margin: 0 auto;
+                width: 80%;
+                max-width: 164px;
+                box-shadow: var(--app-shadow-elevation-1);
+                cursor: pointer;
+                transform: translateY(-16px) scale(1);
+                transition: .25s ease-in-out;
+            }
+            .assignToPat:hover {
+                transform: translateY(-16px) scale(1.05);
+            }
+            .assignToPat:active {
+                box-shadow: none;
+                transform: translateY(-16px) scale(.95);
+            }
+
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
                 .attached {
@@ -747,11 +772,29 @@
             <div class="attached">
                 <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
+                    <template is="dom-if" if="[[alreadyImportedPats.length]]">
+                        Already attached to : 
+                        <ul>
+                            <template is="dom-repeat" items="[[alreadyImportedPats]]" as="pat">
+                                <li>[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</li>
+                            </template>
+                        </ul>
+                    </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                            <div class="layout-vertical annexe-card">
-                                <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                             resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                            </div>
+                        <div class="layout-vertical annexe-card">
+                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                            <template is="dom-if" if="[[hasUnnassignedAttachments]]">
+                                <template is="dom-if" if="[[unimportedPats.length]]">
+                                    <div id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
+                                        Assigner l'annexe <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                    </div>
+                                    <paper-tooltip for="patients-importBtn" offset="0">
+                                        <template is="dom-repeat" items="[[unimportedPats]]" as="pat">[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</template>
+                                    </paper-tooltip>
+                                </template>
+                            </template>
+                        </div>
                     </template>
                 </template>
             </div>
@@ -821,6 +864,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             attachmentQuantity: {
 			    type: Number,
                 value: 0
+            },
+            hasUnnassignedAttachments: {
+			    type: Boolean,
+                value: false
+            },
+            unimportedPats: {
+			    type: Array,
+                value: []
+            },
+            knownUnimportedPats: {
+                type: Array,
+                value: []
+            },
+            alreadyImportedPats: {
+			    type: Array,
+                value: []
             }
 		};
 	}
@@ -862,6 +921,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
 	        let tempSelect = this.selectMessage.selection.item;
+			const shouldImport = tempSelect.unassignedResults ? tempSelect.unassignedResults.length >= 1 ? true : false : false
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
@@ -873,12 +933,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                     .then(a => {
                                         doc.dataUrl = this.getDataUrls(doc)
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                            console.log('this is doc',doc)
+                                            console.log('this is body',doc)
                                             this.set('bodyDocument',doc)
                                             const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
                                             fetch(url,{credentials:'include'})
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
+                                        } else {
+                                            console.log('this is not body',doc)
+                                            this._getPatsFromDoc(doc)
                                         }
                                         return doc
                                 });
@@ -894,6 +957,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.set("selectedDocuments", docs);
                         this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
+                        this.set('hasUnnassignedAttachments', shouldImport)
                     })
 				}
 				else{
@@ -902,6 +966,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set("selectedDocuments", []);
                     this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
+                    this.set('hasUnnassignedAttachments', false)
                 }
                 console.log(this.messages)
             })
@@ -927,6 +992,63 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
         // }.bind(this))
 	}
+
+	_getPatsFromDoc(document) {
+        const docInfo = this.api.beresultimport().getInfos(document.id)
+        this.set('unimportedPats', [])
+        this.set('alreadyImportedPats', document.assignedResults ? document.assignedResults.length ? document.assignedResults : [] : [])
+        if (document.unassignedResults && document.unassignedResults.length) {
+            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
+                .then(patients =>{
+                    patients.rows.map(row=> {
+                        row.forEach(pat=>{
+                            if (!this.alreadyImportedPats.indexOf(pat)) {
+                                this.push('unimportedPats', pat)
+                            }
+                        })
+                    })
+                })
+        }
+    }
+
+    _assignAnnexToPat() {
+        this.unimportedPats.map(pat=>{
+            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, pat.lastName + " " + pat.firstName, null, null, 100, "asc").then(patients =>
+            {
+                (patients && patients.rows && patients.rows.length === 1)?
+                    this.api.contact().newInstance(this.user, patients.rows[0], {
+                        groupId : this.selectMessage.selection.item.id,
+                        created: new Date().getTime() ,
+                        modified: new Date().getTime() ,
+                        author: this.user.healthcarePartyId,
+                        responsible: this.user.healthcarePartyId,
+                        openingDate: moment().format('YYYYMMDDhhmmss') || '',
+                        closingDate: moment().format('YYYYMMDDhhmmss') || '',
+                        encounterType: {type: pat.codes.type, version: pat.codes.version, code: pat.codes.code},
+                        descr: pat.labo,
+                        subContacts: []
+                    }).then(c => {
+                        // console.log('newInstance',c)
+                        this.api.contact().createContact(c).then(c => {
+                            // console.log('createContact',c)
+                            this.api.form().newInstance(this.user, patients.rows[0], {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f =>this.api.form().createForm(f)).then(f =>
+                                this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
+                                    this.api.beresultimport().doImport(this.selectMessage.selection.item.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
+                                        .then(c => {
+                                            // console.log("Contact id " + c.id);
+                                            return {id:c.id,protocolId:pat.protocol}
+                                        })
+                                )
+                            )
+                        })
+                    }):null
+            })
+        }) // map end
+    }
+
+    textType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => iccDocumentXApi.mimeType(u)).find(m => m === 'text/plain');
+    }
 
     _getPatientDataByInss(inss){
         if(inss && inss.length > 1) {

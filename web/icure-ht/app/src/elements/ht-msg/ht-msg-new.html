@@ -1240,8 +1240,8 @@
 
 			setSenderAddressee(hcp){
                 let Addressee = {};
-				Addressee.identifierType = {type: hcp.type ? hcp.type : "NIHII"};
-				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
+				Addressee.identifierType = {type: hcp.nihii ? "NIHII" : hcp.cbe ? "CBE" : hcp.bic ? "BIC" : ""};
+				Addressee.id = this.getTypeValue(hcp, hcp.nihii ? "NIHII" : hcp.cbe ? "CBE" : hcp.bic ? "BIC" : "");
 				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
                 Addressee.applicationId = hcp.applicationID || null;
 				Addressee.lastName = hcp.lastName ? hcp.lastName : null;
