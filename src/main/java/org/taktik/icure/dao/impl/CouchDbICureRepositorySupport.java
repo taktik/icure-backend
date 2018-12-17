@@ -128,7 +128,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 		PageRequest.Builder builder = new PageRequest.Builder().pageSize(limit).page(page);
 
 		if (startKey !=null || startDocId != null) {
-			builder.nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? NullNode.getInstance() : startToNode.apply(pagination.getStartKey()), startDocId)).page(Math.max(page,1));
+			builder.nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : startToNode.apply(pagination.getStartKey()), startDocId)).page(Math.max(page,1));
 		}
 
 		PageRequest pr = builder.build();
