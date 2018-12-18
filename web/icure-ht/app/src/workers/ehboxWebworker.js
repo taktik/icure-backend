@@ -175,7 +175,7 @@ onmessage = e => {
 										})
 										.then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent)
                                             .then(att => {
-                                                if ((!boxId.startsWith("BIN")) && createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)) {
+                                                if ((!boxId.startsWith("BIN")) && (!boxId.startsWith("SENT")) && createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)) {
                                                     return beResultApi.getInfos(createdDocument.id)
                                                         .then(docInfos => docInfos ? [docInfos, Promise.all(docInfos.map(docInfo => {
                                                             console.log('will assignAttachment', fullMessage.id, docInfo, createdDocument)
@@ -200,7 +200,7 @@ onmessage = e => {
                                                             })
                                                         })
                                                 } else {
-                                                    console.log("in bin or annex is body or not text file: " + createdDocument.documentLocation + ": " + [createdDocument.mainUti, createdDocument.otherUtis])
+                                                    console.log("not assigned: in bin or sentbox or annex is body or not text file: " + createdDocument.documentLocation + ": " + [createdDocument.mainUti, createdDocument.otherUtis])
                                                     return Promise.resolve()
                                                 }
                                             })
