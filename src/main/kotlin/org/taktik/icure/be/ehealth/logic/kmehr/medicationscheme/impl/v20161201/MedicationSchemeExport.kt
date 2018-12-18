@@ -51,6 +51,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHc
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
+import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
@@ -261,6 +262,7 @@ class MedicationSchemeExport : KmehrExport() {
         if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
             val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
             services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
+            services = services?.filter(Objects::nonNull)
         }
 
         return services ?: emptyList()

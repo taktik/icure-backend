@@ -21,14 +21,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<custom-style>
 			<style is="custom-style">
 				:host {
-					display: block;
+					display: flex;
+                    flex-direction: column;
 					height: 100%;
 					@apply --padding-right-left-32;
 				}
 
 				:host #hcps-list {
-					height: calc(100% - 62px);
 					outline: none;
+                    flex-grow: 1;
 				}
 
 				vaadin-grid.material {
@@ -133,14 +134,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				.container {
-					height: calc(100vh - 164px);
+					height: 100%;
+                    display: flex;
+                    flex-direction: column;
 				}
 
 				.btn-container {
 					width: 80%;
 					left: 20%;
 					position: absolute;
-					bottom: 16px;
+					bottom: 8px;
 
 					display: flex;
 					flex-direction: row;
