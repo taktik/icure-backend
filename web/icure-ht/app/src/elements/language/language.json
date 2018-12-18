@@ -1105,6 +1105,7 @@
     "no_app": "Pas de démarche",
     "no_arc_hea_ele": "Pas d'élément de soin archivé",
     "no_dmg" : " Patient n'a pas de DMG",
+    "no_ehe_con" : "Pas de connection à eHealth",
     "no_fam_ris": "Pas d'antécédent familial",
     "no_med": "Pas de traitement médicamenteux",
     "no_med_ant": "Pas d'antécédent médical",
