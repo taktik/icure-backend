@@ -2313,9 +2313,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             picture(pat) {
                 if (!pat) {
-                    return require('../../../images/Male-128.jpg')
+                    return require('../../../images/male-placeholder.png')
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png')
             }
 
             _saveFilter(e) {

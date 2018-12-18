@@ -546,7 +546,7 @@
 
             #success,
             #failed {
-                display: block;
+                display: flex;
                 position: fixed;
                 top: 50vh;
                 right: 0;
@@ -555,15 +555,33 @@
                 padding: 16px;
                 border-radius: 4px 0 0 4px;
                 transition: 1s ease-in;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
+                background: rgba(0,0 ,0,.42);
+                color: var(--app-text-color-light);
+                box-shadow: 0 9px 12px 1px rgba(0,0,0,.14),
+                            0 3px 16px 2px rgba(0,0,0,.12),
+                            0 5px 6px 0 rgba(0,0,0,.2);
             }
-            #success {
-                background: rgba(0,255,0,.55);
+
+            #success iron-icon, #failed iron-icon{
+                border-radius: 50%;
+                padding: 2px;
+                margin-right: 8px;
+                box-sizing: border-box;
             }
-            #failed {
-                background: rgba(255,0,0,.55);
+
+            #success iron-icon{
+                background: var(--app-status-color-ok);
             }
+
+            #failed iron-icon{
+                background: var(--app-status-color-nok);
+            }
+
             .displayNotif {
-                animation: displaySent 7.5s ease-in;
+                animation: displaySent 7.5s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
             @keyframes displaySent {

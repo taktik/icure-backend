@@ -92,7 +92,7 @@
                 <template is="dom-if" if="[[isVaccineProcedure]]">
                     <vaadin-form-layout>
                         <vaadin-form-item colspan="2">
-                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial" value="{{plannedAction.VaccineCommercialNameId}}"></vaadin-combo-box>
+                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial"></vaadin-combo-box>
                         </vaadin-form-item>
                         <vaadin-form-item>
                             <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
@@ -107,10 +107,10 @@
                         <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" value="{{plannedAction.HcpId}}"></vaadin-combo-box>
+                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}" value="{{plannedAction.ProfessionId}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
                         <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
@@ -269,22 +269,37 @@
                     professionId: {
                         type : String,
                         value : ""
+                    },
+                    isExistingSvc:{
+                        type : Boolean,
+                        value : false
+                    },
+                    selectedHcpItem:{
+                        type : Object,
+                        value : ""
+                    },
+                    selectedVaccineItem:{
+                        type : Object,
+                        value : ""
+                    },
+                    selectedProfessionItem:{
+                        type : Object,
+                        value : ""
+                    },
+                    service : {
+                        type : Object,
+                        value : {}
                     }
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)'];
+                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
             }
 
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
-            }
-
-            apiReady() {
-                if (!this.api || !this.user || !this.user.id || !this.opened) return;
-
                 try {
                     this.set('plannedAction.HcpId', this.user.healthcarePartyId)
                     this.api.cacheRowsUsingPagination(
@@ -345,6 +360,7 @@
             }
 
             detectVaccinProcedure(e){
+                if(!(e && e.detail && e.detail.value))return;
                 const code = e && e.detail && e.detail.value
                 let codeExp = code.split(".");
                 let CISPType = codeExp[0].substr(1,3)
@@ -354,6 +370,10 @@
                 }else{
                     this.set("isVaccineProcedure", false)
                 }
+
+                this.api.code().getCode(this.proceduresListItem.find(p=> p.code===code).id).then(proc =>{
+                    console.log(proc)
+                })
             }
 
             _hcpFilterChanged(e){
@@ -478,7 +498,7 @@
 
             }
 
-            _planAction(){
+            _planAction() {
                 console.log(this.plannedAction)
 
                 const action = this.plannedAction
@@ -486,94 +506,105 @@
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
                 const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
-                let act = {
-                    label: "Actes",
-                    responsible: responsible,
-                    content: {
-                        fr: {
-                            stringValue: action.ProcedureInfo.label.fr
-                        },
-                        nl: {
-                            stringValue: action.ProcedureInfo.label.nl
-                        }
+                this.service.label="Actes"
+                this.service.modified= +new Date()
+                this.service.responsible= responsible
+                this.service.content= {
+                    fr: {
+                        stringValue: action.ProcedureInfo.label.fr
                     },
-                    codes: [
-                        {
-                            region:	action.ProcedureInfo.regions,
-                            type: 	action.ProcedureInfo.type,
-                            code: action.ProcedureId,
-                            version : action.ProcedureInfo.version,
-                            label: action.ProcedureInfo.label
-                        },
-                        {
-                            region: action.ProfessionInfo.regions,
-                            type: action.ProfessionInfo.type,
-                            version : action.ProfessionInfo.version,
-                            code: action.ProfessionInfo.code,
-                            label: action.ProfessionInfo.label
-                        }
-                    ],
-                    comment: action.Description,
-                    valueDate: valueDate,
-                    tags: [
-                    ]
+                    nl: {
+                        stringValue: action.ProcedureInfo.label.nl
+                    }
                 }
-
+                this.service.codes= [
+                    {
+                        region: action.ProcedureInfo.regions,
+                        type: action.ProcedureInfo.type,
+                        code: action.ProcedureId,
+                        version: action.ProcedureInfo.version,
+                        label: action.ProcedureInfo.label
+                    },
+                    {
+                        region: action.ProfessionInfo.regions,
+                        type: action.ProfessionInfo.type,
+                        version: action.ProfessionInfo.version,
+                        code: action.ProfessionInfo.code,
+                        label: action.ProfessionInfo.label
+                    }
+                ]
+                this.service.comment= action.Description
+                this.service.valueDate= valueDate
+                this.service.tags= []
 
                 const status = {
                     type: "CD-LIFECYCLE",
                     code: action.Status,
                     version: "1.0",
                 }
-                if(action.Status==="refused")status.label={fr:action.ReasonOfRef}
-                act.tags.push(status)
+                if (action.Status === "refused") status.label = {fr: action.ReasonOfRef}
+                this.service.tags.push(status)
 
-
-                if(this.plannedAction.VaccineCommercialNameId !== "") {
+                if (this.plannedAction.VaccineCommercialNameId !== "") {
 
                     const vaccine = {
                         region: ["be", this.plannedAction.VaccineInfo.id.lang],
                         type: "CD-ITEM",
                         code: "vaccine",
                         version: "1.0",
-                        id : "CD-ITEM|vaccine|1.0"
+                        id: "CD-ITEM|vaccine|1.0"
                     }
 
-                    act.tags.push(vaccine)
+                    this.service.tags.push(vaccine)
 
 
                     const medication = {
-                        medicinalProduct :{
-                            intendedcds : [
+                        medicinalProduct: {
+                            intendedcds: [
                                 {
-                                    code : this.plannedAction.VaccineInfo.id.id,
-                                    type : "CD-DRUG-CNK"
+                                    code: this.plannedAction.VaccineInfo.id.id,
+                                    type: "CD-DRUG-CNK"
                                 }
                             ],
                             intendedname: this.plannedAction.VaccineInfo.name
                         },
-                        regimen : [],
-                        batch : this.plannedAction.BatchNumber,
-                        options : {
-                            doseNumber : {
-                                stringValue : this.plannedAction.DoseNumber
+                        regimen: [],
+                        batch: this.plannedAction.BatchNumber,
+                        options: {
+                            doseNumber: {
+                                stringValue: this.plannedAction.DoseNumber
                             }
                         }
                     }
 
-                    act.content.medication={
-                        medicationValue : medication
+                    this.service.content.medication = {
+                        medicationValue: medication
                     }
                 }
 
-                if(action.isSurgical){
-                    act.content.isSurgical={
-                        booleanValue : action.isSurgical
+                if (action.isSurgical) {
+                    this.service.content.isSurgical = {
+                        booleanValue: action.isSurgical
                     }
                 }
 
-                console.log(act)
-                this.dispatchEvent(new CustomEvent("create-service", { detail: {service: act, hes: this.linkedHes}, bubbles: true, composed: true}))
+                console.log(this.service)
+                if (!this.isExistingSvc) {
+                    this.service.created= +new Date()
+
+                    this.dispatchEvent(new CustomEvent("create-service", {
+                        detail: {service: this.service, hes: this.linkedHes},
+                        bubbles: true,
+                        composed: true
+                    }))
+                }
+                else{
+                    this.dispatchEvent(new CustomEvent("update-service", {
+                        detail: {service: this.service, hes: this.linkedHes},
+                        bubbles: true,
+                        composed: true
+                    }))
+                }
             }
 
             linkToHealthElement(e) {
@@ -591,9 +622,15 @@
 
             open(svc) {
                 this.set("plannedAction",{})
+                this.set('drugsListItem',[]);
+                this.set("selectedHcpItem","")
+                this.set("selectedVaccineItem","")
+                this.set("selectedProfessionItem","")
                 const service = svc
+                this.set("isExistingSvc",false)
                 if(service!==null && service.id) {
-
+                    this.set("isExistingSvc",true)
+                    this.set("service",service);
 
                     const codeProcedure = (service.codes || []).find( code => code.type==="BE-THESAURUS-PROCEDURES")
                     const codeProfession = (service.codes || []).find( code => code.type==="CD-HCPARTY")
@@ -602,20 +639,17 @@
 
                     Promise.all([
                         this.api.hcparty().getHealthcareParty(service.responsible),
-                        codeProcedure ? this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURE(codeVaccine.length ? codeVaccine[0].id : "")', 'fr', codeProcedure.code, null, null, 10) : Promise.resolve([]),
+                        codeProcedure ? this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURE', 'fr', codeProcedure.code, null, null, 10) : Promise.resolve([]),
                         codeProfession ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve([]),
                         codeVaccine ? this.api.bedrugs().getMppInfos(service.content.medication.medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code, this.language) : Promise.resolve([])
                     ]).then(([hcp,resultProced,resultProf,resultVaccine]) =>{
                         this.push("hcpListItem",{id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName});
-                        this.detectVaccinProcedure({detail : { value:codeProcedure.code}})
+
 
                         const date = this.api.moment(service.valueDate).format("YYYY-MM-DD");
 
-
-
-                        console.log("ca :",service,codeVaccine)
                         this.push("proceduresListItem",{
-                            id:codeProcedure.id,
+                            id:(codeProcedure && codeProcedure.code && codeProcedure.type && codeProcedure.version)? [codeProcedure.type,codeProcedure.code,codeProcedure.version].join("|") : "",
                             code:codeProcedure.code,
                             label:{
                                 "fr" : codeProcedure.label || this.shortServiceDescription(service,"fr"),
@@ -623,6 +657,8 @@
                             }
                         })
                         this.professionId = (codeProfession && codeProfession.code && codeProfession.type && codeProfession.version)? [codeProfession.type,codeProfession.code,codeProfession.version].join("|") : ""
+
+                        this.detectVaccinProcedure({detail : { value:codeProcedure.code}})
 
                         this.set("plannedAction",{
                             Status : codeStatus.code,
@@ -632,7 +668,7 @@
                             ProfessionId : this.professionId,
                             ReasonOfRef : codeStatus.code==="refused" ? codeStatus.label.fr : "",
                             isDeadline: (date ? true : false),
-                            isSurgical: (service.content && service.content.isSurgical && service.content.isSurgical.booleanValue) || false,//creer un antecedent
+                            isSurgical: (service.content && service.content.isSurgical && service.content.isSurgical.booleanValue) ? true : false,//creer un antecedent
                             VaccineCommercialNameId : (this.isVaccineProcedure ? service.content.medication.medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code : ""),
                             DoseNumber : (this.isVaccineProcedure ? service.content.medication.medicationValue.options.doseNumber.stringValue : ""),
                             BatchNumber : (this.isVaccineProcedure ? service.content.medication.medicationValue.batch : ""),
@@ -642,10 +678,17 @@
                             VaccineInfo: (codeVaccine && codeVaccine.length ? resultVaccine : "")
                         })
                         console.log(this.plannedAction)
+
                         this.set('drugsListItem',[resultVaccine]);
-                        this.set("selectedHcpItem",hcp.lastName + ' ' +hcp.firstName)
-                        this.set("selectedVaccineItem",resultVaccine.name)
-                        this.set("selectedProfessionItem",codeProfession.code)
+                        this.set("selectedHcpItem",{
+                            id: this.plannedAction.HcpId,
+                            name:hcp.name==="" ? hcp.lastName + ' ' +hcp.firstName : hcp.name
+                        })
+                        this.set("selectedVaccineItem",{
+                            id: this.plannedAction.VaccineCommercialNameId,
+                            name:resultVaccine.name
+                        })
+                        this.set("selectedProfessionItem",this.hcpartyTypeList.find(type => type.id===this.plannedAction.ProfessionId))
 
 
                         if(codeStatus.code === "completed"){
@@ -676,7 +719,20 @@
                 return rawDesc && '' + rawDesc || '';
             }
 
+            vaccineItemChanged(){
+                if(!(this.drugsListItem && this.drugsListItem.length))return;
+                this.set("plannedAction.VaccineCommercialNameId",this.selectedVaccineItem.id)
+            }
 
+            hcpItemChanged(){
+                if(!(this.hcpListItem && this.hcpListItem.length))return;
+                this.set("plannedAction.HcpId",this.selectedHcpItem.id)
+            }
+
+            professionItemChanged(){
+                if(!(this.selectedProfessionItem && this.selectedProfessionItem.id))return;
+                this.set("plannedAction.ProfessionId",this.selectedProfessionItem.id)
+            }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);
     </script>
