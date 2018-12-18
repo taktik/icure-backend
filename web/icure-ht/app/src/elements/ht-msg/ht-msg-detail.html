@@ -24,6 +24,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
@@ -687,6 +688,8 @@
 
             .assignToPat {
                 background: var(--app-secondary-color);
+                position: relative;
+                left: 50%;
                 padding: 4px 8px;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -699,15 +702,15 @@
                 max-width: 164px;
                 box-shadow: var(--app-shadow-elevation-1);
                 cursor: pointer;
-                transform: translateY(-16px) scale(1);
+                transform: translate(-50%,-16px) scale(1);
                 transition: .25s ease-in-out;
             }
             .assignToPat:hover {
-                transform: translateY(-16px) scale(1.05);
+                transform: translate(-50%,-16px) scale(1.05);
             }
             .assignToPat:active {
                 box-shadow: none;
-                transform: translateY(-16px) scale(.95);
+                transform: translate(-50%,-16px) scale(.95);
             }
 
             @media screen and (max-width: 1025px) {
@@ -772,25 +775,25 @@
             <div class="attached">
                 <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
-                    <template is="dom-if" if="[[alreadyImportedPats.length]]">
-                        Already attached to : 
-                        <ul>
-                            <template is="dom-repeat" items="[[alreadyImportedPats]]" as="pat">
-                                <li>[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</li>
-                            </template>
-                        </ul>
-                    </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+                        <template is="dom-if" if="[[alreadyImportedPats.length]]">
+                            [[localize('attached_to','Attached to',language)]] :
+                            <ul>
+                                <template is="dom-repeat" items="[[alreadyImportedPats]]" as="pat">
+                                    <li>[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</li>
+                                </template>
+                            </ul>
+                        </template>
                         <div class="layout-vertical annexe-card">
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             <template is="dom-if" if="[[hasUnnassignedAttachments]]">
                                 <template is="dom-if" if="[[unimportedPats.length]]">
-                                    <div id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
+                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
                                         Assigner l'annexe <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                    </div>
+                                    </paper-button>
                                     <paper-tooltip for="patients-importBtn" offset="0">
-                                        <template is="dom-repeat" items="[[unimportedPats]]" as="pat">[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</template>
+                                        ([[unimportedPats.length]] [[localize('pat','Patients',language)]])
                                     </paper-tooltip>
                                 </template>
                             </template>
@@ -925,7 +928,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
-                    console.log('docs',docs)
+                    // console.log('docs',docs)
 				    if(docs.length) {
                         return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
                             .map(doc => {
@@ -933,14 +936,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                     .then(a => {
                                         doc.dataUrl = this.getDataUrls(doc)
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                            console.log('this is body',doc)
+                                            // console.log('this is body',doc)
                                             this.set('bodyDocument',doc)
                                             const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
                                             fetch(url,{credentials:'include'})
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
                                         } else {
-                                            console.log('this is not body',doc)
+                                            // console.log('is not body')
                                             this._getPatsFromDoc(doc)
                                         }
                                         return doc
@@ -977,12 +980,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	getChildren(item){
-	    console.log('getChildren',item)
+	    // console.log('getChildren',item)
         this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
 			if(m.length){
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
-                    console.log('findByMessage',docs)
+                    // console.log('findByMessage',docs)
                     docs.length?
                     	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
 						:m.map(r => this.push('messages',r));
@@ -995,30 +998,38 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_getPatsFromDoc(document) {
         this.set('unimportedPats', [])
-        this.set('alreadyImportedPats', document.assignedResults ? document.assignedResults.length ? document.assignedResults : [] : [])
-            console.log('_getPatsFromDoc',document,this.alreadyImportedPats)
-        this.api.beresultimport().getInfos(document.id)
-            .then(resultInfo=>{
-                this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId,  resultInfo.lastName + " " + resultInfo.firstName, null, null, 100, "asc")
-                    .then(patients =>{
-                        console.log('patients',patients)
-                        patients.rows.map(pat=> {
-                            // if (!this.alreadyImportedPats.indexOf(pat)) {
-                            this.push('unimportedPats', pat)
-                            // }
-                        })
+	    const tempSelect = this.selectMessage.selection.item
+        const assigned = tempSelect.assignedResults
+        const unassigned = tempSelect.unassignedResults
+        console.log('_getPatsFromDoc',document,this.alreadyImportedPats)
+        Object.keys(assigned).forEach(k=>{
+            this.push('alreadyImportedPats', assigned[k])
+        })
+        console.log('alreadyImportedPats',this.alreadyImportedPats)
+        this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
+            if (resultInfo.length) {
+                resultInfo.map(res=>{
+                    Object.keys(unassigned).forEach(k => {
+                        if (unassigned[k] == res.protocol) {
+                            this.push('unimportedPats',res)
+                        }
                     })
-            })
-            .catch((err) => {
-                console.log('err', err);
-            })
+                })
+                console.log('unimportedPats',this.unimportedPats)
+            }
+        }).catch((err) => {
+            console.warn(err);
+        })
     }
 
     _assignAnnexToPat() {
+	    console.log('assignAnnexToPat',this.unimportedPats)
         this.unimportedPats.map(pat=>{
-            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, pat.lastName + " " + pat.firstName, null, null, 100, "asc").then(patients =>
+            console.log('pat',pat)
+            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, pat.lastName+" "+pat.firstName, null, null, 100, "asc").then(patients =>
             {
-                (patients && patients.rows && patients.rows.length === 1)?
+                if (patients && patients.rows && patients.rows.length === 1) {
+                    console.log('will new instance')
                     this.api.contact().newInstance(this.user, patients.rows[0], {
                         groupId : this.selectMessage.selection.item.id,
                         created: new Date().getTime() ,
@@ -1031,26 +1042,28 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         descr: pat.labo,
                         subContacts: []
                     }).then(c => {
-                        // console.log('newInstance',c)
+                        console.log('newInstance',c)
                         this.api.contact().createContact(c).then(c => {
-                            // console.log('createContact',c)
+                            console.log('createContact',c)
                             this.api.form().newInstance(this.user, patients.rows[0], {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f =>this.api.form().createForm(f)).then(f =>
                                 this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
                                     this.api.beresultimport().doImport(this.selectMessage.selection.item.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
                                         .then(c => {
-                                            // console.log("Contact id " + c.id);
-                                            return {id:c.id,protocolId:pat.protocol}
+                                            console.log("Contact id " + c.id);
                                         })
                                 )
                             )
                         })
-                    }):null
+                    })
+                } else {
+                    console.log('pat not found')
+                }
             })
         }) // map end
     }
 
     textType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => iccDocumentXApi.mimeType(u)).find(m => m === 'text/plain');
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'text/plain');
     }
 
     _getPatientDataByInss(inss){
