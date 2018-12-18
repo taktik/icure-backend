@@ -135,6 +135,10 @@
                 box-sizing: border-box;
             }
 
+            .invalid-form {
+                color: red;
+            }
+
             @media screen and (max-width: 1024px) {
                 .right{
                     display: none!important;
@@ -165,6 +169,9 @@
                 </div>
                 <div class="middle">
                     <p>Please fill in this form to request an access to Topaz.</p>
+                    <template is="dom-if" if="[[_isEmpty(invalidFormMsg)]]" >
+                        <p class="invalid-form">[[invalidFormMsg]]</p>
+                    </template>
                     <paper-dropdown-menu label="Profession" selected-item="{{professionItem}}">
                         <paper-listbox slot="dropdown-content" class="dropdown-content">
                             <paper-item id="persphysician">Physician</paper-item>
@@ -187,12 +194,12 @@
 
                     <paper-input label="First Name" value="{{healthcareParty.firstName}}"></paper-input>
                     <paper-input label="Last Name" value="{{healthcareParty.lastName}}"></paper-input>
-                    <paper-input label="Inami Number" value="{{healthcareParty.inami}}"></paper-input>
+                    <paper-input label="Inami Number" value="{{healthcareParty.nihii}}"></paper-input>
                     <paper-input label="SSIN Number" value="{{healthcareParty.ssin}}"></paper-input>
-                    <paper-input label="Email" value="{{healthcareParty.userName}}"></paper-input>
-                    <paper-input label="Password" type="password" value="{{pswrd}}"></paper-input>
-                    <paper-input label="Confirm Password" type="password" value="{{pswrdCheck}}"></paper-input>
-                    <paper-button id="login">Request Access</paper-button>
+                    <paper-input label="Email" id="email" type="email" value="{{user.email}}"></paper-input>
+                    <paper-input label="Password" type="password" value="{{user.passwordHash}}" required></paper-input>
+                    <paper-input label="Confirm Password" type="password" value="{{passwordCheck}}"></paper-input>
+                    <paper-button type="submit" id="login">Request Access</paper-button>
                 </div>
                 <div class="right"></div>
             </div>
@@ -206,6 +213,7 @@
 	<script>
 
         import { HealthcarePartyDto } from 'icc-api/dist/icc-api/model/models'
+        import _  from 'lodash/lodash'
         
 
 //noinspection JSUnusedGlobalSymbols
@@ -265,17 +273,74 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
+    _isEmpty(a) {
+        return Boolean(a)
+    }
+
     _equal(a,b) { return a === b }
+
+    errorMessage( msg ){
+        this.set("invalidFormMsg", msg)
+    }
 
 	register() {
 
-        const hcp = this.healthcareParty;
 
-        if( !hcp.firstName || !hcp.lastName || !hcp.userName || !this.get("pswrd") ) return
+        const profession = this.get("professionItem")
+        let speciality = { id: ""}
 
-        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+        if(!profession) return this.errorMessage( "All inputs must be filled")
+
+        if(profession.id === "persphysician") speciality = this.get("specialityItem")
+
+        if(!speciality) return this.errorMessage("Choose a speciality")
+
+        this.healthcareParty.profession = profession.id
+        this.healthcareParty.speciality = speciality.id
+
+        const hcp = this.healthcareParty
+        const user = this.user  
+
+        if( !this.$.email.$.nativeInput.validity.valid ) return this.errorMessage( "Email is not valid")
+
+        if( !hcp.firstName || !hcp.lastName || !hcp.nihii || !hcp.ssin || !user.email || !user.passwordHash ) return this.errorMessage("All inputs must be filled")
+
+        if( user.passwordHash !== this.get("passwordCheck") ) return this.errorMessage("Passwords are not identical")
+
+        this.user.login = user.email;
+
+        this.user.name = hcp.firstName + " " + hcp.lastName;
+        this.healthcareParty.name = this.user.name;
+
+        this.user._id = this.api.crypto().randomUuid()
+        this.healthcareParty._id = this.api.crypto().randomUuid()
+
+        this.user.healthcarePartyId = this.healthcareParty._id;
+
+        this.healthcareParty.java_type = 'org.taktik.icure.entities.HealthcareParty';
+        this.user.java_type = 'org.taktik.icure.entities.User';
+
+        this.createUser().then( (response) => {
+            this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+        })
         
-	}
+    }
+    
+    createUser() {
+
+        return new Promise ( (resolve, reject) => {
+
+            fetch('http://localhost:16042/create-first-user',{
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json; charset=utf-8"
+                },
+                body: JSON.stringify( [this.healthcareParty,this.user] )
+            }).then( response => {
+                console.log(response);
+            })
+        })
+    }
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
