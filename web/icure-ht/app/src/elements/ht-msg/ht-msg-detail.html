@@ -998,22 +998,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('alreadyImportedPats', document.assignedResults ? document.assignedResults.length ? document.assignedResults : [] : [])
             console.log('_getPatsFromDoc',document,this.alreadyImportedPats)
         this.api.beresultimport().getInfos(document.id)
-            .then(docId=>{
-                const docInfo = docId
-                if (document.unassignedResults && document.unassignedResults.length) {
-                    this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
-                        .then(patients =>{
-                            console.log('patients',patients)
-                            patients.rows.map(row=> {
-                                row.forEach(pat=>{
-                                    console.log('forEach pat',pat)
-                                    if (!this.alreadyImportedPats.indexOf(pat)) {
-                                        this.push('unimportedPats', pat)
-                                    }
-                                })
-                            })
+            .then(resultInfo=>{
+                this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId,  resultInfo.lastName + " " + resultInfo.firstName, null, null, 100, "asc")
+                    .then(patients =>{
+                        console.log('patients',patients)
+                        patients.rows.map(pat=> {
+                            // if (!this.alreadyImportedPats.indexOf(pat)) {
+                            this.push('unimportedPats', pat)
+                            // }
                         })
-                }
+                    })
             })
             .catch((err) => {
                 console.log('err', err);
