@@ -1448,18 +1448,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-button class="selection-toast-button" name="select-today" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectToday">
                             <iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-today"></iron-icon>
-                            Select Today
+                            [[localize('sel_tod','Select Today',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-six-months" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_select6Months">
                             <iron-icon class="selection-toast-icon"
                                        icon="icure-svg-icons:select-six-months"></iron-icon>
-                            Last 6 Months
+                            [[localize('sel_last_6_month','Last 6 Months',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectAll">
                             <iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-all"></iron-icon>
-                            Select All
+                            [[localize('sel_all','Select All',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectMoreOptions">
@@ -1797,8 +1797,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
         </paper-dialog>
-        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices"></ht-pat-action-plan-dialog>
+        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices"></ht-pat-action-plan-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
