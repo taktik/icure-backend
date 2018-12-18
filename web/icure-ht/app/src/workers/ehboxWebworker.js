@@ -53,26 +53,26 @@ onmessage = e => {
 
         const removeMsg = (msg) => {
             if (msg) {
+                console.log('removeMsg,',msg)
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 console.log('remove',idOfMsg,thisBox,delBox)
-                if (!msg.transportGuid.startsWith("BIN")) {
-                    console.log('remove:move to bin',idOfMsg,thisBox,delBox)
+                if (thisBox == 'INBOX') {
+                    console.log('move:',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('remove:move to bin done, modify',idOfMsg,thisBox,delBox)
+                            console.log('move to bin done, modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             msgApi.modifyMessage(msg).then(()=> {
-                                console.log('remove:move to bin: modify done',idOfMsg,thisBox,delBox)
-
+                                console.log('modify done',idOfMsg,thisBox,delBox)
                             } )
                         })
                         .catch(err => {
-                            console.log('ERROR: remove:move to bin',idOfMsg,thisBox,delBox, err)
+                            console.log('ERROR:',idOfMsg,thisBox,delBox, err)
                         })
-                } else {
-                    console.log('remove: delete from bin',idOfMsg,thisBox,delBox)
+                } else if (thisBox != 'SENTBOX') {
+                    console.log('del from bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
                 }
             }
@@ -133,13 +133,13 @@ onmessage = e => {
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
             .then(([fullMessage, existingMess]) => {
                 if (existingMess.rows.length > 0) {
-                     console.log("Message found",existingMess.rows)
+                     // console.log("Message found",existingMess.rows)
 
                     const existingMessage = existingMess.rows[0]
 
                     return (existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) ? fullMessage.id : null
                 } else {
-                     console.log('fullMessage',fullMessage)
+                     // console.log('fullMessage',fullMessage)
                     let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
                     let receivedDate = new Date().getTime()
 
@@ -153,12 +153,12 @@ onmessage = e => {
                         fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
                         received: receivedDate
                     }
-                     console.log('Unknown message : ',newMessage)
+                     // console.log('Unknown message : ',newMessage)
 
                     return iccMessageXApi.newInstance(user, newMessage)
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
-                             console.log('createdMessage',createdMessage)
+                             console.log('new createdMessage',createdMessage)
                             return Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
                                 //console.log("mime:" + docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1'))) &&
 									docxApi.newInstance(user, createdMessage, {
@@ -169,7 +169,7 @@ onmessage = e => {
 									})
 										.then(d => docApi.createDocument(d))
 										.then(createdDocument => {
-										     console.log('createdDocument',createdDocument)
+										     // console.log('createdDocument',createdDocument)
 											let byteContent = iccUtils.base64toArrayBuffer(a.content);
 											return [createdDocument, byteContent]
 										})
@@ -178,11 +178,11 @@ onmessage = e => {
                                                 if ((!boxId.startsWith("BIN")) && (!boxId.startsWith("SENT")) && createdDocument.documentLocation !== "body" && textType(createdDocument.mainUti, createdDocument.otherUtis)) {
                                                     return beResultApi.getInfos(createdDocument.id)
                                                         .then(docInfos => docInfos ? [docInfos, Promise.all(docInfos.map(docInfo => {
-                                                            console.log('will assignAttachment', fullMessage.id, docInfo, createdDocument)
+                                                            // console.log('will assignAttachment', fullMessage.id, docInfo, createdDocument)
                                                             return assignAttachment(fullMessage.id, docInfo, createdDocument)
                                                         }))] : [null, null])
                                                         .then(([docInfos, assignedAttachments]) => {
-                                                            console.log('assignedAttachments', assignedAttachments)
+                                                            // console.log('assignedAttachments', assignedAttachments)
                                                             return assignedAttachments && assignedAttachments.then(data => {
                                                                 let assignedMap = {}
                                                                 data.forEach(datum => {
@@ -192,21 +192,13 @@ onmessage = e => {
                                                                     .map(d => d.protocol);
                                                                 createdMessage.assignedResults = assignedMap
                                                                 return msgApi.modifyMessage(createdMessage).then(msg => {
+                                                                    console.log('modifyMessage',createdMessage.unassignedResults.length+" unassigned",createdMessage)
                                                                     if(createdMessage.unassignedResults.length == 0) {
                                                                         return removeMsg(msg)
                                                                     }
                                                                     return Promise.resolve()
                                                                 });
                                                             })
-                                                            createdMessage.unassignedResults = docInfos.filter(docinfo => (data.map(p => p.protocolId) || []).indexOf(docinfo.protocol) === -1)
-                                                                .map(d => d.protocol);
-                                                            createdMessage.assignedResults = assignedMap
-                                                            return msgApi.modifyMessage(createdMessage).then(msg => {
-                                                                if(createdMessage.unassignedResults.length == 0) {
-                                                                    return removeMsg(msg)
-                                                                }
-                                                                return Promise.resolve()
-                                                            });
                                                         })
                                                 } else {
                                                     console.log("not assigned: in bin or sentbox or annex is body or not text file: " + createdDocument.documentLocation + ": " + [createdDocument.mainUti, createdDocument.otherUtis])

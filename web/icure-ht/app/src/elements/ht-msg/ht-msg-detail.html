@@ -776,21 +776,18 @@
                 <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <template is="dom-if" if="[[alreadyImportedPats.length]]">
-                            [[localize('attached_to','Attached to',language)]] :
-                            <ul>
-                                <template is="dom-repeat" items="[[alreadyImportedPats]]" as="pat">
-                                    <li>[[pat.lastName]] [[pat.firstName]] ([[pat.ssin]])</li>
-                                </template>
-                            </ul>
-                        </template>
                         <div class="layout-vertical annexe-card">
-                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                            <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                            <!--<template is="dom-if" if="[[alreadyImportedPats.length]]">-->
+                                <!--<paper-tooltip for="[[item.id]]">-->
+                                    <!--[[localize('attached_to','Attached to',language)]] [[alreadyImportedPats.length]] [[localize('pat','Patients',language)]]-->
+                                <!--</paper-tooltip>-->
+                            <!--</template>-->
                             <template is="dom-if" if="[[hasUnnassignedAttachments]]">
                                 <template is="dom-if" if="[[unimportedPats.length]]">
                                     <paper-button id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
-                                        Assigner l'annexe <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                                     </paper-button>
                                     <paper-tooltip for="patients-importBtn" offset="0">
                                         ([[unimportedPats.length]] [[localize('pat','Patients',language)]])
@@ -997,17 +994,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_getPatsFromDoc(document) {
+        console.log('_getPatsFromDoc',document)
         this.set('unimportedPats', [])
+        this.set('alreadyImportedPats', [])
 	    const tempSelect = this.selectMessage.selection.item
-        const assigned = tempSelect.assignedResults
-        const unassigned = tempSelect.unassignedResults
-        console.log('_getPatsFromDoc',document,this.alreadyImportedPats)
-        Object.keys(assigned).forEach(k=>{
-            this.push('alreadyImportedPats', assigned[k])
-        })
-        console.log('alreadyImportedPats',this.alreadyImportedPats)
+        const assigned = tempSelect.assignedResults ? tempSelect.assignedResults : []
+        const unassigned = tempSelect.unassignedResults ? tempSelect.unassignedResults : []
+        if (assigned.length) {
+            Object.keys(assigned).map(k=>this.push('alreadyImportedPats', assigned[k]))
+        }
         this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
-            if (resultInfo.length) {
+            if (resultInfo.length && unassigned.length) {
                 resultInfo.map(res=>{
                     Object.keys(unassigned).forEach(k => {
                         if (unassigned[k] == res.protocol) {
@@ -1015,18 +1012,25 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         }
                     })
                 })
-                console.log('unimportedPats',this.unimportedPats)
             }
         }).catch((err) => {
             console.warn(err);
         })
+        console.log('alreadyImportedPats',this.alreadyImportedPats)
+        console.log('unimportedPats',this.unimportedPats)
     }
 
-    _assignAnnexToPat() {
+    _assignAnnexToPat(e) {
+        const tempSelect = this.selectMessage.selection.item
+        const document = e.target.dataset.document
+        const assigned = tempSelect.assignedResults ? tempSelect.assignedResults : []
+        const unassigned = tempSelect.unassignedResults ? tempSelect.unassignedResults : []
+        this.set("unimportedPats",unassigned)
 	    console.log('assignAnnexToPat',this.unimportedPats)
+        console.log('tempSelect',tempSelect)
         this.unimportedPats.map(pat=>{
-            console.log('pat',pat)
-            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, pat.lastName+" "+pat.firstName, null, null, 100, "asc").then(patients =>
+            console.log('pat',pat,pat.lastName+" "+pat.firstName)
+            return this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, pat.lastName+" "+pat.firstName, null, null, 100, "asc").then(patients =>
             {
                 if (patients && patients.rows && patients.rows.length === 1) {
                     console.log('will new instance')
@@ -1047,9 +1051,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             console.log('createContact',c)
                             this.api.form().newInstance(this.user, patients.rows[0], {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f =>this.api.form().createForm(f)).then(f =>
                                 this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
-                                    this.api.beresultimport().doImport(this.selectMessage.selection.item.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
+                                    this.api.beresultimport().doImport(document, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
                                         .then(c => {
                                             console.log("Contact id " + c.id);
+                                            Object.keys(unassigned).forEach(res => {
+                                                if (res === pat) {unassigned.splice(pat)}
+                                            })
+                                            assigned.push({[pat.documentId]:pat.prototype})
+                                            tempSelect.unassignedResults = unassigned
+                                            tempSelect.assignedResults = assigned
+                                            console.log('tempSelect',tempSelect)
+                                            return this.api.messages().modifyMessage(tempSelect).then(msg => {
+                                                console.log('modifyMessage',tempSelect.unassignedResults.length+" unassigned",tempSelect)
+                                                if(tempSelect.unassignedResults.length == 0) {
+                                                    return this.removeMsg(msg)
+                                                }
+                                            });
                                         })
                                 )
                             )
@@ -1060,6 +1077,33 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 }
             })
         }) // map end
+    }
+
+    removeMsg(msg) {
+        if (msg) {
+            console.log('removeMsg,',msg)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
+            if (thisBox == 'INBOX') {
+                console.log('move:',idOfMsg,thisBox,delBox)
+                return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(()=>{
+                        console.log('move to bin done, modify',idOfMsg,thisBox,delBox)
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        msgApi.modifyMessage(msg).then(()=> {
+                            console.log('modify done',idOfMsg,thisBox,delBox)
+                        } )
+                    })
+                    .catch(err => {
+                        console.log('ERROR:',idOfMsg,thisBox,delBox, err)
+                    })
+            } else if (thisBox != 'SENTBOX') {
+                console.log('del from bin',idOfMsg,thisBox,delBox)
+                return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
+        }
     }
 
     textType(uti, utis) {
