@@ -55,25 +55,25 @@ onmessage = e => {
         const removeMsg = (msg) => {
             if (msg) {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 console.log('remove',idOfMsg,thisBox,delBox)
                 if (!msg.transportGuid.startsWith("BIN")) {
-                    console.log('remove:move to bin',idOfMsg,thisBox,delBox)
+                    console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('remove:move to bin done, modify',idOfMsg,thisBox,delBox)
+                            console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             msgApi.modifyMessage(msg).then(()=> {
-                                console.log('remove:move to bin: modify done',idOfMsg,thisBox,delBox)
+                                console.log('modify done',idOfMsg,thisBox,delBox)
 
                             } )
                         })
                         .catch(err => {
-                            console.log('ERROR: remove:move to bin',idOfMsg,thisBox,delBox, err)
+                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
-                    console.log('remove: delete from bin',idOfMsg,thisBox,delBox)
+                    console.log('delete',idOfMsg,thisBox,delBox)
                     return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
                 }
             }
@@ -82,32 +82,46 @@ onmessage = e => {
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 console.log('remove from server',idOfMsg,thisBox,delBox)
-                if (!msg.transportGuid.startsWith("BIN")) {
-                    console.log('remove from server:move to bin',idOfMsg,thisBox,delBox)
+                if (!thisBox.transportGuid.startsWith("BIN")) {
+                    console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('remove from server:move to bin done',idOfMsg,thisBox,delBox)
+                            console.log('move to bin done',idOfMsg,thisBox,delBox)
                         })
                         .catch(err => {
-                            console.log('ERROR: remove from server:move to bin',idOfMsg,thisBox,delBox, err)
+                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
-                    console.log('remove from server: delete from bin',idOfMsg,thisBox,delBox)
-                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                    console.log('delete',idOfMsg,thisBox)
+                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox)
                 }
             }
         }
 
 		const assignResult = (messageId,docInfo,document) => {
+            console.log('assignResult')
             // assign to patient/contact the result matching docInfo from all the results of the document
             // return {id: contactId, protocolId: protocolIdString} if success else null (in promise)
             if (textType(document.mainUti, document.otherUtis)) {
                 return iccPatientApi.findByNameBirthSsinAuto(user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc").then(patients => {
-                    if (patients && patients.rows && patients.rows.length === 1) {
-                        return iccContactXApi.newInstance(user, patients.rows[0], {
+                    if (patients && patients.rows[0]) {
+                        let thisPat = patients.rows[0]
+                        if (patients.rows.length > 0) {
+                            // console.log('multiple match')
+                            patients.rows.map(pat=>{
+                                if (pat.lastName.toUpperCase() === docInfo.lastName.toUpperCase() &&
+                                    pat.firstName.toUpperCase() === docInfo.firstName.toUpperCase() &&
+                                    pat.dateOfBirth === docInfo.dateOfBirth) {
+                                    // console.log('occurence found',pat)
+                                    thisPat = pat
+                                }
+                            })
+                        }
+                        console.log('pat > ',thisPat)
+                        return iccContactXApi.newInstance(user, thisPat, {
                             groupId: messageId,
                             created: new Date().getTime(),
                             modified: new Date().getTime(),
@@ -123,14 +137,15 @@ onmessage = e => {
                             descr: docInfo.labo,
                             subContacts: []
                         }).then(c => {
-                             console.log('newInstance',c)
+                             // console.log('newInstance',c)
                             return iccContactApi.createContact(c)
                         }).then(c => {
-                            console.log('createContact',c)
-                            return iccFormXApi.newInstance(user, patients.rows[0], {
+                            // console.log('createContact',c)
+                            return iccFormXApi.newInstance(user, thisPat, {
                                 contactId: c.id,
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
+                                console.log('should do Import',thisPat,docInfo)
                                 return iccFormXApi.createForm(f).then(f =>
                                     iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
                                         beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
@@ -138,7 +153,7 @@ onmessage = e => {
                                 )
                             })
                         }).then(c => {
-                            console.log("Contact id " + c.id);
+                            console.log("did import ", c, docInfo.firstName+" "+docInfo.lastName);
                             return {id: c.id, protocolId: docInfo.protocol}
                         }).catch(err => {
                             console.log("error:" + err)
@@ -167,7 +182,7 @@ onmessage = e => {
                         }
                         return Promise.resolve()
                     } else {
-                        console.log('fullMessage',fullMessage)
+                        // console.log('fullMessage',fullMessage)
                         registerNewMessage(fullMessage, boxId)
                             .then(([createdMessage, annexDocs]) => {
                                 return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
@@ -177,6 +192,7 @@ onmessage = e => {
         }
 
         const treatAnnexes = (createdMessage, fullMessage, annexDocs, boxId) => {
+            console.log('treatAnnex')
             if (boxId == "INBOX" && annexDocs) { // only import annexes in inbox
                 let results = annexDocs.filter(doc => doc.documentLocation !== "body").map(doc => {
                     return treatAnnex(fullMessage, doc)
@@ -195,6 +211,7 @@ onmessage = e => {
                         })
                         createdMessage.unassignedResults = unassignedList
                         createdMessage.assignedResults = assignedMap
+                        console.log('treatAnnex, createdMessage', createdMessage)
                         return msgApi.modifyMessage(createdMessage).then(msg => {
                             if(createdMessage.unassignedResults.length == 0) {
                                 return removeMsg(msg)
@@ -210,6 +227,7 @@ onmessage = e => {
         const treatAnnex = (fullMessage, createdDocument) => {
             return beResultApi.getInfos(createdDocument.id)
                 .then(docInfos => {
+                    console.log('treatAnnex',fullMessage,createdDocument,docInfos)
                     return Promise.all(
                         docInfos.map(docInfo => {
                            return assignResult(fullMessage.id, docInfo, createdDocument).then(result => {

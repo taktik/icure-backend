@@ -784,15 +784,13 @@
                                     <!--[[localize('attached_to','Attached to',language)]] [[alreadyImportedPats.length]] [[localize('pat','Patients',language)]]-->
                                 <!--</paper-tooltip>-->
                             <!--</template>-->
-                            <template is="dom-if" if="[[hasUnnassignedAttachments]]">
-                                <template is="dom-if" if="[[unimportedPats.length]]">
-                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
-                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                    </paper-button>
-                                    <paper-tooltip for="patients-importBtn" offset="0">
-                                        ([[unimportedPats.length]] [[localize('pat','Patients',language)]])
-                                    </paper-tooltip>
-                                </template>
+                            <template is="dom-if" if="[[hasUnassignedResults]]">
+                                <paper-button id="patients-importBtn" class="assignToPat" on-tap="_assignAnnexToPat" document$="[[item]]">
+                                    [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                </paper-button>
+                                <paper-tooltip for="patients-importBtn" offset="0">
+                                    ([[unimportedPats.length]] [[localize('pat','Patients',language)]])
+                                </paper-tooltip>
                             </template>
                         </div>
                     </template>
@@ -865,21 +863,25 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Number,
                 value: 0
             },
-            hasUnnassignedAttachments: {
+            hasUnassignedResults: {
 			    type: Boolean,
                 value: false
+            },
+            unassignedResults: {
+			    type: Array,
+                value: []
+            },
+            assignedResults: {
+			    type: Array,
+                value: []
             },
             unimportedPats: {
 			    type: Array,
                 value: []
             },
-            knownUnimportedPats: {
-                type: Array,
-                value: []
-            },
-            alreadyImportedPats: {
-			    type: Array,
-                value: []
+            thisDocument: {
+			    type: Object,
+                value: {}
             }
 		};
 	}
@@ -918,10 +920,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
+	        let tempSelect = this.selectMessage.selection.item;
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
-	        let tempSelect = this.selectMessage.selection.item;
-			const shouldImport = tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false
+            this.set('unassignedResults',tempSelect.unassignedResults)
+            this.set('assignedResults',tempSelect.assignedResults)
+			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
+            this.set('thisDocument',tempSelect)
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
@@ -957,7 +962,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.set("selectedDocuments", docs);
                         this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
-                        this.set('hasUnnassignedAttachments', shouldImport)
                     })
 				}
 				else{
@@ -966,13 +970,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set("selectedDocuments", []);
                     this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
-                    this.set('hasUnnassignedAttachments', false)
+                    this.set('hasUnassignedResults', false)
                 }
                 console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);
+            this.set('hasUnassignedResults', false)
+            this.set('thisDocument',null)
 		}
 	}
 
@@ -994,15 +1000,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_getPatsFromDoc(document) {
-        console.log('_getPatsFromDoc',document)
-        this.set('unimportedPats', [])
-        this.set('alreadyImportedPats', [])
+        console.log('_getPatsFromDoc')
 	    const tempSelect = this.selectMessage.selection.item
-        const assigned = tempSelect.assignedResults ? tempSelect.assignedResults : []
-        const unassigned = tempSelect.unassignedResults ? tempSelect.unassignedResults : []
-        if (assigned.length) {
-            Object.keys(assigned).map(k=>this.push('alreadyImportedPats', assigned[k]))
-        }
+        const assigned = this.assignedResults ? this.assignedResults : []
+        const unassigned = this.unassignedResults ? this.unassignedResults : []
+        console.log('assigned : ',assigned)
+        console.log('unassigned : ',unassigned)
         this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
             if (resultInfo.length && unassigned.length) {
                 resultInfo.map(res=>{
@@ -1016,64 +1019,76 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }).catch((err) => {
             console.warn(err);
         })
-        console.log('alreadyImportedPats',this.alreadyImportedPats)
-        console.log('unimportedPats',this.unimportedPats)
     }
 
     _assignAnnexToPat(e) {
         const tempSelect = this.selectMessage.selection.item
-        const document = e.target.dataset.document
-        const assigned = tempSelect.assignedResults ? tempSelect.assignedResults : []
-        const unassigned = tempSelect.unassignedResults ? tempSelect.unassignedResults : []
-        this.set("unimportedPats",unassigned)
+        const document = this.thisDocument ? this.thisDocument : {}
+        const assigned = this.assignedResults ? this.assignedResults : []
+        const unassigned = this.unassignedResults ? this.unassignedResults : []
+        const unimportedPats = this.unimportedPats ? this.unimportedPats : []
 	    console.log('assignAnnexToPat',this.unimportedPats)
-        console.log('tempSelect',tempSelect)
-        this.unimportedPats.map(pat=>{
-            console.log('pat',pat,pat.lastName+" "+pat.firstName)
-            return this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, pat.lastName+" "+pat.firstName, null, null, 100, "asc").then(patients =>
+        unimportedPats.map(patient=>{
+            console.log('pat',patient,patient.lastName+" "+patient.firstName)
+            return this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, patient.dateOfBirth+" "+patient.lastName+" "+patient.firstName, null, null, 100, "asc").then(patients =>
             {
-                if (patients && patients.rows && patients.rows.length === 1) {
+                if (patients && patients.rows) {
                     console.log('will new instance')
-                    this.api.contact().newInstance(this.user, patients.rows[0], {
-                        groupId : this.selectMessage.selection.item.id,
+                    let thisPat = patients.rows[0]
+                    if (patients.rows.length > 0) {
+                        console.log('multiple match')
+                        patients.rows.map(pat=>{
+                            if (pat.lastName.toUpperCase() === patient.lastName.toUpperCase() &&
+                                pat.firstName.toUpperCase() === patient.firstName.toUpperCase() &&
+                                pat.dateOfBirth === patient.dateOfBirth) {
+                                thisPat = pat
+                            }
+                        })
+                    }
+                    this.api.contact().newInstance(this.user, thisPat, {
+                        groupId : document.id,
                         created: new Date().getTime() ,
                         modified: new Date().getTime() ,
                         author: this.user.healthcarePartyId,
                         responsible: this.user.healthcarePartyId,
                         openingDate: moment().format('YYYYMMDDhhmmss') || '',
                         closingDate: moment().format('YYYYMMDDhhmmss') || '',
-                        encounterType: {type: pat.codes.type, version: pat.codes.version, code: pat.codes.code},
-                        descr: pat.labo,
+                        encounterType: {type: thisPat.codes.type, version: thisPat.codes.version, code: thisPat.codes.code},
+                        descr: thisPat.labo,
                         subContacts: []
                     }).then(c => {
                         console.log('newInstance',c)
                         this.api.contact().createContact(c).then(c => {
                             console.log('createContact',c)
-                            this.api.form().newInstance(this.user, patients.rows[0], {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f =>this.api.form().createForm(f)).then(f =>
-                                this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
-                                    this.api.beresultimport().doImport(document, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
-                                        .then(c => {
-                                            console.log("Contact id " + c.id);
-                                            Object.keys(unassigned).forEach(res => {
-                                                if (res === pat) {unassigned.splice(pat)}
+                            this.api.form().newInstance(this.user, thisPat, {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f => {
+                                return this.api.form().createForm(f).then(f =>
+                                    this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
+                                        this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", pat.protocol, f.id, null, c)
+                                            .then(c => {
+                                                console.log("Contact id " + c.id);
+                                                Object.keys(unassigned).forEach(res => {
+                                                    if (res === pat) {unassigned.splice(pat)}
+                                                })
+                                                this.set("unimportedPats",unassigned)
+                                                console.log('unimportedPats',this.unimportedPats)
+                                                assigned.push({[pat.documentId]:pat.prototype})
+                                                tempSelect.unassignedResults = unassigned
+                                                tempSelect.assignedResults = assigned
+                                                console.log('tempSelect',tempSelect)
+                                                return this.api.messages().modifyMessage(tempSelect).then(msg => {
+                                                    console.log('modifyMessage',tempSelect.unassignedResults.length+" unassigned",tempSelect)
+                                                    if(tempSelect.unassignedResults.length == 0) {
+                                                        return this.removeMsg(msg)
+                                                    }
+                                                });
                                             })
-                                            assigned.push({[pat.documentId]:pat.prototype})
-                                            tempSelect.unassignedResults = unassigned
-                                            tempSelect.assignedResults = assigned
-                                            console.log('tempSelect',tempSelect)
-                                            return this.api.messages().modifyMessage(tempSelect).then(msg => {
-                                                console.log('modifyMessage',tempSelect.unassignedResults.length+" unassigned",tempSelect)
-                                                if(tempSelect.unassignedResults.length == 0) {
-                                                    return this.removeMsg(msg)
-                                                }
-                                            });
-                                        })
+                                    )
                                 )
-                            )
+                            })
                         })
                     })
                 } else {
-                    console.log('pat not found')
+                    console.log('pat not found',patients.rows)
                 }
             })
         }) // map end
