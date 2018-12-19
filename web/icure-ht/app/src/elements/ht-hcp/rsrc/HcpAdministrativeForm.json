@@ -20,7 +20,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Gender",
+							"label" : "gender",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "gender",
@@ -41,7 +41,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Speciality",
+							"label" : "speciality",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "speciality",
@@ -62,7 +62,7 @@
 							"codeTypes" : [
 								{"type":"ISO-639-1"}
 							],
-							"label" : "Languages",
+							"label" : "languages",
 							"subForm" : false,
 							"type" : "TKStringTable",
 							"name" : "languages"
@@ -82,7 +82,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Name",
+							"label" : "name",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "name",
@@ -103,7 +103,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Last name",
+							"label" : "las_nam",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "lastName",
@@ -124,7 +124,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "First Name",
+							"label" : "fir_nam",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "firstName",
@@ -145,7 +145,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "SSIN",
+							"label" : "ssin",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "ssin",
@@ -173,7 +173,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Civility",
+							"label" : "civility",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "civility",
@@ -194,7 +194,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "NIHII",
+							"label" : "inami",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "nihii",
@@ -215,7 +215,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Company Name",
+							"label" : "company_name",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "companyName",
@@ -236,7 +236,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Supervisor",
+							"label" : "supervisor",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "supervisorId",
@@ -257,7 +257,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Maison médicale",
+							"label" : "med_house",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "parentId",
@@ -278,7 +278,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Notes",
+							"label" : "notes",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "notes",
@@ -305,7 +305,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Addresses",
+							"label" : "addresses",
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "addresses"
