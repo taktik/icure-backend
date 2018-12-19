@@ -1,0 +1,162 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
+
+<dom-module id="ht-pat-he-tree-settings">
+    <template>
+        <style include="icpc-styles">
+            :host {
+                min-width: 36px;
+                min-height: 24px;
+            }
+
+            div.settings-btn-container/*:hover*/ {
+                visibility: visible !important;
+            }
+
+            .settings-btn-container.open paper-icon-button.settings-btn {
+                display:block;
+            }
+
+            .settings-btn-container #settings-btn-show {
+                display:block;
+            }
+
+            .settings-btn-container.open #settings-btn-show.settings-btn {
+                display:none;
+            }
+
+            .iron-selected:host .settings-btn-container {
+                visibility: visible;
+            }
+
+            .settings-btn-container{
+                border-radius: 14px;
+                visibility: hidden;
+                display:inline-flex;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .settings-btn-container.open{
+                flex-basis: 64px;
+                width: 64px;
+                visibility: visible;
+                flex-flow: row-reverse nowrap;
+                background: var(--app-text-color);
+                transition: background .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+            .settings-btn-container.open .settings-btn {
+                color: var(--app-text-color-light);
+                transition: color .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+
+            .settings-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .settings-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
+        </style>
+
+        <div class="settings-btn-container">
+            <paper-icon-button id="settings-btn-show" class="settings-btn" icon="vaadin:cog" on-tap="_toggleEditSettings"></paper-icon-button>
+            <paper-tooltip position="top" for="settings-btn-show">[[localize('settings','Settings',language)]]</paper-tooltip>
+
+            <paper-icon-button id="settings-btn-by-time" class="settings-btn" icon="vaadin:hourglass-start" on-tap="_sortByTime"></paper-icon-button>
+            <paper-tooltip position="top" for="settings-btn-by-time">[[localize('by_dat','By date',language)]]</paper-tooltip>
+
+            <paper-icon-button id="settings-btn-by-code" class="settings-btn" icon="vaadin:flag" on-tap="_sortByCode"></paper-icon-button>
+            <paper-tooltip position="top" for="settings-btn-by-code">[[localize('by_code','By Code',language)]]</paper-tooltip>
+
+            <paper-icon-button id="settings-btn-archived" class="settings-btn" icon="vaadin:archive" on-tap="_toggleInactive"></paper-icon-button>
+            <paper-tooltip position="top" for="he-edit-btn-archived">[[localize('show_irr','ebmPracticeNet',language)]]</paper-tooltip>
+        </div>
+    </template>
+    <script>
+
+class HtPatHeTreeSettings extends Polymer.TkLocalizerMixin(Polymer.Element) {
+    static get is() {
+        return 'ht-pat-he-tree-settings';
+    }
+
+    static get properties() {
+        return {
+            selected: {
+                type: Boolean
+            },
+            user: {
+                type: Object
+            },
+            section: {
+                type: String
+            }
+        };
+    }
+
+    static get observers() {
+        return [];
+    }
+
+    ready() {
+        super.ready();
+    }
+
+    _toggleEditSettings(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        let parentElement = e.target.parentElement;
+        if (parentElement.classList.contains('open')) {
+        } else {
+            parentElement.classList.add('open');
+            setTimeout(() => parentElement.classList.remove('open'), 10000);
+        }
+    }
+
+    _sortByTime(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.sort`, 'created')
+    }
+
+    _sortByCode(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.sort`, 'icpc')
+    }
+
+    _toggleInactive(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.showInactive`, localStorage.getItem(`org.taktik.icure.settings.pat.tree.${this.section}.showInactive`) === 'true' ? 'false' : 'true')
+    }
+
+
+}
+customElements.define(HtPatHeTreeSettings.is, HtPatHeTreeSettings);
+</script>
+</dom-module>

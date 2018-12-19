@@ -318,3 +318,9 @@ packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+
+bootRun {
+   if ( project.hasProperty('jvmArgs') ) {
+       jvmArgs = (project.jvmArgs.split("\\s+") as List)
+   }
+}
