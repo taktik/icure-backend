@@ -3794,8 +3794,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _healthElementsSelectorDataProvider() {
                 return {
-                    filter: function (cplxFilterValue, limit, offset, sortKey, descending) {
-                        const [cdItem, filterValue] = cplxFilterValue.split(':')
+                    filter: function (filterValue, limit, offset, sortKey, descending, cds = ['BE-THESAURUS']) {
                         const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
                         const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
@@ -3803,12 +3802,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const sorter = x => { const key = (x.descr || x.name || '').normalize('NFD').replace(/[\u0300-\u036f ]/g, "").toLowerCase(); return [key.startsWith(words[0]), key]}
 
                         const promises = [this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]
-                        if (cdItem !== 'surgery') {
-                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000))
-                        }
-                        if (cdItem === 'allergy' || cdItem === 'adr') {
-                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'CD-ATC', 'fr', words[0], null, null, 1000))
-                        }
+                        cds.forEach(cd => promises.push(this.api.code().findPaginatedCodesByLabel('be', cd, 'fr', words[0], null, null, 1000)))
 
                         return Promise.all(promises).then(results => {
                             const entityTemplates = results[0];
