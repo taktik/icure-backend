@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class MedicalHouseContractDto implements Serializable {
 
+    private String ContractId;
     private Long validFrom; //yyyyMMdd : start of contract period
     private Long validTo; //yyyyMMdd : end of contract period
     private String mmNihii;
@@ -32,6 +33,10 @@ public class MedicalHouseContractDto implements Serializable {
     private SuspensionReason suspensionReason;
     private String suspensionSource;
     private boolean forcedSuspension; //no automatic unSuspension
+
+    public String getContractId() { return ContractId; }
+
+    public void setContractId(String contractId) { ContractId = contractId; }
 
     public Long getValidFrom() { return validFrom; }
 
