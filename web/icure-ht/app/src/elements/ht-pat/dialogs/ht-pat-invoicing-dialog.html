@@ -1013,6 +1013,10 @@
                 }
             }
 
+            .transfertNmcl{
+                height: 120px;
+            }
+
         </style>
 
         <ht-inami-validator api="[[api]]" validator-name="ht-inami-validator"></ht-inami-validator>
@@ -1434,11 +1438,14 @@
         </paper-dialog>
 
         <paper-dialog id="transferDialog">
-            <div>
+            <div class="transfertNmcl">
                 <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
                                   item-label-path="label.[[language]]" item-value-path="id"
                                   label="[[localize('code_type','Code type',language)]]"
                                   value="{{bufferTypeCode}}"></vaadin-combo-box>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -3519,15 +3526,19 @@
 
             }
 
+
+
+
+
             _transferNmcl(){
                 if(this.activeNmclItem && this.activeNmclItem.id && this.bufferTypeCode && this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
 
                         this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem])
-                             .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  [inv[0] || null, null])
-                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : [inv, null])
-                             .then(([inv, parentIns]) => {
+                            .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities[0].insuranceId) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  Promise.resolve([inv[0] || null, null]))
+                            .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : Promise.resolve([inv, null]))
+                            .then(([inv, parentIns]) => {
                             let invoice = inv
                             if (!invoice) {
                                 return null

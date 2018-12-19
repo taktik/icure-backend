@@ -921,7 +921,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('isLoadingMessage',true)
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
 	        let tempSelect = this.selectMessage.selection.item;
-			const shouldImport = tempSelect.unassignedResults ? tempSelect.unassignedResults.length >= 1 ? true : false : false
+			const shouldImport = tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
@@ -994,21 +994,30 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_getPatsFromDoc(document) {
-        const docInfo = this.api.beresultimport().getInfos(document.id)
         this.set('unimportedPats', [])
         this.set('alreadyImportedPats', document.assignedResults ? document.assignedResults.length ? document.assignedResults : [] : [])
-        if (document.unassignedResults && document.unassignedResults.length) {
-            this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
-                .then(patients =>{
-                    patients.rows.map(row=> {
-                        row.forEach(pat=>{
-                            if (!this.alreadyImportedPats.indexOf(pat)) {
-                                this.push('unimportedPats', pat)
-                            }
+            console.log('_getPatsFromDoc',document,this.alreadyImportedPats)
+        this.api.beresultimport().getInfos(document.id)
+            .then(docId=>{
+                const docInfo = docId
+                if (document.unassignedResults && document.unassignedResults.length) {
+                    this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc")
+                        .then(patients =>{
+                            console.log('patients',patients)
+                            patients.rows.map(row=> {
+                                row.forEach(pat=>{
+                                    console.log('forEach pat',pat)
+                                    if (!this.alreadyImportedPats.indexOf(pat)) {
+                                        this.push('unimportedPats', pat)
+                                    }
+                                })
+                            })
                         })
-                    })
-                })
-        }
+                }
+            })
+            .catch((err) => {
+                console.log('err', err);
+            })
     }
 
     _assignAnnexToPat() {
