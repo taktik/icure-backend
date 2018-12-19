@@ -33,7 +33,6 @@ import org.taktik.icure.dao.UserDAO;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.PropertyType;
@@ -101,10 +100,10 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUser(String id) {
-		return setGroup(userDAO.get(id));
+		return fillGroup(userDAO.get(id));
 	}
 
-	private User setGroup(User user) {
+	private User fillGroup(User user) {
 		if (user == null) { return null; }
 
 		user.setGroupId(null);
@@ -122,7 +121,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			throw new IllegalStateException("Two users with same email " + email);
 		}
 
-		return setGroup(byEmail.get(0));
+		return fillGroup(byEmail.get(0));
 	}
 
 	@Override
@@ -221,7 +220,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsersByLogin(String login) {
-		return userDAO.findByUsername(formatLogin(login)).stream().map(this::setGroup).collect(Collectors.toList());
+		return userDAO.findByUsername(formatLogin(login)).stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	public User getUserByLogin(String login) {
@@ -234,7 +233,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			return null;
 		}
 
-		return setGroup(byUsername.get(0));
+		return fillGroup(byUsername.get(0));
 	}
 
 	@Override
@@ -653,7 +652,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> updateEntities(Collection<User> users) {
-		return users.stream().map(this::modifyUser).map(this::setGroup).collect(Collectors.toList());
+		return users.stream().map(this::modifyUser).map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -672,7 +671,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getAllEntities() {
-		return userDAO.getAll().stream().map(this::setGroup).collect(Collectors.toList());
+		return userDAO.getAll().stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -692,7 +691,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getEntity(String id) {
-		return setGroup(getUser(id));
+		return fillGroup(getUser(id));
 	}
 
 	@Override
@@ -735,7 +734,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public PaginatedList<User> listUsers(PaginationOffset pagination) {
 		PaginatedList<User> userPaginatedList = userDAO.listUsers(pagination);
 
-		userPaginatedList.setRows(userPaginatedList.getRows().stream().map(this::setGroup).collect(Collectors.toList()));
+		userPaginatedList.setRows(userPaginatedList.getRows().stream().map(this::fillGroup).collect(Collectors.toList()));
 
 		return userPaginatedList;
 	}
@@ -758,7 +757,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsers(List<String> ids) {
-		return userDAO.getList(ids).stream().map(this::setGroup).collect(Collectors.toList());
+		return userDAO.getList(ids).stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -768,12 +767,12 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
-		return setGroup(userDAO.getUserOnUserDb(userId, groupId, false));
+		return fillGroup(userDAO.getUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override
 	public User findUserOnUserDb(String userId, String groupId) {
-		return setGroup(userDAO.findUserOnUserDb(userId, groupId, false));
+		return fillGroup(userDAO.findUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override
