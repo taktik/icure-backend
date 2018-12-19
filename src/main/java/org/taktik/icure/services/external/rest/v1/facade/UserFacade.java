@@ -122,6 +122,9 @@ public class UserFacade implements OpenApiFacade{
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
+		//Sanitize group
+		userDto.setGroupId(null);
+
 		User user;
 		try {
 			user = userLogic.createUser(mapper.map(userDto, User.class));
@@ -233,6 +236,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		userLogic.modifyUser(mapper.map(userDto, User.class));
 		User modifiedUser = userLogic.getUser(userDto.getId());
