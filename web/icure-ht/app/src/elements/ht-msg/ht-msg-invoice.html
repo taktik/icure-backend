@@ -2650,7 +2650,7 @@
                             })
                         )
                     })
-/*
+
                     prom = prom.then(treatedMessages => {
                         let sprom = Promise.resolve()
                         _.chunk(treatedMessages, 20).forEach(chunk => {
@@ -2663,7 +2663,7 @@
                         })
                         return sprom
                     })
-*/
+
                     return prom.then(() => {
                         this.set('isReceiving',false)
                         this.getMessage()

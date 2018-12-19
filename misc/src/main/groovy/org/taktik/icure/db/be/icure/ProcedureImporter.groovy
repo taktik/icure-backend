@@ -18,10 +18,10 @@ class ProcedureImporter extends Importer{
     def language = 'fr'
 
     ProcedureImporter() {
-        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("https://couch.icure.cloud").username("template").password("804e5824-8d79-4074-89be-def87278b51f").build()
+        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:5984")/*.username("template").password("804e5824-8d79-4074-89be-def87278b51f")*/.build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
         // if the second parameter is true, the database will be created if it doesn't exists
-        couchdbBase = dbInstance.createConnector('icure-_template_-persphysician-fr', false);
+        couchdbBase = dbInstance.createConnector('icure-base', false);
 
         Security.addProvider(new BouncyCastleProvider())
     }
