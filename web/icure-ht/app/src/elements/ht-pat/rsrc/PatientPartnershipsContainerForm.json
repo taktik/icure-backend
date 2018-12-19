@@ -25,7 +25,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Partnerships",
+              "label" : "partnerships",
               "irrelevant" : true,
               "subForm" : true,
               "type" : "TKSubConsult",

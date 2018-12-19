@@ -19,7 +19,7 @@
               "codeTypes" : [
                 {"type":"ISO-639-1"}
               ],
-              "label" : "Languages",
+              "label" : "languages",
               "subForm" : false,
               "type" : "TKStringTable",
               "name" : "languages"
@@ -39,7 +39,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Name",
+              "label" : "name",
               "type" : "TKString",
               "subForm" : false,
               "name" : "name",
@@ -60,7 +60,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Contact person",
+              "label" : "contact_person",
               "type" : "TKString",
               "subForm" : false,
               "name" : "contactPerson",
@@ -81,7 +81,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "NIHII",
+              "label" : "inami",
               "type" : "TKString",
               "subForm" : false,
               "name" : "nihii",
@@ -102,7 +102,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Company Name",
+              "label" : "company_name",
               "type" : "TKString",
               "subForm" : false,
               "name" : "companyName",
@@ -126,7 +126,7 @@
               "sortOrder" : 1465341751,
               "codeTypes" : [
               ],
-              "label" : "Type de facturation",
+              "label" : "inv_type",
               "type" : "TKString",
               "subForm" : false,
               "name" : "billingType",
@@ -147,7 +147,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Notes",
+              "label" : "notes",
               "type" : "TKString",
               "subForm" : false,
               "name" : "notes",
@@ -174,7 +174,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Addresses",
+              "label" : "addresses",
               "type" : "TKSubConsult",
               "subForm" : true,
               "name" : "addresses"
