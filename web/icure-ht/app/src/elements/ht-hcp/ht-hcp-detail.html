@@ -334,13 +334,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-material>
 			</div>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-admin-card class="second-third-panel" id="hcp-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" language="[[language]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
+				<ht-hcp-admin-card class="second-third-panel" id="hcp-admin-card" api="[[api]]" user="[[user]]" hcp="[[hcp]]" language="[[language]]" resources="[[resources]]" on-hcp-saved="hcpSaved"></ht-hcp-admin-card>
 			</template>
 			<template is="dom-if" if="[[isPatientListSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-pat-list id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-pat-list>
+				<ht-hcp-pat-list id="hcp-pat-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]" resources="[[resources]]"></ht-hcp-pat-list>
 			</template>
 			<template is="dom-if" if="[[isMemberListSelected(selectedAdminFile,hcp)]]">
-				<ht-hcp-member-list id="hcp-member-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]"></ht-hcp-member-list>
+				<ht-hcp-member-list id="hcp-member-list" api="[[api]]" user="[[user]]" language="[[language]]" hcp="[[hcp]]" resources="[[resources]]"></ht-hcp-member-list>
 			</template>
 		</div>
 	</template>
