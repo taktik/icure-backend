@@ -98,10 +98,17 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public void removeListener(UserLogicListener listener) {
 		listeners.remove(listener);
 	}
-	
+
 	@Override
 	public User getUser(String id) {
-		return userDAO.get(id);
+		return setGroup(userDAO.get(id));
+	}
+
+	private User setGroup(User user) {
+		if (user == null) { return null; }
+
+		user.setGroupId(null);
+		return user;
 	}
 
 	@Override
@@ -115,7 +122,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			throw new IllegalStateException("Two users with same email " + email);
 		}
 
-		return byEmail.get(0);
+		return setGroup(byEmail.get(0));
 	}
 
 	@Override
@@ -214,7 +221,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsersByLogin(String login) {
-		return userDAO.findByUsername(formatLogin(login));
+		return userDAO.findByUsername(formatLogin(login)).stream().map(this::setGroup).collect(Collectors.toList());
 	}
 
 	public User getUserByLogin(String login) {
@@ -227,7 +234,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			return null;
 		}
 
-		return byUsername.get(0);
+		return setGroup(byUsername.get(0));
 	}
 
 	@Override
@@ -646,7 +653,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> updateEntities(Collection<User> users) {
-		return users.stream().map(this::modifyUser).collect(Collectors.toList());
+		return users.stream().map(this::modifyUser).map(this::setGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -665,7 +672,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getAllEntities() {
-		return userDAO.getAll();
+		return userDAO.getAll().stream().map(this::setGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -685,7 +692,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getEntity(String id) {
-		return getUser(id);
+		return setGroup(getUser(id));
 	}
 
 	@Override
@@ -726,7 +733,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public PaginatedList<User> listUsers(PaginationOffset pagination) {
-		return userDAO.listUsers(pagination);
+		PaginatedList<User> userPaginatedList = userDAO.listUsers(pagination);
+
+		userPaginatedList.setRows(userPaginatedList.getRows().stream().map(this::setGroup).collect(Collectors.toList()));
+
+		return userPaginatedList;
 	}
 
 
@@ -747,7 +758,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsers(List<String> ids) {
-		return userDAO.getList(ids);
+		return userDAO.getList(ids).stream().map(this::setGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -757,12 +768,12 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
-		return userDAO.getUserOnUserDb(userId, groupId, false);
+		return setGroup(userDAO.getUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override
 	public User findUserOnUserDb(String userId, String groupId) {
-		return userDAO.findUserOnUserDb(userId, groupId, false);
+		return setGroup(userDAO.findUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override
