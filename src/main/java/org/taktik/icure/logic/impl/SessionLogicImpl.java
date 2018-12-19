@@ -349,7 +349,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 			if (userDetails != null) {
 				String userId = getUserId();
-				String groupId = ((DatabaseUserDetails) userDetails).getGroupId();
+				String groupId = getGroupId();
 				if (groupId != null && userId != null) {
 					User u = userLogic.getUserOnUserDb(userId, groupId);
 					u.setGroupId(groupId);
@@ -372,8 +372,12 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				return userId;
 			}
 
-			String groupId = ((DatabaseUserDetails) userDetails).getGroupId();
+			String groupId = getGroupId();
 			return groupId != null ? groupId +  ":" + userId : userId;
+		}
+
+		private String getGroupId() {
+			return userDetails == null ? null : ((DatabaseUserDetails) userDetails).getGroupId();
 		}
 
 		public String getUserId() {

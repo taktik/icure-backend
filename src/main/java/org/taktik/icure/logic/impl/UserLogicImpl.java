@@ -74,6 +74,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	private HealthcarePartyLogic healthcarePartyLogic;
 	private PropertyLogic propertyLogic;
+	private SessionLogicImpl sessionLogic;
 
 	//	private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 	private PasswordEncoder passwordEncoder;
@@ -795,6 +796,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	@Autowired
 	public void setPropertyLogic(PropertyLogic propertyLogic) {
 		this.propertyLogic = propertyLogic;
+	}
+
+	@Autowired
+	public void setSessionLogic(SessionLogicImpl sessionLogic) {
+		this.sessionLogic = sessionLogic;
 	}
 
 	@Autowired
