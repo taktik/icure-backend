@@ -52,7 +52,8 @@
         }
 
 		#firstConnectionDialog{
-			height: 400px;
+			/* height: 400px; */
+            padding-bottom: 24px;
 			width: 350px;
 		}
 
@@ -73,13 +74,12 @@
                 <h4>[[localize('generate_key_mess','Entrer a password for the application and click on the following button to generate your key',language)]]</h4>
                 <paper-input label="[[localize('mdp','Password',language)]]" value="{{password}}"></paper-input>
                 <paper-input label="[[localize('mdp_ver','Password verification',language)]]" value="{{password_verif}}"></paper-input>
+                <div class="error">[[passwordError]]</div>
             </template>
 
             <template is="dom-if" if="[[user.passwordHash]]">
-                <h4>[[localize('generate_key_mess','Entrer a password for the application and click on the following button to generate your key',language)]]</h4>
+                <h4>[[localize('generate_key_mess_bypass','Generate your key and keep it somewhere safe',language)]]</h4>
             </template>
-
-            <div class="error">[[passwordError]]</div>
             <paper-button class="generateKeyBtn" on-tap="generateKey">[[localize('gen','Generate',language)]]</paper-button>
 
 		</paper-dialog>
@@ -171,8 +171,6 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
         }
-
-        console.log(this.user.passwordHash);
 
 
         this.api.user().modifyUser(this.user).then(u => {
