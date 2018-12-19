@@ -249,6 +249,7 @@
     "gender" : "Gender",
     "generalInformation" : "General Informations",
     "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
+    "generate_key_mess_bypass" : "Generate your key and keep it somewhere safe",
     "get_msg" : "Get Messages",
     "gnotion" : "Only if the doctor is not the general practitioner who manages the DMG, that the notion G can be applied and if this can have an impact on the tariff of the consultation",
     "gra": "Graph",
