@@ -92,6 +92,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .zone {
+                display: flex;
+                flex-direction: column;
                 height: 100%;
             }
 
@@ -130,6 +132,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .first-panel{
+                display: flex;
+                flex-direction: column;
                 height:100%;
                 background: var(--app-background-color-dark);
                 top:64px;
@@ -322,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .add-btn-container{
                 position: relative;
-                bottom: 6px;
+                bottom: 12px;
                 display:flex;
                 flex-direction: row;
                 justify-content: center;
@@ -414,9 +418,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .submenus-container{
-                overflow-y: overlay;
-                height: calc(100% - 195px);
-                margin-bottom:16px;
+                overflow-y: auto;
+                flex-grow: 1;
             }
 
 
@@ -1372,8 +1375,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                     </div>
+                    <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
                 </paper-material>
-                <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
             </div>
             <template is="dom-if" if="[[!isAdminSelected(selectedAdminOrCompleteFileIndex)]]" restamp>
                 <div class="second-panel">
@@ -2887,6 +2890,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             patientOpened(patientId, api, user) {
                 if (api && user && patientId && patientId !== this.latestPatientId) {
                     this.api.unregisterAll('contact')
+                    console.log('patientOpened',patientId, api, user)
 
                     this.latestPatientId = patientId;
                     this.api.accesslog().createAccessLog(new AccessLogDto({
@@ -3113,7 +3117,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     }
                                 }), 0)
                         })
-                    })
+                    }) // icc contact then end
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications =>
                         this.set('medications', _.sortBy(medications.map(m => Object.assign(m, { colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code:'V'}).code || 'V').substr(0,1)}` }) ), sorter))
@@ -3671,9 +3675,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             picture(pat) {
                 if (!pat) {
-                    return require('../../../images/Male-128.jpg');
+                    return require('../../../images/male-placeholder.png');
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+                return pat.picture ? 'data:image/png;base64,' + pat.picture : (pat.gender && pat.gender.substr(0,1).toLowerCase() === 'f') ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png');
             }
 
             serviceDescriptions(ctc, label) {
