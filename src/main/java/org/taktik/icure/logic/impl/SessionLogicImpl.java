@@ -376,7 +376,8 @@ public class SessionLogicImpl implements ICureSessionLogic {
 			return groupId != null ? groupId +  ":" + userId : userId;
 		}
 
-		private String getGroupId() {
+		@Override
+		public String getGroupId() {
 			return userDetails == null ? null : ((DatabaseUserDetails) userDetails).getGroupId();
 		}
 

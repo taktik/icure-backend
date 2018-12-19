@@ -66,6 +66,8 @@ public interface SessionLogic {
 
 		String getGroupIdUserId();
 
+		String getGroupId();
+
 		String getLocale();
 
 		void setLocale(String locale);

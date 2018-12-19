@@ -47,6 +47,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.exceptions.UserRegistrationException;
 import org.taktik.icure.logic.HealthcarePartyLogic;
 import org.taktik.icure.logic.PropertyLogic;
+import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.logic.listeners.UserLogicListener;
 
@@ -74,7 +75,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	private HealthcarePartyLogic healthcarePartyLogic;
 	private PropertyLogic propertyLogic;
-	private SessionLogicImpl sessionLogic;
+	private SessionLogic sessionLogic;
 
 	//	private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 	private PasswordEncoder passwordEncoder;
@@ -108,7 +109,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private User setGroup(User user) {
 		if (user == null) { return null; }
 
-		user.setGroupId(null);
+		user.setGroupId(this.sessionLogic.getCurrentSessionContext().getGroupId());
 		return user;
 	}
 
@@ -810,7 +811,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Autowired
-	public void setSessionLogic(SessionLogicImpl sessionLogic) {
+	public void setSessionLogic(SessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
 	}
 
