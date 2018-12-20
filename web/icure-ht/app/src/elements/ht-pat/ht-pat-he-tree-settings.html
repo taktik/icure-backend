@@ -138,21 +138,21 @@ class HtPatHeTreeSettings extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.sort`, 'created')
+        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`, 'created')
     }
 
     _sortByCode(e) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.sort`, 'icpc')
+        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`, 'icpc')
     }
 
     _toggleInactive(e) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.settings.pat.tree.${this.section}.showInactive`, localStorage.getItem(`org.taktik.icure.settings.pat.tree.${this.section}.showInactive`) === 'true' ? 'false' : 'true')
+        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.showInactive`, localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.showInactive`) === 'true' ? 'false' : 'true')
     }
 
 
