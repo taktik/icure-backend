@@ -197,7 +197,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         id =  formid
                         formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION") // Consultation FormTemplate
                         contactId =  con.id
-                        responsible =  author.id
+                        responsible =  con.responsible
+                        this.author =  con.author
                         descr =  "Consultation"
                     }
                     incapacityFormsByConId[con.id]?.map {
@@ -346,9 +347,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 language: String,
                                                 mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<List<Service>, String?> {
 
+        val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+            createOrProcessHcp(it)?.let {
+                v.hcps.add(it)
+                it
+            }
+        }?.firstOrNull()?.id ?:
+                author.healthcarePartyId
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
-            val service = parseGenericItem( cdItem, "Prescription", item, author, language, v)
+            val service = parseGenericItem( cdItem, "Prescription", item, author, trnhcpid, language, v)
             service.tags.addAll(
                     listOf(
                             CodeStub("ICURE", "PRESC", "1")
@@ -368,14 +376,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 this.author = author.id
 
 
-                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                    createOrProcessHcp(it)?.let {
-                        v.hcps.add(it)
-                        it
-                    }
-                }?.firstOrNull()?.id ?:
-                        author.healthcarePartyId
-
+                this.responsible = trnhcpid
                 this.services = servlist.toSet()
                 this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                         trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -484,16 +485,17 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         state: InternalState): Contact {
         return Contact().apply {
             val contact = this
-
             this.id = idGenerator.newGUID().toString()
-            this.author = author.id
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+            val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                 createOrProcessHcp(it)?.let {
                     v.hcps.add(it)
                     it
                 }
             }?.firstOrNull()?.id ?:
                     author.healthcarePartyId
+
+            this.author = author.id
+            this.responsible = trnauthorhcpid
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                     trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
                         it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
@@ -540,7 +542,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 when (cdItem) {
                     "healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue" -> {
-                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
+                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id)
                         he?.let { notNullHe ->
                             v.hes.add(healthElementLogic.createHealthElement(he))
                             // register new version links
@@ -562,8 +564,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     "gmdmanager" -> Unit // not services
                     "insurancystatus" -> parseInsurancyStatus(cdItem, label, item, author, language, v, contact.id)
                     //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
-                    "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v, state)
-                    "incapacity" -> parseIncapacity(cdItem, label, item, author, language, v, contact.id).let {
+                    "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, trnauthorhcpid, language, v, state)
+                    "incapacity" -> parseIncapacity(cdItem, label, item, author, trnauthorhcpid, language, v, contact.id).let {
                         val (services, subcontact, form) = it
                         state.incapacityForms.add(form)
                         this.services.addAll(services)
@@ -574,7 +576,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         v.forms.add(form)
                     }
                     else -> {
-                        val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
+                        val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v)
                         this.services.add(service)
                         if(isMedication(service)) {
                             service.label = "Medication"
@@ -605,7 +607,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
-    private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, state: InternalState) {
+    private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, trnAuthorHcpId: String, language: String, v: ImportResult, state: InternalState) {
         PlanOfAction().apply {
             this.id = idGenerator.newGUID().toString()
             descr = label
@@ -615,7 +617,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
-            this.responsible = author.healthcarePartyId
+            this.responsible = trnAuthorHcpId
             this.codes = extractCodes(item).toMutableSet()
             this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
@@ -694,14 +696,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     }
 
-    private fun parseIncapacity(cdItem: String, label: String, item: ItemType, author: User, language: String, v: ImportResult, contactId: String): Triple<List<Service>, SubContact, Form> {
+    private fun parseIncapacity(cdItem: String, label: String, item: ItemType, author: User,
+                                trnAuthorHcpId: String,
+                                language: String, v: ImportResult, contactId: String): Triple<List<Service>, SubContact, Form> {
 
         val ittform = Form().apply {
             id= idGenerator.newGUID().toString()
             formTemplateId= getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") // ITT form template
             this.contactId = contactId
-            this.responsible = author.healthcarePartyId
-            this.author = author.healthcarePartyId
+            this.responsible = trnAuthorHcpId
+            this.author = author.id
             this.codes = extractCodes(item).toMutableSet()
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
@@ -760,9 +764,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     id= idGenerator.newGUID().toString()
                     this.label = entry.key
                     this.contactId = contactId
-                    responsible = author.healthcarePartyId
+                    responsible = trnAuthorHcpId
                     index = service_index++
-                    this.author = author.healthcarePartyId
+                    this.author = author.id
                     created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
                     modified = this.created
                     valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
@@ -795,6 +799,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                        label: String,
                                        item: ItemType,
                                        author: User,
+                                       trnAuthorHcpId: String,
                                        language: String,
                                        v: ImportResult,
                                        contactId: String
@@ -809,7 +814,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
-            this.responsible = author.healthcarePartyId
+            this.responsible = trnAuthorHcpId
             this.codes = extractCodes(item).toMutableSet()
             this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
@@ -851,6 +856,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                  label: String,
                                  item: ItemType,
                                  author: User,
+                                 trnAuthorHcpId: String,
                                  language: String,
                                  v: ImportResult): Service {
         return Service().apply {
@@ -869,7 +875,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         CodeStub("CD-TEMPORALITY", it.toString(), "1")
                 )
             }
-            this.responsible = author.healthcarePartyId
+            this.responsible = trnAuthorHcpId
+            this.author = author.id
             this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate

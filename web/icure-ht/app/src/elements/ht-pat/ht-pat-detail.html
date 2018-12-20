@@ -2138,6 +2138,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+                if(this.patientHealthCarePartiesById == null) {
+                    Promise.all(
+                        _.chunk(this.patient.patientHealthCareParties,100).map(uChunk =>
+                            this.api.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))
+                        )
+                    ).then(hcps => {
+                        this.patientHealthCarePartiesById = _.flatMap(hcps).reduce((acc, hcp) => {
+                            acc[hcp.id] = hcp
+                            return acc
+                        }, {});
+                    } )
+                }
             }
 
             _switchTest(e){
@@ -3682,8 +3694,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             hcp(ctc) {
                 const usr = this.api.users && this.api.users[ctc.author];
-                const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null;
-                return hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".") || usr && usr.login || "N/A";
+                //const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null;
+                const hcpid = ctc.responsible ? ctc.responsible : (usr ? usr.healthcarePartyId : null);
+                let hcp = hcpid && this.patientHealthCarePartiesById ? this.patientHealthCarePartiesById[hcpid] : null;
+                hcp = hcp ? hcp : (hcpid ? this.api.hcParties[hcpid] : null);
+                let name
+                if(hcp && hcp.name != null && hcp.name != "") {
+                    name = hcp && hcp.name
+                } else {
+                    name = hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".")
+                }
+                return name || usr && usr.login || "N/A";
             }
 
             picture(pat) {
