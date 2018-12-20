@@ -84,7 +84,7 @@
 		<template is="dom-if" if="[[readOnly]]">
 			<paper-input-container always-float-label="true">
 				<label slot="label">
-					<span class="label-span">[[label]]</span>
+					<span class="label-span">[[localize(label,label,language)]]</span>
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
@@ -100,7 +100,7 @@
 		<template is="dom-if" if="[[!readOnly]]">
 			<paper-input-container always-float-label="true">
 				<label slot="label">
-					<span class="label-span">[[label]]</span>
+					<span class="label-span">[[localize(label,label,language)]]</span>
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>

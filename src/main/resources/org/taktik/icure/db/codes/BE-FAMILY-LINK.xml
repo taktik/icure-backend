@@ -1,0 +1,361 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Family link</NAME>
+    <VALUE>
+        <CODE>40683002</CODE>
+        <DESCRIPTION L="en">parent (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">parent</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444301002</CODE>
+        <DESCRIPTION L="en">mother of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">mère mother</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444295003</CODE>
+        <DESCRIPTION L="en">father of subject</DESCRIPTION>
+        <DESCRIPTION L="fr">père father</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444052006</CODE>
+        <DESCRIPTION L="en">spouse of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">épouse</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444054007</CODE>
+        <DESCRIPTION L="en">wife of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">épouse</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444053001</CODE>
+        <DESCRIPTION L="en">husband of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">époux</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>262043009</CODE>
+        <DESCRIPTION L="en">partner in relationship (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">partenaire</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444192005</CODE>
+        <DESCRIPTION L="en">child of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">enfant</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444241008</CODE>
+        <DESCRIPTION L="en">son of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fils</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444194006</CODE>
+        <DESCRIPTION L="en">daughter of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fille</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444303004</CODE>
+        <DESCRIPTION L="en">brother of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">frère</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444304005</CODE>
+        <DESCRIPTION L="en">sister of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">soeur</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444242001</CODE>
+        <DESCRIPTION L="en">grandparent of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-parent</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>34871008</CODE>
+        <DESCRIPTION L="en">grand-father (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-père</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444243006</CODE>
+        <DESCRIPTION L="en">maternal grandfather of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-père</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444292000</CODE>
+        <DESCRIPTION L="en">paternal grandfather of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-père paternel</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>113157001</CODE>
+        <DESCRIPTION L="en">grand-mother (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-mère</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444244000</CODE>
+        <DESCRIPTION L="en">maternal grandmother of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-mère maternelle</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444293005</CODE>
+        <DESCRIPTION L="en">paternal grandmother of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">grand-mère paternelle</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>86372007</CODE>
+        <DESCRIPTION L="en">grand child (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">petit-enfant</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>44181008</CODE>
+        <DESCRIPTION L="en">grand daughter (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">petite-fille</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>70578009</CODE>
+        <DESCRIPTION L="en">grand son (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">petit-fils</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>22573006</CODE>
+        <DESCRIPTION L="en">step daughter (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">belle-fille (remariage)</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>8674003</CODE>
+        <DESCRIPTION L="en">step son (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">beau-fils (remariage)</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>65412001</CODE>
+        <DESCRIPTION L="en">step-mother (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">belle-mère (remariage)</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>30578000</CODE>
+        <DESCRIPTION L="en">step-father (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">beau-père (remariage)</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>394738000</CODE>
+        <DESCRIPTION L="en">other related persons (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">belle-soeur</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>394738000</CODE>
+        <DESCRIPTION L="en">other related persons (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">beau-frère</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444191003</CODE>
+        <DESCRIPTION L="en">aunt of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">tante</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444055008</CODE>
+        <DESCRIPTION L="en">uncle of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">oncle</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>48673000</CODE>
+        <DESCRIPTION L="en">adoptive child (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">enfant adoptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>67005001</CODE>
+        <DESCRIPTION L="en">adoptive daughter (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fille adoptive</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>2316007</CODE>
+        <DESCRIPTION L="en">adoptive son (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fils adptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>55538000</CODE>
+        <DESCRIPTION L="en">cousin (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">cousin.e</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>34581001</CODE>
+        <DESCRIPTION L="en">niece (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">nièce</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>83559000</CODE>
+        <DESCRIPTION L="en">nephew (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">neveu</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>2272004</CODE>
+        <DESCRIPTION L="en">half-sister (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">demi-soeur</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>45929001</CODE>
+        <DESCRIPTION L="en">half-brother (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">demi-frère</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>true</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>48673000</CODE>
+        <DESCRIPTION L="en">adoptive child (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">enfant adoptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>67005001</CODE>
+        <DESCRIPTION L="en">adoptive daughter (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fille adoptive</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>2316007</CODE>
+        <DESCRIPTION L="en">adoptive son (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">fils adoptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>41953004</CODE>
+        <DESCRIPTION L="en">adoptive parent (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">parent adoptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>21464003</CODE>
+        <DESCRIPTION L="en">adoptive mother (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">mère adoptive</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>609005</CODE>
+        <DESCRIPTION L="en">adoptive father (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">père adoptif</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>444199001</CODE>
+        <DESCRIPTION L="en">friend of subject (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">ami.e</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+
+    </VALUE>
+    <VALUE>
+        <CODE>58626002</CODE>
+        <DESCRIPTION L="en">legal guardian (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">tuteur</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>158762005</CODE>
+        <DESCRIPTION L="en">solicitor (occupation)</DESCRIPTION>
+        <DESCRIPTION L="fr">notaire</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>12877000</CODE>
+        <DESCRIPTION L="en">lawyer (occupation)</DESCRIPTION>
+        <DESCRIPTION L="fr">avocat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>394571004</CODE>
+        <DESCRIPTION L="en">employer (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">employeur</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+    <VALUE>
+        <CODE>427568008</CODE>
+        <DESCRIPTION L="en">neighbor (person)</DESCRIPTION>
+        <DESCRIPTION L="fr">voisin.e</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <FAMILY-LINK>false</FAMILY-LINK>
+    </VALUE>
+</kmehr-cd>

@@ -48,7 +48,6 @@
             .regimen-line {
                 display: flex;
                 flex-flow: row nowrap;
-                justify-content: space-between;
                 align-items: center;
             }
 
@@ -65,7 +64,18 @@
                 width: 24px;
                 padding: 2px;
             }
-
+            .regimen-line vaadin-checkbox {
+                align-self: flex-end;
+                margin: 0 8px 8px;
+            }
+            .regimen-line div {
+                align-self: flex-end;
+                margin-bottom: 8px;
+            }
+            .regimen-line paper-input[type=number] {
+                margin: 0 8px 0;
+                width: 48px;
+            }
             .regimen-line.block .renewal-input{
                 max-height: 42px;
                 min-height: 0;
@@ -75,7 +85,7 @@
                     padding: 0;
                 }
             }
-            
+
 
             .regimen-line.block paper-dropdown-menu {
                 margin-right: 8px;
@@ -121,16 +131,16 @@
                 position: relative;
                 --paper-input-container-underline: {
                     border-color: transparent;
-                }
+                };
                 --paper-input-container-input: {
                    transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
-                }   
+                };
             }
 
             .regimen-grid-quantity:hover{
                 --paper-input-container-input: {
                     background: var(--app-background-color-darker);
-                }   
+                }
             }
 
             .regimen--units {
@@ -362,10 +372,10 @@
                 }
             }
 
-            
+
         </style>
 
-        <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true"> 
+        <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
             <paper-tabs selected="{{selectedTab}}">
@@ -395,14 +405,6 @@
             </div>
             <div class="regimen-line display-type-regimen">
 
-                <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
-                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
-                        <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
-                        <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
-                        <paper-item id="high">[[localize('high','High',language)]]</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-
                 <paper-dropdown-menu id="medicReimbursement" label="Reimbursement" class="regimen--reimbursement">
                     <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
                         <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
@@ -411,12 +413,12 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
 
-                Substitution: <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged"></vaadin-checkbox>
-                Renewal: <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged"></vaadin-checkbox>
+                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">Substitution</vaadin-checkbox>
+                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">Renewal</vaadin-checkbox>
                 <template is="dom-if" if="[[isRenewal]]">
-                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDecimalValue}}"></paper-input>
-                    x tous les
-                    <paper-input type="number" class="regimen-grid-quantity" min="0" value="{{renewalDurationValue}}"></paper-input>
+                    <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
+                    <div>x tous les</div>
+                    <paper-input type="number" min="0" value="{{renewalDurationValue}}"></paper-input>
                     <paper-dropdown-menu id="medicRenewalTimeUnit" label="Time unit" class="regimen--renewalTimeUnit">
                         <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
                             <template is="dom-repeat" items="[[timeUnit]]" as="tu">
@@ -428,59 +430,7 @@
             </div>
 
             <div class="content">
-                <div class="regimen-line display-type-regimen">
-                        <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                            <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
-                                            disabled="true"></paper-input>
-                        </template>
-                        <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                            <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
-                                            disabled="true"></paper-input>
-                        </template>
-                        <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                            <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"
-                                            disabled="true"></paper-input>
-                        </template>
-        
-                            <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
-                                                class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
-                            <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
-                                                class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
-                    </div>
-                    <div class="regimen-line block display-type-regimen">
-        
-                        <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
-                            <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.priority}}" on-iron-select="_changeMedicPriority">
-                                <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
-                                <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
-                                <paper-item id="high">[[localize('high','High',language)]]</paper-item>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-        
-                        <paper-dropdown-menu id="medicReimbursement" label="Reimbursement" class="regimen--reimbursement">
-                            <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
-                                <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
-                                    <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
-                                </template>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-        
-                        <span>Substitution: <paper-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged"></paper-checkbox></span>
-                        <span>Renewal: <paper-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged"></paper-checkbox></span>
-                        <template is="dom-if" if="[[isRenewal]]">
-                            <paper-input type="number" class="renewal-input" min="0" value="{{renewalDecimalValue}}"></paper-input>
-                            x tous les
-                            <paper-input type="number" class="renewal-input" min="0" value="{{renewalDurationValue}}"></paper-input>
-                            <paper-dropdown-menu id="medicRenewalTimeUnit" label="Time unit" class="regimen--renewalTimeUnit">
-                                <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
-                                    <template is="dom-repeat" items="[[timeUnit]]" as="tu">
-                                        <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
-                                    </template>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                        </template>
-                    </div>
-        
+
                     <div class="regimen-lines">
                         <div class="regimen-line regimen-add">
                                 <div class="add-first-regimen">
@@ -702,7 +652,7 @@
                     </div>
             </div>
 
-            
+
 
             <div class="buttons">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
