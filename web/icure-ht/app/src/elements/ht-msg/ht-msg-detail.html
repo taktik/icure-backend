@@ -652,6 +652,9 @@
                 z-index: 150;
                 transform: translate(-50%,-50%);
             }
+			paper-spinner.patlist-spinner {
+                position: relative;
+            }
 
             .close-panel {
                 width: 100%;
@@ -747,6 +750,11 @@
                 grid-template-columns: 50% 50%;
             }
 
+            #import-suggest .twocol > div > h5 {
+                margin: 0 auto 4px auto;
+                text-align: center;
+            }
+
             #import-suggest .scrollbox {
                 height: 320px;
                 overflow-y: auto;
@@ -756,10 +764,14 @@
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 8px;
+                box-sizing: border-box;
             }
             .scrollbox.labolist {
                 margin-right: 8px;
                 padding: 0 !important;
+            }
+            .scrollbox.patlist vaadin-checkbox {
+                border-bottom: 1px solid var(--app-background-color-darker);
             }
 
             #import-suggest .line {
@@ -773,14 +785,43 @@
                 padding: 0;
             }
 
+            .labolist .unassigned {
+                line-height: 100%;
+                display: flex;
+                flex-direction: column;
+                border-top: 1px solid var(--app-background-color-darker);
+                text-align: left;
+                padding: 8px 4px 4px 0;
+            }
+            .labolist .unassigned:first-child {
+                border: none;
+            }
+
+            .labolist .unassigned .pat-name {
+                font-weight: bold;
+            }
+            .labolist .unassigned .labo-info {
+                margin: 4px 0;
+            }
+            .labo-info .labo-name {}
+            .labolist .unassigned .demand-date {
+                text-align: right;
+                font-size: .75em;
+                width: 100%;
+                display: block;
+            }
+
+
             .pointer {
                 cursor: pointer;
             }
             .pointer:hover {
                 background: var(--app-secondary-color);
             }
-            .pointer:focus {
+            .pointer:focus,
+            .pointer.iron-selected {
                 background: var(--app-secondary-color-dark);
+                color: white;
             }
 
             @media screen and (max-width: 1025px) {
@@ -795,6 +836,22 @@
                     height: auto;
                     overflow-y: hidden;
                     min-height: 80px;
+                }
+            }
+
+            @media screen and (max-width: 650px) {
+                #import-suggest {
+                    max-height: 50vh;
+                    width: 90vw;
+                }
+
+                #import-suggest .twocol {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #import-suggest .scrollbox {
+                    height: 128px;
                 }
             }
 
@@ -855,21 +912,39 @@
 
                                 <template is="dom-if" if="[[assignModal]]">
                                     <div id="import-suggest">
-                                        <h4>Chose pat to import to</h4>
+                                        <h4>[[localize('set_attach','Set attachment',language)]]</h4>
                                         <div class="twocol">
-                                            <div class="scrollbox labolist">
-                                                <h5>Unassigned</h5>
-                                                <paper-listbox selected="{{selectedProtocol}}">
-                                                    <template is="dom-repeat" items="[[unimportedPats]]">
-                                                        <paper-item class="pointer">[[item.lastName]] [[item.firstName]]</paper-item>
-                                                    </template>
-                                                </paper-listbox>
+                                            <div>
+                                                <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
+                                                <div class="scrollbox labolist">
+                                                    <paper-listbox selected="{{selectedProtocol}}">
+                                                        <template is="dom-repeat" items="[[unimportedPats]]">
+                                                            <paper-item class="unassigned pointer">
+                                                                <div class="line">
+                                                                    <div>
+                                                                        <iron-icon icon="assignment"></iron-icon>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
+                                                                        <div class="labo-info">
+                                                                            <div class="labo-name">[[item.labo]]</div>
+                                                                            <small class="demand-date">[[item.demandDate]]</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </paper-item>
+                                                        </template>
+                                                    </paper-listbox>
+                                                </div>
                                             </div>
-                                            <div class="scrollbox patlist">
-                                                <h5>Possible match by last name</h5>
-                                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
-                                                    <vaadin-checkbox on-tap="_getPatsFromCheckbox" data-item$="[[item]]">[[item.firstName]] [[item.lastName]] [[item.dateOfBirth]]</vaadin-checkbox>
-                                                </template>
+                                            <div>
+                                                <h5>[[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                                <div class="scrollbox patlist">
+                                                    <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
+                                                        <vaadin-checkbox class="checkbox-item" on-tap="_getPatsFromCheckbox" data-item$="[[item]]">[[item.firstName]] [[item.lastName]] [[item.dateOfBirth]]</vaadin-checkbox>
+                                                    </template>
+                                                    <paper-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></paper-spinner>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="line">
@@ -994,6 +1069,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             targetPats: {
                 type: Array,
                 value: []
+            },
+            isLoadingPatsSuggest: {
+			    type: Boolean,
+                value: false
+            },
+            selectName: {
+			    type: String,
+                value: ''
             }
 		};
 	}
@@ -1008,6 +1091,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	ready(){
 		super.ready();
+
+        // this.shadowRoot.getElementById('import-suggest').onkeydown = (e) => {
+        this.onkeydown = (e) => {
+            if(e.key === "Escape") {this.closeSuggestions()}
+        }
 	}
 
 	close() {
@@ -1101,26 +1189,34 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	closeSuggestions() {
         this.set('toImportPatsSuggestions', [])
         this.set('assignModal',false)
+        this.set('selectName','')
     }
 
     openSuggestions() {
         this.set('assignModal',true)
         this.set('targetPats',[])
+        this.set('isLoadingPatsSuggest',false)
     }
 
     _updateSuggestions() {
         console.log('_updateSuggestions')
         if (this.selectedProtocol >= 0) {
+            this.set('isLoadingPatsSuggest',true)
             const unimportedPats = this.unimportedPats ? this.unimportedPats : []
             const index = this.selectedProtocol
+            this.set('selectName', `(${unimportedPats[index].lastName})`)
             this.set('toImportPatsSuggestions',[])
             this.set('selectedPats',[])
             this.set('targetPats',[])
             this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, unimportedPats[index].lastName, null, null, 100, "asc")
                 .then(patients => {
                     console.log('patients',patients)
+                    this.set('isLoadingPatsSuggest',false)
                     if (patients && patients.rows.length) patients.rows.map(pat => {
-                        if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) this.push('toImportPatsSuggestions', pat)
+                        if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) {
+                            pat.dateOfBirth = this.api.moment(pat.dateOfBirth).format('DD/MM/YYYY')
+                            this.push('toImportPatsSuggestions', pat)
+                        }
                     })
                 })
         }
@@ -1153,6 +1249,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 resultInfo.map(res=>{
                     Object.keys(unassigned).forEach(k => {
                         if (unassigned[k] == res.protocol) {
+                            res.demandDate = this.api.moment(res.demandDate).format('DD/MM/YYYY hh:mm')
                             this.push('unimportedPats',res)
                         }
                     })
