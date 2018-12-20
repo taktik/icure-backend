@@ -592,6 +592,7 @@
     "remission" : "Remission",
     "rep":"Report",
     "req_agr" : "Request agreemnt",
+    "req_dat" : "Request date",
     "req_in_tre" : "Request in treatment",
     "req_msg_lists" : "Request Messages Lists",
     "req_ref_io" : "Request reference IO",

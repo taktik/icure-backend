@@ -153,7 +153,7 @@ onmessage = e => {
                                 )
                             })
                         }).then(c => {
-                            console.log("did import ", c, docInfo.firstName+" "+docInfo.lastName);
+                            console.log("did import ", c, docInfo);
                             return {id: c.id, protocolId: docInfo.protocol}
                         }).catch(err => {
                             console.log("error:" + err)
@@ -213,7 +213,8 @@ onmessage = e => {
                         createdMessage.assignedResults = assignedMap
                         console.log('treatAnnex, createdMessage', createdMessage)
                         return msgApi.modifyMessage(createdMessage).then(msg => {
-                            if(createdMessage.unassignedResults.length == 0) {
+                            console.log('msg',msg)
+                            if(createdMessage.unassignedResults.length == 0 && createdMessage.assignedResults.length >= 1 ) {
                                 return removeMsg(msg)
                             }
                             return Promise.resolve()
