@@ -26,7 +26,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 
@@ -642,12 +642,14 @@
 				color: var(--app-text-color);
 			}
 
-			paper-spinner {
+			ht-spinner {
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 z-index: 150;
                 transform: translate(-50%,-50%);
+				height: 42px;
+				width: 42px;
             }
 
             .close-panel {
@@ -726,7 +728,7 @@
             }
 
 		</style>
-		<paper-spinner class="center spinner" active="[[isLoadingMessage]]"></paper-spinner>
+		<ht-spinner class="center spinner" active="[[isLoadingMessage]]"></ht-spinner>
 		<template is="dom-if" if="[[messages]]">
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">

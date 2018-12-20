@@ -13,10 +13,10 @@
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
 <link rel="import" href="../../spinner-style.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../ht-pat/dialogs/ht-pat-invoicing-dialog.html">
 
@@ -581,8 +581,9 @@
                 .batchAccepted{background-color: var(--paper-green-400);}
                 .batchArchived{background-color: var(--paper-purple-300);}
 
-                paper-spinner {
-                    transform: translateY(8px);
+                ht-spinner {
+                    height: 42px;
+                    width: 42px;
                 }
 
                 .error_message_red{
@@ -624,7 +625,7 @@
                 <template is="dom-if" if="[[_isEqual(invoicesStatus,'accept')]]"><span class="batchNumber batchAccepted">{{_forceZeroNum(messagesAccepted.length)}}</span></template>
                 <template is="dom-if" if="[[_isEqual(invoicesStatus,'reject')]]"><span class="batchNumber batchRejected">{{_forceZeroNum(messagesRejected.length)}}</span></template>
                 <template is="dom-if" if="[[_isEqual(invoicesStatus,'archive')]]"><span class="batchNumber batchArchived">{{_forceZeroNum(messagesArchived.length)}}</span></template>
-                <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
+                <ht-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></ht-spinner>
                 <template is="dom-if" if="[[_isBatchCanBeAutoArchived(invoicesStatus.*, messageIdsCanBeAutoArchived.splices)]]">
                     <paper-button class="modal-button alignRight" on-tap="_archiveBatchAuto">[[localize('arch','Archive',language)]] [[_getNbMsgToArchive(messageIdsCanBeAutoArchived.splices)]] envoi(s)</paper-button>
                 </template>
@@ -833,8 +834,8 @@
                     </div>
                 </div>
                 <div class="buttons">
-                    <paper-spinner class="center" active="[[isReceiving]]"></paper-spinner>
-                    <paper-spinner class="center" active="[[isSending]]"></paper-spinner>
+                    <ht-spinner class="center" active="[[isReceiving]]"></ht-spinner>
+                    <ht-spinner class="center" active="[[isSending]]"></ht-spinner>
                     <paper-button on-tap="receiveInvoices" class="modal-button" disabled="[[isReceiving]]">[[localize('inv_get','Get',language)]]</paper-button>
                     <paper-button on-tap="sendInvoices" class="modal-button" disabled="[[isSending]]">[[localize('inv_send','Send',language)]]</paper-button>
                 </div>

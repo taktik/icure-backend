@@ -13,10 +13,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="./elements/ht-spinner/ht-spinner.html">
 
 
 <link rel="import" href="./shared-styles.html">
@@ -564,6 +564,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border: 3px dashed var(--app-text-color-disabled);
 			}
 
+			ht-spinner{
+				height: 42px;
+				width: 42px;
+			}
+
 		</style>
 
 		<div class="layout-buttons">
@@ -600,7 +605,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
 							</template>
-							<paper-spinner class="spinner" alt="Loading latest patients" active=[[_isLoadingLatestPatients]]></paper-spinner>
+							<ht-spinner class="spinner" active=[[_isLoadingLatestPatients]]></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -634,8 +639,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</div>
 								</template>
 							</div>
-							<paper-spinner class="spinner" alt="Loading today's consultations" active=[[_isLoadingTodaysConsultations]]></paper-spinner>
-
+							<ht-spinner class="spinner" active=[[_isLoadingTodaysConsultations]]></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -665,7 +669,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<div class="card-table-cell">[[msg.subject]] </div>
 								</div>
 							</template>
-							<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
+							<ht-spinner class="spinner" active=[[_isLoadingLatestLabResults]]></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -702,7 +706,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</paper-item>
 								</paper-listbox>
 							</template>
-							<paper-spinner class="spinner" alt="Loading to-do list" active=[[_isLoadingToDoList]]></paper-spinner>
+							<ht-spinner class="spinner" active=[[_isLoadingLatestPatients]]></ht-spinner>
 						</div>
 					</div>
 				</template>

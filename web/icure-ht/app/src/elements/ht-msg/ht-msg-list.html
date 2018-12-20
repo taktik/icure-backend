@@ -18,12 +18,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-msg-list">
     <template>
@@ -363,11 +364,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     };
                     --paper-button-ink-color: var(--app-secondary-color-dark);
                 }
-                paper-spinner.center {
+                ht-spinner.center {
                     z-index: 999999;
                     position: fixed;
-                    left: 33vw;
-                    top: 150px;
+                    height: 42px;
+                    width: 42px;
+                    margin: 6px;
                 }
 
                 div.pagination {
@@ -412,7 +414,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         box-shadow: none;
                     }
 
-                    paper-spinner.center {
+                    ht-spinner.center {
                         left: 50vw;
                     }
                 }
@@ -462,7 +464,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             </div>
             <div class="second-panel col-right">
-                <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
+                <ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
                              active-item="{{activeItem}}" items="[[messages]]" 
                              on-tap="click" on-removed-opened="_deselectMessages"

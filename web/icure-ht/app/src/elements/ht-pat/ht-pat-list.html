@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
@@ -721,12 +721,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
-                paper-spinner {
+                ht-spinner {
                     position: fixed;
                     top: 210px;
                     left: 50%;
                     z-index: 9999;
                     transform: translateX(-50%);
+                    height: 42px;
+                    width: 42px;
                 }
 
                 import-spinner {
@@ -821,7 +823,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
 
 
-                <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
+                <ht-spinner class="center" active="[[isLoadingPatient]]"></ht-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="clickOnRow">
                     <vaadin-grid-column flex-grow="0" width="5%">
@@ -1332,7 +1334,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
             </vaadin-grid>
             <div class="buttons">
-                <paper-spinner class="import-spinner" active="[[isImportingPatients]]"></paper-spinner>
+                <ht-spinner class="import-spinner" active="[[isImportingPatients]]"></ht-spinner>
                 <paper-button dialog-dismiss>[[localize('close','Close',language)]]</paper-button>
                 </paper-button>
                 <paper-button on-click="abortImport" >[[localize('abort','Abort',language)]]</paper-button>

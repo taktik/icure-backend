@@ -56,6 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../icpc-styles.html">
 <link rel="import" href="../../atc-styles.html">
 <link rel="import" href="../../scrollbar-style.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
@@ -1120,8 +1121,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateX(-50%);
             }
 
-            paper-spinner {
+            ht-spinner {
                 margin-left: 15px;
+                height: 42px;
+                width: 42px;
             }
 
             .menu-item.iron-selected {
@@ -1683,7 +1686,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <vaadin-date-picker id="picker" label="[[localize('req_dat','Request date',language)]]" value="{{genInsDateFrom}}" i18n="[[i18n]]"></vaadin-date-picker>
                     <vaadin-checkbox checked="{{genInsHospitalized}}">[[localize('pat_hos','Hospitalized',language)]]</vaadin-checkbox>
                     <paper-button class="action" on-tap="_requestGenins" disabled="[[isLoading]]">[[localize('gen_ins_req','Request',language)]]</paper-button>
-                    <paper-spinner active="[[isLoading]]"></paper-spinner>
+                    <ht-spinner active="[[isLoading]]"></ht-spinner>
                 </template>
                 <template is="dom-if" if="{{geninsMMHRequest}}">
                     <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{genInsDateFrom}}" i18n="[[i18n]]"></vaadin-date-picker>
@@ -1691,7 +1694,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <vaadin-checkbox checked="{{genInsHospitalized}}">[[localize('pat_hos','Hospitalized',language)]]</vaadin-checkbox>
                     <paper-button class="action" on-tap="_requestGenins" disabled="[[isLoading]]">[[localize('gen_ins_req','Request',language)]]</paper-button>
                     <paper-button class="action" on-tap="_requestGeninsMMH" disabled="[[isLoading]]">[[localize('gen_ins_req_mmh','Request MMH',language)]]</paper-button>
-                    <paper-spinner active="[[isLoading]]"></paper-spinner>
+                    <ht-spinner active="[[isLoading]]"></ht-spinner>
 
                 </template>
                 <div class="buttons">

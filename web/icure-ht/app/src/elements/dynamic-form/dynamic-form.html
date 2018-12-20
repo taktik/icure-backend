@@ -1,6 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
@@ -25,7 +25,7 @@
 <dom-module id="dynamic-form">
 	<template>
 		<style include="icpc-styles">
-			paper-spinner.center {
+			ht-spinner.center {
 				position: absolute;
 				left: calc(50% - 14px);
 				top: calc(50% - 14px);
@@ -143,11 +143,11 @@
 				margin-bottom: 1px;
 			}
 
-			paper-spinner {
-				--paper-spinner-layer-1-color: var(--app-secondary-color);
-				--paper-spinner-layer-2-color: var(--app-primary-color-light);
-				--paper-spinner-layer-3-color: var(--app-secondary-color-dark);
-				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
+			ht-spinner {
+				--ht-spinner-layer-1-color: var(--app-secondary-color);
+				--ht-spinner-layer-2-color: var(--app-primary-color-light);
+				--ht-spinner-layer-3-color: var(--app-secondary-color-dark);
+				--ht-spinner-layer-4-color: var(--app-primary-color-dark);
 			}
 
             #general-info {
@@ -192,7 +192,7 @@
 				</div>
 			</template>
 			<template is="dom-if" if="[[!dataProvider]]">
-				<paper-spinner class="center" active></paper-spinner>
+				<ht-spinner class="center" active></ht-spinner>
 			</template>
 
 			<form id="general-info" is="iron-form">
