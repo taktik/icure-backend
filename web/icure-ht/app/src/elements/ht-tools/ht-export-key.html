@@ -7,16 +7,16 @@
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
+<link rel="import" href="../../dialog-style.html">
 
 <dom-module id="ht-export-key">
 	<template>
-		<style>
+		<style include="dialog-style">
 			paper-dialog {
                 position: fixed;
                 top: 50vh !important;
                 left: 50vw !important;
                 transform: translate(-50%,-50%);
-                height: 60vh !important;
                 max-height: initial !important;
                 max-width: initial !important;
 			}
@@ -34,7 +34,12 @@
                 min-width: 100px;
                 padding: 10px 1.2em;
                 text-transform: capitalize;
-            }
+			}
+			
+			.content{
+				min-height: 400px;
+				position: relative;
+			}
 
             .buttons {
                 position: absolute;
@@ -57,8 +62,10 @@
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
-			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
-			<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+			<h2 class="modal-title">[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
+			<div class="content">
+				<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+			</div>
 			<div class="buttons">
 				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
@@ -172,7 +179,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 		if (!offsetWidth || !offsetHeight) {
 			return;
 		}
-		this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
+		this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 140));
 	}
 
 	open() {

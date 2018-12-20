@@ -268,8 +268,19 @@
 			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc, .layout-bar .table {
 				height: 32px;
 				width: 32px;
-				padding: 6px;
 				color: var(--app-text-color-disabled);
+			}
+
+			.layout-bar .list{
+				padding: 0;
+			}
+
+			.layout-bar .doc{
+				padding: 4px;
+			}
+
+			.layout-bar .table{
+				padding: 6px;
 			}
 
 			.icn-selected {
@@ -451,7 +462,7 @@
 			<div class="layout horizontal">
 				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
-						<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+						<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 						<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
 						<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
 

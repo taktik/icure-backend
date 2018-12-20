@@ -43,7 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 :host #patients-list {
-                    height: calc(100% - 185px);
+                    height: calc(100% - 200px);
                     outline: none;
                 }
 
@@ -193,7 +193,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .line {
                     display: flex;
-                    flex-direction: row;
+                    flex-flow: row nowrap;
+                    align-items: center;
+                    justify-content: space-between;
                     margin: 8px 0;
                 }
 
