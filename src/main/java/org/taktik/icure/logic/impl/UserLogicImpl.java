@@ -33,7 +33,6 @@ import org.taktik.icure.dao.UserDAO;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.PropertyType;
@@ -98,10 +97,17 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public void removeListener(UserLogicListener listener) {
 		listeners.remove(listener);
 	}
-	
+
 	@Override
 	public User getUser(String id) {
-		return userDAO.get(id);
+		return fillGroup(userDAO.get(id));
+	}
+
+	private User fillGroup(User user) {
+		if (user == null) { return null; }
+
+		user.setGroupId(null);
+		return user;
 	}
 
 	@Override
@@ -115,7 +121,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			throw new IllegalStateException("Two users with same email " + email);
 		}
 
-		return byEmail.get(0);
+		return fillGroup(byEmail.get(0));
 	}
 
 	@Override
@@ -214,7 +220,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsersByLogin(String login) {
-		return userDAO.findByUsername(formatLogin(login));
+		return userDAO.findByUsername(formatLogin(login)).stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	public User getUserByLogin(String login) {
@@ -227,7 +233,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			return null;
 		}
 
-		return byUsername.get(0);
+		return fillGroup(byUsername.get(0));
 	}
 
 	@Override
@@ -646,7 +652,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> updateEntities(Collection<User> users) {
-		return users.stream().map(this::modifyUser).collect(Collectors.toList());
+		return users.stream().map(this::modifyUser).map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -665,7 +671,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getAllEntities() {
-		return userDAO.getAll();
+		return userDAO.getAll().stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -685,7 +691,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getEntity(String id) {
-		return getUser(id);
+		return fillGroup(getUser(id));
 	}
 
 	@Override
@@ -726,7 +732,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public PaginatedList<User> listUsers(PaginationOffset pagination) {
-		return userDAO.listUsers(pagination);
+		PaginatedList<User> userPaginatedList = userDAO.listUsers(pagination);
+
+		userPaginatedList.setRows(userPaginatedList.getRows().stream().map(this::fillGroup).collect(Collectors.toList()));
+
+		return userPaginatedList;
 	}
 
 
@@ -747,7 +757,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<User> getUsers(List<String> ids) {
-		return userDAO.getList(ids);
+		return userDAO.getList(ids).stream().map(this::fillGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -757,12 +767,12 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
-		return userDAO.getUserOnUserDb(userId, groupId, false);
+		return fillGroup(userDAO.getUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override
 	public User findUserOnUserDb(String userId, String groupId) {
-		return userDAO.findUserOnUserDb(userId, groupId, false);
+		return fillGroup(userDAO.findUserOnUserDb(userId, groupId, false));
 	}
 
 	@Override

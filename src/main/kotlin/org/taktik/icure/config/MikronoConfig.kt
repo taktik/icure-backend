@@ -26,5 +26,5 @@ import org.taktik.icure.properties.MikronoProperties
 
 @Configuration
 class MikronoConfig {
-    @Bean fun mikronoLogic(mikronoProperties: MikronoProperties) = MikronoLogicImpl(mikronoProperties.applicationToken, mikronoProperties.server, mikronoProperties.superUser, mikronoProperties.superToken)
+    @Bean fun mikronoLogic(mikronoProperties: MikronoProperties) = MikronoLogicImpl(mikronoProperties.applicationtoken, mikronoProperties.server, mikronoProperties.superuser, mikronoProperties.supertoken)
 }

@@ -51,6 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="ht-pat-admin-card.html">
 <link rel="import" href="ht-pat-he-tree-detail.html">
+<link rel="import" href="ht-pat-he-tree-settings.html">
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icpc-styles.html">
@@ -257,6 +258,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .list-title {
+                flex-basis: calc(100% - 72px);
                 font-weight: bold;
             }
 
@@ -1230,8 +1232,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-listbox>
                     <div class="submenus-container">
                         <collapse-button id="cb_ahelb">
-                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleMenu" elevation="">
+                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" elevation="">
                                 <div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems',language)]]</span></div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_ahelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="ahelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1247,8 +1250,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_ihelb">
-                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleMenu" elevation="">
+                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" elevation="">
                                 <div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents',language)]]</span></div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_ihelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="ihelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1264,8 +1268,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_ishelb">
-                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_surgical_hes" on-tap="toggleMenu" elevation="">
+                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_surgical_hes" elevation="">
                                 <div class="one-line-menu list-title"><span>[[localize('surg','Surgical',language)]]</span></div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_ishelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="suhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1281,8 +1286,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_frhelb">
-                            <paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleMenu">
+                            <paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item">
                                 <div class="one-line-menu list-title">[[localize('fam_ris','Family risks',language)]]</div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_frhelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="frhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1298,8 +1304,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_rhelb">
-                            <paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleMenu">
+                            <paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item">
                                 <div class="one-line-menu list-title">[[localize('ris','Risks',language)]]</div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_rhelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="rhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1315,8 +1322,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_alhelb">
-                            <paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleMenu">
+                            <paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" >
                                 <div class="one-line-menu list-title">[[localize('aller','Allergies',language)]]</div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_alhelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="alhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1332,7 +1340,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_gmhelb">
-                            <paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleMenu">
+                            <paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item">
                                 <div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
                                 <paper-icon-button id="med-edit-btn-plan" class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
                                 <paper-tooltip position="left" offset="-1" for="med-edit-btn-plan">[[localize('med_plan','Medication Plan',language)]]</paper-tooltip>
@@ -1364,8 +1372,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                         <collapse-button id="cb_archhelb">
-                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleMenu" elevation="">
+                            <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes"  elevation="">
                                 <div class="one-line-menu list-title"><span>[[localize('arc','Archive',language)]]</span></div>
+                                <ht-pat-he-tree-settings user="[[user]]" section="cb_archhelb"></ht-pat-he-tree-settings>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="arhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
@@ -1454,18 +1463,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-button class="selection-toast-button" name="select-today" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectToday">
                             <iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-today"></iron-icon>
-                            Select Today
+                            [[localize('sel_tod','Select Today',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-six-months" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_select6Months">
                             <iron-icon class="selection-toast-icon"
                                        icon="icure-svg-icons:select-six-months"></iron-icon>
-                            Last 6 Months
+                            [[localize('sel_last_6_month','Last 6 Months',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectAll">
                             <iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-all"></iron-icon>
-                            Select All
+                            [[localize('sel_all','Select All',language)]]
                         </paper-button>
                         <paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
                                       animated aria-disabled="false" elevation="0" on-tap="_selectMoreOptions">
@@ -1803,8 +1812,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
         </paper-dialog>
-        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices"></ht-pat-action-plan-dialog>
+        <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices"></ht-pat-action-plan-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
@@ -3007,6 +3019,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('healthElements', combinedHesWithHistory)
 
+                            const showIrrelevantHealthElements =
+
+
+
                             this.set('activeHealthElements', combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
                             this.set('inactiveHealthElements', combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
                             this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
@@ -3782,8 +3798,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _healthElementsSelectorDataProvider() {
                 return {
-                    filter: function (cplxFilterValue, limit, offset, sortKey, descending) {
-                        const [cdItem, filterValue] = cplxFilterValue.split(':')
+                    filter: function (filterValue, limit, offset, sortKey, descending, cds = ['BE-THESAURUS']) {
                         const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
                         const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
@@ -3791,12 +3806,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const sorter = x => { const key = (x.descr || x.name || '').normalize('NFD').replace(/[\u0300-\u036f ]/g, "").toLowerCase(); return [key.startsWith(words[0]), key]}
 
                         const promises = [this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]
-                        if (cdItem !== 'surgery') {
-                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000))
-                        }
-                        if (cdItem === 'allergy' || cdItem === 'adr') {
-                            promises.push(this.api.code().findPaginatedCodesByLabel('be', 'CD-ATC', 'fr', words[0], null, null, 1000))
-                        }
+                        cds.forEach(cd => promises.push(this.api.code().findPaginatedCodesByLabel('be', cd, 'fr', words[0], null, null, 1000)))
 
                         return Promise.all(promises).then(results => {
                             const entityTemplates = results[0];
@@ -3928,6 +3938,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         }
                     )
+                }
+            }
+
+            _toggleEditSettings(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                let parentElement = e.target.parentElement;
+                if (parentElement.classList.contains('open')) {
+                } else {
+                    parentElement.classList.add('open');
+                    setTimeout(() => parentElement.classList.remove('open'), 4000);
                 }
             }
 

@@ -129,6 +129,7 @@ public class MikronoLogicImpl implements MikronoLogic {
 	public String register(String serverUrl, String userId, String token) {
 		serverUrl = getMikronoServer(serverUrl);
 		try {
+
 			return restTemplate.exchange(StringUtils.chomp(serverUrl, "/") + "/rest/register", HttpMethod.POST, new HttpEntity<>(new RegisterInfo(userId, token), getSuperUserHttpHeaders(serverUrl)), String.class).getBody();
 		} catch (HttpClientErrorException e) {
 			throw e;
