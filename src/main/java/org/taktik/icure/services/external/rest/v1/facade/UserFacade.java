@@ -51,6 +51,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,20 +86,6 @@ public class UserFacade implements OpenApiFacade{
 		} else {
 			return Response.status(500).type("text/plain").entity("Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
-	}
-
-	@ApiOperation(
-			value = "Get presently logged-in user.",
-			responseContainer = "Array",
-			response = UserDto.class,
-			httpMethod = "GET",
-			notes = "Get current user."
-	)
-	@GET
-	@Path("/matches")
-	public Response getMatchingUsers() {
-		List<String> users = ((DatabaseUserDetails) sessionLogic.getCurrentSessionContext().getUserDetails()).getGroupIdUserIdMatching();
-		return Response.ok().entity(users).build();
 	}
 
 	@ApiOperation(
