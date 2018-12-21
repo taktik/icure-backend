@@ -125,4 +125,9 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 		return result.getRev() != null ? result : null;
 	}
 
+	@Override
+	public Group findGroup(String groupId) {
+		return groupDAO.find(groupId);
+	}
+
 }

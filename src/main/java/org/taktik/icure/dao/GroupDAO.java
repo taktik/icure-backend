@@ -21,4 +21,5 @@ package org.taktik.icure.dao;
 import org.taktik.icure.entities.Group;
 
 public interface GroupDAO extends GenericDAO<Group> {
+	Group find(String groupId);
 }

@@ -36,4 +36,9 @@ public class GroupDAOImpl extends GenericDAOImpl<Group> implements GroupDAO {
 		super(Group.class, couchdb, idGenerator);
 		initStandardDesignDocument();
 	}
+
+	@Override
+	public Group find(String groupId) {
+		return db.find(Group.class, groupId);
+	}
 }

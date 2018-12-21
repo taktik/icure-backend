@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.taktik.icure.entities.User;
+import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.logic.PermissionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.properties.AuthenticationProperties;
@@ -142,7 +143,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		userDetails.setGroupId(groupId);
 		userDetails.setRev(user.getRev());
 		userDetails.setApplicationTokens(user.getApplicationTokens());
-		userDetails.setGroupIdUserIdMatching(matchingUsers.stream().map(u -> u.getGroupId() + ";" + u.getId()).collect(Collectors.toList()));
+		userDetails.setGroupIdUserIdMatching(matchingUsers.stream().map(StoredDocument::getId).collect(Collectors.toList()));
 
 		getPreAuthenticationChecks().check(userDetails);
 
