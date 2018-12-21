@@ -231,7 +231,7 @@ public class ClassificationFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
-			value = "Update delegations in healthElements.",
+			value = "Update delegations in classification",
 			httpMethod = "POST",
 			notes = "Keys must be delimited by coma"
 	)
