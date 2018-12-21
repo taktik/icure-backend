@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,6 +97,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		User user = null;
 		String groupId = null;
 
+		List<User> matchingUsers = new LinkedList<>();
 
 		for (User userOnFallbackDb : users) {
 			String userId = userOnFallbackDb.getId().contains(":") ? userOnFallbackDb.getId().split(":")[1] : userOnFallbackDb.getId();
@@ -104,8 +106,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			if (gId != null || authenticationProperties.getLocal()) {
 				user = userLogic.findUserOnUserDb(userId, gId);
 				if (user != null) {
-					if (gId != null) { groupId = gId; }
-					break;
+					if (groupId == null && gId != null) { groupId = gId; }
+					matchingUsers.add(userOnFallbackDb);
 				} else {
 					logger.warn("No match for " + userOnFallbackDb.getId() + ":" + gId);
 				}
@@ -140,6 +142,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		userDetails.setGroupId(groupId);
 		userDetails.setRev(user.getRev());
 		userDetails.setApplicationTokens(user.getApplicationTokens());
+		userDetails.setGroupIdUserIdMatching(matchingUsers.stream().map(u -> u.getGroupId() + ";" + u.getId()).collect(Collectors.toList()));
 
 		getPreAuthenticationChecks().check(userDetails);
 

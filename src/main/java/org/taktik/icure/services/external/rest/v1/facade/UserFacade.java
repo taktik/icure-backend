@@ -33,6 +33,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
@@ -84,6 +85,20 @@ public class UserFacade implements OpenApiFacade{
 		} else {
 			return Response.status(500).type("text/plain").entity("Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
+	}
+
+	@ApiOperation(
+			value = "Get presently logged-in user.",
+			responseContainer = "Array",
+			response = UserDto.class,
+			httpMethod = "GET",
+			notes = "Get current user."
+	)
+	@GET
+	@Path("/matches")
+	public Response getMatchingUsers() {
+		List<String> users = ((DatabaseUserDetails) sessionLogic.getCurrentSessionContext().getUserDetails()).getGroupIdUserIdMatching();
+		return Response.ok().entity(users).build();
 	}
 
 	@ApiOperation(
