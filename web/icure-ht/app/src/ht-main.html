@@ -80,7 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.card-title {
 				padding: 0;
 				margin: 0;
-				font-size: 16px;
+				font-this: 16spx;
 				font-weight: bold;
 				text-align: center;
 				color: var(--app-text-color);
@@ -142,20 +142,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.consultations-patient-name {
-				font-size: 14px;
+				font-this: 14spx;
 				font-weight: bold;
 				margin-right: 16px;
 				text-transform: capitalize;
 			}
 
 			.consultations-message-texte {
-				font-size: 14px;
+				font-this: 14spx;
 				margin-right: 16px;
 			}
 
 			.consultations-patient-type {
 				color: var(--app-secondary-color);
-				font-size: 14px;
+				font-this: 14spx;
 				margin-right: 16px;
 			}
 
@@ -165,13 +165,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.consultations-time {
-				font-size: 14px;
+				font-this: 14spx;
 				text-align: right;
 				margin-left: 16px;
 			}
 
 			.card-table-header {
-				font-size: 10px;
+				font-this: 10spx;
 				text-transform: uppercase;
 				text-align: left;
 			}
@@ -210,12 +210,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: center;
 				flex-wrap: nowrap;
 				align-items: center;
-				font-size: 14px;
+				font-this: 14spx;
 				font-weight:600;
 			}
 
 			.card-table-cell {
-				font-size: 14px;
+				font-this: 14spx;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 				overflow: hidden;
@@ -254,7 +254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-size:14px;
+				font-this:14psx;
 				font-style:italic;
 			}
 
@@ -546,7 +546,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background-color: var(--app-secondary-color);
 				color: var(--app-text-color);
 				text-transform: capitalize;
-				font-size: 14px;
+				font-this: 14spx;
 				font-weight: 500;
 				border-radius: 0;
 			}
@@ -868,13 +868,13 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     ready() {
+
 		super.ready();
+
     }
 
     apiReady() {
 		if (!this.user || !this.api) { return }
-		
-		this.layoutGrid.setFromStorage(this.user)
 
 		this._isLoadingLatestPatients = true;
 		this._isLoadingLatestLabResults = true;
@@ -959,6 +959,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}).then(patients => services.map(s => ({ service: s, patient: patients.rows.find(p => p.id === s.patId) })));
 			}).then(services => this.set('services', (services || []).filter(it => it.patient)));
 			this._isLoadingToDoList = false;
+
+			this.initGrid()
+
 		});
 	}
 
@@ -1009,119 +1012,36 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	setSelectedLayout(e) {
-		this.set('selectedLayout', e.currentTarget.id)
-		this.applySelectedLayout()
-	}
 
-	saveSelectedLayout() {
-		localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.main.grid`, JSON.stringify(this.layoutGrid))
-	}
-
-	getSavedLayout(){
-
-		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`)
-
-		if (savedGridLayout) {
-			this.set('layoutGrid', JSON.parse(savedGridLayout))
-			this.buildGridLayout()
-			return
-		}
-
-		this.applySelectedLayout();
-
-	}
-
-	applySelectedLayout() {
-		switch (this.selectedLayout) {
-			case 'layoutA':
-				this.updateGridLayoutObject(2, 3)
-				this.buildGridLayout()
-				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
-				break;
-			case 'layoutB':
-				this.updateGridLayoutObject(3, 2)
-				this.buildGridLayout()
-				// this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
-				break;
-			case 'layoutC':
-				this.updateGridLayoutObject(4, 2)
-				this.buildGridLayout()
-				// this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
-				break;
-			default:
-				this.updateGridLayoutObject(2, 3)
-				this.buildGridLayout()
-				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
-				break;
-		}
-	}
-
-	updateGridLayoutObject(cols, rows, layout = this.selectedLayout) {
-
-		this.set('layoutGrid.cols', cols)
-		this.set('layoutGrid.rows', rows)
-		this.set('layoutGrid.layout', layout)
-
-		const grid = []
-
-		for (let row = 0; row < rows; row++) {
-			grid.push([])
-			for (let col = 0; col < cols; col++) {
-				grid[row][col] = null
-			}
-		}
-
-		this.set('layoutGrid.grid', grid)
-
-		this.populateGridLayoutObject()
-
-	}
-
-	populateGridLayoutObject() {
-
-		for (let rowIndex = 0; rowIndex < this.layoutGrid.grid.length; rowIndex++) {
-			for (let colIndex = 0; colIndex < this.layoutGrid.grid[rowIndex].length; colIndex++) {
-
-				this.widgets.map(widget => {
-
-					if (
-						parseInt(widget.posCol) <= colIndex &&
-						parseInt(widget.posRow) <= rowIndex &&
-						parseInt(widget.posCol) + parseInt(widget.nrCols) > colIndex &&
-						parseInt(widget.posRow) + parseInt(widget.nrRows) > rowIndex
-					) {
-						this.layoutGrid.grid[rowIndex][colIndex] = widget.id
-					}
-
-				})
-
-			}
-		}
-
-	}
-
-	buildGridLayout() {
-
-		this.selectedLayout = this.layoutGrid.layout;
-		this.updateStyles({'--grid-columns': `repeat(${this.layoutGrid.cols}, 1fr)`}, {'--grid-rows': `repeat(${this.layoutGrid.rows}, 1fr)`})
-
-		let templateAreaString = "";
-
-		this.layoutGrid.grid.map(row => {
-			templateAreaString += "\'"
-			row.forEach(area => {
-				templateAreaString += area ? area + " " : ". "
-			})
-			templateAreaString += "\' "
+		this.widgets.map(widget => {
+			this.updateWidgetStyle(widget)
 		})
 
-		this.updateStyles({ '--grid-layout': templateAreaString })
+		this.set('selectedLayout', e.currentTarget.id)
+		const strings = this.layoutGrid.setGridSize(this.selectedLayout).init().fill(this.widgets).save(this.user).styleStrings
+		this.setStyles(strings)
 
+	}
+
+	initGrid() {
+
+		this.widgets.map(widget => {
+			this.updateWidgetStyle(widget)
+		})
+		
+		const strings = this.layoutGrid.setFromStorage(this.user, this.widgets).styleStrings
+		this.setStyles( strings )
+
+	}
+
+	setStyles( styleStrings ) {
+		this.updateStyles({ '--grid-columns': styleStrings.gridCol }, { '--grid-rows': styleStrings.gridRow })
+		this.updateStyles({ '--grid-layout': styleStrings.templateArea })
 	}
 
 	_updateWidgetSize(e) {
 
-		console.log(e);
+		// console.log(e);
 		const widget = null;
 	}
 
@@ -1131,7 +1051,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	}
 
-	updateWidgetSize(widget){
+	updateWidgetStyle(widget){
 
 		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
 		if(elem) elem.style.setProperty('--area', widget.id);
@@ -1195,12 +1115,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	widgetsChanged(e){
 
-		this.widgets.map( widget => {
-			
-			console.log(widget)
-			this.updateWidgetSize(widget)
-
-		})
+		
 
 		// this.getSavedLayout()
 
@@ -1220,24 +1135,20 @@ class GridLayout {
 
 	}
 
-	init(cols, rows, layout = this.layout) {
-
-		this.cols = cols
-		this.rows = rows
-		this.layout = layout
+	init() {
 
 		const grid = []
 
-		for (let row = 0; row < rows; row++) {
+		for (let row = 0; row < this.rows; row++) {
 			grid.push([])
-			for (let col = 0; col < cols; col++) {
+			for (let col = 0; col < this.cols; col++) {
 				grid[row][col] = null
 			}
 		}
 
 		this.grid = grid
 
-		this.populateGridLayoutObject()
+		return this;
 
 	}
 
@@ -1261,9 +1172,79 @@ class GridLayout {
 
 			}
 		}
+
+		return this;
+
 	}
 
-	getStyleStrings() {
+	setFromStorage(user, widgets) { 
+
+		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
+
+		if (savedGridLayout) {
+
+			this.clone( JSON.parse(savedGridLayout) )
+
+		}else if(widgets) {
+
+			this.init().fill(widgets).save(user)
+
+		}
+
+		return this
+
+	}
+
+	clone(nGrid) {
+
+		this.grid = nGrid.grid;
+		this.cols = nGrid.cols;
+		this.rows = nGrid.rows;
+		this.layout = nGrid.layout;
+
+		return this
+
+	}
+
+	save(user) {
+
+		localStorage.setItem(`org.taktik.icure.${user.id}.settings.main.grid`, JSON.stringify(this))
+
+		return this
+
+	}
+
+	setGridSize(layout = this.layout) {
+		
+		switch (layout) {
+			case 'layoutA':
+				this.cols = 2;
+				this.rows = 3;
+				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				break;
+			case 'layoutB':
+				this.cols = 3;
+				this.rows = 2;
+				// this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				break;
+			case 'layoutC':
+				this.cols = 4;
+				this.rows = 2;
+				// this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				break;
+			default:
+				this.cols = 2;
+				this.rows = 3;
+				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				break;
+		}
+
+		this.layout = layout
+
+		return this;
+	} 
+
+	get styleStrings() {
 
 		const layout = this.layout
 		const gridCol = `repeat(${this.cols}, 1fr)`
@@ -1279,37 +1260,9 @@ class GridLayout {
 			templateArea += "\' "
 		})
 
-		return {layout, gridCol, gridRow, templateArea}
+		return { layout, gridCol, gridRow, templateArea }
 
 	}
-
-	setFromStorage(user) { 
-
-		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
-
-		if (savedGridLayout) {
-
-			this.clone( JSON.parse(savedGridLayout) )
-
-		}
-
-	}
-
-	clone(nGrid) {
-
-		this.grid = nGrid.grid;
-		this.cols = nGrid.cols;
-		this.rows = nGrid.rows;
-		this.layout = nGrid.layout;
-
-	}
-
-	save(user) {
-
-		localStorage.setItem(`org.taktik.icure.${user.id}.settings.main.grid`, JSON.stringify(this))
-
-	}
-
 }
 
 customElements.define(HtMain.is, HtMain);
