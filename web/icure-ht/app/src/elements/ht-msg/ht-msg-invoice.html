@@ -1672,7 +1672,6 @@
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 }
 
-
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                     .then(invAndIdsPat =>
@@ -1685,8 +1684,8 @@
                             patientName: pat.lastName+" "+pat.firstName,
                             invoiceId: inv.id,
                             sentMediumType: inv.sentMediumType,
-                            insuranceCode: ins.code,
-                            insuranceParent: ins.parent,
+                            insuranceCode: ins && ins.code ? ins.code : null,
+                            insuranceParent: ins && ins.parent ? ins.parent : null,
                             invoiceReference: inv.invoiceReference,
                             patientSsin: pat.ssin,
                             invoiceDate: inv.invoiceDate,
@@ -1697,7 +1696,7 @@
                             statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corrected','To be corrected',this.language) : this.localize('inv_to_be_send','To be send'),
                             hasChildren : false,
                             uuid : inv.id,
-                            parentUuid : ins.code.charAt(0),
+                            parentUuid : ins && ins.code ? ins.code.charAt(0) : null,
                             patient: pat,
                             invoice: inv,
                             toBeCorrected: !!inv.invoicingCodes.find(ic => ic.resent === true),
@@ -1714,16 +1713,6 @@
                     this.set("totalInvoicesToBeSend.totalAmount",this.selectedInvoicesToBeSend ? this.selectedInvoicesToBeSend.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00)
                     this._toggleDataProvider(this.selectedInvoicesToBeSend)
                 }).finally(() => this.fetchMessages())
-            }
-
-
-            dispatchMessages() {
-                !!this.set("messagesArchived", this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0))
-                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))))
-                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))))
-                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))))
-
-                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
             }
 
             fetchMessages() {
@@ -1825,119 +1814,18 @@
                 })
             }
 
-            _fetchMessagesOld() {
-                this._isLoadingMessages = true
-                this.messageIdsCanBeAutoArchived = []
-
-                if(this.shadowRoot.getElementById("messagesGridContainer") && this.shadowRoot.getElementById("messagesGridContainer").classList.contains("half")){
-                    this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
-                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
-                }
-
-                this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
-                    .then(messages => {
-                        const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
-                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids: _.uniq(filteredMessages.map(m => m.recipients[0]))})).then(insurances => {
-                            this.set('allMessages', filteredMessages.map(m => ({
-                                message: m,
-                                messageInfo: {
-                                    messageType: m.subject,
-                                    hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                    oa: insurances && insurances.find(i => i.id === m.recipients[0])? insurances.find(i => i.id === m.recipients[0]).code : "",
-                                    invoiceNumber: m.externalRef,
-                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount) : "0.00",
-                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount) : "0.00",
-                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount) : "0.00",
-                                    paymentReference: m.metas && m.metas.paymentReferenceAccount1 ? m.metas.paymentReferenceAccount1 : "",
-                                    amountPaid: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00"
-                                }
-                            })))
-
-                            Promise.all( this.allMessages.map(mm =>
-                                this.api.document().findByMessage(this.user.healthcarePartyId, mm.message)
-                                    .then(docs => {
-                                        const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
-
-                                        return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
-
-                                            if (typeof a === "string"){
-                                                try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
-                                            } else if (typeof a === "object") {
-                                                try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
-                                            }
-
-                                            const zone200 = a && a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                            const zone300 = a && a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                            const zone400 = a && a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                            const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
-                                            const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
-
-                                            const st = mm.message.status
-
-                                            const invoiceStatus =
-                                                !!(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
-                                                    !!(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
-                                                        !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
-                                                            !!(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
-                                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
-                                                                    !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
-                                                                        !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
-                                                                            !!(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
-                                                                                !!(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
-
-
-                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
-
-                                            return (zone200 && zone300) ?
-                                                ({
-                                                    message: mm && mm.message,
-                                                    messageInfo: {
-                                                        messageType:        zone200.zones && zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
-                                                        hcp:                this.hcp.firstName + " " + this.hcp.lastName,
-                                                        oa:                 zone500.zones && zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
-                                                        hcpReference:       enr10.zones && enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
-                                                        invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
-                                                        invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
-                                                        invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount:     (mm && mm.messageInfo && mm.messageInfo.invoicedAmount) ? mm.messageInfo.invoicedAmount : "0.00",
-                                                        acceptedAmount:     (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
-                                                        refusedAmount:      (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? mm.messageInfo.invoicedAmount : (mm && mm.messageInfo && mm.messageInfo.refusedAmount) ? mm.messageInfo.refusedAmount : "0.00",
-                                                        invoiceStatus:      invoiceStatus,
-                                                        rejectionReason:    rejectionReason,
-                                                        paymentReference:   (mm && mm.messageInfo && mm.messageInfo.paymentReference) ? mm.messageInfo.paymentReference : "",
-                                                        paymentDate:        "",
-                                                        amountPaid:         (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
-                                                        paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paid: false
-                                                    }
-                                                }) : mm
-                                        }) : mm
-                                    }))).then(msgsStructs => {
-                                this._isLoadingMessages = false
-                                this.set('allMessages', msgsStructs)
-                                this.dispatchMessages()
-                            }).finally(() => {
-                                const rejectedMessage = this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1 << 21)))
-                                rejectedMessage.map(msg => this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: msg.message.invoiceIds.map(id => id)}))
-                                    .then(invsFromMess => this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invsFromMess.map(inv => inv.correctiveInvoiceId)})))
-                                    .then(correctiveInvoices => {
-                                        const resentNmclStatus = _.uniq(_.flatten(correctiveInvoices.map(inv => inv.invoicingCodes.map(c => c.resent))))
-                                        if(resentNmclStatus.length === 1 && resentNmclStatus[0] === false){
-                                            this.push("messageIdsCanBeAutoArchived", msg.message.id)
-                                        }
-                                    }))
-                            })
-                        })
-                    })
-            }
-
-
             getMessage(){
                 this.fetchMessageToBeSendOrToBeCorrected()
             }
 
+            dispatchMessages() {
+                !!this.set("messagesArchived", this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0))
+                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))))
+                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))))
+                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))))
 
+                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
+            }
 
             _toggleDataProvider(input) {
                 //TODO rewrite lodash
@@ -2762,7 +2650,7 @@
                             })
                         )
                     })
-/*
+
                     prom = prom.then(treatedMessages => {
                         let sprom = Promise.resolve()
                         _.chunk(treatedMessages, 20).forEach(chunk => {
@@ -2775,7 +2663,7 @@
                         })
                         return sprom
                     })
-*/
+
                     return prom.then(() => {
                         this.set('isReceiving',false)
                         this.getMessage()

@@ -173,7 +173,7 @@
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
             <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                 <paper-tab name="chronical" on-tap="setMedicationType">
-                    [[localize('medication-by-product-name','Chronical medication',language)]]
+                    [[localize('medication-chronical','Chronical medication',language)]]
                 </paper-tab>
                 <paper-tab name="medicinalProduct" on-tap="setMedicationType">
                     [[localize('medication-by-product-name','By product name',language)]]
@@ -214,13 +214,14 @@
                 </vaadin-grid>
             </template>
             <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+                <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
                 <paper-input-container always-float-label="true">
-                    <label slot="label">Compound Prescription</label>
+                    <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                     <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                 </paper-input-container>
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="Search a medicine" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+                <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
@@ -313,6 +314,10 @@
                     medications: {
                         type: Array,
                         value: () => []
+                    },
+                    compoundName:{
+                        type: String,
+                        value: ""
                     }
                 }
             }
@@ -462,6 +467,7 @@
             selectMedicationFromList(med) {
                 console.log("selectMedicationFromList",med)
                 if (med.id) {
+                    //by productName
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                         this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                             "intendedname": med.name,
@@ -480,6 +486,7 @@
                         }
                     })
                 } else {
+                    //by molecule
                     if (med.inncluster) {
                         this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
                             "intendedname": med.name,
@@ -490,9 +497,21 @@
                         med.inncluster && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-INNCLUSTER', version:'1'})).code = med.inncluster)
                         med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
                     } else {
+                        //Compound prescription
                         this.set('selectedMedicationContentWithId.medicationValue', {
-                            "compoundPrescription": med.name
+                            medicinalProduct: {
+                                intendedname: this.compoundName,
+                                beginMoment: 0,
+                                endMoment: 0,
+                                priority: "low",
+                                intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
+                            },
+                            compoundPrescription: med.name
                         })
+
+                        this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
+
+
                     }
                     this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 

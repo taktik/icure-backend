@@ -194,7 +194,7 @@
                 <page>
                     <div class="hub-cons"> <!-- Notification input -->
                         <div>
-                            <iron-autogrow-textarea class="paper-input-input" slot="input" id="transactionText" value="{{transactionXml}}" ></iron-autogrow-textarea>
+                            <iron-autogrow-textarea class="paper-input-input" slot="input" id="transactionText" value="{{message}}" ></iron-autogrow-textarea>
                         </div>
 
                     </div>
@@ -330,14 +330,12 @@
                 tranRespPromise.then(tranResp => {
                     if (tranResp) {
                         this.set('transactionXml', tranResp);
-                        const parser = new DOMParser();
-                        const msg = parser.parseFromString(tranResp, "text/xml");
-                        this.set('message', msg);
-                        this.formatResponse(transInfo, tranResp);
-                        this.saveMedicationSchemeAsDocument("12345", tranResp).then(doc => {
-                            const docId = doc.id;
-                            console.log("docId = " + docId);
-                        });
+                        this.set('message', JSON.stringify(tranResp));
+                        // this.formatResponse(transInfo, tranResp);
+                        // this.saveMedicationSchemeAsDocument("12345", tranResp).then(doc => {
+                        //     const docId = doc.id;
+                        //     console.log("docId = " + docId);
+                        // });
                     }
                     this.set('isLoading',false);
                 }).catch( error=> {

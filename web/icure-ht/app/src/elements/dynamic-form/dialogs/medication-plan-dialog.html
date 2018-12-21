@@ -696,6 +696,11 @@
                 }
             }
 
+            .medIcon{
+                height: 28px;
+                width: 28px;
+            }
+
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
@@ -968,7 +973,7 @@
                                         <template is="dom-repeat" items="[[plan.meds]]" as="m">
                                             <div class="table-row">
                                                 <div class="col col--med"><span class="med--name">[[_getTimeOfDay(m.during)]] [[_serviceDescription(m.medication)]]</span></div>
-                                                <div class="col col--photo"><iron-icon icon="medication-svg-icons:[[_getMedIcon(m)]]"></iron-icon></div>
+                                                <div class="col col--photo"><iron-icon class="medIcon" icon="medication-svg-icons:[[_getMedIcon(m)]]"></iron-icon></div>
                                                 <div class="col col--ed">[[_getMedicationClosingDate(m.medication)]]</div>
                                                 <div class="col col--freq">[[_serviceFrequency(m.medication)]]</div>
                                                     <template is="dom-repeat" items="[[plan.cols]]" as="col">
@@ -1392,7 +1397,7 @@
             }
 
             _getMedIcon(s){
-                return "tablet"
+                return "cap"
             }
 
             _servicePosology(s) {

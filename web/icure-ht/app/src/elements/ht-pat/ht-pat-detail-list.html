@@ -46,13 +46,14 @@
             }
 
             vaadin-grid{
-                height: unset;
+                /*height: unset;*/
 				max-height:calc(100% - 104px);
 				margin: 32px 32px 0;
 				box-shadow: var(--app-shadow-elevation-1);
 				border: none;
                 border-radius: 3px;
-                overflow-y: scroll;
+                overflow-y: auto;
+                flex-grow: 1;
 			}
 
 

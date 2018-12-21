@@ -9,7 +9,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 299,
+								"width" : 200,
 								"multiline" : false,
 								"left" : 66,
 								"top" : 7,
@@ -29,9 +29,9 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 212,
+								"width" : 100,
 								"multiline" : false,
-								"left" : 460,
+								"left" : 200,
 								"top" : 7,
 								"key" : "StringEditor"
 							},
@@ -134,7 +134,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 820,
+								"width" : 100,
 								"multiline" : false,
 								"left" : 340,
 								"top" : 5,
@@ -155,7 +155,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 820,
+								"width" : 100,
 								"multiline" : false,
 								"left" : 340,
 								"top" : 5,
@@ -170,6 +170,27 @@
 							"subForm" : false,
 							"name" : "endDate",
 							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 50,
+								"multiline" : false,
+								"left" : 100,
+								"top" : 7,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "Insurance code",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "insuranceCode"
 						}
 					]
 				}
