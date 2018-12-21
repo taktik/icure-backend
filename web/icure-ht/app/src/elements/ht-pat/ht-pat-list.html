@@ -987,10 +987,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <page>
                         <div class="horizontal" style="margin-top:20px">
                             <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
-                            <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                            <paper-input label="First name" value="{{firstName}}"></paper-input>
-                            <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
-                            <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+                            <paper-input label="[[localize('las_nam','Last name',language)]]" style="min-width:200px" value="{{lastName}}"></paper-input>
+                            <paper-input label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
+                            <vaadin-date-picker label="[[localize('dat_of_bir','Date of birth',language)]]" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                            <paper-input label="[[localize('niss','Ssin',language)]]" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
                             <paper-input-container>
                                 <label slot="label">[[localize("gender","Gender",language)]]
                                 </label>
@@ -1017,29 +1017,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <vaadin-combo-box
                                     id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel" style="width:30%"
                                     item-value-path="id" on-filter-changed="_mhSearch" on-keydown=""
-                                    label="[[localize('mh','Maison médicale',language)]]"
+                                    label="[[localize('mh','Medical house',language)]]"
                                     value="{{medicalHouseContract.hcpId}}">
                             </vaadin-combo-box>
 
-                            <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
+                            <vaadin-date-picker label="[[localize('sub_dat','Subscription date',language)]]" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
                                                 always-float-label on-value-changed="updateStartOfCoverage" style="width:20%"></vaadin-date-picker>
-                            <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
+                            <paper-input label="[[localize('sub_eva_mon','Subscription evaluation months',language)]]" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
                                          type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
-                            <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"
+                            <vaadin-date-picker label="[[localize('cov_sta','Coverage start',language)]]" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"
                                                 always-float-label readonly style="width:20%"></vaadin-date-picker>
                         </div>
                         <div class="horizontal" style="margin-top:30px">
                             <label style="font-weight: 700; display:inline-block; margin-right:30px;">
                                 <iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon>
                                 [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
-                            <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label
-                                            style="margin-right:30px">Has doctor subscription?
+                            <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="[[localize('has_m','Has doctor subscription',language)]]" always-float-label
+                                            style="margin-right:30px">[[localize('has_m','Has doctor subscription',language)]]?
                             </paper-checkbox>
-                            <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label
-                                            style="margin-right:30px">Has physiotherapist subscription?
+                            <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="[[localize('has_k','Has physiotherapist subscription',language)]]" always-float-label
+                                            style="margin-right:30px">[[localize('has_k','Has physiotherapist subscription',language)]]?
                             </paper-checkbox>
-                            <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has
-                                nurse subscription?
+                            <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="[[localize('has_i','Has nurse subscription',language)]]" always-float-label
+                            >[[localize('has_i','Has nurse subscription',language)]]?
                             </paper-checkbox>
                         </div>
                     </page>
