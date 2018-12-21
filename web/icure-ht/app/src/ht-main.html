@@ -45,6 +45,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: calc(100% - 52px);
 				grid-template-columns: var(--grid-columns);
 				grid-template-rows: var(--grid-rows);
+
+				grid-template-areas: var(--grid-layout);
 				grid-column-gap: 24px;
   				grid-row-gap: 24px;
 			}
@@ -257,9 +259,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
-				--columns: 1;
+				/* --columns: 1;
 				--rows: 1;
-				grid-area: span var(--rows) / span var(--columns);
+				--row: 0;
+				--col: 0; */
+				/* grid-area: var(--row) / var(--col) / span var(--rows) / span var(--columns); */
+				grid-area: var(--area);
 			}
 
 			a {
@@ -583,7 +588,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="{{widget}}">Apply settings</paper-button>
+									<paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button>
 								</div>
 							</paper-menu-button>
 						</div>
@@ -613,7 +618,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
 								</div>
 							</paper-menu-button>
 						</div>
@@ -648,7 +653,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
 								</div>
 							</paper-menu-button>
 						</div>
@@ -678,7 +683,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
 								</div>
 							</paper-menu-button>
 						</div>
@@ -738,8 +743,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<slot name="suffix"></slot>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" on-tap="applySelectedLayout">[[localize('apply','Apply',language)]]</paper-button>
+				<paper-button class="modal-button" on-tap="getSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('apply','Apply',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
@@ -803,6 +808,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: String,
 				value: "layoutA"
 			},
+			layoutGrid: {
+				type: Object,
+				value: new GridLayout()
+			},
 			dragSrcEl: {
 				type: Object,
 				value: null
@@ -812,23 +821,31 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: () => [
 					{
 						id: "latestPatientsWidget",
-						nrRows: 1,
+						nrRows: 3,
 						nrCols: 1,
+						posRow: 0,
+						posCol: 0
 					},
 					{
 						id: "todaysConsultationsWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow: 0,
+						posCol: 1
 					},
 					{
 						id: "latestLabResultsWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow:	1,
+						posCol: 1
 					},
 					{
 						id: "todoWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow: 2,
+						posCol: 1
 					}
 				],
 				notify: true,
@@ -855,7 +872,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     apiReady() {
-	    if (!this.user || !this.api) { return }
+		if (!this.user || !this.api) { return }
+		
+		this.layoutGrid.setFromStorage(this.user)
 
 		this._isLoadingLatestPatients = true;
 		this._isLoadingLatestLabResults = true;
@@ -951,6 +970,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'HH:mm' : 'DD/MM/YYYY') || '';
 	}
 
+	_isSelected(a, b) {
+		return (a === b) ? 'selected' : ''
+	}
+
+	_isEqual(a, b) {
+		// console.log(a+' ?= '+b)
+		return (a === b)
+	}
+
 	picture(pat) {
 		if (!pat) {
 			return require('../images/male-placeholder.png');
@@ -982,40 +1010,137 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	setSelectedLayout(e) {
 		this.set('selectedLayout', e.currentTarget.id)
+		this.applySelectedLayout()
 	}
 
-	_isSelected(a, b){
-		return (a === b ) ? 'selected' : ''
+	saveSelectedLayout() {
+		localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.main.grid`, JSON.stringify(this.layoutGrid))
 	}
 
-	applySelectedLayout(){
-		switch(this.selectedLayout){
+	getSavedLayout(){
+
+		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`)
+
+		if (savedGridLayout) {
+			this.set('layoutGrid', JSON.parse(savedGridLayout))
+			this.buildGridLayout()
+			return
+		}
+
+		this.applySelectedLayout();
+
+	}
+
+	applySelectedLayout() {
+		switch (this.selectedLayout) {
 			case 'layoutA':
-				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				this.updateGridLayoutObject(2, 3)
+				this.buildGridLayout()
+				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
 				break;
 			case 'layoutB':
-				this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				this.updateGridLayoutObject(3, 2)
+				this.buildGridLayout()
+				// this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
 				break;
 			case 'layoutC':
-				this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				this.updateGridLayoutObject(4, 2)
+				this.buildGridLayout()
+				// this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
 				break;
 			default:
-				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
+				this.updateGridLayoutObject(2, 3)
+				this.buildGridLayout()
+				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
 				break;
 		}
 	}
 
-	_applySettings(e){
-		const widget = JSON.parse(e.target.dataset.item)
-		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
-		elem.style.setProperty('--rows', widget.nrRows)
-		elem.style.setProperty('--columns', widget.nrCols)
-		console.log(widget.id, widget.nrRows)
+	updateGridLayoutObject(cols, rows, layout = this.selectedLayout) {
+
+		this.set('layoutGrid.cols', cols)
+		this.set('layoutGrid.rows', rows)
+		this.set('layoutGrid.layout', layout)
+
+		const grid = []
+
+		for (let row = 0; row < rows; row++) {
+			grid.push([])
+			for (let col = 0; col < cols; col++) {
+				grid[row][col] = null
+			}
+		}
+
+		this.set('layoutGrid.grid', grid)
+
+		this.populateGridLayoutObject()
+
 	}
 
-	_isEqual(a,b) {
-		console.log(a+' ?= '+b)
-		return (a === b)
+	populateGridLayoutObject() {
+
+		for (let rowIndex = 0; rowIndex < this.layoutGrid.grid.length; rowIndex++) {
+			for (let colIndex = 0; colIndex < this.layoutGrid.grid[rowIndex].length; colIndex++) {
+
+				this.widgets.map(widget => {
+
+					if (
+						parseInt(widget.posCol) <= colIndex &&
+						parseInt(widget.posRow) <= rowIndex &&
+						parseInt(widget.posCol) + parseInt(widget.nrCols) > colIndex &&
+						parseInt(widget.posRow) + parseInt(widget.nrRows) > rowIndex
+					) {
+						this.layoutGrid.grid[rowIndex][colIndex] = widget.id
+					}
+
+				})
+
+			}
+		}
+
+	}
+
+	buildGridLayout() {
+
+		this.selectedLayout = this.layoutGrid.layout;
+		this.updateStyles({'--grid-columns': `repeat(${this.layoutGrid.cols}, 1fr)`}, {'--grid-rows': `repeat(${this.layoutGrid.rows}, 1fr)`})
+
+		let templateAreaString = "";
+
+		this.layoutGrid.grid.map(row => {
+			templateAreaString += "\'"
+			row.forEach(area => {
+				templateAreaString += area ? area + " " : ". "
+			})
+			templateAreaString += "\' "
+		})
+
+		this.updateStyles({ '--grid-layout': templateAreaString })
+
+	}
+
+	_updateWidgetSize(e) {
+
+		console.log(e);
+		const widget = null;
+	}
+
+	_handleWidgetChange(e){
+
+		this.updateWidgetSize(JSON.parse(e.target.dataset.item));
+
+	}
+
+	updateWidgetSize(widget){
+
+		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
+		if(elem) elem.style.setProperty('--area', widget.id);
+
+		// elem.style.setProperty('--rows', widget.nrRows)
+		// elem.style.setProperty('--columns', widget.nrCols)
+		// elem.style.setProperty('--row', widget.posRow)
+		// elem.style.setProperty('--col', widget.posCol)
+
 	}
 
 	_dragWidgetStart(e) {
@@ -1050,18 +1175,139 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_swap(elToSwap) {
+
 		const idx1 = this.widgets.findIndex(k => k.id === this.dragSrcEl)
 		const idx2 = this.widgets.findIndex(k => k.id === elToSwap )
-		let temp = 	this.widgets[idx2];
-		this.widgets[idx2] = this.widgets[idx1];
-		this.widgets[idx1] = temp;
-		const copy = this.widgets; 
-		this.set('widgets', []); 
-		this.set('widgets', copy);
+		// let temp = 	this.widgets[idx2];
+		let temp = this.widgets[idx2]
+
+		this.widgets[idx2].posCol = this.widgets[idx1].posCol;
+		this.widgets[idx2].posRow = this.widgets[idx1].posRow;
+		this.widgets[idx1].posCol = temp.posCol;
+		this.widgets[idx1].posRow = temp.posRow;
+
+		this.applySelectedLayout()
+
+		// const copy = this.widgets; 
+		// this.set('widgets', []); 
+		// this.set('widgets', copy);
 	}
 
-	widgetsChanged(widget){
-		console.log('changed ', widget)
+	widgetsChanged(e){
+
+		this.widgets.map( widget => {
+			
+			console.log(widget)
+			this.updateWidgetSize(widget)
+
+		})
+
+		// this.getSavedLayout()
+
+	}
+
+}
+
+
+class GridLayout {
+
+	constructor() {
+
+		this.grid = []
+		this.cols = 0;
+		this.rows = 0;
+		this.layout = 'layoutA';
+
+	}
+
+	init(cols, rows, layout = this.layout) {
+
+		this.cols = cols
+		this.rows = rows
+		this.layout = layout
+
+		const grid = []
+
+		for (let row = 0; row < rows; row++) {
+			grid.push([])
+			for (let col = 0; col < cols; col++) {
+				grid[row][col] = null
+			}
+		}
+
+		this.grid = grid
+
+		this.populateGridLayoutObject()
+
+	}
+
+	fill(widgets) {
+
+		for (let rowIndex = 0; rowIndex < this.grid.length; rowIndex++) {
+			for (let colIndex = 0; colIndex < this.grid[rowIndex].length; colIndex++) {
+
+				widgets.map(widget => {
+
+					if (
+						parseInt(widget.posCol) <= colIndex &&
+						parseInt(widget.posRow) <= rowIndex &&
+						parseInt(widget.posCol) + parseInt(widget.nrCols) > colIndex &&
+						parseInt(widget.posRow) + parseInt(widget.nrRows) > rowIndex
+					) {
+						this.grid[rowIndex][colIndex] = widget.id
+					}
+
+				})
+
+			}
+		}
+	}
+
+	getStyleStrings() {
+
+		const layout = this.layout
+		const gridCol = `repeat(${this.cols}, 1fr)`
+		const gridRow = `repeat(${this.rows}, 1fr)`
+
+		let templateArea = "";
+
+		this.grid.map(row => {
+			templateArea += "\'"
+			row.forEach(area => {
+				templateArea += area ? area + " " : ". "
+			})
+			templateArea += "\' "
+		})
+
+		return {layout, gridCol, gridRow, templateArea}
+
+	}
+
+	setFromStorage(user) { 
+
+		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
+
+		if (savedGridLayout) {
+
+			this.clone( JSON.parse(savedGridLayout) )
+
+		}
+
+	}
+
+	clone(nGrid) {
+
+		this.grid = nGrid.grid;
+		this.cols = nGrid.cols;
+		this.rows = nGrid.rows;
+		this.layout = nGrid.layout;
+
+	}
+
+	save(user) {
+
+		localStorage.setItem(`org.taktik.icure.${user.id}.settings.main.grid`, JSON.stringify(this))
+
 	}
 
 }
