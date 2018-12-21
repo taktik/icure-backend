@@ -140,6 +140,7 @@
                     <div>
                         <template id="filterPanelIcons" is="dom-repeat" items="[[visibleItems]]" as="menu">
                             <paper-icon-button id="[[menu.id]]-btn" class$="filters-bar--small-icon [[_isFilterSelected(menu.filter,selectedFilters,selectedFilters.*)]]" icon="[[menu.icon]]" on-tap="_filterSelected"></paper-icon-button>
+                            <paper-tooltip for="[[menu.id]]-btn">[[_localize(menu.title)]]</paper-tooltip>
                         </template>
                     </div>
                     <paper-button class="show-filters-btn" on-tap="toggleFiltersPanel" name="show-filters" role="button" tabindex="0" aria-disabled="false" elevation="0">
@@ -269,6 +270,10 @@
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
                 this.root.querySelector('#filtersPanel').classList.add('filters-panel--collapsed');
 
+            }
+
+            _localize(data, language = this.language) {
+                return data[language]
             }
 
         }
