@@ -656,7 +656,8 @@
 
             <div class="buttons">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
-                    Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox>
+                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> Create medication</paper-checkbox>
+                    <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">

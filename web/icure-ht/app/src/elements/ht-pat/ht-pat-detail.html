@@ -70,12 +70,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
 <link rel="import" href="dialogs/hubs/ht-pat-hub-transaction-view.html">
 
+<link rel="import" href="../../dialog-style.html">
+
 <dom-module id="ht-pat-detail">
     <template>
 
         <style include="iron-flex iron-flex-alignment"></style>
         <!--suppress CssUnusedSymbol -->
-        <style include="atc-styles icpc-styles scrollbar-style">
+        <style include="atc-styles icpc-styles scrollbar-style dialog-style">
             :host {
                 height: 100%;
             }
@@ -1093,34 +1095,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-left: 8px;
             }
 
-            .modal-title{
-                background:  var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
-            }
-
-            .modal-button {
-                --paper-button-ink-color: var(--app-secondary-color-dark);
-                color: var(--app-text-color);
-                font-weight: 400;
-                font-size: 14px;
-                height: 40px;
-                min-width: 100px;
-                padding: 10px 1.2em;
-                text-transform: capitalize;
-            }
-
-            .modal-button--save {
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                background: var(--app-secondary-color);
-                color: var(--app-primary-color-dark);
-                font-weight: 700;
-            }
 
             #consentDialog {
                 max-width: 50vw !important;
                 left: 50% !important;
                 transform: translateX(-50%);
+                height: 45%;
             }
 
             ht-spinner {
@@ -1187,6 +1167,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .icon-doc{
                 height: 14px;
                 width: 14px;
+            }
+
+            #legaltext{
+                margin-top: 20px;
             }
 
         </style>
@@ -1724,19 +1708,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="consentDialog">
             <h2 class="modal-title">[[localize('cons_req','Patient informed consent',language)]]</h2>
-            <template is="dom-if" if="{{!patientConsent.consent}}">
-                <div id="legaltext"></div>
-            </template>
-            <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
-            <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
-            <!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
+            <div class="content">
+                <template is="dom-if" if="{{!patientConsent.consent}}">
+                    <div id="legaltext"></div>
+                </template>
+                <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
+                <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+                <!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
+            </div>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="{{patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
+                    <paper-button class="modal-button modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
                 <template is="dom-if" if="{{!patientConsent.consent}}">
-                    <paper-button class="modal-button--save" on-tap="_registerNationalAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                    <paper-button class="modal-button modal-button--save" on-tap="_registerNationalAndHubConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                 </template>
             </div>
         </paper-dialog>
