@@ -125,7 +125,7 @@ onmessage = e => {
                             groupId: messageId,
                             created: new Date().getTime(),
                             modified: new Date().getTime(),
-                            author: user.healthcarePartyId,
+                            author: user.id,
                             responsible: user.healthcarePartyId,
                             openingDate: moment().format('YYYYMMDDhhmmss') || '',
                             closingDate: moment().format('YYYYMMDDhhmmss') || '',
@@ -137,15 +137,15 @@ onmessage = e => {
                             descr: docInfo.labo,
                             subContacts: []
                         }).then(c => {
-                             // console.log('newInstance',c)
+                             console.log('newInstance',c)
                             return iccContactApi.createContact(c)
                         }).then(c => {
-                            // console.log('createContact',c)
+                            console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
                                 contactId: c.id,
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
-                                console.log('should do Import',thisPat,docInfo)
+                                console.log('should do Import',thisPat,docInfo,document)
                                 return iccFormXApi.createForm(f).then(f =>
                                     iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
                                         beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)

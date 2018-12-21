@@ -1366,7 +1366,7 @@
                     // "CM-MediaType" : files.length ? getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
                     "CM-AuthorID" : author.nihii ? author.nihii : author.ssin, // 12345625001
                     "CM-AuthorIDType" : author.nihii ? "NIHII" : "SSIN", // NIHII
-                    "CM-AuthorType" : author.civility.toUpperCase(), // doctor
+                    "CM-AuthorType" : author.civility ? author.civility.toUpperCase() : 'NOTFOUND', // doctor
                     "CM-SenderID" : sender.nihii ? sender.nihii : sender.ssin, // 12345625001
                     "CM-SenderIDType" : sender.nihii ? "NIHII" : "SSIN", // NIHII
                     "CM-RecipientID" : recipient.id, // 12345625001
