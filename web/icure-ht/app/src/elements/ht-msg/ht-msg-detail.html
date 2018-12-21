@@ -734,6 +734,7 @@
 
             #import-suggest {
                 position: fixed;
+                display: flex;
                 top: calc(50vh + 97px);
                 right: 7px;
                 left: initial;
@@ -748,13 +749,12 @@
                 box-shadow: var(--app-shadow-elevation-2);
                 border-radius: 4px;
                 z-index: 999;
-                display: flex;
                 flex-direction: column;
                 margin: 0 auto;
             }
 
             #import-suggest .twocol {
-                display: inline-grid;
+                display: grid;
                 grid-template-columns: 50% 50%;
             }
 
@@ -776,7 +776,7 @@
             }
 
             #import-suggest .scrollbox {
-                height: 128px;
+                height: 40vh; /* TODO : when labresult is done, "128px" */
                 overflow-y: auto;
                 background: var(--app-background-color-dark);
                 border-radius: 4px;
@@ -787,7 +787,7 @@
                 box-sizing: border-box;
             }
             .scrollbox.labolist {
-                margin-right: 8px;
+                margin-right: 8px; /* TODO : 8px when labresult done*/
                 padding: 0 !important;
             }
             .scrollbox.patlist .checkbox-item {
@@ -995,19 +995,20 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <template is="dom-if" if="[[toImportPatsSuggestions.length]]">
-                                            <div class="line lab-details noPortable">
-                                                <h4>Lab result</h4>
-                                                <div class="sheet">
-                                                    <h5>[[docInfo.labo]]</h5>
-                                                    <p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>
-                                                    <p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>
-                                                    <p><small>[[docInfo.engine]]</small></p>
-                                                    <p>[[docInfo]]</p>
-                                                    <p>[[thisDocument]]</p>
-                                                </div>
-                                            </div>
-                                        </template>
+                                         <!--TODO : Get lab result -->
+                                        <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
+                                            <!--<div class="line lab-details noPortable">-->
+                                                <!--<h4>Lab result</h4>-->
+                                                <!--<div class="sheet">-->
+                                                    <!--<h5>[[docInfo.labo]]</h5>-->
+                                                    <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
+                                                    <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
+                                                    <!--<p><small>[[docInfo.engine]]</small></p>-->
+                                                    <!--<p>[[docInfo]]</p>-->
+                                                    <!--<p>[[thisDocument]]</p>-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+                                        <!--</template>-->
                                         <div class="line save-line">
                                             <paper-button on-tap="closeSuggestions">
                                                 [[localize('can','Cancel',language)]]
