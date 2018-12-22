@@ -106,15 +106,15 @@ public class DocumentTemplateFacade implements OpenApiFacade {
 
     @ApiOperation(response = DocumentDto.class, value = "Deletes a document template")
     @DELETE
-    @Path("/{documentTemplateId}")
-    public Response deleteDocumentTemplate(@PathParam("documentTemplateIds") String documentTemplatesIds) throws DeletionException {
+    @Path("/{documentTemplateIds}")
+    public Response deleteDocumentTemplate(@PathParam("documentTemplateIds") String documentTemplateIds) throws DeletionException {
         Response response;
 
-        if (documentTemplatesIds == null) {
+        if (documentTemplateIds == null) {
             return ResponseUtils.badRequest("Cannot delete document template: provided document template ID is null");
         }
 
-        List<String> documentTemplateIdsList = Arrays.asList(documentTemplatesIds.split(","));
+        List<String> documentTemplateIdsList = Arrays.asList(documentTemplateIds.split(","));
         try {
             documentTemplateLogic.deleteEntities(documentTemplateIdsList);
             response = ResponseUtils.ok();
