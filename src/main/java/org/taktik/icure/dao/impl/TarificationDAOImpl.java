@@ -108,8 +108,7 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				from,
 				to,
 				pagination,
-				true
-		);
+				false);
 	}
 
 	@Override
@@ -138,8 +137,7 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				from,
 				to,
 				pagination,
-				true
-		);
+				false);
 	}
 
 	@Override
@@ -170,7 +168,6 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				from,
 				to,
 				pagination,
-				true
-		);
+				false);
 	}
 }

@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.metadata.TypeBuilder;
+import org.ektorp.ComplexKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -287,6 +288,36 @@ public class PatientFacade implements OpenApiFacade{
 		return response;
 	}
 
+	@ApiOperation(
+			value = "List patients by pages for a specific HcParty",
+			response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList.class,
+			httpMethod = "GET",
+			notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " +
+					"Null it means that this is the last page."
+	)
+	@GET
+	@Path("/idsPages")
+	public Response listPatientsIds(@ApiParam(value = "Healthcare party id") @QueryParam("hcPartyId") String hcPartyId,
+	                             @ApiParam(value = "The page first id") @QueryParam("startKey") String startKey,
+	                             @ApiParam(value = "A patient document ID") @QueryParam("startDocumentId") String startDocumentId,
+	                             @ApiParam(value = "Page size") @QueryParam("limit") Integer limit) {
+
+		Response response;
+
+		ComplexKey startKeyElements = startKey == null ? null : ComplexKey.of((Object[]) new Gson().fromJson(startKey, String[].class));
+		@SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null,
+				limit);
+
+		PaginatedList<String> patientIds = patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset);
+
+		if (patientIds != null) {
+			response = ResponseUtils.ok(patientIds);
+		} else {
+			response = ResponseUtils.internalServerError("Listing patients failed.");
+		}
+
+		return response;
+	}
 
 	@ApiOperation(
 			httpMethod = "GET",
@@ -413,17 +444,6 @@ public class PatientFacade implements OpenApiFacade{
 	@Path("/match")
 	public List<String> matchBy(Filter filter) throws LoginException {
 		return new ArrayList<>(filters.resolve(filter));
-	}
-
-	@ApiOperation(
-			value = "Force logging of all patieznts on the file system ",
-			httpMethod = "POST"
-	)
-	@POST
-	@Path("/forceLog")
-	public Response forceLog() {
-		patientLogic.logAllPatients(sessionLogic.getCurrentHealthcarePartyId());
-		return ResponseUtils.ok();
 	}
 
 	@ApiOperation(
