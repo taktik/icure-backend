@@ -83,8 +83,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
                 startKey,
                 endKey,
                 pagination,
-                true
-        );
+				false);
     }
 
     @Override

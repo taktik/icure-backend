@@ -357,7 +357,7 @@
 
         getRowsUsingPagination(paginator) {
             const executePaginator = (latestResult, acc) =>
-                paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
+                paginator(latestResult.nextKey,latestResult.nextDocId).then((newResult) => {
                     acc.push(...newResult.rows)
                     return newResult.done ? acc : executePaginator(newResult, acc)
                 })
@@ -374,7 +374,8 @@
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
-            }, {})))
+            }, {}))
+            ).catch(() => setTimeout(() => this.loadUsersAndHcParties(), 10000))
         }
 
         unregisterAll(domain) {
