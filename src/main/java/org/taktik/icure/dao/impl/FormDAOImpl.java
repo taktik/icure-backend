@@ -28,6 +28,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Form;
 
 import java.util.ArrayList;

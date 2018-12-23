@@ -216,6 +216,11 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	}
 
 	@Override
+	public PaginatedList<String> findIdsByHcParty(String healthcarePartyId, PaginationOffset pagination) {
+		return pagedQueryViewOfIds("by_hcparty_name", ComplexKey.of(healthcarePartyId, null),ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination);
+	}
+
+	@Override
 	public PaginatedList<Patient> findPatientsByHcPartyAndName(String name, String healthcarePartyId, PaginationOffset pagination, boolean descending) {
 		return findByName(name, healthcarePartyId, pagination, descending, "by_hcparty_name");
 	}

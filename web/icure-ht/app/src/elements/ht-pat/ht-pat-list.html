@@ -899,11 +899,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                             <div class="add-elem-mobile" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
                             </div>
-
                             <template is="dom-if" if="[[btnSelectionPatient]]">
-                                <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share
-                                    patients',language)]]
-                                </div>
+                                <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
                                 <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export
                                     patients',language)]]
                                 </div>
@@ -911,6 +908,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     patients',language)]]
                                 </div>
                             </template>
+                            <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
+                            </div>
                             <div class="add-elem-mobile" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </div>
                             <div class="add-elem-mobile" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
@@ -949,6 +948,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     patients',language)]]
                                 </paper-button>
                             </template>
+
+                            <paper-button class="add-btn" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</paper-button>
                             <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </paper-button>
                             <paper-button class="exportcsv-btn" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
@@ -1797,7 +1798,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.latestSearchValue = latestSearchValue
                 if (!latestSearchValue || latestSearchValue.length < 2) {
                     console.log("Cancelling empty search")
-                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                    this.set('hcp', _.orderBy((_.values(this.api.hcParties || {}) || []).filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")), ['lastName'], ['asc']))
                     return
                 }
                 this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
@@ -1816,7 +1817,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         let count = 15
                         return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null, null, count, desc)]).then(results => {
                             const hcpList = results[0]
-                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")).map(hcp => ({
                                 id: hcp.id,
                                 lastName: hcp.lastName,
                                 firstName: hcp.firstName,
@@ -2437,10 +2438,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _sharePatientAll() {
+                this.set('isImportingPatients', true)
+                let retry = 0
+                this.api.getRowsUsingPagination(
+                    (key, docId) => this.api.patient().listPatientsIds(this.user.healthcarePartyId, key || null, docId || null, 100).then(pl => {
+                        retry = 0
+                        return {
+                            rows: pl.rows.map(id => ({id})),
+                            nextKey: pl.nextKeyPair && JSON.stringify(pl.nextKeyPair.startKey),
+                            nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                            done: !pl.nextKeyPair
+                        }
+                    }).catch((e) => {
+                        console.log(`retry: ${e.message}`)
+                        retry ++
+                        return retry <= 3 ? Promise.resolve({
+                            rows: [],
+                            nextKey: key,
+                            nextDocId: docId,
+                            done: false
+                        }) : Promise.reject(e)
+                    })
+                ).then(pats => {
+                    this.set('shareOption', true)
+                    this.selectedPatientsForSharing = pats;
+                    this.$['sharePatientDialog'].open()
+                    this.set('hcp', _.orderBy(_.values(this.api.hcParties), ['lastName'], ['asc']))
+                }).finally(() => {
+                    this.set('isImportingPatients', false)
+                })
+            }
+
             _openPatientActionDialog() {
                 if (this.shareOption) {
                     this.$['sharePatientDialog'].open()
-                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                    this.set('hcp', _.orderBy(_.values(this.api.hcParties), ['lastName'], ['asc']))
+                    this.selectedPatientsForSharing = this.patientSelected.filter(pat => pat.check && pat.id)
                 }
                 if (this.exportOption) {
                     //export here
@@ -2561,33 +2595,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.updateDelegation()
 
                 this.$['sharePatientDelegationDialog'].close()
-
                 this.$['sharingPatientStatus'].open()
-                this._sharePatients()
+
+                this._sharePatients(this.selectedPatientsForSharing)
             }
 
-            _sharePatients() {
-                this.patientSharePromise = Promise.resolve(this.patientShareStatuses = [])
+            _hashCode(str) {
+                return str.split('').reduce((prevHash, currVal) =>
+                    (((prevHash << 5) - prevHash) + currVal.charCodeAt(0))|0, 0);
+            }
+
+            _sharePatients(patients) {
+                this.patientSharePromise = Promise.resolve([])
                 const hcpId = this.user.healthcarePartyId
-                this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
-                    this.patientSharePromise = this.patientSharePromise.then(pats => {
-                        return this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id), _.fromPairs(this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => [hcp.id, hcp.delegation])))
-                            .then(pat => {
-                                this.push('patientShareStatuses', pat)
-                                return pats
-                            })
-                            .catch(e => {
-                                console.log(e);
-                                this.push('patientShareStatuses', {patient:pat, statuses:{
-                                        contacts: {success:null, error: null},
-                                        healthElements: {success:null, error: null},
-                                        invoices: {success: null, error: null},
-                                        documents: {success:null, error: null},
-                                        patient: {success:false, error: e}}
+                const delegates = this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id)
+                const delegationTags = _.fromPairs(delegates.map(hcp => [hcp.id, hcp.delegation]))
+                const sig = this._hashCode(JSON.stringify(delegationTags))
+                const prevRunIds = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.share.${sig}.progress`) || '[]')
+                _.chunk(patients.filter(p => !prevRunIds.includes(p.id)), 10).forEach(chunk => {
+                    this.patientSharePromise = this.patientSharePromise.then(prevStatuses => Promise.all(chunk.map(pat =>
+                            this.api.patient().share(this.user, pat.id, hcpId, delegates.map(hcp => hcp.id), delegationTags)
+                                .catch(e => {
+                                    console.log(e)
+                                    return {
+                                        patient: pat, statuses: {
+                                            contacts: {success: null, error: null},
+                                            healthElements: {success: null, error: null},
+                                            invoices: {success: null, error: null},
+                                            documents: {success: null, error: null},
+                                            patient: {success: false, error: e}
+                                        }
+                                    }
                                 })
-                                return pats
-                            })
-                    })
+                        )).then(statuses => {
+                            const newStatuses = prevStatuses.concat(statuses)
+                            localStorage.setItem(`org.taktik.icure..${this.user.id}.share.${sig}.progress`, JSON.stringify(newStatuses.filter(s => !_.values(s.statuses).some(!success)).map(s => s.patient.id)))
+                            this.push('patientShareStatuses', ...statuses)
+                            return newStatuses
+                        })
+                    )
                 })
             }
 

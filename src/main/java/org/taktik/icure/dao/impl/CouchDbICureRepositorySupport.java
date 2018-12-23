@@ -146,9 +146,39 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 			viewQuery = viewQuery.endKey(endKey);
 		}
 
-		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(startKey.toJson(), startDocId)).build();
+		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey)pagination.getStartKey()).toJson(), startDocId)).build();
 
 		Page<T> ts = db.queryForPage(viewQuery, pr, type);
+
+		try {
+			return new PaginatedList<>(
+					ts.getPageSize(),
+					ts.getTotalSize(),
+					ts.getRows(),
+					ts.getTotalSize() > ts.getPageSize() && ts.getNextPageRequest() != null ? new PaginatedDocumentKeyIdPair(MAPPER.treeToValue((TreeNode) ts.getNextPageRequest().getStartKey(), List.class), ts.getNextPageRequest().getStartKeyDocId()) : null
+			);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	protected PaginatedList<String> pagedQueryViewOfIds(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination) {
+		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
+		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
+		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
+
+		ViewQuery viewQuery = createQuery(viewName)
+				.startKey(startKey)
+				.reduce(false)
+				.limit(limit)
+				.includeDocs(false);
+
+		if (endKey != null) {
+			viewQuery = viewQuery.endKey(endKey);
+		}
+
+		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey)pagination.getStartKey()).toJson(), startDocId)).build();
+
+		Page<String> ts = db.queryForPage(viewQuery, pr, String.class);
 
 		try {
 			return new PaginatedList<>(
