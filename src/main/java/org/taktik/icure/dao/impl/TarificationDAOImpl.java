@@ -107,8 +107,8 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				"by_region_type_code_version",
 				from,
 				to,
-				pagination,
-				false);
+				pagination, false
+		);
 	}
 
 	@Override
@@ -136,8 +136,8 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				"by_language_label",
 				from,
 				to,
-				pagination,
-				false);
+				pagination, false
+		);
 	}
 
 	@Override
@@ -167,7 +167,7 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 				"by_language_type_label",
 				from,
 				to,
-				pagination,
-				false);
+				pagination, false
+		);
 	}
 }

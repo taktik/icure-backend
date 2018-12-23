@@ -89,8 +89,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 				"allForPagination",
 				pagination.getStartKey() != null ? pagination.getStartKey().toString() : "\u0000",
 				"\ufff0",
-				pagination,
-				true
+				pagination, false
 		);
 	}
 

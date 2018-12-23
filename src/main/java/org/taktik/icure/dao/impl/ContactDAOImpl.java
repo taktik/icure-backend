@@ -82,8 +82,8 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
                 "by_hcparty_openingdate",
                 startKey,
                 endKey,
-                pagination,
-				false);
+                pagination, false
+		);
     }
 
     @Override
@@ -95,8 +95,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
 				"by_hcparty",
 				key,
 				key,
-				pagination,
-                true
+				pagination, false
 		);
 	}
 

@@ -92,6 +92,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 
 		ViewQuery viewQuery = createQuery(viewName)
 				.startKey(startKey)
+				.includeDocs(true)
 				.startDocId(startDocId)
 				.limit(limit)
 				.descending(descending);
@@ -120,19 +121,21 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 		);
 	}
 
-
 	protected PaginatedList<T> pagedQueryView(String viewName, String startKey, String endKey, PaginationOffset pagination, boolean descending) {
 		return pagedQueryView(viewName, startKey, endKey, pagination, descending, TextNode::valueOf);
 	}
+
 	protected PaginatedList<T> pagedQueryView(String viewName, Long startKey, Long endKey, PaginationOffset pagination, boolean descending) {
 		return pagedQueryView(viewName, startKey, endKey, pagination, descending, LongNode::valueOf);
 	}
+
 	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean descending) {
 		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
 		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
 		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
 
 		ViewQuery viewQuery = createQuery(viewName)
+				.includeDocs(true)
 				.startKey(startKey) //Shouldn't be necessary
 				.reduce(false)
 				.startDocId(startDocId) //Shouldn't be necessary
