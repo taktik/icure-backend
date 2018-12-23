@@ -273,7 +273,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 			startKey = pagination.getStartKey() == null ? ComplexKey.of(healthcarePartyId, name + startKeyNameKeySuffix) : ComplexKey.of((Object[]) pagination.getStartKey());
 			endKey = ComplexKey.of(healthcarePartyId, name + endKeyNameKeySuffix);
 		}
-		return pagedQueryView(viewName, startKey, endKey, pagination, true, descending);
+		return pagedQueryView(viewName, startKey, endKey, pagination, descending);
 	}
 
 	private PaginatedList<Patient> findBySsin(String ssin, String healthcarePartyId, PaginationOffset pagination, boolean descending, String viewName) {
@@ -291,7 +291,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 			startKey = pagination.getStartKey() == null ? ComplexKey.of(healthcarePartyId, ssinSearchString + startKeyNameKeySuffix) : ComplexKey.of((Object[]) pagination.getStartKey());
 			endKey = ComplexKey.of(healthcarePartyId, ssinSearchString + endKeyNameKeySuffix);
 		}
-		return pagedQueryView(viewName, startKey, endKey, pagination, true, descending);
+		return pagedQueryView(viewName, startKey, endKey, pagination, descending);
 	}
 
 	private PaginatedList<Patient> findByDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId, PaginationOffset pagination, boolean descending, String viewName) {
@@ -311,7 +311,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		//If both keys are null, search for null
 		ComplexKey to = ComplexKey.of(healthcarePartyId, (startKeyStartDate == null && endKeyEndDate == null) ? null : endKeyEndDate == null ? largestKey : endKeyEndDate);
 
-		return pagedQueryView(viewName, from, to, pagination, true, descending);
+		return pagedQueryView(viewName, from, to, pagination, descending);
 	}
 
 	private PaginatedList<Patient> findByModificationDate(Long startDate, Long endDate, String healthcarePartyId, PaginationOffset pagination, boolean descending, String viewName) {
@@ -329,7 +329,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 		ComplexKey to = ComplexKey.of(healthcarePartyId, endKeyEndDate == null ? largestKey : endKeyEndDate);
 
-		return pagedQueryView(viewName, from, to, pagination, true, descending);
+		return pagedQueryView(viewName, from, to, pagination, descending);
 	}
 	@Override
 	@View(name = "by_user_id", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc.userId) emit( doc.userId, doc._id )}")
@@ -358,7 +358,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 			"    }\n" +
 			"}")
 	public PaginatedList<Patient> findDeletedPatientsByDeleteDate(Long start, Long end, boolean descending, PaginationOffset paginationOffset) {
-    	return pagedQueryView("deleted_by_delete_date", start, end, paginationOffset, true, descending);
+    	return pagedQueryView("deleted_by_delete_date", start, end, paginationOffset, descending);
 	}
 
 	@Override
@@ -401,7 +401,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	@Override
 	@View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")
 	public PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, PaginationOffset<Long> paginationOffset) {
-		return pagedQueryView("by_modification_date", date, Long.MAX_VALUE, paginationOffset, true, false);
+		return pagedQueryView("by_modification_date", date, Long.MAX_VALUE, paginationOffset, false);
 	}
 
 	@Override

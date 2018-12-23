@@ -19,9 +19,7 @@
 package org.taktik.icure.dao.impl;
 
 import com.fasterxml.uuid.Generators;
-import org.ektorp.ComplexKey;
 import org.ektorp.DocumentNotFoundException;
-import org.ektorp.ViewQuery;
 import org.ektorp.support.Filter;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,8 +87,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 				"allForPagination",
 				pagination.getStartKey() != null ? pagination.getStartKey().toString() : "\u0000",
 				"\ufff0",
-				pagination,
-				true
+				pagination, false
 		);
 	}
 

@@ -28,7 +28,6 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Form;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ class FormDAOImpl extends GenericIcureDAOImpl<Form> implements FormDAO {
 
 	@Override
 	public PaginatedList<Form> findAll(PaginationOffset<String> pagination) {
-		return pagedQueryView("all", pagination.getStartKey(), null, pagination, true);
+		return pagedQueryView("all", pagination.getStartKey(), null, pagination, false);
 	}
 
 	@Override
