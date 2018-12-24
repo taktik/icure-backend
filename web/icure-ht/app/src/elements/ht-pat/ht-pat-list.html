@@ -2442,7 +2442,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('isImportingPatients', true)
                 let retry = 0
                 this.api.getRowsUsingPagination(
-                    (key, docId) => this.api.patient().listPatientsIds(this.user.healthcarePartyId, key || null, docId || null, 100).then(pl => {
+                    (key, docId) => this.api.patient().listPatientsIds(this.user.healthcarePartyId, key || null, docId || null, 1000).then(pl => {
                         retry = 0
                         return {
                             rows: pl.rows.map(id => ({id})),
@@ -2606,14 +2606,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _sharePatients(patients) {
-                this.patientSharePromise = Promise.resolve([])
+                this.set('patientShareStatuses',[])
+
                 const hcpId = this.user.healthcarePartyId
                 const delegates = this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id)
-                const delegationTags = _.fromPairs(delegates.map(hcp => [hcp.id, hcp.delegation]))
-                const sig = this._hashCode(JSON.stringify(delegationTags))
-                const prevRunIds = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.share.${sig}.progress`) || '[]')
-                _.chunk(patients.filter(p => !prevRunIds.includes(p.id)), 10).forEach(chunk => {
-                    this.patientSharePromise = this.patientSharePromise.then(prevStatuses => Promise.all(chunk.map(pat =>
+                const delegationTags = _.fromPairs(delegates.map(hcp => [hcp.id, _.sortBy(hcp.delegation)]))
+                const sig = this._hashCode(JSON.stringify(_.sortBy(delegationTags, x => x[0])))
+                const locStoTag = `org.taktik.icure.${this.user.id}.share.${sig}.progress`
+
+                const prevRunIds = JSON.parse(localStorage.getItem(locStoTag) || '[]')
+
+                this.patientSharePromise = Promise.resolve([[], prevRunIds])
+
+                _.chunk(patients.filter(p => !prevRunIds.includes(p.id)), 16).forEach(chunk => {
+                    this.patientSharePromise = this.patientSharePromise.then(([prevStatuses, treatedIds]) => Promise.all(chunk.map(pat =>
                             this.api.patient().share(this.user, pat.id, hcpId, delegates.map(hcp => hcp.id), delegationTags)
                                 .catch(e => {
                                     console.log(e)
@@ -2629,9 +2635,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 })
                         )).then(statuses => {
                             const newStatuses = prevStatuses.concat(statuses)
-                            localStorage.setItem(`org.taktik.icure..${this.user.id}.share.${sig}.progress`, JSON.stringify(newStatuses.filter(s => !_.values(s.statuses).some(!success)).map(s => s.patient.id)))
+                            const newTreatedIds = treatedIds.concat(statuses.filter(s => !_.values(s.statuses).some(s => !s.success)).map(s => s.patient.id))
+                            localStorage.setItem(locStoTag, JSON.stringify(newTreatedIds))
                             this.push('patientShareStatuses', ...statuses)
-                            return newStatuses
+
+                            this.dispatchEvent(new CustomEvent('idle', { bubbles: true, composed: true}))
+
+                            return [newStatuses, newTreatedIds]
                         })
                     )
                 })
@@ -2750,7 +2760,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //idem of checkingDelegation
 
                 if (this.hcpSelectedForSharing[index].delegation.find(x => x === 'all')) {
-                    this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.filter(x => true))
+                    this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.map(x => x))
                     this.hcpSelectedForSharing[index].delegation.shift()
                 }
                 if (value === true) {//check

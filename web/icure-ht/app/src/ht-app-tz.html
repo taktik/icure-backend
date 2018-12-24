@@ -1125,7 +1125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved">
+                            on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
@@ -1375,9 +1375,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
-                    if (newTimer > 0) {
-                        this.set('disconnectionTimer', newTimer)
+                    const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
+                    if (timeBeforeDeconnection > 0) {
+                        this.set('disconnectionTimer', timeBeforeDeconnection)
                     } else {
                         const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
