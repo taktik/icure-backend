@@ -76,19 +76,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val prescForms = mutableMapOf<String, MutableList<Form>>()
 
         val standard = kmehrMessage.header.standard.cd.value
-        var senderPhcp : PatientHealthCareParty? = null
+        var senderHcps : MutableList<HealthcareParty> = mutableListOf()
 
         //TODO Might want to have several implementations based on standards
         kmehrMessage.header.sender.hcparties?.forEach {
             createOrProcessHcp(it)?.let {
-                senderPhcp = PatientHealthCareParty().apply {
-                    healthcarePartyId = it.id
-                }
+                senderHcps.add(it)
             }
         }
 
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
+            res.hcps.addAll(senderHcps)
             createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
@@ -227,14 +226,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     formLogic.createForm(it)
                 }
 
-                patient.patientHealthCareParties.addAll(res.hcps.map {
+                patient.patientHealthCareParties.addAll(res.hcps.distinctBy{ it.id }.map {
                     PatientHealthCareParty().apply {
                         healthcarePartyId = it.id
                     }
                 })
-                senderPhcp?.let {
-                    patient.patientHealthCareParties.add(it)
-                }
 
                 Unit
             }
@@ -348,10 +344,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 mappings: Map<String, List<ImportMapping>>, state: InternalState): Pair<List<Service>, String?> {
 
         val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it)?.let {
-                v.hcps.add(it)
-                it
-            }
+            createOrProcessHcp(it, v)
         }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
@@ -403,20 +396,20 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             Service().apply {
                 id = idGenerator.newGUID().toString()
                 content.put(language, Content().apply {
+                    val docname = trn.cds.filter{ it.s == CDTRANSACTIONschemes.CD_TRANSACTION }.firstOrNull()?.let {
+                        it.dn
+                    } ?: "unnamed_document"
                     documentId = documentLogic!!.createDocument(Document().apply {
                         id = idGenerator.newGUID().toString()
                         this.author = author.id
                         this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                            createOrProcessHcp(it)?.let {
-                                v.hcps.add(it)
-                                it
-                            }
+                            createOrProcessHcp(it, v)
                         }?.firstOrNull()?.id ?:
                                 author.healthcarePartyId
                         this.created = trn.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
                         modified = created
                         attachment = lnk.value
-                        name = "Document"
+                        name = docname
 
                         var utis : List<UTI> = emptyList()
                         lnk.mediatype?.value()?.let {
@@ -428,11 +421,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf"
                         otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
 
+                        if(mainUti == "public.plain-text") {
+                            // workaround because not same uti are used in frontend and backend
+                            mainUti = "public.plainText"
+                            otherUtis = otherUtis.plus("public.plain-text")
+                        }
+
                         v.documents.add(this)
                     }, author.healthcarePartyId).id
-                    stringValue = trn.cds.filter{ it.s == CDTRANSACTIONschemes.CD_TRANSACTION }.firstOrNull()?.let {
-                        it.dn
-                    } ?: "unnamed_document"
+                    stringValue = docname
                 })
                 label = "document"
                 valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
@@ -453,10 +450,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
 
                 this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                    createOrProcessHcp(it)?.let {
-                        v.hcps.add(it)
-                        it
-                    }
+                    createOrProcessHcp(it, v)
                 }?.firstOrNull()?.id ?:
                         author.healthcarePartyId
 
@@ -487,10 +481,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val contact = this
             this.id = idGenerator.newGUID().toString()
             val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                createOrProcessHcp(it)?.let {
-                    v.hcps.add(it)
-                    it
-                }
+                createOrProcessHcp(it, v)
             }?.firstOrNull()?.id ?:
                     author.healthcarePartyId
 
@@ -975,16 +966,50 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
-        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
-        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
+    protected fun createOrProcessHcp(p: HcpartyType, v: ImportResult? = null): HealthcareParty? {
+        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value?.trim()
+        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value?.trim()
+        val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
 
-        return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
-                ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
-                ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
-                    this.nihii = nihii; this.ssin = niss;
-                    copyFromHcpToHcp(p, this)
-                }) } catch (e : MissingRequirementsException) { null })
+        // test if already exist in current file
+        var existing = v?.hcps?.find {
+            nihii?.let { ni -> it.nihii == ni } == true
+            || niss?.let { ni -> it.ssin == ni } == true
+            || (
+                ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
+                    && it.firstName?.trim() == p.firstname?.trim()
+                    && it.lastName?.trim() == p.familyname?.trim()
+                        && it.name?.trim() == p.name?.trim()
+                        && it.speciality == specialty
+            )
+        }
+
+        // test if already exist in db
+        existing = existing ?: (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }?.also {
+                v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties (duplicates are removed at the end)
+            }
+            ?: niss?.let { healthcarePartyLogic.listBySsin(niss).firstOrNull() })?.also {
+                v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
+            }
+
+        if(existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
+                && p.firstname?.trim()?.let { it == "" } != false
+                && p.familyname?.trim()?.let { it == "" } != false) {
+            existing = healthcarePartyLogic.listByName(p.name).firstOrNull()
+            existing?.let {
+                v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
+            }
+        }
+
+
+        return existing
+                ?: (try {
+                    healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
+                        this.nihii = nihii; this.ssin = niss;
+                        copyFromHcpToHcp(p, this)
+                        v?.hcps?.add(this)
+                    })
+                } catch (e : MissingRequirementsException) { null })
     }
 
     protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty) {
@@ -1002,6 +1027,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
         if (hcp.nihii == null) {
             hcp.nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
+        }
+        if (hcp.speciality == null) {
+            hcp.speciality = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value
         }
         p.addresses?.let { addresses ->
             hcp.addresses.addAll(addresses.map {
