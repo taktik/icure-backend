@@ -2138,6 +2138,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+                if(this.patientHealthCarePartiesById == null) {
+                    Promise.all(
+                        _.chunk(this.patient.patientHealthCareParties,100).map(uChunk =>
+                            this.api.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))
+                        )
+                    ).then(hcps => {
+                        this.patientHealthCarePartiesById = _.flatMap(hcps).reduce((acc, hcp) => {
+                            acc[hcp.id] = hcp
+                            return acc
+                        }, {});
+                    } )
+                }
             }
 
             _switchTest(e){
@@ -2977,7 +2989,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
 
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         const svcHes = hesAsServices.map(svc => ({
                             created: svc.created,
                             modified: svc.modified,
@@ -3023,7 +3035,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('inactiveHealthElements', combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
                             this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
-                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'risk')))
+                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
                             this.set('surgicalHealthElements', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'ODMI-CD-ITEM' && c.code === 'surgery')))
 
@@ -3682,8 +3694,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             hcp(ctc) {
                 const usr = this.api.users && this.api.users[ctc.author];
-                const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null;
-                return hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".") || usr && usr.login || "N/A";
+                //const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null;
+                const hcpid = ctc.responsible ? ctc.responsible : (usr ? usr.healthcarePartyId : null);
+                let hcp = hcpid && this.patientHealthCarePartiesById ? this.patientHealthCarePartiesById[hcpid] : null;
+                hcp = hcp ? hcp : (hcpid ? this.api.hcParties[hcpid] : null);
+                let name
+                if(hcp && hcp.name != null && hcp.name != "") {
+                    name = hcp && hcp.name
+                } else {
+                    name = hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".")
+                }
+                return name || usr && usr.login || "N/A";
             }
 
             picture(pat) {
