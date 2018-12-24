@@ -794,11 +794,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getProtIn(){
                 this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
-                    let assignedMsgs = []
+                    let msgsToDisplay = []
                     messages.map(msg=>{
-                        if (msg.assignedResults && msg.assignedResults.length >= 1) assignedMsgs.push(msg)
+                        if (msg.assignedResults && msg.assignedResults.length >= 0) msgsToDisplay.push(msg)
                     })
-                    this.set('messages', assignedMsgs || [])
+                    this.set('messages', msgsToDisplay || [])
                 });
             }
 
