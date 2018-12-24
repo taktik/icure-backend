@@ -26,12 +26,15 @@
             #dialog{
                 min-height: 480px;
                 min-width: 800px;
-                max-height: 80vh !important;
-                overflow-y: auto;
+                max-height: calc( 90vh - 64px ) !important;
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%,-50%);
+            }
+
+            .title {
+                position: absolute;
             }
 
             .links {
@@ -48,6 +51,10 @@
                 top:4px;
             }
 
+            vaadin-date-picker#date-picker {
+                padding: 0!important;
+            }
+
             vaadin-combo-box {
                 width: 100%;
             }
@@ -57,14 +64,36 @@
             }
 
             .containerPlanAction {
-                height: 50vh;
+                /* position: absolute; */
+                /* height: calc(100% - 120px); */
+
+                box-sizing: border-box;
+                /* top: 0; */
+                /* left: 0; */
+
                 overflow-y: auto;
-                padding: 24px;
+                width: 100%;
+
+                max-height: calc(90vh - 184px);
+
+                padding: 12px 24px;
+
+                margin-top: 60px;
+                margin-bottom: 60px;
+
                 border-top: 1px solid var(--app-background-color-dark);
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .buttons {
+                position: absolute;
+                bottom: 0;
+
+                box-sizing: border-box;
+                width: 100%;
+
+                /* border-top: 1px solid var(--app-background-color-dark); */
+
                 color: black;
             }
             .modal-button--save {
@@ -80,9 +109,9 @@
                     <dynamic-pills health-elements="[[linkedHes]]"></dynamic-pills>
                 </div>
             </div>
-            <h3>[[localize('plan_act','Plan an action',language)]]</h3>
+            <h3 class="title">[[localize('plan_act','Plan an action',language)]]</h3>
             <div class="containerPlanAction">
-                <vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                <vaadin-date-picker id="date-picker" label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
 
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
