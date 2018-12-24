@@ -102,15 +102,21 @@
 						<paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
 						<paper-radio-button name="socialrisk">[[localize('socialrisk','Social risk',language)]]</paper-radio-button>
 						<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
+						<paper-radio-button name="surgery">[[localize('surg_abr','Surgery',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
 				<div class="flex">
-					<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-					<template is="dom-if" if="[[searchAllergen]]">
-						<vaadin-combo-box id="entities-list" filtered-items="[[allergenItems]]" on-filter-changed="_allergenFilterChanged" item-label-path="descr" selected-item="{{allergenSelectedItem}}" item-value-path="id" label="[[localize('sea_for_alle','Search for allergens',language)]]"></vaadin-combo-box>
+					<template is="dom-if" if="[[!searchSurgery]]">
+						<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
+						<template is="dom-if" if="[[searchAllergen]]">
+							<vaadin-combo-box id="entities-list" filtered-items="[[allergenItems]]" on-filter-changed="_allergenFilterChanged" item-label-path="descr" selected-item="{{allergenSelectedItem}}" item-value-path="id" label="[[localize('sea_for_alle','Search for allergens',language)]]"></vaadin-combo-box>
+						</template>
+						<template is="dom-if" if="[[searchFamilyLink]]">
+							<vaadin-combo-box id="entities-list" filtered-items="[[familyLinkItems]]" on-filter-changed="_familyRiskFilterChanged" item-label-path="descr" selected-item="{{familyRiskSelectedItem}}" item-value-path="id" label="[[localize('sea_for_fam_link','Search for family link',language)]]"></vaadin-combo-box>
+						</template>
 					</template>
-					<template is="dom-if" if="[[searchFamilyLink]]">
-						<vaadin-combo-box id="entities-list" filtered-items="[[familyLinkItems]]" on-filter-changed="_familyRiskFilterChanged" item-label-path="descr" selected-item="{{familyRiskSelectedItem}}" item-value-path="id" label="[[localize('sea_for_fam_link','Search for family link',language)]]"></vaadin-combo-box>
+					<template is="dom-if" if="[[searchSurgery]]">
+						<vaadin-combo-box id="entities-list" filtered-items="[[surgeryItems]]" on-filter-changed="_surgeryFilterChanged" item-label-path="descr" selected-item="{{surgerySelectedItem}}" item-value-path="id" label="[[localize('sea_for_surgery','Search for surgery',language)]]"></vaadin-combo-box>
 					</template>
 				</div>
 				<div class="flex">
@@ -254,13 +260,25 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             familyLinkFilterValue: {
                 type: String
-            }
+            },
+			searchSurgery: {
+			    type: Boolean,
+				value: false
+			},
+            surgeryItems:{
+                type: Array,
+                value:  () => []
+			},
+			surgeryFilterValue: {
+                type: String
+            },
+
 
 		};
 	}
 
 	static get observers() {
-		return ['_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem)', '_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
+		return ['_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
 	}
 
 	constructor() {
@@ -287,8 +305,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_updateDescription() {
-        if (this.selectedItem) {
-            this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : this.selectedItem.descr);
+        if (this.selectedItem || this.surgerySelectedItem) {
+            this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : (this.searchSurgery && this.surgerySelectedItem) ? `${this.surgerySelectedItem.descr}` : this.selectedItem.descr);
         }
     }
 
@@ -299,6 +317,15 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				this.set('entity.codes', codes);
 			});
 		}
+	}
+
+    _selectSurgerySelectedItem(){
+        if (this.surgerySelectedItem) {
+            this.set('entity.plansOfAction', this.surgerySelectedItem.plansOfAction || []);
+            this.api.code().getCodes(this.surgerySelectedItem.codes.join(',')).then(codes => {
+                this.set('entity.codes', codes);
+            });
+        }
 	}
 
 
@@ -334,6 +361,23 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return;
             }
             this.set('familyLinkItems', res.rows);
+        });
+	}
+
+    _surgeryFilterChanged(e){
+        let latestSearchValue = e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('surgeryItems', []);
+            return;
+        }
+        this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false, ['BE-THESAURUS-SURGICAL-PROCEDURES']).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('surgeryItems', res.rows);
         });
 	}
 
@@ -375,6 +419,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
         e.detail.value === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
 		e.detail.value === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
+		e.detail.value === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 	}
 
 	_statusChanged(e) {

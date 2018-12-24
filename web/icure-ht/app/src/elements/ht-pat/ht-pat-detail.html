@@ -1278,7 +1278,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
                                 </template>
                                 <template is="dom-if" if="[[surgicalHealthElements.length]]">
-                                    <paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add surgical history',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement" data-label="Family risk" data-tags="ODMI-CD-ITEM|surgery|1.0"></paper-icon-button></paper-item>
+                                    <paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add surgical history',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement" data-label="Surgery" data-tags="ODMI-CD-ITEM|surgery|1.0"></paper-icon-button></paper-item>
                                 </template>
                             </paper-listbox>
                         </collapse-button>
