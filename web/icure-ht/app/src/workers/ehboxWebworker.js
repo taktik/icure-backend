@@ -170,25 +170,29 @@ onmessage = e => {
         }
 
         const treatMessage =  (message,boxId) => {
-            return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
-                .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
-                .then(([fullMessage, existingMess]) => {
-                    if (existingMess.rows.length > 0) {
-                        //console.log("Message already known in DB",existingMess.rows)
-                        const existingMessage = existingMess.rows[0]
-                        // remove messages older than 24h
-                        if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) {
-                            return removeMsgFromEhboxServer(existingMessage)
+            if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === false) {
+                console.log('Automatic ehbox treatMessage disabled by user param')
+            } else {
+                return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+                    .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
+                    .then(([fullMessage, existingMess]) => {
+                        if (existingMess.rows.length > 0) {
+                            //console.log("Message already known in DB",existingMess.rows)
+                            const existingMessage = existingMess.rows[0]
+                            // remove messages older than 24h
+                            if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) {
+                                return removeMsgFromEhboxServer(existingMessage)
+                            }
+                            return Promise.resolve()
+                        } else {
+                            // console.log('fullMessage',fullMessage)
+                            registerNewMessage(fullMessage, boxId)
+                                .then(([createdMessage, annexDocs]) => {
+                                    return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
+                                })
                         }
-                        return Promise.resolve()
-                    } else {
-                        // console.log('fullMessage',fullMessage)
-                        registerNewMessage(fullMessage, boxId)
-                            .then(([createdMessage, annexDocs]) => {
-                                return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
-                            })
-                    }
-                })
+                    })
+            }
         }
 
         const treatAnnexes = (createdMessage, fullMessage, annexDocs, boxId) => {

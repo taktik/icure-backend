@@ -422,7 +422,7 @@
                                     </template>
 
                                     <div class="horizontal">
-                                        <vaadin-checkbox>Receive mails automatically</vaadin-checkbox>
+                                        <vaadin-checkbox checked="{{receiveMailAuto}}">Receive mails automatically</vaadin-checkbox>
                                     </div>
 
 
@@ -749,18 +749,29 @@
                         value: function () {
                             return [];
                         }
+                    },
+                    receiveMailAuto: {
+                        type: Boolean,
+                        value: true
                     }
 
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_userChanged(user)'];
+                return ['apiReady(api,user,opened)', '_userChanged(user)', '_autoMailChanged(receiveMailAuto)'];
             }
 
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
+                this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true)
+            }
+
+            _autoMailChanged() {
+                const receiveMailAuto = this.receiveMailAuto;
+                localStorage.setItem('receiveMailAuto', receiveMailAuto)
+                console.log('just set receiveMailAuto to ', receiveMailAuto)
             }
 
             showEHPreferrences(user)
