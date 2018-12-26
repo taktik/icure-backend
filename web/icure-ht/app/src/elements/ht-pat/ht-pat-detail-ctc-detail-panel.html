@@ -476,6 +476,13 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<template is="dom-if" if="[[dof.unmappedServices]]">
+							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
+													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
+													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+													 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+													 resources="[[resources]]"></dynamically-loaded-form>
+						</template>
 						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 							<template is="dom-if" if="[[form.id]]">
 								<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
@@ -539,7 +546,9 @@
 			</paper-tooltip>
 		</div>
 
+		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportTemplatesSelectorDataProvider()]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
 		<entity-selector id="add-form-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
+
 		<paper-dialog id="upload-dialog">
 			<h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
@@ -1342,6 +1351,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 	}
 
+    _reportTemplateSelected(e, reportTemplate) {
+	    this.api.doctemplate().getAttachment(reportTemplate.id, reportTemplate.attachmentId).then(dt => {
+	        this.prose
+		})
+    }
+
 	_addedFormSelected(e, formTemplate) {
 		formTemplate && this.addForm(e.detail.guid);
 	}
@@ -1381,7 +1396,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			}, {});
 
 			ctc.services.reduce((map, svc) => {
-				(map[svc.label] || (map[svc.label] = [])).push({ svc: svc, scs: svcMap[svc.id], ctc: ctc });
+				(map[svc.label] || (map[svc.label] = [])).push({ svc: svc, scs: svcMap[svc.id] || [], ctc: ctc });
 				return map;
 			}, map);
 
@@ -1389,6 +1404,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 			return map;
 		}, {}));
+	}
+
+    _virtualForm(services) {
+		return {id:null, template:null}
 	}
 
 	_contactsChanged() {
@@ -1401,13 +1420,15 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
-			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+			ctc: contact,
+			forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
 				const serviceIds = sc.services.map(s => s.serviceId);
 				return {
 					id: sc.formId,
 					docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
 				};
-			}), f => -f.created)
+			}), f => -f.created),
+			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
 		}));
 
 		const climbFormHierarchy = function (formIds, formsCache) {
@@ -1450,7 +1471,34 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		this.root.querySelector('#detailsFiltersPanel').classList.toggle('filters-panel--collapsed');
 	}
 
-	formTemplatesSelectorColumns() {
+    loadTemplate() {
+        this.$['load-template-dialog'].open();
+    }
+
+    reportTemplatesSelectorColumns() {
+        return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
+    }
+
+    reportTemplatesSelectorDataProvider() {
+        return {
+            filter: function (filterValue, limit, offset, sortKey, descending) {
+                const regExp = filterValue && new RegExp(filterValue, "i");
+
+                const all = this.allTemplates || (this.allTemplates = Promise.all([
+                    this.api.doctemplate().findDocumentTemplatesBySpeciality('deptgeneralpractice'),
+                    this.api.doctemplate().findDocumentTemplates()
+                ]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
+
+                return all
+                    .then(fts => {
+                        const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
+                        return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
+                    });
+            }.bind(this)
+        };
+    }
+
+    formTemplatesSelectorColumns() {
 		return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
 	}
 
@@ -1478,6 +1526,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	newReport() {
+
 		this.$['prose-editor'].open()
 	}
 
