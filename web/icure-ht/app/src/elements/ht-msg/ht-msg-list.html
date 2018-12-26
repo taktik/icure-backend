@@ -507,7 +507,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="48px">
                             <template class="header">
-                                [[localize('is_read','Read',language)]]
+                                <vaadin-grid-sorter path="status">[[localize('is_read','Read',language)]]</vaadin-grid-sorter>
+                                <!--[[localize('is_read','Read',language)]]-->
                             </template>
                             <template>
                                 <template is="dom-if" if="[[!isUnread(item)]]">
@@ -696,6 +697,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 });
             }
 
+            getEheIn(){
+                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
+                });
+            }
+
             isUnread(m) {
                 return ((m.status & (1 << 1)) !== 0)
             }
@@ -739,7 +747,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => this.set('messages', messages || []));
             }
 
-            getLabResult(){
+            getLabResult(){ // all labresult
+                console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (!(m.status && 1 << 0 == 0)) {//status labResult
@@ -752,9 +761,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getReport(){
-                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
-                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
-                    this.set('messages', msgs || [])
+                // this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
+                //     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                //     this.set('messages', msgs || [])
+                // });
+                console.log('sent labresult')
+                this.findMessagesByTransportGUID('SENTBOX:*').then(messages => {
+                    let msgsToDisplay = []
+                    messages.map(msg=>{
+                        if (!(msg.status && 1 << 0 == 0)) {//status labResult
+                            msgsToDisplay.push(msg)
+                        }
+                    })
+                    this.set('messages', msgsToDisplay || [])
                 });
             }
 
@@ -781,25 +800,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
-            getEheIn(){
-                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
-                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
-                    this.set('messages', msgs || [])
-                });
-            }
-
 			getChap4In(){
 				this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
 			}
 
-            getProtIn(){
+            getProtIn(){ // assigned labresult
+                console.log('Assigned')
                 this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
                     let msgsToDisplay = []
                     messages.map(msg=>{
-                        if (msg.assignedResults && msg.assignedResults.length >= 0) msgsToDisplay.push(msg)
+                        if (msg.assignedResults) {
+                            let assignedResults = Object.keys(msg.assignedResults).length
+                            let unassignedResults = Object.keys(msg.unassignedResults).length
+                            if (assignedResults > 0 && !unassignedResults) msgsToDisplay.push(msg)
+                        }
                     })
                     this.set('messages', msgsToDisplay || [])
                 });
+            }
+            getUnassigned(){ // unassigned labresult
+                console.log('Unassigned')
+                this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
+                    let msgsToDisplay = []
+                    messages.map(msg=>{
+                        if (msg.unassignedResults && msg.unassignedResults.length > 0) msgsToDisplay.push(msg)
+                    })
+                this.set('messages', msgsToDisplay || [])
+            });
             }
 
             getEheOut(){
@@ -913,6 +940,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         	break;
                         case 'protIn' :
                             this.getProtIn();
+                            break;
+                        case 'unsettedProtIn' :
+                            this.getUnassigned();
                             break;
                         case 'eheOut' :
                             this.getEheOut();

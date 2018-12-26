@@ -170,9 +170,9 @@ onmessage = e => {
         }
 
         const treatMessage =  (message,boxId) => {
-            if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === false) {
-                console.log('Automatic ehbox treatMessage disabled by user param')
-            } else {
+            // if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === false) {
+            //     console.log('Automatic ehbox treatMessage disabled by user param')
+            // } else {
                 return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
                     .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
                     .then(([fullMessage, existingMess]) => {
@@ -192,7 +192,7 @@ onmessage = e => {
                                 })
                         }
                     })
-            }
+            // }
         }
 
         const treatAnnexes = (createdMessage, fullMessage, annexDocs, boxId) => {
