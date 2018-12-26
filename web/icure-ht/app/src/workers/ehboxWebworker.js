@@ -57,24 +57,24 @@ onmessage = e => {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                console.log('remove',idOfMsg,thisBox,delBox)
-                if (!msg.transportGuid.startsWith("BIN")) {
-                    console.log('move to bin',idOfMsg,thisBox,delBox)
+                // console.log('remove',idOfMsg,thisBox,delBox)
+                if (msg.transportGuid && !msg.transportGuid.startsWith("BIN")) {
+                    // console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
+                            // console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             msgApi.modifyMessage(msg).then(()=> {
-                                console.log('modify done',idOfMsg,thisBox,delBox)
+                                // console.log('modify done',idOfMsg,thisBox,delBox)
 
                             } )
                         })
                         .catch(err => {
-                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
                     console.log('delete',idOfMsg,thisBox,delBox)
-                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], delBox)
                 }
             }
         }
@@ -84,19 +84,19 @@ onmessage = e => {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                console.log('remove from server',idOfMsg,thisBox,delBox)
-                if (!thisBox.transportGuid.startsWith("BIN")) {
-                    console.log('move to bin',idOfMsg,thisBox,delBox)
+                // console.log('remove from server',idOfMsg,thisBox,delBox)
+                if (thisBox.transportGuid && !thisBox.transportGuid.startsWith("BIN")) {
+                    // console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('move to bin done',idOfMsg,thisBox,delBox)
+                            // console.log('move to bin done',idOfMsg,thisBox,delBox)
                         })
                         .catch(err => {
-                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
-                    console.log('delete',idOfMsg,thisBox)
-                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox)
+                    // console.log('delete',idOfMsg,thisBox)
+                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox)
                 }
             }
         }
@@ -170,7 +170,7 @@ onmessage = e => {
         }
 
         const treatMessage =  (message,boxId) => {
-            // if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === false) {
+            // if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === 'false') {
             //     console.log('Automatic ehbox treatMessage disabled by user param')
             // } else {
                 return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
@@ -316,7 +316,7 @@ onmessage = e => {
                     messages.forEach(m => {
                         p = p.then(() => {
                             return treatMessage(m, boxId)
-                                .catch(e => {console.log("Error processing message "+m.id); return Promise.resolve()})
+                                .catch(e => {console.log("Error processing message "+m.id,e); return Promise.resolve()})
                         })
                     })
                     return p

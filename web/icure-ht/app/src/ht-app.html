@@ -1260,35 +1260,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
-                const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
-                this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
+                if (localStorage.getItem('receiveMailAuto') == 'true') {
+                    const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+                    this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
-                this.worker = new Worker()
+                    this.worker = new Worker()
 
-                this.getAlternateKeystores().then(alternateKeystores => {
-                    this.worker.postMessage({
-                        action: "loadEhboxMessage",
-						hcpartyBaseApi: this.api.hcpartyLight(),
-                        fhcHost: this.api.fhc().host,
-                        fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                        iccHost: this.api.host,
-                        iccHeaders: JSON.stringify(this.api.headers),
-                        tokenId: this.api.tokenId,
-                        keystoreId: this.api.keystoreId,
-                        user: this.user,
-                        ehpassword: this.credentials.ehpassword,
-                        boxId: ["INBOX","SENTBOX"],
-                        alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
-                        keyPair: keyPair
+                    this.getAlternateKeystores().then(alternateKeystores => {
+                        this.worker.postMessage({
+                            action: "loadEhboxMessage",
+                            hcpartyBaseApi: this.api.hcpartyLight(),
+                            fhcHost: this.api.fhc().host,
+                            fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                            iccHost: this.api.host,
+                            iccHeaders: JSON.stringify(this.api.headers),
+                            tokenId: this.api.tokenId,
+                            keystoreId: this.api.keystoreId,
+                            user: this.user,
+                            ehpassword: this.credentials.ehpassword,
+                            boxId: ["INBOX","SENTBOX"],
+                            alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
+                            keyPair: keyPair
+                        })
                     })
-				})
 
-                this.worker.onmessage = e => {
-                    this.set('ehboxWebWorkerMessage', e.data.message)
-                    this.$.ehboxInboxMessage.classList.add('notificationEhbox')
-                    console.log("Le worker à repondu " + e.data.message)
+                    this.worker.onmessage = e => {
+                        this.set('ehboxWebWorkerMessage', e.data.message)
+                        this.$.ehboxInboxMessage.classList.add('notificationEhbox')
+                        console.log("Le worker à repondu " + e.data.message)
+                    }
+
+                } else {
+                    // this.set('ehboxWebWorkerMessage', 'Réception automatique désactivée')
+                    // this.$.ehboxInboxMessage.classList.add('notificationEhbox')
+                    console.log('check ehbox prevent from user param')
                 }
-
             }
 
 			getAlternateKeystores(){
