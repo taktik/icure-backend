@@ -80,7 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.card-title {
 				padding: 0;
 				margin: 0;
-				font-this: 16spx;
+				font-size: 16px;
 				font-weight: bold;
 				text-align: center;
 				color: var(--app-text-color);
@@ -142,20 +142,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.consultations-patient-name {
-				font-this: 14spx;
+				font-size: 14px;
 				font-weight: bold;
 				margin-right: 16px;
 				text-transform: capitalize;
 			}
 
 			.consultations-message-texte {
-				font-this: 14spx;
+				font-size: 14px;
 				margin-right: 16px;
 			}
 
 			.consultations-patient-type {
 				color: var(--app-secondary-color);
-				font-this: 14spx;
+				font-size: 14px;
 				margin-right: 16px;
 			}
 
@@ -165,13 +165,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.consultations-time {
-				font-this: 14spx;
+				font-size: 14px;
 				text-align: right;
 				margin-left: 16px;
 			}
 
 			.card-table-header {
-				font-this: 10spx;
+				font-size: 10px;
 				text-transform: uppercase;
 				text-align: left;
 			}
@@ -210,12 +210,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: center;
 				flex-wrap: nowrap;
 				align-items: center;
-				font-this: 14spx;
+				font-size: 14px;
 				font-weight:600;
 			}
 
 			.card-table-cell {
-				font-this: 14spx;
+				font-size: 14px;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 				overflow: hidden;
@@ -254,7 +254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-this:14psx;
+				font-size:14psx;
 				font-style:italic;
 			}
 
@@ -303,7 +303,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 			@media (max-width: 1024px) {
-				.grid-container {
+				/* .grid-container {
 					display:grid;
 					width:100%;
 					height:100%;
@@ -311,7 +311,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-template-rows: 1fr 1fr;
 					grid-column-gap: 24px;
 					grid-row-gap: 24px;
-				}
+				} */
 				.card {
 					overflow:hidden;
 				}
@@ -495,7 +495,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 			}
 
-			.layout-a{
+			/* .layout-a{
 				grid-template-columns: repeat(2, 1fr);
 				grid-template-rows: repeat(3, 1fr);
 			}
@@ -513,14 +513,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.layout-a span, .layout-b span, .layout-c span{
 				grid-column:  span 1;
 				grid-row: span 1;
-			}
+			} */
 
 			.layout-button span{
 				background: var(--app-background-color-dark);
 				position: relative;
 			}
 
-			.layout-a span:first-child{
+			/* .layout-a span:first-child{
 				grid-column: 1 / span 1;
 				grid-row: 1 / span 3;
 			}
@@ -533,7 +533,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.layout-c span:first-child{
 				grid-column: 1 / span 4;
 				grid-row: span 1;
-			}
+			} */
 
 			paper-menu-button.widget-settings-menu div{
 				width: 160px;
@@ -546,7 +546,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background-color: var(--app-secondary-color);
 				color: var(--app-text-color);
 				text-transform: capitalize;
-				font-this: 14spx;
+				font-size: 14px;
 				font-weight: 500;
 				border-radius: 0;
 			}
@@ -711,6 +711,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 					</div>
 				</template>
+				<template is="dom-if" if="[[_isEqual(widget.id,'empty')]]">
+					<div id="[[widget.id]]" class="card empty-card" draggable="true" style="--area:todoWidget;">
+					</div>
+				</template>
 			</template>
 		</div>
 
@@ -743,7 +747,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<slot name="suffix"></slot>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" on-tap="getSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button" on-tap="setFromSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('apply','Apply',language)]]</paper-button>
 			</div>
 		</paper-dialog>
@@ -823,29 +827,25 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						id: "latestPatientsWidget",
 						nrRows: 3,
 						nrCols: 1,
-						posRow: 0,
-						posCol: 0
+						order: 0
 					},
 					{
 						id: "todaysConsultationsWidget",
 						nrRows: 1,
 						nrCols: 1,
-						posRow: 0,
-						posCol: 1
+						order: 1
 					},
 					{
 						id: "latestLabResultsWidget",
 						nrRows: 1,
 						nrCols: 1,
-						posRow:	1,
-						posCol: 1
+						order: 2
 					},
 					{
 						id: "todoWidget",
 						nrRows: 1,
 						nrCols: 1,
-						posRow: 2,
-						posCol: 1
+						order: 3
 					}
 				],
 				notify: true,
@@ -960,7 +960,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}).then(services => this.set('services', (services || []).filter(it => it.patient)));
 			this._isLoadingToDoList = false;
 
-			this.initGrid()
+			this.setFromSavedLayout()
 
 		});
 	}
@@ -1018,36 +1018,71 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		})
 
 		this.set('selectedLayout', e.currentTarget.id)
-		const strings = this.layoutGrid.setGridSize(this.selectedLayout).init().fill(this.widgets).save(this.user).styleStrings
-		this.setStyles(strings)
+
+		this.updateGrid(false)
 
 	}
 
-	initGrid() {
+	saveSelectedLayout(e) {
+
+		e.preventDefault();
+
+		this.updateGrid()
+
+	}
+
+	setFromSavedLayout() {
 
 		this.widgets.map(widget => {
 			this.updateWidgetStyle(widget)
 		})
 		
+		const storage = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
+
+		if(storage) this.set('selectedLayout', storage.layout)
+
 		const strings = this.layoutGrid.setFromStorage(this.user, this.widgets).styleStrings
 		this.setStyles( strings )
 
 	}
 
+	updateGrid(save = true) {
+
+		this.sanitizeEmpties()
+
+		const strings = this.layoutGrid
+			.setGridSize(this.selectedLayout)
+			.init()
+			.fill(this.widgets)
+			.styleStrings
+
+		const empties = this.layoutGrid.getEmptySpaces()
+		this.push('widgets', ...empties)
+
+		this.setStyles(strings)
+
+		if(save) this.layoutGrid.save(this.user)
+	}
+
+	sanitizeEmpties() {
+		this.set('widgets', this.widgets.filter( widget => !widget.id.includes('empty')))
+	}
+
 	setStyles( styleStrings ) {
-		this.updateStyles({ '--grid-columns': styleStrings.gridCol }, { '--grid-rows': styleStrings.gridRow })
+		this.updateStyles({ '--grid-columns': styleStrings.gridCol , '--grid-rows': styleStrings.gridRow })
 		this.updateStyles({ '--grid-layout': styleStrings.templateArea })
 	}
 
-	_updateWidgetSize(e) {
+	// _updateWidgetSize(e) {
 
-		// console.log(e);
-		const widget = null;
-	}
+	// 	// console.log(e);
+	// 	const widget = null;
+	// }
 
 	_handleWidgetChange(e){
 
-		this.updateWidgetSize(JSON.parse(e.target.dataset.item));
+		// this.updateWidgetSize(JSON.parse(e.target.dataset.item));
+		this.updateGrid()
 
 	}
 
@@ -1099,14 +1134,17 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const idx1 = this.widgets.findIndex(k => k.id === this.dragSrcEl)
 		const idx2 = this.widgets.findIndex(k => k.id === elToSwap )
 		// let temp = 	this.widgets[idx2];
-		let temp = this.widgets[idx2]
+		let tempOrder = this.widgets[idx2].order
 
-		this.widgets[idx2].posCol = this.widgets[idx1].posCol;
-		this.widgets[idx2].posRow = this.widgets[idx1].posRow;
-		this.widgets[idx1].posCol = temp.posCol;
-		this.widgets[idx1].posRow = temp.posRow;
+		// this.widgets[idx2].posCol = this.widgets[idx1].posCol;
+		// this.widgets[idx2].posRow = this.widgets[idx1].posRow;
+		// this.widgets[idx1].posCol = temp.posCol;
+		// this.widgets[idx1].posRow = temp.posRow;
 
-		this.applySelectedLayout()
+		this.widgets[idx2].order = this.widgets[idx1].order;
+		this.widgets[idx1].order = tempOrder;
+
+		this.updateGrid(false)
 
 		// const copy = this.widgets; 
 		// this.set('widgets', []); 
@@ -1115,9 +1153,13 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	widgetsChanged(e){
 
-		
-
 		// this.getSavedLayout()
+		const path = e.path
+
+		if(path) {
+			if(e.path.includes('empty') || e.path.includes('widgets')) return 
+		}
+		this.updateGrid()
 
 	}
 
@@ -1142,7 +1184,7 @@ class GridLayout {
 		for (let row = 0; row < this.rows; row++) {
 			grid.push([])
 			for (let col = 0; col < this.cols; col++) {
-				grid[row][col] = null
+				grid[row][col] = 'empty'
 			}
 		}
 
@@ -1154,27 +1196,106 @@ class GridLayout {
 
 	fill(widgets) {
 
+		const widgetsInOrder = widgets.sort( (a, b) => a.order - b.order )
+
+		widgetsInOrder.map( (widget, index) => {
+
+			let posMain = this.findSpace(index, widgetsInOrder.length)
+
+			for( let rowIndex = 0; rowIndex < widget.nrRows; rowIndex++ ){
+
+				if (this.grid[posMain.row + rowIndex] !== undefined) {
+
+					for( let colIndex = 0; colIndex < widget.nrCols; colIndex++ ) {
+
+						if(this.grid[posMain.row + rowIndex][posMain.col + colIndex] !== undefined)
+							this.grid[posMain.row + rowIndex][posMain.col + colIndex] = widget.id
+
+
+					}
+
+				}
+
+			}
+
+		})
+
+		return this;
+
+	}
+
+	getEmptySpaces() {
+
+		const empties = []
+
+		for (let rowIndex in this.grid) {
+				for (let colIndex in this.grid[rowIndex]) {
+
+					if( this.grid[rowIndex][colIndex] === 'empty' ) 
+					
+						empties.push({
+							id: "empty",
+							nrRows: 1,
+							nrCols: 1,
+							order: 9999
+						})
+					
+
+				}
+		}
+
+		return empties
+
+	}
+
+
+
+	findSpace( index,length ) {
+
+		let posMain = { row: 0, col: 0 }
+
+		let foundSpace = false;
+
 		for (let rowIndex = 0; rowIndex < this.grid.length; rowIndex++) {
 			for (let colIndex = 0; colIndex < this.grid[rowIndex].length; colIndex++) {
 
-				widgets.map(widget => {
+				if (this.grid[rowIndex][colIndex] == 'empty' && !foundSpace) {
 
-					if (
-						parseInt(widget.posCol) <= colIndex &&
-						parseInt(widget.posRow) <= rowIndex &&
-						parseInt(widget.posCol) + parseInt(widget.nrCols) > colIndex &&
-						parseInt(widget.posRow) + parseInt(widget.nrRows) > rowIndex
-					) {
-						this.grid[rowIndex][colIndex] = widget.id
-					}
+					posMain.row = rowIndex;
+					posMain.col = colIndex;
 
-				})
+					foundSpace = true;
+
+				}
 
 			}
 		}
 
-		return this;
+		if(!foundSpace) {
 
+			//force placement at the back of the grid if no place available anymore
+
+			const indexBeforeLast = length - 1 - index
+			let indexCounter = 0
+
+			for (let rowIndex = this.grid.length - 1; rowIndex >= 0; rowIndex--) {
+				for (let colIndex = this.grid[rowIndex].length - 1; colIndex >= 0; colIndex--) {
+
+					if (indexCounter === indexBeforeLast) {
+
+						posMain.row = rowIndex
+						posMain.col = colIndex
+
+					}
+
+					indexCounter++;
+
+				}
+			}
+
+		}
+
+		return posMain
 	}
 
 	setFromStorage(user, widgets) { 
