@@ -3230,16 +3230,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 if(out && out.length){
                                     //find all patient insurabilities where insuranceId = out[0].Id and endDate is null or > today
                                     let lpiFound = false;
-                                    let insuId = '';
-                                    for (let i = 0; i < out.length; i++) {
-                                        lpiFound = lpi.filter(function(p){
-                                            return  p.insuranceId === out[i].id && !(p.endDate);
-                                        })
-                                        if(lpiFound && lpiFound.length) {
-                                            insuId = out[i].id;
-                                            break;
-                                        };
-                                    }
+                                    let insuId = (out.find(insu =>{
+                                         lpiFound = lpi.filter(l => l.insuranceId===insu && (!l.endDate || l.endDate===""))
+                                         return lpiFound && lpiFound.length
+                                    })|| {id:false}).id
                                     if(lpiFound && lpiFound.length){
                                         lpiFound.map(p => {
                                             //1 if found: check if CT1/2 is changed
@@ -3278,10 +3272,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 if(!p.endDate) p.endDate = moment().format('YYYYMMDD');
                                             }
                                         );
-                                        this.patient.insurabilities.push(newP);
+                                        this.push("patient.insurabilities",newP);
                                         if (patient === this.patient) {
                                             this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                                return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer))
+                                                return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => this.set("patient",p))
                                             })
                                         }
                                     }
