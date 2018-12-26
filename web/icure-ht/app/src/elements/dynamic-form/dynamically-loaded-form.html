@@ -162,7 +162,7 @@
             }
 
             static get observers() {
-                return ["_loadReports(form.reports.*)", "_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
+                return ["_loadReports(form.template.reports.*, form.template.layout)", "_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
             }
 
             constructor() {
@@ -244,19 +244,30 @@
             }
 
             _loadReports() {
-            	if (!this.forms || !this.form.reports) { this.formReports = [{name:'Report'}]; return }
-            	Promise.all(this.form.reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
+                const reports = this.form && this.form.template && this.form.template.reports || []
+                this.form && this.form.template && this.form.template.layout && this.form.template.layout.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(field => {
+				    if (field.type === 'Action') {
+				        //reports.push()
+					}
+				})))
+
+            	Promise.all(reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
 					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
 			}
 
             _prepareDataProvider() {
                 if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
                     this.set('dataProvider', this.getDataProvider(this.form, ''));
-                    this.set('dataMap', _.fromPairs(this.form.template.layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
-                        const sc = c.subContacts.find(sc => sc.formId === this.form.id);
-                        return sc ? c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) : [];
+                    this.set('dataMap', _.fromPairs((this.form.template || {}).layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
+                        const sc = this.form.id && c.subContacts.find(sc => sc.formId === this.form.id);
+                        if (sc) {
+                            return c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s])
+						} else {
+                            const idsInScs = c.subContacts.flatMap(sc => sc.services.map(s => s.serviceId))
+                            return c.services.filter(s => !idsInScs.includes(s.id)).map(s => [s.label, s])
+						}
                     }))));
-                    if (!this.form.template.layout) {
+                    if (!this.form.template || !this.form.template.layout) {
                         this.set('form.template.layout', {
                             sections: [{
                                 formColumns: [{
@@ -612,7 +623,10 @@
                             return {
                                 dataMap: _.fromPairs(_.flatten(_.flatten(subForm.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])),
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
-                                template: subForm.template.layout
+                                template: subForm.template.layout,
+								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
+									.concat(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction'))))
+									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
                             };
                         });
                     }.bind(this),
@@ -759,7 +773,7 @@
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
             servicesInForm(formId, label) {
                 const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
-                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId)) //Extract all services which appear at some point in that form
+                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || ((!ss.scs || !ss.scs.length) && !formId)) //Extract all services which appear at some point in that form
                         .map(ss => ss.svc.id)) //Get their ids
                         .map(id => _.sortBy(svcStructs.filter(ss => ss.svc.id === id), ss => -ss.svc.modified)) //Sort them by modified for each id
                         .filter(svcHistory => svcHistory.length) //Keep the ones with a history

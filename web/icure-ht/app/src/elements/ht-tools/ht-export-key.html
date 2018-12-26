@@ -58,9 +58,10 @@
 
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
-			<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+			<div id="printable"><qrcode-printer id="qrcode_printer" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			<div class="buttons">
 				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="_print">[[localize('print','Print',language)]]</paper-button>
 				<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
@@ -181,6 +182,10 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 
 	close() {
 		this.$.dialog.close();
+	}
+
+	_print(){
+		this.$["qrcode_printer"]
 	}
 }
 customElements.define(HtExportKey.is, HtExportKey);
