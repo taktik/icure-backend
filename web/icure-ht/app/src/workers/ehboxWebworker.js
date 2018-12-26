@@ -255,6 +255,15 @@ onmessage = e => {
             let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
             let receivedDate = new Date().getTime()
 
+            let tempStatus = fullMessage.status ? fullMessage.status : 0<<0 | 1<<1
+            if (!fullMessage.status ) {
+                tempStatus = fullMessage && fullMessage.important ? tempStatus|1<<2 : tempStatus
+                tempStatus = fullMessage && fullMessage.encrypted ? tempStatus|1<<3 : tempStatus
+                tempStatus = fullMessage && fullMessage.annex.length ? tempStatus|1<<4 : tempStatus
+            }
+            console.log('status',tempStatus)
+
+
             let newMessage = {
                 created: createdDate,
                 fromAddress: getFromAddress(fullMessage.sender),
@@ -263,9 +272,11 @@ onmessage = e => {
                 toAddresses: [boxId],
                 transportGuid: boxId + ":" + fullMessage.id,
                 fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
-                received: receivedDate
+                received: receivedDate,
+                status: tempStatus
             }
-            console.log('Unknown message : ', newMessage)
+            console.log('new message : ', newMessage)
+            // console.log('its status', isUnread(fullMessage), isImportant(fullMessage), isCrypted(fullMessage))
 
             return iccMessageXApi.newInstance(user, newMessage)
                 .then(messageInstance => msgApi.createMessage(messageInstance))
@@ -314,6 +325,7 @@ onmessage = e => {
                 .then(messages => {
                     let p = Promise.resolve([])
                     messages.forEach(m => {
+                        console.log(m,'its status', isUnread(m), isImportant(m), isCrypted(m))
                         p = p.then(() => {
                             return treatMessage(m, boxId)
                                 .catch(e => {console.log("Error processing message "+m.id,e); return Promise.resolve()})
@@ -327,16 +339,16 @@ onmessage = e => {
 };
 
 function isUnread(m) {
-    return ((m.status & (1 << 1)) !== 0)
+    return (m.status & (1 << 1))
 }
 function isImportant(m) {
-    return ((m.status & (1 << 2)) !== 0)
+    return (m.status & (1 << 2))
 }
 function isCrypted(m) {
-    return ((m.status & (1 << 3)) !== 0)
+    return (m.status & (1 << 3))
 }
 function hasAnnex(m) {
-    return ((m.status & (1 << 4)) !== 0)
+    return (m.status & (1 << 4))
 }
 
 function getFromAddress(sender){

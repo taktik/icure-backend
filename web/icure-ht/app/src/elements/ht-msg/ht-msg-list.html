@@ -491,16 +491,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="cell frozen">
                                     <b>[[item.fromAddress]]</b> - [[item.subject]]
                                     <template is="dom-if" if="[[isImportant(item)]]">
-                                        <iron-icon id="[[item.id]]-important" icon="warning"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-important">Important</paper-tooltip>
+                                        <iron-icon id="[[item.created]]-important" icon="warning"></iron-icon>
+                                        <!--<paper-tooltip for="[[item.created]]-important">[[localize('significant','important',language)]]</paper-tooltip>-->
                                     </template>
                                     <template is="dom-if" if="[[isCrypted(item)]]">
-                                        <iron-icon id="[[item.id]]-crypted" icon="lock"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-crypted">Crypted</paper-tooltip>
+                                        <iron-icon id="[[item.created]]-crypted" icon="lock"></iron-icon>
+                                        <!--<paper-tooltip for="[[item.created]]-crypted">[[localize('encrypted','encrypted',language)]]</paper-tooltip>-->
                                     </template>
                                     <template is="dom-if" if="[[hasAnnex(item)]]">
-                                        <iron-icon id="[[item.id]]-hasAnnex" icon="editor:attach-file"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-hasAnnex">Attachments</paper-tooltip>
+                                        <iron-icon id="[[item.created]]-hasAnnex" icon="editor:attach-file"></iron-icon>
+                                        <!--<paper-tooltip for="[[item.created]]-hasAnnex">[[localize('attachments','attachments',language)]]</paper-tooltip>-->
                                     </template>
                                 </div>
                             </template>
@@ -705,22 +705,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             isUnread(m) {
-                return ((m.status & (1 << 1)) !== 0)
+                return (m.status & (1 << 1)) !== 0 ? true : false
             }
             isImportant(m) {
-                return ((m.status & (1 << 2)) !== 0)
+                return (m.status & (1 << 2)) !== 0 ? true : false
             }
             isCrypted(m) {
-                return ((m.status & (1 << 3)) !== 0)
+                return (m.status & (1 << 3)) !== 0 ? true : false
             }
             hasAnnex(m) {
-                return ((m.status & (1 << 4)) !== 0)
+                return (m.status & (1 << 4)) !== 0 ? true : false
             }
 
             getUnreadEmail() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 1 == 0)) {//status unread
+                        if (!(m.status & 1 << 1 == 0)) {//status unread
                             acc.push(m)
                         }
                         return acc
@@ -738,7 +738,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getSubmitMessages(){
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                        if (!(m.status & 1 << 8 == 0)) {//status STATUS_SUBMITTED
                             acc.push(m)
                         }
                         return acc
@@ -751,7 +751,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 0 == 0)) {//status labResult
+                        if ((m.assignedResults && m.unassignedResults) && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
                             acc.push(m)
                         }
                         return acc
@@ -766,15 +766,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //     this.set('messages', msgs || [])
                 // });
                 console.log('sent labresult')
-                this.findMessagesByTransportGUID('SENTBOX:*').then(messages => {
-                    let msgsToDisplay = []
-                    messages.map(msg=>{
-                        if (!(msg.status && 1 << 0 == 0)) {//status labResult
-                            msgsToDisplay.push(msg)
+                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        console.log(m,'sentlabres',m.status,(m.status & (1 << 0)) )
+                        if (m.status & (1 << 0)) {//status labResult
+                            acc.push(m)
                         }
-                    })
-                    this.set('messages', msgsToDisplay || [])
-                });
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
+                }).then(messages => this.set('messages', messages || []));
             }
 
             getEInv(){

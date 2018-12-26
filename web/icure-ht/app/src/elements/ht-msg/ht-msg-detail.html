@@ -466,6 +466,7 @@
                 padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
 				height: 40px;
+                z-index: 10;
             }
             .action-buttons > .buttons {
                 float: left;
@@ -1209,6 +1210,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
+            // tempSelect.status | 0<<1
             console.log('thisDocument',this.thisDocument)
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
