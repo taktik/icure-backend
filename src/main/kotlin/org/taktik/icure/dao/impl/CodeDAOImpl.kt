@@ -124,12 +124,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         )
 
         return pagedQueryView(
-                "by_region_type_code_version",
-                from,
-                to,
-			paginationOffset,
-                true
-        )
+            "by_region_type_code_version",
+            from,
+            to,
+            paginationOffset,
+            false
+                             )
     }
 
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
@@ -155,12 +155,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         )
 
         return pagedQueryView(
-                "by_language_label",
-                from,
-                to,
-                pagination,
-                true
-        )
+            "by_language_label",
+            from,
+            to,
+            pagination,
+            false
+                             )
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
@@ -188,12 +188,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 		)
 
         return pagedQueryView(
-                "by_language_type_label",
-                from,
-                to,
-                pagination,
-                true
-        )
+            "by_language_type_label",
+            from,
+            to,
+            pagination,
+            false
+                             )
     }
 
 	override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {

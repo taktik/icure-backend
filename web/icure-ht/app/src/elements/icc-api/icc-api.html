@@ -113,8 +113,8 @@
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
-            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
@@ -357,7 +357,7 @@
 
         getRowsUsingPagination(paginator) {
             const executePaginator = (latestResult, acc) =>
-                paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
+                paginator(latestResult.nextKey,latestResult.nextDocId).then((newResult) => {
                     acc.push(...newResult.rows)
                     return newResult.done ? acc : executePaginator(newResult, acc)
                 })
@@ -374,7 +374,8 @@
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
-            }, {})))
+            }, {}))
+            ).catch(() => setTimeout(() => this.loadUsersAndHcParties(), 10000))
         }
 
         unregisterAll(domain) {

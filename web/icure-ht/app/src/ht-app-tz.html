@@ -64,6 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-welcome-tz.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
+<link rel="import" href="elements/ht-app/ht-app-entities-selector.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
@@ -516,6 +517,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
+
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]"></ht-app-entities-selector>
+
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
         <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
@@ -1125,7 +1129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved">
+                            on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
@@ -1310,6 +1314,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     showWelcomePage: {
                         type: Boolean,
                         value: false
+                    },
+                    entities:{
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1375,9 +1383,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
-                    if (newTimer > 0) {
-                        this.set('disconnectionTimer', newTimer)
+                    const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
+                    if (timeBeforeDeconnection > 0) {
+                        this.set('disconnectionTimer', timeBeforeDeconnection)
                     } else {
                         const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
@@ -1497,6 +1505,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['ht-my-profile'].open()
             }
 
+            _selectEntities(){
+                this.$['ht-app-account-selector'].open()
+            }
+
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
@@ -1588,6 +1600,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
+                    //this._selectEntities()
                     })
                 }).catch(function (e) {
                     this.authenticated = false

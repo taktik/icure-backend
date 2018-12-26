@@ -21,7 +21,6 @@ package org.taktik.icure.dao.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ektorp.ComplexKey;
 import org.ektorp.ViewResult;
-import org.ektorp.support.Filter;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -66,14 +65,14 @@ class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements H
 	@Override
 	@View(name = "by_speciality_postcode", map = "classpath:js/healthcareparty/By_speciality_postcode.js")
 	public PaginatedList<HealthcareParty> findBySpecialityPostcode(String type, String spec, String firstCode, String lastCode) {
-		return pagedQueryView("by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), new PaginationOffset(10000),true);
+		return pagedQueryView("by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), new PaginationOffset(10000), false);
 	}
 
 
 	@Override
 	@View(name = "allForPagination", map = "classpath:js/healthcareparty/All_for_pagination.js")
 	public PaginatedList<HealthcareParty> listHealthCareParties(PaginationOffset pagination, Boolean desc) {
-		return pagedQueryView("allForPagination", pagination.getStartKey() != null ? pagination.getStartKey().toString() : (desc != null && desc ? "\ufff0" : "\u0000"), (desc != null && desc ? "\u0000" : "\ufff0"), pagination, true, desc==null?false:desc);
+		return pagedQueryView("allForPagination", pagination.getStartKey() != null ? pagination.getStartKey().toString() : (desc != null && desc ? "\ufff0" : "\u0000"), (desc != null && desc ? "\u0000" : "\ufff0"), pagination, desc==null?false:desc);
 	}
 
 	@Override
@@ -89,7 +88,7 @@ class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements H
 		String from = (offset.getStartKey() == null) ? (isDesc ? searchValue + "\ufff0" : searchValue) : offset.getStartKey();
 		String to = searchValue != null ? (isDesc ? searchValue : searchValue + "\ufff0") : (isDesc ? null : "\ufff0");
 
-		return pagedQueryView("by_ssin_or_nihii", from, to, offset, true, isDesc);
+		return pagedQueryView("by_ssin_or_nihii", from, to, offset, isDesc);
 	}
 
 	@Override
@@ -100,7 +99,7 @@ class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements H
 		String from = (offset.getStartKey() == null) ? (isDesc ? r + "\ufff0" : r) : (String) offset.getStartKey();
 		String to = r != null ? (isDesc ? r : r + "\ufff0") : (isDesc ? null : "\ufff0");
 
-		return pagedQueryView("by_hcParty_name", from, to, offset, true, isDesc);
+		return pagedQueryView("by_hcParty_name", from, to, offset, isDesc);
 	}
 
 	@Override
