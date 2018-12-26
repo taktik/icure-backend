@@ -160,6 +160,9 @@
             <template is="dom-if" if="[[downloadable]]">
                 <paper-card class="pat-details-card">
                     <span>[[document.name]]</span>
+                    <template is="dom-if" if="[[preview]]">
+                        <pre class="txt-container">[[attachmentContent]]</pre>
+                    </template>
                     <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                         [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
                     </div>
@@ -195,6 +198,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             mailbody:{
 			    type: Boolean
+            },
+            preview:{
+                type: Boolean,
+                value: false,
             },
 			document: {
 				type: Object,

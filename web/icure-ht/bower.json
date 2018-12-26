@@ -55,7 +55,7 @@
     "vaadin-upload": "https://github.com/taktik/vaadin-upload.git#0cce7a4827c1340d5aefc7854dd0ce94868837ea",
     "base64-js": "^1.2.1",
     "webcrypto-shim": "^0.1.2",
-    "tk-token-field": "https://github.com/taktik/tk-token-field.git#6b204d1e953da3da7a008233878bb5e630f992fd",
+    "tk-token-field": "https://github.com/taktik/tk-token-field.git#272c42f9f8dfbda49fab8fa5f388f21dd0064711",
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1",
     "pako": "^1.0.6",
     "vaadin-material-theme": "vaadin/vaadin-material-theme#^0.3.0",
