@@ -1211,13 +1211,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
-            // mark as read
-            let tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
-            const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
-            tempSelect.status = parseInt(a+'0'+b,2)
+            if (tempSelect.status) { // mark as read
+                const tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
+                const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
+                if (this.isUnread(tempSelect)) { // if message was not read, else do nothing
+                    tempSelect.status = parseInt(a+'0'+b,2)
+                    this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
+                }
+            }
             // treatment
-	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
-            this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
+	        console.log('this message',tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
                     // console.log('docs',docs)
@@ -1262,7 +1265,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.getChildren(tempSelect.id)
                     this.set('hasUnassignedResults', false)
                 }
-                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
@@ -1805,6 +1807,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return rawFile.responseText.startsWith('A1/')
             }
         }
+    }
+
+    isUnread(m) {
+        return (m.status & (1 << 1)) !== 0 ? true : false
     }
 }
 
