@@ -45,6 +45,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: calc(100% - 52px);
 				grid-template-columns: var(--grid-columns);
 				grid-template-rows: var(--grid-rows);
+
+				grid-template-areas: var(--grid-layout);
 				grid-column-gap: 24px;
   				grid-row-gap: 24px;
 			}
@@ -252,14 +254,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-size:14px;
+				font-size:14psx;
 				font-style:italic;
 			}
 
 			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
-				--columns: 1;
+				/* --columns: 1;
 				--rows: 1;
-				grid-area: span var(--rows) / span var(--columns);
+				--row: 0;
+				--col: 0; */
+				/* grid-area: var(--row) / var(--col) / span var(--rows) / span var(--columns); */
+				grid-area: var(--area);
 			}
 
 			a {
@@ -299,30 +304,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			@media (max-width: 1024px) {
 				.grid-container {
-					display:grid;
-					width:100%;
-					height:100%;
-					grid-template-columns: 1fr 1fr 1fr 1fr;
-					grid-template-rows: 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
+					/* display:grid; */
+					/* width:100%;
+					height:100%; */
+					/* grid-template-columns: 1fr 1fr 1fr 1fr;
+					grid-template-rows: 1fr 1fr; */
+					grid-column-gap: 12px;
+					grid-row-gap: 12px;
 				}
+				
 				.card {
 					overflow:hidden;
 				}
-				.latest-patients-card {
-					grid-area: 1 / 1 / span 1 / span 3;
-				}
-				.todays-consultations {
-					grid-area: 1 / 4 / span 1 / span 1;
-				}
-				.latest-lab-result {
-					grid-area: 2 / 1 / span 1 / span 2;
-				}
-
-				.todo-card {
-					grid-area: 2 / 3 / span 1 / span 2;
-				}
+			
 				.card-body {
 					overflow-x: hidden;
 					overflow-y: scroll;
@@ -348,59 +342,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			@media (max-width: 768px) {
+			@media (max-width: 950px) {
 				.grid-container {
-					grid-template-columns: 1fr 1fr 1fr 1fr;
-					grid-template-rows: 1fr 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
-				}
-				.latest-patients-card {
-					grid-area: 1 / 1 / span 1 / span 4;
-				}
-				.todays-consultations {
-					grid-area: 2 / 1 / span 1 / span 2;
-				}
-				.latest-lab-result {
-					grid-area: 2 / 3 / span 1 / span 2 ;
+					height: calc(3 * 50%);
+					padding-bottom: 24px;
 				}
 
-				.todo-card {
-					grid-area: 3  / 1 / span 1 / span 4;
+				.layout-buttons paper-icon-button{
+					display: none;
 				}
 			}
 
-			@media (max-width: 420px) {
+			@media (max-width: 600px) {
 				.grid-container {
-					grid-template-columns: 1fr;
-					grid-template-rows: 1fr 1fr 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
-				}
-				.latest-patients-card {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 1;
-					grid-row-end: span 1;
-				}
-				.todays-consultations {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 2;
-					grid-row-end: span 1;
-				}
-				.latest-lab-result {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 3;
-					grid-row-end: span 1;
-				}
-
-				.todo-card {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 4;
-					grid-row-end: span 1;
+					height: calc( 6 * 50% );
 				}
 			}
 
@@ -429,6 +384,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					background-color: var(--app-background-color-dark);
 				}
 			}
+
 
 			#layoutDialog, #widgetSettingsDialog{
 				height: 30%;
@@ -567,15 +523,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="layout-buttons">
-			<paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button>
+			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
 			<paper-icon-button id="changeLayoutButton" icon="dashboard" on-tap="_layoutDialog"></paper-icon-button>
-			<paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip>
+			<!-- <paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip> -->
 			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
 		</div>
 		<div id="gridContainer" class="grid-container ">
 			<template is="dom-repeat" items="{{widgets}}" as="widget">
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestPatientsWidget')]]">
-					<div id="[[widget.id]]" class="card latest-patients-card" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
+					<div id="[[widget.id]]" class="card latest-patients-card" style="--area:latestPatientsWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -583,7 +539,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="{{widget}}">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -605,7 +561,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'todaysConsultationsWidget')]]">
-					<div id="[[widget.id]]" class="card todays-consultations" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
+					<div id="[[widget.id]]" class="card todays-consultations" style="--area:todaysConsultationsWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -613,7 +569,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -640,7 +596,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
-					<div id="[[widget.id]]" class="card latest-lab-result"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
+					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -648,7 +604,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -659,9 +615,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[messages]]" as="msg">
-								<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+								<div class="row card-table-row" data-id$="[[msg.id]]" on-tap="openMessage">
 									<div class="card-table-cell">[[msg.fromAddress]]</div>
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.metas.CM-SendDateTime)]]</div>
 									<div class="card-table-cell">[[msg.subject]] </div>
 								</div>
 							</template>
@@ -670,7 +626,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 				</template>
 				<template is="dom-if" if="[[_isEqual(widget.id,'todoWidget')]]">
-					<div id="[[widget.id]]" class="card todo-card" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
+					<div id="[[widget.id]]" class="card todo-card" style="--area:todoWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
@@ -678,7 +634,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_applySettings" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -706,6 +662,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 					</div>
 				</template>
+				<template is="dom-if" if="[[_contains(widget.id,'empty')]]">
+					<div id="[[widget.id]]" class="card empty-card" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget" style="--area:[[widget.id]];">
+					</div>
+				</template>
 			</template>
 		</div>
 
@@ -713,10 +673,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<h2 class="modal-title">Edit layout</h2>
 			<div class="content">
 				<div id="layoutA" class$="layout-button layout-a [[_isSelected(selectedLayout, 'layoutA')]]" on-tap="setSelectedLayout">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
+					<span style="--area:latestPatientsWidget;"></span>
+					<span style="--area:todaysConsultationsWidget;"></span>
+					<span style="--area:latestLabResultsWidget;"></span>
+					<span style="--area:todoWidget;"></span>
 				</div>
 				<div id="layoutB" class$="layout-button layout-b [[_isSelected(selectedLayout, 'layoutB')]]" on-tap="setSelectedLayout">
 					<span></span>
@@ -738,8 +698,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<slot name="suffix"></slot>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" on-tap="applySelectedLayout">[[localize('apply','Apply',language)]]</paper-button>
+				<paper-button class="modal-button" on-tap="setFromSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('apply','Apply',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
@@ -803,6 +763,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: String,
 				value: "layoutA"
 			},
+			layoutGrid: {
+				type: Object,
+				value: new GridLayout()
+			},
 			dragSrcEl: {
 				type: Object,
 				value: null
@@ -812,23 +776,31 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: () => [
 					{
 						id: "latestPatientsWidget",
-						nrRows: 1,
+						nrRows: 3,
 						nrCols: 1,
+						posRow: 0,
+						posCol: 0
 					},
 					{
 						id: "todaysConsultationsWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow: 0,
+						posCol: 1
 					},
 					{
 						id: "latestLabResultsWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow: 1,
+						posCol: 1
 					},
 					{
 						id: "todoWidget",
 						nrRows: 1,
 						nrCols: 1,
+						posRow: 2,
+						posCol: 1
 					}
 				],
 				notify: true,
@@ -851,11 +823,16 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     ready() {
+
 		super.ready();
+
+		window.addEventListener('resize', this.handleResize.bind(this))
+		this.setFromSavedLayout()
+
     }
 
     apiReady() {
-	    if (!this.user || !this.api) { return }
+		if (!this.user || !this.api) { return }
 
 		this._isLoadingLatestPatients = true;
 		this._isLoadingLatestLabResults = true;
@@ -892,7 +869,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				});
 				this._isLoadingLatestLabResults = false;
 				return messages.rows;
-			}).then(messages => this.set('messages', messages || []));
+			}).then(messages => {this.set('messages', messages || []); console.log(this.messages)});
 
 			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
 				return appointments && this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
@@ -937,9 +914,12 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))
 						}
 					});
-				}).then(patients => services.map(s => ({ service: s, patient: patients.rows.find(p => p.id === s.patId) })));
+				}).then(patients => {
+					return services.map(s => ({ service: s, patient: patients.rows.find(p => p.id === s.patId) }))
+				});
 			}).then(services => this.set('services', (services || []).filter(it => it.patient)));
 			this._isLoadingToDoList = false;
+
 		});
 	}
 
@@ -951,6 +931,17 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'HH:mm' : 'DD/MM/YYYY') || '';
 	}
 
+	_isSelected(a, b) {
+		return (a === b) ? 'selected' : ''
+	}
+
+	_isEqual(a, b) {
+		return (a === b)
+	}
+
+	_contains(a, b) {
+		return a.includes(b)
+	}
 	picture(pat) {
 		if (!pat) {
 			return require('../images/male-placeholder.png');
@@ -967,7 +958,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	openMessage(ev) {
-		let target = ev.target;
+
+		console.log(ev)
+		let target = ev.path[0];
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
@@ -978,44 +971,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		e.stopPropagation()
 		e.preventDefault()
 		this.$['layoutDialog'].open()
-	}
-
-	setSelectedLayout(e) {
-		this.set('selectedLayout', e.currentTarget.id)
-	}
-
-	_isSelected(a, b){
-		return (a === b ) ? 'selected' : ''
-	}
-
-	applySelectedLayout(){
-		switch(this.selectedLayout){
-			case 'layoutA':
-				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
-				break;
-			case 'layoutB':
-				this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
-				break;
-			case 'layoutC':
-				this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
-				break;
-			default:
-				this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
-				break;
-		}
-	}
-
-	_applySettings(e){
-		const widget = JSON.parse(e.target.dataset.item)
-		const elem = this.shadowRoot.querySelector(`#${widget.id}`)
-		elem.style.setProperty('--rows', widget.nrRows)
-		elem.style.setProperty('--columns', widget.nrCols)
-		console.log(widget.id, widget.nrRows)
-	}
-
-	_isEqual(a,b) {
-		console.log(a+' ?= '+b)
-		return (a === b)
 	}
 
 	_dragWidgetStart(e) {
@@ -1029,7 +984,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_dragWidgetEnter(e){
-		e.target.parentNode.classList.add('over')
+		e.target.closest(".card").classList.add('over')
 	}
 
 	_dragWidgetLeave(e){
@@ -1039,7 +994,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_dragWidgetEnd() {
 		this.shadowRoot.querySelectorAll('.card').forEach(card => card.classList.remove('over') )
 		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
-		console.log("drag end")
 	}
 
 	_dropWidget(e) {
@@ -1049,22 +1003,616 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return false;
 	}
 
-	_swap(elToSwap) {
-		const idx1 = this.widgets.findIndex(k => k.id === this.dragSrcEl)
-		const idx2 = this.widgets.findIndex(k => k.id === elToSwap )
-		let temp = 	this.widgets[idx2];
-		this.widgets[idx2] = this.widgets[idx1];
-		this.widgets[idx1] = temp;
-		const copy = this.widgets; 
-		this.set('widgets', []); 
-		this.set('widgets', copy);
+	setSelectedLayout(e) {
+
+		this.set('selectedLayout', e.currentTarget.id)
+
+		switch (this.selectedLayout) {
+			case 'layoutA':
+				this.widgets = WIDGETSA
+				break;
+			case 'layoutB':
+				this.widgets = WIDGETSB
+				break;
+			case 'layoutC':
+				this.widgets = WIDGETSC
+				break;
+			case 'layoutTab':
+				this.widgets = WIDGETSTAB
+				break;
+			case 'layoutMobile':
+				this.widgets = WIDGETSMOBILE
+				break;
+			default:
+				this.widgets = WIDGETSA
+				break;
+		}
+
+		this.updateGrid(false)
+
 	}
 
-	widgetsChanged(widget){
-		console.log('changed ', widget)
+	saveSelectedLayout(e) {
+
+		e.preventDefault();
+
+		this.updateGrid()
+
+	}
+
+	handleResize(e) {
+
+		if (this.layoutGrid.setLayoutFromSize(e.target.innerWidth)) {
+
+			this.setSelectedLayout({currentTarget: { id: this.layoutGrid.layout } })
+
+			this.layoutGrid.save(this.user, this.widgets)
+		}
+
+	}
+
+	setFromSavedLayout() {
+
+		const storage = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`))
+
+		if (storage) {
+			this.set('selectedLayout', storage.layout)
+			this.set('widgets', storage.widgets)
+		}
+
+		this.layoutGrid.setFromStorage(this.user, this.widgets)
+
+		this.setStyles(this.layoutGrid.styleStrings)
+
+	}
+
+	updateGrid(save = true) {
+
+		this.sanitizeEmpties()
+
+		this.layoutGrid
+			.setGridSize(this.selectedLayout)
+			.init()
+			.fill(this.widgets)
+
+		const empties = this.layoutGrid.getEmptySpaces()
+		this.push('widgets', ...empties)
+
+		this.setStyles(this.layoutGrid.styleStrings)
+
+		if (save) this.layoutGrid.save(this.user, this.widgets)
+	}
+
+	sanitizeEmpties() {
+
+
+		this.set('widgets', this.widgets.filter(widget => {
+			if (widget && widget.id) {
+				return !widget.id.includes('empty')
+			}
+		}))
+	}
+
+	setStyles(styleStrings) {
+		this.updateStyles({ '--grid-columns': styleStrings.gridCol, '--grid-rows': styleStrings.gridRow })
+		this.updateStyles({ '--grid-layout': styleStrings.templateArea })
+	}
+
+	_swap(elToSwap) {
+
+		const idx1 = this.widgets.findIndex(k => k.id === this.dragSrcEl)
+		const idx2 = this.widgets.findIndex(k => k.id === elToSwap )
+
+		const temp = this.widgets[idx1]
+		this.widgets[idx1] = this.widgets[idx2]
+		this.widgets[idx2] = temp
+
+		this.widgets[idx1].id = this.dragSrcEl
+		this.widgets[idx2].id = elToSwap
+
+		this.updateGrid()
+	}
+
+	widgetsChanged(e){
+
+		const path = e.path
+
+		const index = parseInt(path.split('.')[1])
+
+		if((index + 1)) {
+
+			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
+
+			const currentWidget = this.widgets[index];
+
+			if(
+				currentWidget.nrCols != newWidget.nrCols || 
+				currentWidget.nrRows != newWidget.nrRows ||
+				currentWidget.posCol != newWidget.posCol || 
+				currentWidget.posRow != newWidget.posRow
+			) {
+
+				this.set(['widgets', index], newWidget)
+
+			}else {
+				this.updateGrid()
+			}
+
+
+		}
+
 	}
 
 }
+
+
+class GridLayout {
+
+	constructor() {
+
+		this.grid = []
+		this.cols = 0;
+		this.rows = 0;
+		this.layout = 'layoutA';
+
+	}
+
+	init() {
+
+		const grid = []
+
+		for (let row = 0; row < this.rows; row++) {
+			grid.push([])
+			for (let col = 0; col < this.cols; col++) {
+				grid[row][col] = 'empty'
+			}
+		}
+
+		this.grid = grid
+
+		return this;
+
+	}
+
+	fill(widgets) {
+
+		const widgetsInOrder = widgets.sort( (a, b) => a.order - b.order )
+
+		widgetsInOrder.map( (widget, index) => {
+
+			for( let rowIndex = 0; rowIndex < widget.nrRows; rowIndex++ ){
+
+					for( let colIndex = 0; colIndex < widget.nrCols; colIndex++ ) {
+
+							this.grid[widget.posRow + rowIndex][widget.posCol + colIndex] = widget.id
+
+					}
+
+			}
+
+		})
+
+		return this;
+
+	}
+
+	computeCardSize(w) {
+
+		const widget = _.clone(w,true)
+
+		if(widget) {
+
+			// Calculate the available space around the card
+			let rowSpace = 0;
+			let spaceUnder = 0;
+			let rowIsPartOfCard = false;
+
+			let rowsData = [];
+
+			for( let rowIndex = 0; rowIndex < this.grid.length; rowIndex++) {
+
+				let colSpace = 0
+				let spaceRight = 0
+
+				let colIsPartOfCard = false
+
+
+				// COLUMNS
+				for (let colIndex = 0; colIndex < this.grid[widget.posRow].length; colIndex++) {
+
+					const widgetId = this.grid[rowIndex][colIndex]
+					if (widgetId.includes('empty') || widgetId == widget.id) {
+
+						if (colIsPartOfCard) {
+							spaceRight++
+						} else if (widget.posCol == colIndex) {
+							colIsPartOfCard = true
+						}
+
+						colSpace++
+
+					} else if (!colIsPartOfCard) {
+						colSpace = 0
+					} else {
+						break;
+					}
+
+				}
+
+
+				//We add column data for every row even if the row is not available
+				const colData = { space: colSpace, rightSide: spaceRight };
+				rowsData.push(colData)
+
+				//ROWS
+				if(colIsPartOfCard) {
+
+					if (rowIsPartOfCard) {
+						spaceUnder++
+					} else if (widget.posRow == rowIndex) {
+						rowIsPartOfCard = true
+					}
+
+					rowSpace++
+
+				}else if(!rowIsPartOfCard) {
+
+					rowSpace = 0
+
+				} else {
+
+					break;
+
+				}
+
+
+			}
+
+			// Now scale or move vertically, according to need or possibility
+			if(widget.nrRows > rowSpace) widget.nrRows = rowSpace
+			if( widget.nrRows > spaceUnder + 1) widget.posRow -= widget.nrRows - (spaceUnder + 1)
+
+
+			// calculate minimum available horizontal space for the above computed occupied rows
+			let minSpace = Infinity,
+				minRightSpace = Infinity
+
+			for( let rowIndex = widget.posRow; rowIndex < widget.posRow + parseInt(widget.nrRows); rowIndex++) {
+
+				minSpace = minSpace > rowsData[rowIndex].space ? rowsData[rowIndex].space : minSpace;
+				minRightSpace = minRightSpace > rowsData[rowIndex].rightSide ? rowsData[rowIndex].rightSide : minRightSpace;
+
+			}
+
+			// Now scale or move horizontally, according to need or possibility
+			if (widget.nrCols > minSpace) widget.nrCols = minSpace
+			if (widget.nrCols <= minRightSpace + 1) return widget
+
+			widget.posCol -= widget.nrCols - (minRightSpace + 1)
+
+			return widget
+				
+
+		}
+
+
+	}
+
+	getEmptySpaces() {
+
+		const empties = []
+
+		for (let rowIndex in this.grid) {
+			for (let colIndex in this.grid[rowIndex]) {
+
+				if (this.grid[rowIndex][colIndex].includes('empty')) {
+
+					const idName = "empty" + empties.length
+					this.grid[rowIndex][colIndex] = idName;
+
+					empties.push({
+						id: idName,
+						nrRows: 1,
+						nrCols: 1,
+						posCol: parseInt(colIndex),
+						posRow: parseInt(rowIndex)
+					})
+
+				}
+
+
+
+			}
+		}
+
+		return empties
+
+	}
+
+	setFromStorage(user, widgets) { 
+
+		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
+
+		if (savedGridLayout) {
+
+			this.clone( JSON.parse(savedGridLayout) )
+
+			if( this.setLayoutFromSize(window.innerWidth) ) {
+
+				this.init().fill(widgets).save(user,widgets)
+
+			}
+
+		}else if(widgets) {
+
+			this.setGridSize('layoutA').init().fill(widgets).save(user,widgets)
+
+		}
+
+		return this
+
+	}
+
+	clone(nGrid) {
+
+		this.grid = nGrid.grid;
+		this.cols = nGrid.cols;
+		this.rows = nGrid.rows;
+		this.layout = nGrid.layout;
+
+		return this
+
+	}
+
+	save(user, widgets) {
+
+		const data = {}
+
+		Object.assign(data, this)
+		data.widgets = widgets
+		data.size = window.innerWidth
+
+		localStorage.setItem(`org.taktik.icure.${user.id}.settings.main.grid`, JSON.stringify(data))
+
+		return this
+
+	}
+
+	setGridSize(layout = this.layout) {
+		
+		switch (layout) {
+			case 'layoutA':
+				this.cols = 2;
+				this.rows = 3;
+				break;
+			case 'layoutB':
+				this.cols = 3;
+				this.rows = 2;
+				break;
+			case 'layoutC':
+				this.cols = 4;
+				this.rows = 2;
+				break;
+			case 'layoutTab':
+				this.cols = 2;
+				this.rows = 3;
+				break;
+			case 'layoutMobile':
+				this.cols = 1;
+				this.rows = 6;
+				break;
+			default:
+				this.cols = 2;
+				this.rows = 3;
+				break;
+		}
+
+		this.layout = layout
+
+		return this;
+	} 
+
+	setLayoutFromSize(size) {
+
+		if( size >= 950 ){
+			
+			if( this.layout == 'layoutTab' || this.layout == 'layoutMobile') {
+			
+				this.setGridSize('layoutA')
+				return true
+
+			}
+
+			return false
+
+		}
+
+		if( size > 600 ) {
+
+			this.setGridSize('layoutTab')
+			return true
+		}
+
+		this.setGridSize('layoutMobile')
+		return true
+	}
+
+	get styleStrings() {
+
+		const layout = this.layout
+		const gridCol = `repeat(${this.cols}, 1fr)`
+		const gridRow = `repeat(${this.rows}, 1fr)`
+
+		let templateArea = "";
+
+		this.grid.map(row => {
+			templateArea += "\'"
+			row.forEach(area => {
+				templateArea += area ? area + " " : ". "
+			})
+			templateArea += "\' "
+		})
+
+		return { layout, gridCol, gridRow, templateArea }
+
+	}
+
+}
+
+const WIDGETSA = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 3,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 1
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 1
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 2,
+			posCol: 1
+		}
+	]
+
+const WIDGETSB = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 1
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 0
+		},
+		{
+			id: "todoWidget",
+			nrRows: 2,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 2
+		}
+	]
+
+const WIDGETSC = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 1,
+			nrCols: 4,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 2
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 0
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 3
+		}
+	]
+
+const WIDGETSTAB = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 2,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 1
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 2,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 1
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 2,
+			posCol: 0
+		}
+	]
+
+const WIDGETSMOBILE = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 0
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 2,
+			posCol: 0
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 3,
+			posCol: 0
+		}
+	]
 
 customElements.define(HtMain.is, HtMain);
 </script>
