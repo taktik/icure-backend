@@ -303,31 +303,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 			@media (max-width: 1024px) {
-				/* .grid-container {
-					display:grid;
-					width:100%;
-					height:100%;
-					grid-template-columns: 1fr 1fr 1fr 1fr;
-					grid-template-rows: 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
-				} */
+				.grid-container {
+					/* display:grid; */
+					/* width:100%;
+					height:100%; */
+					/* grid-template-columns: 1fr 1fr 1fr 1fr;
+					grid-template-rows: 1fr 1fr; */
+					grid-column-gap: 12px;
+					grid-row-gap: 12px;
+				}
+				
 				.card {
 					overflow:hidden;
 				}
-				.latest-patients-card {
-					grid-area: 1 / 1 / span 1 / span 3;
-				}
-				.todays-consultations {
-					grid-area: 1 / 4 / span 1 / span 1;
-				}
-				.latest-lab-result {
-					grid-area: 2 / 1 / span 1 / span 2;
-				}
-
-				.todo-card {
-					grid-area: 2 / 3 / span 1 / span 2;
-				}
+			
 				.card-body {
 					overflow-x: hidden;
 					overflow-y: scroll;
@@ -353,59 +342,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			@media (max-width: 768px) {
+			@media (max-width: 950px) {
 				.grid-container {
-					grid-template-columns: 1fr 1fr 1fr 1fr;
-					grid-template-rows: 1fr 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
-				}
-				.latest-patients-card {
-					grid-area: 1 / 1 / span 1 / span 4;
-				}
-				.todays-consultations {
-					grid-area: 2 / 1 / span 1 / span 2;
-				}
-				.latest-lab-result {
-					grid-area: 2 / 3 / span 1 / span 2 ;
+					height: calc(3 * 50%);
+					padding-bottom: 24px;
 				}
 
-				.todo-card {
-					grid-area: 3  / 1 / span 1 / span 4;
+				.layout-buttons paper-icon-button{
+					display: none;
 				}
 			}
 
-			@media (max-width: 420px) {
+			@media (max-width: 600px) {
 				.grid-container {
-					grid-template-columns: 1fr;
-					grid-template-rows: 1fr 1fr 1fr 1fr;
-					grid-column-gap: 24px;
-					grid-row-gap: 24px;
-				}
-				.latest-patients-card {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 1;
-					grid-row-end: span 1;
-				}
-				.todays-consultations {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 2;
-					grid-row-end: span 1;
-				}
-				.latest-lab-result {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 3;
-					grid-row-end: span 1;
-				}
-
-				.todo-card {
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 4;
-					grid-row-end: span 1;
+					height: calc( 6 * 50% );
 				}
 			}
 
@@ -434,6 +384,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					background-color: var(--app-background-color-dark);
 				}
 			}
+
 
 			#layoutDialog, #widgetSettingsDialog{
 				height: 30%;
@@ -495,7 +446,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 			}
 
-			/* .layout-a{
+			.layout-a{
 				grid-template-columns: repeat(2, 1fr);
 				grid-template-rows: repeat(3, 1fr);
 			}
@@ -513,14 +464,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.layout-a span, .layout-b span, .layout-c span{
 				grid-column:  span 1;
 				grid-row: span 1;
-			} */
+			}
 
 			.layout-button span{
 				background: var(--app-background-color-dark);
 				position: relative;
 			}
 
-			/* .layout-a span:first-child{
+			.layout-a span:first-child{
 				grid-column: 1 / span 1;
 				grid-row: 1 / span 3;
 			}
@@ -533,7 +484,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.layout-c span:first-child{
 				grid-column: 1 / span 4;
 				grid-row: span 1;
-			} */
+			}
 
 			paper-menu-button.widget-settings-menu div{
 				width: 160px;
@@ -572,9 +523,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="layout-buttons">
-			<paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button>
+			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
 			<paper-icon-button id="changeLayoutButton" icon="dashboard" on-tap="_layoutDialog"></paper-icon-button>
-			<paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip>
+			<!-- <paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip> -->
 			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
 		</div>
 		<div id="gridContainer" class="grid-container ">
@@ -722,10 +673,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<h2 class="modal-title">Edit layout</h2>
 			<div class="content">
 				<div id="layoutA" class$="layout-button layout-a [[_isSelected(selectedLayout, 'layoutA')]]" on-tap="setSelectedLayout">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
+					<span style="--area:latestPatientsWidget;"></span>
+					<span style="--area:todaysConsultationsWidget;"></span>
+					<span style="--area:latestLabResultsWidget;"></span>
+					<span style="--area:todoWidget;"></span>
 				</div>
 				<div id="layoutB" class$="layout-button layout-b [[_isSelected(selectedLayout, 'layoutB')]]" on-tap="setSelectedLayout">
 					<span></span>
@@ -875,6 +826,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		super.ready();
 
+		window.addEventListener('resize', this.handleResize.bind(this))
 		this.setFromSavedLayout()
 
     }
@@ -984,7 +936,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_isEqual(a, b) {
-		// console.log(a+' ?= '+b)
 		return (a === b)
 	}
 
@@ -1020,85 +971,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.$['layoutDialog'].open()
 	}
 
-	setSelectedLayout(e) {
-
-		this.set('selectedLayout', e.currentTarget.id)
-
-		switch (this.selectedLayout) {
-			case 'layoutA':
-					this.widgets = LAYOUTA
-				break;
-			case 'layoutB':
-					this.widgets = LAYOUTB
-				break;
-			case 'layoutC':
-					this.widgets = LAYOUTC
-				break;
-		
-			default:
-					this.widgets = LAYOUTA
-				break;
-		}
-
-		this.updateGrid(false)
-
-	}
-
-	saveSelectedLayout(e) {
-
-		e.preventDefault();
-
-		this.updateGrid()
-
-	}
-
-	setFromSavedLayout() {
-
-		const storage = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`))
-
-		if(storage) {
-			this.set('selectedLayout', storage.layout)
-			this.set('widgets', storage.widgets)
-		}
-
-		this.layoutGrid.setFromStorage(this.user, this.widgets)
-
-		this.setStyles( this.layoutGrid.styleStrings )
-
-	}
-
-	updateGrid(save = true) {
-
-		this.sanitizeEmpties()
-
-		this.layoutGrid
-			.setGridSize(this.selectedLayout)
-			.init()
-			.fill(this.widgets)
-
-		const empties = this.layoutGrid.getEmptySpaces()
-		this.push('widgets', ...empties)
-
-		this.setStyles(this.layoutGrid.styleStrings)
-
-		if(save) this.layoutGrid.save(this.user, this.widgets)
-	}
-
-	sanitizeEmpties() {
-
-		// console.log(this.widgets)
-		this.set('widgets', this.widgets.filter( widget => {
-			if(widget && widget.id){
-				return !widget.id.includes('empty')
-			}
-		}))
-	}
-
-	setStyles( styleStrings ) {
-		this.updateStyles({ '--grid-columns': styleStrings.gridCol , '--grid-rows': styleStrings.gridRow })
-		this.updateStyles({ '--grid-layout': styleStrings.templateArea })
-	}
-
 	_dragWidgetStart(e) {
 		e.target.classList.add('dragging')
 		this.dragSrcEl = e.target.id
@@ -1120,7 +992,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_dragWidgetEnd() {
 		this.shadowRoot.querySelectorAll('.card').forEach(card => card.classList.remove('over') )
 		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
-		// console.log("drag end")
 	}
 
 	_dropWidget(e) {
@@ -1128,6 +999,101 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this._swap(e.currentTarget.id)
 		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
 		return false;
+	}
+
+	setSelectedLayout(e) {
+
+		this.set('selectedLayout', e.currentTarget.id)
+
+		switch (this.selectedLayout) {
+			case 'layoutA':
+				this.widgets = WIDGETSA
+				break;
+			case 'layoutB':
+				this.widgets = WIDGETSB
+				break;
+			case 'layoutC':
+				this.widgets = WIDGETSC
+				break;
+			case 'layoutTab':
+				this.widgets = WIDGETSTAB
+				break;
+			case 'layoutMobile':
+				this.widgets = WIDGETSMOBILE
+				break;
+			default:
+				this.widgets = WIDGETSA
+				break;
+		}
+
+		this.updateGrid(false)
+
+	}
+
+	saveSelectedLayout(e) {
+
+		e.preventDefault();
+
+		this.updateGrid()
+
+	}
+
+	handleResize(e) {
+
+		if (this.layoutGrid.setLayoutFromSize(e.target.innerWidth)) {
+
+			this.setSelectedLayout({currentTarget: { id: this.layoutGrid.layout } })
+
+			this.layoutGrid.save(this.user, this.widgets)
+		}
+
+	}
+
+	setFromSavedLayout() {
+
+		const storage = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`))
+
+		if (storage) {
+			this.set('selectedLayout', storage.layout)
+			this.set('widgets', storage.widgets)
+		}
+
+		this.layoutGrid.setFromStorage(this.user, this.widgets)
+
+		this.setStyles(this.layoutGrid.styleStrings)
+
+	}
+
+	updateGrid(save = true) {
+
+		this.sanitizeEmpties()
+
+		this.layoutGrid
+			.setGridSize(this.selectedLayout)
+			.init()
+			.fill(this.widgets)
+
+		const empties = this.layoutGrid.getEmptySpaces()
+		this.push('widgets', ...empties)
+
+		this.setStyles(this.layoutGrid.styleStrings)
+
+		if (save) this.layoutGrid.save(this.user, this.widgets)
+	}
+
+	sanitizeEmpties() {
+
+
+		this.set('widgets', this.widgets.filter(widget => {
+			if (widget && widget.id) {
+				return !widget.id.includes('empty')
+			}
+		}))
+	}
+
+	setStyles(styleStrings) {
+		this.updateStyles({ '--grid-columns': styleStrings.gridCol, '--grid-rows': styleStrings.gridRow })
+		this.updateStyles({ '--grid-layout': styleStrings.templateArea })
 	}
 
 	_swap(elToSwap) {
@@ -1142,28 +1108,11 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.widgets[idx1].id = this.dragSrcEl
 		this.widgets[idx2].id = elToSwap
 
-		this.updateGrid(false)
-	}
-
-	_handleWidgetChange(e) {
-
-		// this.updateWidgetSize(JSON.parse(e.target.dataset.item));
-
-		const index = this.widgets.findIndex(k => k.id === JSON.parse(e.target.dataset.item).id )
-
-		if ((index + 1)) {
-			// console.log(this.widgets[index])
-			this.set(['widgets',index],this.layoutGrid.computeCardSize(this.widgets[index]))
-
-		}
-
 		this.updateGrid()
-
 	}
 
 	widgetsChanged(e){
 
-		// this.getSavedLayout()
 		const path = e.path
 
 		const index = parseInt(path.split('.')[1])
@@ -1251,36 +1200,26 @@ class GridLayout {
 
 		if(widget) {
 
-			//how much space is needed
-
-
-			//ROW
-
+			// Calculate the available space around the card
 			let rowSpace = 0;
-			let rowStart = null;
+			let spaceUnder = 0;
 			let rowIsPartOfCard = false;
 
-			let spaceUnder = 0;
-
-			let spaceData = [];
-
+			let rowsData = [];
 
 			for( let rowIndex = 0; rowIndex < this.grid.length; rowIndex++) {
 
-				// COLUMN
 				let colSpace = 0
-				let colStart = null
-				let colIsPartOfCard = false
-
 				let spaceRight = 0
 
-				//calculating how much horizontal space
+				let colIsPartOfCard = false
+
+
+				// COLUMNS
 				for (let colIndex = 0; colIndex < this.grid[widget.posRow].length; colIndex++) {
 
 					const widgetId = this.grid[rowIndex][colIndex]
 					if (widgetId.includes('empty') || widgetId == widget.id) {
-
-						if (colStart == null) colStart = colIndex
 
 						if (colIsPartOfCard) {
 							spaceRight++
@@ -1291,7 +1230,6 @@ class GridLayout {
 						colSpace++
 
 					} else if (!colIsPartOfCard) {
-						colStart = null
 						colSpace = 0
 					} else {
 						break;
@@ -1300,15 +1238,12 @@ class GridLayout {
 				}
 
 
-				const colData = { space: colSpace, start: colStart, rightSide: spaceRight };
-				spaceData.push(colData)
+				//We add column data for every row even if the row is not available
+				const colData = { space: colSpace, rightSide: spaceRight };
+				rowsData.push(colData)
 
-				//calculating how much vertical space
-
-				
+				//ROWS
 				if(colIsPartOfCard) {
-
-					if (rowStart == null) rowStart = rowIndex
 
 					if (rowIsPartOfCard) {
 						spaceUnder++
@@ -1320,7 +1255,6 @@ class GridLayout {
 
 				}else if(!rowIsPartOfCard) {
 
-					rowStart = null
 					rowSpace = 0
 
 				} else {
@@ -1332,47 +1266,28 @@ class GridLayout {
 
 			}
 
-			// move vertically if possible and needed 
-
-			if(widget.nrRows > rowSpace) {
-
-				widget.nrRows = rowSpace
-
-			}
-
-			if( widget.nrRows > spaceUnder + 1) {
-
-				widget.posRow -= widget.nrRows - (spaceUnder + 1)
-
-			}
+			// Now scale or move vertically, according to need or possibility
+			if(widget.nrRows > rowSpace) widget.nrRows = rowSpace
+			if( widget.nrRows > spaceUnder + 1) widget.posRow -= widget.nrRows - (spaceUnder + 1)
 
 
-			// calculate minimum available horizontal space for the needed rows
+			// calculate minimum available horizontal space for the above computed occupied rows
 			let minSpace = Infinity,
-				// mostRightStart = 0
 				minRightSpace = Infinity
 
 			for( let rowIndex = widget.posRow; rowIndex < widget.posRow + parseInt(widget.nrRows); rowIndex++) {
 
-				minSpace = minSpace > spaceData[rowIndex].space ? spaceData[rowIndex].space : minSpace;
-				minRightSpace = minRightSpace > spaceData[rowIndex].rightSide ? spaceData[rowIndex].rightSide : minRightSpace;
-				// mostRightStart = mostRightStart < spaceData[rowIndex].start ? spaceData[rowIndex].start : mostRightStart;
+				minSpace = minSpace > rowsData[rowIndex].space ? rowsData[rowIndex].space : minSpace;
+				minRightSpace = minRightSpace > rowsData[rowIndex].rightSide ? rowsData[rowIndex].rightSide : minRightSpace;
 
 			}
 
-			// now move horizontaly if possible and needed 
+			// Now scale or move horizontally, according to need or possibility
+			if (widget.nrCols > minSpace) widget.nrCols = minSpace
+			if (widget.nrCols <= minRightSpace + 1) return widget
 
-			if (widget.nrCols > minSpace) {
+			widget.posCol -= widget.nrCols - (minRightSpace + 1)
 
-				widget.nrCols = minSpace
-
-			}
-
-			if (widget.nrCols <= minRightSpace + 1) {
-				return widget
-			}
-
-			widget.posCol -= widget.nrCols - (minRightSpace + 1);
 			return widget
 				
 
@@ -1380,7 +1295,6 @@ class GridLayout {
 
 
 	}
-
 
 	getEmptySpaces() {
 
@@ -1421,9 +1335,15 @@ class GridLayout {
 
 			this.clone( JSON.parse(savedGridLayout) )
 
+			if( this.setLayoutFromSize(window.innerWidth) ) {
+
+				this.init().fill(widgets).save(user,widgets)
+
+			}
+
 		}else if(widgets) {
 
-			this.setGridSize('layoutA').init().fill(widgets).save(user)
+			this.setGridSize('layoutA').init().fill(widgets).save(user,widgets)
 
 		}
 
@@ -1448,6 +1368,7 @@ class GridLayout {
 
 		Object.assign(data, this)
 		data.widgets = widgets
+		data.size = window.innerWidth
 
 		localStorage.setItem(`org.taktik.icure.${user.id}.settings.main.grid`, JSON.stringify(data))
 
@@ -1461,22 +1382,26 @@ class GridLayout {
 			case 'layoutA':
 				this.cols = 2;
 				this.rows = 3;
-				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
 				break;
 			case 'layoutB':
 				this.cols = 3;
 				this.rows = 2;
-				// this.updateStyles({'--grid-columns': 'repeat(3, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
 				break;
 			case 'layoutC':
 				this.cols = 4;
 				this.rows = 2;
-				// this.updateStyles({'--grid-columns': 'repeat(4, 1fr)'}, {'--grid-rows': 'repeat(2, 1fr)'})
+				break;
+			case 'layoutTab':
+				this.cols = 2;
+				this.rows = 3;
+				break;
+			case 'layoutMobile':
+				this.cols = 1;
+				this.rows = 6;
 				break;
 			default:
 				this.cols = 2;
 				this.rows = 3;
-				// this.updateStyles({'--grid-columns': 'repeat(2, 1fr)'}, {'--grid-rows': 'repeat(3, 1fr)'})
 				break;
 		}
 
@@ -1484,6 +1409,31 @@ class GridLayout {
 
 		return this;
 	} 
+
+	setLayoutFromSize(size) {
+
+		if( size >= 950 ){
+			
+			if( this.layout == 'layoutTab' || this.layout == 'layoutMobile') {
+			
+				this.setGridSize('layoutA')
+				return true
+
+			}
+
+			return false
+
+		}
+
+		if( size > 600 ) {
+
+			this.setGridSize('layoutTab')
+			return true
+		}
+
+		this.setGridSize('layoutMobile')
+		return true
+	}
 
 	get styleStrings() {
 
@@ -1504,9 +1454,10 @@ class GridLayout {
 		return { layout, gridCol, gridRow, templateArea }
 
 	}
+
 }
 
-const LAYOUTA = [
+const WIDGETSA = [
 		{
 			id: "latestPatientsWidget",
 			nrRows: 3,
@@ -1537,11 +1488,11 @@ const LAYOUTA = [
 		}
 	]
 
-const LAYOUTB = [
+const WIDGETSB = [
 		{
 			id: "latestPatientsWidget",
 			nrRows: 1,
-			nrCols: 2,
+			nrCols: 1,
 			posRow: 0,
 			posCol: 0
 		},
@@ -1550,6 +1501,37 @@ const LAYOUTB = [
 			nrRows: 1,
 			nrCols: 1,
 			posRow: 0,
+			posCol: 1
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 0
+		},
+		{
+			id: "todoWidget",
+			nrRows: 2,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 2
+		}
+	]
+
+const WIDGETSC = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 1,
+			nrCols: 4,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
 			posCol: 2
 		},
 		{
@@ -1562,13 +1544,13 @@ const LAYOUTB = [
 		{
 			id: "todoWidget",
 			nrRows: 1,
-			nrCols: 2,
+			nrCols: 1,
 			posRow: 1,
-			posCol: 1
+			posCol: 3
 		}
 	]
 
-const LAYOUTC = [
+const WIDGETSTAB = [
 		{
 			id: "latestPatientsWidget",
 			nrRows: 2,
@@ -1579,23 +1561,54 @@ const LAYOUTC = [
 		{
 			id: "todaysConsultationsWidget",
 			nrRows: 1,
-			nrCols: 2,
-			posRow: 0,
-			posCol: 2
-		},
-		{
-			id: "latestLabResultsWidget",
-			nrRows: 1,
 			nrCols: 1,
 			posRow: 0,
 			posCol: 1
 		},
 		{
-			id: "todoWidget",
-			nrRows: 1,
-			nrCols: 3,
+			id: "latestLabResultsWidget",
+			nrRows: 2,
+			nrCols: 1,
 			posRow: 1,
 			posCol: 1
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 2,
+			posCol: 0
+		}
+	]
+
+const WIDGETSMOBILE = [
+		{
+			id: "latestPatientsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 0,
+			posCol: 0
+		},
+		{
+			id: "todaysConsultationsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 1,
+			posCol: 0
+		},
+		{
+			id: "latestLabResultsWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 2,
+			posCol: 0
+		},
+		{
+			id: "todoWidget",
+			nrRows: 1,
+			nrCols: 1,
+			posRow: 3,
+			posCol: 0
 		}
 	]
 
