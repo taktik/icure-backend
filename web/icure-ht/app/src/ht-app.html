@@ -830,10 +830,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         value: ""
                     },
-                    EhboxCheckingActive: {
-                        type: Boolean,
-                        value: false
-                    },
                     worker: {
                         type: Worker,
                         noReset: true
@@ -946,20 +942,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 1000) {
-                clearTimeout(this.timeOutId)
-                if (this.EhboxCheckingActive === false) {
-                    this.timeOutId = setTimeout(() => {
-                        if (this.api.tokenId) {
-                            this.set('EhboxCheckingActive', true)
-                            console.log("EhboxCheckingActive "+this.EhboxCheckingActive)
-                            this.checkEhboxMessage()
-                        }else {
-                            this._inboxMessageCheck()
-                        }
-
-                   }, period)
-                }
+            _inboxMessageCheck(period = 60000) {
+                // setInterval(this.timeOutId)
+                this.checkEhboxMessage()
+                setInterval(() => {
+                    if (this.api.tokenId) {
+                        this.checkEhboxMessage()
+                    } else {
+                        this._inboxMessageCheck()
+                    }
+                }, period)
             }
 
             _routePageChanged(page) {
@@ -1260,7 +1252,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
-                if (localStorage.getItem('receiveMailAuto') == 'true') {
+                const lastLoad = localStorage.getItem('lastEhboxRefresh') ? localStorage.getItem('lastEhboxRefresh') : -1
+                const shouldLoad = (lastLoad >= Date.now() + 10*60000 || lastLoad==-1)
+                console.log("checkEhboxMessage "+shouldLoad)
+                if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
@@ -1279,7 +1274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             user: this.user,
                             ehpassword: this.credentials.ehpassword,
                             boxId: ["INBOX","SENTBOX"],
-                            alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
+                            alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
                             keyPair: keyPair
                         })
                     })
@@ -1290,10 +1285,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         console.log("Le worker à repondu " + e.data.message)
                     }
 
+                    localStorage.setItem('lastEhboxRefresh', Date.now())
+
                 } else {
                     // this.set('ehboxWebWorkerMessage', 'Réception automatique désactivée')
                     // this.$.ehboxInboxMessage.classList.add('notificationEhbox')
-                    console.log('check ehbox prevent from user param')
+                    console.log('check ehbox prevent from user param OR time prevent')
                 }
             }
 
