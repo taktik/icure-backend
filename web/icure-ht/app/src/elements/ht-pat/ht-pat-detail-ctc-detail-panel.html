@@ -1128,7 +1128,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 articlePoso.push(that.poso) // add posology to the list
                 medicName = that.R
             }) // map end
-            const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
+            const prescri = (this.patient.ssin && this.api.tokenId && rid) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridIdx}</div>
@@ -1281,7 +1281,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             }
             thatI++
         }) // allPage map end
-        const toPrint = (this.patient.ssin && this.api.tokenId) ?
+        const toPrint = (this.patient.ssin && this.api.tokenId && rid) ?
             `<html>
             <head><style>
             body {margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};}
