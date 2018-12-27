@@ -31,6 +31,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PermissionLogic
@@ -47,6 +48,9 @@ import javax.servlet.Filter
 
 @Configuration
 class SecurityConfig {
+    @Bean
+    fun allowUrlSemicolonFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) }
+
     @Bean
     fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder(256)
 

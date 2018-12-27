@@ -1727,7 +1727,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return acc
                                         }, {})
                                         const importedAESHcPartyKeys = {}
-                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
+                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys =>
+                                            Promise.all(Object.keys(ownersOfDelegations)
+                                                .map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId])
+                                                    .then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))
+                                        ).then(() => Promise.all(services.map(s => Promise.all(
+                                            s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))
+                                        )))).then(arraysOfArraysOfPatIdsAsUa => {
                                             return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
                                                 filter: {
                                                     '$type': 'PatientByIdsFilter',
