@@ -19,7 +19,7 @@
               },
               "codeTypes" : [],
               "sortOrder" : 1463236439,
-              "label" : "Medical House",
+              "label" : "medical_house",
               "type" : "TKString",
               "subForm" : false,
               "name" : "hcpId"
@@ -39,7 +39,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Subscription start date",
+              "label" : "sub_start_date",
               "type" : "TKDate",
               "subForm" : false,
               "name" : "startOfContract",
@@ -60,7 +60,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Subscription end date",
+              "label" : "sub_end_date",
               "type" : "TKDate",
               "subForm" : false,
               "name" : "endOfContract",
@@ -81,7 +81,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Coverage start date",
+              "label" : "cov_start_date",
               "type" : "TKDate",
               "subForm" : false,
               "name" : "startOfCoverage",
@@ -102,7 +102,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Coverage end date",
+              "label" : "cov_end_date",
               "type" : "TKDate",
               "subForm" : false,
               "name" : "endOfCoverage",
@@ -122,7 +122,7 @@
               "sortOrder": -1,
               "codeTypes": [
               ],
-              "label": "Has doctor subscription?",
+              "label": "has_doc_sub",
               "irrelevant": false,
               "subForm": false,
               "type": "TKBoolean",
@@ -142,7 +142,7 @@
               "sortOrder": -1,
               "codeTypes": [
               ],
-              "label": "Has physiotherapist subscription?",
+              "label": "has_phy_sub",
               "irrelevant": false,
               "subForm": false,
               "type": "TKBoolean",
@@ -162,7 +162,7 @@
               "sortOrder": -1,
               "codeTypes": [
               ],
-              "label": "Has nurse subscription?",
+              "label": "has_nur_sub",
               "irrelevant": false,
               "subForm": false,
               "type": "TKBoolean",
@@ -183,7 +183,7 @@
               "codeTypes" : [
 
               ],
-              "label" : "Unsubscription reason",
+              "label" : "unsub_reason",
               "irrelevant" : true,
               "subForm" : false,
               "type" : "TKNumber",

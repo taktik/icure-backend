@@ -23,10 +23,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @Component
-@ConfigurationProperties("icure.mikronoServer")
+@ConfigurationProperties("icure.mikrono")
 class MikronoProperties {
 	var server : String? = null
-	var superUser : String? = null
-	var superToken : String? = null
-	var applicationToken : String? = null
+	var superuser : String? = null
+	var supertoken : String? = null
+	var applicationtoken : String? = null
 }

@@ -33,6 +33,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
@@ -50,6 +51,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -121,6 +123,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		User user;
 		try {
@@ -233,6 +238,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		userLogic.modifyUser(mapper.map(userDto, User.class));
 		User modifiedUser = userLogic.getUser(userDto.getId());

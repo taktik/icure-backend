@@ -85,38 +85,14 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 		return db.queryView(query, type);
 	}
 
-	protected PaginatedList<T> pagedQueryView(String viewName, String startKey, String endKey, PaginationOffset pagination) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, false);
-	}
-
-	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, false);
-	}
-
-	protected PaginatedList<T> pagedQueryView(String viewName, String startKey, String endKey, PaginationOffset pagination, boolean includeDocs) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, includeDocs, false);
-	}
-
-	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean includeDocs) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, includeDocs, false);
-	}
-
-	protected PaginatedList<T> pagedQueryView(String viewName, String startKey, String endKey, PaginationOffset pagination, boolean includeDocs, boolean descending) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, includeDocs, descending, TextNode::valueOf);
-	}
-
-	protected PaginatedList<T> pagedQueryView(String viewName, Long startKey, Long endKey, PaginationOffset pagination, boolean includeDocs, boolean descending) {
-		return pagedQueryView(viewName, startKey, endKey, pagination, includeDocs, descending, LongNode::valueOf);
-	}
-
-	private <P> PaginatedList<T> pagedQueryView(String viewName, P startKey, P endKey, PaginationOffset<P> pagination, boolean includeDocs, boolean descending, Function<P, ValueNode> startToNode) {
+	private <P> PaginatedList<T> pagedQueryView(String viewName, P startKey, P endKey, PaginationOffset<P> pagination, boolean descending, Function<P, ValueNode> startToNode) {
 		int limit = pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
 		int page = pagination.getPage() != null ? pagination.getPage() : 0;
 		String startDocId = pagination.getStartDocumentId();
 
 		ViewQuery viewQuery = createQuery(viewName)
 				.startKey(startKey)
-				.includeDocs(includeDocs)
+				.includeDocs(true)
 				.startDocId(startDocId)
 				.limit(limit)
 				.descending(descending);
@@ -141,17 +117,25 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 				ts.getRows(),
 				sk != null ?
 						new PaginatedDocumentKeyIdPair((sk instanceof  NullNode) ? null : (sk instanceof LongNode) ? Collections.singletonList(""+((LongNode) sk).longValue()) : Collections.singletonList(((TextNode) sk).textValue()), ts.getNextPageRequest().getStartKeyDocId())
-				: null
+						: null
 		);
 	}
 
-	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean includeDocs, boolean descending) {
+	protected PaginatedList<T> pagedQueryView(String viewName, String startKey, String endKey, PaginationOffset pagination, boolean descending) {
+		return pagedQueryView(viewName, startKey, endKey, pagination, descending, TextNode::valueOf);
+	}
+
+	protected PaginatedList<T> pagedQueryView(String viewName, Long startKey, Long endKey, PaginationOffset pagination, boolean descending) {
+		return pagedQueryView(viewName, startKey, endKey, pagination, descending, LongNode::valueOf);
+	}
+
+	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean descending) {
 		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
 		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
 		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
 
 		ViewQuery viewQuery = createQuery(viewName)
-				.includeDocs(includeDocs)
+				.includeDocs(true)
 				.startKey(startKey) //Shouldn't be necessary
 				.reduce(false)
 				.startDocId(startDocId) //Shouldn't be necessary
@@ -162,9 +146,39 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 			viewQuery = viewQuery.endKey(endKey);
 		}
 
-		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(startKey.toJson(), startDocId)).build();
+		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey)pagination.getStartKey()).toJson(), startDocId)).build();
 
 		Page<T> ts = db.queryForPage(viewQuery, pr, type);
+
+		try {
+			return new PaginatedList<>(
+					ts.getPageSize(),
+					ts.getTotalSize(),
+					ts.getRows(),
+					ts.getTotalSize() > ts.getPageSize() && ts.getNextPageRequest() != null ? new PaginatedDocumentKeyIdPair(MAPPER.treeToValue((TreeNode) ts.getNextPageRequest().getStartKey(), List.class), ts.getNextPageRequest().getStartKeyDocId()) : null
+			);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	protected PaginatedList<String> pagedQueryViewOfIds(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination) {
+		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
+		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
+		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
+
+		ViewQuery viewQuery = createQuery(viewName)
+				.startKey(startKey)
+				.reduce(false)
+				.limit(limit)
+				.includeDocs(false);
+
+		if (endKey != null) {
+			viewQuery = viewQuery.endKey(endKey);
+		}
+
+		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey)pagination.getStartKey()).toJson(), startDocId)).build();
+
+		Page<String> ts = db.queryForPage(viewQuery, pr, String.class);
 
 		try {
 			return new PaginatedList<>(

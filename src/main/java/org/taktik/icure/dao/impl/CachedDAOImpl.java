@@ -19,6 +19,7 @@
 package org.taktik.icure.dao.impl;
 
 import org.apache.commons.lang3.Validate;
+import org.ektorp.UpdateConflictException;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.taktik.icure.dao.Option;
@@ -128,7 +129,14 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
     @Override
     protected T save(Boolean newEntity, T entity) {
-        entity = super.save(newEntity, entity);
+        try {
+            entity = super.save(newEntity, entity);
+        } catch (UpdateConflictException e) {
+            cache.evict(getFullId(keyManager.getKey(entity)));
+            cache.evict(getFullId(ALL_ENTITIES_CACHE_KEY));
+
+            throw e;
+        }
 		putInCache(keyManager.getKey(entity), entity);
         cache.evict(getFullId(ALL_ENTITIES_CACHE_KEY));
 
@@ -184,7 +192,16 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
     @Override
     protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
-        entities = super.save(newEntity, entities);
+        try {
+            entities = super.save(newEntity, entities);
+        } catch (UpdateConflictException e) {
+            for (T entity:entities) {
+                cache.evict(getFullId(keyManager.getKey(entity)));
+            }
+            cache.evict(getFullId(ALL_ENTITIES_CACHE_KEY));
+
+            throw e;
+        }
         for (T entity:entities) {
 			putInCache(keyManager.getKey(entity), entity);
         }
