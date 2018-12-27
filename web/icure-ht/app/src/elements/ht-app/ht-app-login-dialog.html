@@ -164,6 +164,11 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 	}
 
+    _opened(){
+	    if(this.opened)
+	    	this.set("credentials.username",localStorage.getItem("last_connection"))
+	}
+
 }
 
 customElements.define(HtAppLoginDialog.is, HtAppLoginDialog);
