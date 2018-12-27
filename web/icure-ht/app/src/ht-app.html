@@ -1252,7 +1252,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
-                const lastLoad = localStorage.getItem('lastEhboxRefresh') ? localStorage.getItem('lastEhboxRefresh') : -1
+                const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
                 const shouldLoad = (lastLoad >= Date.now() + 10*60000 || lastLoad==-1)
                 console.log("checkEhboxMessage "+shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
