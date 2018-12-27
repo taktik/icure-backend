@@ -350,6 +350,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 100%;
                 }
 
+                span.unread-msg {
+                    text-transform: uppercase;
+                    font-weight: bolder;
+                }
+
                 .get-msg-btn{
                     margin-bottom: 16px;
                     --paper-button: {
@@ -474,7 +479,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <vaadin-checkbox on-checked-changed="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="102px">
+                        <vaadin-grid-column flex-grow="0" width="104px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received" direction="asc">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                             </template>
@@ -489,36 +494,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                             <template>
                                 <div class="cell frozen">
-                                    <b>[[item.fromAddress]]</b> - [[item.subject]]
-                                    <template is="dom-if" if="[[isImportant(item)]]">
-                                        <iron-icon id="[[item.created]]-important" icon="warning"></iron-icon>
-                                        <!--<paper-tooltip for="[[item.created]]-important">[[localize('significant','important',language)]]</paper-tooltip>-->
+                                    <template is="dom-if" if="[[!isUnread(item)]]">
+                                        [[item.fromAddress]] - [[item.subject]]
                                     </template>
-                                    <template is="dom-if" if="[[isCrypted(item)]]">
-                                        <iron-icon id="[[item.created]]-crypted" icon="lock"></iron-icon>
-                                        <!--<paper-tooltip for="[[item.created]]-crypted">[[localize('encrypted','encrypted',language)]]</paper-tooltip>-->
-                                    </template>
-                                    <template is="dom-if" if="[[hasAnnex(item)]]">
-                                        <iron-icon id="[[item.created]]-hasAnnex" icon="editor:attach-file"></iron-icon>
-                                        <!--<paper-tooltip for="[[item.created]]-hasAnnex">[[localize('attachments','attachments',language)]]</paper-tooltip>-->
+                                    <template is="dom-if" if="[[isUnread(item)]]">
+                                        <span class="unread-msg">[[item.fromAddress]] - [[item.subject]]</span class=unread-msg>
                                     </template>
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="64px" text-align="right">
-                            <template class="header">
-                                <vaadin-grid-sorter path="status">[[localize('is_read','Read',language)]]</vaadin-grid-sorter>
-                                <!--[[localize('is_read','Read',language)]]-->
-                            </template>
+                        <vaadin-grid-column width="104px" flex-grow="0">
                             <template>
-                                <template is="dom-if" if="[[!isUnread(item)]]">
-                                    <iron-icon icon="done"></iron-icon>
+                                <template is="dom-if" if="[[isImportant(item)]]">
+                                    <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
+                                    <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
                                 </template>
-                                <template is="dom-if" if="[[isUnread(item)]]">
-                                    <iron-icon icon="mail"></iron-icon>
+                                <template is="dom-if" if="[[isCrypted(item)]]">
+                                    <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
+                                    <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
+                                </template>
+                                <template is="dom-if" if="[[hasAnnex(item)]]">
+                                    <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
+                                    <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
                                 </template>
                             </template>
                         </vaadin-grid-column>
+                        <!--<vaadin-grid-column flex-grow="0" width="64px">-->
+                            <!--<template class="header">-->
+                                <!--<vaadin-grid-sorter path="status">[[localize('is_read','Read',language)]]</vaadin-grid-sorter>-->
+                                <!--&lt;!&ndash;[[localize('is_read','Read',language)]]&ndash;&gt;-->
+                            <!--</template>-->
+                            <!--<template>-->
+                                <!--<template is="dom-if" if="[[!isUnread(item)]]">-->
+                                    <!--<iron-icon icon="done" id="read-[[item.id]]"></iron-icon>-->
+                                    <!--<paper-tooltip position="left" for="read-[[item.id]]">[[localize('is_read','read',language)]]</paper-tooltip>-->
+                                <!--</template>-->
+                                <!--<template is="dom-if" if="[[isUnread(item)]]">-->
+                                    <!--<iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>-->
+                                    <!--<paper-tooltip position="left" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>-->
+                                <!--</template>-->
+                            <!--</template>-->
+                        <!--</vaadin-grid-column>-->
                     </template>
                 </vaadin-grid>
             </div>

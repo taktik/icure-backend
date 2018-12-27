@@ -1198,6 +1198,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 	        let tempSelect = this.selectMessage.selection.item;
+	        // needed vars
             this.set('toImportPatsSuggestions', [])
             this.set('selectedProtocol',-1)
             this.set('selectedPats',[])
@@ -1210,9 +1211,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
-            // tempSelect.status | 0<<1
-            console.log('thisDocument',this.thisDocument)
+            // mark as read
+            let tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
+            const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
+            tempSelect.status = parseInt(a+'0'+b,2)
+            console.log('status after',tempSelect.status)
 	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
+            // treatment
+            this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
                     // console.log('docs',docs)
