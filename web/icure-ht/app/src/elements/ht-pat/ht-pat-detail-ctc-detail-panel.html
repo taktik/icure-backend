@@ -1204,11 +1204,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 that.map((single)=>{
                     let singleName = single.name
                     thatBody += single.body
-                    if (this.patient.ssin && this.api.tokenId) {
+                    if (this.patient.ssin && this.api.tokenId && rid) {
                         single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+single.name+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
                     }
                 })
-                if (this.patient.ssin && this.api.tokenId) {
+                if (this.patient.ssin && this.api.tokenId && rid) {
                     const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
                     const onepageBodyBottom = `</tbody></table></footer></div>`;
                     onePageBody += onePageBodyTop+rows+onepageBodyBottom;
