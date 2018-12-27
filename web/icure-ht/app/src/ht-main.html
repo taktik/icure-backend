@@ -615,9 +615,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[messages]]" as="msg">
-								<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+								<div class="row card-table-row" data-id$="[[msg.id]]" on-tap="openMessage">
 									<div class="card-table-cell">[[msg.fromAddress]]</div>
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.metas.CM-SendDateTime)]]</div>
 									<div class="card-table-cell">[[msg.subject]] </div>
 								</div>
 							</template>
@@ -869,7 +869,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				});
 				this._isLoadingLatestLabResults = false;
 				return messages.rows;
-			}).then(messages => this.set('messages', messages || []));
+			}).then(messages => {this.set('messages', messages || []); console.log(this.messages)});
 
 			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
 				return appointments && this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
@@ -958,7 +958,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	openMessage(ev) {
-		let target = ev.target;
+
+		console.log(ev)
+		let target = ev.path[0];
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
