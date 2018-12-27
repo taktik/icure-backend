@@ -856,7 +856,7 @@
 
                     this.scanServicesAndScheduleSave(this.currentContact);
 
-                    this.shadowRoot.querySelector("#dynamic-form")._displayedTitle()
+                    this.shadowRoot.querySelector("#dynamic-form").set('showTitle', this.shadowRoot.querySelector("#dynamic-form").showTitle + 1)
 /*
                     if(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")){
                         this.currentContact.tags.splice(this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
