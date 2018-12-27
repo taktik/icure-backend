@@ -166,7 +166,7 @@
 		<paper-card class$="{{_patCardClass(isSubForm)}}">
 			<template is="dom-if" if="[[showTitle]]">
 				<div class="form-title">
-					<span>[[displayedTitle]] [[subcontactTypeTitle]]</span>
+					<span>[[displayedTitle]]</span>
 					<slot name="titlebar"></slot>
 					<div>
 					<dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
@@ -357,10 +357,7 @@
                     subcontactType: {
                         type: Array,
                         value: () => []
-                    },
-                    subcontactTypeTitle:{
-					    type: String
-					}
+                    }
 				};
 			}
 
@@ -391,8 +388,7 @@
 			}
 
 			_displayedTitle() {
-                this.set("subContactTypeTitle", this.dataProvider.subContactTitle())
-				return this.title && this.dataProvider ? this.title : "Loading ...";
+				return this.title && this.dataProvider ? this.title+" "+this.dataProvider.subContactTitle() : "Loading ...";
 			}
 
 			_linkForm(e) {
@@ -668,7 +664,6 @@
 
             _linkToSubcontactType(e){
 				if(e.detail){
-				    this.set("subcontactTypeTitle", "("+e.detail.type.label[this.language]+")")
                     this.dispatchEvent(new CustomEvent('subcontact-type-change', {detail: { type: e.detail, formId: this.dataProvider.getId()}}));
 				}
             }

@@ -385,9 +385,9 @@
 					subContactTitle: () => {
 
                         const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
-						const contactType = scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
+						const contactType = scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
 						const type = this.subcontactType.find(c => c.id === contactType.id)
-						return type && type.label[this.language] || null
+						return type && "("+type.label[this.language]+")" || ""
 
 						/*
                         const ctcs = _.sortBy(this.contacts.filter(c => c.subContacts.some(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))).filter(c => c.subContacts.some(tags)), 'created')
@@ -855,6 +855,8 @@
 					}
 
                     this.scanServicesAndScheduleSave(this.currentContact);
+
+                    this.shadowRoot.querySelector("#dynamic-form")._displayedTitle()
 /*
                     if(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")){
                         this.currentContact.tags.splice(this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
