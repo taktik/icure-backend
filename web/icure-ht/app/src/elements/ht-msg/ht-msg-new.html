@@ -641,7 +641,7 @@
                             <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
                             <div class="cell">
                                 <div>
-                                    <paper-checkbox checked="[[newMessage.crypted]]" on-change="_isCryptedMessage">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                                    <paper-checkbox checked="[[newMessage.encrypted]]" on-change="_isCryptedMessage">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
                                     <paper-checkbox checked="[[newMessage.important]]" on-change="_isImportant">[[localize('significant','significant',language)]]</paper-checkbox>
                                 </div>
                             </div>
@@ -1136,7 +1136,13 @@
                     const forcedMetas = this._setMetaDatas(currentHcp,currentHcp,this.setAddressee(this.newMessage.destinations[0]),this.newMessage.annex)
                     let customMetas = this.newMessage.customMetas
                     Object.keys(forcedMetas).forEach(k=>customMetas[k] = forcedMetas[k])
-                    console.log('customMetas',customMetas)
+                    console.log('newMessage',this.newMessage)
+
+                    let builtStatus = 0<<0 | 1<<1
+                    builtStatus = this.newMessage && this.newMessage.important ? builtStatus|1<<2 : builtStatus
+                    builtStatus = this.newMessage && this.newMessage.encrypted ? builtStatus|1<<3 : builtStatus
+                    builtStatus = this.newMessage && this.newMessage.annex.length ? builtStatus|1<<4 : builtStatus
+                    console.log('status',builtStatus)
 
                     let message = {
                         id : this.api.crypto().randomUuid(),
@@ -1164,10 +1170,11 @@
                         hasAnnex : this.newMessage.annex && this.newMessage.annex.length > 0,
                         hasFreeInformations : false,
                         important : this.newMessage && this.newMessage.important ? this.newMessage.important : false,
-                        encrypted : this.newMessage && this.newMessage.crypted ? this.newMessage.crypted : false,
+                        encrypted : this.newMessage && this.newMessage.encrypted ? this.newMessage.encrypted : false,
                         destinations : this.newMessage.destinations.map(hcp => this.setAddressee(hcp)),
                         sender : this.setSenderAddressee(currentHcp),
-                        fromHealthcarePartyId: currentHcp.id
+                        fromHealthcarePartyId: currentHcp.id,
+                        status: builtStatus
                     };
 
 					console.log('request',this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
@@ -1293,7 +1300,7 @@
             }
 
             _isCryptedMessage(e){
-                this.set('newMessage.crypted', e.target.checked)
+                this.set('newMessage.encrypted', e.target.checked)
             }
 
             // _readFile(file) {
@@ -1366,7 +1373,7 @@
                     // "CM-MediaType" : files.length ? getMediaType(files[0]) : '', // https://www.ehealth.fgov.be/standards/kmehr/en/tables TODO
                     "CM-AuthorID" : author.nihii ? author.nihii : author.ssin, // 12345625001
                     "CM-AuthorIDType" : author.nihii ? "NIHII" : "SSIN", // NIHII
-                    "CM-AuthorType" : author.civility.toUpperCase(), // doctor
+                    "CM-AuthorType" : author.civility ? author.civility.toUpperCase() : 'NOTFOUND', // doctor
                     "CM-SenderID" : sender.nihii ? sender.nihii : sender.ssin, // 12345625001
                     "CM-SenderIDType" : sender.nihii ? "NIHII" : "SSIN", // NIHII
                     "CM-RecipientID" : recipient.id, // 12345625001

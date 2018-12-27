@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
 
@@ -465,6 +466,7 @@
                 padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
 				height: 40px;
+                z-index: 10;
             }
             .action-buttons > .buttons {
                 float: left;
@@ -517,7 +519,7 @@
 				align-items: flex-start;
             }
             .attached paper-button {
-                margin-bottom: 4px;
+                margin: 0;
             }
 
 			.attached h3{
@@ -652,6 +654,12 @@
                 z-index: 150;
                 transform: translate(-50%,-50%);
             }
+			paper-spinner.patlist-spinner {
+                position: relative;
+                top: 12px;
+                left: 8px;
+                transform: none;
+            }
 
             .close-panel {
                 width: 100%;
@@ -727,28 +735,49 @@
 
             #import-suggest {
                 position: fixed;
-                top: 50vh;
-                left: 50vw;
+                display: flex;
+                top: calc(50vh + 97px);
+                right: 7px;
+                left: initial;
+                width: 81vw;
+                height: auto;
+                max-height: calc(100vh - 97px);
+                transform: translateY(calc(-50% - 64px));
+                justify-content: flex-end;
                 background: #fff;
                 padding: 8px;
                 border: 1px solid var(--app-background-color-dark);
                 box-shadow: var(--app-shadow-elevation-2);
                 border-radius: 4px;
-                transform: translate(-50%,-50%);
                 z-index: 999;
-                display: flex;
                 flex-direction: column;
                 margin: 0 auto;
-                width: 512px;
             }
 
             #import-suggest .twocol {
-                display: inline-grid;
+                display: grid;
                 grid-template-columns: 50% 50%;
             }
 
+            #import-suggest .twocol > div > h5 {
+                margin: 0 auto 4px auto;
+                text-align: center;
+            }
+
+            #import-suggest .lab-details {
+                flex-grow: 1;
+                flex-direction: column !important;
+                margin-bottom: 8px;
+            }
+            #import-suggest .lab-details .sheet {
+                overflow-y: auto;
+                background: var(--app-background-color-dark);
+                border-radius: 4px;
+                flex-grow: 1;
+            }
+
             #import-suggest .scrollbox {
-                height: 320px;
+                height: 40vh; /* TODO : when labresult is done, "128px" */
                 overflow-y: auto;
                 background: var(--app-background-color-dark);
                 border-radius: 4px;
@@ -756,16 +785,33 @@
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 8px;
+                box-sizing: border-box;
             }
             .scrollbox.labolist {
-                margin-right: 8px;
+                margin-right: 8px; /* TODO : 8px when labresult done*/
                 padding: 0 !important;
+            }
+            .scrollbox.patlist .checkbox-item {
+                border-bottom: 1px solid var(--app-background-color-darker);
+                padding: 4px;
+            }
+            .scrollbox.patlist .checkbox-item * div#checkbox.checked {
+                background-color: var(--app-secondary-color-dark);
+                border-color: var(--app-secondary-color-dark);
             }
 
             #import-suggest .line {
                 display: flex;
                 flex-direction: row;
+                justify-content: flex-start;
+                width: 100%;
+            }
+            #import-suggest .line > div.grow {
+                flex-grow: 1;
+            }
+            #import-suggest .save-line {
                 justify-content: flex-end;
+                min-height: 48px;
             }
 
             paper-listbox {
@@ -773,13 +819,47 @@
                 padding: 0;
             }
 
-            .pointer {
-                cursor: pointer;
+            .labolist .unassigned {
+                line-height: 100%;
+                display: flex;
+                flex-direction: column;
+                border-top: 1px solid var(--app-background-color-darker);
+                text-align: left;
+                padding: 8px 4px 4px 0;
             }
-            .pointer:hover {
+            .labolist .unassigned:first-child {
+                border: none;
+            }
+
+            .labolist .unassigned .pat-name {
+                font-weight: bold;
+            }
+            .labolist .unassigned iron-icon {
+                width: 18px;
+                margin-left: 4px;
+            }
+            .labolist .unassigned small {
+                width: 100%;
+                display: block;
+            }
+            .labolist .unassigned .labo-info {
+                margin: 4px 0;
+            }
+            .labo-info .labo-name {}
+            .labolist .unassigned .demand-date {
+                text-align: right;
+                font-size: .75em;
+            }
+
+            .pointer:hover,
+            .pointer:focus,
+            .pointer.iron-selected {
                 background: var(--app-secondary-color);
+                cursor: pointer;
+                color: white;
+                font-weight: initial;
             }
-            .pointer:focus {
+            .pointer.iron-selected {
                 background: var(--app-secondary-color-dark);
             }
 
@@ -791,11 +871,35 @@
                     overflow-y: auto;
                 }
 
+                #import-suggest {
+                    left: 50vw;
+                    transform: translateY(calc(-50% - 64px)) translateX(-50%);
+                    width: 90vw;
+                }
+
                 .read-txt {
                     height: auto;
                     overflow-y: hidden;
                     min-height: 80px;
                 }
+            }
+
+            @media screen and (max-width: 650px) {
+                .noPortable {display: none !important;}
+                #import-suggest {
+                    max-height: 50vh;
+                }
+
+                #import-suggest .twocol {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #import-suggest .scrollbox {
+                    height: 128px;
+                }
+
+                #import-suggest .labolist {margin-right: 0;}
             }
 
 		</style>
@@ -848,37 +952,73 @@
                             <template is="dom-if" if="[[hasUnassignedResults]]">
 
                                 <template is="dom-if" if="[[unimportedPats.length]">
-                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
-                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                    </paper-button>
+                                    <template is="dom-if" if="[[!assignModal]]">
+                                        <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                                            [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                        </paper-button>
+                                    </template>
                                 </template>
 
                                 <template is="dom-if" if="[[assignModal]]">
                                     <div id="import-suggest">
-                                        <h4>Chose pat to import to</h4>
+                                        <div class="line">
+                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <paper-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></paper-spinner>
+                                        </div>
                                         <div class="twocol">
-                                            <div class="scrollbox labolist">
-                                                <h5>Unassigned</h5>
-                                                <paper-listbox selected="{{selectedProtocol}}">
-                                                    <template is="dom-repeat" items="[[unimportedPats]]">
-                                                        <paper-item class="pointer">[[item.lastName]] [[item.firstName]]</paper-item>
-                                                    </template>
-                                                </paper-listbox>
+                                            <div>
+                                                <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
+                                                <div class="scrollbox labolist">
+                                                    <paper-listbox selected="{{selectedProtocol}}">
+                                                        <template is="dom-repeat" items="[[unimportedPats]]">
+                                                            <paper-item class="unassigned pointer">
+                                                                <div class="line">
+                                                                    <div>
+                                                                        <iron-icon icon="assignment" width="18px"></iron-icon>
+                                                                    </div>
+                                                                    <div class="grow">
+                                                                        <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
+                                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
+                                                                        <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
+                                                                        <small class="demand-date">[[item.formatedDemandDate]]</small>
+                                                                    </div>
+                                                                </div>
+                                                            </paper-item>
+                                                        </template>
+                                                    </paper-listbox>
+                                                </div>
                                             </div>
-                                            <div class="scrollbox patlist">
-                                                <h5>Possible match by last name</h5>
-                                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
-                                                    <vaadin-checkbox on-tap="_getPatsFromCheckbox" data-item$="[[item]]">[[item.firstName]] [[item.lastName]] [[item.dateOfBirth]]</vaadin-checkbox>
-                                                </template>
+                                            <div>
+                                                <h5>[[toImportPatsSuggestions.length]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                                <div class="scrollbox patlist">
+                                                    <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
+                                                        <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                                    </template>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="line">
+                                         <!--TODO : Get lab result -->
+                                        <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
+                                            <!--<div class="line lab-details noPortable">-->
+                                                <!--<h4>Lab result</h4>-->
+                                                <!--<div class="sheet">-->
+                                                    <!--<h5>[[docInfo.labo]]</h5>-->
+                                                    <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
+                                                    <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
+                                                    <!--<p><small>[[docInfo.engine]]</small></p>-->
+                                                    <!--<p>[[docInfo]]</p>-->
+                                                    <!--<p>[[thisDocument]]</p>-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+                                        <!--</template>-->
+                                        <div class="line save-line">
                                             <paper-button on-tap="closeSuggestions">
                                                 [[localize('can','Cancel',language)]]
                                             </paper-button>
-                                            <paper-button id="patients-importBtn" class="confirmPats" on-tap="_setAssign">
-                                                [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
-                                            </paper-button>
+                                            <template is="dom-if" if="[[canAssign]]">
+                                                <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
+                                                    [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
+                                                </paper-button>
+                                            </template>
                                         </div>
                                     </div>
                                 </template>
@@ -973,7 +1113,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             thisDocument: {
 			    type: Object,
-                value: {}
+                value: null
             },
             toImportPatsSuggestions: {
 			    type: Array,
@@ -994,6 +1134,26 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             targetPats: {
                 type: Array,
                 value: []
+            },
+            isLoadingPatsSuggest: {
+			    type: Boolean,
+                value: false
+            },
+            selectName: {
+			    type: String,
+                value: ''
+            },
+            docInfo: {
+			    type: Object,
+                value: null
+            },
+            canAssign: {
+			    type: Boolean,
+                value: false
+            },
+            docInfos: {
+			    type: Object,
+                value: null
             }
 		};
 	}
@@ -1008,6 +1168,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	ready(){
 		super.ready();
+
+        // this.shadowRoot.getElementById('import-suggest').onkeydown = (e) => {
+        this.onkeydown = (e) => {
+            if(e.key === "Escape") {this.closeSuggestions()}
+        }
 	}
 
 	close() {
@@ -1033,17 +1198,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
 	        let tempSelect = this.selectMessage.selection.item;
+	        // needed vars
             this.set('toImportPatsSuggestions', [])
             this.set('selectedProtocol',-1)
             this.set('selectedPats',[])
             this.set('targetPats',[])
 			this.set('isLoadingMessage',true)
+            this.set('selectName','')
+            this.set('unimportedPats',[])
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             this.set('unassignedResults',tempSelect.unassignedResults)
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
-	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
+            if (tempSelect.status) { // mark as read
+                const tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
+                const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
+                if (this.isUnread(tempSelect)) { // if message was not read, else do nothing
+                    tempSelect.status = parseInt(a+'0'+b,2)
+                    this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
+                }
+            }
+            // treatment
+	        console.log('this message',tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {
                     // console.log('docs',docs)
@@ -1088,7 +1265,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.getChildren(tempSelect.id)
                     this.set('hasUnassignedResults', false)
                 }
-                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
@@ -1098,141 +1274,169 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 	}
 
+    openSuggestions() {
+        if(!this.assignModal) {
+            this.set('assignModal',true)
+            this.set('targetPats',[])
+            this.set('isLoadingPatsSuggest',false)
+            this.set('selectedProtocol',-1)
+        }
+    }
+
 	closeSuggestions() {
         this.set('toImportPatsSuggestions', [])
         this.set('assignModal',false)
+        this.set('selectName','')
+        this.set('thisDocument',null)
+        this.set('selectedProtocol',-1)
     }
 
-    openSuggestions() {
-        this.set('assignModal',true)
-        this.set('targetPats',[])
-    }
-
-    _updateSuggestions() {
-        console.log('_updateSuggestions')
-        if (this.selectedProtocol >= 0) {
-            const unimportedPats = this.unimportedPats ? this.unimportedPats : []
-            const index = this.selectedProtocol
-            this.set('toImportPatsSuggestions',[])
-            this.set('selectedPats',[])
-            this.set('targetPats',[])
-            this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, unimportedPats[index].lastName, null, null, 100, "asc")
-                .then(patients => {
-                    console.log('patients',patients)
-                    if (patients && patients.rows.length) patients.rows.map(pat => {
-                        if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) this.push('toImportPatsSuggestions', pat)
-                    })
-                })
-        }
-    }
-
-    _getPatsFromCheckbox(e) {
-        const elem = JSON.parse(e.target.dataset.item)
-        const checked = e.target.getAttribute('checked') == null ? false : true
-        let arr = this.targetPats ? this.targetPats : []
-        console.log('getPatsFromCheckbox')
-        if (checked) {
-            arr.push(elem)
-        } else {
-            arr.splice(arr.indexOf(elem))
-        }
-        this.set('targetPats',arr)
-    }
-
-	_getPatsFromDoc(document) {
+    _getPatsFromDoc(document) {
         console.log('_getPatsFromDoc')
-	    const tempSelect = this.selectMessage.selection.item
+        const tempSelect = this.selectMessage.selection.item
         const assigned = this.assignedResults ? this.assignedResults : []
         const unassigned = this.unassignedResults ? this.unassignedResults : []
-        console.log('assigned : ',assigned)
-        console.log('unassigned : ',unassigned)
         this.set('toImportPatsSuggestions', [])
+        this.set('thisDocument',document)
         this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
             if (resultInfo.length && unassigned.length) {
-                this.set('docInfo',resultInfo)
+                this.set('docInfos',resultInfo)
+                console.log('docInfos',resultInfo)
                 resultInfo.map(res=>{
                     Object.keys(unassigned).forEach(k => {
                         if (unassigned[k] == res.protocol) {
+                            res.formatedDemandDate = this.api.moment(res.demandDate).format('DD/MM/YYYY')
                             this.push('unimportedPats',res)
                         }
                     })
                 })
+                const sorted = _.orderBy(this.unimportedPats, 'demandDate', "desc")
+                const sortedDocs = _.orderBy(this.docInfos, 'demandDate', "desc")
+                this.set('unimportedPats',sorted)
+                this.set('docInfos',sortedDocs)
             }
         }).catch((err) => {
             console.warn(err);
         })
     }
 
-    _setAssign() {
-	    console.log('setAssign',this.targetPats)
-        const targets = this.targetPats ? this.targetPats : []
-        if (targets) {
-
+    _updateSuggestions() {
+        console.log('_updateSuggestions')
+        if (this.selectedProtocol >= 0) {
+            this.set('isLoadingPatsSuggest',true)
+            const unimportedPats = this.unimportedPats ? this.unimportedPats : []
+            const index = this.selectedProtocol
+            this.set('selectName', unimportedPats[index] ? `(${unimportedPats[index].lastName})` : '')
+            this.set('docInfo',this.docInfos[index])
+            console.log('docInfo',this.docInfo)
+            this.set('toImportPatsSuggestions',[])
+            this.set('selectedPats',[])
+            this.set('targetPats',[])
+            this.set('canAssign',false)
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, unimportedPats[index].lastName, null, null, 100, "asc")
+                .then(patients => {
+                    this.set('isLoadingPatsSuggest',false)
+                    if (patients && patients.rows.length) patients.rows.map(pat => {
+                        if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) {
+                            pat.dateOfBirth = this.api.moment(pat.dateOfBirth).format('DD/MM/YYYY')
+                            this.push('toImportPatsSuggestions', pat)
+                        }
+                    })
+                })
         }
-        // possibleToImport.map(patient=>{
-        //     console.log('pat',patient,patient.lastName+" "+patient.firstName)
-        //     return this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, patient.dateOfBirth+" "+patient.lastName+" "+patient.firstName, null, null, 100, "asc").then(patients =>
-        //     {
-        //         if (patients && patients.rows[0]) {
-        //             console.log('will new instance')
-        //             let thisPat = patients.rows[0]
-        //             if (patients.rows.length > 0) {
-        //                 console.log('multiple match')
-        //                 patients.rows.map(pat=>{
-        //                     if (pat.lastName.toUpperCase() === patient.lastName.toUpperCase() &&
-        //                         pat.firstName.toUpperCase() === patient.firstName.toUpperCase() &&
-        //                         pat.dateOfBirth === patient.dateOfBirth) {
-        //                         thisPat = pat
-        //                     }
-        //                 })
-        //             }
-        //             this.api.contact().newInstance(this.user, thisPat, {
-        //                 groupId : document.id,
-        //                 created: new Date().getTime() ,
-        //                 modified: new Date().getTime() ,
-        //                 author: this.user.healthcarePartyId,
-        //                 responsible: this.user.healthcarePartyId,
-        //                 openingDate: moment().format('YYYYMMDDhhmmss') || '',
-        //                 closingDate: moment().format('YYYYMMDDhhmmss') || '',
-        //                 encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
-        //                 descr: docInfo.labo,
-        //                 subContacts: []
-        //             }).then(c => {
-        //                 console.log('newInstance',c)
-        //                 this.api.contact().createContact(c).then(c => {
-        //                     console.log('createContact',c)
-        //                     this.api.form().newInstance(this.user, thisPat, {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f => {
-        //                         return this.api.form().createForm(f).then(f =>
-        //                             this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
-        //                                 this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
-        //                                     .then(c => {
-        //                                         console.log("Contact id " + c.id);
-        //                                         Object.keys(unassigned).forEach(res => {
-        //                                             if (res === pat) {unassigned.splice(pat)}
-        //                                         })
-        //                                         this.set("unimportedPats",unassigned)
-        //                                         console.log('unimportedPats',this.unimportedPats)
-        //                                         assigned.push({[pat.documentId]:pat.prototype})
-        //                                         tempSelect.unassignedResults = unassigned
-        //                                         tempSelect.assignedResults = assigned
-        //                                         console.log('tempSelect',tempSelect)
-        //                                         return this.api.messages().modifyMessage(tempSelect).then(msg => {
-        //                                             console.log('modifyMessage',tempSelect.unassignedResults.length+" unassigned",tempSelect)
-        //                                             if(tempSelect.unassignedResults.length == 0) {
-        //                                                 return this.removeMsg(msg)
-        //                                             }
-        //                                         });
-        //                                     })
-        //                             )
-        //                         )
-        //                     })
-        //                 })
-        //             })
-        //         } else {
-        //             console.log('pat not found',patients.rows)
-        //         }
-        //     })
-        // }) // map end
+    }
+
+    _getPatsFromCheckbox(e) {
+        console.log('_getPatsFromCheckbox')
+        const elem = JSON.parse(e.target.dataset.item)
+        const checked = e.target.checked
+        let arr = this.targetPats ? this.targetPats : []
+        if (checked) {
+            arr.push(elem)
+        } else {
+            arr.splice(arr.indexOf(elem))
+        }
+        this.set('canAssign',this.targetPats.length)
+        this.set('targetPats',arr)
+    }
+
+    _assignResultToSelected() {
+        const tempSelect = this.selectMessage.selection.item
+        const targets = this.targetPats ? this.targetPats : []
+        const docInfo = this.docInfo ? this.docInfo : null
+        const assigned = this.assignedResults ? this.assignedResults : []
+        const unassigned = this.unassignedResults ? this.unassignedResults : []
+        const document = this.thisDocument ? this.thisDocument : null
+        delete docInfo.formatedDemandDate
+        console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document)
+        if (tempSelect && targets && docInfo && assigned && unassigned && document) {
+            targets.map(thisPat=>{
+                this.api.contact().newInstance(this.user, thisPat, {
+                    groupId : document.id,
+                    created: new Date().getTime() ,
+                    modified: new Date().getTime() ,
+                    author: this.user.id,
+                    responsible: this.user.healthcarePartyId,
+                    openingDate: moment().format('YYYYMMDDhhmmss') || '',
+                    closingDate: moment().format('YYYYMMDDhhmmss') || '',
+                    encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
+                    descr: docInfo.labo,
+                    subContacts: []
+                }).then(c => {
+                    console.log('newInstance', c)
+                    return this.api.contact().createContactWithUser(this.user,c)
+                }).then(c => {
+                    console.log('createContactWithUser',c)
+                    return this.api.form().newInstance(this.user, thisPat, {
+                        contactId: c.id,
+                        descr: "Lab " + new Date().getTime(),
+                    }).then(f => {
+                        console.log('should do Import',thisPat,docInfo,document)
+                        return this.api.form().createForm(f).then(f =>
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                                this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
+                            )
+                        )
+                    })
+                }).then(c => {
+                    console.log("I'm your helper : ",c,document,docInfo);
+                    let tempUnassign = this.unassignedResults
+                    Object.keys(unassigned).forEach(res => {
+                        console.log('unassigned,res',unassigned[res], typeof unassigned[res])
+                        if (unassigned[res] === docInfo.protocol) {
+                            console.log('splice')
+                            tempUnassign.splice(tempUnassign.indexOf(docInfo.protocol))
+                            this.set('unassignedResults',tempUnassign)
+                        }
+                    })
+                    // this.set("unimportedPats", unassigned)
+                    // assigned.push({[c.contactId]: thisPat.protocol})
+                    let tempAssign = _.clone(this.assignedResults)
+                    tempAssign[c.id] = docInfo.protocol
+                    this.set('assignedResults',tempAssign)
+                    console.log('unassignedResults', this.unassignedResults)
+                    console.log('assignedResults', this.assignedResults)
+                    console.log('un/assigned changed')
+                    tempSelect.unassignedResults = this.unassignedResults
+                    tempSelect.assignedResults = this.assignedResults
+                    console.log('tempSelect', tempSelect)
+                    return this.api.message().modifyMessage(tempSelect).then(msg => {
+                        console.log(msg,'modifyMessage', tempSelect.unassignedResults.length + " unassigned", tempSelect)
+                        if (tempSelect.unassignedResults.length == 0) {
+                            console.log('no more assigned')
+                            this.closeSuggestions()
+                            return this._removeMsg(msg)
+                        } else {
+                            this._focusChanged()
+                        }
+                        return Promise.resolve()
+                    });
+                })
+                .catch(err => {
+                    console.warn("error:" + err)
+                })
+            }) // map end
+        }
     }
 
     getChildren(item){
@@ -1250,33 +1454,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
         })
         // }.bind(this))
-    }
-
-    removeMsg(msg) {
-        if (msg) {
-            console.log('removeMsg,',msg)
-            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-            const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
-            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            console.log('remove',idOfMsg,thisBox,delBox)
-            if (thisBox == 'INBOX') {
-                console.log('move:',idOfMsg,thisBox,delBox)
-                return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
-                    .then(()=>{
-                        console.log('move to bin done, modify',idOfMsg,thisBox,delBox)
-                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                        msgApi.modifyMessage(msg).then(()=> {
-                            console.log('modify done',idOfMsg,thisBox,delBox)
-                        } )
-                    })
-                    .catch(err => {
-                        console.log('ERROR:',idOfMsg,thisBox,delBox, err)
-                    })
-            } else if (thisBox != 'SENTBOX') {
-                console.log('del from bin',idOfMsg,thisBox,delBox)
-                return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
-            }
-        }
     }
 
     textType(uti, utis) {
@@ -1630,6 +1807,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return rawFile.responseText.startsWith('A1/')
             }
         }
+    }
+
+    isUnread(m) {
+        return (m.status & (1 << 1)) !== 0 ? true : false
     }
 }
 
