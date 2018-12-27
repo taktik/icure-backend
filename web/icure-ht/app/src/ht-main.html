@@ -588,7 +588,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -618,7 +618,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -653,7 +653,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -683,7 +683,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button>
+									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -875,15 +875,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		super.ready();
 
-		// this.setFromSavedLayout()
+		this.setFromSavedLayout()
 
     }
-
-	attached() {
-		super.attached()
-
-		this.setFromSavedLayout()
-	}
 
     apiReady() {
 		if (!this.user || !this.api) { return }
@@ -1060,7 +1054,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	setFromSavedLayout() {
 
-		const storage = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
+		const storage = JSON.parse(localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.main.grid`))
 
 		if(storage) {
 			this.set('selectedLayout', storage.layout)
@@ -1068,9 +1062,6 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 		this.layoutGrid.setFromStorage(this.user, this.widgets)
-
-		const empties = this.layoutGrid.getEmptySpaces()
-		this.push('widgets', ...empties)
 
 		this.setStyles( this.layoutGrid.styleStrings )
 
@@ -1094,8 +1085,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	sanitizeEmpties() {
+
+		// console.log(this.widgets)
 		this.set('widgets', this.widgets.filter( widget => {
-			if(widget.id){
+			if(widget && widget.id){
 				return !widget.id.includes('empty')
 			}
 		}))
@@ -1117,7 +1110,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_dragWidgetEnter(e){
-		e.target.parentNode.classList.add('over')
+		e.target.closest(".card").classList.add('over')
 	}
 
 	_dragWidgetLeave(e){
@@ -1127,7 +1120,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_dragWidgetEnd() {
 		this.shadowRoot.querySelectorAll('.card').forEach(card => card.classList.remove('over') )
 		this.shadowRoot.querySelector('#'+this.dragSrcEl).classList.remove('dragging')
-		console.log("drag end")
+		// console.log("drag end")
 	}
 
 	_dropWidget(e) {
@@ -1155,6 +1148,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_handleWidgetChange(e) {
 
 		// this.updateWidgetSize(JSON.parse(e.target.dataset.item));
+
+		const index = this.widgets.findIndex(k => k.id === JSON.parse(e.target.dataset.item).id )
+
+		if ((index + 1)) {
+			// console.log(this.widgets[index])
+			this.set(['widgets',index],this.layoutGrid.computeCardSize(this.widgets[index]))
+
+		}
+
 		this.updateGrid()
 
 	}
@@ -1167,17 +1169,26 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const index = parseInt(path.split('.')[1])
 
 		if((index + 1)) {
-			console.log(this.widgets[index])
-			this.widgets[index] = this.layoutGrid.updateCardSize(this.widgets[index]);
+
+			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
+
+			const currentWidget = this.widgets[index];
+
+			if(
+				currentWidget.nrCols != newWidget.nrCols || 
+				currentWidget.nrRows != newWidget.nrRows ||
+				currentWidget.posCol != newWidget.posCol || 
+				currentWidget.posRow != newWidget.posRow
+			) {
+
+				this.set(['widgets', index], newWidget)
+
+			}else {
+				this.updateGrid()
+			}
+
 
 		}
-	
-
-		if(path) {
-			if(e.path.includes('empty') || e.path.includes('widgets')) return 
-		}
-
-		this.updateGrid(false)
 
 	}
 
@@ -1234,64 +1245,135 @@ class GridLayout {
 
 	}
 
-	updateCardSize(widget) {
+	computeCardSize(w) {
+
+		const widget = _.clone(w,true)
 
 		if(widget) {
 
 			//how much space is needed
 
-			let colSpace = 0;
-			let colStart = null;
-			let isPartOfCard = false;
 
-			let spaceLeft = 0;
-			let spaceRight = 0;
+			//ROW
 
-			if(this.grid[widget.posRow]){
+			let rowSpace = 0;
+			let rowStart = null;
+			let rowIsPartOfCard = false;
+
+			let spaceUnder = 0;
+
+			let spaceData = [];
+
+
+			for( let rowIndex = 0; rowIndex < this.grid.length; rowIndex++) {
+
+				// COLUMN
+				let colSpace = 0
+				let colStart = null
+				let colIsPartOfCard = false
+
+				let spaceRight = 0
 
 				//calculating how much horizontal space
 				for (let colIndex = 0; colIndex < this.grid[widget.posRow].length; colIndex++) {
 
-					const widgetId = this.grid[widget.posRow][colIndex]
+					const widgetId = this.grid[rowIndex][colIndex]
 					if (widgetId.includes('empty') || widgetId == widget.id) {
 
 						if (colStart == null) colStart = colIndex
 
-						if (isPartOfCard) {
+						if (colIsPartOfCard) {
 							spaceRight++
-						} else if (widgetId == widget.id) {
-							isPartOfCard = true
-						} else {
-							spaceLeft++
+						} else if (widget.posCol == colIndex) {
+							colIsPartOfCard = true
 						}
 
 						colSpace++
 
-					} else if (!isPartOfCard) {
+					} else if (!colIsPartOfCard) {
 						colStart = null
-						colSpace = 0;
+						colSpace = 0
 					} else {
 						break;
 					}
 
 				}
 
-				// now move horizontaly if possible and needed 
 
-				if (widget.nrCols > colSpace) {
+				const colData = { space: colSpace, start: colStart, rightSide: spaceRight };
+				spaceData.push(colData)
 
-					widget.nrCols = colSpace
+				//calculating how much vertical space
+
+				
+				if(colIsPartOfCard) {
+
+					if (rowStart == null) rowStart = rowIndex
+
+					if (rowIsPartOfCard) {
+						spaceUnder++
+					} else if (widget.posRow == rowIndex) {
+						rowIsPartOfCard = true
+					}
+
+					rowSpace++
+
+				}else if(!rowIsPartOfCard) {
+
+					rowStart = null
+					rowSpace = 0
+
+				} else {
+
+					break;
 
 				}
 
-				if (widget.nrCols <= spaceRight + 1) {
-					return widget
-				}
-
-				widget.posCol -= widget.nrCols - (spaceRight + 1);
-				return widget
 
 			}
+
+			// move vertically if possible and needed 
+
+			if(widget.nrRows > rowSpace) {
+
+				widget.nrRows = rowSpace
+
+			}
+
+			if( widget.nrRows > spaceUnder + 1) {
+
+				widget.posRow -= widget.nrRows - (spaceUnder + 1)
+
+			}
+
+
+			// calculate minimum available horizontal space for the needed rows
+			let minSpace = Infinity,
+				// mostRightStart = 0
+				minRightSpace = Infinity
+
+			for( let rowIndex = widget.posRow; rowIndex < widget.posRow + parseInt(widget.nrRows); rowIndex++) {
+
+				minSpace = minSpace > spaceData[rowIndex].space ? spaceData[rowIndex].space : minSpace;
+				minRightSpace = minRightSpace > spaceData[rowIndex].rightSide ? spaceData[rowIndex].rightSide : minRightSpace;
+				// mostRightStart = mostRightStart < spaceData[rowIndex].start ? spaceData[rowIndex].start : mostRightStart;
+
+			}
+
+			// now move horizontaly if possible and needed 
+
+			if (widget.nrCols > minSpace) {
+
+				widget.nrCols = minSpace
+
+			}
+
+			if (widget.nrCols <= minRightSpace + 1) {
+				return widget
+			}
+
+			widget.posCol -= widget.nrCols - (minRightSpace + 1);
+			return widget
 				
 
 		}
