@@ -518,7 +518,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
 
-        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]"></ht-app-entities-selector>
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]" credentials="[[credentials]]" on-redirect-another-entity="_redirectToAnotherEntity"></ht-app-entities-selector>
 
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
@@ -1559,7 +1559,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.loginDialog.opened = false
 
                     this.set('credentials.twofa', null)
-                    this.set('credentials.userId', u.id)
+                    u.groupId ? this.set('credentials.userId', u.groupId+":"+u.id) : this.set('credentials.userId', u.id)
                     this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
                     if ((this.credentials.userId && this.credentials.appToken)) {
@@ -1829,6 +1829,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
                 })
             }
+
+            _redirectToAnotherEntity(e){
+                if(e.detail){
+                    this.login(e, {credentials: e.detail})
+                }
+            }
+
         }
 
         customElements.define(HtAppTz.is, HtAppTz)

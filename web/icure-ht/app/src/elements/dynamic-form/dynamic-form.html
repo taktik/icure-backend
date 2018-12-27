@@ -18,6 +18,7 @@
 <link rel="import" href="dynamic-sub-form.html">
 <link rel="import" href="dynamic-checkbox.html">
 <link rel="import" href="dynamic-medication-field.html">
+<link rel="import" href="dynamic-subcontact-type-selector.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="ckmeans-grouping.html">
@@ -165,9 +166,10 @@
 		<paper-card class$="{{_patCardClass(isSubForm)}}">
 			<template is="dom-if" if="[[showTitle]]">
 				<div class="form-title">
-					<span>[[displayedTitle]]</span>
+					<span>[[displayedTitle]] [[subcontactTypeTitle]]</span>
 					<slot name="titlebar"></slot>
 					<div>
+					<dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
 					<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
 					<paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
 						<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
@@ -351,6 +353,13 @@
                     reportsListDisplayed: {
                         type: Boolean,
                         value: false
+					},
+                    subcontactType: {
+                        type: Array,
+                        value: () => []
+                    },
+                    subcontactTypeTitle:{
+					    type: String
 					}
 				};
 			}
@@ -382,6 +391,7 @@
 			}
 
 			_displayedTitle() {
+                this.set("subContactTypeTitle", this.dataProvider.subContactTitle())
 				return this.title && this.dataProvider ? this.title : "Loading ...";
 			}
 
@@ -655,6 +665,13 @@
             _none(a,b) {
 			    return !a && !b
 			}
+
+            _linkToSubcontactType(e){
+				if(e.detail){
+				    this.set("subcontactTypeTitle", "("+e.detail.type.label[this.language]+")")
+                    this.dispatchEvent(new CustomEvent('subcontact-type-change', {detail: { type: e.detail, formId: this.dataProvider.getId()}}));
+				}
+            }
 		}
 
 		customElements.define(DynamicForm.is, DynamicForm);
