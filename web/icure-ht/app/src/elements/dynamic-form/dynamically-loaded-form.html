@@ -12,6 +12,7 @@
 <link rel="import" href="dynamic-form.html">
 <link rel="import" href="dynamic-pills.html">
 
+
 <dom-module id="dynamically-loaded-form">
 	<template>
 		<style include="icpc-styles">
@@ -55,15 +56,13 @@
 				min-height: 30px;
 			}
 
-
-
 		</style>
 
 		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate)]]">
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog">
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
@@ -142,7 +141,6 @@
                         value: function () {
                             return {};
                         }
-
                     },
                     hcpListItem: {
                         type: Array,
@@ -395,6 +393,24 @@
                         }
                         return label ? self.servicesMap[label] = this.servicesInForm(form.id, label) : this.servicesInForm(form.id);
                     },
+					subContactTitle: () => {
+
+                        const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
+						const contactType = scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
+						const type = this.subcontactType.find(c => c.id === contactType.id)
+						return type && "("+type.label[this.language]+")" || ""
+
+						/*
+                        const ctcs = _.sortBy(this.contacts.filter(c => c.subContacts.some(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))).filter(c => c.subContacts.some(tags)), 'created')
+						const sc =_.last(ctcs).subContacts.find(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))
+						return sc.tags.find(t => t.type === 'BE-CONTACT-TYPE').code
+						*/
+						/*
+                        const ctType = this.contact.tags.filter(t => t.type === "BE-CONTACT-TYPE") || []
+						const currentType =  ctType && this.subcontactType.find(c => c.id === ctType[0].id)
+						return currentType && currentType.label[this.language]
+						*/
+					},
                     servicesInHierarchy: label => {
                         return _.concat(self.services(label), _.flatMap(form.children, sf => this.getDataProvider(sf, (rootPath.length ? rootPath + '.' : '') + sf.descr + '.' + form.children.filter(sff => sff.descr === sf.descr).indexOf(sf)).servicesInHierarchy(label)));
                     },
@@ -839,6 +855,33 @@
             localizedContent(svc, lng) {
                 return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
             }
+
+            _subContactTypeChange(e){
+                if(e.detail){
+
+                    const scs = this.currentContact.subContacts.find(sc => sc.formId === e.detail.formId)
+
+					if(scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+                        scs.tags.splice(scs.tags.indexOf(scs.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
+                        scs.tags.push(e.detail.type.type);
+					}else{
+                        scs && scs.tags.push(e.detail.type.type);
+					}
+
+                    this.scanServicesAndScheduleSave(this.currentContact);
+
+                    this.shadowRoot.querySelector("#dynamic-form").set('showTitle', this.shadowRoot.querySelector("#dynamic-form").showTitle + 1)
+/*
+                    if(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+                        this.currentContact.tags.splice(this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
+                        this.currentContact.tags.push(e.detail.type.type);
+					}else{
+                        this.currentContact.tags.push(e.detail.type.type);
+					}
+                    this.scanServicesAndScheduleSave(this.currentContact);
+                    */
+				}
+			}
 
         }
 

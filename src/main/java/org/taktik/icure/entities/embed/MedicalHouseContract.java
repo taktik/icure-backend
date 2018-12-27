@@ -3,13 +3,13 @@ package org.taktik.icure.entities.embed;
 //NOTE: better classname would be MedicalHouseInscriptionPeriod
 public class MedicalHouseContract {
 
-	private String ContractId;
+	private String contractId;
 	private Long validFrom; //yyyyMMdd : start of contract period
 	private Long validTo; //yyyyMMdd : end of contract period
 	private String mmNihii;
 	private String hcpId;
 	private ContractChangeType contractChangeType; //inscription, coverageChange, suspension
-	private String ParentContractId;
+	private String parentContractId;
 	private String changedBy; //user, mcn
 
 	//Coverage specific data (coverage = forfait-inscription)
@@ -32,9 +32,9 @@ public class MedicalHouseContract {
 	private String suspensionSource;
 	private boolean forcedSuspension; //no automatic unSuspension
 
-	public String getContractId() { return ContractId; }
+	public String getContractId() { return contractId; }
 
-	public void setContractId(String contractId) { ContractId = contractId; }
+	public void setContractId(String contractId) { contractId = contractId; }
 
 	public Long getValidFrom() { return validFrom; }
 
@@ -48,9 +48,9 @@ public class MedicalHouseContract {
 
 	public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
 
-	public String getParentContractId() { return ParentContractId; }
+	public String getParentContractId() { return parentContractId; }
 
-	public void setParentContractId(String parentContractId) { ParentContractId = parentContractId; }
+	public void setParentContractId(String parentContractId) { this.parentContractId = parentContractId; }
 
 	public String getChangedBy() { return changedBy; }
 

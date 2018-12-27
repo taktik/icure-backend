@@ -490,7 +490,7 @@
 														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
 														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-														 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
+														 on-data-change="_refreshDrugs" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
@@ -510,7 +510,7 @@
 						<div class="paper-fab-container">
 							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 							<div class="add-forms-container">
-								<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
@@ -743,6 +743,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             },
             selectedFormat: {
 			    type: String
+            },
+            subcontactType: {
+                type: Array,
+                value: () => []
             }
 		};
 	}
@@ -758,6 +762,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	ready() {
 	    super.ready();
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+			.then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+            .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
 
         this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
     }
@@ -1529,7 +1535,6 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 		this.$['prose-editor'].open()
 	}
-
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);
