@@ -1215,9 +1215,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             let tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
             const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
             tempSelect.status = parseInt(a+'0'+b,2)
-            console.log('status after',tempSelect.status)
-	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
             // treatment
+	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
             this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => {

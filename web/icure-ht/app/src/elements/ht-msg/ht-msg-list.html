@@ -487,6 +487,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                             </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="48px">
+                            <template>
+                                <template is="dom-if" if="[[isUnread(item)]]">
+                                    <iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>
+                                    <paper-tooltip position="right" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>
+                                </template>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="1">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
@@ -498,7 +506,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         [[item.fromAddress]] - [[item.subject]]
                                     </template>
                                     <template is="dom-if" if="[[isUnread(item)]]">
-                                        <span class="unread-msg">[[item.fromAddress]] - [[item.subject]]</span class=unread-msg>
+                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]] - [[item.subject]]</span>
+                                        <paper-tooltip position="left" for="unread-[[item.id]]-title">[[localize('is_not_read','not read',language)]]</paper-tooltip>
                                     </template>
                                 </div>
                             </template>
@@ -519,22 +528,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </template>
                         </vaadin-grid-column>
-                        <!--<vaadin-grid-column flex-grow="0" width="64px">-->
-                            <!--<template class="header">-->
-                                <!--<vaadin-grid-sorter path="status">[[localize('is_read','Read',language)]]</vaadin-grid-sorter>-->
-                                <!--&lt;!&ndash;[[localize('is_read','Read',language)]]&ndash;&gt;-->
-                            <!--</template>-->
-                            <!--<template>-->
-                                <!--<template is="dom-if" if="[[!isUnread(item)]]">-->
-                                    <!--<iron-icon icon="done" id="read-[[item.id]]"></iron-icon>-->
-                                    <!--<paper-tooltip position="left" for="read-[[item.id]]">[[localize('is_read','read',language)]]</paper-tooltip>-->
-                                <!--</template>-->
-                                <!--<template is="dom-if" if="[[isUnread(item)]]">-->
-                                    <!--<iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>-->
-                                    <!--<paper-tooltip position="left" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>-->
-                                <!--</template>-->
-                            <!--</template>-->
-                        <!--</vaadin-grid-column>-->
                     </template>
                 </vaadin-grid>
             </div>
