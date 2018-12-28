@@ -1531,6 +1531,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <template is="dom-if" if="[[_checkIfPresent(hhe.temporality)]]">
                             <b>[[localize('temp','Temporality',language)]]:</b> {{_getDataTrad(hhe.temporality)}};
                         </template>
+
+                        <template is="dom-if" if="[[_checkIfPresent(hhe.temporality)]]">
+                            <b>[[localize('ext-temp','Extra temporality',language)]]:</b> {{_getDataTrad(hhe.extraTemporality)}};
+                        </template>
+
                     </div>
                 </template>
             </div>
@@ -3982,15 +3987,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     e.openingDate = this.api.moment(e.openingDate).format('DD/MM/YYYY')
                     e.closingDate ? e.closingDate = this.api.moment(e.closingDate).format('DD/MM/YYYY') : e.closingDate = ""
 
-                    let temporality = 	e.tags.find(tmp => tmp.type === 'CD-TEMPORALITY')
-                    let severity = 		e.tags.find(sev => sev.type === 'CD-SEVERITY')
-                    let certainty = 	e.tags.find(cert => cert.type === 'CD-CERTAINTY')
-                    let nature = 		e.tags.find(nat => nat.type === 'CD-ITEM')
+                    let extraTemporality    = e.tags.find(tmp => tmp.type === 'CD-EXTRA-TEMPORALITY')
+                    let temporality         = e.tags.find(tmp => tmp.type === 'CD-TEMPORALITY')
+                    let severity            = e.tags.find(sev => sev.type === 'CD-SEVERITY')
+                    let certainty           = e.tags.find(cert => cert.type === 'CD-CERTAINTY')
+                    let nature              = e.tags.find(nat => nat.type === 'CD-ITEM')
 
-                    e.nature 		= nature && nature.code ? nature.code : ""
-                    e.certainty		= certainty && certainty.code ? certainty.code : ""
-                    e.temporality	= temporality && temporality.code ? temporality.code : ""
-                    e.severity		= severity && severity.code ? severity.code : ""
+                    e.nature 		    = nature && nature.code ? nature.code : ""
+                    e.certainty		    = certainty && certainty.code ? certainty.code : ""
+                    e.temporality	    = temporality && temporality.code ? temporality.code : ""
+                    e.extraTemporality  = extraTemporality && extraTemporality.code ? extraTemporality.code : ""
+                    e.severity		    = severity && severity.code ? severity.code : ""
 
                 })
 
