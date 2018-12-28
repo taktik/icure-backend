@@ -1119,6 +1119,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
             let prescriContent = ""
             let articlePoso = []
+			let articleMedWithPoso = []
             let medicName = ""
             prescArray.map(that => { // create prescription content
                 prescriContent += `<article>
@@ -1126,6 +1127,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     <p class="bigtxt"><span class="bold bigtxt">S/</span> ${that.S}</p>
                 </article>`;
                 articlePoso.push(that.poso) // add posology to the list
+				articleMedWithPoso.push({medR: that.R, poso: that.poso})//add medication with posology to the list
                 medicName = that.R
             }) // map end
             const prescri = (this.patient.ssin && this.api.tokenId && rid) ? `<article class="prescription">
@@ -1170,7 +1172,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
-            prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
+            prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso}) // add a prescription with its datas
         }) // splitCol forEach end
         console.log("prescriToPrint",prescriToPrint)
 
@@ -1179,7 +1181,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             let singlePage = {body:'',poso:[]}
             singlePage.body += (that.prescriBody) // get the body
             singlePage.name = that.name
-            that.posology.map((poso)=>{ // check if there's posology
+            that.medWithPosology.map((poso)=>{ // check if there's posology
                 singlePage.poso.push(poso)
             })
             if (!allPages[that.page-1]) {
@@ -1205,7 +1207,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     let singleName = single.name
                     thatBody += single.body
                     if (this.patient.ssin && this.api.tokenId && rid) {
-                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+single.name+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
+                        single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singlePoso.medR+"</b></td><td>"+singlePoso.poso.toString()+"</td></tr>"}) // construct the posology body
                     }
                 })
                 if (this.patient.ssin && this.api.tokenId && rid) {
