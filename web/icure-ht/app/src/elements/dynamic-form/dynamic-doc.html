@@ -254,17 +254,17 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
+                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
                         console.log('url is', url);
                         this.set('dataUrl', url);
 					});
 				}.bind(this)).catch(() => {
-					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
+					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
 					console.log('url is', url);
 					this.set('dataUrl', url);
 				});
 			} else {
-				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
+				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
 				console.log('url is', url);
 				this.set('dataUrl', url);
 			}
