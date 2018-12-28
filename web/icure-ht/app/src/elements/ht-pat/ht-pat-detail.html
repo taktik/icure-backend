@@ -1414,6 +1414,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-listbox>
                             </template>
                             <template is="dom-if" if="[[!events.length]]">
+                                <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
+                                    <paper-icon-button id="button_list_plan_of_action" icon="list" on-tap="showListPlanOfAction"></paper-icon-button>
+                                </span>
                             </template>
                             <template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">

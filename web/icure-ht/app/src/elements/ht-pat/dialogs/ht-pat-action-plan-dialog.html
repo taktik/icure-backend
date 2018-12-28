@@ -157,7 +157,7 @@
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
                         <template is="dom-if" if="[[isStatusComplete]]">
-                            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[readonly]]"></vaadin-checkbox> Chirurgical
+                            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Chirurgical
                         </template>
                     </vaadin-form-item>
                 </vaadin-form-layout>
@@ -326,6 +326,10 @@
                         value : {}
                     },
                     readonly:{
+                        type: Boolean,
+                        value: false
+                    },
+                    hasSurgical:{
                         type: Boolean,
                         value: false
                     }
@@ -627,7 +631,7 @@
                     }
                 }
 
-                if (action.isSurgical) {
+                if(action.isSurgical) {
                     this.service.content.isSurgical = {
                         booleanValue: action.isSurgical
                     }
@@ -649,6 +653,11 @@
                         bubbles: true,
                         composed: true
                     }))
+                }
+
+
+                if(!this.hasSurgical && action.isSurgical){
+
                 }
             }
 
@@ -675,6 +684,7 @@
                 this.set("selectedProfessionItem","")
                 const service = svc
                 this.set("isExistingSvc",false)
+                this.set("hasSurgical",false)
                 if(service!==null && service.id) {
                     this.set("isExistingSvc",true)
                     this.set("service",service);
@@ -742,6 +752,10 @@
                             this.set("isStatusRefusal", false)
                         }
 
+                        if(this.plannedAction.isSurgical){
+                            this.set("hasSurgical",true)
+                        }
+
 
                     })
 
@@ -771,6 +785,10 @@
             professionItemChanged(){
                 if(!(this.selectedProfessionItem && this.selectedProfessionItem.id))return;
                 this.set("plannedAction.ProfessionId",this.selectedProfessionItem.id)
+            }
+
+            _checkReadonlySurgical(){
+                return this.hasSurgical && this.readonly;
             }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);
