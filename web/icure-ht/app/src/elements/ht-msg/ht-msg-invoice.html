@@ -1641,6 +1641,10 @@
                     messageIdsCanBeAutoArchived:{
                         type: Array,
                         value: []
+                    },
+                    isMessagesLoaded:{
+                        type: Boolean,
+                        value: false,
                     }
                 };
             }
@@ -1655,6 +1659,7 @@
 
             ready() {
                 super.ready();
+                this.set("isMessagesLoaded",false)
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
                 })
@@ -1809,12 +1814,14 @@
                         this._isLoadingMessages = false
                         this.set('allMessages', msgsStructs)
                         this.dispatchMessages()
+                        this.set("isMessagesLoaded",true)
                     })
 
                 })
             }
 
             getMessage(){
+                if(!this.isMessagesLoaded)
                 this.fetchMessageToBeSendOrToBeCorrected()
             }
 
@@ -2109,6 +2116,7 @@
 
                     return prom.then(() => {
                         this.set('isSending',false)
+                        this.set("isMessagesLoaded",false)
                         this.getMessage()
                     })
                 })
@@ -2666,6 +2674,7 @@
 
                     return prom.then(() => {
                         this.set('isReceiving',false)
+                        this.set("isMessagesLoaded",false)
                         this.getMessage()
                     })
                 })
