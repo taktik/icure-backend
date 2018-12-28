@@ -1632,16 +1632,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
-    _restoreMsgs(){
-        let msg = this.messages[0]
-        if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                msg.transportGuid = msg.transportGuid.substring(3);
-                this.api.message().modifyMessage(msg)
-                    .then(()=> this._refresh());
-            }
-        }
-    }
+    // _restoreMsgs(){
+    //     let msg = this.messages[0]
+    //     if (msg) {
+    //         if(msg.transportGuid.startsWith("BIN")){
+    //             msg.transportGuid = msg.transportGuid.substring(3);
+    //             this.api.message().modifyMessage(msg)
+    //                 .then(()=> this._refresh());
+    //         }
+    //     }
+    // }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
