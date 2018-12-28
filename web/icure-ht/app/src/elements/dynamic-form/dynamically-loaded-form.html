@@ -12,6 +12,7 @@
 <link rel="import" href="dynamic-form.html">
 <link rel="import" href="dynamic-pills.html">
 
+
 <dom-module id="dynamically-loaded-form">
 	<template>
 		<style include="icpc-styles">
@@ -55,15 +56,13 @@
 				min-height: 30px;
 			}
 
-
-
 		</style>
 
 		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate)]]">
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog">
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
@@ -142,7 +141,6 @@
                         value: function () {
                             return {};
                         }
-
                     },
                     hcpListItem: {
                         type: Array,
@@ -162,7 +160,7 @@
             }
 
             static get observers() {
-                return ["_loadReports(form.reports.*)", "_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
+                return ["_loadReports(form.template.reports.*, form.template.layout)", "_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
             }
 
             constructor() {
@@ -244,19 +242,30 @@
             }
 
             _loadReports() {
-            	if (!this.forms || !this.form.reports) { this.formReports = [{name:'Report'}]; return }
-            	Promise.all(this.form.reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
+                const reports = this.form && this.form.template && this.form.template.reports || []
+                this.form && this.form.template && this.form.template.layout && this.form.template.layout.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(field => {
+				    if (field.type === 'Action') {
+				        //reports.push()
+					}
+				})))
+
+            	Promise.all(reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
 					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
 			}
 
             _prepareDataProvider() {
                 if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
                     this.set('dataProvider', this.getDataProvider(this.form, ''));
-                    this.set('dataMap', _.fromPairs(this.form.template.layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
-                        const sc = c.subContacts.find(sc => sc.formId === this.form.id);
-                        return sc ? c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) : [];
+                    this.set('dataMap', _.fromPairs((this.form.template || {}).layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
+                        const sc = this.form.id && c.subContacts.find(sc => sc.formId === this.form.id);
+                        if (sc) {
+                            return c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s])
+						} else {
+                            const idsInScs = c.subContacts.flatMap(sc => sc.services.map(s => s.serviceId))
+                            return c.services.filter(s => !idsInScs.includes(s.id)).map(s => [s.label, s])
+						}
                     }))));
-                    if (!this.form.template.layout) {
+                    if (!this.form.template || !this.form.template.layout) {
                         this.set('form.template.layout', {
                             sections: [{
                                 formColumns: [{
@@ -266,7 +275,7 @@
                                             name: s.label,
                                             label: s.label,
                                             editor: {
-                                                key: c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
+                                                key: c.medicationValue ? 'MedicationTableEditor' : c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
                                                 left: 0,
                                                 width: 100,
                                                 top: idx * 20,
@@ -384,6 +393,23 @@
                         }
                         return label ? self.servicesMap[label] = this.servicesInForm(form.id, label) : this.servicesInForm(form.id);
                     },
+					subContactTitle: () => {
+                        const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
+						const contactType = scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
+						const type = this.subcontactType && this.subcontactType.find(c => c.id === contactType.id)
+						return type && "("+type.label[this.language]+")" || ""
+
+						/*
+                        const ctcs = _.sortBy(this.contacts.filter(c => c.subContacts.some(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))).filter(c => c.subContacts.some(tags)), 'created')
+						const sc =_.last(ctcs).subContacts.find(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))
+						return sc.tags.find(t => t.type === 'BE-CONTACT-TYPE').code
+						*/
+						/*
+                        const ctType = this.contact.tags.filter(t => t.type === "BE-CONTACT-TYPE") || []
+						const currentType =  ctType && this.subcontactType.find(c => c.id === ctType[0].id)
+						return currentType && currentType.label[this.language]
+						*/
+					},
                     servicesInHierarchy: label => {
                         return _.concat(self.services(label), _.flatMap(form.children, sf => this.getDataProvider(sf, (rootPath.length ? rootPath + '.' : '') + sf.descr + '.' + form.children.filter(sff => sff.descr === sf.descr).indexOf(sf)).servicesInHierarchy(label)));
                     },
@@ -612,7 +638,10 @@
                             return {
                                 dataMap: _.fromPairs(_.flatten(_.flatten(subForm.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])),
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
-                                template: subForm.template.layout
+                                template: subForm.template.layout,
+								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
+									.concat(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction'))))
+									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
                             };
                         });
                     }.bind(this),
@@ -759,7 +788,7 @@
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
             servicesInForm(formId, label) {
                 const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
-                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId)) //Extract all services which appear at some point in that form
+                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || ((!ss.scs || !ss.scs.length) && !formId)) //Extract all services which appear at some point in that form
                         .map(ss => ss.svc.id)) //Get their ids
                         .map(id => _.sortBy(svcStructs.filter(ss => ss.svc.id === id), ss => -ss.svc.modified)) //Sort them by modified for each id
                         .filter(svcHistory => svcHistory.length) //Keep the ones with a history
@@ -825,6 +854,33 @@
             localizedContent(svc, lng) {
                 return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
             }
+
+            _subContactTypeChange(e){
+                if(e.detail){
+
+                    const scs = this.currentContact.subContacts.find(sc => sc.formId === e.detail.formId)
+
+					if(scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+                        scs.tags.splice(scs.tags.indexOf(scs.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
+                        scs.tags.push(e.detail.type.type);
+					}else{
+                        scs && scs.tags.push(e.detail.type.type);
+					}
+
+                    this.scanServicesAndScheduleSave(this.currentContact);
+
+                    this.shadowRoot.querySelector("#dynamic-form").set('showTitle', this.shadowRoot.querySelector("#dynamic-form").showTitle + 1)
+/*
+                    if(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+                        this.currentContact.tags.splice(this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
+                        this.currentContact.tags.push(e.detail.type.type);
+					}else{
+                        this.currentContact.tags.push(e.detail.type.type);
+					}
+                    this.scanServicesAndScheduleSave(this.currentContact);
+                    */
+				}
+			}
 
         }
 

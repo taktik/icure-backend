@@ -34,10 +34,10 @@
 			}
 
 			.pat-details-card {
-				/*margin: 0 32px 32px;*/
+				margin: 0 32px 32px;
 				padding:0 8px 8px;
 				overflow: hidden;
-                width: 100%;
+                width: calc(100% - 64px);
 			}
 
 			.horizontal {
@@ -104,9 +104,11 @@
             .txt-container {
                 width: 100%;
                 margin: 0;
+                min-height: 64px;
                 padding: 0;
                 box-shadow: none;
-                background: transparent;
+                background: 0 0;
+                overflow: auto;
             }
 
             .hoverpointer {
@@ -254,17 +256,17 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
+                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId);
                         console.log('url is', url);
                         this.set('dataUrl', url);
 					});
 				}.bind(this)).catch(() => {
-					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
+					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
 					console.log('url is', url);
 					this.set('dataUrl', url);
 				});
 			} else {
-				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys);
+				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
 				console.log('url is', url);
 				this.set('dataUrl', url);
 			}

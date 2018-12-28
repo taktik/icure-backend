@@ -1033,9 +1033,7 @@
 	</template>
 	<script>
 
-import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
-import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
 import XML from 'parse-xml/dist/parse-xml';
 
@@ -1233,7 +1231,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
                                             // console.log('this is body',doc)
                                             this.set('bodyDocument',doc)
-                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
                                             fetch(url,{credentials:'include'})
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
@@ -1503,7 +1501,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
                         .then(enckeys =>
                             this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys, this.api.sessionId).then(att => {
                                     let xml = XML.parseXml(att);
                                     if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
                                         xml.kmehrmessage.header.standard.specialisation &&
@@ -1514,7 +1512,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                         this.set("type","Non Valid Type")
                                     }
                                 })
-                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId))
                         );
                 })
         } else { // no encryption keys
@@ -1535,7 +1533,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return att
                 })
             }else {
-                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId,  doc.encryptionKeys));
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
             }
         } // encrypt? end
     }
@@ -1632,16 +1630,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
-    // _restoreMsgs(){
-    //     let msg = this.messages[0]
-    //     if (msg) {
-    //         if(msg.transportGuid.startsWith("BIN")){
-    //             msg.transportGuid = msg.transportGuid.substring(3);
-    //             this.api.message().modifyMessage(msg)
-    //                 .then(()=> this._refresh());
-    //         }
-    //     }
-    // }
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
+    }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
