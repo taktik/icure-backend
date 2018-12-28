@@ -1395,7 +1395,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
                             <template is="dom-if" if="[[events.length]]">
                                 <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                    <paper-icon-button id="button_list_plan_of_action" icon="list" on-tap="showListPlanOfAction"></paper-icon-button>
+                                    <paper-icon-button id="button_list_plan_of_action" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
                                 </span>
                                 <paper-listbox id="_events_listbox" class="todo-list">
                                     <template is="dom-repeat" items="[[events]]" as="e">
@@ -1415,7 +1415,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                             <template is="dom-if" if="[[!events.length]]">
                                 <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                    <paper-icon-button id="button_list_plan_of_action" icon="list" on-tap="showListPlanOfAction"></paper-icon-button>
+                                    <paper-icon-button id="button_list_plan_of_action" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
                                 </span>
                             </template>
                             <template is="dom-repeat" items="[[contactYears]]" as="contactYear">
