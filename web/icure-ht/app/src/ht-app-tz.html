@@ -1470,7 +1470,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _viewChanged(view) {
                 if (view.startsWith('auth')) {
-                    Promise.all([this.$.loginDialog.opened = true]).then(x=>this.$.loginDialog._opened())
+                    this.$.loginDialog.open()
                     return
                 }
                 if (this.lazyPages[view]) {

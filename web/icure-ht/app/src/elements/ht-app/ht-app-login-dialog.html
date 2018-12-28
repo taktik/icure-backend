@@ -81,7 +81,7 @@
 			</div>
 			<form is="form" id="login-form">
 				<div class="layout vertical center flex">
-					<paper-input label="Username" name="username" always-float-label="true"
+					<paper-input id="username" label="Username" name="username" always-float-label="true"
 								 value="{{credentials.username}}" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="Password" name="password" type="password" always-float-label="true"
 								 value="{{credentials.password}}" on-keydown="checkForEnter" invalid$={{credentials.error}}></paper-input>
@@ -164,10 +164,12 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 	}
 
-    _opened(){
-	    if(this.opened)
-	    	this.set("credentials.username",localStorage.getItem("last_connection"))
-	}
+    open(){
+        this.$["loginDialog"].open()
+        setTimeout(() => {
+            this.set("credentials.username",localStorage.getItem("last_connection"))
+        }, 0)
+    }
 
 }
 
