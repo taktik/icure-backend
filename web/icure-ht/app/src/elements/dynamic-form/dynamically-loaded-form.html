@@ -275,7 +275,7 @@
                                             name: s.label,
                                             label: s.label,
                                             editor: {
-                                                key: c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
+                                                key: c.medicationValue ? 'MedicationTableEditor' : c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
                                                 left: 0,
                                                 width: 100,
                                                 top: idx * 20,
@@ -394,10 +394,9 @@
                         return label ? self.servicesMap[label] = this.servicesInForm(form.id, label) : this.servicesInForm(form.id);
                     },
 					subContactTitle: () => {
-
                         const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
 						const contactType = scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
-						const type = this.subcontactType.find(c => c.id === contactType.id)
+						const type = this.subcontactType && this.subcontactType.find(c => c.id === contactType.id)
 						return type && "("+type.label[this.language]+")" || ""
 
 						/*

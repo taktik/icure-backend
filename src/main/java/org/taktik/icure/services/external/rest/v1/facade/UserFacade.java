@@ -91,15 +91,15 @@ public class UserFacade implements OpenApiFacade{
 
 	@ApiOperation(
 			value = "Get Currently logged-in user session.",
-			response = UserDto.class,
+			response = String.class,
 			httpMethod = "GET",
 			notes = "Get current user."
 	)
 	@GET
 	@Path("/session")
+	@Produces({ "text/plain" })
 	public Response getCurrentSession(){
-		return Response.ok().entity(((WebAuthenticationDetails) sessionLogic.getCurrentSessionContext().getAuthentication().getDetails())
-				.getSessionId()).build();
+		return Response.ok().entity(sessionLogic.getOrCreateSession().getId()).build();
 	}
 
 	@ApiOperation(
