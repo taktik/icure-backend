@@ -1233,7 +1233,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                         if (this._isEqualTo(doc.documentLocation, 'body')) {
                                             // console.log('this is body',doc)
                                             this.set('bodyDocument',doc)
-                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, doc.encryptionKeys)
                                             fetch(url,{credentials:'include'})
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
@@ -1535,7 +1535,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return att
                 })
             }else {
-                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId,  doc.encryptionKeys));
             }
         } // encrypt? end
     }
