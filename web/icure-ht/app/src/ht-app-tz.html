@@ -1379,7 +1379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    this.api.user().getCurrentSession(this.api.sessionId).then(sessionId => this.api.sessionId = sessionId)
+                    this.api.user().getCurrentSession(this.api.sessionId).then(sessionId => this.api.set('sessionId', sessionId))
 
                     const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
                     if (timeBeforeDeconnection > 0) {

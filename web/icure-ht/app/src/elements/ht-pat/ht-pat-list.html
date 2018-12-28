@@ -30,8 +30,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 
-<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
-
 <dom-module id="ht-pat-list">
     <template>
         <custom-style>
@@ -2037,7 +2035,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     f.attached = true;
                     return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
                         f.doc = d;
-                        f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
+                        f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/;jsessionid=.*$/,`;jsessionid=${this.api.sessionId}`).replace(/\{documentId\}/, d.id);
                         return f;
                     });
                 })).then(files => {
@@ -2136,11 +2134,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             return this.api.patient().modifyPatientWithUser(this.user, p)
                         }).then(pat => {
                             let prolist = [
-                                result.forms.map(form => {
-                                    return this.api.form().newInstance(this.user, pat, form).then(f => {
-                                        return this.api.form().modifyForm(f)
-                                    });
-                                }),
+                                Promise.all(result.forms.map(form => {
+                                    return this.api.form().newInstance(this.user, pat, form);
+                                })).then(forms => this.api.form().modifyForms(forms)),
                                 result.ctcs.map(ctc => {
                                     return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
                                         return this.api.contact().modifyContactWithUser(this.user, c)
