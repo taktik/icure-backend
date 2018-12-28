@@ -468,7 +468,7 @@
     "flatrate_column_1" : "Ref.",
     "flatrate_column_2" : "LName FName",
     "flatrate_column_3" : "Birthdate",
-    "flatrate_column_4" : "INAMI",
+    "flatrate_column_4" : "SSIN",
     "flatrate_column_5" : "C.T.",
     "flatrate_column_6" : "Subscr.",
     "flatrate_column_7" : "Cov. start",
@@ -530,7 +530,8 @@
     "begin": "Begin",
     "end": "End",
     "filterResults": "Filter results",
-    "download": "Download"
+    "download": "Download",
+    "invoicingExport": "Invoicing download"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -1066,7 +1067,7 @@
     "flatrate_column_1" : "Ref.",
     "flatrate_column_2" : "Nom Prénom",
     "flatrate_column_3" : "Date naiss.",
-    "flatrate_column_4" : "INAMI",
+    "flatrate_column_4" : "NISS",
     "flatrate_column_5" : "C.T.",
     "flatrate_column_6" : "Inscr.",
     "flatrate_column_7" : "Début couv.",
@@ -1128,8 +1129,8 @@
     "begin": "Début",
     "end": "Fin",
     "filterResults": "Filtrer les résultats",
-    "download": "Télécharger"
-
+    "download": "Télécharger",
+    "invoicingExport": "Télécharger la facturation"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1766,6 +1767,7 @@
     "begin": "Begin",
     "end": "Einde",
     "filterResults": "Filter resultaten",
-    "download": "Downloaden"
+    "download": "Downloaden",
+    "invoicingExport": "Facturatie downloaden"
   }
 }
