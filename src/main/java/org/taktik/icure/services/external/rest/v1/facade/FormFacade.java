@@ -246,7 +246,7 @@ public class FormFacade implements OpenApiFacade {
 			response = FormDto.class,
 			responseContainer = "Array",
 			httpMethod = "PUT",
-			notes = "Returns the modified form."
+			notes = "Returns the modified forms."
 	)
 	@PUT
 	@Path("/batch")

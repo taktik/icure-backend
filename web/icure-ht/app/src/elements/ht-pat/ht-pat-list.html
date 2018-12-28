@@ -2128,7 +2128,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('isLoadingPatient', true)
                 this.set('isImportingPatients', true)
                 console.log("importing: " + document.name)
+                this.startTime = Date.now()
                 return this.api.bekmehr().importSmf(document.id, "123245", null, this.user.language, {}).then(results => {
+                    console.log("done importSmf", (Date.now() - this.startTime)/1000)
                     let patpromises = results.map(result => {
                         return this.api.patient().newInstance(this.user, result.patient, result.patient).then(p => {
                             return this.api.patient().modifyPatientWithUser(this.user, p)
@@ -2137,22 +2139,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 Promise.all(result.forms.map(form => {
                                     return this.api.form().newInstance(this.user, pat, form);
                                 })).then(forms => this.api.form().modifyForms(forms)),
-                                result.ctcs.map(ctc => {
-                                    return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
-                                        return this.api.contact().modifyContactWithUser(this.user, c)
-                                    });
+                                Promise.all(result.ctcs.map(ctc => {
+                                    return this.api.contact().newInstance(this.user, pat, ctc)
+                                })).then(c => {
+                                    return this.api.contact().modifyContactsWithUser(this.user, c)
                                 }),
-                                result.hes.map(he => {
-                                    return this.api.helement().newInstance(this.user, pat, he).then(h => {
-                                        return this.api.helement().modifyHealthElement(h)
-                                    });
+                                Promise.all(result.hes.map(he => {
+                                    return this.api.helement().newInstance(this.user, pat, he)
+                                })).then(h => {
+                                    return this.api.helement().modifyHealthElements(h)
                                 }),
-                                result.documents.map(doc => {
-                                    return this.api.document().newInstance(this.user, pat, doc).then(d => {
-                                        return this.api.document().modifyDocument(d)
-                                    });
-                                })
-                            ].map(pl => Promise.all(pl));
+                                Promise.all(result.documents.map(doc => {
+                                    return this.api.document().newInstance(this.user, pat, doc)
+                                })).then(d => {
+                                        return this.api.document().modifyDocuments(d)
+                                    })
+                            ];
                             return prolist.reduce((acc, prom) => acc.then(res => prom.then(innerRes => res.concat(innerRes))), Promise.resolve([]))
                                 .then(
                                     datastatus => {
@@ -2193,6 +2195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     () => {
                         // import status already pushed at patient level
                         this.removeFromRemainingPatientImports(document)
+                        console.log("done encrypt", (Date.now() - this.startTime)/1000)
                         return Promise.resolve()
                     },
                     err => {
