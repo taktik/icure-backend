@@ -18,7 +18,10 @@
 
 package org.taktik.icure.logic;
 
+import javax.servlet.http.HttpSession;
+
 public interface ICureSessionLogic extends SessionLogic {
+	HttpSession getOrCreateSession();
 	String getCurrentUserId();
 	String getCurrentHealthcarePartyId();
 }

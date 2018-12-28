@@ -1038,7 +1038,7 @@
                             <div id="appendix-upload-container">
                                 <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
                                                accept="image/jpeg,application/pdf"
-                                               target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                               target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT"
                                                form-data-name="attachment"
                                                on-upload-success="_fileUploaded"></vaadin-upload>
                                 <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>

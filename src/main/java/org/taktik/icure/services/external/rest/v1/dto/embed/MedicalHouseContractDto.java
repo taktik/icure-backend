@@ -3,17 +3,16 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 import org.taktik.icure.entities.embed.SuspensionReason;
 
 import java.io.Serializable;
-import java.util.Map;
 
 public class MedicalHouseContractDto implements Serializable {
 
-    private String ContractId;
+    private String contractId;
     private Long validFrom; //yyyyMMdd : start of contract period
     private Long validTo; //yyyyMMdd : end of contract period
     private String mmNihii;
     private String hcpId;
     private ContractChangeType contractChangeType; //inscription, inscription end, suspension, coverageChange
-    private String ParentContractId;
+    private String parentContractId;
     private String changedBy; //user, mcn
 
     private Long startOfContract; //yyyyMMdd
@@ -34,9 +33,9 @@ public class MedicalHouseContractDto implements Serializable {
     private String suspensionSource;
     private boolean forcedSuspension; //no automatic unSuspension
 
-    public String getContractId() { return ContractId; }
+    public String getContractId() { return contractId; }
 
-    public void setContractId(String contractId) { ContractId = contractId; }
+    public void setContractId(String contractId) { this.contractId = contractId; }
 
     public Long getValidFrom() { return validFrom; }
 
@@ -50,9 +49,9 @@ public class MedicalHouseContractDto implements Serializable {
 
     public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
 
-    public String getParentContractId() { return ParentContractId; }
+    public String getParentContractId() { return parentContractId; }
 
-    public void setParentContractId(String parentContractId) { ParentContractId = parentContractId; }
+    public void setParentContractId(String parentContractId) { this.parentContractId = parentContractId; }
 
     public String getChangedBy() { return changedBy; }
 
