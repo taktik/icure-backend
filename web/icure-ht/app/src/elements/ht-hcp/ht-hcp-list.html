@@ -215,6 +215,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				}
 
+                #patients-list {
+                    flex-grow: 1;
+                }
+
 				.hcp-photo {
 					background: rgba(0, 0, 0, 0.1);
 					height: 26px;
@@ -259,10 +263,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					width: 200px;
 				}
 
-				#fusionDialog{
+				paper-dialog#fusionDialog{
 					width:650px;
 					height: 200px;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 8px;
 				}
+
+                paper-dialog#fusionDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                paper-dialog#fusionDialog .buttons {
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
 
 				#fusionHcpSelect{
 					border : 0px

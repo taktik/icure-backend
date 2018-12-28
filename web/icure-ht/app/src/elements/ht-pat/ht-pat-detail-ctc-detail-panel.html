@@ -476,7 +476,7 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-						<template is="dom-if" if="[[dof.unmappedServices]]">
+						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
 													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
 													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
@@ -490,7 +490,7 @@
 														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
 														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-														 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
+														 on-data-change="_refreshDrugs" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
@@ -510,7 +510,7 @@
 						<div class="paper-fab-container">
 							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 							<div class="add-forms-container">
-								<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
@@ -552,7 +552,7 @@
 		<paper-dialog id="upload-dialog">
 			<h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml,text/plain" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml,text/plain" target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
 
 		<paper-dialog id="loadingPrescriptionDialog">
@@ -623,7 +623,6 @@
 	</template>
 	<script>
 
-import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
@@ -742,7 +741,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 value: null
             },
             selectedFormat: {
-			    type: String
+			    type: String,
+                value: 'A4'
+            },
+            subcontactType: {
+                type: Array,
+                value: () => []
             }
 		};
 	}
@@ -758,6 +762,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	ready() {
 	    super.ready();
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+			.then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+            .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
 
         this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
     }
@@ -1136,7 +1142,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 articlePoso.push(that.poso) // add posology to the list
                 medicName = that.R
             }) // map end
-            const prescri = (this.patient.ssin && this.api.tokenId) ? `<article class="prescription">
+            const prescri = (this.patient.ssin && this.api.tokenId && rid) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridIdx}</div>
@@ -1212,11 +1218,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 that.map((single)=>{
                     let singleName = single.name
                     thatBody += single.body
-                    if (this.patient.ssin && this.api.tokenId) {
+                    if (this.patient.ssin && this.api.tokenId && rid) {
                         single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+single.name+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
                     }
                 })
-                if (this.patient.ssin && this.api.tokenId) {
+                if (this.patient.ssin && this.api.tokenId && rid) {
                     const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
                     const onepageBodyBottom = `</tbody></table></footer></div>`;
                     onePageBody += onePageBodyTop+rows+onepageBodyBottom;
@@ -1289,7 +1295,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             }
             thatI++
         }) // allPage map end
-        const toPrint = (this.patient.ssin && this.api.tokenId) ?
+        const toPrint = (this.patient.ssin && this.api.tokenId && rid) ?
             `<html>
             <head><style>
             body {margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};}
@@ -1407,7 +1413,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
     _virtualForm(services) {
-		return {id:null, template:null}
+		return {id:null, template:{name:'Other services'}}
 	}
 
 	_contactsChanged() {
@@ -1529,7 +1535,6 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 		this.$['prose-editor'].open()
 	}
-
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);

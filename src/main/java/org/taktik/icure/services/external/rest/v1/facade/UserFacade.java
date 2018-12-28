@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginatedList;
@@ -91,6 +92,19 @@ public class UserFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
 	}
+
+    @ApiOperation(
+                  value = "Get Currently logged-in user session.",
+                  response = String.class,
+                  httpMethod = "GET",
+                  notes = "Get current user."
+                  )
+    @GET
+    @Path("/session")
+    @Produces({ "text/plain" })
+    public Response getCurrentSession(){
+        return Response.ok().entity(sessionLogic.getOrCreateSession().getId()).build();
+    }
 
 	@ApiOperation(
 			value = "Get presently logged-in user.",

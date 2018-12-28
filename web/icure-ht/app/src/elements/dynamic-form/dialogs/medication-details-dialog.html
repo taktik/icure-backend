@@ -413,7 +413,7 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
 
-                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">Substitution</vaadin-checkbox>
+                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">Substitution</vaadin-checkbox>
                 <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">Renewal</vaadin-checkbox>
                 <template is="dom-if" if="[[isRenewal]]">
                     <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
@@ -873,17 +873,17 @@
                             this.set('previousMedication', this.selectedMedicationContentWithId)
 
                             this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit','unit',this.language))
-                            this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority === "middle" ? 1 : 0 )
+                            this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0 )
 
-                            this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
+                            this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
 
-                            this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
-                            this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
+                            this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
+                            this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
 
-                            this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.decimal : 1)
-                            this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal && this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.value : 1)
-                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
-                            this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal ? true : false)
+                            this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
+                            this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1)
+                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
+                            this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.renewal ? true : false)
 
 
                             this.set('openAddDropDown',false)
@@ -970,25 +970,25 @@
             _changeBeginMoment() {
                 if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
                     const beginMoment = parseInt(this.beginMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment", beginMoment)
+                    this.set("selectedMedicationContentWithId.medicationValue.beginMoment", beginMoment)
                 }
             }
 
             _changeEndMoment() {
                 if (this.selectedMedicationContentWithId && this.endMomentAsString) {
                     const endMoment = parseInt(this.endMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment", endMoment)
+                    this.set("selectedMedicationContentWithId.medicationValue.endMoment", endMoment)
                 }
             }
 
             _changeMedicPriority() {
                 // console.log('_changeMedicPriority')
                 if (this.selectedMedicationContentWithId) {
-                    const priority = this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority?
-                                    this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority=== 2 ? 'high' :
-                                    this.selectedMedicationContentWithId.medicationValue.medicinalProduct.priority=== 1 ? 'middle' : 'low' :
+                    const priority = this.selectedMedicationContentWithId.medicationValue.priority?
+                                    this.selectedMedicationContentWithId.medicationValue.priority=== 2 ? 'high' :
+                                    this.selectedMedicationContentWithId.medicationValue.priority=== 1 ? 'middle' : 'low' :
                                     'low'
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.priority", priority)
+                    this.set("selectedMedicationContentWithId.medicationValue.priority", priority)
                 }
             }
 
@@ -1155,24 +1155,24 @@
             _changeReimbursementItem(item){
                 if(item && item.id){
                     const reimbursementItem = this.reimbursementCodeRecipe.find(r => r.id === item.id)
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.reimbursementReason", reimbursementItem)
+                    this.set("selectedMedicationContentWithId.medicationValue.reimbursementReason", reimbursementItem)
                 }
             }
 
             _substitutionAllowedChanged(e){
-                this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct.substitutionAllowed', e.target.checked)
+                this.set('selectedMedicationContentWithId.medicationValue.substitutionAllowed', e.target.checked)
             }
             _renewalValueChanged(e){
                 this.set('isRenewal', e.target.checked)
                 if(e.target.checked === false){
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal", null)
+                    this.set("selectedMedicationContentWithId.medicationValue.renewal", null)
                 }
             }
 
             _changeRenewalTimeUnitItem(item, unitValue, decimalValue){
                 if(item && item.id){
                     const timeUnitItem = this.timeUnit.find(r => r.id === item.id)
-                    this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.renewal", {
+                    this.set("selectedMedicationContentWithId.medicationValue.renewal", {
                         decimal: decimalValue,
                         duration: {
                             value: unitValue,
