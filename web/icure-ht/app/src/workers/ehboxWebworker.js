@@ -57,20 +57,20 @@ onmessage = e => {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                // console.log('remove',idOfMsg,thisBox,delBox)
+                console.log('remove',idOfMsg,thisBox,delBox)
                 if (msg.transportGuid && !msg.transportGuid.startsWith("BIN")) {
-                    // console.log('move to bin',idOfMsg,thisBox,delBox)
+                    console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            // console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
+                            console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             msgApi.modifyMessage(msg).then(()=> {
-                                // console.log('modify done',idOfMsg,thisBox,delBox)
+                                console.log('modify done',idOfMsg,thisBox,delBox)
 
                             } )
                         })
                         .catch(err => {
-                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
                     console.log('delete',idOfMsg,thisBox,delBox)
@@ -82,20 +82,20 @@ onmessage = e => {
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                // console.log('remove from server',idOfMsg,thisBox,delBox)
+                console.log('remove from server',idOfMsg,thisBox,delBox)
                 if (thisBox.transportGuid && !thisBox.transportGuid.startsWith("BIN")) {
-                    // console.log('move to bin',idOfMsg,thisBox,delBox)
+                    console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            // console.log('move to bin done',idOfMsg,thisBox,delBox)
+                            console.log('move to bin done',idOfMsg,thisBox,delBox)
                         })
                         .catch(err => {
-                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
-                    // console.log('delete',idOfMsg,thisBox)
+                    console.log('delete',idOfMsg,thisBox)
                     return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox)
                 }
             }
@@ -143,9 +143,10 @@ onmessage = e => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
                                 contactId: c.id,
+                                cryptedForeignKeys: thisPat.cryptedForeignKeys,
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
-                                console.log('should do Import',thisPat,docInfo,document)
+                                console.log('should do Import',f)
                                 return iccFormXApi.createForm(f).then(f =>
                                     iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
                                         beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)

@@ -1389,9 +1389,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     console.log('createContactWithUser',c)
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
+                        cryptedForeignKeys: thisPat.cryptedForeignKeys,
                         descr: "Lab " + new Date().getTime(),
                     }).then(f => {
-                        console.log('should do Import',thisPat,docInfo,document)
+                        console.log('should do Import',f)
                         return this.api.form().createForm(f).then(f =>
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                                 this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
