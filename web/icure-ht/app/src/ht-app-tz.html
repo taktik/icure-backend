@@ -1464,7 +1464,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _viewChanged(view) {
                 if (view.startsWith('auth')) {
-                    this.$.loginDialog.opened = true
+                    this.$.loginDialog.open()
                     return
                 }
                 if (this.lazyPages[view]) {
@@ -1561,6 +1561,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
                     }
                     sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                    localStorage.setItem('last_connection',this.credentials.username)
 
                     if (!this.authenticated) {
                         this.authenticated = true

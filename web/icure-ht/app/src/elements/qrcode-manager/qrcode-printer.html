@@ -58,6 +58,10 @@ class QrcodePrinter extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.$.qrcode.appendChild(this.el);
 	}
 
+	getImage(){
+	    return this.$.qrcode;
+	}
+
 }
 
 customElements.define(QrcodePrinter.is, QrcodePrinter);
