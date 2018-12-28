@@ -518,7 +518,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
 
-        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]"></ht-app-entities-selector>
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]" credentials="[[credentials]]" on-redirect-another-entity="_redirectToAnotherEntity"></ht-app-entities-selector>
 
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
@@ -1296,6 +1296,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         value: ""
                     },
+                    EhboxCheckingActive: {
+                        type: Boolean,
+                        value: false
+                    },
                     worker: {
                         type: Worker,
                         noReset: true
@@ -1379,6 +1383,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
+                    this.api.user().getCurrentSession(this.api.sessionId).then(sessionId => this.api.set('sessionId', sessionId))
+
                     const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
                     if (timeBeforeDeconnection > 0) {
                         this.set('disconnectionTimer', timeBeforeDeconnection)
@@ -1413,15 +1419,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 600000) {
-                this.checkEhboxMessage()
-                setInterval(() => {
-                    if (this.api.tokenId) {
-                        this.checkEhboxMessage()
-                    } else {
-                        this._inboxMessageCheck()
-                    }
-                }, period)
+            _inboxMessageCheck(period = 60000) {
+                clearInterval(this.timeOutId)
+                if (this.EhboxCheckingActive == false) {
+                    this.set('EhboxCheckingActive', true)
+                    console.log("First launch, check msgs")
+
+                } else {
+                    console.log("ehbox already active, launch the interval",period)
+                    this.timeOutId = setInterval(() => {
+                        (this.api.tokenId) ? this.checkEhboxMessage() : this._inboxMessageCheck()
+                    }, period)
+                }
             }
 
             _routePageChanged(page) {
@@ -1551,7 +1560,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.loginDialog.opened = false
 
                     this.set('credentials.twofa', null)
-                    this.set('credentials.userId', u.id)
+                    u.groupId ? this.set('credentials.userId', u.groupId+":"+u.id) : this.set('credentials.userId', u.id)
                     this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
                     if ((this.credentials.userId && this.credentials.appToken)) {
@@ -1724,9 +1733,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad < Date.now() + 10*60000 || lastLoad==-1)
-                console.log("checkEhboxMessage "+shouldLoad)
+                const shouldLoad = (lastLoad < Date.now() + (10*60000) || lastLoad==-1)
+                console.log('checkEhboxMessage', lastLoad+'<'+Date.now() + (10*60000),shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
+                    localStorage.setItem('lastEhboxRefresh', Date.now())
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
@@ -1755,8 +1765,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.ehboxInboxMessage.classList.add('notificationEhbox')
                         console.log("Le worker à repondu " + e.data.message)
                     }
-
-                    localStorage.setItem('lastEhboxRefresh', Date.now())
 
                 } else {
                     // this.set('ehboxWebWorkerMessage', 'Réception automatique désactivée')
@@ -1832,6 +1840,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
                 })
             }
+
+            _redirectToAnotherEntity(e){
+                if(e.detail){
+                    this.login(e, {credentials: e.detail})
+                }
+            }
+
         }
 
         customElements.define(HtAppTz.is, HtAppTz)

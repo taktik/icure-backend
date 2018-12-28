@@ -474,23 +474,30 @@
 				</template>
 				<template is="dom-if" if="[[doc]]">
 					<div class="contact-card-frame">
-						<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-							<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-							<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
-								<template is="dom-if" if="[[form.id]]">
-									<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
-															 current-contact="[[currentContact]]"
-															 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
-															 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-															 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-															 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
-								</template>
-								<template is="dom-repeat" items="[[form.docs]]">
-									<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
-												 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true"></dynamic-doc>
-								</template>
+					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<template is="dom-if" if="[[dof.unmappedServices.length]]">
+							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
+													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
+													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+													 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+													 resources="[[resources]]"></dynamically-loaded-form>
+						</template>
+						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
+							<template is="dom-if" if="[[form.id]]">
+								<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
+														 current-contact="[[currentContact]]"
+														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
+														 on-data-change="_refreshDrugs" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
+							</template>
+							<template is="dom-repeat" items="[[form.docs]]">
+								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
+											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true"></dynamic-doc>
 							</template>
 						</template>
+					</template>
 					</div>
 				</template>
 			</div>
@@ -503,7 +510,7 @@
 						<div class="paper-fab-container">
 							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 							<div class="add-forms-container">
-								<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
@@ -539,11 +546,13 @@
 			</paper-tooltip>
 		</div>
 
+		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportTemplatesSelectorDataProvider()]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
 		<entity-selector id="add-form-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
+
 		<paper-dialog id="upload-dialog">
 			<h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml,text/plain" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml,text/plain" target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
 
 		<paper-dialog id="loadingPrescriptionDialog">
@@ -614,12 +623,12 @@
 	</template>
 	<script>
 
-		import jsPDF from 'jspdf/dist/jspdf.min';
-		import _ from 'lodash/lodash';
-		import JsBarcode from 'JsBarcode';
-		import moment from 'moment/src/moment';
-		import '../prose-editor/prose-editor/prose-editor';
-		import mustache from "mustache/mustache.js";
+import jsPDF from 'jspdf/dist/jspdf.min';
+import _ from 'lodash/lodash';
+import JsBarcode from 'JsBarcode';
+import moment from 'moment/src/moment';
+import '../prose-editor/prose-editor/prose-editor';
+import mustache from "mustache/mustache.js";
 
 		class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			static get is() {
@@ -702,42 +711,46 @@
 						}
 					},
 
-					files: {
-						type: Array
-					},
-					_drugsOnPrescriptions: {
-						type: Array
-					},
-					showAddFormsContainer: {
-						type: Boolean,
-						value: false
-					},
-					deliveryDateString: {
-						type: String,
-						value: moment().format("YYYY-MM-DD")
-					},
-					_drugsRefresher: {
-						type: Number,
-						value: 0
-					},
-					hiddenSubContactsId: {
-						type: Object,
-						value: {}
-					},
-					isLoadingDoc: {
-						type: Boolean,
-						value: false
-					},
-					globalHcp: {
-						type: Object,
-						value: null
-					},
-					selectedFormat: {
-						type: String,
-						value: 'A4'
-					}
-				};
-			}
+			files: {
+				type: Array
+			},
+			_drugsOnPrescriptions: {
+				type: Array
+			},
+			showAddFormsContainer: {
+				type: Boolean,
+				value: false
+			},
+			deliveryDateString: {
+				type: String,
+				value: moment().format("YYYY-MM-DD")
+			},
+			_drugsRefresher: {
+			    type: Number,
+				value: 0
+			},
+            hiddenSubContactsId: {
+                type: Object,
+                value: {}
+            },
+            isLoadingDoc: {
+			    type: Boolean,
+                value: false
+            },
+            globalHcp: {
+			    type: Object,
+                value: null
+            },
+            selectedFormat: {
+			    type: String,
+                value: 'A4'
+            },
+            subcontactType: {
+                type: Array,
+                value: () => []
+            }
+		};
+	}
 
 			static get observers() {
 				return ['_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
@@ -747,9 +760,11 @@
 				super();
 			}
 
-			ready() {
-				super.ready();
-				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+	ready() {
+	    super.ready();
+        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
+			.then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+            .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
 
 				this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
@@ -1348,9 +1363,15 @@
 				return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 			}
 
-			_addedFormSelected(e, formTemplate) {
-				formTemplate && this.addForm(e.detail.guid);
-			}
+    _reportTemplateSelected(e, reportTemplate) {
+	    this.api.doctemplate().getAttachment(reportTemplate.id, reportTemplate.attachmentId).then(dt => {
+	        this.prose
+		})
+    }
+
+	_addedFormSelected(e, formTemplate) {
+		formTemplate && this.addForm(e.detail.guid);
+	}
 
 			edit(e, form) {
 				if (!this.currentContact.subContacts.find(sc => sc.formId === form.id)) {
@@ -1386,10 +1407,10 @@
 						return svcMap;
 					}, {});
 
-					ctc.services.reduce((map, svc) => {
-						(map[svc.label] || (map[svc.label] = [])).push({ svc: svc, scs: svcMap[svc.id], ctc: ctc });
-						return map;
-					}, map);
+			ctc.services.reduce((map, svc) => {
+				(map[svc.label] || (map[svc.label] = [])).push({ svc: svc, scs: svcMap[svc.id] || [], ctc: ctc });
+				return map;
+			}, map);
 
 					Object.values(map).forEach(arr => arr.sort((a, b) => b.svc.modified - a.svc.modified));
 
@@ -1397,24 +1418,30 @@
 				}, {}));
 			}
 
-			_contactsChanged() {
-				this.set('contactsFormsAndDocuments', []);
-				if (!this.contacts) {
-					return;
-				}
+    _virtualForm(services) {
+		return {id:null, template:{name:'Other services'}}
+	}
+
+	_contactsChanged() {
+		this.set('contactsFormsAndDocuments', []);
+		if (!this.contacts) {
+			return;
+		}
 
 				this.set('isLoadingDoc',true)
 
-				const seenForms = {}
-				const formGroups = this.contacts.map(contact => ({
-					ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-						const serviceIds = sc.services.map(s => s.serviceId);
-						return {
-							id: sc.formId,
-							docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
-						};
-					}), f => -f.created)
-				}));
+		const seenForms = {}
+		const formGroups = this.contacts.map(contact => ({
+			ctc: contact,
+			forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+				const serviceIds = sc.services.map(s => s.serviceId);
+				return {
+					id: sc.formId,
+					docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
+				};
+			}), f => -f.created),
+			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+		}));
 
 				const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
@@ -1456,9 +1483,36 @@
 				this.root.querySelector('#detailsFiltersPanel').classList.toggle('filters-panel--collapsed');
 			}
 
-			formTemplatesSelectorColumns() {
-				return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
-			}
+    loadTemplate() {
+        this.$['load-template-dialog'].open();
+    }
+
+    reportTemplatesSelectorColumns() {
+        return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
+    }
+
+    reportTemplatesSelectorDataProvider() {
+        return {
+            filter: function (filterValue, limit, offset, sortKey, descending) {
+                const regExp = filterValue && new RegExp(filterValue, "i");
+
+                const all = this.allTemplates || (this.allTemplates = Promise.all([
+                    this.api.doctemplate().findDocumentTemplatesBySpeciality('deptgeneralpractice'),
+                    this.api.doctemplate().findDocumentTemplates()
+                ]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
+
+                return all
+                    .then(fts => {
+                        const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
+                        return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
+                    });
+            }.bind(this)
+        };
+    }
+
+	formTemplatesSelectorColumns() {
+		return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
+	}
 
 			formTemplatesSelectorDataProvider() {
 				return {
@@ -1483,11 +1537,11 @@
 				Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
 			}
 
-			newReport() {
-				this.$['prose-editor'].open()
-			}
+	newReport() {
+		this.$['prose-editor'].open()
+	}
 
-		}
+}
 
 		customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);
 	</script>

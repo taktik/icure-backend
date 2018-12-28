@@ -685,7 +685,7 @@
                     </div>
                     <div>
                         <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
-                        <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" target$="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                        <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" target$="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT"
                             form-data-name="attachment" on-upload-success="_fileUpload" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
@@ -746,12 +746,8 @@
     </template>
     <script>
 
-        import jsPDF from 'jspdf/dist/jspdf.min'
         import _ from 'lodash/lodash'
-        import JsBarcode from 'JsBarcode'
         import moment from 'moment/src/moment'
-        // import XML from 'parse-xml/dist/parse-xml';
-        import XML from 'xml-parse'
 
 		class HtMsgNew extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {

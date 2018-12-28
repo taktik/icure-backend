@@ -346,278 +346,282 @@ class TarificationCodeImporter extends Importer {
 		return filtersMap
 	}
 
-	def doScan(File root, String type) {
-		def refsValues = [:]
+	def doScan(File root, String type, List<Tarification> newCodes = null) {
 		def YEAR = 2018
 
-		refs.each { key, value ->
-			def parts = value.split(",")
-			parts.each {
-				if (!refsValues[it]) {
-					refsValues[it] = []
-				}
-				refsValues[it] << key
-			}
-			if (parts.size() > 1) {
-				if (!refsValues[value]) {
-					refsValues[value] = []
-				}
-				refsValues[value] << key
-			}
-		}
+		def codes = newCodes ?: []
 
-		def rubrics = [:]
-		def valTypes = [:]
-		def tarifications = [:]
-		def unknownCodes = [:]
-		def fee = ['01']
-		def rei = ['02', '03', '04', '06']
-		def tm = ['05']
-
-		def groups = [
-			Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
-			Full: ['Accouchements - accoucheuses', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1 bis', 'Prestations techniques urgentes - Article 26, §1 et 1 ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés']
-			//Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Bandages, ceintures et protheses des seins', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radio-isotopes', 'Radiodiagnostic', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
-		]
-
-		new File(root, 'NOMEN_SUMMARY_EXT.xml').withInputStream {
-			new XmlSlurper().parse(it).NOMEN_SUMMARY_EXT.each { e ->
-				def r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = [id: e.nomen_grp_n.text(), fr: e.nomen_grp_n_desc_fr.text(), nl: e.nomen_grp_n_desc_nl.text(), tarifications: []])
-
-				r.tarifications << (tarifications[e.nomen_code.text()] = [
-					id           : e.nomen_code.text(),
-					amb          : e.ambhos_pat_cat.text() != "2",
-					startCode    : Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text()),
-					fr           : e.nomen_desc_fr.text(),
-					nl           : e.nomen_desc_nl.text(),
-					rubric       : r,
-					letter1      : e.key_letter1.text(),
-					letter_index1: e.key_letter_index1.text(),
-					coeff1       : e.key_coeff1.text(),
-					letter1_value: e.key_letter1_value.text(),
-					letter2      : e.key_letter2.text(),
-					letter_index2: e.key_letter_index2.text(),
-					coeff2       : e.key_coeff2.text(),
-					letter2_value: e.key_letter2_value.text(),
-					letter3      : e.key_letter3.text(),
-					letter_index3: e.key_letter_index3.text(),
-					coeff3       : e.key_coeff3.text(),
-					letter3_value : e.key_letter3_value.text(),
-					valorisations: []
-				])
-			}
-		}
-
-		new File(root, 'NOMEN_FEECODES.xml').withInputStream {
-			new XmlSlurper().parse(it).NOMEN_FEECODES.each { e ->
-				if (e.fee_code_cat.text() != '07') valTypes[e.fee_code.text()] = [key: e.fee_code.text(), fr: e.fee_code_desc_fr.text(), nl: e.fee_code_desc_nl.text(), cat: e.fee_code_cat.text()]
-			}
-		}
-
-		new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
-			new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
-				def parseVal = { e ->
-					def t = tarifications[e.nomen_code.text()]
-					if (t && valTypes[e.fee_code.text()]) {
-						t.valorisations << [
-							fr                 : valTypes[e.fee_code.text()].fr,
-							nl                 : valTypes[e.fee_code.text()].nl,
-							type               : e.fee_code.text(),
-							from               : Date.parse(e.dbegin_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin_fee.text()),
-							to                 : Date.parse(e.dend_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dend_fee.text()),
-							fee                : new Double(fee.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
-							reimbursement      : new Double(rei.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
-							patientIntervention: new Double(tm.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0)
-						]
-					} else {
-						println("${e.nomen_code.text()} valorisation not found")
+		if (codes.size() == 0) {
+			def refsValues = [:]
+			refs.each { key, value ->
+				def parts = value.split(",")
+				parts.each {
+					if (!refsValues[it]) {
+						refsValues[it] = []
 					}
+					refsValues[it] << key
 				}
-				new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
-				new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
-			}
-		}
-
-
-		def codes = []
-
-
-		Map<String,String> conditions = [:]
-		refsValues.each { String key, options ->
-			Map<String,String> map = [:]
-
-			def cnd = key.contains(",") ? (key.split(",").collect { '( ' + conditions[it] + ' )' ?: "<<${it}>>" })
-				.join(' || ') : (map = splitTextKey(key)).keySet().sort().collect { k ->
-				def v = map[k]
-				def ref = (k == 'convention' || k == 'trainee') ? 'hcp' : 'patient'
-				v == 'any' ? 'true' :
-						(k == 'old' && v == 'yes') ? "${ref}.age >= 75" :
-								(k == 'old' && v == 'no') ? "${ref}.age < 75" :
-										(k == 'major' && v == 'yes') ? "${ref}.age >= 18" :
-												(k == 'major' && v == 'no') ? "${ref}.age < 18" :
-														(k == 'regular' && v == 'yes') ? "( ${ref}.age >= 10 && ${ref}.age < 75 )" :
-																(k == 'regular' && v == 'no') ? "( ${ref}.age < 10 || ${ref}.age >= 75 )" :
-																		(k == 'child' && v == 'no') ? "${ref}.age >= 10" :
-																				(k == 'child') ? "${ref}.age < ${v.replaceAll('yes', '10').replaceAll('([0-9]+)m', '$1/12')}" :
-																						v == 'yes' ? "${ref}.${k}" : v == 'no' ? "!${ref}.${k}" : "${ref}.${k} == '${v}'"
-			}.findAll { it != 'true' }.join(' && ')
-			conditions[key] = cnd.length() ? cnd : 'true'
-			conditions[key] = cnd.length() ? cnd : 'true'
-		}
-
-		conditions.each { k, String vv ->
-			if (vv.contains('<<')) {
-				conditions[k] = vv.replaceAll(/<<(.+)>>/) { _, String ref -> "( ${conditions[ref]} )" }
-			}
-		}
-
-		println "Key\tDescr\tRaw conditions\tpreferentialstatus\ttrainee\tchild\tmajor\told\tregular\tdmg\tchronical\tconvention\tpredicate"
-		valTypes.forEach { k, v ->
-			def frt = (Normalizer.normalize( v.fr, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").toLowerCase())
-					.replaceAll(/[^a-z0-9]+/, "_")
-					.replaceAll("(honoraires?|rembousement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
-					.replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
-					.replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_")
-
-			if (!frt.startsWith("le_numero_de_code_est_supprime") && !frt.startsWith("base_de_remboursement") && !frt?.contains('pas_encore_repris_de_tarifs_dans_nomensoft') && !frt?.contains('listes_limitatives') && !frt?.contains('liste_limitative') && !frt?.contains("ticket_moderateur") && !frt?.contains("pas_de_tarifs")) {
-				def frtCode = refs[frt]
-				if (!frtCode) {
-					unknownCodes[frt] = (unknownCodes[frt] ?: 0) + 1
-					frtCode = "_" + frt
-				}
-				v.code = frt
-				v.predicateSource = conditions[frtCode] ? frtCode.split(',').collect { it -> splitTextKey(it) } : [:]
-				v.predicate = (conditions[frtCode] ?: "false&&'${frtCode}'").toString()
-				if (conditions[frtCode]) { println "$k\t${v.fr}\t$frtCode\t${v.predicateSource.collect { it -> it.preferentialstatus}.join(',')}\t${v.predicateSource.collect { it -> it.trainee}.join(',')}\t${v.predicateSource.collect { it -> it.child}.join(',')}\t${v.predicateSource.collect { it -> it.major}.join(',')}\t${v.predicateSource.collect { it -> it.old}.join(',')}\t${v.predicateSource.collect { it -> it.regular}.join(',')}\t${v.predicateSource.collect { it -> it.dmg}.join(',')}\t${v.predicateSource.collect { it -> it.chronical}.join(',')}\t${v.predicateSource.collect { it -> it.convention}.join(',')}\t${v.predicate}" }
-			} else {
-				v.code = frt
-				v.predicate = ("false&&'_${frt}'").toString()
-			}
-		}
-
-		println(new Gson().toJson(valTypes.values()))
-
-		[false,true].forEach { amb ->
-			groups.each { kg, g ->
-				println g
-				def rubKeys= new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
-				rubKeys.each { kr ->
-					def r = rubrics[kr]
-					if (!g.contains(r.fr)) {
-						println r.fr
-						return
+				if (parts.size() > 1) {
+					if (!refsValues[value]) {
+						refsValues[value] = []
 					}
+					refsValues[value] << key
+				}
+			}
 
-					r.tarifications.findAll { map -> map.amb == amb && map.rubric.id == kr }.sort { it.id }.each { map ->
-						def label = [:]
-						label.fr = map.fr
-						label.nl = map.nl
-						def code = new Tarification(
-								Sets.newHashSet('be', 'fr'),
-								type,
-								map.id,
-								"1.0",
-								label)
+			def rubrics = [:]
+			def valTypes = [:]
+			def tarifications = [:]
+			def unknownCodes = [:]
+			def fee = ['01']
+			def rei = ['02', '03', '04', '06']
+			def tm = ['05']
 
-						code.nGroup = r.id
+			def groups = [
+					Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
+					Full: ['Accouchements - accoucheuses', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1 bis', 'Prestations techniques urgentes - Article 26, §1 et 1 ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés']
+					//Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Bandages, ceintures et protheses des seins', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radio-isotopes', 'Radiodiagnostic', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
+			]
 
-						code.letterValues = new LinkedList()
-						if (map.letter1 && map.letter1 != '-') {
-							code.letterValues.add(new LetterValue(letter: map.letter1, index: map.letter_index1, coefficient: Double.valueOf(map.coeff1), value: Double.valueOf(map.letter1_value)))
+			new File(root, 'NOMEN_SUMMARY_EXT.xml').withInputStream {
+				new XmlSlurper().parse(it).NOMEN_SUMMARY_EXT.each { e ->
+					def r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = [id: e.nomen_grp_n.text(), fr: e.nomen_grp_n_desc_fr.text(), nl: e.nomen_grp_n_desc_nl.text(), tarifications: []])
+
+					r.tarifications << (tarifications[e.nomen_code.text()] = [
+							id           : e.nomen_code.text(),
+							amb          : e.ambhos_pat_cat.text() != "2",
+							startCode    : Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text()),
+							fr           : e.nomen_desc_fr.text(),
+							nl           : e.nomen_desc_nl.text(),
+							rubric       : r,
+							letter1      : e.key_letter1.text(),
+							letter_index1: e.key_letter_index1.text(),
+							coeff1       : e.key_coeff1.text(),
+							letter1_value: e.key_letter1_value.text(),
+							letter2      : e.key_letter2.text(),
+							letter_index2: e.key_letter_index2.text(),
+							coeff2       : e.key_coeff2.text(),
+							letter2_value: e.key_letter2_value.text(),
+							letter3      : e.key_letter3.text(),
+							letter_index3: e.key_letter_index3.text(),
+							coeff3       : e.key_coeff3.text(),
+							letter3_value: e.key_letter3_value.text(),
+							valorisations: []
+					])
+				}
+			}
+
+			new File(root, 'NOMEN_FEECODES.xml').withInputStream {
+				new XmlSlurper().parse(it).NOMEN_FEECODES.each { e ->
+					if (e.fee_code_cat.text() != '07') valTypes[e.fee_code.text()] = [key: e.fee_code.text(), fr: e.fee_code_desc_fr.text(), nl: e.fee_code_desc_nl.text(), cat: e.fee_code_cat.text()]
+				}
+			}
+
+			new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
+				new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
+					def parseVal = { e ->
+						def t = tarifications[e.nomen_code.text()]
+						if (t && valTypes[e.fee_code.text()]) {
+							t.valorisations << [
+									fr                 : valTypes[e.fee_code.text()].fr,
+									nl                 : valTypes[e.fee_code.text()].nl,
+									type               : e.fee_code.text(),
+									from               : Date.parse(e.dbegin_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin_fee.text()),
+									to                 : Date.parse(e.dend_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dend_fee.text()),
+									fee                : new Double(fee.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
+									reimbursement      : new Double(rei.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
+									patientIntervention: new Double(tm.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0)
+							]
+						} else {
+							println("${e.nomen_code.text()} valorisation not found")
 						}
-						if (map.letter2 && map.letter2 != '-') {
-							code.letterValues.add(new LetterValue(letter: map.letter2, index: map.letter_index2, coefficient: Double.valueOf(map.coeff2), value: Double.valueOf(map.letter2_value)))
+					}
+					new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
+					new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
+				}
+			}
+
+
+
+			Map<String, String> conditions = [:]
+			refsValues.each { String key, options ->
+				Map<String, String> map = [:]
+
+				def cnd = key.contains(",") ? (key.split(",").collect { '( ' + conditions[it] + ' )' ?: "<<${it}>>" })
+						.join(' || ') : (map = splitTextKey(key)).keySet().sort().collect { k ->
+					def v = map[k]
+					def ref = (k == 'convention' || k == 'trainee') ? 'hcp' : 'patient'
+					v == 'any' ? 'true' :
+							(k == 'old' && v == 'yes') ? "${ref}.age >= 75" :
+									(k == 'old' && v == 'no') ? "${ref}.age < 75" :
+											(k == 'major' && v == 'yes') ? "${ref}.age >= 18" :
+													(k == 'major' && v == 'no') ? "${ref}.age < 18" :
+															(k == 'regular' && v == 'yes') ? "( ${ref}.age >= 10 && ${ref}.age < 75 )" :
+																	(k == 'regular' && v == 'no') ? "( ${ref}.age < 10 || ${ref}.age >= 75 )" :
+																			(k == 'child' && v == 'no') ? "${ref}.age >= 10" :
+																					(k == 'child') ? "${ref}.age < ${v.replaceAll('yes', '10').replaceAll('([0-9]+)m', '$1/12')}" :
+																							v == 'yes' ? "${ref}.${k}" : v == 'no' ? "!${ref}.${k}" : "${ref}.${k} == '${v}'"
+				}.findAll { it != 'true' }.join(' && ')
+				conditions[key] = cnd.length() ? cnd : 'true'
+				conditions[key] = cnd.length() ? cnd : 'true'
+			}
+
+			conditions.each { k, String vv ->
+				if (vv.contains('<<')) {
+					conditions[k] = vv.replaceAll(/<<(.+)>>/) { _, String ref -> "( ${conditions[ref]} )" }
+				}
+			}
+
+			println "Key\tDescr\tRaw conditions\tpreferentialstatus\ttrainee\tchild\tmajor\told\tregular\tdmg\tchronical\tconvention\tpredicate"
+			valTypes.forEach { k, v ->
+				def frt = (Normalizer.normalize(v.fr, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").toLowerCase())
+						.replaceAll(/[^a-z0-9]+/, "_")
+						.replaceAll("(honoraires?|rembousement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
+						.replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
+						.replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_")
+
+				if (!frt.startsWith("le_numero_de_code_est_supprime") && !frt.startsWith("base_de_remboursement") && !frt?.contains('pas_encore_repris_de_tarifs_dans_nomensoft') && !frt?.contains('listes_limitatives') && !frt?.contains('liste_limitative') && !frt?.contains("ticket_moderateur") && !frt?.contains("pas_de_tarifs")) {
+					def frtCode = refs[frt]
+					if (!frtCode) {
+						unknownCodes[frt] = (unknownCodes[frt] ?: 0) + 1
+						frtCode = "_" + frt
+					}
+					v.code = frt
+					v.predicateSource = conditions[frtCode] ? frtCode.split(',').collect { it -> splitTextKey(it) } : [:]
+					v.predicate = (conditions[frtCode] ?: "false&&'${frtCode}'").toString()
+					if (conditions[frtCode]) {
+						println "$k\t${v.fr}\t$frtCode\t${v.predicateSource.collect { it -> it.preferentialstatus }.join(',')}\t${v.predicateSource.collect { it -> it.trainee }.join(',')}\t${v.predicateSource.collect { it -> it.child }.join(',')}\t${v.predicateSource.collect { it -> it.major }.join(',')}\t${v.predicateSource.collect { it -> it.old }.join(',')}\t${v.predicateSource.collect { it -> it.regular }.join(',')}\t${v.predicateSource.collect { it -> it.dmg }.join(',')}\t${v.predicateSource.collect { it -> it.chronical }.join(',')}\t${v.predicateSource.collect { it -> it.convention }.join(',')}\t${v.predicate}"
+					}
+				} else {
+					v.code = frt
+					v.predicate = ("false&&'_${frt}'").toString()
+				}
+			}
+
+			println(new Gson().toJson(valTypes.values()))
+
+			[false, true].forEach { amb ->
+				groups.each { kg, g ->
+					println g
+					def rubKeys = new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
+					rubKeys.each { kr ->
+						def r = rubrics[kr]
+						if (!g.contains(r.fr)) {
+							println r.fr
+							return
 						}
-						if (map.letter3 && map.letter3 != '-') {
-							code.letterValues.add(new LetterValue(letter: map.letter3, index: map.letter_index3, coefficient: Double.valueOf(map.coeff3), value: Double.valueOf(map.letter3_value)))
-						}
 
-						code.category = [fr: map.rubric.fr, nl: map.rubric.nl] as Map<String, String>
-						int i = 0
+						r.tarifications.findAll { map -> map.amb == amb && map.rubric.id == kr }.sort { it.id }.each { map ->
+							def label = [:]
+							label.fr = map.fr
+							label.nl = map.nl
+							def code = new Tarification(
+									Sets.newHashSet('be', 'fr'),
+									type,
+									map.id,
+									"1.0",
+									label)
 
-						code.valorisations = new HashSet(map.valorisations.collect { val ->
-							def vt = valTypes[val.type]
+							code.nGroup = r.id
 
-							if (vt) {
-								return new Valorisation(
-										startOfValidity: val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : (YEAR*10000+101)*1000000,
-										endOfValidity:  (Long.valueOf(YEAR+1L)*10000+101)*1000000L,
-										label: ([fr: vt?.fr, nl: vt?.nl] as Map<String, String>),
-										predicate: vt.predicate,
-										patientIntervention: val.patientIntervention ?: 0,
-										reimbursement: val.reimbursement ?: 0,
-										doctorSupplement: 0,
-										totalAmount: val.fee ?: val.patientIntervention + val.reimbursement 	?: 0,
-										vat: 0
+							code.letterValues = new LinkedList()
+							if (map.letter1 && map.letter1 != '-') {
+								code.letterValues.add(new LetterValue(letter: map.letter1, index: map.letter_index1, coefficient: Double.valueOf(map.coeff1), value: Double.valueOf(map.letter1_value)))
+							}
+							if (map.letter2 && map.letter2 != '-') {
+								code.letterValues.add(new LetterValue(letter: map.letter2, index: map.letter_index2, coefficient: Double.valueOf(map.coeff2), value: Double.valueOf(map.letter2_value)))
+							}
+							if (map.letter3 && map.letter3 != '-') {
+								code.letterValues.add(new LetterValue(letter: map.letter3, index: map.letter_index3, coefficient: Double.valueOf(map.coeff3), value: Double.valueOf(map.letter3_value)))
+							}
+
+							code.category = [fr: map.rubric.fr, nl: map.rubric.nl] as Map<String, String>
+							int i = 0
+
+							code.valorisations = new HashSet(map.valorisations.collect { val ->
+								def vt = valTypes[val.type]
+
+								if (vt) {
+									return new Valorisation(
+											startOfValidity: val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : (YEAR * 10000 + 101) * 1000000,
+											endOfValidity: (Long.valueOf(YEAR + 1L) * 10000 + 101) * 1000000L,
+											label: ([fr: vt?.fr, nl: vt?.nl] as Map<String, String>),
+											predicate: vt.predicate,
+											patientIntervention: val.patientIntervention ?: 0,
+											reimbursement: val.reimbursement ?: 0,
+											doctorSupplement: 0,
+											totalAmount: val.fee ?: val.patientIntervention + val.reimbursement ?: 0,
+											vat: 0
 									)
 
-							} else {
-								println "Couldn't find valorisation for ${code}"
-								return null
-							}
-						})
-						Set<Valorisation> compacted = new HashSet<>()
-
-						//First compact valorisations
-						code.valorisations.findAll { it != null }.each { v ->
-							def eq = compacted.find { e -> e != v && e.predicate == v.predicate && e.startOfValidity == v.startOfValidity && e.endOfValidity == v.endOfValidity }
-							if (eq) {
-								if (eq.totalAmount?.doubleValue() > 0.0 && v.totalAmount?.doubleValue() > 0.0) {
-									//println("Invalid predicates for code ${code.id} : ${eq.label.fr} <-> ${v.label.fr}")
-									compacted << v
 								} else {
-									eq.patientIntervention += v.patientIntervention
-									eq.reimbursement += v.reimbursement
-
-									eq.totalAmount += v.totalAmount
-									eq.vat = (eq.vat ?: 0) + (v.vat ?: 0)
+									println "Couldn't find valorisation for ${code}"
+									return null
 								}
-							} else {
-								compacted << v
-							}
-						}
+							})
+							Set<Valorisation> compacted = new HashSet<>()
 
-						def trueCode = compacted.find { it.predicate == 'true' }
+							//First compact valorisations
+							code.valorisations.findAll { it != null }.each { v ->
+								def eq = compacted.find { e -> e != v && e.predicate == v.predicate && e.startOfValidity == v.startOfValidity && e.endOfValidity == v.endOfValidity }
+								if (eq) {
+									if (eq.totalAmount?.doubleValue() > 0.0 && v.totalAmount?.doubleValue() > 0.0) {
+										//println("Invalid predicates for code ${code.id} : ${eq.label.fr} <-> ${v.label.fr}")
+										compacted << v
+									} else {
+										eq.patientIntervention += v.patientIntervention
+										eq.reimbursement += v.reimbursement
 
-						if (trueCode) {
-							compacted.remove(trueCode)
-							compacted.removeIf { v -> v.totalAmount == trueCode.totalAmount && v.reimbursement == 0 as Double & v.patientIntervention == 0 as Double }
-							List<String> preds = []
-							compacted.each { v ->
-								if (v.totalAmount == 0.0 as Double) {
-									v.totalAmount = trueCode.totalAmount
-									preds << '( ' + v.predicate + ' )'
+										eq.totalAmount += v.totalAmount
+										eq.vat = (eq.vat ?: 0) + (v.vat ?: 0)
+									}
+								} else {
+									compacted << v
 								}
 							}
-							if (preds.size()) {
-								trueCode.predicate = "!(${preds.join('||')})"
-							}
-						}
-						code.valorisations = compacted
-						if (trueCode) {
-							code.valorisations << trueCode
-						}
 
-						TarificationCodeInfo tci = tarficationInfos[code.code]
-						if (tci) {
-							code.needsPrescriber = tci.prescriber
-							code.hasRelatedCode = tci.relatedCode
-							if (tci.relatedCodes.size()) {
-								code.relatedCodes = new HashSet<>(tci.relatedCodes)
-							}
-						}
+							def trueCode = compacted.find { it.predicate == 'true' }
 
-						codes << code
+							if (trueCode) {
+								compacted.remove(trueCode)
+								compacted.removeIf { v -> v.totalAmount == trueCode.totalAmount && v.reimbursement == 0 as Double & v.patientIntervention == 0 as Double }
+								List<String> preds = []
+								compacted.each { v ->
+									if (v.totalAmount == 0.0 as Double) {
+										v.totalAmount = trueCode.totalAmount
+										preds << '( ' + v.predicate + ' )'
+									}
+								}
+								if (preds.size()) {
+									trueCode.predicate = "!(${preds.join('||')})"
+								}
+							}
+							code.valorisations = compacted
+							if (trueCode) {
+								code.valorisations << trueCode
+							}
+
+							TarificationCodeInfo tci = tarficationInfos[code.code]
+							if (tci) {
+								code.needsPrescriber = tci.prescriber
+								code.hasRelatedCode = tci.relatedCode
+								if (tci.relatedCodes.size()) {
+									code.relatedCodes = new HashSet<>(tci.relatedCodes)
+								}
+							}
+
+							codes << code
+						}
 					}
 				}
 			}
+
+			println "Unknowns"
+			unknownCodes.entrySet().each { println "${it.value}: ${it.key}" }
+
 		}
 
-		println "Unknowns"
-		unknownCodes.entrySet().each { println "${it.value}: ${it.key}" }
-
-		def current = [:]
-
+		Map<String, Tarification> current = [:]
 		boolean retry = true;
 		while (retry) {
 			retry = false;
@@ -626,9 +630,9 @@ class TarificationCodeImporter extends Importer {
 					current[t.id] = t
 				}
 			} catch (DbAccessException e) {
-				if (e instanceof DocumentNotFoundException) {
+				if (e instanceof DocumentNotFoundException || e instanceof org.ektorp.DbAccessException) {
 					println "Bailing because of $e"
-					return [:]
+					return codes
 				} else {
 					println "Retrying because of $e"
 					retry = true
@@ -636,47 +640,70 @@ class TarificationCodeImporter extends Importer {
 			}
 		}
 
-		Map<String, Tarification> res = [:]
-
 		codes.sort {a,b -> a.code <=> b.code}
+
+		def updatedCodes = []
+
 		codes.each { newCode ->
-			res[newCode.code] = newCode
 			if (current.containsKey(newCode.id)) {
-				newCode.rev = current[newCode.id].rev
+				Tarification modCode = current[newCode.id]
 
-				def keptCodes = current[newCode.id].valorisations.findAll { v -> v != null }.collect { Valorisation v ->
-					if (v.startOfValidity < 29991231) { v.startOfValidity *= 1000000L }
-					if (v.endOfValidity < 29991231) { v.endOfValidity *= 1000000L }
+                def keptVals = modCode.valorisations.findAll { v -> v != null }.collect { Valorisation v ->
+                    if (v.startOfValidity < 29991231) { v.startOfValidity *= 1000000L }
+                    if (v.endOfValidity < 29991231) { v.endOfValidity *= 1000000L }
 
-					if (v.startOfValidity >= (YEAR * 10000 + 101) * 1000000L ) {
-						return null
-					}
+                    if (v.startOfValidity >= (YEAR * 10000 + 101) * 1000000L ) {
+                        return null
+                    }
 
-					for (Valorisation nv in newCode.valorisations) {
-						if (v.predicate == nv.predicate) {
-							if (nv.startOfValidity <= v.startOfValidity && (nv.endOfValidity ?: 29991231000000L) > v.startOfValidity) {
-								v.startOfValidity = Math.min(v.endOfValidity, nv.endOfValidity)
-							}
-							if ((nv.endOfValidity ?: 29991231000000L) >= (v.endOfValidity ?: 29991231000000L) && nv.startOfValidity < (v.endOfValidity ?: 29991231000000L)) {
-								v.endOfValidity = Math.max(v.startOfValidity, nv.startOfValidity)
-							}
-						}
-					}
-					for (Valorisation nv in newCode.valorisations) {
-						if ((Math.abs(v.startOfValidity-nv.startOfValidity)<1000000 || v.startOfValidity > nv.startOfValidity) && (Math.abs(v.endOfValidity-nv.endOfValidity)<1000000 || v.endOfValidity < nv.endOfValidity)) {
-							return null
-						}
-					}
-					return v
-				}.findAll { vv -> vv && vv.startOfValidity < vv.endOfValidity }
-				newCode.valorisations.addAll(keptCodes)
+                    for (Valorisation nv in newCode.valorisations) {
+                        if (v.predicate == nv.predicate) {
+                            if (nv.startOfValidity <= v.startOfValidity && (nv.endOfValidity ?: 29991231000000L) > v.startOfValidity) {
+                                v.startOfValidity = Math.min(v.endOfValidity, nv.endOfValidity)
+                            }
+                            if ((nv.endOfValidity ?: 29991231000000L) >= (v.endOfValidity ?: 29991231000000L) && nv.startOfValidity < (v.endOfValidity ?: 29991231000000L)) {
+                                v.endOfValidity = Math.max(v.startOfValidity, nv.startOfValidity)
+                            }
+                        }
+                    }
+                    for (Valorisation nv in newCode.valorisations) {
+                        if ((Math.abs(v.startOfValidity-nv.startOfValidity)<1000000 || v.startOfValidity > nv.startOfValidity) && (Math.abs(v.endOfValidity-nv.endOfValidity)<1000000 || v.endOfValidity < nv.endOfValidity)) {
+                            return null
+                        }
+                    }
+                    return v
+                }.findAll { vv -> vv && vv.startOfValidity < vv.endOfValidity }
+
+                def combinedVals = new HashSet<Valorisation>(keptVals)
+                combinedVals.addAll(newCode.valorisations)
+
+                def sameVals = (combinedVals == modCode.valorisations)
+
+                modCode.valorisations = newCode.valorisations //Ease comparison
+                if (newCode == modCode) {
+                    return
+                }
+                modCode.valorisations = combinedVals //Preserve previous vals
+
+				modCode.needsPrescriber = newCode.needsPrescriber
+				modCode.nGroup = newCode.nGroup
+				modCode.letterValues = newCode.letterValues
+				modCode.hasRelatedCode = newCode.hasRelatedCode
+				modCode.category = newCode.category
+				modCode.consultationCode = newCode.consultationCode
+				modCode.label = newCode.label
+				modCode.relatedCodes = newCode.relatedCodes
+
+				updatedCodes.add(modCode)
+			} else {
+				updatedCodes.add(newCode)
 			}
 		}
 
-		codes.collate(1000).each {
+		updatedCodes.collate(1000).each {
 			couchdbBase.executeBulk(it)
 		}
 
-		return res
+		return codes
 	}
 }

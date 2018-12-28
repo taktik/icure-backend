@@ -1056,16 +1056,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
                     console.log('remove',msgsToDelete,thisBox,delBox)
                     if(msgsToDelete.length){
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
                         if (thisBox == 'BIN') {
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
-                            .then(()=>this._refresh())
+                            console.log('will DELETE')
+                            let tempBinInbox = []
+                            let tempBinSentbox = []
+                            checkedMsgs.forEach(msg=>{
+                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                                const thatMailBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
+                                if (thatMailBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
+                                if (thatMailBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
+                            })
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX')
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX')
+                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
+                        } else {
+                            console.log('will MOVE',msgsToDelete,thisBox,delBox)
+                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
+                            checkedMsgs.forEach(msg=>{
+                                msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                                this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                    .finally(()=>this._refresh())
+                            })
                         }
-                        checkedMsgs.forEach(msg=>{
-                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                            .finally(()=>this._refresh())
-                        })
                     }
                     allCheckboxes.forEach(box=>box.checked = false)
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));

@@ -54,7 +54,7 @@ class QrcodePrinter extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.el) {
 			this.$.qrcode.removeChild(this.el);
 		}
-		this.el = kjua({ text: text, fill: '#111', size: size, ecLevel: ecl, quiet: 0 });
+		this.el = kjua({ render: 'image', text: text, fill: '#111', size: size, ecLevel: ecl, quiet: 0 });
 		this.$.qrcode.appendChild(this.el);
 	}
 
