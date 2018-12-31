@@ -228,6 +228,28 @@ public class HealthElementFacade implements OpenApiFacade{
         }
 	}
 
+	@ApiOperation(
+			value = "Modify a batch of health elements",
+			response = HealthElementDto.class,
+			responseContainer = "Array",
+			httpMethod = "PUT",
+			notes = "Returns the modified health elements."
+	)
+	@PUT
+	@Path("/batch")
+	public Response modifyHealthElements(List<HealthElementDto> healthElementDtos) {
+		if (healthElementDtos == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		try {
+			List<HealthElement> hes = healthElementLogic.updateEntities(healthElementDtos.stream().map(f -> mapper.map(f, HealthElement.class)).collect(Collectors.toList()));
+			return Response.ok().entity(hes.stream().map(f -> mapper.map(f, HealthElementDto.class)).collect(Collectors.toList())).build();
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+		}
+	}
 
 	@ApiOperation(
 			value = "Delegates a health element to a healthcare party",
