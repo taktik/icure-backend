@@ -774,16 +774,15 @@
                             return [];
                         }
                     },
-                    receiveMailAuto: {
-                        type: Boolean,
-                        value: localStorage.getItem('receiveMailAuto') == 'true' ? true : false
-                    },
                     adr:{
                         type: Object,
                         value:{},
                         observer : 'addressProChanged'
+                    },
+                    receiveMailAuto: {
+                        type: Boolean,
+                        value: localStorage.getItem('receiveMailAuto') == 'true' ? true : false
                     }
-
                 };
             }
 
