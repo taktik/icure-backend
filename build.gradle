@@ -273,8 +273,8 @@ copyHtWebResources.dependsOn(packageHtWebResources)
 copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
 
-//bootRepackage.dependsOn(copyHtWebResources)
-//bootRepackage.dependsOn(copyTzWebResources)
+bootRepackage.dependsOn(copyHtWebResources)
+bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
