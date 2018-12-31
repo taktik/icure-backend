@@ -2163,9 +2163,10 @@
                         })
 
                     return prom.then(() => {
-                        this.set('isSending',false)
-                        this.set("isMessagesLoaded",false)
+                        this.set('isSending', false)
+                        this.set("isMessagesLoaded", false)
                         this.getMessage()
+                    })
                     })
                 }
             }
@@ -2725,9 +2726,10 @@
                         })
 
                     return prom.then(() => {
-                        this.set('isReceiving',false)
-                        this.set("isMessagesLoaded",false)
+                        this.set('isReceiving', false)
+                        this.set("isMessagesLoaded", false)
                         this.getMessage()
+                    })
                     })
                 }
             }
