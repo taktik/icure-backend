@@ -40,7 +40,7 @@
         <paper-dialog id="accountSelectorDialog" opened="{{opened}}">
             <div class="top-gradient">&nbsp;</div>
             <h3>[[localize('select-entities','In which entity do you want to connect',language)]]</h3>
-            <vaadin-grid id="entitiesGrid" items="[[entities]]" selected="{{selectedItem}}">
+            <vaadin-grid id="entitiesGrid" items="[[entities]]" active-item="{{activeEntity}}">
                 <vaadin-grid-column flex-grow="1" width="160px">
                     <template class="header">
                         Entité
@@ -51,7 +51,6 @@
                 </vaadin-grid-column>
             </vaadin-grid>
         </paper-dialog>
-
     </template>
     <script>
         import { sha256, sha224 } from 'js-sha256/src/sha256';
@@ -87,7 +86,7 @@
                     entities: {
                         type: Array
                     },
-                    selectedItem: {
+                    activeEntity: {
                         type: Object,
                         value: () => {}
                     }
@@ -95,7 +94,7 @@
             }
 
             static get observers() {
-                return ['displayAccountSelector(api, opened)']
+                return ['_redirectToSelectedEntity(activeEntity)']
             }
 
             constructor() {
@@ -104,11 +103,19 @@
 
             open() {
                 this.api.user().getMatchingUsers()
-                    .then(usr => {
-                        console.log(usr)
-                        this.set("entities", usr)
+                    .then(ent => {
+                        console.log(ent)
+                        this.set("entities", ent)
                     })
                     .finally(()=> this.entities && this.entities.length > 0 ? this.$['accountSelectorDialog'].open() : null )
+            }
+
+            _redirectToSelectedEntity(){
+                console.log( this.activeEntity)
+                if(this.activeEntity){
+                    this.set("credentials.username", this.activeEntity && this.activeEntity.groupId ? this.activeEntity.groupId+":"+this.activeEntity.userId : this.activeEntity.userId)
+                    this.dispatchEvent(new CustomEvent('redirect-another-entity', {detail: this.credentials}));
+                }
             }
 
         }

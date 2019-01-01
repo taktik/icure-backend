@@ -242,6 +242,30 @@ public class FormFacade implements OpenApiFacade {
 	}
 
 	@ApiOperation(
+			value = "Modify a batch of forms",
+			response = FormDto.class,
+			responseContainer = "Array",
+			httpMethod = "PUT",
+			notes = "Returns the modified forms."
+	)
+	@PUT
+	@Path("/batch")
+	public Response modifyForms(List<FormDto> formDtos) {
+		if (formDtos == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		try {
+			List<Form> forms = formLogic.updateEntities(formDtos.stream().map(f -> mapper.map(f, Form.class)).collect(Collectors.toList()));
+			return Response.ok().entity(forms.stream().map(f -> mapper.map(f, FormDto.class)).collect(Collectors.toList())).build();
+
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+		}
+	}
+
+	@ApiOperation(
 			value = "List forms found By Healthcare Party and secret foreign keys.",
 			response = FormDto.class,
 			responseContainer = "Array",

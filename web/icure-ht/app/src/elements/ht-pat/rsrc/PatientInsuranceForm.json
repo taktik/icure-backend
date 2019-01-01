@@ -165,7 +165,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "ins_start_date",
+							"label" : "ins_end_date",
 							"type" : "TKDate",
 							"subForm" : false,
 							"name" : "endDate",
