@@ -37,7 +37,7 @@ import java.util.stream.Collectors
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
 class CodeDAOImpl @Autowired
-constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("cacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
+constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
     init {
         initStandardDesignDocument()
     }
@@ -124,12 +124,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         )
 
         return pagedQueryView(
-                "by_region_type_code_version",
-                from,
-                to,
-			paginationOffset,
-                true
-        )
+            "by_region_type_code_version",
+            from,
+            to,
+            paginationOffset,
+            false
+                             )
     }
 
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
@@ -155,12 +155,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         )
 
         return pagedQueryView(
-                "by_language_label",
-                from,
-                to,
-                pagination,
-                true
-        )
+            "by_language_label",
+            from,
+            to,
+            pagination,
+            false
+                             )
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
@@ -188,12 +188,12 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 		)
 
         return pagedQueryView(
-                "by_language_type_label",
-                from,
-                to,
-                pagination,
-                true
-        )
+            "by_language_type_label",
+            from,
+            to,
+            pagination,
+            false
+                             )
     }
 
 	override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {

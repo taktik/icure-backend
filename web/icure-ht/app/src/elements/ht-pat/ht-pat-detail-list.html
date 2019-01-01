@@ -46,13 +46,14 @@
             }
 
             vaadin-grid{
-                height: unset;
+                /*height: unset;*/
 				max-height:calc(100% - 104px);
 				margin: 32px 32px 0;
 				box-shadow: var(--app-shadow-elevation-1);
 				border: none;
                 border-radius: 3px;
-                overflow-y: scroll;
+                overflow-y: auto;
+                flex-grow: 1;
 			}
 
 
@@ -150,7 +151,7 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _date(item) {
-        return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+        return (item && item.modified) ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
     }
 
     _author(item) {

@@ -90,7 +90,10 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 		return messageDAO.findByTransportGuid(partyId, transportGuid, paginationOffset);
 	}
 
-
+	@Override
+	public PaginatedList<Message> findByTransportGuidSentDate(String partyId, String transportGuid, Long fromDate, Long toDate, PaginationOffset<List<Object>> paginationOffset) {
+		return messageDAO.findByTransportGuidSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset);
+	}
 
 	@Override
 	public Message addDelegation(String messageId, Delegation delegation) {
@@ -165,13 +168,8 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
-	public Message get(String messageId) throws LoginException {
-		String loggedHealthcarePartyId = getLoggedHealthCarePartyUser().getHealthcarePartyId();
-		Message message = messageDAO.get(messageId);
-		if (loggedHealthcarePartyId.equals(message.getFromHealthcarePartyId()) || message.getRecipients().contains(loggedHealthcarePartyId)) {
-			return message;
-		}
-		throw new AccessDeniedException("You do not have the rights to read this message");
+	public Message get(String messageId) {
+		return messageDAO.get(messageId);
 	}
 
 	@Override

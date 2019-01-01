@@ -139,14 +139,29 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
         return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId);
     }
 
-	@Override
+    @Override
+    public List<String> listByHcPartyName(String searchString, String healthcarePartyId) {
+        return patientDAO.listByHcPartyName(searchString, healthcarePartyId);
+    }
+
+    @Override
 	public List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId) {
 		return patientDAO.listIdsByHcPartyAndExternalId(externalId, healthcarePartyId);
 	}
 
 	@Override
+	public List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId) {
+		return patientDAO.listIdsByActive(active, healthcarePartyId);
+	}
+
+	@Override
 	public List<Patient> listOfMergesAfter(Long date) {
 		return patientDAO.listOfMergesAfter(date);
+	}
+
+	@Override
+	public PaginatedList<String> findByHcPartyIdsOnly(String healthcarePartyId, PaginationOffset offset) {
+		return patientDAO.findIdsByHcParty(healthcarePartyId, offset);
 	}
 
 	@Override
@@ -385,10 +400,6 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	@Override
 	public Patient createPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
-			throw new MissingRequirementsException("createPatient: Name, Last name are required.");
-		}
-
 		if (patient.getPreferredUserId() != null && (patient.getDelegations() == null || patient.getDelegations().size() == 0)) {
 			patient.setDelegations(new HashMap<>());
 			User user = userLogic.getUser(patient.getPreferredUserId());

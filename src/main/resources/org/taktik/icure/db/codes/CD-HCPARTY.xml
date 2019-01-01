@@ -173,6 +173,7 @@
   <VALUE>
     <CODE>deptneurosurgery</CODE>
     <DESCRIPTION L='en'>neuro surgery</DESCRIPTION>
+    <DESCRIPTION L="fr">Neurochirurgie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptnte</CODE>
@@ -353,6 +354,7 @@
   <VALUE>
     <CODE>deptvisceraldigestiveabdominalsurgery</CODE>
     <DESCRIPTION L='en'>visceral digestive abdominal surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Chirurgie viscerale digestive et abdominale</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>orghospital</CODE>
@@ -517,6 +519,21 @@
     <CODE>persorthotist</CODE>
     <DESCRIPTION L='en'>orthotist</DESCRIPTION>
     <DESCRIPTION L='fr'>Prothésiste</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>depttransplantsurgery</CODE>
+    <DESCRIPTION L="en">Transplant surgery</DESCRIPTION>
+    <DESCRIPTION L="fr">Chirurgie de transplantation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deptpercutaneous</CODE>
+    <DESCRIPTION L="en">Percutaneous intervention</DESCRIPTION>
+    <DESCRIPTION L="fr">Intervention percutanée</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deptchildbirth</CODE>
+    <DESCRIPTION L="en">childbirth</DESCRIPTION>
+    <DESCRIPTION L="fr">Maternité/Accouchement</DESCRIPTION>
   </VALUE>
 
 </kmehr-cd>

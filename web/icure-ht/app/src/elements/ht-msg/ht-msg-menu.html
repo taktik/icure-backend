@@ -88,6 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 				overflow-y: auto;
 				overflow-x: hidden;
+                z-index: 25;
 			}
 
 			.new-msg-btn{
@@ -223,7 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 20px;
 				width: 20px;
 				padding:4px;
-				opacity: 0.7;
 				color: var(--app-text-color);
 			}
 
@@ -423,8 +423,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-self: flex-start;
 				width:100%;
 				padding: 0 8px;
+                box-sizing: border-box;
 			}
-
+            .trash.selected {
+                background: var(--app-primary-color);
+                color: white;
+            }
+            .trash.selected iron-icon {
+                color: var(--app-secondary-color);
+            }
 
 			paper-item{
 				cursor: pointer;
@@ -583,7 +590,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-listbox>
             </collapse-button>
 
-			<paper-item class="trash" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+			<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
 		</div>
 	</template>
 	<script>
@@ -693,7 +700,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const msg = messages.rows.reduce((acc, m) => {
                 if (!(m.status && 1 << 1 == 0)) {//status unread
                     acc.push(m)
-                }return acc}, [])
+                }return acc.filter(msg => msg.fromAddress !== 'EFACT')}, []).filter(msg => !msg.transportGuid.startsWith('BIN'))
             return msg.length;
         }).then(num => {
             const displayNum = (num) ? (num > 999) ? "999+" : num : 0
@@ -701,8 +708,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         });
     }
 
-	_newMsg(){
-		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
+	_newMsg(params){
+		this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
 	}
 
     toggleMenu(e) {
@@ -723,6 +730,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
         this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.add('iron-selected')
@@ -737,6 +745,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('sentboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
             this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
@@ -755,6 +764,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
         this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.remove('iron-selected')
@@ -769,6 +779,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
             this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
@@ -791,6 +802,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
         this.set('invoiceSelectionIndex', null)
+        this.set('trashSelected',null)
         this.set('flatrateinvoiceSelectionIndex', null)
 
         this.$.inbox.classList.remove('iron-selected')
@@ -821,6 +833,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
+            this.set('trashSelected',null)
             this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
@@ -837,6 +850,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
             this.set('invoiceSelectionIndex', null)
+            this.set('trashSelected',null)
 
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
@@ -844,11 +858,18 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
         }
     }
-
-
-
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.set('flatrateinvoiceSelectionIndex', null)
+
+        this.set('trashSelected','selected')
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
 	}
 
 	selectedContactItemsChanged() {

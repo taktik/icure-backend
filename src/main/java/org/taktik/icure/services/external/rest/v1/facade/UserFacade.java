@@ -33,9 +33,11 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
+import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -49,6 +51,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -121,6 +124,9 @@ public class UserFacade implements OpenApiFacade{
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
+		//Sanitize group
+		userDto.setGroupId(null);
+
 		User user;
 		try {
 			user = userLogic.createUser(mapper.map(userDto, User.class));
@@ -184,6 +190,19 @@ public class UserFacade implements OpenApiFacade{
 		}
 	}
 
+	@ApiOperation(
+			value = "Get the list of users by healthcare party id",
+			response = LabelledOccurenceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = ""
+	)
+	@GET
+	@Path("/byHealthcarePartyId/{id}")
+	public Response findByHcpartyId(@PathParam("id") String hcpartyId) {
+		return Response.ok().entity(userLogic.findByHcpartyId(hcpartyId)).build();
+	}
+
 
 	@ApiOperation(
 			value = "Delete a User based on his/her ID.",
@@ -219,6 +238,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		userLogic.modifyUser(mapper.map(userDto, User.class));
 		User modifiedUser = userLogic.getUser(userDto.getId());

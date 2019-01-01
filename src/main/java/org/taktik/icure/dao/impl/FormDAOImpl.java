@@ -67,7 +67,7 @@ class FormDAOImpl extends GenericIcureDAOImpl<Form> implements FormDAO {
 
 	@Override
 	public PaginatedList<Form> findAll(PaginationOffset<String> pagination) {
-		return pagedQueryView("all", pagination.getStartKey(), null, pagination, true);
+		return pagedQueryView("all", pagination.getStartKey(), null, pagination, false);
 	}
 
 	@Override

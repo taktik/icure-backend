@@ -55,6 +55,8 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
     Set<String> undeletePatients(Set<String> ids) throws DocumentNotFoundException;
 
+	PaginatedList<String> findByHcPartyIdsOnly(String healthcarePartyId, PaginationOffset offset);
+
 	PaginatedList<Patient> findByHcPartyAndSsin(String ssin, String healthcarePartyId, PaginationOffset paginationOffset);
 
 	PaginatedList<Patient> findByHcPartyDateOfBirth(Integer date, String hcPartyId, PaginationOffset pagination);
@@ -91,7 +93,11 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
 	List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId);
 
-	List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId);
+    List<String> listByHcPartyName(String searchString, String healthcarePartyId);
+
+    List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId);
+
+	List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId);
 
 	Patient findByUserId(String id);
 

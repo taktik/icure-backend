@@ -76,7 +76,14 @@
             }
             :host(#selectedMedicationTable) [part~="cell"] {
                 padding: 0 4px !important;
+                border-bottom: none;
             }
+            :host(#selectedMedicationTable) [part~="row"] {
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
             #items [part~="row"] {
                 z-index: -109;
             }
@@ -84,6 +91,19 @@
                 border-left: 1px solid var(--app-background-color-dark);
                 border-right: 1px solid var(--app-background-color-dark);
             }
+
+            :host(#selectedMedicationTable) [part~="cell"].clear-from-table {
+                width: 48px;
+                flex-grow: 0;
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"] {
+                background: var(--app-background-color-dark);
+                min-height: 40px;
+            }
+            :host(#selectedMedicationTable) [part~="header-cell"]:not(:first-child) {
+                text-align: center;
+            }
+            
         </style>
     </template>
 </dom-module>

@@ -76,7 +76,7 @@
 		</style>
 		<template is="dom-if" if="[[readOnly]]">
 			<paper-input-container always-float-label="true">
-				<label slot="label">[[label]]
+				<label slot="label">[[localize(label,label,language)]]
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
@@ -91,7 +91,7 @@
 		</template>
 		<template is="dom-if" if="[[!readOnly]]">
 			<paper-input-container always-float-label="true">
-				<label slot="label">[[label]]
+				<label slot="label">[[localize(label,label,language)]]
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>

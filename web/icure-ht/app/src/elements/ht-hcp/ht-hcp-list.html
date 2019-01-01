@@ -21,14 +21,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<custom-style>
 			<style is="custom-style">
 				:host {
-					display: block;
+					display: flex;
+                    flex-direction: column;
 					height: 100%;
 					@apply --padding-right-left-32;
 				}
 
 				:host #hcps-list {
-					height: calc(100% - 62px);
 					outline: none;
+                    flex-grow: 1;
 				}
 
 				vaadin-grid.material {
@@ -133,14 +134,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				.container {
-					height: calc(100vh - 164px);
+					height: 100%;
+                    display: flex;
+                    flex-direction: column;
 				}
 
 				.btn-container {
 					width: 80%;
 					left: 20%;
 					position: absolute;
-					bottom: 16px;
+					bottom: 8px;
 
 					display: flex;
 					flex-direction: row;
@@ -160,13 +163,149 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     z-index: 9999;
                     transform: translateX(-50%);
                 }
+				paper-dialog#newHcpDialog{
+					width: 50vw;
+					left: 0;
+					transform: translateX(50%);
+					margin: 0;
+				}
+
+				.newHcpInput {
+					width: 100%;
+				}
+
+				#newHcpDialog .buttons {
+					border-top: 1px solid var(--app-background-color-dark);
+					color: var(--app-text-color-light);
+				}
+				#newHcpDialog .buttons * {
+					background: var(--app-secondary-color-dark);
+				}
+
+				.formNewHcp {
+					height: 350px;
+					width: 100%;
+					box-sizing: border-box;
+				}
+
+				.modal-button{
+					--paper-button-ink-color: var(--app-secondary-color);
+					background-color: var(--app-secondary-color);
+					color: var(--app-text-color);
+					font-weight: 700;
+					font-size: 14px;
+					height: 40px;
+					min-width: 100px;
+					padding: 10px 1.2em;
+					text-transform: capitalize;
+				}
+
+				.modal-button--close,
+				.modal-button--cancel{
+					background: transparent;
+					color: var(--app-primary-color-dark);
+					font-weight: 400;
+				}
+
+				.modal-button--save{
+					box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+					background: var(--app-secondary-color);
+					color: var(--app-primary-color-dark);
+					font-weight: 700;
+
+				}
+
+				.hcp-photo {
+					background: rgba(0, 0, 0, 0.1);
+					height: 26px;
+					width: 26px;
+					min-width: 26px;
+					border-radius: 50%;
+					margin-right: 8px;
+					overflow: hidden !important;
+					padding-right: 0 !important;
+				}
+
+				.hcp-photo img {
+					width: 100%;
+					margin: 50%;
+					transform: translate(-50%, -50%);
+				}
+
+				#selectHcpOption {
+					height: 34px;
+					padding: 14px;
+					background: var(--app-background-color-dark);
+					-webkit-transition: background .15s;
+					transition: background .15s;
+					z-index: 2;
+					display: flex;
+					border-left: 1px solid rgba(0, 0, 0, .05);
+					border-right: 1px solid rgba(0, 0, 0, .05);
+
+				}
+
+				#selectHcpOption_back {
+					min-width: 80px;
+					cursor: pointer;
+					line-height: 35px;
+				}
+
+				#selectHcpOption_text {
+					margin: auto;
+				}
+
+				.labelFusion{
+					width: 200px;
+				}
+
+				#fusionDialog{
+					width:650px;
+					height: 200px;
+				}
+
+				#fusionHcpSelect{
+					border : 0px
+				}
+
 			</style>
 		</custom-style>
 
 		<div class="container">
-			<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-            <paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
+			<template is="dom-if" if="{{modeGrid}}">
+				<div id="selectHcpOption">
+					<div id="selectHcpOption_back" on-tap="_switchMode">
+						<iron-icon icon="vaadin:arrow-left"></iron-icon>
+						<span>Back</span>
+					</div>
+					<div id="selectHcpOption_text">
+						[[nbHcpSelected]] prestataire(s) selected
+					</div>
+				</div>
+			</template>
+			<template is="dom-if" if="{{!modeGrid}}">
+				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+			</template>
+			<paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
 			<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
+
+
+				<vaadin-grid-column width="5%">
+					<template class="header">
+						<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+					</template>
+					<template>
+						<template is="dom-if" if="[[!modeGrid]]">
+							<div class="cell frozen hcp-photo"><img src$="[[picture(item)]]"></div>
+						</template>
+						<template is="dom-if" if="[[modeGrid]]">
+							<vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_hcpSelected(item, hcpSelected.*)]]"
+											 on-checked-changed="_checkHcp"></vaadin-checkbox>
+						</template>
+					</template>
+				</vaadin-grid-column>
+
+
 				<vaadin-grid-column width="100px">
 					<template class="header">
 						<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
@@ -177,7 +316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 				<vaadin-grid-column width="100px">
 					<template class="header">
-						<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
+						<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
 					</template>
 					<template>
 						<div class="cell frozen">[[item.firstName]]</div>
@@ -185,7 +324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 				<vaadin-grid-column width="100px">
 					<template class="header">
-						<div path="speciality">[[localize('spe','Speciality',language)]]</div>
+						<vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]</vaadin-grid-sorter>
 					</template>
 					<template>
 						<div class="cell frozen">[[item.speciality]]</div>
@@ -218,8 +357,104 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid>
 
 			<div class="btn-container export-btn-container">
-				<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
+				<template is="dom-if" if="{{!modeGrid}}">
+					<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
+					<paper-button class="exportcsv-btn" on-tap="_openAddHcpDialog">[[localize('add_hcp','Add New HCP',language)]]</paper-button>
+					<paper-button class="exportcsv-btn" on-tap="_switchMode">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
+				</template>
+				<template is="dom-if" if="{{modeGrid}}">
+					<paper-button class="exportcsv-btn" on-tap="_openFusionDialog">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
+				</template>
 			</div>
+
+			<paper-dialog id="newHcpDialog">
+				<h3>[[localize('add_hcp','Ajouter un prestataire',language)]]</h3>
+				<div id="" class="formNewHcp">
+					<paper-input class="addHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{newHcp.lastName}}"></paper-input>
+					<paper-input class="addHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{newHcp.firstName}}"></paper-input>
+					<paper-input class="addHcpInput" label="[[localize('ema','Email',language)]]" value="{{newHcp.email}}"></paper-input>
+					<paper-input class="addHcpInput" label="[[localize('inami','NIHII',language)]]" value="{{newHcp.nihii}}"></paper-input>
+					<paper-input class="addHcpInput" label="[[localize('ssin','SSIN',language)]]" value="{{newHcp.ssin}}"></paper-input>
+				</div>
+
+				<template is="dom-if" if="[[_checkListDoublon(listDoublon.*)]]">
+					<vaadin-grid id="doublon" class="material" multi-sort="[[multiSort]]" items="[[listDoublon]]">
+						<vaadin-grid-column>
+							<template class="header">
+								<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.hcp.lastName]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column>
+							<template class="header">
+								<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.hcp.firstName]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column width="50px">
+							<template class="header">
+								<div class="cell numeric">[[localize('ssin','NISS',language)]]</div>
+							</template>
+							<template>
+								<div class="cell numeric">[[item.hcp.ssin]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column width="50px">
+							<template class="header">
+								<div class="cell numeric">[[localize('nihii','INAMI',language)]]</div>
+							</template>
+							<template>
+								<div class="cell numeric">[[item.hcp.nihii]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column>
+							<template class="header">
+								<div class="cell numeric">[[localize('message','Message',language)]]</div>
+							</template>
+							<template>
+								<div class="cell numeric">[[getMessages(item.messages)]]</div>
+							</template>
+						</vaadin-grid-column>
+					</vaadin-grid>
+				</template>
+
+				<div class="buttons">
+					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="confirmAddHcp" class="modal-button modal-button--save">[[localize('add','Add',language)]]</paper-button>
+				</div>
+			</paper-dialog>
+
+			<paper-dialog id="fusionDialog">
+				<label>[[localize('chose_hcp_will_stay','Choisissez le prestataire qui restera',language)]]</label>
+				<paper-input-container>
+					<iron-input slot="input">
+						<input id="fusionHcpSelect" value="{{_getNameHcp(idFusionHcp)}}" readonly on-tap="_openPopupMenu"></input>
+					</iron-input>
+					<paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+						<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+						<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{fusionSelected}}">
+							<template is="dom-repeat" items="{{hcpSelected}}">
+								<paper-item>{{item.hcp.name}}</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-menu-button>
+				</paper-input-container>
+				<template is="dom-if" if="[[fusionSelected>=0]]">
+					<label>[[localize('hcp_selected','prestataire sélectionné',language)]]</label><br/>
+
+					<label class="labelFusion">[[localize('name','Nom',language)]] : [[_getNameHcp(idFusionHcp)]]</label>
+					<label class="labelFusion">[[localize('special','Spécialité',language)]] : [[_getSpeciality(idFusionHcp)]]</label>
+					<label class="labelFusion">[[localize('email','E-mail',language)]] : [[_getEmail(idFusionHcp)]]</label>
+				</template>
+				<div class="buttons">
+					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="confirmFusionHcp" class="modal-button modal-button--save">[[localize('fusion','Fusion',language)]]</paper-button>
+				</div>
+			</paper-dialog>
 		</div>
 	</template>
 
@@ -249,9 +484,50 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLoadingHcp: {
 			    type: Boolean,
                 value: false
+            },
+            newHcp :{
+			    type: Object
+			},
+			listDoublon :{
+			    type: Array,
+				value: ()=> []
+			},
+            lastResearch :{
+			    type : Object,
+				value :{
+			        lastName :"",
+					ssin : "",
+					nihii : "",
+					email : ""
+				}
+			},
+            modeGrid :{
+			    type: Boolean,
+				value : false
+			},
+            hcpSelected: {
+                type: Array,
+                notify: true,
+                value: () => []
+            },
+            nbHcpSelected: {
+                type: Number,
+                value: 0
+            },
+            fusionSelected: {
+                type: Number,
+                observer: '_fusionSelectedChanged'
+            },
+            idFusionHcp: {
+                type: String,
+                notify: true
             }
 		};
 	}
+
+    static get observers() {
+        return ['launchCheckDoublon(newHcp,newHcp.*)'];
+    }
 
 	constructor() {
 		super();
@@ -355,6 +631,7 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	click(e) {
+	    if(this.modeGrid)return;
 		const selected = this.activeItem;
 		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
@@ -390,6 +667,251 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
 
     }
+
+    _openAddHcpDialog(){
+	    this.set('listDoublon',[])
+        this.set("newHcp",{})
+	    this.$['newHcpDialog'].open()
+
+	}
+
+    confirmAddHcp(){
+		let newHcpData ={
+            name : this.newHcp.lastName+" "+this.newHcp.firstName,
+        	lastName : this.newHcp.lastName,
+        	firstName : this.newHcp.firstName,
+        	nihii : this.newHcp.nihii,
+        	ssin : this.newHcp.ssin,
+			addresses : [
+				{
+					addressType: "work",
+					descr : "",
+					street : "",
+					houseNumber: "",
+					postboxNumber : "",
+					postalCode : "",
+					city : "",
+					country: "",
+					telecoms : [
+                        {
+                            telecomType: "email",
+                            telecomNumber: this.newHcp.email
+						}
+					]
+				}
+			],
+        	languages:[
+        	  this.language
+			]
+    	}
+
+    	this.api.hcparty().createHealthcareParty(newHcpData).then(hcp =>{
+			console.log(hcp)
+		})
+	}
+
+    _checkDoublon(){
+	    this.previousValue="";
+	    if(_.isEqual(this.newHcp,{})){
+            this.set("listDoublon",[]);
+            return;
+        }
+
+		let tamponDoublon=this.listDoublon;
+		let listPromises =[];
+
+		//tamponDoublon.map(doublon => doublon.messages = [])
+
+		if(this.newHcp && this.newHcp.lastName){
+		    if(!this.lastResearch.lastName || this.lastResearch.lastName!==this.newHcp.lastName){
+                this.lastResearch.lastName=this.newHcp.lastName;
+                listPromises.push(this.api.hcparty().findByName(this.newHcp.lastName,null,null,100,"desc").then(hcps =>{
+                    hcps.rows.map(hcp =>{
+                        if(_.lowerCase(hcp.lastName) !== _.lowerCase(this.lastResearch.lastName)){
+							_.remove((tamponDoublon.find(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id) || {messages :[]}).messages,msg => msg==="same_name")
+                            return;
+						}
+                        const index = tamponDoublon.findIndex(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id)
+                        index!==-1 ?
+							tamponDoublon[index].messages.push("same_name") :
+                            tamponDoublon.push({
+                                hcp: hcp,
+                                messages : ["same_name"]
+                            })
+                    })
+                }))
+			}
+			else{
+                tamponDoublon.map(doublon => doublon && doublon.hcp && _.lowerCase(doublon.hcp.lastName)!==_.lowerCase(this.lastResearch.lastName) ? doublon.messages.filter(message => message!=="same_name") : "");
+			}
+		}
+
+        if(this.newHcp && this.newHcp.ssin){
+            if(!this.lastResearch.ssin || this.lastResearch.ssin!==this.newHcp.ssin){
+                this.lastResearch.ssin=this.newHcp.ssin;
+                listPromises.push(this.api.hcparty().findBySsinOrNihii(this.newHcp.ssin,null,null,100,"desc").then(hcps =>{
+                    hcps.rows.map(hcp =>{
+                        if(_.lowerCase(hcp.ssin) !== _.lowerCase(this.lastResearch.ssin)){
+                            _.remove((tamponDoublon.find(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id) || {messages :[]}).messages,msg => msg==="same_ssin")
+                            return;
+                        }
+                        const index = tamponDoublon.findIndex(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id)
+                        index!==-1 ?
+                            _.lowerCase(tamponDoublon[index].hcp.ssin)===_.lowerCase(this.lastResearch.ssin) ? tamponDoublon[index].messages.push("same_ssin") :"" :
+                            tamponDoublon.push({
+                                hcp: hcp,
+                                messages : ["same_ssin"]
+                            })
+                    })
+                }))
+            }
+            else{
+                tamponDoublon.map(doublon => doublon && doublon.hcp && _.lowerCase(doublon.hcp.ssin)!==_.lowerCase(this.lastResearch.ssin) ? doublon.messages.filter(message => message!=="same_ssin") : "");
+            }
+        }
+
+        if(this.newHcp && this.newHcp.nihii){
+            if(!this.lastResearch.nihii || this.lastResearch.nihii!==this.newHcp.nihii){
+                this.lastResearch.nihii=this.newHcp.nihii;
+                listPromises.push(this.api.hcparty().findBySsinOrNihii(this.newHcp.nihii,null,null,100,"desc").then(hcps =>{
+                    hcps.rows.map(hcp =>{
+                        if(_.lowerCase(hcp.nihii) !== _.lowerCase(this.lastResearch.nihii)){
+                            _.remove((tamponDoublon.find(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id) || {messages :[]}).messages,msg => msg==="same_nihii")
+                            return;
+                        }
+                        const index = tamponDoublon.findIndex(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id)
+                        index!==-1 ?
+                            _.lowerCase(tamponDoublon[index].hcp.nihii)===_.lowerCase(this.lastResearch.nihii) ? tamponDoublon[index].messages.push("same_nihii") :"" :
+                            tamponDoublon.push({
+                                hcp: hcp,
+                                messages : ["same_nihii"]
+                            })
+                    })
+                }))
+            }
+            else{
+                tamponDoublon.map(doublon => doublon && doublon.hcp && _.lowerCase(doublon.hcp.nihii)!==_.lowerCase(this.lastResearch.nihii) ? doublon.messages.filter(message => message!=="same_nihii") : "");
+            }
+        }
+
+        if(this.newHcp && this.newHcp.email){
+            if(!this.lastResearch.email || this.lastResearch.email!==this.newHcp.email){
+                this.lastResearch.email=this.newHcp.email;
+                listPromises.push(this.api.user().getUserByEmail(this.newHcp.email).then(user =>{
+					this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>{
+                        if(_.lowerCase(user.email) !== _.lowerCase(this.lastResearch.email)){
+                            _.remove((tamponDoublon.find(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id) || {messages :[]}).messages,msg => msg==="same_email")
+                            return;
+                        }
+                        const index = tamponDoublon.findIndex(doublon => doublon && doublon.hcp && doublon.hcp.id===hcp.id)
+                        index!==-1 ?
+							tamponDoublon[index].messages.push("same_email") :
+							tamponDoublon.push({
+								hcp: hcp,
+								messages : ["same_email"]
+							})
+                    })
+                }).catch(error => {
+                    tamponDoublon.map(doublon => _.remove((doublon && doublon.messages || {messages : []}),msg => msg==="same_email"))
+				}))
+            }
+            else{
+                tamponDoublon.map(doublon => doublon && doublon.hcp && _.lowerCase(doublon.hcp.email)!==_.lowerCase(this.lastResearch.email) ? doublon.messages.filter(message => message!=="same_email") : "");
+            }
+        }
+
+
+        Promise.all(listPromises).then( x =>{
+			this.set("listDoublon",tamponDoublon.filter(doublon => doublon.messages.length>0))
+		})
+	}
+
+    _checkListDoublon(){
+	    return !!(this.listDoublon && this.listDoublon.length>0);
+	}
+
+	getMessages(messages){
+	    return _.join(messages.map(msg => this.localize(msg,msg,this.language)),", ")
+	}
+
+	launchCheckDoublon(){
+        this.previousValue = this.newHcp
+        setTimeout( () => {
+            if (this.previousValue === this.newHcp) {
+                this._checkDoublon();
+            }
+        }, 5000) //Wait for the user to stop typing
+	}
+
+    _switchMode(){
+	    this.set('nbHcpSelected',0);
+	    this.set('hcpSelected',[]);
+	    this.set('modeGrid',!this.modeGrid)
+	}
+
+    _openFusionDialog(){
+		this.$['fusionDialog'].open()
+	}
+
+    _hcpSelected(item) {
+        if (item) {
+            const mark = this.hcpSelected.find(m => m.id === item.id)
+            return mark && mark.check
+        } else {
+            return false
+        }
+    }
+
+    _checkHcp(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const targetId = e.target.id
+
+        if (targetId !== "") {
+            const mark = this.hcpSelected.find(m => m.id === targetId)
+            if (!mark) {
+                this.api.hcparty().getHealthcareParty(targetId).then(hcp =>{
+                    this.push('hcpSelected', {id: targetId, check: true, hcp:hcp})
+                    this.set('nbHcpSelected', this.hcpSelected.filter(hcp => hcp.check).length)
+                })
+				} else {
+                mark.check = !mark.check
+                this.notifyPath('hcpSelected.*')
+                this.set('nbHcpSelected', this.hcpSelected.filter(hcp => hcp.check).length)
+            }
+        }
+
+    }
+
+    picture(hcp) {
+        if (!hcp) {
+            return require('../../../images/male-placeholder.png')
+        }
+        return hcp.picture ? 'data:image/png;base64,' + hcp.picture : hcp.gender === 'female' ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png')
+    }
+
+    _fusionSelectedChanged(selected) {
+        if (this.readOnly) {
+            return
+        }
+        this.set('idFusionHcp', this.hcpSelected[selected].id || null)
+    }
+
+    _getNameHcp(id){
+	    return this.hcpSelected.find(hcp => hcp.id===id).hcp.name;
+	}
+
+    _getSpeciality(id){
+        return this.hcpSelected.find(hcp => hcp.id===id).hcp.speciality;
+    }
+
+    _getEmail(id){
+        return _.flatten(this.hcpSelected.find(hcp=>hcp.id === id).hcp.addresses.map(adr=>_.compact(adr.telecoms.map(tel=>tel.telecomType === "email" ? tel.telecomNumber : ""))))[0];
+    }
+
+    confirmFusionHcp(){
+	    //Todo fusionHcp
+	}
 
 }
 

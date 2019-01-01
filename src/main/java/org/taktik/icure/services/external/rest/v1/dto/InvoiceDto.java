@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.entities.IdentityDocumentReader;
 import org.taktik.icure.entities.Payment;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
@@ -41,6 +42,9 @@ public class InvoiceDto extends IcureDto {
 	private String interventionType;
 
 	private String groupId;
+
+	private String correctiveInvoiceId;
+	private String correctedInvoiceId;
 
 	private String recipientType; //org.taktik.icure.entities.HealthcareParty, org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
 	private String recipientId; //for hcps and insurance, patient link happens through secretForeignKeys
@@ -64,15 +68,19 @@ public class InvoiceDto extends IcureDto {
 	protected String internshipLastName;
 	protected String internshipFirstName;
 	protected String internshipCdHcParty;
+	protected String internshipCbe;
 
 	protected String supervisorNihii;
 	protected String supervisorSsin;
 	protected String supervisorLastName;
 	protected String supervisorFirstName;
 	protected String supervisorCdHcParty;
+	protected String supervisorCbe;
 
 	protected Integer longDelayJustification;
+
 	protected Boolean creditNote;
+	protected String creditNoteRelatedInvoiceId;
 
 	protected String careProviderType;
 
@@ -82,7 +90,10 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
-	private Map<String,String> receipts = new HashMap<>();
+
+	protected Map<String,String> receipts = new HashMap<>();
+
+	protected IdentityDocumentReader idDocument;
 
 	public Long getInvoiceDate() {
 		return invoiceDate;
@@ -130,6 +141,22 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInvoiceReference(String invoiceReference) {
 		this.invoiceReference = invoiceReference;
+	}
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
+	public String getCorrectedInvoiceId() {
+		return correctedInvoiceId;
+	}
+
+	public void setCorrectedInvoiceId(String correctedInvoiceId) {
+		this.correctedInvoiceId = correctedInvoiceId;
 	}
 
 	public String getInvoiceType() {
@@ -237,6 +264,10 @@ public class InvoiceDto extends IcureDto {
 
 	public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
 
+	public String getInternshipCbe() { return internshipCbe; }
+
+	public void setInternshipCbe(String internshipCbe) { this.internshipCbe = internshipCbe; }
+
 	public String getSupervisorNihii() {
 		return supervisorNihii;
 	}
@@ -277,6 +308,10 @@ public class InvoiceDto extends IcureDto {
 		this.supervisorCdHcParty = supervisorCdHcParty;
 	}
 
+	public void setSupervisorCbe(String supervisorCbe) { this.supervisorCbe = supervisorCbe; }
+
+	public String getSupervisorCbe() { return supervisorCbe; }
+
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;
 	}
@@ -286,6 +321,10 @@ public class InvoiceDto extends IcureDto {
 	public Boolean getCreditNote() { return creditNote; }
 
 	public void setCreditNote(Boolean creditNote) { this.creditNote = creditNote; }
+
+	public String getCreditNoteRelatedInvoiceId() { return creditNoteRelatedInvoiceId; }
+
+	public void setCreditNoteRelatedInvoiceId(String creditNoteRelatedInvoiceId) { this.creditNoteRelatedInvoiceId = creditNoteRelatedInvoiceId; }
 
 	public String getCareProviderType() { return careProviderType; }
 
@@ -343,4 +382,13 @@ public class InvoiceDto extends IcureDto {
 	public void setPayments(List<Payment> payments) {
 		this.payments = payments;
 	}
+
+	public IdentityDocumentReader getIdDocument() {
+		return idDocument;
+	}
+
+	public void setIdDocument(IdentityDocumentReader idDocument) {
+		this.idDocument = idDocument;
+	}
+	
 }

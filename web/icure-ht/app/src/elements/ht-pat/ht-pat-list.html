@@ -28,6 +28,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+
 <dom-module id="ht-pat-list">
     <template>
         <custom-style>
@@ -162,7 +166,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .show-all-patients {
-                    position: absolute;
                     bottom: 20px;
                 }
 
@@ -188,16 +191,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: none;
                 }
 
-                .add-btn-container {
-                    right: 28px;
-                    position: absolute;
-                    bottom: 16px;
-
+                .line {
                     display: flex;
                     flex-direction: row;
-                    justify-content: center;
+                    margin: 8px 0;
+                }
+
+                .add-btn-container {
+                    /*right: 28px;*/
+                    /*position: absolute;*/
+                    /*bottom: 16px;*/
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-end;
                     align-items: center;
-                    margin-top: 2px;
+                    margin: 4px auto;
+
+                    flex-grow: 1;
                 }
 
                 .add-btn {
@@ -305,6 +315,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     z-index: 2;
                     @apply --padding-right-left-32;
+
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 .display-left-menu {
@@ -440,6 +453,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-sizing: border-box;
                 }
 
+                #importPatientStatus {
+                    width: 920px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #importPatientStatus vaadin-grid {
+                    width: calc(100% - 96px);
+                    margin: auto;
+                }
+
+                #sharingPatientStatus {
+                    width: 920px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                #sharingPatientStatus vaadin-grid {
+                    width: calc(100% - 96px);
+                    margin: auto;
+                }
+
                 .delegationCheckBox {
                     width: 220px;
                 }
@@ -540,6 +575,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: none;
                 }
 
+                .status-green {
+                    background: #07f8804d;
+                }
+
+                .status-red {
+                    background: #ff4d4d4d;
+                }
+
                 @media screen and (max-width: 1024px) {
                     div.container {
                         display: inherit;
@@ -570,8 +613,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .add-btn-mobile {
                         display: block;
                         position: fixed;
-                        bottom: 10px;
-                        right: 35px;
+                        bottom: 4px;
+                        right: 36px;
                     }
 
                     .add-list-mobile {
@@ -686,6 +729,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     transform: translateX(-50%);
                 }
 
+                import-spinner {
+                    position: fixed;
+                    top: 210px;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translateX(-60%);
+                }
+
                 #add-patient-dialog {
                     border-radius: 2px;
                 }
@@ -701,6 +752,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #add-patient-dialog .administrative-panel iron-pages {
                     padding: 0 24px;
                 }
+
+                vaadin-upload {
+                    margin: 16px;
+                    min-height: 280px;
+                    background: var(--app-background-color);
+                    --vaadin-upload-buttons-primary: {
+                        padding: 16px;
+                    };
+                    --vaadin-upload-button-add: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                    };
+                    --vaadin-upload-file-progress: {
+                        --paper-progress-active-color: var(--app-secondary-color);
+                    };
+                    --vaadin-upload-file-commands: {
+                        color: var(--app-primary-color);
+                    }
+                }
+
                 .doNotDisplay {
                     display:none;
                 }
@@ -752,7 +823,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
-                             on-tap="click">
+                             on-tap="clickOnRow">
                     <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
@@ -828,11 +899,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                             <div class="add-elem-mobile" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
                             </div>
-
                             <template is="dom-if" if="[[btnSelectionPatient]]">
-                                <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share
-                                    patients',language)]]
-                                </div>
+                                <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
                                 <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export
                                     patients',language)]]
                                 </div>
@@ -840,7 +908,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     patients',language)]]
                                 </div>
                             </template>
+                            <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
+                            </div>
                             <div class="add-elem-mobile" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
+                            </div>
+                            <div class="add-elem-mobile" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
                             </div>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -856,43 +928,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 </div>
 
-                <div class="add-btn-container">
-                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
-                        </paper-button>
+                <div class="line">
+                    <vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">
+                        [[localize('show_inactive_patients','Show inactive patients',language)]]
+                    </vaadin-checkbox>
+                    <div class="add-btn-container">
+                        <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
+                            <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
+                            </paper-button>
 
-                        <template is="dom-if" if="[[btnSelectionPatient]]">
-                            <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
-                                patients',language)]]
+                            <template is="dom-if" if="[[btnSelectionPatient]]">
+                                <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
+                                    patients',language)]]
+                                </paper-button>
+                                <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
+                                    patients',language)]]
+                                </paper-button>
+                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
+                                    patients',language)]]
+                                </paper-button>
+                            </template>
+
+                            <paper-button class="add-btn" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</paper-button>
+                            <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </paper-button>
-                            <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
-                                patients',language)]]
-                            </paper-button>
-                            <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
-                                patients',language)]]
+                            <paper-button class="exportcsv-btn" on-tap="_openImportPatientFromMfDialog">[[localize('import_mf','Import patient from PMF/SMF',language)]]
                             </paper-button>
                         </template>
-                        <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
-                        </paper-button>
-                    </template>
-                    <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
-                        </paper-button>
-                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]
-                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
-                        </paper-button>
-                        <template is="dom-if" if="[[taskProgress]]">
-                            <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
+                        <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
+                            <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
+                            </paper-button>
+                            <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]
+                                <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
+                            </paper-button>
+                            <template is="dom-if" if="[[taskProgress]]">
+                                <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
+                            </template>
                         </template>
-                    </template>
+                    </div>
                 </div>
-                <vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">
-                    [[localize('show_inactive_patients','Show inactive patients',language)]]
-                </vaadin-checkbox>
             </div>
         </div>
 
-
+        <paper-dialog id="patient-import-dialog">
+            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]]<span class="extra-info">(XML files)</span></h2>
+            <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
+            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_mfFileUploaded"></vaadin-upload>
+        </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
             <div class="administrative-panel" style="width:100%">
@@ -906,10 +988,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <page>
                         <div class="horizontal" style="margin-top:20px">
                             <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
-                            <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                            <paper-input label="First name" value="{{firstName}}"></paper-input>
-                            <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
-                            <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+                            <paper-input label="[[localize('las_nam','Last name',language)]]" style="min-width:200px" value="{{lastName}}"></paper-input>
+                            <paper-input label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
+                            <vaadin-date-picker label="[[localize('dat_of_bir','Date of birth',language)]]" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                            <paper-input label="[[localize('niss','Ssin',language)]]" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
                             <paper-input-container>
                                 <label slot="label">[[localize("gender","Gender",language)]]
                                 </label>
@@ -936,29 +1018,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <vaadin-combo-box
                                     id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel" style="width:30%"
                                     item-value-path="id" on-filter-changed="_mhSearch" on-keydown=""
-                                    label="[[localize('mh','Maison médicale',language)]]"
+                                    label="[[localize('mh','Medical house',language)]]"
                                     value="{{medicalHouseContract.hcpId}}">
                             </vaadin-combo-box>
 
-                            <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
+                            <vaadin-date-picker label="[[localize('sub_dat','Subscription date',language)]]" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract"
                                                 always-float-label on-value-changed="updateStartOfCoverage" style="width:20%"></vaadin-date-picker>
-                            <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
+                            <paper-input label="[[localize('sub_eva_mon','Subscription evaluation months',language)]]" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage"
                                          type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
-                            <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"
+                            <vaadin-date-picker label="[[localize('cov_sta','Coverage start',language)]]" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"
                                                 always-float-label readonly style="width:20%"></vaadin-date-picker>
                         </div>
                         <div class="horizontal" style="margin-top:30px">
                             <label style="font-weight: 700; display:inline-block; margin-right:30px;">
                                 <iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon>
                                 [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
-                            <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label
-                                            style="margin-right:30px">Has doctor subscription?
+                            <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="[[localize('has_m','Has doctor subscription',language)]]" always-float-label
+                                            style="margin-right:30px">[[localize('has_m','Has doctor subscription',language)]]?
                             </paper-checkbox>
-                            <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label
-                                            style="margin-right:30px">Has physiotherapist subscription?
+                            <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="[[localize('has_k','Has physiotherapist subscription',language)]]" always-float-label
+                                            style="margin-right:30px">[[localize('has_k','Has physiotherapist subscription',language)]]?
                             </paper-checkbox>
-                            <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has
-                                nurse subscription?
+                            <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="[[localize('has_i','Has nurse subscription',language)]]" always-float-label
+                            >[[localize('has_i','Has nurse subscription',language)]]?
                             </paper-checkbox>
                         </div>
                     </page>
@@ -1132,6 +1214,135 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+        <paper-dialog id="sharingPatientStatus">
+            <h4>[[localize("pat_sha_sta","Patient sharing status",language)]]</h4>
+                <vaadin-grid items="[[patientShareStatuses]]">
+                    <vaadin-grid-column width="150px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            [[item.patient.firstName]] [[item.patient.lastName]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Contacts
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Health elements
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Invoices
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Documents
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('done','Done',language)]]</paper-button>
+                </paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="importPatientStatus">
+            <h4>[[localize("pat_import_sta","Patient import status",language)]] <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files")]])</span></h4>
+            <vaadin-grid items="[[patientImportStatuses]]">
+                <vaadin-grid-column width="150px">
+                    <template class="header">
+                        Fichier
+                    </template>
+                    <template>
+                        [[item.filename]]
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="150px">
+                    <template class="header">
+                        Patient
+                    </template>
+                    <template>
+                        [[item.patient.firstName]] [[item.patient.lastName]]
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Dossier
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Contacts
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Health elements
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Invoices
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="70px">
+                    <template class="header">
+                        Documents
+                    </template>
+                    <template>
+                        <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+            <div class="buttons">
+                <paper-spinner class="import-spinner" active="[[isImportingPatients]]"></paper-spinner>
+                <paper-button dialog-dismiss>[[localize('close','Close',language)]]</paper-button>
+                </paper-button>
+                <paper-button on-click="abortImport" >[[localize('abort','Abort',language)]]</paper-button>
+                </paper-button>
+                <paper-button on-click="saveImportLog" >[[localize('save_import_log','Save import log',language)]]</paper-button>
+                </paper-button>
+            </div>
+        </paper-dialog>
+
         <paper-dialog id="fusionDialog">
             <div>
                 <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]
@@ -1260,6 +1471,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true,
                         value: () => []
                     },
+                    files: {
+                        type: Array
+                    },
                     patientSelected: {
                         type: Array,
                         notify: true,
@@ -1326,7 +1540,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             "cdItemRisk",
                             "cdItemFamilyRisk",
                             "cdItemHealthcareelement",
-                            "cdItemHealthcareapproach",
                             "cdItemAllergy",
                             "cdItemDiagnosis",
                             "cdItemLab",
@@ -1395,12 +1608,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: function () {
                             return [];
                         }
+                    },
+                    isImportingPatients: {
+                        type: Boolean,
+                        value: false
+                    },
+                    importPromiseChain: {
+                        type: Object,
+                        value: Promise.resolve([])
+                    },
+                    remainingPatientImports: {
+                        type: Array,
+                        value: []
                     }
                 }
             }
 
             static get observers() {
-                return ['_selectedFilterIndexesChanged(selectedFilterIndexes.splices)', '_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)']
+                return ['_selectedFilterIndexesChanged(selectedFilterIndexes.splices)', '_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)', '_filesChanged(files.*)' ]
             }
 
             constructor() {
@@ -1454,82 +1679,84 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
 
                     let svcFilter = null
-                    if (this.selectedFilters && this.selectedFilters.length) {
-                        svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
-                    } else {
-                        try { svcFilter = filterExParser.parse(latestSearchValue, {hcpId: this.user.healthcarePartyId}) } catch (ignored) {}
-                    }
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
+                        if (this.selectedFilters && this.selectedFilters.length) {
+                            svcFilter = this.selectedFilters.length > 1 ? {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} : this.selectedFilters[0].filter
+                        } else {
+                            try { svcFilter = filterExParser.parse(latestSearchValue, {hcpId: currentHcp.parentId || this.user.healthcarePartyId}) } catch (ignored) {}
+                        }
 
-                    const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyAndSsinFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'ssin': latestSearchValue
-                    } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
-                        '$type': 'PatientByHcPartyDateOfBirthFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine) => (p3.length === 4 ? p3 : (p3 > 20) ? "19" + p3 : "20" + p3) + (p2.length === 2 ? p2 : "0" + p2) + (p1.length === 2 ? p1 : "0" + p1))
-                    } : {
-                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'searchString': latestSearchValue
-                    }
+                        const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyAndSsinFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'ssin': latestSearchValue
+                        } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                            '$type': 'PatientByHcPartyDateOfBirthFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine) => (p3.length === 4 ? p3 : (p3 > 20) ? "19" + p3 : "20" + p3) + (p2.length === 2 ? p2 : "0" + p2) + (p1.length === 2 ? p1 : "0" + p1))
+                        } : {
+                            '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                            'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                            'searchString': latestSearchValue
+                        }
 
 
-                    if (grid.lastParams !== thisParams) {
-                        grid.lastParams = thisParams
-                        console.log("Starting search for " + thisParams)
+                        if (grid.lastParams !== thisParams) {
+                            grid.lastParams = thisParams
+                            console.log("Starting search for " + thisParams)
 
-                        this.set('hideSpinner', false)
-                        this.set('isLoadingPatient', true)
+                            this.set('hideSpinner', false)
+                            this.set('isLoadingPatient', true)
 
-                        ;(svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter})
-                            .then(out => {
-                                let rows = out.rows
+                            ;(svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter})
+                                    .then(out => {
+                                        let rows = out.rows
 
-                                const svcDict = rows.reduce((acc, s) => {
-                                    const cs = acc[s.id]
-                                    if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
-                                        acc[s.id] = s
-                                    }
-                                    return acc
-                                }, {})
-                                const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
-                                const hcpId = this.user.healthcarePartyId
+                                        const svcDict = rows.reduce((acc, s) => {
+                                            const cs = acc[s.id]
+                                            if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
+                                                acc[s.id] = s
+                                            }
+                                            return acc
+                                        }, {})
+                                        const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
+                                        const hcpId = this.user.healthcarePartyId
 
-                                const ownersOfDelegations = services.reduce((acc, s) => {
-                                    s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
-                                    return acc
-                                }, {})
-                                const importedAESHcPartyKeys = {}
-                                return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
-                                    return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
-                                        filter: {
-                                            '$type': 'PatientByIdsFilter',
-                                            'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
-                                        }
-                                    })
-                                })
-                            }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
-                        ).then(res => {
-                            if (grid.lastParams !== thisParams) {
-                                console.log("Cancelling obsolete search")
-                                return
-                            }
-                            const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
+                                        const ownersOfDelegations = services.reduce((acc, s) => {
+                                            s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
+                                            return acc
+                                        }, {})
+                                        const importedAESHcPartyKeys = {}
+                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
+                                            return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                                filter: {
+                                                    '$type': 'PatientByIdsFilter',
+                                                    'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
+                                                }
+                                            })
+                                        })
+                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                            ).then(res => {
+                                if (grid.lastParams !== thisParams) {
+                                    console.log("Cancelling obsolete search")
+                                    return
+                                }
+                                const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
 
-                            if (keptPatients.length > 0) {
-                                this.btnSelectionPatient = true
-                            }
+                                if (keptPatients.length > 0) {
+                                    this.btnSelectionPatient = true
+                                }
 
-                            if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-                                grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
-                            }
-                            callback(keptPatients.map(this.pimpPatient))
-                        }).finally(() => {
-                            this.set('hideSpinner', true)
-                            this.set('isLoadingPatient', false)
-                        })
-                    }
+                                if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
+                                    grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
+                                }
+                                callback(keptPatients.map(this.pimpPatient))
+                            }).finally(() => {
+                                this.set('hideSpinner', true)
+                                this.set('isLoadingPatient', false)
+                            })
+                        }
+                    })
                 }
 
 
@@ -1564,8 +1791,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.mhListItem = [];
                     }
                 });
-
-
             }
 
             _hcpFilterChanged(e) {
@@ -1573,7 +1798,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.latestSearchValue = latestSearchValue
                 if (!latestSearchValue || latestSearchValue.length < 2) {
                     console.log("Cancelling empty search")
-                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                    this.set('hcp', _.orderBy((_.values(this.api.hcParties || {}) || []).filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")), ['lastName'], ['asc']))
                     return
                 }
                 this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
@@ -1592,7 +1817,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         let count = 15
                         return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null, null, count, desc)]).then(results => {
                             const hcpList = results[0]
-                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")).map(hcp => ({
                                 id: hcp.id,
                                 lastName: hcp.lastName,
                                 firstName: hcp.firstName,
@@ -1636,14 +1861,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return p
             }
 
-            click(e) {
-                if (!this.hideSpinner) {
-                    this.set('isLoadingPatient', true)
-                }
+            clickOnRow(e) {
                 if (this.shareOption || this.exportOption || this.fusionOption) return
 
                 // Must click on a row
-                if (e.path[0].nodeName == 'TABLE') return
+                if (e.path[0].nodeName === 'TABLE') return
 
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
@@ -1801,6 +2023,195 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 )
             }
 
+            _filesChanged() {
+                const files = _.clone(this.files);
+                const vaadinUpload = this.$['vaadin-upload'];
+
+                Promise.all(files.filter(f => !f.attached).map(f => {
+                    f.attached = true;
+                    return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
+                        f.doc = d;
+                        f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
+                        return f;
+                    });
+                })).then(files => {
+                    files.length && vaadinUpload.uploadFiles(files);
+                });
+            }
+
+            _mfFileUploaded(e) {
+                const vaadinUpload = this.$['vaadin-upload'];
+                const f = e.detail.file;
+                const d = f.doc;
+                this.push('remainingPatientImports', d)
+                this.importPromiseChain = this.importPromiseChain.then(res => {
+                    return this.importPatientFromDocument(d)
+                })
+                this.$['importPatientStatus'].open()
+                console.log("file uploaded: " + d.name)
+            }
+
+            _openImportPatientFromMfDialog() {
+                if(this.remainingPatientImports === undefined || this.remainingPatientImports.length === 0) {
+                    this.remainingPatientImports = []
+                    this.patientImportStatuses = []
+                    this.importPromiseChain = Promise.resolve([])
+                    this.importAborted = false
+                    this.$['patient-import-dialog'].open()
+                } else {
+                    this.$['importPatientStatus'].open()
+                }
+            }
+
+            removeFromRemainingPatientImports(doc) {
+                this.remainingPatientImports = this.remainingPatientImports.filter(item => {
+                    return item.id !== doc.id
+                });
+                console.log("remaining: " + this.remainingPatientImports.length);
+                if(this.remainingPatientImports.length === 0) {
+                    this.importAborted = false
+                    console.log("ALL IMPORT DONE")
+                    this.set('hideSpinner', true)
+                    this.set('isLoadingPatient', false)
+                    this.set('isImportingPatients', false)
+                }
+            }
+
+            abortImport() {
+                if(this.remainingPatientImports.length) {
+                    this.importAborted = true
+                }
+            }
+
+            saveImportLog() {
+                this.generateXlsFile(this.patientImportStatuses.map(stat => {
+                    return {
+                        filename: stat.filename,
+                        firstName: stat.patient.firstName,
+                        lastName: stat.patient.lastName,
+                        folder: this._statusDetail(stat.statuses.patient),
+                        contacts: this._statusDetail(stat.statuses.contacts),
+                        healthElements: this._statusDetail(stat.statuses.healthElements),
+                        invoices: this._statusDetail(stat.statuses.invoices),
+                        documents: this._statusDetail(stat.statuses.documents),
+                    }
+                }))
+            }
+
+            importPatientFromDocument(document) {
+                if (this.importAborted) {
+                    console.log("import aborted: " + document.name)
+                    this.set('hideSpinner', true)
+                    this.set('isLoadingPatient', false)
+                    this.set('isImportingPatients', false)
+                    let fakepat = {
+                        firstName: "Document",
+                        lastName: document.name
+                    };
+                    this.push('patientImportStatuses', {
+                        patient: fakepat, filename: document.name, statuses: {
+                            contacts: {success: null, error: null},
+                            healthElements: {success: null, error: null},
+                            invoices: {success: null, error: null},
+                            documents: {success: null, error: null},
+                            patient: {success: false, error: {message: "Aborted"}}
+                        }
+                    })
+                    this.removeFromRemainingPatientImports(document)
+                    return Promise.resolve()
+                }
+                this.set('hideSpinner', false)
+                this.set('isLoadingPatient', true)
+                this.set('isImportingPatients', true)
+                console.log("importing: " + document.name)
+                return this.api.bekmehr().importSmf(document.id, "123245", null, this.user.language, {}).then(results => {
+                    let patpromises = results.map(result => {
+                        return this.api.patient().newInstance(this.user, result.patient, result.patient).then(p => {
+                            return this.api.patient().modifyPatientWithUser(this.user, p)
+                        }).then(pat => {
+                            let prolist = [
+                                result.forms.map(form => {
+                                    return this.api.form().newInstance(this.user, pat, form).then(f => {
+                                        return this.api.form().modifyForm(f)
+                                    });
+                                }),
+                                result.ctcs.map(ctc => {
+                                    return this.api.contact().newInstance(this.user, pat, ctc).then(c => {
+                                        return this.api.contact().modifyContactWithUser(this.user, c)
+                                    });
+                                }),
+                                result.hes.map(he => {
+                                    return this.api.helement().newInstance(this.user, pat, he).then(h => {
+                                        return this.api.helement().modifyHealthElement(h)
+                                    });
+                                }),
+                                result.documents.map(doc => {
+                                    return this.api.document().newInstance(this.user, pat, doc).then(d => {
+                                        return this.api.document().modifyDocument(d)
+                                    });
+                                })
+                            ].map(pl => Promise.all(pl));
+                            return prolist.reduce((acc, prom) => acc.then(res => prom.then(innerRes => res.concat(innerRes))), Promise.resolve([]))
+                                .then(
+                                    datastatus => {
+                                        console.log("done import: " + document.name + ":" + pat.firstName + " " + pat.lastName + "; " + pat.id)
+                                        console.log(datastatus)
+
+                                        this.push('patientImportStatuses', {
+                                            patient: pat, filename: document.name, statuses: {
+                                                contacts: {success: null, error: null},
+                                                healthElements: {success: null, error: null},
+                                                invoices: {success: null, error: null},
+                                                documents: {success: null, error: null},
+                                                patient: {success: true, error: null}
+                                            }
+                                        })
+                                        return Promise.resolve()
+                                    },
+                                    // patient imported but error importing patient data
+                                    err => {
+                                        // TODO: check specific error for contacts, he, etc
+                                        console.log(err)
+                                        this.push('patientImportStatuses', {
+                                            patient: pat, filename: document.name, statuses: {
+                                                contacts: {success: null, error: null},
+                                                healthElements: {success: null, error: null},
+                                                invoices: {success: null, error: null},
+                                                documents: {success: null, error: null},
+                                                patient: {success: false, error: err}
+                                            }
+                                        })
+                                        return Promise.resolve()
+                                    }
+                                )
+                        })
+                    });
+                    return Promise.all(patpromises)
+                }).then(
+                    () => {
+                        // import status already pushed at patient level
+                        this.removeFromRemainingPatientImports(document)
+                        return Promise.resolve()
+                    },
+                    err => {
+                        console.log(err)
+                        let fakepat = {
+                            firstName: "Document",
+                            lastName: document.name
+                        };
+                        this.push('patientImportStatuses', {patient:fakepat,  filename: document.name, statuses:{
+                                contacts: {success:null, error: null},
+                                healthElements: {success:null, error: null},
+                                invoices: {success: null, error: null},
+                                documents: {success:null, error: null},
+                                patient: {success:false, error: err}}
+                        })
+                        this.removeFromRemainingPatientImports(document)
+                        return Promise.resolve()
+                    }
+                )
+            }
+
             generateXlsFile(data) {
 
                 // Create xls work book and assign properties
@@ -1903,9 +2314,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             picture(pat) {
                 if (!pat) {
-                    return require('../../../images/Male-128.jpg')
+                    return require('../../../images/male-placeholder.png')
                 }
-                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/female-placeholder.png') : require('../../../images/male-placeholder.png')
             }
 
             _saveFilter(e) {
@@ -2027,10 +2438,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _sharePatientAll() {
+                this.set('isImportingPatients', true)
+                let retry = 0
+                this.api.getRowsUsingPagination(
+                    (key, docId) => this.api.patient().listPatientsIds(this.user.healthcarePartyId, key || null, docId || null, 1000).then(pl => {
+                        retry = 0
+                        return {
+                            rows: pl.rows.map(id => ({id})),
+                            nextKey: pl.nextKeyPair && JSON.stringify(pl.nextKeyPair.startKey),
+                            nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                            done: !pl.nextKeyPair
+                        }
+                    }).catch((e) => {
+                        console.log(`retry: ${e.message}`)
+                        retry ++
+                        return retry <= 3 ? Promise.resolve({
+                            rows: [],
+                            nextKey: key,
+                            nextDocId: docId,
+                            done: false
+                        }) : Promise.reject(e)
+                    })
+                ).then(pats => {
+                    this.set('shareOption', true)
+                    this.selectedPatientsForSharing = pats;
+                    this.$['sharePatientDialog'].open()
+                    this.set('hcp', _.orderBy(_.values(this.api.hcParties), ['lastName'], ['asc']))
+                }).finally(() => {
+                    this.set('isImportingPatients', false)
+                })
+            }
+
             _openPatientActionDialog() {
                 if (this.shareOption) {
                     this.$['sharePatientDialog'].open()
-                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                    this.set('hcp', _.orderBy(_.values(this.api.hcParties), ['lastName'], ['asc']))
+                    this.selectedPatientsForSharing = this.patientSelected.filter(pat => pat.check && pat.id)
                 }
                 if (this.exportOption) {
                     //export here
@@ -2108,6 +2552,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _statusDetail(status) {
+                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error.message
+            }
+
+            _statusDetailClass(status) {
+                return status.success === null ? '' : status.success ? 'status-green' : 'status-red'
+            }
+
             _sharingHcp(item) {
                 if (item) {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
@@ -2118,16 +2570,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirmSharingNextStep() {
-
-                let pPromise = Promise.resolve([])
-                const hcpId = this.user.healthcarePartyId
-                this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
-                    pPromise = pPromise.then(pats =>
-                        this.api.patient().share(this.user, pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
-                            .then(pat => _.concat(pats, pat))
-                    )
-                })
-
                 this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
@@ -2147,13 +2589,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
 
                 this.$['sharePatientDelegationDialog'].open()
-
-                return pPromise
             }
 
             confirmSharing() {
                 this.updateDelegation()
+
                 this.$['sharePatientDelegationDialog'].close()
+                this.$['sharingPatientStatus'].open()
+
+                this._sharePatients(this.selectedPatientsForSharing)
+            }
+
+            _hashCode(str) {
+                return str.split('').reduce((prevHash, currVal) =>
+                    (((prevHash << 5) - prevHash) + currVal.charCodeAt(0))|0, 0);
+            }
+
+            _sharePatients(patients) {
+                this.set('patientShareStatuses',[])
+
+                const hcpId = this.user.healthcarePartyId
+                const delegates = this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id)
+                const delegationTags = _.fromPairs(delegates.map(hcp => [hcp.id, _.sortBy(hcp.delegation)]))
+                const sig = this._hashCode(JSON.stringify(_.sortBy(delegationTags, x => x[0])))
+                const locStoTag = `org.taktik.icure.${this.user.id}.share.${sig}.progress`
+
+                const prevRunIds = JSON.parse(localStorage.getItem(locStoTag) || '[]')
+
+                this.patientSharePromise = Promise.resolve([[], prevRunIds])
+
+                _.chunk(patients.filter(p => !prevRunIds.includes(p.id)), 16).forEach(chunk => {
+                    this.patientSharePromise = this.patientSharePromise.then(([prevStatuses, treatedIds]) => Promise.all(chunk.map(pat =>
+                            this.api.patient().share(this.user, pat.id, hcpId, delegates.map(hcp => hcp.id), delegationTags)
+                                .catch(e => {
+                                    console.log(e)
+                                    return {
+                                        patient: pat, statuses: {
+                                            contacts: {success: null, error: null},
+                                            healthElements: {success: null, error: null},
+                                            invoices: {success: null, error: null},
+                                            documents: {success: null, error: null},
+                                            patient: {success: false, error: e}
+                                        }
+                                    }
+                                })
+                        )).then(statuses => {
+                            const newStatuses = prevStatuses.concat(statuses)
+                            const newTreatedIds = treatedIds.concat(statuses.filter(s => !_.values(s.statuses).some(s => !s.success)).map(s => s.patient.id))
+                            localStorage.setItem(locStoTag, JSON.stringify(newTreatedIds))
+                            this.push('patientShareStatuses', ...statuses)
+
+                            this.dispatchEvent(new CustomEvent('idle', { bubbles: true, composed: true}))
+
+                            return [newStatuses, newTreatedIds]
+                        })
+                    )
+                })
             }
 
             _openPopupMenu() {
@@ -2269,7 +2760,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //idem of checkingDelegation
 
                 if (this.hcpSelectedForSharing[index].delegation.find(x => x === 'all')) {
-                    this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.filter(x => true))
+                    this.set("hcpSelectedForSharing." + index + ".delegation", this.delegation.map(x => x))
                     this.hcpSelectedForSharing[index].delegation.shift()
                 }
                 if (value === true) {//check

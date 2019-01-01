@@ -13,11 +13,7 @@ import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
-import org.taktik.icure.logic.ContactLogic
-import org.taktik.icure.logic.DocumentLogic
-import org.taktik.icure.logic.HealthElementLogic
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.logic.*
 
 
 class SoftwareMedicalFileImportTest {
@@ -25,8 +21,11 @@ class SoftwareMedicalFileImportTest {
     val patientLogic = mock(PatientLogic::class.java)
     val healthElementLogic = mock(HealthElementLogic::class.java)
     val healthcarePartyLogic = mock(HealthcarePartyLogic::class.java)
+    val formTemplateLogic = mock(FormTemplateLogic::class.java)
+    val insuranceLogic = mock(InsuranceLogic::class.java)
 
     val documentLogic = mock(DocumentLogic::class.java)
+    val formLogic = mock(FormLogic::class.java)
     val uuidGenerator = UUIDGenerator()
     val mapper = ObjectMapper()
 
@@ -43,7 +42,7 @@ class SoftwareMedicalFileImportTest {
     fun importSMF() {
         val mappings = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")
             .readBytes(10000).toString(Charsets.UTF_8)
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
             .importSMF(
                 this.javaClass.getResourceAsStream("Test.xml"),
                 User().apply {

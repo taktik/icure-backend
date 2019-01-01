@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="./shared-styles.html">
 
 <link rel="import" href="elements/ht-hcp/ht-hcp-list.html">
@@ -17,21 +18,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script src="../bower_components/moment/moment.js"></script>
 <script src="../bower_components/base64-js/base64js.min.js"></script>
 
+
 <dom-module id="ht-hcp">
   <template>
     <style include="shared-styles">
       :host {
         display: block;
-				height: calc(100% - 20px);
-				padding: 10px;
-			}
+        height: 100%;
+    }
     </style>
-		<template is="dom-if" if="{{selectedHcp}}">
-			<ht-hcp-detail api="[[api]]" user="[[user]]" hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-detail>
-		</template>
-		<template is="dom-if" if="{{!selectedHcp}}">
-			<ht-hcp-list api="[[api]]" user="[[user]]" selected-hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-list>
-		</template>
+
+	<app-route route="{{route}}" pattern="/:selectedHcpId" data="{{routeData}}"></app-route>
+
+	<template is="dom-if" if="{{selectedHcp}}">
+		<ht-hcp-detail api="[[api]]" user="[[user]]" hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-detail>
+	</template>
+	<template is="dom-if" if="{{!selectedHcp}}">
+		<ht-hcp-list api="[[api]]" user="[[user]]" selected-hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-list>
+	</template>
   </template>
 
   <script>
@@ -52,10 +56,24 @@ class HtHcp extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			selectedHcp: {
 				type: Object,
-				value: null
-			}
+				value: null,
+				observer : '_hcpChanged'
+			},
+            route: {
+                type: Object,
+                notify: true
+            },
+            routeData: {
+                type: Object,
+                noReset: true,
+                value: {}
+            }
 		};
 	}
+
+    static get observers() {
+        return ['_routeChanged(routeData,routeData.*)'];
+    }
 
 	constructor() {
 		super();
@@ -68,6 +86,29 @@ class HtHcp extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	ready() {
         super.ready()
+    }
+
+    _hcpChanged() {
+        if (this.selectedHcp === null) {
+            if (this.routeData && this.routeData.selectedHcpId) {
+                this.set('routeData.selectedHcpId', '');
+            }
+        } else if (this.selectedHcp.id !== this.routeData.selectedHcpId) {
+            this.set('routeData.selectedHcpId', this.selectedHcp.id);
+        }
+
+        console.log(this.routeData.selectedHcpId)
+    }
+
+    _routeChanged() {
+	    console.log("ici")
+        if (!this.routeData || !this.routeData.selectedHcpId || this.routeData.selectedHcpId.length === 0) {
+            if (this.selectedHcp) {
+                this.set('selectedHcp', null);
+            }
+        } else if (!this.selectedHcp || this.selectedHcp.id !== this.routeData.selectedHcpId) {
+			this.api.hcparty().getHealthcareParty(this.routeData.selectedHcpId).then(hcp => this.api.register(hcp,"hcp")).then(hcp => this.set('selectedHcp',hcp))
+        }
     }
 
 }

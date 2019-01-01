@@ -33,10 +33,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.InvoiceDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
+import org.taktik.icure.dao.impl.ektorp.CouchKeyValue;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.MediumType;
@@ -56,7 +56,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	public PaginatedList<Invoice> findByHcParty(String hcParty, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset) {
 		ComplexKey startKey = paginationOffset == null || paginationOffset.getStartKey() == null ? ComplexKey.of(hcParty, fromDate) : paginationOffset.getStartKey();
 		ComplexKey endKey = ComplexKey.of(hcParty, toDate == null ? ComplexKey.emptyObject(): toDate);
-		return pagedQueryView("by_hcparty_date", startKey, endKey, paginationOffset, true);
+		return pagedQueryView("by_hcparty_date", startKey, endKey, paginationOffset, false);
 	}
 
 	@Override
@@ -245,4 +245,44 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 		return queryView("conflicts");
 	}
 
+
+	@Override
+	@View(name = "tarification_by_hcparty_code", map = "classpath:js/invoice/Tarification_by_hcparty_code.js", reduce = "_count")
+	public List<String> findTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
+		if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
+		ComplexKey from = ComplexKey.of(
+				hcPartyId,
+				codeCode,
+				startValueDate
+		);
+		ComplexKey to = ComplexKey.of(
+				hcPartyId,
+				codeCode == null ? ComplexKey.emptyObject() : codeCode,
+				endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
+		);
+
+		ViewQuery viewQuery = createQuery("service_by_hcparty_code")
+				.startKey(from)
+				.endKey(to)
+				.reduce(false)
+				.includeDocs(false);
+
+		List<String> ids = db.queryView(viewQuery, String.class);
+		return ids;
+	}
+
+	@Override
+	public List<CouchKeyValue<Long>> listTarificationsFrequencies(String hcPartyId) {
+		ComplexKey from = ComplexKey.of(
+				hcPartyId,
+				null
+		);
+		ComplexKey to = ComplexKey.of(
+				hcPartyId,
+				ComplexKey.emptyObject()
+		);
+
+		return ((CouchDbICureConnector) db).queryViewWithKeys(createQuery("tarification_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(2), Long.class);
+	}
 }

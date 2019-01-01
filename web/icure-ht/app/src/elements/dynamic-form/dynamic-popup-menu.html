@@ -113,7 +113,7 @@
 
 		<template is="dom-if" if="[[readOnly]]">
 			<paper-input-container always-float-label="true">
-				<label slot="label">[[label]]
+				<label slot="label">[[localize(label,label,language)]]
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
@@ -121,15 +121,15 @@
 						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input readonly type="text" value="{{value::input}}" on-tap="_openPopupMenu" readonly>
+				<iron-input slot="input" bind-value="{{traductValue}}">
+					<input readonly type="text" value="{{traductValue::input}}" on-tap="_openPopupMenu" readonly>
 				</iron-input>
 				<paper-menu-button slot="suffix" horizontal-offset="[[listboxOffsetWidth]]">
 					<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
 					<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
 						<paper-item>[[localize('auc','Aucun',language)]]</paper-item>
 						<template is="dom-repeat" items="[[options]]">
-							<paper-item>[[item]]</paper-item>
+							<paper-item>[[localize(item,item,language)]]</paper-item>
 						</template>
 					</paper-listbox>
 				</paper-menu-button>
@@ -138,7 +138,7 @@
 		<template is="dom-if" if="[[!readOnly]]">
 			<template is="dom-if" if="[[!dataSource]]">
 			<paper-input-container always-float-label="true">
-				<label slot="label">[[label]]
+				<label slot="label">[[localize(label,label,language)]]
 					<template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
@@ -146,15 +146,15 @@
 						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input readonly type="text" value="{{value::input}}" on-tap="_openPopupMenu">
+				<iron-input slot="input" bind-value="{{traductValue}}">
+					<input readonly type="text" value="{{traductValue::input}}" on-tap="_openPopupMenu">
 				</iron-input>
 				<paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listboxOffsetWidth]]">
 					<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
 					<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
 						<paper-item>[[localize('auc','Aucun',language)]]</paper-item>
 						<template is="dom-repeat" items="[[options]]">
-							<paper-item>[[item]]</paper-item>
+							<paper-item>[[localize(item,item,language)]]</paper-item>
 						</template>
 					</paper-listbox>
 				</paper-menu-button>
@@ -203,6 +203,9 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 				type: Number,
 				observer: '_selectedChanged'
 			},
+            selectedItem:{
+			    type: String
+			},
 			options: {
 				type: Array
 			},
@@ -224,6 +227,9 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 				value: function () {
 					return [];
 				}
+			},
+            traductValue:{
+			    type: String
 			}
 		};
 	}
@@ -279,25 +285,27 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		if (value && this.dataSource) {
             if (!this.items || !this.items.find(i => i.id === value)) {
                 this.dataSource.get(this.value).then(res => {
-                    res = res || {name:value, id:value}
+                    res = res || {name:this.localize(value,value,this.language), id:value}
 					if (!this.items.map(x => x.id).includes(res.id)) {
 						this.set('items', [res].concat(this.items || []))
 					}
-					this.set('comboBoxValue', value)
+					this.set('comboBoxValue',this.localize(value,value,this.language))
                 }).catch(()=>{
-                    const res = {name:value, id:value}
+                    const res = {name:this.localize(value,value,this.language), id:value}
                     if (!this.items.map(x => x.id).includes(res.id)) {
                         this.set('items', [res].concat(this.items || []))
                     }
-                    this.set('comboBoxValue', value)
+                    this.set('comboBoxValue',value)
                 })
             } else {
-                this.set('comboBoxValue', value)
+                this.set('comboBoxValue',value)
             }
         } else {
             this.set('comboBoxValue', null)
         }
-		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
+
+        this.set('traductValue',(value ? this.localize(value,value,this.language) : ""))
+        this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
 	}
 
 	_filterChanged(e) {
@@ -306,7 +314,7 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	}
 
 	_label(label) {
-		return label || "\u00a0";
+		return this.localize(label,label,this.language) || "\u00a0";
 	}
 }
 customElements.define(DynamicPopupMenu.is, DynamicPopupMenu);

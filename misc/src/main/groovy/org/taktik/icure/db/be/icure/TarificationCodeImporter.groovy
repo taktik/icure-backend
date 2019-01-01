@@ -16,6 +16,7 @@ import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
 import org.taktik.icure.db.Importer
 import org.taktik.icure.entities.Tarification
+import org.taktik.icure.entities.embed.LetterValue
 import org.taktik.icure.entities.embed.Valorisation
 import org.taktik.icure.utils.FuzzyValues
 
@@ -29,7 +30,7 @@ import java.time.temporal.ChronoUnit
 class TarificationCodeImporter extends Importer {
 	def language = 'fr'
 	def refs = [
-		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_sans_regime_preferentiel"                                                                                                                  : "old_dmg,dmg_no_preferentialstatus_chronical",
+		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_sans_regime_preferentiel"                                                                                                                  : "old_no_preferentialstatus_dmg,dmg_no_preferentialstatus_chronical",
 		"_"                                                                                                                                                                                                              : "any",
 		"_prix_sur_facture"                                                                                                                                                                                              : "any",
 		""                                                                                                                                                                                                               : "any",
@@ -56,18 +57,18 @@ class TarificationCodeImporter extends Importer {
 		"seulement_les_centres_agrees_pour_groupe_cible_19_peuvent_facturer_ce_numero_de_code"                                                                                                                           : "any",
 		"seulement_les_centres_agrees_pour_groupe_cible_1bis_peuvent_facturer_ce_numero_de_code"                                                                                                                         : "any",
 		"voir_liste_9_53_et_9_65_centres_annexe_du_circulaire_aux_organismes_assureurs_"                                                                                                                                 : "any",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire_avec_regime_preferentiel"                                                                           : "regular_dmg,old_no_dmg,chronical_no_dmg,trainee_preferentialstatus",
-		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_avec_regime_preferentiel"                                         : "old_dmg,chronical_dmg,trainee_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire_sans_regime_preferentiel"                                                                           : "regular_dmg,old_no_dmg,chronical_no_dmg,trainee_no_preferentialstatus",
-		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_sans_regime_preferentiel"                                         : "old_dmg,chronical_dmg,trainee_no_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire_avec_regime_preferentiel"                                                                 : "regular_dmg,old,chronical,trainee_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire_sans_regime_preferentiel"                                                                 : "regular_dmg,old,chronical,trainee_preferentialstatus",
-		"avec_regime_preferentiel_a_taux_exceptionnel"                                                                                                                                                                   : "preferntialstatus",
-		"sans_regime_preferentiel_a_taux_exceptionnel"                                                                                                                                                                   : "no_preferntialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire_avec_regime_preferentiel"                                                                           : "trainee_preferentialstatus_regular_dmg_preferentialstatus,trainee_preferentialstatus_old_no_dmg_preferentialstatus,trainee_preferentialstatus_chronical_no_dmg_preferentialstatus",
+		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_avec_regime_preferentiel"                                         : "trainee_old_dmg_preferentialstatus,trainee_chronical_dmg_referentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire_sans_regime_preferentiel"                                                                           : "trainee_no_preferentialstatus_regular_dmg,trainee_no_preferentialstatus_old_no_dmg,trainee_no_preferentialstatus_chronical_no_dmg",
+		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_sans_regime_preferentiel"                                         : "trainee_no_preferentialstatus_old_dmg,trainee_no_preferentialstatus_chronical_dmg",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire_avec_regime_preferentiel"                                                                 : "trainee_regular_dmg_preferentialstatus,trainee_old_preferentialstatus,trainee_chronical_preferentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire_sans_regime_preferentiel"                                                                 : "trainee_regular_dmg_preferentialstatus,trainee_old_preferentialstatus,trainee_chronical_preferentialstatus",
+		"avec_regime_preferentiel_a_taux_exceptionnel"                                                                                                                                                                   : "preferentialstatus",
+		"sans_regime_preferentiel_a_taux_exceptionnel"                                                                                                                                                                   : "no_preferentialstatus",
 		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg"                                                                                                                                   : "child-120m_preferentialstatus",
 		"enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_avec_regime_preferentiel"                                                                                                                                   : "child-120m_preferentialstatus",
-		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"       : "child-120m_no_preferentialstatus,regular_dmg,old_no_dmg,chronical_no_dmg",
-		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg": "child-120m_no_preferentialstatus,regular_dmg,old,chronical",
+		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"       : "child-120m_no_preferentialstatus,regular_no_preferentialstatus_dmg,old_no_preferentialstatus_no_dmg,chronical_no_preferentialstatus_no_dmg",
+		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg": "child-120m_no_preferentialstatus,regular_no_preferentialstatus_dmg,old_no_preferentialstatus,chronical_no_preferentialstatus",
 		"enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_sans_regime_preferentiel"                                                                                                                                   : "child-120m_no_preferentialstatus",
 		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg"                                                                                                                                   : "child-120m_no_preferentialstatus",
 		"enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                : "child-120m,regular_dmg,old_no_dmg,chronical_no_dmg",
@@ -124,10 +125,10 @@ class TarificationCodeImporter extends Importer {
 		"sans_regime_preferentiel_sur_base_du_paragraphe_2_de_l_article_7"                                                                                                                                               : "no_preferentialstatus",
 		"sans_regime_preferentiel_sur_base_du_paragraphe_3_de_l_article_7"                                                                                                                                               : "no_preferentialstatus",
 		"sans_regime_preferentiel"                                                                                                                                                                                       : "no_preferentialstatus",
-		"sans_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                  : "old_dmg_no_preferentialstatus,chronical_dmg",
+		"sans_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                  : "old_dmg_no_preferentialstatus,chronical_no_preferentialstatus_dmg",
 		"_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                                          : "old_dmg,chronical_dmg",
 		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                                           : "old_dmg,chronical_dmg",
-		"avec_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                  : "old_preferentialstatus_dmg,chronical_dmg",
+		"avec_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg"                                                                                                                  : "old_preferentialstatus_dmg,chronical_preferentialstatus_dmg",
 		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"       : "preferentialstatus_child-120m,preferentialstatus_regular_dmg,preferentialstatus_regular_dmg,preferentialstatus_old_no_dmg,preferentialstatus_chronical_no_dmg",
 		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg": "preferentialstatus_child-120m,preferentialstatus_regular_dmg,preferentialstatus_regular_dmg,preferentialstatus_old,preferentialstatus_chronical",
 		"enfant_de_moins_de_5_ans_avec_regime_preferentiel"                                                                                                                                                              : "preferentialstatus_child-60m",
@@ -178,8 +179,8 @@ class TarificationCodeImporter extends Importer {
 		"avec_regime_preferentiel"                                                                                                                                                                                       : "preferentialstatus",
 		"maximale_avec_regime_preferentiel"                                                                                                                                                                              : "preferentialstatus",
 		"patient_palliatif_avec_regime_preferentiel"                                                                                                                                                                     : "preferentialstatus",
-		"sans_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                 : "regular_dmg_no_preferentialstatus,old_chronical",
-		"sans_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                           : "regular_dmg_no_preferentialstatus,old_no_dmg,chronical_no_dmg",
+		"sans_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                 : "regular_dmg_no_preferentialstatus,old_no_preferentialstatus,chronical_no_preferentialstatus",
+		"sans_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                           : "regular_dmg_no_preferentialstatus,old_no_preferentialstatus_no_dmg,chronical_no_preferentialstatus_no_dmg",
 		"_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                                                   : "regular_dmg,old_no_dmg,chronical_no_dmg",
 		"a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                                                    : "regular_dmg,old_no_dmg,chronical_no_dmg",
 		"_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_ou_sans_dmg_malade_chronique_avec_ou_sans_dmg"                                                                   : "regular_dmg,old,chronical",
@@ -189,20 +190,20 @@ class TarificationCodeImporter extends Importer {
 		"a_partir_du_10eme_anniversaire_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique"                                                                                                           : "regular_no_dmg_no_chronical",
 		"sans_regime_preferentiel_a_partir_du_10eme_anniversaire_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique"                                                                                  : "regular_no_dmg_no_preferentialstatus_no_chronical",
 		"_a_partir_du_10eme_anniversaire_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique"                                                                                                          : "regular_no_dmg_no_preferentialstatus",
-		"avec_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                 : "regular_preferentialstatus_dmg,old_chronical",
+		"avec_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                 : "regular_preferentialstatus_dmg,old_preferentialstatus,chronical_preferentialstatus",
 		"avec_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                           : "regular_preferentialstatus_dmg,old_preferentialstatus_no_dmg,chronical_preferentialstatus_no_dmg",
 		"avec_regime_preferentiel_a_partir_du_10eme_anniversaire_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique"                                                                                  : "regular_preferentialstatus_no_dmg_no_chronical",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_avec_regime_preferentiel"                                                                                             : "regular_dmg,old_no_dmg,chronical_no_dmg_preferentialstatus",
-		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_avec_regime_preferentiel"                                                                                                                  : "regular_dmg,chronical_dmg_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_avec_regime_preferentiel"                                                                                   : "regular_dmg,old,chronical_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_sans_regime_preferentiel"                                                                                   : "regular_dmg,old,chronical_no_preferentialstatus",
-		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_sans_regime_preferentiel"                                                                                             : "regular_dmg,old_no_dmg,chronical_no_dmg_no_preferentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_avec_regime_preferentiel"                                                                                             : "regular_preferentialstatus_dmg,old_no_dmg_preferentialstatus,chronical_no_dmg_preferentialstatus",
+		"a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_avec_regime_preferentiel"                                                                                                                  : "old_dmg_preferentialstatus,chronical_dmg_preferentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_avec_regime_preferentiel"                                                                                   : "regular_dmg_preferentialstatus,old_preferentialstatus,chronical_preferentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_sans_regime_preferentiel"                                                                                   : "regular_dmg_no_preferentialstatus,old_no_preferentialstatus,chronical_no_preferentialstatus",
+		"de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_sans_regime_preferentiel"                                                                                             : "regular_dmg_no_preferentialstatus,old_no_dmg_no_preferentialstatus,chronical_no_dmg_no_preferentialstatus",
 		"enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_medecin_stagiaire_avec_regime_preferentiel"                                                                                                                 : "trainee_child-120m_preferentialstatus",
 		"de_10_a_75_ans_sans_dmg_et_sans_etre_malade_chronique_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_avec_regime_preferentiel"                                                        : "trainee_regular_no_dmg_preferentialstatus",
 		"enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_medecin_stagiaire_sans_regime_preferentiel"                                                                                                                 : "trainee_child-120m_no_preferentialstatus",
 		"de_10_a_75_ans_sans_dmg_et_sans_etre_malade_chronique_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli_sans_regime_preferentiel"                                                        : "trainee_regular_no_chronical_no_dmg_no_preferentialstatus",
-		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                          : "trainee_child-120m_no_preferentialstatus,trainee_regular_dmg,trainee_old_no_dmg,trainee_chronical_no_dmg",
-		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                : "trainee_child-120m_no_preferentialstatus,trainee_regular_dmg,trainee_old,trainee_chronical",
+		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                          : "trainee_child-120m_no_preferentialstatus,trainee_regular_no_preferentialstatus_dmg,trainee_old_no_preferentialstatus_no_dmg,trainee_chronical_no_preferentialstatus_no_dmg",
+		"sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                : "trainee_child-120m_no_preferentialstatus,trainee_regular_no_preferentialstatus_dmg,trainee_old_no_preferentialstatus,trainee_chronical_no_preferentialstatus",
 		"medecin_stagiaire_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                 : "trainee_child-120m,trainee_regular_dmg,trainee_old_no_dmg,trainee_chronical_no_dmg",
 		"medecin_stagiaire_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"       : "trainee_child-120m,trainee_regular_dmg,trainee_old,trainee_chronical",
 		"medecin_stagiaire_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dossier_medical_global"                                                                                                                       : "trainee_child-120m",
@@ -211,29 +212,29 @@ class TarificationCodeImporter extends Importer {
 		"sans_regime_preferentiel_dans_le_cadre_du_dmg_medecin_stagiaire_1_des_conditions_surveillance_non_rempli"                                                                                                       : "trainee_no_preferentialstatus_dmg",
 		"sans_regime_preferentiel_pas_dans_le_cadre_du_dmg_medecin_stagiaire_1_des_conditions_surveillance_non_rempli"                                                                                                   : "trainee_no_preferentialstatus_no_dmg",
 		"sans_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli"                                         : "trainee_no_preferentialstatus_old_dmg_chronical_dmg",
-		"sans_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                                                                           : "trainee_no_preferentialstatus_regular_dmg_old_no_dmg",
-		"sans_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                                                                 : "trainee_no_preferentialstatus_regular_dmg,old,chronical",
+		"sans_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                                                                           : "trainee_no_preferentialstatus_regular,trainee_no_preferentialstatus_dmg_old,trainee_no_preferentialstatus_chronical_no_dmg",
+		"sans_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                                                                 : "trainee_no_preferentialstatus_regular_dmg,trainee_old_no_preferentialstatus,trainee_chronical_no_preferentialstatus",
 		"sans_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli"                      : "trainee_no_preferentialstatus_regular_no_dmg_no_chronical",
 		"sans_regime_preferentiel_des_qui_consultent_un_medecin_specialiste_apres_avoir_ete_envoyes_par_un_medecin_generale_medecin_specialiste_stagiaire"                                                               : "trainee_no_preferentialstatus",
 		"sans_regime_preferentiel_medecin_specialiste_stagiaire"                                                                                                                                                         : "trainee_no_preferentialstatus",
 		"medecin_stagiaire_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_une_des_conditions_de_surveillance_de_stage_non_rempli"                                                                  : "trainee_old_dmg_chronical_dmg",
-		"medecin_stagiaire_avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                : "trainee_preferentialstatus_child-120m,regular_dmg,old,chronical",
-		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                          : "trainee_preferentialstatus_child-120m,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_old_no_dmg,trainee_preferentialstatus_chronical_no_dmg",
-		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                : "trainee_preferentialstatus_child-120m,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_old,trainee_preferentialstatus_chronical",
+		"medecin_stagiaire_avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                : "trainee_preferentialstatus_child-120m,trainee_regular_preferentialstatus_dmg,trainee_old_preferentialstatus,trainee_chronical_preferentialstatus",
+		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                          : "trainee_preferentialstatus_child-120m,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_old_no_dmg,trainee_preferentialstatus_chronical_no_dmg",
+		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                : "trainee_preferentialstatus_child-120m,trainee_preferentialstatus_regular_dmg,trainee_preferentialstatus_old,trainee_preferentialstatus_chronical",
 		"avec_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_ou_sans_dmg_medecin_stagiaire"                                                                                                                 : "trainee_preferentialstatus_child-120m",
 		"avec_regime_preferentiel_dans_le_cadre_du_dmg_medecin_stagiaire_1_des_conditions_surveillance_non_rempli"                                                                                                       : "trainee_preferentialstatus_dmg",
 		"avec_regime_preferentiel_pas_dans_le_cadre_du_dmg_medecin_stagiaire_1_des_conditions_surveillance_non_rempli"                                                                                                   : "trainee_preferentialstatus_no_dmg",
 		"avec_regime_preferentiel_a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli"                                         : "trainee_preferentialstatus_old_dmg_chronical_dmg",
-		"avec_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                                                                 : "trainee_preferentialstatus_regular_dmg,old,chronical",
+		"avec_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg_medecin_stagiaire"                                                                 : "trainee_preferentialstatus_regular_dmg,trainee_old_preferentialstatus,trainee_chronical_preferentialstatus",
 		"avec_regime_preferentiel_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique_medecin_stagiaire_une_des_conditions_de_surveillance_de_stage_non_rempli"                      : "trainee_preferentialstatus_regular_no_dmg_no_chronical",
 		"avec_regime_preferentiel_des_qui_consultent_un_medecin_specialiste_apres_avoir_ete_envoyes_par_un_medecin_generale_medecin_specialiste_stagiaire"                                                               : "trainee_preferentialstatus",
 		"avec_regime_preferentiel_medecin_specialiste_stagiaire"                                                                                                                                                         : "trainee_preferentialstatus",
 		"medecin_stagiaire_patient_palliatif_avec_regime_preferentiel_une_des_conditions_de_surveillance_de_stage_non_rempli"                                                                                            : "trainee_preferentialstatus",
 		"medecin_stagiaire_patient_palliatif_sans_regime_preferentiel_une_des_conditions_de_surveillance_de_stage_non_rempli"                                                                                            : "trainee_preferentialstatus",
 		"medecin_stagiaire_une_des_conditions_de_surveillande_de_stage_non_rempli_patient_palliatif_avec_regime_preferentiel"                                                                                            : "trainee_preferentialstatus",
-		"avec_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                                                                           : "trainee_regular_dmg,old_no_dmg,chronical_no_dmg",
-		"medecin_stagiaire_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                                  : "trainee_regular_dmg,old_no_dmg,chronical_no_dmg",
-		"medecin_stagiaire_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                        : "trainee_regular_dmg,old,chronical",
+		"avec_regime_preferentiel_de_10_a_75_ans_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg_medecin_stagiaire"                                                                           : "trainee_regular_dmg,trainee_old_no_dmg,trainee_chronical_no_dmg",
+		"medecin_stagiaire_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_sans_dmg_malade_chronique_sans_dmg"                                                                  : "trainee_regular_dmg,trainee_old_no_dmg,trainee_chronical_no_dmg",
+		"medecin_stagiaire_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg"                                                        : "trainee_regular_dmg,trainee_old,trainee_chronical",
 		"medecin_stagiaire_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_sans_dmg_et_sans_etre_malade_chronique_une_des_conditions_de_surveillance_de_stage_non_rempli"                                               : "trainee_regular_no_dmg_no_chronical",
 		"medecin_specialiste_stagiaire"                                                                                                                                                                                  : "trainee",
 		"medecin_stagiaire_1_des_conditions_surveillance_non_rempli"                                                                                                                                                     : "trainee",
@@ -250,23 +251,42 @@ class TarificationCodeImporter extends Importer {
 		List<String> relatedCodes
 	}
 
-	TarificationCodeImporter() {
-		initHttpClient(null, null)
-
-		this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarficationInfos[it.code] = it } }
-	}
-
-	private void initHttpClient(username, password) {
+	private void initHttpClient(username, password, couchdbBase = 'icure-base', couchdbPatient = 'icure-patient', couchdbContact = 'icure-healthdata', couchdbConfig = 'icure-config') {
 		HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL ?: "http"}://${DB_HOST ?: "127.0.0.1"}:" + DB_PORT).username(username ?: System.getProperty("dbuser") ?: "icure").password(password ?: System.getProperty("dbpass") ?: "S3clud3dM@x1m@").build()
 		CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 		// if the second parameter is true, the database will be created if it doesn't exists
-		couchdbBase = dbInstance.createConnector(DB_NAME + '-base', false);
-		couchdbPatient = dbInstance.createConnector(DB_NAME + '-patient', false);
-		couchdbContact = dbInstance.createConnector(DB_NAME + '-healthdata', false);
-		couchdbConfig = dbInstance.createConnector(DB_NAME + '-config', false);
+		this.couchdbBase = couchdbBase ? dbInstance.createConnector(couchdbBase, false) : null
+		this.couchdbPatient = couchdbPatient ? dbInstance.createConnector(couchdbPatient, false) : null
+		this.couchdbContact = couchdbContact ? dbInstance.createConnector(couchdbContact, false) : null
+		this.couchdbConfig = couchdbConfig ? dbInstance.createConnector(couchdbConfig, false) : null
+
 		Security.addProvider(new BouncyCastleProvider())
+		this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarficationInfos[it.code] = it } }
 	}
 
+	TarificationCodeImporter(dbprotocol, dbhost, dbport, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig, username, password, lang) {
+		this.DB_PROTOCOL = dbprotocol
+		this.DB_HOST = dbhost
+		this.DB_PORT = dbport
+		this.DB_NAME = null
+		this.language = lang
+
+		initHttpClient(username, password, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig)
+	}
+
+	TarificationCodeImporter(dbprotocol, dbhost, dbport, dbname, username, password, lang) {
+		this.DB_PROTOCOL = dbprotocol
+		this.DB_HOST = dbhost
+		this.DB_PORT = dbport
+		this.DB_NAME = dbname
+		this.language = lang
+
+		initHttpClient(username, password, DB_NAME + '-base', DB_NAME + '-patient', DB_NAME + '-healthdata', DB_NAME + '-config')
+	}
+
+	TarificationCodeImporter() {
+		initHttpClient(null, null)
+	}
 
 	static void main(String... args) {
 		def options = args
@@ -308,7 +328,7 @@ class TarificationCodeImporter extends Importer {
 	}
 
 	def splitTextKey(String key) {
-		def filtersMap = [preferentialstatus: "any", trainee: "any", child: "any", old: "any", dmg: "any", chronical: "any", convention: "any"]
+		def filtersMap = [preferentialstatus: "any", trainee: "any", child: "any", major: "any", old: "any", regular: "any", dmg: "any", chronical: "any", convention: "any"]
 		"${key}_".eachMatch("(no_)?(.+?)_") { _0, _1, _2 ->
 
 			if (_2.startsWith("child-")) {
@@ -350,12 +370,12 @@ class TarificationCodeImporter extends Importer {
 		def valTypes = [:]
 		def tarifications = [:]
 		def unknownCodes = [:]
-		def fee = ['01', '06', '07']
-		def rei = ['02', '03', '04']
+		def fee = ['01']
+		def rei = ['02', '03', '04', '06']
 		def tm = ['05']
 
 		def groups = [
-			Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1 bis', 'Prestations techniques urgentes - Article 26, §1 et 1 ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
+			Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
 			Full: ['Accouchements - accoucheuses', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1 bis', 'Prestations techniques urgentes - Article 26, §1 et 1 ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés']
 			//Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Bandages, ceintures et protheses des seins', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radio-isotopes', 'Radiodiagnostic', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
 		]
@@ -371,6 +391,18 @@ class TarificationCodeImporter extends Importer {
 					fr           : e.nomen_desc_fr.text(),
 					nl           : e.nomen_desc_nl.text(),
 					rubric       : r,
+					letter1      : e.key_letter1.text(),
+					letter_index1: e.key_letter_index1.text(),
+					coeff1       : e.key_coeff1.text(),
+					letter1_value: e.key_letter1_value.text(),
+					letter2      : e.key_letter2.text(),
+					letter_index2: e.key_letter_index2.text(),
+					coeff2       : e.key_coeff2.text(),
+					letter2_value: e.key_letter2_value.text(),
+					letter3      : e.key_letter3.text(),
+					letter_index3: e.key_letter_index3.text(),
+					coeff3       : e.key_coeff3.text(),
+					letter3_value : e.key_letter3_value.text(),
 					valorisations: []
 				])
 			}
@@ -378,7 +410,7 @@ class TarificationCodeImporter extends Importer {
 
 		new File(root, 'NOMEN_FEECODES.xml').withInputStream {
 			new XmlSlurper().parse(it).NOMEN_FEECODES.each { e ->
-				valTypes[e.fee_code.text()] = [fr: e.fee_code_desc_fr.text(), nl: e.fee_code_desc_nl.text(), cat: e.fee_code_cat.text()]
+				if (e.fee_code_cat.text() != '07') valTypes[e.fee_code.text()] = [key: e.fee_code.text(), fr: e.fee_code_desc_fr.text(), nl: e.fee_code_desc_nl.text(), cat: e.fee_code_cat.text()]
 			}
 		}
 
@@ -386,7 +418,7 @@ class TarificationCodeImporter extends Importer {
 			new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
 				def parseVal = { e ->
 					def t = tarifications[e.nomen_code.text()]
-					if (t) {
+					if (t && valTypes[e.fee_code.text()]) {
 						t.valorisations << [
 							fr                 : valTypes[e.fee_code.text()].fr,
 							nl                 : valTypes[e.fee_code.text()].nl,
@@ -398,7 +430,7 @@ class TarificationCodeImporter extends Importer {
 							patientIntervention: new Double(tm.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0)
 						]
 					} else {
-						println("${e.nomen_code.text()} tarification not found")
+						println("${e.nomen_code.text()} valorisation not found")
 					}
 				}
 				new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
@@ -415,16 +447,21 @@ class TarificationCodeImporter extends Importer {
 			Map<String,String> map = [:]
 
 			def cnd = key.contains(",") ? (key.split(",").collect { '( ' + conditions[it] + ' )' ?: "<<${it}>>" })
-				.join('||') : (map = splitTextKey(key)).keySet().sort().collect { k ->
+				.join(' || ') : (map = splitTextKey(key)).keySet().sort().collect { k ->
 				def v = map[k]
 				def ref = (k == 'convention' || k == 'trainee') ? 'hcp' : 'patient'
 				v == 'any' ? 'true' :
-					(k == 'old' && v == 'yes') ? "${ref}.age>=75" :
-						(k == 'old' && v == 'no') ? "${ref}.age<75" :
-							(k == 'child' && v == 'no') ? "${ref}.age>=10" :
-								(k == 'child') ? "${ref}.age < ${v.replaceAll('yes', '10').replaceAll('([0-9]+)m', '$1/12')}" :
-									v == 'yes' ? "${ref}.${k}" : v == 'no' ? "!${ref}.${k}" : "${ref}.${k} == '${v}'"
-			}.findAll { it != 'true' }.join('&&')
+						(k == 'old' && v == 'yes') ? "${ref}.age >= 75" :
+								(k == 'old' && v == 'no') ? "${ref}.age < 75" :
+										(k == 'major' && v == 'yes') ? "${ref}.age >= 18" :
+												(k == 'major' && v == 'no') ? "${ref}.age < 18" :
+														(k == 'regular' && v == 'yes') ? "( ${ref}.age >= 10 && ${ref}.age < 75 )" :
+																(k == 'regular' && v == 'no') ? "( ${ref}.age < 10 || ${ref}.age >= 75 )" :
+																		(k == 'child' && v == 'no') ? "${ref}.age >= 10" :
+																				(k == 'child') ? "${ref}.age < ${v.replaceAll('yes', '10').replaceAll('([0-9]+)m', '$1/12')}" :
+																						v == 'yes' ? "${ref}.${k}" : v == 'no' ? "!${ref}.${k}" : "${ref}.${k} == '${v}'"
+			}.findAll { it != 'true' }.join(' && ')
+			conditions[key] = cnd.length() ? cnd : 'true'
 			conditions[key] = cnd.length() ? cnd : 'true'
 		}
 
@@ -434,12 +471,40 @@ class TarificationCodeImporter extends Importer {
 			}
 		}
 
+		println "Key\tDescr\tRaw conditions\tpreferentialstatus\ttrainee\tchild\tmajor\told\tregular\tdmg\tchronical\tconvention\tpredicate"
+		valTypes.forEach { k, v ->
+			def frt = (Normalizer.normalize( v.fr, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").toLowerCase())
+					.replaceAll(/[^a-z0-9]+/, "_")
+					.replaceAll("(honoraires?|rembousement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
+					.replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
+					.replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_")
+
+			if (!frt.startsWith("le_numero_de_code_est_supprime") && !frt.startsWith("base_de_remboursement") && !frt?.contains('pas_encore_repris_de_tarifs_dans_nomensoft') && !frt?.contains('listes_limitatives') && !frt?.contains('liste_limitative') && !frt?.contains("ticket_moderateur") && !frt?.contains("pas_de_tarifs")) {
+				def frtCode = refs[frt]
+				if (!frtCode) {
+					unknownCodes[frt] = (unknownCodes[frt] ?: 0) + 1
+					frtCode = "_" + frt
+				}
+				v.code = frt
+				v.predicateSource = conditions[frtCode] ? frtCode.split(',').collect { it -> splitTextKey(it) } : [:]
+				v.predicate = (conditions[frtCode] ?: "false&&'${frtCode}'").toString()
+				if (conditions[frtCode]) { println "$k\t${v.fr}\t$frtCode\t${v.predicateSource.collect { it -> it.preferentialstatus}.join(',')}\t${v.predicateSource.collect { it -> it.trainee}.join(',')}\t${v.predicateSource.collect { it -> it.child}.join(',')}\t${v.predicateSource.collect { it -> it.major}.join(',')}\t${v.predicateSource.collect { it -> it.old}.join(',')}\t${v.predicateSource.collect { it -> it.regular}.join(',')}\t${v.predicateSource.collect { it -> it.dmg}.join(',')}\t${v.predicateSource.collect { it -> it.chronical}.join(',')}\t${v.predicateSource.collect { it -> it.convention}.join(',')}\t${v.predicate}" }
+			} else {
+				v.code = frt
+				v.predicate = ("false&&'_${frt}'").toString()
+			}
+		}
+
+		println(new Gson().toJson(valTypes.values()))
+
 		[false,true].forEach { amb ->
 			groups.each { kg, g ->
+				println g
 				def rubKeys= new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
 				rubKeys.each { kr ->
 					def r = rubrics[kr]
 					if (!g.contains(r.fr)) {
+						println r.fr
 						return
 					}
 
@@ -447,37 +512,45 @@ class TarificationCodeImporter extends Importer {
 						def label = [:]
 						label.fr = map.fr
 						label.nl = map.nl
-						def code = new Tarification(Sets.newHashSet('be', 'fr'), type, map.id, "1.0", label)
+						def code = new Tarification(
+								Sets.newHashSet('be', 'fr'),
+								type,
+								map.id,
+								"1.0",
+								label)
+
+						code.nGroup = r.id
+
+						code.letterValues = new LinkedList()
+						if (map.letter1 && map.letter1 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter1, index: map.letter_index1, coefficient: Double.valueOf(map.coeff1), value: Double.valueOf(map.letter1_value)))
+						}
+						if (map.letter2 && map.letter2 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter2, index: map.letter_index2, coefficient: Double.valueOf(map.coeff2), value: Double.valueOf(map.letter2_value)))
+						}
+						if (map.letter3 && map.letter3 != '-') {
+							code.letterValues.add(new LetterValue(letter: map.letter3, index: map.letter_index3, coefficient: Double.valueOf(map.coeff3), value: Double.valueOf(map.letter3_value)))
+						}
+
 						code.category = [fr: map.rubric.fr, nl: map.rubric.nl] as Map<String, String>
 						int i = 0
 
 						code.valorisations = new HashSet(map.valorisations.collect { val ->
-							String frt = valTypes[val.type]?.fr
+							def vt = valTypes[val.type]
 
-							if (frt) {
-								frt = (Normalizer.normalize(frt, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").
-									toLowerCase().replaceAll(/[^a-z0-9]+/, "_").replaceAll("(honoraires?|rembousement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")).replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
-									.replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_");
-
-								if (!frt.startsWith("le_numero_de_code_est_supprime") && !frt.startsWith("base_de_remboursement") && !frt?.contains('pas_encore_repris_de_tarifs_dans_nomensoft') && !frt?.contains('listes_limitatives') && !frt?.contains('liste_limitative') && !frt?.contains("ticket_moderateur") && !frt?.contains("pas_de_tarifs")) {
-									def frtCode = refs[frt]
-									if (!frtCode) {
-										unknownCodes[frt] = (unknownCodes[frt] ?: 0) + 1
-										frtCode = "_" + frt;
-									}
-
-									return new Valorisation(
+							if (vt) {
+								return new Valorisation(
 										startOfValidity: val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : (YEAR*10000+101)*1000000,
 										endOfValidity:  (Long.valueOf(YEAR+1L)*10000+101)*1000000L,
-										label: ([fr: valTypes[val.type]?.fr, nl: valTypes[val.type]?.nl] as Map<String, String>),
-										predicate: conditions[frtCode] ?: "false&&'${frtCode}'",
+										label: ([fr: vt?.fr, nl: vt?.nl] as Map<String, String>),
+										predicate: vt.predicate,
 										patientIntervention: val.patientIntervention ?: 0,
 										reimbursement: val.reimbursement ?: 0,
 										doctorSupplement: 0,
 										totalAmount: val.fee ?: val.patientIntervention + val.reimbursement 	?: 0,
 										vat: 0
 									)
-								}
+
 							} else {
 								println "Couldn't find valorisation for ${code}"
 								return null

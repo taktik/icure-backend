@@ -29,6 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
+<link rel="import" href="./dialogs/medicalhouse/ht-pat-medicalhouse-timeline.html">
 
 <dom-module id="ht-pat-admin-card">
 	<template>
@@ -439,14 +440,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
                 <page>
                     <div class="page-container">
                         <div class="form-container">
-                        <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
-                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
+                        <dynamic-form id="dynamic-form-administrative" class="page-content printable" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print>
+                        </dynamic-form>
                         </div>
                     </div>
                 </page>
@@ -542,6 +545,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </vaadin-grid-column>
                                 </vaadin-grid>
                             </div>
+                    </div>
+                </page>
+                <page>
+                    <div class="page-container">
+                        <ht-pat-medicalhouse-timeline class="page-content printable"  api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]" no-print/>
                     </div>
                 </page>
             </iron-pages>
@@ -842,7 +850,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     static get observers() {
-        return ['patientChanged(api,user,patient)'];
+        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)'];
     }
 
     constructor() {
@@ -859,18 +867,17 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     patientChanged() {
         if (this.api && this.user && this.patient) {
+            this.api.getRegistry('patient').listeners['ht-pat-admin'] = {target: this, pool: [this.patient.id], callbacks: [this.partnershipsChanged.bind(this)]}
             this.flushSave();
 
             this.initCurrentCareTeam();
 
-
-            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
+            this.api.code().getCodes((this.patient.languages || []).map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
                     (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
-                        ppss.map(pps => {
-                            const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
-                            this.set('patient.partnerships.' + index + '.partnerInfo', pps)
-                        })
+                        this.set('patient.partnerships', this.patient.partnerships.map(pp => {
+                            return Object.assign({}, pp, { partnerInfo: ppss.find(ps => ps.partnerId === pp.id) || {id: pp.partnerId} })
+                        }))
                     ).finally(() => {
                         this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
                         this.set('patientMap', _.cloneDeep(this.patient));
@@ -895,6 +902,19 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
+    partnershipsChanged() {
+        if(this.patient){
+            const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
+            if (tbc.length) {
+                this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
+                    .then(ppss => ppss.forEach(pps => {
+                        const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
+                        this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
+                    }))
+            }
+        }
+    }
+
     scheduleSave(patient) {
         const rev = patient.rev
 
@@ -903,68 +923,69 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.saveTimeout = undefined
         }
 
-        this.saveAction = function () {
+        this.saveAction = () => {
             this.api.queue(patient, 'patient').then(([pat, defer]) => {
                 if (pat.rev !== rev) { defer.resolve(patient); return }
 
-                if (this.patient.partnerships) {
-                    const partnerships = this.patient.partnerships
+                ((this.patient.partnerships && this.patient.partnerships.length) ?
+                    Promise.all(this.patient.partnerships.map((partner, index) => {
 
-                    partnerships.map(partner => {
-                        const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
-                        const index = partnerships.indexOf(partner)
                         ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
 
-                        if (!mark || !partner.partnerId) {
+                        if (!partner.partnerId || !partner.partnerInfo.rev) {
                             //patient not present
                             partner.partnerInfo.active = false
-                            partner.partnerInfo.id = partner.id
-                            partner.partnerId = partner.id
+                            partner.partnerInfo.id = partner.partnerId
 
-                            this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p, 'patient')).then(np => {
-                                this.api.patient().createPatientWithUser(this.user,np).then(p => this.api.register(p, 'patient')).then(np => {
-                                    this.set('patient.partnerships.' + index + '.partnerInfo', np)
+                            return this.api.patient().newInstance(this.user, partner.partnerInfo)
+                                .then(np => {
+                                    partner.partnerId = np.id
+                                    return this.api.patient().createPatientWithUser(this.user, np).then(np => this.api.register(np, 'patient')).then(np => {
+                                        this.set('patient.partnerships.' + index + '.partnerInfo', np)
+                                    })
                                 })
-                            })
+                                .catch(e => {console.log("Cannot save "+e.message); return null})
                         } else {
                             //patient present
-                            this.api.patient().modifyPatientWithUser(this.user,partner.partnerInfo)
+                            return this.api.patient().modifyPatientWithUser(this.user, partner.partnerInfo)
                                 .then(p => this.api.register(p, 'patient'))
                                 .then(partner => {
                                         this.set('patient.partnerships.' + index + '.partnerInfo', partner)
                                         return partner
                                     })
+                                .catch(e => {console.log("Cannot save "+e.message); return null})
                         }
-                    })
-                }
-
-                this.api.patient().modifyPatientWithUser(this.user,patient)
-                    .catch(() => defer.resolve(patient))
-                    .then(p => this.api.register(p, 'patient', defer))
-                    .then(p => this.dispatchEvent(new CustomEvent("patient-saved", {detail: p, bubbles: true, composed: true})))
-                    .catch(e => {
-                        if (this.patient) {
-                            return this.api.patient().getPatientWithUser(this.user,this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
-                                this.patient = p
-                                this.saveTimeout = undefined
-                                this.saveAction = undefined
+                    }))
+                : Promise.resolve([]))
+                    .finally(() =>
+                    this.api.patient().modifyPatientWithUser(this.user,patient)
+                        .catch(() => defer.resolve(patient))
+                        .then(p => this.api.register(p, 'patient', defer))
+                        .then(p => this.dispatchEvent(new CustomEvent("patient-saved", {detail: p, bubbles: true, composed: true})))
+                        .catch(e => {
+                            if (this.patient) {
+                                return this.api.patient().getPatientWithUser(this.user,this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
+                                    this.patient = p
+                                    this.saveTimeout = undefined
+                                    this.saveAction = undefined
+                                    throw e
+                                })
+                            } else {
                                 throw e
-                            })
-                        } else {
-                            throw e
-                        }
-                    })
+                            }
+                        })
+                )
             })
-        }.bind(this);
+        }
 
         this.saveTimeout = setTimeout(this.saveAction, 10000);
     }
 
     flushSave() {
         if (this.saveTimeout) {
-            clearTimeout(this.saveTimeout);
+            clearTimeout(this.saveTimeout)
             this.saveTimeout = undefined
-            this.saveAction();
+            return this.saveAction()
         }
     }
 
@@ -1022,13 +1043,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getId: () => id,
             deleteSubForm: (key, id) => {
                 this.flushSave();
-                _.remove(root[key], root[key].find(a => a.id === id));
+                _.remove(root[key], a => a.id === id);
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },
             addSubForm: (key, guid) => {
                 this.flushSave(); //Important
-                (root[key] || (root[key] = [])).push({});
+                (root[key] || (root[key] = [])).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
 
@@ -1038,25 +1059,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return (text || '').length >= 2 ?
                         (text.match(/^[0-9]+$/) ? this.api.insurance().listInsurancesByCode(text) : this.api.insurance().listInsurancesByName(text))
                             .then(res => res.map(i => ({
-                                'id': i.id,
+                                'codeId': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
-                                'id': i.id,
+                                'codeId': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
                     const s = text && text.toLowerCase()
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u => (u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
-                        .map(u => ({id: u.id, name: u.name || u.login || u.email})) : [])
+                        .map(u => ({codeId: u.id, name: u.name || u.login || u.email})) : [])
                 } else if (data.source === "codes" && data.types.length && (id || (text && text.length > 1))) {
                     return id ?
                         Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct.type, id, '1')))
                             .then(x => _.compact(x)[0])
                             .then(c => {
                                 const typeLng = this.api.code().languageForType(c.type, this.language)
-                                return {id: c.code, name: c.label[typeLng]}
+                                return {codeId: c.code, name: c.label[typeLng]}
                             }) :
                         Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language)
@@ -1064,7 +1085,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
 
                             return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
-                                id: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
+                                codeId: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
                             })), sorter))
                         })).then(responses => _.flatMap(responses))
                 } else if (data.source === "mh") {

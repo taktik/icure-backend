@@ -113,8 +113,8 @@
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
-            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
@@ -357,7 +357,7 @@
 
         getRowsUsingPagination(paginator) {
             const executePaginator = (latestResult, acc) =>
-                paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
+                paginator(latestResult.nextKey,latestResult.nextDocId).then((newResult) => {
                     acc.push(...newResult.rows)
                     return newResult.done ? acc : executePaginator(newResult, acc)
                 })
@@ -374,15 +374,16 @@
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
-            }, {})))
+            }, {}))
+            ).catch(() => setTimeout(() => this.loadUsersAndHcParties(), 10000))
         }
 
         unregisterAll(domain) {
-            this.registry[domain] = {listeners:[], entities:{}}
+            this.registry[domain] = {listeners:{}, entities:{}, queues: {}}
         }
 
         getRegistry(domain) {
-            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+            return this.registry[domain] || (this.registry[domain] = {listeners: {}, entities: {}, queues: {}})
         }
 
         /**
@@ -403,7 +404,7 @@
             defer.resolve = res
 
             const thisPromise = reg.queues[entity.id]
-            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolve(entity) }, 10000) : null
             reg.queues[entity.id] = defer
 
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
@@ -418,8 +419,11 @@
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
-                reg.listeners.forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
+                Object.values(reg.listeners).forEach(l=>{
+                    if (!l.pool || l.pool.some(x => x === entity.id)) {
+                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                        l.callbacks && l.callbacks.forEach(cb => cb())
+                    }
                 })
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
@@ -430,8 +434,10 @@
             return current
         }
 
-        pdfReport(html) {
-            return fetch("https://report.icure.cloud/pdf", {
+        pdfReport(html, options = {}) {
+            const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
+            // Antoine IP => http://quadbeat:9222/pdf
+            return fetch(`https://report.icure.cloud/pdf${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
                 credentials: "same-origin", // include, same-origin, *omit
@@ -457,7 +463,7 @@
             inputString = ( inputString || '' ) + '';
 
             // No Iban ?
-            if(!parseInt( inputString.length ) ) return;
+            if(!inputString.length) return;
 
             // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
             var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );

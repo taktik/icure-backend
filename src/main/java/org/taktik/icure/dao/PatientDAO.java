@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao;
 
+import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Patient;
@@ -31,6 +32,7 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsOfHcPartyAndName(String searchString, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndSsin(String ssin, String healthcarePartyId);
 	List<String> listIdsOfHcPartyAndSsin(String ssin, String healthcarePartyId);
+	List<String> listIdsByActive(boolean active, String healthcarePartyId);
 
 	List<Patient> listOfMergesAfter(Long date);
 
@@ -47,6 +49,7 @@ public interface PatientDAO extends GenericDAO<Patient> {
 
 	List<String> listIdsByHcPartyAndExternalId(String externalId, String healthcarePartyId);
 
+	PaginatedList<String> findIdsByHcParty(String healthcarePartyId, PaginationOffset pagination);
 	PaginatedList<Patient> findPatientsByHcPartyAndName(String name, String healthcarePartyId, PaginationOffset pagination, boolean descending);
 	PaginatedList<Patient> findPatientsOfHcPartyAndName(String name, String healthcarePartyId, PaginationOffset offset, boolean descending);
 	PaginatedList<Patient> findPatientsByHcPartyAndSsin(String ssin, String healthcarePartyId, PaginationOffset pagination, boolean descending);
@@ -74,4 +77,6 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, PaginationOffset<Long> paginationOffset);
 
 	List<String> listIdsByHcPartyAndSsins(Collection<String> ssins, String healthcarePartyId);
+
+    List<String> listByHcPartyName(String searchString, String healthcarePartyId);
 }

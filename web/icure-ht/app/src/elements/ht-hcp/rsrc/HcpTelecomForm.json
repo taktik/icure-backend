@@ -1,58 +1,58 @@
 {
-	"sections": [
-		{
-			"formColumns": [
-				{
-					"formDataList": [
-						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 26,
-								"menuOptions" : [
+  "sections": [
+    {
+      "formColumns": [
+        {
+          "formDataList": [
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 26,
+                "menuOptions" : [
+                  "mobile", "phone", "email", "fax", "skype", "im", "medibridge", "ehealthbox", "apicrypt", "web"
+                ],
+                "labelPosition" : "Left",
+                "width" : 162,
+                "multiline" : false,
+                "left" : 73,
+                "top" : 5,
+                "key" : "PopupMenuEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
 
-								],
-								"labelPosition" : "Left",
-								"width" : 162,
-								"multiline" : false,
-								"left" : 73,
-								"top" : 5,
-								"key" : "PopupMenuEditor"
-							},
-							"sortOrder" : 1463236439,
-							"codeTypes" : [
+              ],
+              "label" : "type",
+              "type" : "TKString",
+              "subForm" : false,
+              "name" : "telecomType",
+              "irrelevant" : true
+            },
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 22,
+                "labelPosition" : "Left",
+                "width" : 820,
+                "multiline" : false,
+                "left" : 340,
+                "top" : 5,
+                "key" : "StringEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
 
-							],
-							"label" : "Type",
-							"type" : "TKString",
-							"subForm" : false,
-							"name" : "telecomType",
-							"irrelevant" : true
-						},
-						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 22,
-								"labelPosition" : "Left",
-								"width" : 820,
-								"multiline" : false,
-								"left" : 340,
-								"top" : 5,
-								"key" : "StringEditor"
-							},
-							"sortOrder" : 1463236439,
-							"codeTypes" : [
-
-							],
-							"label" : "Number\/address",
-							"type" : "TKString",
-							"subForm" : false,
-							"name" : "telecomNumber",
-							"irrelevant" : true
-						}
-					]
-				}
-			]
-		}
-	]
+              ],
+              "label" : "number_address",
+              "type" : "TKString",
+               "subForm" : false,
+              "name" : "telecomNumber",
+              "irrelevant" : true
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
 

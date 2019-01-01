@@ -19,7 +19,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Name",
+                        "label" : "name",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -40,7 +40,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "First Name",
+                        "label" : "fir_name",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -61,7 +61,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Date of Birth",
+                        "label" : "dat_of_bir",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKDate",
@@ -82,7 +82,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Ssin",
+                        "label" : "ssin",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -103,7 +103,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Partner Name",
+                        "label" : "partner_name",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -124,7 +124,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Language",
+                        "label" : "language",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -145,7 +145,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Nationality",
+                        "label" : "nationality",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -155,22 +155,30 @@
                         "editor" : {
                           "readOnly" : false,
                           "height" : 22,
+                          "menuOptions" : [
+                            "ens_fond",
+                            "ens_sec_inf",
+                            "ens_sec_sup",
+                            "ens_uni",
+                            "ens_sup_lg",
+                            "ens_sup_crt",
+                            "ens_prom_soc"
+                          ],
                           "labelPosition" : "Left",
                           "width" : 498,
                           "multiline" : false,
                           "left" : 664,
                           "top" : 92,
-                          "key" : "StringEditor"
+                          "key" : "PopupMenuEditor"
                         },
-                        "sortOrder" : 1465341783,
+                        "sortOrder" : 926365495,
                         "codeTypes" : [
 
                         ],
-                        "label" : "Education",
-                        "irrelevant" : true,
+                        "label" : "education",
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "partnerInfo.education"
+                        "name" : "education"
                       },
                       {
                         "editor" : {
@@ -187,7 +195,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Job",
+                        "label" : "job",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -217,7 +225,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Relation type",
+                        "label" : "relation_type",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -244,7 +252,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Gender",
+                        "label" : "gender",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
@@ -271,7 +279,7 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Addresses",
+                        "label" : "addresses",
                         "type" : "TKSubConsult",
                         "subForm" : true,
                         "name" : "addresses"

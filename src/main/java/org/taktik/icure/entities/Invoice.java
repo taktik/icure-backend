@@ -78,11 +78,13 @@ public class Invoice extends StoredICureDocument {
 	private String internshipLastName;
 	private String internshipFirstName;
 	private String internshipCdHcParty;
+	private String internshipCbe;
 	private String supervisorNihii;
 	private String supervisorSsin;
 	private String supervisorLastName;
 	private String supervisorFirstName;
 	private String supervisorCdHcParty;
+	private String supervisorCbe;
 
 	private String error;
 
@@ -92,7 +94,13 @@ public class Invoice extends StoredICureDocument {
 
 	private Integer longDelayJustification;
 
+	private String correctiveInvoiceId;
+	private String correctedInvoiceId;
+
 	private Boolean creditNote;
+	private String creditNoteRelatedInvoiceId;
+
+	private IdentityDocumentReader idDocument;
 
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
@@ -117,6 +125,7 @@ public class Invoice extends StoredICureDocument {
 
 		this.longDelayJustification = this.longDelayJustification == null ? other.longDelayJustification : this.longDelayJustification;
 		this.creditNote = this.creditNote == null ? other.creditNote : this.creditNote;
+		this.creditNoteRelatedInvoiceId = this.creditNoteRelatedInvoiceId == null ? other.creditNoteRelatedInvoiceId: this.creditNoteRelatedInvoiceId;
 
 		this.gnotionNihii = this.gnotionNihii == null ? other.gnotionNihii : this.gnotionNihii;
 		this.gnotionSsin = this.gnotionSsin == null ? other.gnotionSsin : this.gnotionSsin;
@@ -130,11 +139,13 @@ public class Invoice extends StoredICureDocument {
 		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
 		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
 		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
+		this.internshipCbe = this.internshipCbe == null ? other.internshipCbe : this.internshipCbe;
 		this.supervisorNihii = this.supervisorNihii == null ? other.supervisorNihii : this.supervisorNihii;
 		this.supervisorSsin = this.supervisorSsin == null ? other.supervisorSsin : this.supervisorSsin;
 		this.supervisorLastName = this.supervisorLastName == null ? other.supervisorLastName : this.supervisorLastName;
 		this.supervisorFirstName = this.supervisorFirstName == null ? other.supervisorFirstName : this.supervisorFirstName;
 		this.supervisorCdHcParty = this.supervisorCdHcParty == null ? other.supervisorCdHcParty : this.supervisorCdHcParty;
+		this.supervisorCbe = this.supervisorCbe == null ? other.supervisorCbe : this.supervisorCbe;
 
 		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
 				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
@@ -185,11 +196,13 @@ public class Invoice extends StoredICureDocument {
 		ni.internshipLastName = i.internshipLastName;
 		ni.internshipFirstName = i.internshipFirstName;
 		ni.internshipCdHcParty = i.internshipCdHcParty;
+		ni.internshipCbe = i.internshipCbe;
 		ni.supervisorNihii = i.supervisorNihii;
 		ni.supervisorSsin = i.supervisorSsin;
 		ni.supervisorLastName = i.supervisorLastName;
 		ni.supervisorFirstName = i.supervisorFirstName;
 		ni.supervisorCdHcParty = i.supervisorCdHcParty;
+		ni.supervisorCbe = i.supervisorCbe;
 
 		ni.invoicingCodes = codes.stream().map(ic -> {
 			InvoicingCode invoicingCode = new InvoicingCode(ic);
@@ -237,6 +250,24 @@ public class Invoice extends StoredICureDocument {
 	public void setRecipientId(String recipientId) {
 		this.recipientId = recipientId;
 	}
+
+
+	public String getCorrectiveInvoiceId() {
+		return correctiveInvoiceId;
+	}
+
+	public void setCorrectiveInvoiceId(String correctiveInvoiceId) {
+		this.correctiveInvoiceId = correctiveInvoiceId;
+	}
+
+	public String getCorrectedInvoiceId() {
+		return correctedInvoiceId;
+	}
+
+	public void setCorrectedInvoiceId(String correctedInvoiceId) {
+		this.correctedInvoiceId = correctedInvoiceId;
+	}
+
 
 	public String getInvoiceReference() {
 		return invoiceReference;
@@ -406,6 +437,10 @@ public class Invoice extends StoredICureDocument {
 		this.internshipCdHcParty = internshipCdHcParty;
 	}
 
+	public String getInternshipCbe() { return internshipCbe; }
+
+	public void setInternshipCbe(String internshipCbe) { this.internshipCbe = internshipCbe; }
+
 	public String getSupervisorNihii() {
 		return supervisorNihii;
 	}
@@ -433,6 +468,10 @@ public class Invoice extends StoredICureDocument {
 	public String getSupervisorFirstName() {
 		return supervisorFirstName;
 	}
+
+	public void setSupervisorCbe(String supervisorCbe) { this.supervisorCbe = supervisorCbe; }
+
+	public String getSupervisorCbe() { return supervisorCbe; }
 
 	public String getEncounterLocationName() { return encounterLocationName; }
 
@@ -481,6 +520,10 @@ public class Invoice extends StoredICureDocument {
 	public void setCreditNote(Boolean creditNote) {
 		this.creditNote = creditNote;
 	}
+
+	public String getCreditNoteRelatedInvoiceId() { return creditNoteRelatedInvoiceId; }
+
+	public void setCreditNoteRelatedInvoiceId(String creditNoteRelatedInvoiceId) { this.creditNoteRelatedInvoiceId = creditNoteRelatedInvoiceId; }
 
 	public String getCareProviderType() {
 		return careProviderType;
@@ -556,5 +599,14 @@ public class Invoice extends StoredICureDocument {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+
+	public IdentityDocumentReader getIdDocument() {
+		return idDocument;
+	}
+
+	public void setIdDocument(IdentityDocumentReader idDocument) {
+		this.idDocument = idDocument;
 	}
 }

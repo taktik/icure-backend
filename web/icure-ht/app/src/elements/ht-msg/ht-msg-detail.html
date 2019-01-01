@@ -20,10 +20,13 @@
 <link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+<!--<link rel="import" href="../../../bower_components/vaadin-radio-button/vaadin-radio-button.html">-->
 
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
@@ -37,6 +40,9 @@
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../../spinner-style.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+
+<link rel="import" href="../pdf-element/pdf-element.html">
 
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
@@ -128,7 +134,7 @@
 
 			.msg-detail-card {
 				width: 100%;
-				padding: 0 12px;
+                padding: 0 0 0 12px;
                 height: calc(80vh - 20%);
 				display: flex;
 				flex-flow: column nowrap;
@@ -136,6 +142,7 @@
 				align-items: stretch;
 				background: transparent;
 				box-shadow: none;
+                flex-grow: 1;
 			}
 
 			.horizontal {
@@ -387,10 +394,18 @@
 				padding-bottom: 32px;
 			}
 
+            dynamic-doc {
+                overflow-x: hidden;
+                overflow-y: auto;
+                margin-top: 16px;
+                word-break: break-all;
+                hyphens: auto;
+            }
+
 			.annexe-card{
-				flex-basis: calc(100% / 3);
-				max-width: calc((100% / 3) - 16px);
-				margin: 4px;
+				padding: 4px;
+                width: 50%;
+                box-sizing: border-box;
 				background: var(--app-background-color)
 			}
 
@@ -402,6 +417,8 @@
 				background-color: white;
     			padding: 0 8px;
 				flex-flow: row nowrap!important;
+                overflow: hidden;
+                text-overflow: ellipsis;
 			}
 
 			.annexe-card--header span{
@@ -429,6 +446,7 @@
 				font-size: 14px;
 				font-weight: 400;
 				text-transform: capitalize;
+                margin: 0 auto;
 			}
 
 			.annexe-card--action-button:hover{
@@ -444,7 +462,7 @@
 
             .action-buttons {
                 width: 100%;
-                padding: 12px 0;
+                padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
 				height: 40px;
             }
@@ -473,12 +491,13 @@
             }
 
             .read-txt {
-                min-height: 600px;
                 width: 100%;
+                max-height: 50vh;
                 overflow-y: auto;
 				flex-grow: 1;
-				margin: 12px 0;
 				border-top: 1px solid var(--app-background-color-dark);
+                padding: 0 10px;
+                box-sizing: border-box;
             }
 
 			.read-txt p{
@@ -487,6 +506,7 @@
 
             .attached {
                 width: 100%;
+                max-height: 176px;
                 padding: 10px;
                 overflow-y: auto;
                 border-top: 1px solid var(--app-background-color-dark);
@@ -502,6 +522,10 @@
 
 			.attached h3{
 				width: 100%;
+				margin: 0;
+				color: var(--app-text-color);
+				font-size: 1em;
+				padding-left:4px;
 			}
 
 			.msg-detail-btn{
@@ -540,6 +564,7 @@
 
 			.space-between{
 				justify-content: space-between;
+                height: 80px;
 			}
 
 			.layout-horizontal--flex-end{
@@ -646,6 +671,10 @@
                 width: 100%;
             }
 
+            h2.subject {
+                margin-bottom: 0;
+            }
+
             .message-box {
                 padding: 4px;
                 width: 100%;
@@ -654,6 +683,105 @@
             }
 
             .mobileOnly {display: none;}
+
+            .doc-container {
+                max-width: 50%;
+            }
+
+            .assignToPat,
+            .confirmPats {
+                background: var(--app-secondary-color);
+                position: relative;
+                padding: 4px 8px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                border-radius: 4px;
+                font-size: .8em;
+                text-align: center;
+                width: 80%;
+                max-width: 164px;
+                box-shadow: var(--app-shadow-elevation-1);
+                cursor: pointer;
+                transition: .25s ease-in-out;
+            }
+            .assignToPat {
+                margin: 0 auto;
+                left: 50%;
+                transform: translate(-50%,-16px) scale(1);
+            }
+            .assignToPat:hover {
+                transform: translate(-50%,-16px) scale(1.05);
+            }
+            .assignToPat:active {
+                box-shadow: none;
+                transform: translate(-50%,-16px) scale(.95);
+            }
+            .confirmPats:hover {
+                transform: scale(1.05);
+            }
+            .confirmPats:active {
+                box-shadow: none;
+                transform: scale(.95);
+            }
+
+            #import-suggest {
+                position: fixed;
+                top: 50vh;
+                left: 50vw;
+                background: #fff;
+                padding: 8px;
+                border: 1px solid var(--app-background-color-dark);
+                box-shadow: var(--app-shadow-elevation-2);
+                border-radius: 4px;
+                transform: translate(-50%,-50%);
+                z-index: 999;
+                display: flex;
+                flex-direction: column;
+                margin: 0 auto;
+                width: 512px;
+            }
+
+            #import-suggest .twocol {
+                display: inline-grid;
+                grid-template-columns: 50% 50%;
+            }
+
+            #import-suggest .scrollbox {
+                height: 320px;
+                overflow-y: auto;
+                background: var(--app-background-color-dark);
+                border-radius: 4px;
+                padding: 4px;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 8px;
+            }
+            .scrollbox.labolist {
+                margin-right: 8px;
+                padding: 0 !important;
+            }
+
+            #import-suggest .line {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+
+            paper-listbox {
+                background: transparent !important;
+                padding: 0;
+            }
+
+            .pointer {
+                cursor: pointer;
+            }
+            .pointer:hover {
+                background: var(--app-secondary-color);
+            }
+            .pointer:focus {
+                background: var(--app-secondary-color-dark);
+            }
 
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
@@ -676,110 +804,91 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-						<paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn"  msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
+                        <template is="dom-if" if="[[isDeleted]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        </template>
                     </div>
                     <div class="del-button">
                         <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
-					<template is="dom-repeat" items="[[messages]]" as="msg">
-							<paper-card class="msg-detail-card" >
-								<h2 class="subject">[[msg.subject]]</h2>
-								<div class="layout-horizontal space-between">
-									<div class="msg-header-grid">
-										<div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
-										<div class="from">[[msg.fromAddress]]</div>
-										<div class="to">to [[msg.toAddresses]]</div>
-									</div>
-									<div class="layout-horizontal layout-horizontal--flex-end">
-										<div class="date">[[_timeFormat(msg.received)]]</div>
-										<paper-icon-button icon="print" id="print-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="print-btn" position="bottom" offset="4">Print</paper-tooltip>
-										<paper-icon-button icon="forward" id="forward-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="forward-btn" position="bottom" offset="4">Forward</paper-tooltip>
-										<paper-icon-button icon="reply" id="reply-btn" msgId$='[[msg.id]]'></paper-icon-button>
-										<paper-tooltip for="reply-btn" position="bottom" offset="4">Reply</paper-tooltip>
-									</div>
-								</div>
-                                <!-- <div>
-                                    <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
-                                </div> -->
-                                <!-- <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input> -->
-
-								<!-- <template is="dom-if" if="[[msg.body]]">
-                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-								</template> -->
-
-								<template is="dom-if" if="[[msg.body]]">
-									<div class="read-txt"><p>[[_displayLengthOrEmpty(msg.body)]]</p></div>
-								</template>
-
-
-                            </paper-card>
+                <template is="dom-repeat" items="[[messages]]" as="msg">
+                    <paper-card class="msg-detail-card" >
+                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal space-between">
+                            <div class="msg-header-grid">
+                                <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
+                                <div class="from">[[msg.fromAddress]]</div>
+                                <div class="to">[[localize('to','To',language)]] [[msg.toAddresses]]</div>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <div class="date">[[_timeFormat(msg.received)]]</div>
+                            </div>
                         </div>
-                    </template>
+                        <template is="dom-if" if="[[msg.patientInss]]">
+                            <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss(msg.patientInss)]]</div>
+                        </template>
+                        <template is="dom-if" if="[[bodyDocument.id]]">
+                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
+                        </template>
+                    </paper-card>
+                </template>
             </div>
 
             <div class="attached">
-                <h3>Pièces jointes</h3>
+                <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
                 <template is="dom-repeat" items="[[selectedDocuments]]">
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <paper-card class="annexe-card">
-							<div class="layout-horizontal space-between annexe-card--header">
-								<span>[[item.name]]</span>
-								<paper-icon-button icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></paper-icon-button>
-							</div>
-                            <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
-                                <div class="img-container annexe-card--content">
-                                    <img src$="[[item.dataUrl]]">
-								</div>
-								<div class="layout-horizontal space-between">
-									<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-								</div>
-                            </template>
-                            <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-                            </template>
-                            <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-                                <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
+                        <div class="layout-vertical annexe-card">
+                            <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                            <template is="dom-if" if="[[hasUnassignedResults]]">
+
+                                <template is="dom-if" if="[[unimportedPats.length]">
+                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                    </paper-button>
+                                </template>
+
+                                <template is="dom-if" if="[[assignModal]]">
+                                    <div id="import-suggest">
+                                        <h4>Chose pat to import to</h4>
+                                        <div class="twocol">
+                                            <div class="scrollbox labolist">
+                                                <h5>Unassigned</h5>
+                                                <paper-listbox selected="{{selectedProtocol}}">
+                                                    <template is="dom-repeat" items="[[unimportedPats]]">
+                                                        <paper-item class="pointer">[[item.lastName]] [[item.firstName]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </div>
+                                            <div class="scrollbox patlist">
+                                                <h5>Possible match by last name</h5>
+                                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
+                                                    <vaadin-checkbox on-tap="_getPatsFromCheckbox" data-item$="[[item]]">[[item.firstName]] [[item.lastName]] [[item.dateOfBirth]]</vaadin-checkbox>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="line">
+                                            <paper-button on-tap="closeSuggestions">
+                                                [[localize('can','Cancel',language)]]
+                                            </paper-button>
+                                            <paper-button id="patients-importBtn" class="confirmPats" on-tap="_setAssign">
+                                                [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
+                                            </paper-button>
+                                        </div>
+                                    </div>
+                                </template>
 
                             </template>
-                            <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
-                                <div class="annexe-card--content">
-									<span>[[mimeType(item.mainUti)]] [[type]]</span>
-									<template is="dom-if" if="[[showDetail]]">
-										<div>[[documentAttachment]]</div>
-										<!--TODO: format annexe on display-->
-										<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
-									</template>
-									<div class="layout-horizontal layout-horizontal--nowrap space-between">
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-										<vaadin-button id="todayButton" class="annexe-card--action-button" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
-									</div>
-								</div>
-
-                            </template>
-                        </paper-card>
+                        </div>
                     </template>
-                    <!-- <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button> -->
                 </template>
             </div>
+
 		</template>
 	</template>
 	<script>
@@ -837,12 +946,60 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			isLoadingMessage: {
 				type: Boolean,
 				value: false
-			}
+			},
+            isDeleted: {
+			    type: Boolean,
+                value: false
+            },
+            attachmentQuantity: {
+			    type: Number,
+                value: 0
+            },
+            hasUnassignedResults: {
+			    type: Boolean,
+                value: false
+            },
+            unassignedResults: {
+			    type: Array,
+                value: []
+            },
+            assignedResults: {
+			    type: Array,
+                value: []
+            },
+            unimportedPats: {
+			    type: Array,
+                value: []
+            },
+            thisDocument: {
+			    type: Object,
+                value: {}
+            },
+            toImportPatsSuggestions: {
+			    type: Array,
+                value: []
+            },
+            selectedProtocol: {
+			    type: Number,
+                value: -1
+            },
+            assignModal: {
+			    type: Boolean,
+                value: false
+            },
+            selectedPats: {
+			    type: Array,
+                value: []
+            },
+            targetPats: {
+                type: Array,
+                value: []
+            }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)'];
+		return ['_focusChanged(selectMessage, selectMessage.*)','_updateSuggestions(selectedProtocol)'];
 	}
 
 	constructor() {
@@ -866,37 +1023,52 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_displayLengthOrEmpty(msgBody){
-		return msgBody.length ? msgBody : "no content"
+        return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
+
+    _isDeleted() {
+	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
-			this.set('isLoadingMessage',true)
-            this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
+            this.set('toImportPatsSuggestions', [])
+            this.set('selectedProtocol',-1)
+            this.set('selectedPats',[])
+            this.set('targetPats',[])
+			this.set('isLoadingMessage',true)
+            this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
+            this.set('unassignedResults',tempSelect.unassignedResults)
+            this.set('assignedResults',tempSelect.assignedResults)
+			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
+            this.set('thisDocument',tempSelect)
+	        console.log('call findByMessage',this.user.healthcarePartyId, tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => { if(docs.length) {
-					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-							.then(a =>
-								// With encryption key
-								// this.getDataUrls(doc)
-								// .then(dataUrl => {
-								// 	doc.dataUrl = dataUrl;
-								// 	if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-								// 	else this.set('documentAttachment', a);
-								// 	return doc
-								// })
-
-								//Without encryption key
-								{
-									doc.dataUrl = this.getDataUrls(doc)
-									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-									return doc
-								}
-							)
-					)
-				}
+				.then(docs => {
+                    // console.log('docs',docs)
+				    if(docs.length) {
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                            .map(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+                                    .then(a => {
+                                        doc.dataUrl = this.getDataUrls(doc)
+                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
+                                            // console.log('this is body',doc)
+                                            this.set('bodyDocument',doc)
+                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
+                                            fetch(url,{credentials:'include'})
+                                                .then(res=>res.text())
+                                                .then(res=>this.set('docTxt',res))
+                                        } else {
+                                            // console.log('is not body')
+                                            this._getPatsFromDoc(doc)
+                                        }
+                                        return doc
+                                });
+                            }
+                        )
+                    }
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
@@ -904,6 +1076,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						this.set('isLoadingMessage',false)
                         this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
+                        this.set('attachmentQuantity',this.selectedDocuments.length-1)
                         this.getChildren(tempSelect.id)
                     })
 				}
@@ -911,94 +1084,387 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.set('isLoadingMessage',false)
 					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
+                    this.set('attachmentQuantity',0)
 					this.getChildren(tempSelect.id)
+                    this.set('hasUnassignedResults', false)
                 }
+                console.log(this.messages)
             })
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);
+            this.set('hasUnassignedResults', false)
+            this.set('thisDocument',null)
 		}
 	}
 
-	getChildren(item){
-        this.api.message().getChildren(item).then(function(m) {
-			if(m.length){
+	closeSuggestions() {
+        this.set('toImportPatsSuggestions', [])
+        this.set('assignModal',false)
+    }
+
+    openSuggestions() {
+        this.set('assignModal',true)
+        this.set('targetPats',[])
+    }
+
+    _updateSuggestions() {
+        console.log('_updateSuggestions')
+        if (this.selectedProtocol >= 0) {
+            const unimportedPats = this.unimportedPats ? this.unimportedPats : []
+            const index = this.selectedProtocol
+            this.set('toImportPatsSuggestions',[])
+            this.set('selectedPats',[])
+            this.set('targetPats',[])
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, unimportedPats[index].lastName, null, null, 100, "asc")
+                .then(patients => {
+                    console.log('patients',patients)
+                    if (patients && patients.rows.length) patients.rows.map(pat => {
+                        if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) this.push('toImportPatsSuggestions', pat)
+                    })
+                })
+        }
+    }
+
+    _getPatsFromCheckbox(e) {
+        const elem = JSON.parse(e.target.dataset.item)
+        const checked = e.target.getAttribute('checked') == null ? false : true
+        let arr = this.targetPats ? this.targetPats : []
+        console.log('getPatsFromCheckbox')
+        if (checked) {
+            arr.push(elem)
+        } else {
+            arr.splice(arr.indexOf(elem))
+        }
+        this.set('targetPats',arr)
+    }
+
+	_getPatsFromDoc(document) {
+        console.log('_getPatsFromDoc')
+	    const tempSelect = this.selectMessage.selection.item
+        const assigned = this.assignedResults ? this.assignedResults : []
+        const unassigned = this.unassignedResults ? this.unassignedResults : []
+        console.log('assigned : ',assigned)
+        console.log('unassigned : ',unassigned)
+        this.set('toImportPatsSuggestions', [])
+        this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
+            if (resultInfo.length && unassigned.length) {
+                this.set('docInfo',resultInfo)
+                resultInfo.map(res=>{
+                    Object.keys(unassigned).forEach(k => {
+                        if (unassigned[k] == res.protocol) {
+                            this.push('unimportedPats',res)
+                        }
+                    })
+                })
+            }
+        }).catch((err) => {
+            console.warn(err);
+        })
+    }
+
+    _setAssign() {
+	    console.log('setAssign',this.targetPats)
+        const targets = this.targetPats ? this.targetPats : []
+        if (targets) {
+
+        }
+        // possibleToImport.map(patient=>{
+        //     console.log('pat',patient,patient.lastName+" "+patient.firstName)
+        //     return this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, patient.dateOfBirth+" "+patient.lastName+" "+patient.firstName, null, null, 100, "asc").then(patients =>
+        //     {
+        //         if (patients && patients.rows[0]) {
+        //             console.log('will new instance')
+        //             let thisPat = patients.rows[0]
+        //             if (patients.rows.length > 0) {
+        //                 console.log('multiple match')
+        //                 patients.rows.map(pat=>{
+        //                     if (pat.lastName.toUpperCase() === patient.lastName.toUpperCase() &&
+        //                         pat.firstName.toUpperCase() === patient.firstName.toUpperCase() &&
+        //                         pat.dateOfBirth === patient.dateOfBirth) {
+        //                         thisPat = pat
+        //                     }
+        //                 })
+        //             }
+        //             this.api.contact().newInstance(this.user, thisPat, {
+        //                 groupId : document.id,
+        //                 created: new Date().getTime() ,
+        //                 modified: new Date().getTime() ,
+        //                 author: this.user.healthcarePartyId,
+        //                 responsible: this.user.healthcarePartyId,
+        //                 openingDate: moment().format('YYYYMMDDhhmmss') || '',
+        //                 closingDate: moment().format('YYYYMMDDhhmmss') || '',
+        //                 encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
+        //                 descr: docInfo.labo,
+        //                 subContacts: []
+        //             }).then(c => {
+        //                 console.log('newInstance',c)
+        //                 this.api.contact().createContact(c).then(c => {
+        //                     console.log('createContact',c)
+        //                     this.api.form().newInstance(this.user, thisPat, {contactId: c.id,descr: "Lab " + new Date().getTime(),}).then(f => {
+        //                         return this.api.form().createForm(f).then(f =>
+        //                             this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp =>
+        //                                 this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
+        //                                     .then(c => {
+        //                                         console.log("Contact id " + c.id);
+        //                                         Object.keys(unassigned).forEach(res => {
+        //                                             if (res === pat) {unassigned.splice(pat)}
+        //                                         })
+        //                                         this.set("unimportedPats",unassigned)
+        //                                         console.log('unimportedPats',this.unimportedPats)
+        //                                         assigned.push({[pat.documentId]:pat.prototype})
+        //                                         tempSelect.unassignedResults = unassigned
+        //                                         tempSelect.assignedResults = assigned
+        //                                         console.log('tempSelect',tempSelect)
+        //                                         return this.api.messages().modifyMessage(tempSelect).then(msg => {
+        //                                             console.log('modifyMessage',tempSelect.unassignedResults.length+" unassigned",tempSelect)
+        //                                             if(tempSelect.unassignedResults.length == 0) {
+        //                                                 return this.removeMsg(msg)
+        //                                             }
+        //                                         });
+        //                                     })
+        //                             )
+        //                         )
+        //                     })
+        //                 })
+        //             })
+        //         } else {
+        //             console.log('pat not found',patients.rows)
+        //         }
+        //     })
+        // }) // map end
+    }
+
+    getChildren(item){
+        // console.log('getChildren',item)
+        this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
+            if(m.length){
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    // console.log('findByMessage',docs)
                     docs.length?
-                    	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
-						:m.map(r => this.messages.push(r));
-                    this.set('messages',this.messages)
+                        docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
+                        :m.map(r => this.push('messages',r));
                     m.map(r => this.getChildren(r));
                 })
-			}
-        }.bind(this))
-	}
+            }
+        })
+        // }.bind(this))
+    }
 
-	// With encryption key
-	// getDataUrls(doc){
-	// 	return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
-	// 				.then(decryptedAndImportedAesHcPartyKeys => {
-	// 					let collatedAesKeys = {};
-	// 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-	// 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
-	// 						.then(enckeys =>
-	// 							this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-	// 								this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
-	// 									let xml = XML.parseXml(att);
-	// 									if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-	// 										xml.kmehrmessage.header.standard.specialisation &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd &&
-	// 										xml.kmehrmessage.header.standard.specialisation.cd.S){
-	// 										this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-	// 									}else{
-	// 										this.set("type","Non Valid Type")
-	// 									}
-	// 								})
-	// 								: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
-	// 						);
-	// 				})
-	// }
+    removeMsg(msg) {
+        if (msg) {
+            console.log('removeMsg,',msg)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
+            if (thisBox == 'INBOX') {
+                console.log('move:',idOfMsg,thisBox,delBox)
+                return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(()=>{
+                        console.log('move to bin done, modify',idOfMsg,thisBox,delBox)
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        msgApi.modifyMessage(msg).then(()=> {
+                            console.log('modify done',idOfMsg,thisBox,delBox)
+                        } )
+                    })
+                    .catch(err => {
+                        console.log('ERROR:',idOfMsg,thisBox,delBox, err)
+                    })
+            } else if (thisBox != 'SENTBOX') {
+                console.log('del from bin',idOfMsg,thisBox,delBox)
+                return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
+        }
+    }
 
-	//Without encryption key
-	getDataUrls(doc){
-		this.set("type","");
-		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
-				let xml = XML.parseXml(att);
-				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-					xml.kmehrmessage.header.standard.specialisation &&
-					xml.kmehrmessage.header.standard.specialisation.cd &&
-					xml.kmehrmessage.header.standard.specialisation.cd.S){
-					this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-				}else{
-					this.set("type","Non Valid Type")
-				}
-				return att
-			})
-		}else {
-			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
-		}
-	}
+    textType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'text/plain');
+    }
 
-	_removeMsg(e){
-		let msgId = e.target.getAttribute('msgId');
-		let transportGuid = e.target.getAttribute('transportGuid');
-		this.set('messages', null);
+    _getPatientDataByInss(inss){
+        if(inss && inss.length > 1) {
+            this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, inss, null, null, 100, "asc")
+                .then(patients => {
+                    console.log(patients);
+                    const newPat = patients.rows[0]
+                    return `${newPat.firstName} ${newPat.lastName} (INSS:${newPat.ssin})`;
+                    // let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                    //     .map(pat => {
+                    //         let newPat = {};
+                    //         newPat.firstName = pat.firstName ? pat.firstName : "";
+                    //         newPat.lastName = pat.lastName ? pat.lastName : "";
+                    //         newPat.fullName = pat.firstName + " " + newPat.lastName;
+                    //         newPat.ssin = pat.ssin ? pat.ssin : "";
+                    //         newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                    //         const res =
+                    //             wantedValue == 'firstName' ? newPat.firstName :
+                    //             wantedValue == 'lastName' ? newPat.lastName :
+                    //             wantedValue == 'fullName' ? newPat.fullName :
+                    //             wantedValue == 'ssin' ? newPat.ssin :
+                    //             wantedValue == 'displayName' ? newPat.displayName :
+                    //             newPat
+                    //         return res
+                    //     })
+                })
+        }
+        else{
+            this.set("patientList", [])
+        }
+    }
 
-		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
-			.then(msg => {
-				let m = msg.rows[0];
-				if(m.transportGuid.startsWith("BIN")){
-		this.api.message().deleteMessages(msgId)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-				} else {
-					m.transportGuid = "BIN" + m.transportGuid;
-					this.api.message().modifyMessage(m)
-						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
-				}
-			})
-	}
+	getDataUrls(doc) {
+	    // console.log('getDataUrls',doc)
+        if (Object.keys(doc.encryptionKeys).length) { // if encryption keys
+            console.log(this.user.healthcarePartyId,doc.encryptionKeys)
+            return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+                .then(decryptedAndImportedAesHcPartyKeys => {
+                    let collatedAesKeys = {};
+                    decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
+
+                    return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+                        .then(enckeys =>
+                            this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+                                    let xml = XML.parseXml(att);
+                                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                                        xml.kmehrmessage.header.standard.specialisation &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                                    }else{
+                                        this.set("type","Non Valid Type")
+                                    }
+                                })
+                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+                        );
+                })
+        } else { // no encryption keys
+            console.log('no encryption keys',this.user.healthcarePartyId)
+            this.set('bodyDocument',{})
+            this.set("type","");
+            if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+                    let xml = XML.parseXml(att);
+                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                        xml.kmehrmessage.header.standard.specialisation &&
+                        xml.kmehrmessage.header.standard.specialisation.cd &&
+                        xml.kmehrmessage.header.standard.specialisation.cd.S){
+                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+                    }else{
+                        this.set("type","Non Valid Type")
+                    }
+                    return att
+                })
+            }else {
+                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+            }
+        } // encrypt? end
+    }
+
+	_forwardMsgs(e) {
+	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg)
+        const msgToFw = {
+	        destinations: [],
+            patientInss: origMsg.patientINSS,
+            annex: this.selectedDocuments,
+            document: {
+	            title: 'Fw: '+origMsg.subject,
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+            },
+            customMetas: origMsg.metas,
+            type: 'fwd'
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
+    }
+
+    _replyMsgs(e) {
+	    const origMsg = this.messages[0]
+        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
+        let dest = []
+        if (origMsg.fromHealthcarePartyId.length == 11) {
+            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+                let hcp = paginated.rows[0]
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        } else {
+            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
+                hcp.type = 'NIHII'
+                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                dest.push(hcp)
+            })
+        }
+        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+        const msgToRe = {
+	        // delegations: origMsg.delegations,
+            destinations: dest,
+            patientInss: origMsg.patientInss,
+            annex: undefined,
+            document: {
+                title: 'Re: '+origMsg.subject,
+                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+            },
+            customMetas: origMsg.metas,
+            type: 'replyto'
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
+    }
+
+    _removeMsg(){
+        let msg = this.messages[0]
+        if (msg) {
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            console.log('remove',idOfMsg,thisBox,delBox)
+            if (!msg.transportGuid.startsWith("BIN")) {
+                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
+                    .then(()=>{
+                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                    })
+            } else {
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+            }
+            const target = this.parentElement.parentNode.children[1]
+            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+        }
+    }
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
+            console.log('restore',idOfMsg,thisBox,restoreBox)
+            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
+                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
+                .then(()=>{
+                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                })
+        }
+        const target = this.parentElement.parentNode.children[1]
+        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+    }
+
+    _restoreMsgs(){
+        let msg = this.messages[0]
+        if (msg) {
+            if(msg.transportGuid.startsWith("BIN")){
+                msg.transportGuid = msg.transportGuid.substring(3);
+                this.api.message().modifyMessage(msg)
+                    .then(()=> this._refresh());
+            }
+        }
+    }
 
 	_imageMimeType(uti, utis, dataUrl) {
 		console.log(uti + " " + utis + " " + dataUrl);
@@ -1017,6 +1483,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
+    _plainMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    }
+
 	_isEqualTo(title, string) {
 		return title == string;
 	}
@@ -1029,28 +1499,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
 	}
 
-	_download(e){
-		let dataUrl = e.target.getAttribute('dataUrl');
-		let name = e.target.getAttribute('name');
+    // _download(item) {
+    //     let file = new Blob([this.api.crypto().utils.ua2hex(item)] ,{type: "text/plain"})
+    //     let a = document.createElement("a");
+    //     document.body.appendChild(a);
+    //     a.style = "display: none";
+    //
+    //     let url = window.URL.createObjectURL(file);
+    //     a.href = url;
+    //     a.download = this.user.healthcarePartyId+".2048.key";
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //
+    //     // const origin = window.location.origin
+    //     // window.location.href = origin
+    // }
 
-		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+    _base64(data) {
+        return base64js.fromByteArray(data);
+    }
 
-		console.log("annexe data");
-		console.log(dataUrl);
-		console.log(name);
-
-		var a = document.createElement('a');
-		a.href = dataUrl;
-		a.target = '_parent';
-		a.download = decodeURIComponent(name);
-
-
-		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
-
-		htMsgDetail.appendChild(a);
-		a.click();
-		a.parentNode.removeChild(a);
-
+	_downloadAnnex(e){
+        const parent = this.parentNode
+        parent.dispatchEvent(new CustomEvent('file-dl', {detail: {bubbles: true, composed: true, url:this.dataUrl}}))
 	}
 
 	_getAttachment(e){
@@ -1119,7 +1590,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 		// TEXT
 		else if(this._textType(mainUti, otherUtis)){
-			// if(this._checkHealthone()){
+			// if(this._checkHealthone(mainUti)){
 			this.api.patient().getPatientWithUser(this.user,"1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
 				this.api.contact().newInstance(this.user, patient, {
 					created: new Date().getTime() ,
@@ -1150,6 +1621,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 	}
+
+    _checkHealthone(file) {
+        const rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = () => {
+            if (rawFile.readyState === 4) {
+                return rawFile.responseText.startsWith('A1/')
+            }
+        }
+    }
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);

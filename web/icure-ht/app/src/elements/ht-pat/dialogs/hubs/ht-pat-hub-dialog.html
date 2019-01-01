@@ -263,6 +263,7 @@
                     <paper-button on-tap="_getTSfromFileAndPut">Put TSet</paper-button>
                     <!--<paper-button on-tap="_runRevokeHubTransaction">Revoke transaction</paper-button>-->
                     <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
+                    <paper-button on-tap="_runGenerateMedicationScheme">Generate medicationscheme</paper-button>
                 </template>
                 <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
                     <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
@@ -495,7 +496,7 @@
                 switch (this.curHub) {
                     case 'rsb':
                         this.hubId = 1990000728;
-                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                        this.hubEndPoint = this.curEnv ===  'acc' ? 'https://acchub.abrumet.be/hubservices/intrahub/v3/intrahub.asmx' : 'https://hub.abrumet.be/hubservices/intrahub/v3/intrahub.asmx';
                         this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSB" ;//TODO: verify value
@@ -503,7 +504,7 @@
                         break;
                     case 'rsw':
                         this.hubId = 1990000035;
-                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx';
                         this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSW";
@@ -520,7 +521,7 @@
                         this.hubId = 1990001916;
                         this.hubEndPoint = this.curEnv === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService' : 'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService';
                         this.set("hubSupportsConsent", false);
-                        this.hubPackageId = this.curEnv === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : ""; //TODO: add production value
+                        this.hubPackageId = this.curEnv === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : "PROD_82fa1e06-7efc-4d84-8f4c-f88513009b9e"; //TODO: replace Pricare by TOPAZ Keys
                         this.hubApplication = "VITALINKGATEWAY";
                         this.set("supportBreakTheGlass", true);
                         break
@@ -632,6 +633,46 @@
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
                                         return this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
+                                            recipient: hcp,
+                                            comment: "mycomment"
+                                        }).then(output => {
+                                            //creation of the xml file
+                                            let file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+
+                                            //creation the downloading link
+                                            let a = document.createElement("a");
+                                            document.body.appendChild(a);
+                                            a.style = "display: none";
+
+                                            //download the new file
+                                            let url = window.URL.createObjectURL(file);
+                                            a.href = url;
+                                            a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
+                                            a.click();
+                                            window.URL.revokeObjectURL(url);
+
+                                            document.body.removeChild(a);
+                                        }).catch( error=> console.log(error))
+                                    })
+                            ))
+                }
+            }
+
+            _runGenerateMedicationScheme(){
+                this._generateMedicationScheme(1)
+            }
+
+            //generateMedicationSchemeExport(patientId: string,language?: string,version?: number,body?: models.MedicationSchemeExportInfoDto
+            _generateMedicationScheme(versionNumber){
+                if (this.patient) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
+                            .then(patientDto =>
+                                this.api.crypto()
+                                    .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                    .then(secretForeignKeys => {
+                                        return this.api.bekmehr().generateMedicationSchemeWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", versionNumber, {
                                             secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
@@ -1033,11 +1074,19 @@
                 }
             }
 
-            _openTransactionViewer(e){
+            _openTransactionViewer_old(e){
                 e.stopPropagation();
                 if(e && e.target && e.target.item) {
                     this.set("selectedTransaction", e.target.item)
                     this.$.transactionViewDialog.open( e.target.item, this._getHubTransaction( e.target.item));
+                }
+            }
+
+            _openTransactionViewer(e){
+                e.stopPropagation();
+                if(e && e.target && e.target.item) {
+                    this.set("selectedTransaction", e.target.item)
+                    this.$.transactionViewDialog.open( e.target.item, this._getHubTransactionMessage( e.target.item));
                 }
             }
 
@@ -1064,6 +1113,40 @@
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp =>
                                 this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId,
+                                    this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                    this.patient.ssin,
+                                    transaction.ids.find(id => id.s === 'LOCAL').sv, transaction.ids.find(id => id.s === 'LOCAL').sl, transaction.ids.find(id => id.s === 'LOCAL').value,
+                                    this.hubPackageId, this.breakTheGlassReason
+                                )
+                            ).then(tranResp => {
+                                    if (tranResp) {
+                                        return tranResp;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            )
+                    } else {
+                        return Promise.resolve(null)
+                    }
+                }
+            }
+
+            _getHubTransactionMessage(transaction){
+                //getTransactionUsingGET(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // ssin: string, sv: string, sl: string, id: string,
+                // hubPackageId?: string, breakTheGlassReason?: string): Promise<string | any>;
+                if(transaction && this._isTransactionSet(transaction)) {
+                    return this._getHubTransactionSetMessage(transaction);
+                } else {
+                    if (this.patient.ssin && this.api.tokenId && transaction) {
+                        return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                            .then(hcp =>
+                                this.api.fhc().Hubcontroller().getTransactionMessageUsingGET(this.hubEndPoint, this.api.keystoreId,
                                     this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                     this.patient.ssin,
@@ -1136,6 +1219,36 @@
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId,
+                                this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                this.patient.ssin,
+                                transaction.ids.find(id => id.s==='LOCAL').sv, transaction.ids.find(id => id.s==='LOCAL').sl, transaction.ids.find(id => id.s==='LOCAL').value,
+                                this.hubPackageId, this.breakTheGlassReason
+                            )
+                        ).then(tranResp => {
+                                if (tranResp) {
+                                    return tranResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                } else {
+                    return Promise.resolve(null)
+                }
+            }
+
+            _getHubTransactionSetMessage(transaction){
+                //getTransactionSetUsingGET(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // ssin: string, sv: string, sl: string, id: string,
+                // hubPackageId?: string, breakTheGlassReason?: string): Promise<string | any>;
+                if (this.patient.ssin && this.api.tokenId && transaction) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp =>
+                            this.api.fhc().Hubcontroller().getTransactionSetMessageUsingGET(this.hubEndPoint, this.api.keystoreId,
                                 this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                                 this.patient.ssin,

@@ -216,7 +216,7 @@
 		</style>
 
 		<label hidden$="[[!label]]" aria-hidden="true">
-			<span>[[label]]</span>
+			<span>[[localize(label,label,language)]]</span>
 		</label>
 		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 
@@ -392,6 +392,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			]])
 		};
+        console.log("add medic",newMedication)
 		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 

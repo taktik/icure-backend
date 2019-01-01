@@ -1,11 +1,21 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
+import org.taktik.icure.entities.embed.SuspensionReason;
+
 import java.io.Serializable;
 import java.util.Map;
 
 public class MedicalHouseContractDto implements Serializable {
 
+    private String ContractId;
+    private Long validFrom; //yyyyMMdd : start of contract period
+    private Long validTo; //yyyyMMdd : end of contract period
     private String mmNihii;
+    private String hcpId;
+    private ContractChangeType contractChangeType; //inscription, inscription end, suspension, coverageChange
+    private String ParentContractId;
+    private String changedBy; //user, mcn
+
     private Long startOfContract; //yyyyMMdd
     private Long startOfCoverage; //yyyyMMdd
     private Long endOfContract; //yyyyMMdd
@@ -13,8 +23,40 @@ public class MedicalHouseContractDto implements Serializable {
     private boolean kine;
     private boolean gp;
     private boolean nurse;
-    private String hcpId;
     private Integer unsubscriptionReasonId;
+    private boolean noKine;
+    private boolean noGp;
+    private boolean noNurse;
+
+    private Long startOfSuspension; //yyyyMMdd
+    private Long endOfSuspension; //yyyyMMdd
+    private SuspensionReason suspensionReason;
+    private String suspensionSource;
+    private boolean forcedSuspension; //no automatic unSuspension
+
+    public String getContractId() { return ContractId; }
+
+    public void setContractId(String contractId) { ContractId = contractId; }
+
+    public Long getValidFrom() { return validFrom; }
+
+    public void setValidFrom(Long validFrom) { this.validFrom = validFrom; }
+
+    public Long getValidTo() { return validTo; }
+
+    public void setValidTo(Long validTo) { this.validTo = validTo; }
+
+    public ContractChangeType getChangeType() { return contractChangeType; }
+
+    public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
+
+    public String getParentContractId() { return ParentContractId; }
+
+    public void setParentContractId(String parentContractId) { ParentContractId = parentContractId; }
+
+    public String getChangedBy() { return changedBy; }
+
+    public void setChangedBy(String changedBy) { this.changedBy = changedBy; }
 
     public String getMmNihii() {
         return mmNihii;
@@ -56,6 +98,26 @@ public class MedicalHouseContractDto implements Serializable {
         this.endOfCoverage = endOfCoverage;
     }
 
+    public String getSuspensionSource() { return suspensionSource; }
+
+    public void setSuspensionSource(String suspensionSource) { this.suspensionSource = suspensionSource; }
+
+    public Long getStartOfSuspension() { return startOfSuspension; }
+
+    public void setStartOfSuspension(Long startOfSuspension) { this.startOfSuspension = startOfSuspension; }
+
+    public Long getEndOfSuspension() { return endOfSuspension; }
+
+    public void setEndOfSuspension(Long endOfSuspension) { this.endOfSuspension = endOfSuspension; }
+
+    public SuspensionReason getSuspensionReason() { return suspensionReason; }
+
+    public void setSuspensionReason(SuspensionReason suspensionReason) { this.suspensionReason = suspensionReason; }
+
+    public boolean isForcedSuspension() { return forcedSuspension; }
+
+    public void setForcedSuspension(boolean forcedSuspension) { this.forcedSuspension = forcedSuspension; }
+
     public boolean isKine() {
         return kine;
     }
@@ -95,4 +157,26 @@ public class MedicalHouseContractDto implements Serializable {
     public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
         this.unsubscriptionReasonId = unsubscriptionReasonId;
     }
+    public boolean isNoKine() {
+        return noKine;
+    }
+
+    public void setNoKine(boolean noKine) {
+        this.noKine = noKine;
+    }
+
+    public boolean isNoGp() {
+        return noGp;
+    }
+
+    public void setNoGp(boolean noGp) {
+        this.noGp = noGp;
+    }
+
+    public boolean isNoNurse() {
+        return noNurse;
+    }
+
+    public void setNoNurse(boolean noNurse) { this.noNurse = noNurse; }
+
 }

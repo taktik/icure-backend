@@ -59,6 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
 <link rel="import" href="elements/ht-tools/ht-access-log.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
+<link rel="import" href="elements/ht-app/ht-app-welcome.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
@@ -453,6 +454,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            ht-app-welcome{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2000;
+                background: white;
+            }
+
 
         </style>
 
@@ -462,11 +473,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              <iron-icon icon="icons:warning"></iron-icon>
          </paper-item>
 
+         <ht-app-welcome id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"></ht-app-welcome>
+
          <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                               on-login="login"></ht-app-login-dialog>
          <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                     route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
          <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                        keyhcpid="[[keyHcpId]]"
                                          message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
                                          on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
          <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
@@ -503,13 +517,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
                                     [[localize('hc_par')]]
                                 </paper-button>
-                                <paper-tab name="msg" on-tap="doRoute">
-                                    <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                <paper-button name="msg" on-tap="doRoute">
+                                    <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
-                                </paper-tab>
-                                <paper-button name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -573,10 +583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-tab>
-                                <paper-tab name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
-                                </paper-tab>
+
                             </paper-tabs>
                         </div>
                         <div class="log-info">
@@ -636,6 +643,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
                                     </paper-item>
+                                    <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
+                                        <iron-icon icon="power-settings-new"></iron-icon>
+                                        [[localize('log_out')]]
+                                    </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
 
@@ -656,7 +667,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             on-user-saved="_userSaved">
                         <splash-screen></splash-screen>
                     </ht-pat>
-                    <ht-hcp id="ht-hcp" name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-hcp id="ht-hcp" name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
                         <splash-screen></splash-screen>
                     </ht-hcp>
                     <ht-msg id="ht-msg" name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
@@ -722,6 +733,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         value: null
+                    },
+                    keyHcpId: {
+                        type: Object,
+                        value: null,
                     },
                     language: {
                         type: String,
@@ -829,6 +844,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     keyPairKeystore:{
                     	type: Array,
                         value: () => []
+                    },
+                    showWelcomePage: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -847,7 +866,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
             }
 
@@ -871,6 +890,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                this.api.icure().isReady().then(ok => {
+                    this.set('showWelcomePage', !ok)
+                })
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
@@ -1078,40 +1101,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if (!this.authenticated) {
                             this.authenticated = true
 
-                            if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-                                this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
-                                    if (ok) {
-                                        this.api.loadUsersAndHcParties()
-                                        this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
+                        const loadKeysForParent = (parentId, prom) => {
+                            if (parentId) {
+                                return prom.then(([success, destPage]) => {
+                                    if (success) {
+                                        return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
+                                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
+                                        )
+                                    } else {
+                                        return Promise.resolve([success, destPage])
+                                    }
+                                })
+                            } else {
+                                return prom
+                            }
+                        }
+
+                        loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
+                            if (success) {
                                         const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
                                         if (!this.routeData || destPage !== this.routeData.page) {
                                             this.set('routeData.page', destPage)
                                         } else {
                                             this._routePageChanged(destPage)
                                         }
-                                    } else {
-                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
-                                        this.$.registerKeyPairDialog.opened = true
-                                    }
-                                })
-                            } else {
-                                if (hcp.publicKey) {
-                                    this.registerKeyPairDialogMessage = ""
-                                    this.$.registerKeyPairDialog.opened = true
-                                } else {
-                                    console.log("HCP public key is " + hcp.publicKey, hcp)
-                                    this.$.firstConnectionDialog.opened = true
-                                }
                             }
-                        }
-                        this._timeCheck()
-                        this._inboxMessageCheck()
+                        })
+                    }
+                    this._timeCheck()
+                    this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
                     sessionStorage.removeItem('auth')
                     this.set("credentials.error", "Wrong user or password")
                 }.bind(this))
+            }
+
+            loadOrImportRSAKeys(u, hcp, page) {
+                return new Promise((resolve, reject) => {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcp.id)) {
+                        this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
+                            this.set("keyHcpId", hcp.id)
+                            if (ok) {
+                                this.api.loadUsersAndHcParties()
+                                this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
+                                resolve([true, page])
+                                    } else {
+                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                this.registerKeyPairDialogResolution = ([resolve,reject])
+                                        this.$.registerKeyPairDialog.opened = true
+                                    }
+                                })
+                            } else {
+                        this.set("keyHcpId", hcp.id)
+                                if (hcp.publicKey) {
+                                    this.registerKeyPairDialogMessage = ""
+                            this.registerKeyPairDialogResolution = ([resolve,reject])
+                                    this.$.registerKeyPairDialog.opened = true
+                                } else {
+                                    console.log("HCP public key is " + hcp.publicKey, hcp)
+                            this.registerKeyPairDialogResolution = ([resolve,reject])
+                                    this.$.firstConnectionDialog.opened = true
+                                }
+                            }
+
+                    })
             }
 
             uploadKeystoreAndCheckToken() {
@@ -1148,29 +1203,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             importPrivateKey(e, selectedRsaFile) {
-                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(hcpId, selectedRsaFile).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
-                        this.set('routeData.page', 'main/')
+
+                        this.registerKeyPairDialogResolution[0]([true, 'main/'])
                     } else {
                         this.set("registerKeyPairDialogMessage", "Invalid key file")
                         this.$.registerKeyPairDialog.reset()
                     }
-                }.bind(this)).catch(e => console.log(e))
+                }.bind(this)).catch(e => {console.log(e); this.registerKeyPairDialogResolution[1](e)})
             }
 
             importScannedPrivateKey(e, jwkKey) {
-                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(hcpId, jwkKey).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
-                        this.set('routeData.page', 'main/')
+                        this.registerKeyPairDialogResolution[0]([true, 'main/'])
                     } else {
                         this.set("registerKeyPairDialogMessage", "Invalid key file")
                         this.$.registerKeyPairDialog.reset()
                     }
-                }.bind(this)).catch(e => console.log(e))
+                }.bind(this)).catch(e => {console.log(e); this.registerKeyPairDialogResolution[1](e)})
             }
 
             togglePanel(e) {

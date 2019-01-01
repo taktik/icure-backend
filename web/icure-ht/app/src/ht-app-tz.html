@@ -61,8 +61,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
+<link rel="import" href="elements/ht-app/ht-app-welcome-tz.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
+<link rel="import" href="elements/ht-app/ht-app-entities-selector.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
@@ -137,12 +139,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .extra-menu-item {
+                cursor: pointer;
                 --paper-item-focused: {
                     background: white;
                 }
             }
 
-            .extra-menu-item:last-child {
+            .extra-menu-item:hover{
+                background-color: var(--app-background-color-dark);
+            }
+
+            .extra-menu-item:last-child, .extra-menu-item:nth-last-child(2) {
                 border-top: 1px solid var(--app-background-color-dark);
             }
 
@@ -365,7 +372,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 paper-button {
                     margin-right: 10px;
                 }
@@ -488,6 +495,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-weight: 700;
 
             }
+
+            ht-app-welcome-tz{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2000;
+                background: white;
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -496,11 +513,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
 
+        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login"></ht-app-welcome-tz>
+
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
+
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]"></ht-app-entities-selector>
+
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
         <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                        keyhcpid="[[keyHcpId]]"
                                         message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
                                         on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
         <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
@@ -536,13 +559,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
                                     [[localize('hc_par')]]
                                 </paper-button>
-                                <paper-tab name="msg" on-tap="doRoute">
-                                    <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                <paper-button name="msg" on-tap="doRoute">
+                                    <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
-                                </paper-tab>
-                                <paper-button name="logout" on-tap="doRoute">
-                                    <iron-icon icon="power-settings-new"></iron-icon>
-                                    [[localize('log_out')]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -565,10 +584,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                 [[localize('msg')]]
                             </paper-tab>
-                            <paper-tab name="logout" on-tap="doRoute">
-                                <iron-icon icon="power-settings-new"></iron-icon>
-                                [[localize('log_out')]]
-                            </paper-tab>
+
                         </paper-tabs>
                         <div class="log-info">
                             <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
@@ -1094,6 +1110,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
                                     </paper-item>
+                                    <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
+                                        <iron-icon icon="power-settings-new"></iron-icon>
+                                        [[localize('log_out')]]
+                                    </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
                         </div>
@@ -1109,7 +1129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved">
+                            on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
@@ -1179,6 +1199,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         value: null
+                    },
+                    keyHcpId: {
+                        type: Object,
+                        value: null,
                     },
                     language: {
                         type: String,
@@ -1286,6 +1310,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     keyPairKeystore:{
                     	type: Array,
                         value: () => []
+                    },
+                    showWelcomePage: {
+                        type: Boolean,
+                        value: false
+                    },
+                    entities:{
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1304,7 +1336,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
             }
 
@@ -1329,6 +1361,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
+                this.api.icure().isReady().then(ok => {
+                    this.set('showWelcomePage', !JSON.parse(ok))
+                })
+
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
@@ -1347,9 +1383,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
-                    if (newTimer > 0) {
-                        this.set('disconnectionTimer', newTimer)
+                    const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
+                    if (timeBeforeDeconnection > 0) {
+                        this.set('disconnectionTimer', timeBeforeDeconnection)
                     } else {
                         const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
@@ -1469,6 +1505,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['ht-my-profile'].open()
             }
 
+            _selectEntities(){
+                this.$['ht-app-account-selector'].open()
+            }
+
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
@@ -1560,6 +1600,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
+                    //this._selectEntities()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
@@ -1570,8 +1611,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             loadOrImportRSAKeys(u, hcp, page) {
                 return new Promise((resolve, reject) => {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcp.id)) {
                         this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
+                            this.set("keyHcpId", hcp.id)
                             if (ok) {
                                 this.api.loadUsersAndHcParties()
                                 this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
@@ -1583,6 +1625,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }
                         })
                     } else {
+                        this.set("keyHcpId", hcp.id)
                         if (hcp.publicKey) {
                             this.registerKeyPairDialogMessage = ""
                             this.registerKeyPairDialogResolution = ([resolve,reject])
@@ -1631,8 +1674,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             importPrivateKey(e, selectedRsaFile) {
-                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(hcpId, selectedRsaFile).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
 
@@ -1645,8 +1694,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             importScannedPrivateKey(e, jwkKey) {
-                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function () {
-                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                let hcpId;
+                if(this.keyHcpId == null) {
+                    hcpId = this.user.healthcarePartyId
+                } else {
+                    hcpId = this.keyHcpId
+                }
+                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(hcpId, jwkKey).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(hcpId)) {
                         this.$.registerKeyPairDialog.opened = false
                         this.set("registerKeyPairDialogMessage", "")
                         this.registerKeyPairDialogResolution[0]([true, 'main/'])

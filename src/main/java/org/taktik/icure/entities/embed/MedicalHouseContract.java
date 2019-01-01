@@ -1,16 +1,60 @@
 package org.taktik.icure.entities.embed;
 
+//NOTE: better classname would be MedicalHouseInscriptionPeriod
 public class MedicalHouseContract {
+
+	private String ContractId;
+	private Long validFrom; //yyyyMMdd : start of contract period
+	private Long validTo; //yyyyMMdd : end of contract period
 	private String mmNihii;
-	private Long startOfContract; //yyyyMMdd
+	private String hcpId;
+	private ContractChangeType contractChangeType; //inscription, coverageChange, suspension
+	private String ParentContractId;
+	private String changedBy; //user, mcn
+
+	//Coverage specific data (coverage = forfait-inscription)
+	private Long startOfContract; //yyyyMMdd : signdate
 	private Long startOfCoverage; //yyyyMMdd
-	private Long endOfContract; //yyyyMMdd
+	private Long endOfContract; //yyyyMMdd : signdate
 	private Long endOfCoverage; //yyyyMMdd
 	private boolean kine;
 	private boolean gp;
 	private boolean nurse;
-    private String hcpId;
-    private Integer unsubscriptionReasonId;
+	private boolean noKine;
+	private boolean noGp;
+	private boolean noNurse;
+	private Integer unsubscriptionReasonId;
+
+	//Suspension specific data:
+	private Long startOfSuspension; //yyyyMMdd
+	private Long endOfSuspension; //yyyyMMdd
+	private SuspensionReason suspensionReason;
+	private String suspensionSource;
+	private boolean forcedSuspension; //no automatic unSuspension
+
+	public String getContractId() { return ContractId; }
+
+	public void setContractId(String contractId) { ContractId = contractId; }
+
+	public Long getValidFrom() { return validFrom; }
+
+	public void setValidFrom(Long validFrom) { this.validFrom = validFrom; }
+
+	public Long getValidTo() { return validTo; }
+
+	public void setValidTo(Long validTo) { this.validTo = validTo; }
+
+	public ContractChangeType getChangeType() { return contractChangeType; }
+
+	public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
+
+	public String getParentContractId() { return ParentContractId; }
+
+	public void setParentContractId(String parentContractId) { ParentContractId = parentContractId; }
+
+	public String getChangedBy() { return changedBy; }
+
+	public void setChangedBy(String changedBy) { this.changedBy = changedBy; }
 
     public String getMmNihii() {
 		return mmNihii;
@@ -52,6 +96,26 @@ public class MedicalHouseContract {
 		this.endOfCoverage = endOfCoverage;
 	}
 
+	public String getSuspensionSource() { return suspensionSource; }
+
+	public void setSuspensionSource(String suspensionSource) { this.suspensionSource = suspensionSource; }
+
+	public Long getStartOfSuspension() { return startOfSuspension; }
+
+	public void setStartOfSuspension(Long startOfSuspension) { this.startOfSuspension = startOfSuspension; }
+
+	public Long getEndOfSuspension() { return endOfSuspension; }
+
+	public void setEndOfSuspension(Long endOfSuspension) { this.endOfSuspension = endOfSuspension; }
+
+	public SuspensionReason getSuspensionReason() { return suspensionReason; }
+
+	public void setSuspensionReason(SuspensionReason suspensionReason) { this.suspensionReason = suspensionReason; }
+
+	public boolean isForcedSuspension() { return forcedSuspension; }
+
+	public void setForcedSuspension(boolean forcedSuspension) { this.forcedSuspension = forcedSuspension; }
+
 	public boolean isKine() {
 		return kine;
 	}
@@ -88,7 +152,28 @@ public class MedicalHouseContract {
 		return unsubscriptionReasonId;
 	}
 
-	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
-		this.unsubscriptionReasonId = unsubscriptionReasonId;
+	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) { this.unsubscriptionReasonId = unsubscriptionReasonId; }
+
+	public boolean isNoKine() {
+		return noKine;
 	}
+
+	public void setNoKine(boolean noKine) {
+		this.noKine = noKine;
+	}
+
+	public boolean isNoGp() {
+		return noGp;
+	}
+
+	public void setNoGp(boolean noGp) {
+		this.noGp = noGp;
+	}
+
+	public boolean isNoNurse() {
+		return noNurse;
+	}
+
+	public void setNoNurse(boolean noNurse) { this.noNurse = noNurse; }
+
 }

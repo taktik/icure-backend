@@ -18,10 +18,10 @@ class ProcedureImporter extends Importer{
     def language = 'fr'
 
     ProcedureImporter() {
-        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
+        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:5984")/*.username("template").password("804e5824-8d79-4074-89be-def87278b51f")*/.build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
         // if the second parameter is true, the database will be created if it doesn't exists
-        couchdbBase = dbInstance.createConnector(DB_NAME + '-base', true);
+        couchdbBase = dbInstance.createConnector('icure-base', false);
 
         Security.addProvider(new BouncyCastleProvider())
     }
@@ -84,12 +84,12 @@ class ProcedureImporter extends Importer{
                     if (it[k].text().length()) it[k].text().split(',').each { links << "CD-VACCINEINDICATION|${it}|1".toString() }
                 }
 
-                for (String k in ['CD-HCPARTY']) {
-                    if (it[k].text().length()) it[k].text().split(',').each { links << "CD-HCPARTY|${it}|1".toString() }
-                }
-
                 for (String k in ['NIHII_Nurse_WK_HB_SEM_DOM','NIHII_Nurse_WK_CZ_SEM_MM','NIHII_Nurse_WE_HB_WE_DOM']) {
                     if (it[k].text().length()) links << "INAMI-RIZIV|${it[k].text().replaceAll(/ ?\|.+/,'')}|1".toString()
+                }
+
+                for (String k in ['Physician','Physiotherapist','Nurse','Social_Worker','Psychologist','Administrative','Dietician','Logopedist','Dentist','Occupational_Therapist','Midwife','Caregiver']) {
+                    if (it[k].text().length()) links << "CD-HCPARTY|pers${k.toLowerCase().replaceAll(/\_/,'').replaceAll(/ ?\|.+/,'')}|1".toString()
                 }
 
                 if (links.size()) {

@@ -22,7 +22,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Type",
+							"label" : "type",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "telecomType",
@@ -43,7 +43,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Number\/address",
+							"label" : "number_address",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "telecomNumber",
