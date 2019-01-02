@@ -1,5 +1,7 @@
 package org.taktik.icure.entities.embed;
 
+import java.util.Objects;
+
 public class LetterValue {
 	private String letter;
 	private String index;
@@ -36,5 +38,21 @@ public class LetterValue {
 
 	public void setValue(Double value) {
 		this.value = value;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		LetterValue that = (LetterValue) o;
+		return Objects.equals(letter, that.letter) &&
+				Objects.equals(index, that.index) &&
+				Objects.equals(coefficient, that.coefficient) &&
+				Objects.equals(value, that.value);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(letter, index, coefficient, value);
 	}
 }

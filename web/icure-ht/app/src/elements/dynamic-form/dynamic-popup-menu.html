@@ -289,7 +289,7 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 					if (!this.items.map(x => x.id).includes(res.id)) {
 						this.set('items', [res].concat(this.items || []))
 					}
-					this.set('comboBoxValue',this.localize(value,value,this.language))
+					this.set('comboBoxValue',value)
                 }).catch(()=>{
                     const res = {name:this.localize(value,value,this.language), id:value}
                     if (!this.items.map(x => x.id).includes(res.id)) {

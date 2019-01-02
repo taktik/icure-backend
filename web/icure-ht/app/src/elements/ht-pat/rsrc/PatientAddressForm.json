@@ -159,6 +159,27 @@
 							"subForm" : false,
 							"name" : "houseNumber",
 							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 74,
+								"multiline" : false,
+								"left" : 1111,
+								"top" : 5,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "box_number",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "postboxNumber",
+							"irrelevant" : true
 						}
 					]
 				}

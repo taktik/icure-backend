@@ -157,6 +157,20 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	}
 
 	@Override
+	public HttpSession getOrCreateSession() {
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		if (requestAttributes instanceof ServletRequestAttributes) {
+			ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+			HttpServletRequest httpRequest = servletRequestAttributes.getRequest();
+			if (httpRequest != null) {
+				return httpRequest.getSession(true);
+			}
+		}
+
+		return null;
+	}
+
+	@Override
 	public void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication) {
 		// Get UserDetails
 		UserDetails userDetails = extractUserDetails(authentication);

@@ -518,7 +518,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
                              on-login="login"></ht-app-login-dialog>
 
-        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]"></ht-app-entities-selector>
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]" credentials="[[credentials]]" on-redirect-another-entity="_redirectToAnotherEntity"></ht-app-entities-selector>
 
         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
@@ -1346,6 +1346,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
+            _checkShowWelcomePage() {
+                this.api.icure().isReady().then(ok => {
+                    if (ok === 'false') {
+                        this.set('showWelcomePage', true)
+                    } else if (ok !== 'true') {
+                        setTimeout(() => this._checkShowWelcomePage(), 1000)
+                    }
+                }).catch(() =>
+                    setTimeout(() => this._checkShowWelcomePage(), 1000)
+                )
+            }
+
             ready() {
                 super.ready()
 
@@ -1353,7 +1365,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!url.hash || !url.hash.startsWith('#/')) {
                     url.hash = '#/'
                     window.location.replace(url.toString())
-                    }
+                }
 
                 window.app = this
 
@@ -1361,13 +1373,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
-                this.api.icure().isReady().then(ok => {
-                    this.set('showWelcomePage', !JSON.parse(ok))
-                })
-
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
+                this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
             }
 
@@ -1378,7 +1387,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _userSaved(e) {
                 this.set('user', e.detail)
             }
-
 
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
@@ -1395,6 +1403,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }, 10000)
 
+
+                this.sessionInterval && clearInterval(this.sessionInterval)
+                this.sessionInterval = setInterval(() => this.api.user().getCurrentSessionWithSession(this.api.sessionId).then(sessionId => this.api.set('sessionId', sessionId)), 240000)
             }
 
             _timeCheck(period = 30000) {
@@ -1469,7 +1480,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _viewChanged(view) {
                 if (view.startsWith('auth')) {
-                    this.$.loginDialog.opened = true
+                    this.$.loginDialog.open()
                     return
                 }
                 if (this.lazyPages[view]) {
@@ -1549,6 +1560,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //Be careful not to use this.api here as it might not have been defined yet
                 //TODD debounce here
                 this.$.api.user().getCurrentUser().then(u => {
+                    this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
+
                     this.set('user', u)
                     this.set('connectionTime', +new Date())
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -1558,7 +1571,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.loginDialog.opened = false
 
                     this.set('credentials.twofa', null)
-                    this.set('credentials.userId', u.id)
+                    u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
                     this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
                     if ((this.credentials.userId && this.credentials.appToken)) {
@@ -1566,6 +1579,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
                     }
                     sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                    localStorage.setItem('last_connection',this.credentials.username)
 
                     if (!this.authenticated) {
                         this.authenticated = true
@@ -1838,6 +1852,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
                 })
             }
+
+            _redirectToAnotherEntity(e){
+                if(e.detail){
+                    this.login(e, {credentials: e.detail})
+                }
+            }
+
         }
 
         customElements.define(HtAppTz.is, HtAppTz)

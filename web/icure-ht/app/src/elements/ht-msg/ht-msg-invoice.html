@@ -1206,7 +1206,7 @@
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">[[localize('inv_batch_paid_date','Date',language)]]</template>
-                                                <template>[[formatDate(item.dateCode)]]</template>
+                                                <template>[[formatDate(item.dateCode,'date')]]</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">Code</template>
@@ -1363,12 +1363,12 @@
                 <div>
                     Détail de l'envoi n° [[activeGridItem.invoice.invoiceReference]]
                     <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
-                    <paper-input label="Mutuelle" value="[[activeGridItem.insurance.code]]"readonly></paper-input>
+                    <paper-input label="Mutuelle" value="[[activeGridItem.insuranceCode]]"readonly></paper-input>
                 </div>
                     <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">Date</template>
-                            <template>[[formatDate(item.dateCode)]]</template>
+                            <template>[[formatDate(item.dateCode,"date")]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">Code</template>
@@ -1395,22 +1395,22 @@
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumReimb]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Patient</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumPatInter]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Supplément</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumDoctorSup]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Total</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumTot]] €</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
                     </vaadin-grid>
@@ -1642,6 +1642,26 @@
                         type: Array,
                         value: []
                     },
+                    isMessagesLoaded:{
+                        type: Boolean,
+                        value: false,
+                    },
+                    sumReimb:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumPatInter:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumDoctorSup:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumTot:{
+                        type: Object,
+                        value: "0.00"
+                    },
                     cannotSend: {
                         type: Boolean,
                         value: false
@@ -1658,11 +1678,21 @@
             }
 
             static get observers() {
-                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)'];
+                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)','activeGridItemChanged(activeGridItem)'];
+            }
+
+            activeGridItemChanged(item){
+                if(!item || item.length==0)return;
+                console.log("selected:",item)
+                this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
+                this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
+                this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
+                this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
             }
 
             ready() {
                 super.ready();
+                this.set("isMessagesLoaded",false)
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
                 })
@@ -1824,12 +1854,14 @@
                         this._isLoadingMessages = false
                         this.set('allMessages', msgsStructs)
                         this.dispatchMessages()
+                        this.set("isMessagesLoaded",true)
                     })
 
                 })
             }
 
             getMessage(){
+                if(!this.isMessagesLoaded)
                 this.fetchMessageToBeSendOrToBeCorrected()
             }
 
@@ -2127,6 +2159,8 @@
                             })
 
                         return prom.then(() => {
+                            this.set('isSending',false)
+                            this.set("isMessagesLoaded",false)
                             this.getMessage()
                         })
                     })
@@ -2688,6 +2722,8 @@
                         })
 
                         return prom.then(() => {
+                            this.set('isReceiving',false)
+                            this.set("isMessagesLoaded",false)
                             this.getMessage()
                         })
                     })
@@ -2833,7 +2869,6 @@
                         }))).then(() => this.getMessage())
                 }
             }
-
         }
 
         customElements.define(HtMsgInvoice.is, HtMsgInvoice);
