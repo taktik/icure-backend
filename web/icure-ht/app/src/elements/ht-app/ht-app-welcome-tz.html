@@ -162,6 +162,9 @@
                         <h2>thank you for joining Topaz</h2>
                     </div>
                     <div>
+                        <template is="dom-if" if="[[_isEmpty(allEmptyMsg)]]">
+                            <p class="invalid-form">[[allEmptyMsg]]</p>
+                        </template>
                         <p>If you already have a database in the cloud. You can copy your cloud key below and start using Topaz. </p>
                         <paper-input label="Cloud key" value="{{cloudKey}}"></paper-input>
                     </div>
@@ -283,7 +286,16 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("invalidFormMsg", msg)
     }
 
+    allEmptyMessage() {
+        this.set("allEmptyMsg", "Please fill in at least one of the sides")
+    }
+
 	register() {
+
+        const hcp = this.healthcareParty
+        const user = this.user
+
+        if (!hcp.firstName && !hcp.lastName && !hcp.nihii && !hcp.ssin && !user.email && !user.passwordHash && !this.get("professionItem") && !this.get('cloudKey')) return this.allEmptyMessage()
 
         Promise.all([this.createUser(), this.replicate()]).then( values => { 
 
@@ -296,11 +308,7 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 this.set('hidden', true)
                 return this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
 
-            } else {
-
-                this.errorMessage('something went wrong')
-
-            } 
+            }
 
         }).catch( err => {
             console.warn(err)
