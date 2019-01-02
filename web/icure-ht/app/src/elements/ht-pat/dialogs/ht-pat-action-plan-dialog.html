@@ -104,7 +104,9 @@
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <div class="links">
-                <dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" on-link-to-health-element="linkToHealthElement" api="[[api]]" no-status></dynamic-link>
+                <template is="dom-if" if="[[!readonly]]">
+                    <dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" on-link-to-health-element="linkToHealthElement" api="[[api]]" no-status></dynamic-link>
+                </template>
                 <div class="pills">
                     <dynamic-pills health-elements="[[linkedHes]]"></dynamic-pills>
                 </div>
@@ -115,47 +117,47 @@
 
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="procedureChanged" label="Procédure" value="{{plannedAction.ProcedureId}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="procedureChanged" label="Procédure" value="{{plannedAction.ProcedureId}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
                 <template is="dom-if" if="[[isVaccineProcedure]]">
                     <vaadin-form-layout>
                         <vaadin-form-item colspan="2">
-                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial"></vaadin-combo-box>
+                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial" readonly="[[readonly]]"></vaadin-combo-box>
                         </vaadin-form-item>
                         <vaadin-form-item>
-                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
+                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}" readonly="[[readonly]]"></paper-input>
                         </vaadin-form-item>
                         <vaadin-form-item>
-                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
+                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}" readonly="[[readonly]]"></paper-input>
                         </vaadin-form-item>
                     </vaadin-form-layout>
                 </template>
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
-                        <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
+                        <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}" readonly="[[readonly]]"></vaadin-text-area>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié"></vaadin-combo-box>
+                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
 
                 <template is="dom-if" if="[[isStatusRefusal]]">
                     <div>
-                        <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
+                        <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}" readonly="[[readonly]]"></vaadin-text-area>
                     </div>
                 </template>
 
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
                         <template is="dom-if" if="[[isStatusComplete]]">
-                            <vaadin-checkbox on-checked-changed="_isSurgical"></vaadin-checkbox> Chirurgical
+                            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Chirurgical
                         </template>
                     </vaadin-form-item>
                 </vaadin-form-layout>
@@ -322,6 +324,14 @@
                     service : {
                         type : Object,
                         value : {}
+                    },
+                    readonly:{
+                        type: Boolean,
+                        value: false
+                    },
+                    hasSurgical:{
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -621,7 +631,7 @@
                     }
                 }
 
-                if (action.isSurgical) {
+                if(action.isSurgical) {
                     this.service.content.isSurgical = {
                         booleanValue: action.isSurgical
                     }
@@ -644,6 +654,11 @@
                         composed: true
                     }))
                 }
+
+
+                if(!this.hasSurgical && action.isSurgical){
+
+                }
             }
 
             linkToHealthElement(e) {
@@ -659,7 +674,9 @@
                 this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
             }
 
-            open(svc) {
+            open(svc,readonly) {
+                if(!readonly)readonly=false;
+                this.set("readonly",readonly)
                 this.set("plannedAction",{})
                 this.set('drugsListItem',[]);
                 this.set("selectedHcpItem","")
@@ -667,6 +684,7 @@
                 this.set("selectedProfessionItem","")
                 const service = svc
                 this.set("isExistingSvc",false)
+                this.set("hasSurgical",false)
                 if(service!==null && service.id) {
                     this.set("isExistingSvc",true)
                     this.set("service",service);
@@ -734,6 +752,10 @@
                             this.set("isStatusRefusal", false)
                         }
 
+                        if(this.plannedAction.isSurgical){
+                            this.set("hasSurgical",true)
+                        }
+
 
                     })
 
@@ -763,6 +785,10 @@
             professionItemChanged(){
                 if(!(this.selectedProfessionItem && this.selectedProfessionItem.id))return;
                 this.set("plannedAction.ProfessionId",this.selectedProfessionItem.id)
+            }
+
+            _checkReadonlySurgical(){
+                return this.hasSurgical && this.readonly;
             }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);

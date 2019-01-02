@@ -343,6 +343,10 @@
                 padding-left:0;
             }
 
+            .col-lg-12{
+                width: calc(99.9995% - 4em);
+            }
+
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
@@ -384,13 +388,13 @@
                                         </paper-radio-group>
                                     </div>
 
-                                    <div class="horizontal" style="margin-top:10px">
+                                    <!--<div class="horizontal" style="margin-top:10px">
                                         <paper-radio-group selected="{{hcp.type}}">
                                             <label class="p-l-0">[[localize('accountType','Type de compte',language)]]: </label>
                                             <paper-radio-button name="persphysician">[[localize('praticien','Praticien',language)]]</paper-radio-button>
                                             <paper-radio-button name="medicalHouse">[[localize('medicalHouse','Maison médicale',language)]]</paper-radio-button>
                                         </paper-radio-group>
-                                    </div>
+                                    </div>-->
 
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
                                         <div class="horizontal" style="margin-top:10px">
@@ -460,15 +464,35 @@
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
                                 <div class="col-lg-6">
-                                    <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}" readonly></paper-input>
-                                    <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}" readonly></paper-input>
-                                    <paper-input label="[[localize('speciality','Spéciali',language)]]" value="{{hcp.speciality}}" readonly></paper-input>
+                                    <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                        <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
+                                        <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
+                                    </template>
                                 </div>
                                 <div class="col-lg-6">
-                                    <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
-                                    <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
-                                    <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
-                                    <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                    <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                        <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
+                                        <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
+                                        <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
+                                        <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                    </template>
+                                    <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
+                                        <paper-input label="[[localize('name','Nom',language)]]" value="{{hcp.name}}"></paper-input>
+                                    </template>
+                                    <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
+                                </div>
+                                <div class="col-lg-6">
+                                    [[localize('addr_pro','Work Address',language)]]
+                                    <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
+                                    <paper-input label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                    <paper-input label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                </div>
+                                <div class="col-lg-6">
+                                    <br/>
+                                    <paper-input label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
+                                    <paper-input label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                    <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
                                 </div>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
                                 <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
@@ -750,16 +774,20 @@
                             return [];
                         }
                     },
+                    adr:{
+                        type: Object,
+                        value:{},
+                        observer : 'addressProChanged'
+                    },
                     receiveMailAuto: {
                         type: Boolean,
                         value: localStorage.getItem('receiveMailAuto') == 'true' ? true : false
                     }
-
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_userChanged(user)', '_autoMailChanged(receiveMailAuto)'];
+                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)'];
             }
 
             ready() {
@@ -991,12 +1019,34 @@
                                 // Only affect when computed
                                 this.hcp = hcp;
 
+                                let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                                idxAddress>=0 ? this.set('adr',{
+                                    addressType:"work",
+                                    street:this.hcp.addresses[idxAddress].street,
+                                    houseNumber:this.hcp.addresses[idxAddress].houseNumber,
+                                    postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
+                                    postalCode:this.hcp.addresses[idxAddress].postalCode,
+                                    city:this.hcp.addresses[idxAddress].city,
+                                    country:this.hcp.addresses[idxAddress].country
+                                }) : ""
+
                             });
 
                         } else {
 
                             // Affect directly
                             this.hcp = hcp;
+
+                            let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                            idxAddress>=0 ? this.set('adr',{
+                                addressType:"work",
+                                street:this.hcp.addresses[idxAddress].street,
+                                houseNumber:this.hcp.addresses[idxAddress].houseNumber,
+                                postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
+                                postalCode:this.hcp.addresses[idxAddress].postalCode,
+                                city:this.hcp.addresses[idxAddress].city,
+                                country:this.hcp.addresses[idxAddress].country
+                            }) : ""
 
                         }
 
@@ -1025,7 +1075,7 @@
             }
 
             open() {
-                this.$.dialog.open();
+
                 this.showEHPreferrences(this.user);
                 const regs = this.getRegistrationStatus()
                 regs.rs.forEach(reg => {
@@ -1033,6 +1083,8 @@
                     this.set(`userBIC_${reg.OA}`, reg.bic)
                     this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
                 })
+
+                this.$.dialog.open();
             }
 
             close() {
@@ -1215,7 +1267,30 @@
 
             _isMedicalHouse(hcpType) {return hcpType==="medicalHouse";}
 
-
+            addressProChanged(){
+                if(!this.hcp)return;
+                let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                if(idxAddress<0){
+                    this.push('hcp.addresses',{
+                        addressType:"work",
+                        street:this.adr.street || "",
+                        houseNumber:this.adr.houseNumber || "",
+                        postboxNumber:this.adr.postboxNumber || "",
+                        postalCode:this.adr.postalCode || "",
+                        city:this.adr.city || "",
+                        country:this.adr.country || ""
+                    })
+                }
+                else{
+                    this.set('hcp.addresses.'+idxAddress+'.addressType',"work")
+                    this.set('hcp.addresses.'+idxAddress+'.street',this.adr.street || "")
+                    this.set('hcp.addresses.'+idxAddress+'.houseNumber',this.adr.houseNumber || "")
+                    this.set('hcp.addresses.'+idxAddress+'.postboxNumber',this.adr.postboxNumber || "")
+                    this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
+                    this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
+                    this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
+                }
+            }
         }
 
         customElements.define(HtExportKey.is, HtExportKey);

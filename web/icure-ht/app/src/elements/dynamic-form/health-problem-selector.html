@@ -48,7 +48,7 @@
                 background: var(--app-background-color-dark);
                 color: var(--app-primary-color-dark);
                 --paper-item-min-height: 28px;
-                width: 90px;
+                width: 120px;
                 font-size: 12px;
                 padding: 0 0 0 8px;
 				justify-content: space-between;
@@ -148,19 +148,31 @@
 					</paper-radio-group>
 				</div>
 				<div class="flex">
-					<paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-					<paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
-						<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
+					<paper-item class="label">[[localize('ext_temp','Extra temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_extraTemporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_extraTemporalityChanged">
+						<!--<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
 						<paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
-						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]&nbsp;|</paper-radio-button>
+						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>-->
 						<paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
 						<paper-radio-button name="relapse">[[localize('relapse','Relapse',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
+
 				<paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
 
-				<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
-				<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+				<div class="flex">
+					<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+					<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+
+					<paper-dropdown-menu id="temporality" label="[[localize('temp','Temporality',language)]]">
+						<paper-listbox slot="dropdown-content" class="dropdown-temporality" selected={{temporalityItemIdx}} selected-item="{{temporalityItem}}">
+							<template is="dom-repeat" items="[[temporalityList]]" as="tp">
+								<paper-item id="[[tp.code]]">[[_getTpLabel(tp)]]</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
+				</div>
+
 				<tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]" always-float-label></tk-token-field>
 				<tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr" always-float-label></tk-token-field>
 
@@ -176,6 +188,7 @@
 	<script>
 
 import _ from 'lodash/lodash';
+import moment from 'moment/src/moment';
 
 class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -272,13 +285,23 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			surgeryFilterValue: {
                 type: String
             },
-
-
+            temporalityItemIdx: {
+                type: Number,
+                value: 0
+			},
+			temporalityList:{
+			    type: Array,
+				value: () => []
+			},
+            temporalityItem:{
+			    type: Object,
+				value: () => {}
+			}
 		};
 	}
 
 	static get observers() {
-		return ['_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
+		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
 	}
 
 	constructor() {
@@ -404,8 +427,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return code && code.code;
     }
 
-    _temporality() {
-        const code = this._tagForEntity(this.entity, 'CD-TEMPORALITY');
+    _extraTemporality() {
+        const code = this._tagForEntity(this.entity, 'CD-EXTRA-TEMPORALITY');
         return code && code.code;
     }
 
@@ -440,8 +463,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._tagForEntity(this.entity, 'CD-SEVERITY', 'normal').code = e.detail.value
     }
 
-    _temporalityChanged(e) {
-        this._tagForEntity(this.entity, 'CD-TEMPORALITY', 'oneshot').code = e.detail.value
+    _extraTemporalityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-EXTRA-TEMPORALITY', 'oneshot').code = e.detail.value
 	}
 
     _certaintyChanged(e) {
@@ -511,10 +534,16 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	open() {
 	    this.set('filterValue','')
 		this.set('selectedItem','')
-		this.$.dialog.open();
-	    this.$.dialog.scrollTop = 0;
 
-        this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
+        this.api.code().findPaginatedCodes('be', 'CD-TEMPORALITY', '')
+			.then(c => this.set("temporalityList", c.rows.filter(c => c.code === "acute" || c.code === "subacute" || c.code === "chronic")))
+			.finally(() => {
+				this.$.dialog.open();
+				this.$.dialog.scrollTop = 0;
+
+				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
+		})
+
 	}
 
 	_closingDateChanged(date) {
@@ -529,6 +558,31 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (dateString !== this._openingDateAsString) {
 			this.set('_openingDateAsString', dateString);
 		}
+	}
+
+	_ehDateChanged(startingDate, closingDate){
+
+	    if(startingDate){
+	        let startingDateAsString = this.api.moment(startingDate).format('YYYY-MM-DD') || ''
+	        let closingDateAsString = closingDate ? this.api.moment(closingDate).format('YYYY-MM-DD') : closingDate = moment().format("YYYY-MM-DD")
+
+            this._isChronical(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "chronic"))) :
+                this._isSubAcute(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "subacute"))) :
+                    this._isAcute(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "acute"))) :
+						console.log("bug")
+		}
+	}
+
+	_isChronical(start, end){
+        return moment(start).isSameOrBefore(moment(end).subtract(6, "month"))
+	}
+
+	_isSubAcute(start, end){
+       return moment(start).isBetween(moment(end).subtract(6, "month"), moment(end).subtract(1, "month"))
+	}
+
+	_isAcute(start, end){
+        return moment(start).isSameOrAfter(moment(end).subtract(1, "month"))
 	}
 
 	_closingDateAsStringChanged(dateAsString) {
@@ -549,6 +603,27 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (date !== this.value) {
 			this.entity && this.set('entity.openingDate', date);
 		}
+	}
+
+    _selectedTemporalityItemChanged(item){
+        if(item && item.id && this.entity){
+            const selectedItem = this.temporalityList.find(c => c.code === item.id)
+
+            if(this.entity.tags.find(t => t.type === "CD-TEMPORALITY")){
+                this.entity.tags.splice(this.entity.tags.indexOf(this.entity.tags.find(t => t.type === "CD-TEMPORALITY")), 1);
+                this.entity.tags.push(selectedItem);
+            }else{
+                this.entity.tags.push(selectedItem);
+            }
+
+            console.log(this.entity.tags)
+
+
+		}
+	}
+
+    _getTpLabel(item){
+	    return item.label[this.language] ? item.label[this.language] : item.label.en
 	}
 
 
