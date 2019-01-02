@@ -63,6 +63,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
                 httpClient = HttpClient(sslContextFactory)
                 try {
                     httpClient!!.maxConnectionsPerDestination = 65535
+                    httpClient!!.maxRequestsQueuedPerDestination = 4096
                     httpClient!!.start()
                 } catch (e: Exception) {
                     log.error("Cannot start HTTP client")

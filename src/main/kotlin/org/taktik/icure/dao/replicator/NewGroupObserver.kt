@@ -126,7 +126,8 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
 
                 try {
                     httpClient!!.maxConnectionsPerDestination = 65535
-                    httpClient!!.start()
+                    httpClient!!.maxRequestsQueuedPerDestination = 4096
+                        httpClient!!.start()
                 } catch (e: Exception) {
                     log.error("Cannot start HTTP client")
                     try {
