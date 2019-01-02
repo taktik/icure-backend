@@ -286,16 +286,26 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("invalidFormMsg", msg)
     }
 
-    allEmptyMessage() {
-        this.set("allEmptyMsg", "Please fill in at least one of the sides")
+    errorMessageLeft(msg) {
+        this.set("allEmptyMsg", msg )
     }
 
 	register() {
 
+        this.errorMessage(null)
+        this.errorMessageLeft(null)
+
         const hcp = this.healthcareParty
         const user = this.user
 
-        if (!hcp.firstName && !hcp.lastName && !hcp.nihii && !hcp.ssin && !user.email && !user.passwordHash && !this.get("professionItem") && !this.get('cloudKey')) return this.allEmptyMessage()
+        if (!hcp.firstName && !hcp.lastName && !hcp.nihii && !hcp.ssin && !user.email && !user.passwordHash && !this.get("professionItem") && !this.get('cloudKey')){
+
+            this.errorMessage("Please fill in at least one of the sides")
+            this.errorMessageLeft("Please fill in at least one of the sides")
+
+            return
+
+        } 
 
         Promise.all([this.createUser(), this.replicate()]).then( values => { 
 
