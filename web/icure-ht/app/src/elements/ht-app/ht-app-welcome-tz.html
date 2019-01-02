@@ -264,7 +264,7 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
         this.addEventListener('keypress',this.checkForEnter.bind(this))
         this.$.login.addEventListener('click',e => this.register())
-        this.$.cloud.addEventListener('click',e => this.replicate())
+        // this.$.cloud.addEventListener('click',e => this.replicate())
     }
 
     _professionChanged(item) {
@@ -306,46 +306,28 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             console.warn(err)
         })
         
-    }
+    } 
     
     createUser() {
 
         const profession = this.get("professionItem")
         let speciality = { id: "" }
 
-<<<<<<< Updated upstream
         if(!profession) return this.errorMessage( "All inputs must be filled")
         if(profession.id === "persphysician") speciality = this.get("specialityItem")
         if(!speciality) return this.errorMessage("Choose a speciality")
         if( !this.$.email.$.nativeInput.validity.valid ) return this.errorMessage( "Email is not valid")
 
-=======
-        if (!profession) return this.errorMessage("All inputs must be filled")
-
-        if (profession.id === "persphysician") speciality = this.get("specialityItem")
-
-        if (!speciality) return this.errorMessage("Choose a speciality")
->>>>>>> Stashed changes
 
         this.healthcareParty.profession = profession.id
         this.healthcareParty.speciality = speciality.id
 
-<<<<<<< Updated upstream
 
         const hcp = this.healthcareParty
         const user = this.user
 
         if( !hcp.firstName || !hcp.lastName || !hcp.nihii || !hcp.ssin || !user.email || !user.passwordHash ) return this.errorMessage("All fields must be filled")
         if( user.passwordHash !== this.get("passwordCheck") ) return this.errorMessage("Passwords are not identical")
-=======
-        if (!this.$.email.$.nativeInput.validity.valid) return this.errorMessage("Email is not valid")
-
-        const hcp = this.healthcareParty
-        const user = this.user
-        if (!hcp.firstName || !hcp.lastName || !hcp.nihii || !hcp.ssin || !user.email || !user.passwordHash) return this.errorMessage("All inputs must be filled")
-
-        if (user.passwordHash !== this.get("passwordCheck")) return this.errorMessage("Passwords are not identical")
->>>>>>> Stashed changes
 
         this.user.login = user.email;
 
@@ -373,13 +355,6 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             body: JSON.stringify( [this.healthcareParty,this.user] )
         })
-<<<<<<< Updated upstream
-
-    }
-
-    createUser() {
-=======
->>>>>>> Stashed changes
 
     }
 
