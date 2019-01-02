@@ -1072,6 +1072,13 @@ import mustache from "mustache/mustache.js";
 						} else {
 							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
 						}
+						// const ridTag = s.tags.find(t => t.type === 'RID')
+						// if (ridTag) {
+						// 	ridTag.id = 'RID|' + tmpRID + '|1';
+						// 	ridTag.code = tmpRID
+						// } else {
+						// 	s.tags.push(this.api.code().normalize({id: 'RID|' + tmpRID + '|1'}))
+						// }
 					}) // forEach end
 					this.saveCurrentContact().then(() => this._refreshDrugs())
 				})
