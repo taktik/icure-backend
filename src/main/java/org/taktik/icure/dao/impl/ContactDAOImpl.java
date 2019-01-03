@@ -126,53 +126,6 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
 				String.class)))); //Important to de deduplicate the contact ids
 	}
 
-	@Override
-	//View defined below
-	public List<String> findServicesByLabel(String hcPartyId, String label, Long startValueDate, Long endValueDate) {
-		ComplexKey from = ComplexKey.of(
-				hcPartyId,
-				label,
-				startValueDate
-		);
-		ComplexKey to = ComplexKey.of(
-				hcPartyId,
-				label == null ? ComplexKey.emptyObject() : label,
-				endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
-		);
-
-		ViewQuery viewQuery = createQuery("service_by_hcparty_label")
-				.startKey(from)
-				.endKey(to)
-				.includeDocs(false);
-
-		List<String> ids = db.queryView(viewQuery, String.class);
-		return ids;
-	}
-
-	@Override
-	@View(name = "service_by_hcparty_patient_label", map = "classpath:js/contact/Service_by_hcparty_patient_label.js")
-	public List<String> findServicesByPatientLabel(String hcPartyId, String patientSecretForeignKey, String label, Long startValueDate, Long endValueDate) {
-		ComplexKey from = ComplexKey.of(
-				hcPartyId,
-				patientSecretForeignKey,
-				label == null ? null : label.replaceAll("\\*",""),
-				startValueDate
-		);
-		ComplexKey to = ComplexKey.of(
-				hcPartyId,
-				patientSecretForeignKey,
-				label == null ? ComplexKey.emptyObject() : label.replaceAll("\\*","\ufff0"),
-				endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
-		);
-
-		ViewQuery viewQuery = createQuery("service_by_hcparty_patient_label")
-				.startKey(from)
-				.endKey(to)
-				.includeDocs(false);
-
-		List<String> ids = db.queryView(viewQuery, String.class);
-		return ids;
-	}
 
 	@Override
 	@View(name = "service_by_hcparty_tag", map = "classpath:js/contact/Service_by_hcparty_tag.js")
@@ -313,15 +266,6 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
 
         return db.queryView(viewQuery, String.class);
 	}
-
-    @Override
-    @View(name = "service_by_hcparty_label", map = "classpath:js/contact/Service_by_hcparty_label.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    public List<CouchKeyValue<Long>> listServicesByLabel(String hcPartyId, String label) {
-		ComplexKey startKey = ComplexKey.of(hcPartyId, label);
-		ComplexKey endKey = ComplexKey.of(hcPartyId, label == null ? ComplexKey.emptyObject() : null);
-		List<CouchKeyValue<Long>> service_by_hcparty_label = ((CouchDbICureConnector) db).queryViewWithKeys(createQuery("service_by_hcparty_label").startKey(startKey).endKey(endKey).includeDocs(false).reduce(true).group(true), Long.class);
-		return service_by_hcparty_label.stream().map(c->new CouchKeyValue<>(ComplexKey.of(c.getKey().getComponents().get(1)),c.getValue())).collect(Collectors.toList());
-    }
 
     @Override
     public List<Contact> listByServices(Collection<String> services) {

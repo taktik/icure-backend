@@ -206,19 +206,6 @@ public class ContactFacade implements OpenApiFacade {
     }
 
     @ApiOperation(
-            value = "Get the list of all used label services",
-            response = LabelledOccurenceDto.class,
-            responseContainer = "Array",
-            httpMethod = "GET",
-            notes = ""
-    )
-    @GET
-    @Path("/service/labels/{minOccurences}")
-    public Response getServiceLabelsOccurences(@PathParam("minOccurences") Long minOccurences) {
-        return Response.ok().entity(contactLogic.getServiceLabelsOccurences(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),minOccurences)).build();
-    }
-
-	@ApiOperation(
 			value = "Get the list of all used codes frequencies in services",
 			response = LabelledOccurenceDto.class,
 			responseContainer = "Array",
