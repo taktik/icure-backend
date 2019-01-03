@@ -124,7 +124,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	@Override
 	@View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
 	public List<User> getUsersByPartialIdOnFallback(String id) {
-		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_id").includeDocs(true).key(id), type);
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQueryOnFallback("by_id").includeDocs(true).key(id), type);
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public List<User> findByUsernameOnFallback(String login) {
-		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_username").includeDocs(true).key(login), type);
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQueryOnFallback("by_username").includeDocs(true).key(login), type);
 	}
 
 	@Override
@@ -176,7 +176,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public List<User> getUsersOnDb(String groupId) {
-		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).queryView(createQuery("all").includeDocs(true), User.class);
+		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).queryView(createQueryOnDb("all", groupId).includeDocs(true), User.class);
 	}
 
 	@Override
@@ -202,6 +202,20 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 			entity.getApplicationTokens().put("ICC", Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString());
 		}
 		return super.save(newEntity, entity);
+	}
+
+	protected ViewQuery createQueryOnFallback(String viewName) {
+		return new ViewQuery()
+				.dbPath(((CouchDbICureConnector) db).getFallbackConnector().path())
+				.designDocId(stdDesignDocumentId)
+				.viewName(viewName);
+	}
+
+	protected ViewQuery createQueryOnDb(String viewName, String groupId) {
+		return new ViewQuery()
+				.dbPath(((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).path())
+				.designDocId(stdDesignDocumentId)
+				.viewName(viewName);
 	}
 
 
