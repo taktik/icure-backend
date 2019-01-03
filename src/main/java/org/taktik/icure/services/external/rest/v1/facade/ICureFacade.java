@@ -31,6 +31,7 @@ import org.taktik.icure.entities.embed.DatabaseSynchronization;
 import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.FormLogic;
 import org.taktik.icure.logic.HealthElementLogic;
+import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.MessageLogic;
 import org.taktik.icure.logic.PatientLogic;
@@ -74,10 +75,10 @@ public class ICureFacade implements OpenApiFacade{
 	private InvoiceLogic invoiceLogic;
 	private HealthElementLogic healthElementLogic;
 	private FormLogic formLogic;
-	private SessionLogic sessionLogic;
+	private ICureSessionLogic sessionLogic;
 	private MapperFacade mapper;
 	private ApplicationContext context;
-	
+
 	@ApiOperation(
 			value = "Get version",
 			response = String.class
@@ -192,7 +193,7 @@ public class ICureFacade implements OpenApiFacade{
 	@GET
 	@Path("/i")
 	public Response getIndexingInfo() {
-		return Response.ok(new IndexingInfoDto(iCureLogic.getIndexingStatus())).build();
+		return Response.ok(new IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.getCurrentSessionContext().getGroupId()))).build();
 	}
 
 	@POST @Path("/conflicts/patient")
@@ -229,7 +230,7 @@ public class ICureFacade implements OpenApiFacade{
 	}
 
 	@Context
-	public void setSessionLogic(SessionLogic sessionLogic) {
+	public void setSessionLogic(ICureSessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
 	}
 

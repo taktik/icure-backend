@@ -21,5 +21,5 @@ package org.taktik.icure.dao;
 import java.util.Map;
 
 public interface ICureDAO {
-	Map<String,Number> getIndexingStatus();
+	Map<String,Number> getIndexingStatus(String groupId);
 }

@@ -21,5 +21,5 @@ package org.taktik.icure.logic;
 import java.util.Map;
 
 public interface ICureLogic {
-	Map<String,Number> getIndexingStatus();
+	Map<String,Number> getIndexingStatus(String groupId);
 }

@@ -33,8 +33,8 @@ public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
 
 	@Override
-	public Map<String,Number> getIndexingStatus() {
-		return iCureDAO.getIndexingStatus();
+	public Map<String,Number> getIndexingStatus(String groupId) {
+		return iCureDAO.getIndexingStatus(groupId);
 	}
 
 	@Autowired

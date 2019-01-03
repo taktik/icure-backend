@@ -43,7 +43,7 @@ public class ICureDAOImpl implements ICureDAO {
 	private Gson gson = new GsonBuilder().create();
 
 	@Override
-	public Map<String, Number> getIndexingStatus() {
+	public Map<String, Number> getIndexingStatus(String groupId) {
 		HttpResponse active_tasks = couchdbConfig.getConnection().getUncached("/_active_tasks");
 		InputStreamReader inputStreamReader;
 		try {
@@ -53,6 +53,10 @@ public class ICureDAOImpl implements ICureDAO {
 			for (Map<String,Object> status:json) {
 				String designDoc = (String) status.get("design_document");
 				Number progress = (Number) status.get("progress");
+				String database = (String) status.get("database");
+
+				if (groupId != null && database != null && !database.contains(groupId)) { continue; }
+
 				if (designDoc != null && progress != null) {
 					List<Number> statuses = statusesMap.get(designDoc);
 					if (statuses == null) {statusesMap.put(designDoc, statuses = new LinkedList<>()); }
