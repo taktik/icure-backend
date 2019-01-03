@@ -1,0 +1,149 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
+<dom-module id="ht-app-setup-prompt">
+	<template>
+		<style>
+			paper-dialog{
+				border-radius:2px;
+			}
+
+			h1 {
+				padding: 24px;
+			}
+
+			paper-spinner {
+				--paper-spinner-layer-1-color: #FFA300;
+				--paper-spinner-layer-2-color: rgb(255, 145, 0);
+				--paper-spinner-layer-3-color: rgb(255, 166, 0);
+				--paper-spinner-layer-4-color: rgb(255, 187, 0);
+				--paper-spinner-stroke-width: 3px;
+				margin: 0 auto;
+				display: block;
+			}
+
+			.top-gradient{
+				line-height:0;
+				font-size:0;
+				display:block;
+				background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+				height:10px;
+				position:relative;
+				top:0;
+				left:0;
+				right:0;
+				margin:0;
+				border-radius:2px 2px 0 0;
+			}
+
+			.flex{
+				display:flex;
+				flex-direction: column;
+				justify-content: center!important;
+			}
+
+			.message.error{
+				color: var(--app-error-color);
+			}
+
+			.taktik{
+				height: 30px;
+				margin: 32px 0;
+			}
+
+			.taktik span{
+				width: 100px;
+				line-height: 0.5;
+				display: block;
+				font-size: 10px;
+				color: var(--app-text-color-disabled);
+				margin: 0 auto;
+			}
+
+			.taktik .logo{
+				width: 100px;
+				margin: 0 auto;
+			}
+
+			.taktik .logo svg .st1{
+				fill: var(--app-text-color);
+			}
+
+		</style>
+
+		<paper-dialog id="prompt" modal>
+			<div class="top-gradient">&nbsp;</div>
+			<div style="text-align: center;"><h1>Setting up</h1></div>
+			<paper-spinner active></paper-spinner>
+			<div class="taktik">
+					<span>Engineered by</span>
+					<div class="logo">
+						<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
+						<svg version="1.1"
+						xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+						x="0px" y="0px" width="100px" height="17.3px" viewBox="0 0 100 17.3" style="enable-background:new 0 0 100 17.3;"
+						xml:space="preserve">
+						<style type="text/css">
+						.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#455A64;}
+						</style>
+						<defs>
+						</defs>
+						<polygon class="st1" points="0,8.3 6.9,8.3 6.9,17.2 10,17.2 10,8.3 16.9,8.3 16.9,5.3 0,5.3 "/>
+						<path class="st1" d="M36.1,17.2v-8c0-2.1-1.6-3.9-3.6-3.9H19.3v3H33v1.5H22.5c-2.1,0-3.8,1.7-3.8,3.7c0,2.1,1.8,3.8,4,3.8H36.1z
+						M21.9,12.8H33v1.5H21.9V12.8z"/>
+						<polygon class="st1" points="56.8,8.3 63.7,8.3 63.7,17.2 66.8,17.2 66.8,8.3 73.7,8.3 73.7,5.3 56.8,5.3 "/>
+						<rect x="75.7" y="5.3" class="st1" width="3.1" height="11.9"/>
+						<rect x="75.7" class="st1" width="3.1" height="3.1"/>
+						<path class="st1" d="M43,9.4C43,9.4,43,9.4,43,9.4C43,9.4,43,9.4,43,9.4z"/>
+						<path class="st1" d="M86.9,9.4C87,9.4,87,9.4,86.9,9.4C87,9.4,87,9.4,86.9,9.4z"/>
+						<path class="st1" d="M91.3,12.3l8.7,5h-6.3l-5.2-3.1c-0.2-0.1-0.5-0.3-0.7-0.4c-0.2-0.1-0.4-0.3-0.6-0.4c-0.2-0.2-0.4-0.4-0.6-0.6
+						c0,0,0-0.1-0.1-0.1c-0.2-0.3-0.4-0.7-0.4-1.2v5.7h-3.1V5.4h3.1V11c0.1-0.6,0.3-1.2,0.7-1.6c0,0,0,0,0.1-0.1c0,0,0,0,0,0
+						c0.3-0.3,0.7-0.6,1.3-0.9l5.5-3.1h6.3l-8.7,4.9l-1.7,1L91.3,12.3z"/>
+						<path class="st1" d="M43.1,9.4C43.1,9.4,43.1,9.4,43.1,9.4C43.1,9.4,43.1,9.4,43.1,9.4z"/>
+						<path class="st1" d="M43.1,9.4C43.1,9.4,43.1,9.4,43.1,9.4C43.1,9.4,43.1,9.4,43.1,9.4z"/>
+						<path class="st1" d="M47.4,12.3l8.7,5h-6.3l-5.2-3.1c-0.2-0.1-0.5-0.3-0.7-0.4c-0.2-0.1-0.4-0.3-0.6-0.4c-0.2-0.2-0.4-0.4-0.6-0.6
+						c0,0,0-0.1-0.1-0.1c-0.2-0.3-0.4-0.7-0.4-1.2v5.7h-3.1V5.4h3.1V11c0.1-0.6,0.3-1.2,0.7-1.6c0,0,0,0,0.1-0.1c0,0,0,0,0,0
+						c0.3-0.3,0.7-0.6,1.3-0.9l5.5-3.1h6.3l-8.7,4.9l-1.7,1L47.4,12.3z"/>
+						</svg>
+
+					</div>
+				</div>
+		</paper-dialog>
+
+	</template>
+	<script>
+
+//noinspection JSUnusedGlobalSymbols
+class HtAppSetupPrompt extends Polymer.TkLocalizerMixin(Polymer.Element) {
+	static get is() {
+		return "ht-app-setup-prompt";
+	}
+
+	static get properties() {
+		return {
+			
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready()
+	}
+
+	close() {
+		this.$["prompt"].close()
+	}
+
+    open(){
+        this.$["prompt"].open()
+    }
+
+}
+
+customElements.define(HtAppSetupPrompt.is, HtAppSetupPrompt);
+</script>
+</dom-module>
