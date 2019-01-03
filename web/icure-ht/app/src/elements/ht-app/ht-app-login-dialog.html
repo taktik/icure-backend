@@ -26,6 +26,11 @@
 				--paper-input-container-focus-color: var(--app-secondary-color-dark);
 				--paper-input-container-invalid-color: var(--app-error-color);
 			}
+
+			paper-dropdown-menu {
+				--paper-input-container-focus-color: var(--app-secondary-color-dark);
+			}
+
 			paper-button{
 				margin:2em auto 0 auto;
 				color:var(--app-text-color-light);
@@ -89,6 +94,16 @@
 								 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
+					<paper-dropdown-menu label="Database server" vertical-align="bottom" horizontal-align="left">
+						<paper-listbox slot="dropdown-content" selected="{{dbServerSelected}}" selected-item="{{dbServerObject}}">
+							<paper-item data-server="http://127.0.0.1">Local</paper-item>
+							<template is="dom-repeat" items="[[dbServers]]" as="server">
+								<paper-item data-server$="[[server.url]]">[[server.name]]</paper-item>
+							</template>
+							<paper-item>+ Add a server</paper-item>
+						</paper-listbox>
+					</paper-dropdown-menu>
+					
 					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
 			</form>
@@ -127,6 +142,15 @@
 				</div>
 		</paper-dialog>
 
+		<paper-dialog id="addServerDialog" opened="{{addServerOpened}}" modal>
+			<div class="top-gradient">&nbsp;</div>
+			<form is="form" id="add-server-form">
+				<paper-input label="name" value="{{dbServerInput.name}}" type="name" ></paper-input>
+				<paper-input label="url" value="{{dbServerInput.url}}" type="url" ></paper-input>
+				<paper-button raised="true" id="serverSubmitButton" type="submit" on-click="_handleServerAddition" autofocus>[[localize('add','Add',language)]]</paper-button>
+			</form>
+		</paper-dialog>
+
 	</template>
 	<script>
 
@@ -141,10 +165,35 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			credentials: {
 				type: Object
 			},
+			dbServers: {
+				type: Array,
+				value: () => {
+
+					let array = JSON.parse(localStorage.getItem("server-list"))
+
+					return array || []
+				}
+			},
+			dbServerSelected: {
+				type: Number,
+				value: () => localStorage.getItem("server-selected") || 0,
+				observer: '_handleServerSelect'
+			},
 			opened: {
 				type: Boolean,
 				value: false,
 				notify: true
+			},
+			addServerOpened: {
+				type: Boolean,
+				value: false
+			},
+			dbServerInput: {
+				type: Object,
+				value: () => ({
+					name: "",
+					url: ""
+				})
 			}
 		};
 	}
@@ -154,13 +203,47 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	login() {
-        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+		
+		localStorage.setItem("server-list", JSON.stringify(this.dbServers) )
+		localStorage.setItem("server-selected", this.dbServerSelected )
+
+		const currentServerUrl = this.dbServerObject.dataset.server
+
+        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, url: currentServerUrl}, bubbles: true, composed: true }))
+
+	}
+
+	_handleServerSelect(value) {
+	 	if(value == this.dbServers.length + 1) {
+			this.dbServerSelected = localStorage.getItem("server-selected") || 0
+			this.set("addServerOpened", true)
+		}
+	}
+
+	_handleServerAddition(e) {
+
+		const urlMatches = this.dbServerInput.url.match("(https?:\/\/[^:\/]*)")
+
+		if( typeof this.dbServerInput.name == "string" && urlMatches ) {
+
+			this.dbServerInput.url = urlMatches[1];
+
+			this.push('dbServers', this.dbServerInput)
+			
+			this.dbServerInput = {
+				name: "",
+				url: ""
+			}
+
+			this.set("addServerOpened", false)
+
+		}
 	}
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
 		if (e.keyCode === 13) {
-            this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+            this.login()
 		}
 	}
 

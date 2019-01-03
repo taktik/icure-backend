@@ -1341,6 +1341,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+
+            }
+
+            _updateServerUrl(url) {
+                
+                this.set('icureUrl',`${url}:16043/rest/v1`)
+                this.set('fhcUrl',`${url}:8090`)
+
             }
 
             reset() {
@@ -1690,7 +1698,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return Promise.resolve(null);
             }
 
-            login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
+            login(event, loginObject) { /* this is called from mouseDown with 2 arguments */
+                
+                this._updateServerUrl( loginObject.url )
+
                 this.set('credentials', loginObject && loginObject.credentials)
                 this.loginAndRedirect(loginObject && loginObject.page)
             }
