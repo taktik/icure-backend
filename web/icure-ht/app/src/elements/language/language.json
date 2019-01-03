@@ -762,7 +762,6 @@
     "Oct":"oct",
     "Sep":"sep",
     "_e_flatrateinv_archives" : "Archives",
-<<<<<<< HEAD
     "j3" : "Listing",
     "j20" : "Invoicing",
     "archivej3" : "Listing archives",
@@ -854,7 +853,6 @@
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
-=======
     "_e_flatrateinv_archives_invoicing": "Archives facturation",
     "_e_flatrateinv_archives_listing" : "Archives listing",
     "_e_flatrateinv_download" : "A télécharger",
@@ -867,7 +865,6 @@
     "_e_inv_rej" : "Rejetés",
     "_e_inv_toBeCorrected" : "A corriger",
     "_e_inv_toBeSend" : "A envoyer",
->>>>>>> a8977593d36df62f21806f1e5f7bab247918a5d1
     "a_pri_key_fil_is_nee_for_thi_use": "Un fichier de clef privée est requis pour cet utilisateur",
     "abo_kin" : "Kiné",
     "abo_med" : "Médecin",
@@ -1691,7 +1688,6 @@
     "Oct":"oct",
     "Sep":"sep",
     "_e_flatrateinv_archives" : "Archives",
-<<<<<<< HEAD
     "j3" : "Listing",
     "j20" : "Facturation",
     "archivej3" : "Archives listing",
@@ -1783,7 +1779,6 @@
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
-=======
     "_e_flatrateinv_archives_invoicing": "Facturatie archiven",
     "_e_flatrateinv_archives_listing" : "Lijst archiven",
     "_e_flatrateinv_download" : "Te downloaden",
@@ -1796,7 +1791,6 @@
     "_e_inv_rej" : "Rejected",
     "_e_inv_toBeCorrected" : "To be corrected",
     "_e_inv_toBeSend" : "To be send",
->>>>>>> a8977593d36df62f21806f1e5f7bab247918a5d1
     "a_pri_key_fil_is_nee_for_thi_use": "A private key file is needed for this user",
     "abo_kin" : "Kiné",
     "abo_med" : "Arts",
@@ -2599,7 +2593,6 @@
     "yes" : "ja",
     "you_hav_bee_log_out": "You have been logged out.",
     "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
-<<<<<<< HEAD
     "middle": "Middle",
     "mutual":"Mutual",
     "bill_num":"Bill Number",
@@ -2848,7 +2841,6 @@
     "filterResults": "Filter resultaten",
     "download": "Downloaden",
     "invoicingExport": "Facturatie downloaden"
-=======
     "(pd_ima_and_vid": "(PDF, images and videos)",
     "subscription_form_physical_person":"Patiënt",
     "subscription_form_medical_house":"Inschrijving medisch huis",
@@ -2860,6 +2852,5 @@
     "has_m":"Arts",
     "has_k":"Kine",
     "has_i":"Verpleging"
->>>>>>> a8977593d36df62f21806f1e5f7bab247918a5d1
   }
 }
