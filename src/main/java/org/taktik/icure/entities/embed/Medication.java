@@ -82,6 +82,8 @@ public class Medication implements Serializable {
 	Boolean medicationChanged;
 	Boolean posologyChanged;
 
+	String prescriptionRID;
+
 	public Map<String, Content> getOptions() {
 		return options;
 	}
@@ -266,6 +268,9 @@ public class Medication implements Serializable {
 
 	public void setPosologyChanged(Boolean posologyChanged) { this.posologyChanged = posologyChanged; }
 
+	public @Nullable String getPrescriptionRID() { return prescriptionRID; }
+
+	public void setPrescriptionRID(String prescriptionRID) { this.prescriptionRID = prescriptionRID; }
 
 	public Boolean getSubstitutionAllowed() { return substitutionAllowed; }
 
