@@ -3965,6 +3965,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.contactYears.map(
                         contactYear => {
                             contactYear.contacts.map(ctc => {
+                                console.log('contact',ctc)
                                 ctc.subContacts.map(sbct => {
                                     let value;
                                     if (sbct.healthElementId) {

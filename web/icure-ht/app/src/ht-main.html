@@ -610,15 +610,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('sen','Sender',language)]]</div>
+								<div class="card-header-cell">[[localize('pat','Patient',language)]]</div>
 								<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
 								<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
 							</div>
-							<template is="dom-repeat" items="[[messages]]" as="msg">
-								<div class="row card-table-row" data-id$="[[msg.id]]" on-tap="openMessage">
-									<div class="card-table-cell">[[msg.fromAddress]]</div>
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.metas.CM-SendDateTime)]]</div>
-									<div class="card-table-cell">[[msg.subject]] </div>
+							<template is="dom-repeat" items="[[labResults]]" as="labResult">
+								<div class="row card-table-row" data-id$="[[labResult]]" on-tap="openLabResult">
+									<div class="card-table-cell">[[labResult.firstName]] [[labResult.lastName]]</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(labResult.demandDate)]]</div>
+									<!--<div class="card-table-cell card-table-cell&#45;&#45;date">[[_timeFormat(msg.metas.CM-SendDateTime)]]</div>-->
+									<div class="card-table-cell">[[labResult.labo]] - Id:[[labResult.protocol]]</div>
 								</div>
 							</template>
 							<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
@@ -741,7 +742,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					return [];
 				}
 			},
-			messages: {
+            labResults: {
 				type: Array,
 				value: function () {
 					return [];
@@ -858,18 +859,93 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				});
 			}).then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)));
 
+			let msgsWithAttach = []
 			this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+			    // console.log('findMsgByToAddr',messages)
 				messages.rows.forEach(function (m, index, messages) {
-					if (m.status && 1 << 1 == 0) {
+					if ( (m.status & 1 << 4) == 0) {
 						messages.splice(index, 1);
 					}
 				}); //todo refaire reduce
 				messages.rows.sort(function (a, b) {
-					return a.status && (1 << 0) - b.status && 1 << 0;
+					return (a.created) - (b.created);
 				});
-				this._isLoadingLatestLabResults = false;
 				return messages.rows;
-			}).then(messages => {this.set('messages', messages || []); console.log(this.messages)});
+			})
+            .then(messages => {
+			    let loop = 0
+			    messages.forEach(msg=>{
+                    if (msg.assignedResults) {
+                        // console.log(loop+'> msg',msg)
+                        msgsWithAttach.push(msg.id)
+                        this.api.document().findByMessage(this.user.healthcarePartyId, msg)
+                            .then(docs => {
+                                if(docs.length) {
+                                    docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                                        .map(doc => {
+                                            // console.log(loop+'>> doc ',doc)
+                                            if (doc.delegations && Object.keys(doc.delegations).length) {
+                                                this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(decryptedAndImportedAesHcPartyKeys => {
+                                                    var collatedAesKeys = {};
+                                                    decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
+                                                    // console.log(loop+'>>collatedAesKeys',collatedAesKeys)
+                                                    this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
+                                                        // console.log(loop+'>> enckeys',enckeys)
+                                                        // this.api.crypto().decryptDelegationsSFKs(enckeys,collatedAesKeys,masterId)
+                                                        this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys) //, this.api.sessionId)
+
+                                                            .then((a)=>{
+                                                                console.log(loop+'>>> attachment',doc && a)
+                                                                loop++
+                                                            })
+
+                                                        // console.log(loop+'>> collatedAesKeys',collatedAesKeys,)
+                                                        // console.log(loop+'>> url is', url);
+                                                        // const resolved = Promise.resolve(url)
+                                                        // console.log('>>>',resolved)
+                                                        // return resolved
+
+                                                    }) // decryptDelegationsSFKs end
+
+                                                }) // decryptAndImportAesHcPartyKeysInDelegations end
+
+
+                                                // .bind(this)).catch(() => {
+                                                //     const url = doc && this.api.document().getAttachment(doc.id, doc.attachmentId, undefined)// , this.api.sessionId);
+                                                //     console.log(loop+' X url is', url);
+                                                //     const resolved = Promise.resolve(url)
+                                                //     console.log(resolved)
+                                                //     return resolved
+                                                // }) // catch end
+
+
+                                            } else { // no delegations
+                                                const url = doc && this.api.document().getAttachment(doc.id, doc.attachmentId, undefined)// , this.api.sessionId);
+                                                // console.log(loop+' X url is', url);
+                                                const resolved = Promise.resolve(url)
+                                                console.log(resolved)
+                                                loop++
+                                            }
+                                        }) // filtered docs map end
+                                } else {
+                                    // console.log(loop+' X no docs')
+                                    this._isLoadingLatestLabResults = false;
+                                }
+                            })
+                    } // if assignedResults end
+                }) // messages foreach end
+
+                // this.api.contact().getContactsWithUser(this.user,{ids:msgsWithAttach}).then(ctcs=>{
+                //     console.log(msgsWithAttach,'ctc',ctcs)
+                //     ctcs.forEach(c=>{
+                //         console.log('>>> c.cryptedForeignKeys',c.cryptedForeignKeys)
+                //         // this.api.crypto().extractCryptedFKs(c,this.user.healthcarePartyId).then(d=>{
+                //         //  console.log('d',d)
+                //         // })
+                //     })
+                // })
+
+			})
 
 			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
 				return appointments && this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
@@ -957,14 +1033,14 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
 
-	openMessage(ev) {
+	openLabResult(ev) {
 
-		console.log(ev)
 		let target = ev.path[0];
-		while (target && !target.dataset.id) {
-			target = target.parentNode;
-		}
-		location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
+		console.log(ev,JSON.parse(target.dataset.id))
+		// while (target && !target.dataset.id) {
+		// 	target = target.parentNode;
+		// }
+		// location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
 	}
 
 	_layoutDialog(e){

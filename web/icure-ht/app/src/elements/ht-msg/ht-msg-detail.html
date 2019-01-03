@@ -1366,9 +1366,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const unassigned = this.unassignedResults ? this.unassignedResults : []
         const document = this.thisDocument ? this.thisDocument : null
         delete docInfo.formatedDemandDate
-        console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document)
         if (tempSelect && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
+                console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
                     groupId : document.id,
                     created: new Date().getTime() ,
@@ -1379,6 +1379,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     closingDate: moment().format('YYYYMMDDhhmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
+                    // cryptedForeignKeys: document.encryptionKeys,
                     subContacts: []
                 }).then(c => {
                     console.log('newInstance', c)
@@ -1387,7 +1388,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     console.log('createContactWithUser',c)
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
-                        cryptedForeignKeys: thisPat.cryptedForeignKeys,
+                        // cryptedForeignKeys: thisPat.cryptedForeignKeys,
                         descr: "Lab " + new Date().getTime(),
                     }).then(f => {
                         console.log('should do Import',f)
