@@ -42,7 +42,7 @@ public interface InvoiceLogic {
 
 	Invoice addDelegation(String invoiceId, Delegation delegation);
 
-	PaginatedList<Invoice> findByAuthor(String hcParty, String userId, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset);
+	PaginatedList<Invoice> findByAuthor(String userId, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset);
 	List<Invoice> listByHcPartyContacts(String hcParty, Set<String> contactIds);
 	List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientSks(String hcParty, Set<String> patientSks);

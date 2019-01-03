@@ -103,8 +103,8 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public PaginatedList<Invoice> findByAuthor(String hcParty, String userId, Long fromDate, Long toDate, PaginationOffset paginationOffset) {
-		return invoiceDAO.findByHcParty(hcParty, fromDate, toDate, paginationOffset);
+	public PaginatedList<Invoice> findByAuthor(String userId, Long fromDate, Long toDate, PaginationOffset paginationOffset) {
+		return invoiceDAO.findByHcParty(userId, fromDate, toDate, paginationOffset);
 	}
 
 	@Override
