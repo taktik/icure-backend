@@ -2,6 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./ht-app-server-dialog.html">
 
 <dom-module id="ht-app-login-dialog">
 	<template>
@@ -44,7 +45,19 @@
 				margin-bottom: 0;
 			}
 
-			.server-delete {
+			.server-list {
+				padding: 0;
+			}
+
+			.server-item {
+				display: flex;
+				justify-content: space-between;
+				flex-wrap: nowrap;
+			}
+
+			.server-icon {
+
+				box-sizing: border-box;
 				
 				height: 24px;
 				width: 24px;
@@ -53,7 +66,6 @@
 				z-index: 1000;
 
 				padding: 4px;
-				margin-right: 6px;
 
 				color: var(--app-text-color);
 				background: var(--app-background-color-darker);
@@ -61,12 +73,10 @@
 
 			}
 
-			.server-item {
-				display: flex;
-				justify-content: space-between;
-				flex-wrap: nowrap;
-
-				padding-right: 0;
+			.server-icon.server-icon--add {
+				padding: 2px;
+				margin-right: 8px;
+				background: none;
 			}
 
 			paper-item:hover {
@@ -133,21 +143,28 @@
 								 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
-					<paper-dropdown-menu label="Database server" vertical-align="bottom" horizontal-align="left">
-						<paper-listbox slot="dropdown-content" selected="{{dbServerSelected}}" selected-item="{{dbServerObject}}">
+					<!-- <paper-dropdown-menu  label="Database server" vertical-align="bottom" horizontal-align="left">
+						<paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}" selected-item="{{dbServerObject}}">
 							<paper-item data-server="http://127.0.0.1">Local</paper-item>
 							<template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">	
 								<paper-item class="server-item" data-server$="[[server.url]]">
 									<div>
 										[[server.name]] 
 									</div>
-									<paper-icon-button noink icon="icons:clear" data-index$="[[index]]" class="server-delete" title="delete" on-click="_handleServerDelete"></paper-icon-button>
+									<paper-icon-button noink icon="icons:clear" data-index$="[[index]]" class="server-icon" title="delete" on-click="_handleServerDelete"></paper-icon-button>
 								</paper-item>
 							</template>
-							<paper-item>+ Add a server</paper-item>
+							<paper-item class="server-item">
+								<iron-icon role="button" icon="icons:add" class="server-icon server-icon--add"></iron-icon>
+								<div>
+									Add a server
+								</div>
+							</paper-item>
 						</paper-listbox>
-					</paper-dropdown-menu>
+					</paper-dropdown-menu> -->
 					
+					<ht-app-server-dialog id="servers-list" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
 					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
 			</form>
@@ -186,7 +203,7 @@
 				</div>
 		</paper-dialog>
 
-		<paper-dialog id="add-server-dialog" opened="{{addServerOpened}}">
+		<!-- <paper-dialog id="add-server-dialog" opened="{{addServerOpened}}">
 			<div class="top-gradient">&nbsp;</div>
 			<div style="text-align: center;">
 				<h3>Add a server</h3>
@@ -197,7 +214,7 @@
 				<paper-button dialog-dismiss elevation="0" animated aria-disabled="false" role="button" id="server-cancel" on-click="_handleCancel">[[localize('cancel','Cancel',language)]]</paper-button>
 				<paper-button raised="true" id="server-submit" type="submit" on-click="_handleServerAddition" autofocus>[[localize('add','Add',language)]]</paper-button>
 			</form>
-		</paper-dialog>
+		</paper-dialog> -->
 
 	</template>
 	<script>
@@ -213,35 +230,10 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			credentials: {
 				type: Object
 			},
-			dbServers: {
-				type: Array,
-				value: () => {
-
-					let array = JSON.parse(localStorage.getItem("server-list"))
-
-					return array || []
-				}
-			},
-			dbServerSelected: {
-				type: Number,
-				value: () => localStorage.getItem("server-selected") || 0,
-				observer: '_handleServerSelect'
-			},
 			opened: {
 				type: Boolean,
 				value: false,
 				notify: true
-			},
-			addServerOpened: {
-				type: Boolean,
-				value: false
-			},
-			dbServerInput: {
-				type: Object,
-				value: () => ({
-					name: "",
-					url: ""
-				})
 			}
 		};
 	}
@@ -251,69 +243,11 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	login() {
-		
-		this.saveServers()
-
-		const currentServerUrl = this.dbServerObject.dataset.server
+	
+		const currentServerUrl = this.$["servers-list"].getSelectedServerURL()
 
         this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, url: currentServerUrl}, bubbles: true, composed: true }))
 
-	}
-
-	_handleServerSelect(value) {
-	 	if(value == this.dbServers.length + 1) {
-			this.dbServerSelected = localStorage.getItem("server-selected") || 0
-			this.set("addServerOpened", true)
-		}
-	}
-
-	_handleServerAddition(e) {
-
-		const urlMatches = this.dbServerInput.url.match("(http[s]{0,1}:\/\/)?([^:\/]*)(.*)")
-
-		if( typeof this.dbServerInput.name == "string" && urlMatches ) {
-
-			this.dbServerInput.url = (urlMatches[1] || 'https://') + urlMatches[2]
-			this.push('dbServers', this.dbServerInput)
-
-			const index = this.dbServers.length
-			this.set("dbServerSelected",index)
-
-			this.saveServers()
-
-			this.dbServerInput = { name: "", url: "" }
-			this.set("addServerOpened", false)
-
-		}
-	}
-
-	_handleServerDelete(e) {
-
-		e.preventDefault()
-
-		if(e.target.dataset.index){
-
-			const index = parseInt(e.target.dataset.index)
-			this.splice("dbServers", index, 1)
-
-			this.set("dbServerSelected", 0)
-
-			this.saveServers()
-
-		}
-		
-
-	}
-
-	_handleCancel(e) {
-
-		this.set("addServerOpened", false)
-
-	}
-
-	saveServers() {
-		localStorage.setItem("server-list", JSON.stringify(this.dbServers))
-		localStorage.setItem("server-selected", this.dbServerSelected)
 	}
 
 	checkForEnter(e) {
