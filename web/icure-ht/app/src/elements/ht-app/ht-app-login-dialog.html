@@ -168,7 +168,7 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
-		if (e.keyCode === 13 && !disabled) {
+		if (e.keyCode === 13 && !this.disabled) {
             this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
 		}
 	}
