@@ -46,8 +46,6 @@ public interface ContactDAO extends GenericDAO<Contact> {
 
 	List<String> findServicesByPatientCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate);
 
-	List<CouchKeyValue<Long>> listServicesByLabel(String hcPartyId, String label);
-
 	List<Contact> listByServices(Collection<String> services);
 
     List<String> findByServices(Collection<String> services);
@@ -57,10 +55,6 @@ public interface ContactDAO extends GenericDAO<Contact> {
     PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long openingDate, PaginationOffset<List<Serializable>> pagination);
 
     List<Contact> findByHcPartyFormId(String hcPartyId, String formId);
-
-	List<String> findServicesByLabel(String hcPartyId, String label, Long startValueDate, Long endValueDate);
-
-	List<String> findServicesByPatientLabel(String hcPartyId, String patientSecretForeignKey, String label, Long startValueDate, Long endValueDate);
 
 	Set<String> listIdsByServices(Collection<String> services);
 

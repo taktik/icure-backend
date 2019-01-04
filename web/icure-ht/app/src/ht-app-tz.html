@@ -65,6 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 <link rel="import" href="elements/ht-app/ht-app-entities-selector.html">
+<link rel="import" href="elements/ht-app/ht-app-setup-prompt.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
@@ -512,6 +513,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
+
+        <ht-app-setup-prompt id="setupPrompt"></ht-app-setup-prompt>
 
         <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login"></ht-app-welcome-tz>
 
@@ -1350,12 +1353,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.icure().isReady().then(ok => {
                     if (ok === 'false') {
                         this.set('showWelcomePage', true)
+                        this.$["setupPrompt"].close()
                     } else if (ok !== 'true') {
-                        setTimeout(() => this._checkShowWelcomePage(), 1000)
+                        if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                        setTimeout(() => this._checkShowWelcomePage(), 10000)
+                    }else {
+                        localStorage.setItem('last_app_startup', Date.now().toString())
+                        this.$["setupPrompt"].close()
                     }
-                }).catch(() =>
-                    setTimeout(() => this._checkShowWelcomePage(), 1000)
-                )
+                }).catch(() => {
+                    if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                    setTimeout(() => this._checkShowWelcomePage(), 10000)
+                })
             }
 
             ready() {
@@ -1613,7 +1622,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
-                    //this._selectEntities()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
