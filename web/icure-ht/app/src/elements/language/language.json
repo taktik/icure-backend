@@ -249,7 +249,7 @@
     "flatrate_column_12" : "Reason",
     "flatrate_column_2" : "LName FName",
     "flatrate_column_3" : "Birthdate",
-    "flatrate_column_4" : "INAMI",
+    "flatrate_column_4" : "SSIN",
     "flatrate_column_5" : "C.T.",
     "flatrate_column_6" : "Subscr.",
     "flatrate_column_7" : "Cov. start",
@@ -755,7 +755,8 @@
     "patient_subscriptions":"Patient subscriptions",
     "has_m":"Has doctor subscription",
     "has_k":"Has physiotherapist subscription",
-    "has_i":"Has nurse subscription"
+    "has_i":"Has nurse subscription",
+    "invoicingExport":"Invoicing download"
   },
   "fr": {
     "AFF" : "N° d'affiliation",
@@ -1045,7 +1046,7 @@
     "flatrate_column_12" : "Motif",
     "flatrate_column_2" : "Nom Prénom",
     "flatrate_column_3" : "Date naiss.",
-    "flatrate_column_4" : "INAMI",
+    "flatrate_column_4" : "NISS",
     "flatrate_column_5" : "C.T.",
     "flatrate_column_6" : "Inscr.",
     "flatrate_column_7" : "Début couv.",
@@ -1601,7 +1602,8 @@
     "patient_subscriptions":"Abonnements patient",
     "has_m":"Abonnement médecin",
     "has_k":"Abonnement kiné",
-    "has_i":"Abonnement infi"
+    "has_i":"Abonnement infi",
+    "invoicingExport":"Télécharger la facturation"
  },
   "nl": {
     "AFF" : "Lidnummer",
@@ -2454,6 +2456,7 @@
     "patient_subscriptions":"Abonnementen",
     "has_m":"Arts",
     "has_k":"Kine",
-    "has_i":"Verpleging"
+    "has_i":"Verpleging",
+    "invoicingExport":"Facturatie downloaden"
   }
 }
