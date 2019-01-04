@@ -1383,6 +1383,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     subContacts: []
                 }).then(c => {
                     console.log('newInstance', c)
+                    c.services.push({
+                        id: this.api.crypto().randomUuid(),
+                        codes: [{type:'labResult',code:c.id}],
+                        label: 'labResult'
+                    })
                     return this.api.contact().createContactWithUser(this.user,c)
                 }).then(c => {
                     console.log('createContactWithUser',c)

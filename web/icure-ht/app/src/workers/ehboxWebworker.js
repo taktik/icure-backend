@@ -138,6 +138,13 @@ onmessage = e => {
                             descr: docInfo.labo,
                             subContacts: []
                         }).then(c => {
+                            // c.services.push({label: 'origCtc:'+c.id})
+                            c.services.push({
+                                id: iccCryptoXApi.randomUuid(),
+                                codes: [{type:'labResult',code:c.id}],
+                                label: 'labResult'
+                            })
+                            console.log('c',c)
                             return iccContactApi.createContact(c)
                         }).then(c => {
                             // console.log('createContact',c)
@@ -153,8 +160,7 @@ onmessage = e => {
                                 )
                             })
                         }).then(c => {
-                            // console.log("did import ", c, docInfo);
-                            linkPatWithCtc(message,thisPat,c,document,c.secretForeignKeys[0],user.healthcarePartyId)
+                            console.log("did import ", c, docInfo);
                             return {id: c.id, protocolId: docInfo.protocol}
                         }).catch(err => {
                             // console.log("error:" + err)
@@ -168,50 +174,6 @@ onmessage = e => {
                 // console.log("message not text type")
                 return Promise.resolve()
             }
-        }
-
-        const linkPatWithCtc = (msg,currentPat,currentCtc,doc,sfk,hcpid) =>{
-            console.warn('>>>>>>> linkPatWithCtc',msg,currentPat,currentCtc,doc,sfk,hcpid)
-            // generate needed keys
-
-            return iccCryptoXApi.initObjectDelegations(currentCtc,doc,hcpid,sfk)
-                .then(newDelegation=>{
-                    return iccCryptoXApi.initEncryptionKeys(currentCtc,hcpid).then(newEncKey=>{
-                        return iccCryptoXApi.addDelegationsAndEncryptionKeys(doc,currentCtc,hcpid,hcpid,newDelegation.delegations[hcpid],newEncKey.encryptionKeys[hcpid]).then(newDelEnc=>{
-                            return {newDelegation:newDelegation,newEncKey:newEncKey,newDelEnc:newDelEnc}
-                        })
-                    })
-                })
-            .then(allkeys=>{
-                console.log('allkeys',allkeys)
-
-                const newDelegation = allkeys.newDelegation
-                const newEncKey = allkeys.newEncKey
-                const newDelEnc = allkeys.newDelEnc
-
-                // first the patient
-                let modifiedPat = currentPat
-                modifiedPat.delegations[sfk] = newDelegation.delegations[hcpid] // newPatDelegation
-                modifiedPat.encryptionKeys[sfk] = newEncKey.encryptionKeys[hcpid] // newPatEncKey
-                console.warn('modifiedPat',modifiedPat,modifiedPat != currentPat)
-
-                // then the contact (labresult)
-                let modifiedCtc = currentCtc
-                modifiedCtc.cryptedForeignKeys[currentPat.id] = newDelegation.cryptedForeignKeys[hcpid]
-                modifiedCtc.encryptionKeys[sfk] = newDelEnc.encryptionKeys[hcpid] // newCtcEK // A->A: <EFGH>_{AA}
-                console.warn('modifiedCtc',modifiedCtc,modifiedCtc != currentCtc)
-
-                // modify both pat and ctc so they become linked
-                // if (modifiedPat != currentPat && modifiedCtc != currentCtc) {
-                iccPatientApi.modifyPatient(modifiedPat).then(newPat=>{console.log('newPat',newPat)})
-                iccContactApi.modifyContact(modifiedCtc).then(newCtc=>{console.log('newCtc',newCtc)})
-                //     console.warn('changed !')
-                // } else {
-                //     console.warn('not changed :(')
-                // }
-            })
-
-
         }
 
         const treatMessage =  (message,boxId) => {
@@ -231,7 +193,8 @@ onmessage = e => {
                             }
                             return Promise.resolve()
                         } else {
-                            // console.log('fullMessage',fullMessage)
+                            console.log('fullMessage',fullMessage)
+                            console.log('boxId',boxId)
                             registerNewMessage(fullMessage, boxId)
                                 .then(([createdMessage, annexDocs]) => {
                                     return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
