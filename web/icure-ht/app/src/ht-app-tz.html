@@ -1353,16 +1353,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.icure().isReady().then(ok => {
                     if (ok === 'false') {
                         this.set('showWelcomePage', true)
+                        this.$["loginDialog"].disable()
                         this.$["setupPrompt"].close()
                     } else if (ok !== 'true') {
-                        if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                        this.$["setupPrompt"].close()
+                        this.$["loginDialog"].disable()
                         setTimeout(() => this._checkShowWelcomePage(), 10000)
                     }else {
                         localStorage.setItem('last_app_startup', Date.now().toString())
+                        this.$["loginDialog"].enable()
                         this.$["setupPrompt"].close()
                     }
                 }).catch(() => {
                     if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                    this.$["loginDialog"].disable()
                     setTimeout(() => this._checkShowWelcomePage(), 10000)
                 })
             }

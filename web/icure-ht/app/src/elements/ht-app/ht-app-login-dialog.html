@@ -68,6 +68,11 @@
 				fill: var(--app-text-color);
 			}
 
+			#submitButton[disabled] {
+				background: var(--app-background-color-darker);
+				box-shadow: none;
+			}
+
 		</style>
 
 		<paper-dialog id="loginDialog" opened="{{opened}}" modal>
@@ -145,6 +150,10 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Boolean,
 				value: false,
 				notify: true
+			},
+			disabled: {
+				type: Boolean,
+				value: false
 			}
 		};
 	}
@@ -159,7 +168,7 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
-		if (e.keyCode === 13) {
+		if (e.keyCode === 13 && !disabled) {
             this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
 		}
 	}
@@ -170,6 +179,16 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set("credentials.username",localStorage.getItem("last_connection"))
         }, 0)
     }
+
+	disable() {
+		this.$["submitButton"].disabled = true
+		this.disabled = true
+	}
+
+	enable() {
+		this.$["submitButton"].disabled = false
+		this.disabled = false
+	}
 
 }
 
