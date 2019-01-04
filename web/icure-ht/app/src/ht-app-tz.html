@@ -1359,7 +1359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _checkShowWelcomePage() {
                 this.api.icure().isReady().then(ok => {
-                    if (ok === 'true') {
+                    if (ok === 'false') {
                         this.set('showWelcomePage', true)
                         this.$["setupPrompt"].close()
                     } else if (ok !== 'true') {
