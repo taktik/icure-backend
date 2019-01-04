@@ -750,7 +750,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 0 24px;
                 }
 
+                .extra-info{
+                    color:var(--app-text-color-disabled);
+                    font-style: italic;
+                    font-size: 80%;
+                }
+
+                .close-button-icon{
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    margin: 0;
+                    transform: translate(50%, -50%);
+                    height: 32px;
+                    width: 32px;
+                    padding: 8px;
+                    background: var(--app-primary-color);
+                }
+
                 vaadin-upload {
+                    overflow-y: auto;
+                    height: 40vh;
+                    width: 100%;
                     margin: 16px;
                     min-height: 280px;
                     background: var(--app-background-color);
@@ -968,7 +989,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <paper-dialog id="patient-import-dialog">
-            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]]<span class="extra-info">(XML files)</span></h2>
+            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]] <span class="extra-info">(XML files)</span></h2>
             <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
             <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml"
                            target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment"
