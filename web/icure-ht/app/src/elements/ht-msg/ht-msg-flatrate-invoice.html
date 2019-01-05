@@ -2102,7 +2102,7 @@
 
 
 
-                this.downloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
+                this.downloadFileName = this.reportCurrentDateMomentObject.format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
 
                 // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData)).then(pdfFileContent =>{
