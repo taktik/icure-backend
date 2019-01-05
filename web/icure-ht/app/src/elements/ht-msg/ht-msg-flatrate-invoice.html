@@ -2071,31 +2071,32 @@
                 this.downloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
 
                 // Generate, archive & download pdf report
-                this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
-                    .then(pdfFileContent =>{
+                this.api.pdfReport(mustache.render(pdfTemplate, pdfData)).then(pdfFileContent =>{
 
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
+                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
 
-                        // Create "internal" message, give it a document and attach file to document
-                        this.api.message().newInstance(this.user).then((newMessageInstance)=>{
-                            this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName })).then(createMessageResponse => {
-                                this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
-                                    this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
-                                        this.api.document().setAttachment(createDocumentResponse.id, null, pdfFileContent).then((setAttachmentResponse) => {
+                    // Create "internal" message, give it a document and attach file to document
+                    this.api.message().newInstance(this.user).then((newMessageInstance)=>{
+                        this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName })).then(createMessageResponse => {
+                            this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
+                                this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
+                                    this.api.encryptDecryptFileContentByHcpId("encrypt", pdfFileContent, this.user.healthcarePartyId).then(encryptedFileContent =>{
+                                        this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
                                             this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName );
                                             this.set('_isLoading', false );
                                         }).catch(()=>{this.set('_isLoading', false );})
-                                    }).catch(()=>{this.set('_isLoading', false );})
+                                    });
                                 }).catch(()=>{this.set('_isLoading', false );})
-                            }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
+                            }).catch(()=>{this.set('_isLoading', false );})
                         }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
-
-
+                    }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
 
             }
+
+
 
             _getListingArchives() {
 
@@ -2120,17 +2121,21 @@
 
             }
 
+
+
             _downloadListingArchive(e) {
                 let messageId = _.get(_.head(_.chain(e.path).filter((i)=>{return _.get(_.get(i,"classList",[]), "value","").indexOf('downloadListingArchive')!==-1}).value()),"messageid",false);
-                this.api.message().findMessagesByTransportGuid('MH:ARCHIVES:LISTING', null, null, null, 1000).then(messages => {
-                    this.api.document().findByMessage(this.user.healthcarePartyId, _.chain(messages.rows).filter({id:messageId}).head().value()).then(singleMessage => {
-                        if(singleMessage && singleMessage[0] && singleMessage[0].id && singleMessage[0].attachmentId && singleMessage[0].secretForeignKeys) {
-                            this.api.document().getAttachment(singleMessage[0].id, singleMessage[0].attachmentId, singleMessage[0].secretForeignKeys).then(attachmentResponse => {
-                                if(attachmentResponse) this.api.triggerFileDownload(attachmentResponse,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"id":_.trim(messageId)})), "filename","listing-patients.pdf"));
-                            })
-                        }
-                    })
-                });
+                this.api.document().findByMessage(this.user.healthcarePartyId, _.chain(this.archiveListingMessages).filter({id:messageId}).head().value()).then(singleMessage => {
+                    if(singleMessage && singleMessage[0] && singleMessage[0].id && singleMessage[0].attachmentId && singleMessage[0].secretForeignKeys) {
+                        this.api.document().getAttachment(singleMessage[0].id, singleMessage[0].attachmentId, singleMessage[0].secretForeignKeys).then(attachmentResponse => {
+                            if(attachmentResponse) {
+                                this.api.encryptDecryptFileContentByHcpId("decrypt", attachmentResponse, this.user.healthcarePartyId).then(decryptedFileContent =>{
+                                   this.api.triggerFileDownload(decryptedFileContent,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"id":_.trim(messageId)})), "filename","listing-patients.pdf"));
+                                })
+                            }
+                        })
+                    }
+                })
             }
 
 
