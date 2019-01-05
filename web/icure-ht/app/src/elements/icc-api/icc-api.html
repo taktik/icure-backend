@@ -585,11 +585,11 @@
         }
 
         encryptDecryptFileContentByHcpId( encryptOrDecrypt, rawFileContent, hcpId ) {
-            if( !encryptOrDecrypt || !rawFileContent || !hcpId ) return Promise.resolve(null);
+            if( !_.trim(encryptOrDecrypt) || !_.trim(rawFileContent) || !_.trim(hcpId) ) return Promise.resolve(null);
             return new Promise((resolve) => {
-                this.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(hcpId).then(encryptedHcPartyKey => {
-                    this.crypto().decryptHcPartyKey(hcpId, hcpId, encryptedHcPartyKey[hcpId], true).then(importedAESHcPartyKey => {
-                        if(encryptOrDecrypt==="encrypt") {
+                this.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(_.trim(hcpId)).then(encryptedHcPartyKey => {
+                    this.crypto().decryptHcPartyKey(_.trim(hcpId), _.trim(hcpId), _.trim(encryptedHcPartyKey[_.trim(hcpId)]), true).then(importedAESHcPartyKey => {
+                        if(_.trim(encryptOrDecrypt).toLocaleLowerCase()==="encrypt") {
                             this.crypto().AES.encrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
                         } else {
                             this.crypto().AES.decrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
