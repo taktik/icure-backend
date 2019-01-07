@@ -882,6 +882,8 @@ import mustache from "mustache/mustache.js";
 				if (prefForms && prefForms.typedValue) {
 					const formsMap = JSON.parse(prefForms.typedValue.stringValue);
 					this.addForm(formsMap['org.taktik.icure.form.standard.consultation']);
+				} else {
+                    this.addForm("FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION");
 				}
 			}
 
