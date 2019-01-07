@@ -1071,13 +1071,6 @@ import mustache from "mustache/mustache.js";
 						} else {
 							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
 						}
-						// const ridTag = s.tags.find(t => t.type === 'RID')
-						// if (ridTag) {
-						// 	ridTag.id = 'RID|' + tmpRID + '|1';
-						// 	ridTag.code = tmpRID
-						// } else {
-						// 	s.tags.push(this.api.code().normalize({id: 'RID|' + tmpRID + '|1'}))
-						// }
 					}) // forEach end
 					this.saveCurrentContact().then(() => this._refreshDrugs())
 				})
@@ -1099,7 +1092,10 @@ import mustache from "mustache/mustache.js";
 						feedback: false,
 						medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 						deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
-					}).then(prescri => rid.push(prescri.rid) )))) //push the presci.rid to rid the array
+					}).then(prescri => {
+						rid.push(prescri.rid)
+						drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).map(mv => mv.prescriptionRID = prescri.rid)
+					} )))) //push the presci.rid to the rid array
 							.finally(()=>{
 								toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
 								this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
