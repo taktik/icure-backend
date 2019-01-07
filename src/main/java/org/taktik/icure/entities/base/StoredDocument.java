@@ -174,8 +174,7 @@ public class StoredDocument implements Versionable<String> {
 		if (!(o instanceof StoredDocument)) return false;
 		StoredDocument that = (StoredDocument) o;
 		return Objects.equals(deletionDate, that.deletionDate) &&
-				Objects.equals(id, that.id) &&
-				Objects.equals(rev, that.rev);
+				Objects.equals(id, that.id);
 	}
 
 	@Override

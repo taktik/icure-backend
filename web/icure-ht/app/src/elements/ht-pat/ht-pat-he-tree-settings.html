@@ -138,21 +138,27 @@ class HtPatHeTreeSettings extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`, 'created')
+        const sectionSort = `org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`
+        localStorage.setItem(sectionSort, 'created')
+        this.dispatchEvent(new CustomEvent('settings-changed',{detail: {section: this.section, type: 'sort', value: 'created'}, bubbles:true, composed:true}))
     }
 
     _sortByCode(e) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`, 'icpc')
+        const sectionSort = `org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.sort`
+        localStorage.setItem(sectionSort, 'icpc')
+        this.dispatchEvent(new CustomEvent('settings-changed',{detail: {section: this.section, type: 'sort', value: 'icpc'}, bubbles:true, composed:true}))
     }
 
     _toggleInactive(e) {
         e.stopPropagation();
         e.preventDefault();
 
-        localStorage.setItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.showInactive`, localStorage.getItem(`org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.showInactive`) === 'true' ? 'false' : 'true')
+        const sectionShowInactive = `org.taktik.icure.${this.user.id}.settings.pat.tree.${this.section}.showInactive`
+        localStorage.setItem(sectionShowInactive, localStorage.getItem(sectionShowInactive) === 'true' ? 'false' : 'true')
+        this.dispatchEvent(new CustomEvent('settings-changed',{detail: {section: this.section, type: 'showInactive', value: localStorage.getItem(sectionShowInactive) === 'true'}, bubbles:true, composed:true}))
     }
 
 

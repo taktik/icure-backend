@@ -82,7 +82,7 @@ class MedicationSchemeExport : KmehrExport() {
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
 				cds.add(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.6"; value = "application" })
-				name = "gp-software-migration"
+				name = "VITALINK" //TODO: should change based on selected hub
 			})
 		})
 
@@ -101,14 +101,17 @@ class MedicationSchemeExport : KmehrExport() {
 
 	private fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>, version: Int,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
-		val folder = FolderType().apply {
-			ids.add(idKmehr(patientIndex))
+		//creation of Patient
+        val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
 		}
+
+        var idkmehrIdx = 1
 		folder.transactions.add(TransactionType().apply {
-			ids.add(idKmehr(0))
-			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationscheme" })
+			ids.add(idKmehr(idkmehrIdx))
+            idkmehrIdx++
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationscheme" })
 			date = config.date
 			time = config.time
 			author = AuthorType().apply {
@@ -117,11 +120,11 @@ class MedicationSchemeExport : KmehrExport() {
 			}
 
             var _idOnSafeName : String?
-            _idOnSafeName = null
+            _idOnSafeName = "vitalinkuri"
             var _idOnSafe : String?
-            _idOnSafe = null
+            _idOnSafe = "/subject/72022102793/medication-scheme"
             var _medicationSchemeSafeVersion : Int?
-            _medicationSchemeSafeVersion = null
+            _medicationSchemeSafeVersion = 22
 
             //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
             getActiveServices(healthcareParty.id, sfks, listOf("medication"), decryptor).map { svc ->
@@ -150,7 +153,8 @@ class MedicationSchemeExport : KmehrExport() {
         folder.transactions.addAll(getActiveServices(healthcareParty.id, sfks, listOf("medication"), decryptor).map { svc ->
             svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
             TransactionType().apply {
-                ids.add(idKmehr(0))
+                ids.add(idKmehr(idkmehrIdx))
+                idkmehrIdx++
                 m.idOnSafes?.let{idOnSafe ->
                     ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
                 }

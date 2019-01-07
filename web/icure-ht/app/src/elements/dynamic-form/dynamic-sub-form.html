@@ -153,7 +153,7 @@
 			<template id="subforms-repeat" is="dom-repeat" items="[[subContexts]]" as="subContext">
 				<div class="relative">
 					<paper-fab id="remove" icon="close" on-tap="_delete"></paper-fab>
-					<dynamic-form id="sf-[[index]]" api="[[api]]" user="[[user]]" template="[[_getTemplate(subContext)]]" data-map="[[subContext.dataMap]]" data-provider="[[subContext.dataProvider]]" read-only="[[readOnly]]" is-sub-form i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print="[[noPrint]]"></dynamic-form>
+					<dynamic-form id="sf-[[index]]" api="[[api]]" user="[[user]]" template="[[_getTemplate(subContext)]]" data-map="[[subContext.dataMap]]" data-provider="[[subContext.dataProvider]]" reports="[[formReports]]" read-only="[[readOnly]]" is-sub-form i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print="[[noPrint]]"></dynamic-form>
 				</div>
 			</template>
 		</div>

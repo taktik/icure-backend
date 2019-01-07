@@ -22,6 +22,7 @@
     import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
     import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
     import {IccReceiptXApi} from 'icc-api/dist/icc-x-api/icc-receipt-x-api'
+    import {IccUserXApi} from 'icc-api/dist/icc-x-api/icc-user-x-api'
     import {IccInvoiceXApi} from 'icc-api/dist/icc-x-api/icc-invoice-x-api'
     import {IccMessageXApi} from 'icc-api/dist/icc-x-api/icc-message-x-api'
 
@@ -67,7 +68,11 @@
                     value: function () {
                         return {}
                     }
-                }
+                },
+                sessionId: {
+                    type: String
+                },
+
             }
         }
 
@@ -97,8 +102,9 @@
             this.insuranceicc = new api.iccInsuranceApi(this.host, this.headers)
             this.replicationicc = new api.iccReplicationApi(this.host, this.headers)
             this.tarificationicc = new api.iccTarificationApi(this.host, this.headers)
-            this.usericc = new api.iccUserApi(this.host, this.headers)
             this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
+
+            this.usericc = new IccUserXApi(this.host, this.headers)
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
