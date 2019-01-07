@@ -106,7 +106,7 @@ public class MedicalLocationFacade implements OpenApiFacade {
         Response response;
         List<MedicalLocation> places = medicalLocationLogic.getAllEntities();
         if (places != null) {
-            response = Response.ok().entity(places.stream().map(c -> mapper.map(c, PlaceDto.class)).collect(Collectors.toList())).build();
+            response = Response.ok().entity(places.stream().map(c -> mapper.map(c, MedicalLocationDto.class)).collect(Collectors.toList())).build();
 
         } else {
             response = ResponseUtils.internalServerError("medical locations fetching failed");
