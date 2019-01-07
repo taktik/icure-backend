@@ -1382,12 +1382,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     // cryptedForeignKeys: document.encryptionKeys,
                     subContacts: []
                 }).then(c => {
-                    console.log('newInstance', c)
                     c.services.push({
                         id: this.api.crypto().randomUuid(),
                         codes: [{type:'labResult',code:c.id}],
-                        label: 'labResult'
+                        label: 'labResult',
+                        content:{
+                            'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
+                            'patientId': {stringValue: thisPat.id}
+                        }
                     })
+                    console.log('c services',c.services)
                     return this.api.contact().createContactWithUser(this.user,c)
                 }).then(c => {
                     console.log('createContactWithUser',c)
@@ -1404,31 +1408,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         )
                     })
                 }).then(c => {
-                    console.log("I'm your helper : ",c,document,docInfo);
                     let tempUnassign = this.unassignedResults
                     Object.keys(unassigned).forEach(res => {
-                        console.log('unassigned,res',unassigned[res], typeof unassigned[res])
                         if (unassigned[res] === docInfo.protocol) {
-                            console.log('splice')
                             tempUnassign.splice(tempUnassign.indexOf(docInfo.protocol))
                             this.set('unassignedResults',tempUnassign)
                         }
                     })
-                    // this.set("unimportedPats", unassigned)
-                    // assigned.push({[c.contactId]: thisPat.protocol})
                     let tempAssign = _.clone(this.assignedResults)
                     tempAssign[c.id] = docInfo.protocol
                     this.set('assignedResults',tempAssign)
-                    console.log('unassignedResults', this.unassignedResults)
-                    console.log('assignedResults', this.assignedResults)
-                    console.log('un/assigned changed')
-                    tempSelect.unassignedResults = this.unassignedResults
-                    tempSelect.assignedResults = this.assignedResults
-                    console.log('tempSelect', tempSelect)
+                    tempSelect.unassignedResults = tempUnassign
+                    tempSelect.assignedResults = tempAssign
+                    return tempSelect
+                }).then(tempSelect=>{
                     return this.api.message().modifyMessage(tempSelect).then(msg => {
-                        console.log(msg,'modifyMessage', tempSelect.unassignedResults.length + " unassigned", tempSelect)
-                        if (tempSelect.unassignedResults.length == 0) {
-                            console.log('no more assigned')
+                        if (msg.unassignedResults.length == 0) {
                             this.closeSuggestions()
                             return this._removeMsg(msg)
                         } else {

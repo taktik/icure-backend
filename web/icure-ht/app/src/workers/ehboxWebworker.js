@@ -102,7 +102,7 @@ onmessage = e => {
         }
 
 		const assignResult = (message,docInfo,document) => {
-            // console.log('assignResult',message,docInfo,document)
+            console.log('assignResult',message,docInfo,document)
             // assign to patient/contact the result matching docInfo from all the results of the document
             // return {id: contactId, protocolId: protocolIdString} if success else null (in promise)
             if (textType(document.mainUti, document.otherUtis)) {
@@ -138,16 +138,19 @@ onmessage = e => {
                             descr: docInfo.labo,
                             subContacts: []
                         }).then(c => {
-                            // c.services.push({label: 'origCtc:'+c.id})
                             c.services.push({
                                 id: iccCryptoXApi.randomUuid(),
                                 codes: [{type:'labResult',code:c.id}],
-                                label: 'labResult'
+                                label: 'labResult',
+                                content:{
+                                    'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
+                                    'patientId': {stringValue: thisPat.id}
+                                }
                             })
-                            console.log('c',c)
+                            console.log('c services',c.services)
                             return iccContactApi.createContact(c)
                         }).then(c => {
-                            // console.log('createContact',c)
+                            console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
                                 contactId: c.id,
                                 descr: "Lab " + new Date().getTime(),
@@ -174,7 +177,7 @@ onmessage = e => {
                 // console.log("message not text type")
                 return Promise.resolve()
             }
-        }
+        } // assignResult end
 
         const treatMessage =  (message,boxId) => {
             // console.log('treatMessage',message,boxId)
