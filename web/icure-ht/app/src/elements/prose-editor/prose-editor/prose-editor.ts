@@ -116,7 +116,7 @@ export class ProseEditor extends Polymer.Element {
     },
     parseDOM: [{
       tag: "span.variable", getAttrs(dom) {
-        return (dom instanceof HTMLDivElement) && {
+        return (dom instanceof HTMLSpanElement) && {
           expr: dom.dataset.expr,
           renderTimestamp: Number(dom.dataset.ts || 0)
         } || {}
@@ -476,9 +476,6 @@ export class ProseEditor extends Polymer.Element {
     if (this.editorView) {
       const ts = +new Date()
       const state = this.editorView.state
-      const tr = state.tr
-
-      let prom = Promise.resolve(tr)
 
       const visit = (prom:Promise<Transaction>) : Promise<Transaction> => {
         return prom.then(tr => {
@@ -491,7 +488,7 @@ export class ProseEditor extends Polymer.Element {
                 let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
                 node.forEach((child, pos, idx) => {
                   prom = prom.then(selected => {
-                    return selected || detect(child, absPos+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[idx])))
+                    return selected || detect(child, absPos+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[0] && ctx[idx] || ctx)))
                   })
                 })
                 return prom
@@ -524,9 +521,9 @@ export class ProseEditor extends Polymer.Element {
                   )
                 } else {
                   return visit(ctxFn(selected.node.attrs.expr, undefined, ctx)
-                    .then(({rendered}) => {
+                    .then(({ctx}) => {
                       return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize, this.editorSchema.nodes.template.create({expr: selected.node.attrs.expr, renderedTimestamp: ts},
-                          Node.fromJSON(this.editorSchema, JSON.parse(rendered))))
+                        this.editorSchema.text(JSON.parse(ctx.toString()))))
                     })
                   )
                 }
@@ -536,7 +533,7 @@ export class ProseEditor extends Polymer.Element {
             })
         })
       }
-      prom.then(tr => state.apply(tr))
+      visit(Promise.resolve(state.tr)).then(tr => state.apply(tr))
     }
   }
 
