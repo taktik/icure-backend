@@ -1447,7 +1447,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     console.log("ehbox already active, launch the interval",period)
                     this.timeOutId = setInterval(() => {
                         (this.api.tokenId) ? this.checkEhboxMessage() : this._inboxMessageCheck()
-                    }, 30000)
+                    }, period)
                 }
             }
 
@@ -1753,7 +1753,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = true // (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
