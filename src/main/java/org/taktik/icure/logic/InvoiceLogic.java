@@ -47,13 +47,9 @@ public interface InvoiceLogic {
 	List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientSks(String hcParty, Set<String> patientSks);
 
-	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
-	List<Invoice> listByHcPartyEfactPending(String hcParty, Long fromDate, Long toDate);
-	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
-	List<Invoice> listByHcPartyEfactTreated(String hcParty, Long fromDate, Long toDate);
-	List<Invoice> listByHcPartyEfactArchived(String hcParty, Long fromDate, Long toDate);
 	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
-	List<Invoice> listByHcPartyEfactStatus(String hcParty, Boolean pending, Boolean canceled, Boolean accepted, Boolean resent, Boolean archived, Long fromDate, Long toDate);
+
+	List<Invoice> listByHcPartySendingModeStatus(String hcParty, String sendingMode, String status, Long fromDate, Long toDate);
 
 	List<Invoice> listByHcPartyGroupId(String hcParty, String groupId);
 
