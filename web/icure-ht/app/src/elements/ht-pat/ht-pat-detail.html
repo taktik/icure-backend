@@ -62,6 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
 <link rel="import" href="dialogs/ht-pat-list-plan-dialog.html">
+<link rel="import" href="dialogs/ht-pat-vaccine-history-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
@@ -1396,6 +1397,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <template is="dom-if" if="[[events.length]]">
                                 <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
                                     <paper-icon-button id="button_list_plan_of_action" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
+                                    <paper-tooltip position="bottom" for="button_list_plan_of_action">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
+                                    <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
+                                    <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
                                 </span>
                                 <paper-listbox id="_events_listbox" class="todo-list">
                                     <template is="dom-repeat" items="[[events]]" as="e">
@@ -1403,11 +1407,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             <h4><label class="todo-due-date">[[_dateFormat(e.valueDate)]]</label>[[shortServiceDescription(e)]]</h4>
                                             <div class="todo-actions">
                                                 <paper-icon-button id="event-btn-edit_[[e.id]]" class="he-edit-btn" icon="create" on-tap="_toggleActionButton"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-edit_[[e.id]]">[[localize('edi','Edit',language)]]</paper-tooltip>
+                                                <paper-tooltip position="left" for="event-btn-edit_[[e.id]]">[[localize('edi','Edit',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
+                                                <paper-tooltip position="left" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="top" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                                <paper-tooltip position="left" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
                                             </div>
                                         </paper-item>
                                     </template>
@@ -1825,6 +1829,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
         <ht-pat-list-plan-dialog id="listActions" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]" on-open-action="openActionDialog"></ht-pat-list-plan-dialog>
         <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices" readonly="false"></ht-pat-action-plan-dialog>
+        <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]"></medication-plan-dialog>
@@ -4111,8 +4116,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$["listActions"].opened=true;
             }
 
+            showVaccineHistory(e){
+                e.stopPropagation()
+                this.$["vaccineHistory"].opened=true;
+            }
+
             openActionDialog(e){
-                console.log(e)
+                console.log("svcs",e.detail.service)
                 this.$["planActionForm"].open(e.detail.service,e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="cancelled" || e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="completed")
             }
 
