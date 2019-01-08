@@ -166,10 +166,10 @@ onmessage = e => {
                             console.log("did import ", c, docInfo);
                             return {id: c.id, protocolId: docInfo.protocol}
                         }).catch(err => {
-                            // console.log("error:" + err)
+                            console.log(err)
                         })
                     } else {
-                        // console.log("pat not found:", docInfo.lastName + " " + docInfo.firstName)
+                        console.log("pat not found:", docInfo.lastName + " " + docInfo.firstName)
                         return Promise.resolve()
                     }
                 })
