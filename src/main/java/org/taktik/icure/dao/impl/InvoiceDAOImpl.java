@@ -222,7 +222,26 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 		return queryResults(createQuery("by_hcparty_efact_status").includeDocs(true).startKey(startKey).endKey(endKey));
     }
 
-    @Override
+	@Override
+	@View(name = "by_hcparty_sending_mode_status_date", map = "classpath:js/invoice/By_hcparty_sending_mode_status_date.js")
+	public List<Invoice> listByHcPartySendingModeStatus(String hcParty, String sendingMode, String status, Long fromDate, Long toDate) {
+		ComplexKey startKey = ComplexKey.of(hcParty);
+		ComplexKey endKey = ComplexKey.of(hcParty, ComplexKey.emptyObject(), ComplexKey.emptyObject(), ComplexKey.emptyObject());
+		if(fromDate != null && toDate != null) { // The full key is given
+			startKey = ComplexKey.of(hcParty, sendingMode, status, fromDate);
+			endKey = ComplexKey.of(hcParty, sendingMode, status, toDate);
+		} else if(status != null)  {
+			startKey = ComplexKey.of(hcParty, sendingMode, status);
+			endKey = ComplexKey.of(hcParty, sendingMode, status, ComplexKey.emptyObject());
+		} else if(sendingMode != null){
+			startKey = ComplexKey.of(hcParty, sendingMode);
+			endKey = ComplexKey.of(hcParty, sendingMode, ComplexKey.emptyObject(), ComplexKey.emptyObject());
+		}
+
+		return queryResults(createQuery("by_hcparty_sending_mode_status_date").includeDocs(true).startKey(startKey).endKey(endKey));
+	}
+
+	@Override
 	@View(name = "by_serviceid", map = "classpath:js/invoice/By_serviceid_map.js")
 	public List<Invoice> listByServiceIds(Set<String> serviceIds) {
 		return queryResults(createQuery("by_serviceid").includeDocs(true).keys(serviceIds));

@@ -158,6 +158,11 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
+	public List<Invoice> listByHcPartySendingModeStatus(String hcParty, String sendingMode, String status, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartySendingModeStatus(hcParty, sendingMode, status, fromDate, toDate);
+	}
+
+	@Override
     public List<Invoice> listByHcPartyGroupId(String hcParty, String groupId) {
         return invoiceDAO.listByHcPartyGroupId(hcParty, groupId);
     }

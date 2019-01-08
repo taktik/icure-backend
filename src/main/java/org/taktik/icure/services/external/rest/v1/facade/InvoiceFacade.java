@@ -544,6 +544,13 @@ public class InvoiceFacade implements OpenApiFacade{
 		return invoiceLogic.getInvoices(Arrays.asList(invoiceIds.split(","))).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
 	}
 
+	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Get all invoices by author, by sending mode, by status and by date")
+	@GET
+	@Path("/byHcpartySendingModeStatusDate/{hcPartyId}")
+	public List<InvoiceDto> listByHcpartySendingModeStatusDate(@PathParam("hcPartyId") String hcPartyId, @QueryParam("sendingMode") String sendingMode, @QueryParam("status") String status, @QueryParam("from") Long from, @QueryParam("to") Long to) {
+		return invoiceLogic.listByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
+	}
+
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@GET
 	@Path("/byServiceIds/{serviceIds}")
