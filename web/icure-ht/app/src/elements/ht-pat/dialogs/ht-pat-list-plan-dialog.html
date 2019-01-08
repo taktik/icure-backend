@@ -174,7 +174,7 @@
             }
 
             _getContent(svc){
-                return svc.content[this.language].stringValue
+                return _.get( svc.content[this.language], "stringValue", "" )
             }
 
             _formatDate(date){
@@ -182,7 +182,7 @@
             }
 
             _getStatut(svc){
-                return this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code) ? this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code).label[this.language] : svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code
+                return this.comboStatus.find(statut => statut.id===_.get( svc.tags.find(tag => tag.type==="CD-LIFECYCLE"), "code", "" )) ? this.comboStatus.find(statut => statut.id===_.get(svc.tags.find(tag => tag.type==="CD-LIFECYCLE"), "code", "" ) ).label[this.language] : _.get( svc.tags.find(tag => tag.type==="CD-LIFECYCLE"), "code", "" )
             }
 
             showAction(e){
