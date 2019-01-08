@@ -206,19 +206,6 @@ public class ContactFacade implements OpenApiFacade {
     }
 
     @ApiOperation(
-            value = "Get the list of all used label services",
-            response = LabelledOccurenceDto.class,
-            responseContainer = "Array",
-            httpMethod = "GET",
-            notes = ""
-    )
-    @GET
-    @Path("/service/labels/{minOccurences}")
-    public Response getServiceLabelsOccurences(@PathParam("minOccurences") Long minOccurences) {
-        return Response.ok().entity(contactLogic.getServiceLabelsOccurences(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),minOccurences)).build();
-    }
-
-	@ApiOperation(
 			value = "Get the list of all used codes frequencies in services",
 			response = LabelledOccurenceDto.class,
 			responseContainer = "Array",
@@ -450,6 +437,32 @@ public class ContactFacade implements OpenApiFacade {
                 return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
             }
         } catch (MissingRequirementsException e) {
+            log.warn(e.getMessage(), e);
+            return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+        }
+    }
+
+    @ApiOperation(
+            value = "Modify a batch of contacts",
+            response = ContactDto.class,
+            responseContainer = "Array",
+            httpMethod = "PUT",
+            notes = "Returns the modified contacts."
+    )
+    @PUT
+    @Path("/batch")
+    public Response modifyContacts(List<ContactDto> contactDtos) {
+        if (contactDtos == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        try {
+            contactDtos.forEach ( c -> handleServiceIndexes(c) );
+
+            List<Contact> contacts = contactLogic.updateEntities(contactDtos.stream().map(f -> mapper.map(f, Contact.class)).collect(Collectors.toList()));
+            return Response.ok().entity(contacts.stream().map(f -> mapper.map(f, ContactDto.class)).collect(Collectors.toList())).build();
+
+        } catch (Exception e) {
             log.warn(e.getMessage(), e);
             return Response.status(400).type("text/plain").entity(e.getMessage()).build();
         }

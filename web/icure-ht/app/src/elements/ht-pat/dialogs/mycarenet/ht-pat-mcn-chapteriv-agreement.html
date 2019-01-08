@@ -58,7 +58,7 @@
                 margin: 0;
                 padding: 0;
                 display: grid;
-                height: calc(100% - 108px);
+                height:100%;
                 width: 100%;
                 grid-template-columns: 25% auto;
                 grid-template-rows: 100%;
@@ -1038,7 +1038,7 @@
                             <div id="appendix-upload-container">
                                 <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
                                                accept="image/jpeg,application/pdf"
-                                               target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                               target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT"
                                                form-data-name="attachment"
                                                on-upload-success="_fileUploaded"></vaadin-upload>
                                 <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
@@ -1067,8 +1067,8 @@
                         </div>
                     </template>
                 </div>
-                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
-                </paper-button>
+                <!--<paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
+                </paper-button>-->
             </div>
         <!--</paper-dialog>-->
 

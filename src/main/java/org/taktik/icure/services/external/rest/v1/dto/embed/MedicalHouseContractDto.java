@@ -3,15 +3,18 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 import org.taktik.icure.entities.embed.SuspensionReason;
 
 import java.io.Serializable;
-import java.util.Map;
 
 public class MedicalHouseContractDto implements Serializable {
 
+    private String contractId;
     private Long validFrom; //yyyyMMdd : start of contract period
     private Long validTo; //yyyyMMdd : end of contract period
-    private ContractChangeType contractChangeType; //inscription, inscription end, suspension, coverageChange
-    private String changedBy; //user, mcn
     private String mmNihii;
+    private String hcpId;
+    private ContractChangeType contractChangeType; //inscription, inscription end, suspension, coverageChange
+    private String parentContractId;
+    private String changedBy; //user, mcn
+
     private Long startOfContract; //yyyyMMdd
     private Long startOfCoverage; //yyyyMMdd
     private Long endOfContract; //yyyyMMdd
@@ -19,16 +22,20 @@ public class MedicalHouseContractDto implements Serializable {
     private boolean kine;
     private boolean gp;
     private boolean nurse;
-    private String hcpId;
     private Integer unsubscriptionReasonId;
     private boolean noKine;
     private boolean noGp;
     private boolean noNurse;
+
     private Long startOfSuspension; //yyyyMMdd
     private Long endOfSuspension; //yyyyMMdd
     private SuspensionReason suspensionReason;
     private String suspensionSource;
     private boolean forcedSuspension; //no automatic unSuspension
+
+    public String getContractId() { return contractId; }
+
+    public void setContractId(String contractId) { this.contractId = contractId; }
 
     public Long getValidFrom() { return validFrom; }
 
@@ -41,6 +48,10 @@ public class MedicalHouseContractDto implements Serializable {
     public ContractChangeType getChangeType() { return contractChangeType; }
 
     public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
+
+    public String getParentContractId() { return parentContractId; }
+
+    public void setParentContractId(String parentContractId) { this.parentContractId = parentContractId; }
 
     public String getChangedBy() { return changedBy; }
 

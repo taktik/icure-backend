@@ -9,7 +9,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 299,
+								"width" : 200,
 								"multiline" : false,
 								"left" : 66,
 								"top" : 7,
@@ -18,7 +18,7 @@
 							},
 							"sortOrder" : -201,
 							"codeTypes" : [],
-							"label" : "Insurance",
+							"label" : "adm_in",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -29,9 +29,9 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 212,
+								"width" : 100,
 								"multiline" : false,
-								"left" : 460,
+								"left" : 200,
 								"top" : 7,
 								"key" : "StringEditor"
 							},
@@ -39,7 +39,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Membership",
+							"label" : "membership",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -102,7 +102,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Pref. status",
+							"label" : "pref_status",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKBoolean",
@@ -123,7 +123,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Pay. OK",
+							"label" : "pay_ok",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKBoolean",
@@ -134,7 +134,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 820,
+								"width" : 100,
 								"multiline" : false,
 								"left" : 340,
 								"top" : 5,
@@ -144,7 +144,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Insurance start date",
+							"label" : "ins_start_date",
 							"type" : "TKDate",
 							"subForm" : false,
 							"name" : "startDate",
@@ -155,7 +155,7 @@
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 820,
+								"width" : 100,
 								"multiline" : false,
 								"left" : 340,
 								"top" : 5,
@@ -165,11 +165,32 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Insurance end date",
+							"label" : "ins_end_date",
 							"type" : "TKDate",
 							"subForm" : false,
 							"name" : "endDate",
 							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 50,
+								"multiline" : false,
+								"left" : 100,
+								"top" : 7,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "Insurance code",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "insuranceCode"
 						}
 					]
 				}

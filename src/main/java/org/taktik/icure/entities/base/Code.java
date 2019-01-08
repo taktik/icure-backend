@@ -214,17 +214,18 @@ public class Code extends StoredDocument implements CodeIdentification {
 	}
 
 	@Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Code code1 = (Code) o;
-        return  Objects.equals(type, code1.type) &&
-                Objects.equals(code, code1.code) &&
-                Objects.equals(version, code1.version);
-    }
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Code)) return false;
+		if (!super.equals(o)) return false;
+		Code code1 = (Code) o;
+		return Objects.equals(type, code1.type) &&
+				Objects.equals(code, code1.code) &&
+				Objects.equals(version, code1.version);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(regions, type, code, version, level);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), type, code, version);
+	}
 }

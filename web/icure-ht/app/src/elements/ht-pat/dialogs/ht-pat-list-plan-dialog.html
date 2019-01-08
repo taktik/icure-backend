@@ -1,0 +1,196 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+
+<dom-module id="ht-pat-list-plan-dialog">
+    <template>
+        <style>
+            #dialog{
+                min-height: 480px;
+                min-width: 800px;
+                max-height: calc( 90vh - 64px ) !important;
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%,-50%);
+            }
+
+            .col-lg-1{
+                width: 15%;
+            }
+
+            .col-lg-2{
+                width: 60%;
+            }
+
+            .col-lg-3{
+                width: 20%;
+            }
+
+            .col-lg-4{
+                width: 5%;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <div>
+                <paper-listbox id="services-list" class="" selected="{{selected}}">
+                    <template is="dom-repeat" items="[[services]]">
+                        <paper-item class="">
+                            <div class="col-lg-1">[[_formatDate(item.valueDate)]]</div>
+                            <div class="col-lg-2">[[_getContent(item)]]</div>
+                            <div class="col-lg-3">[[_getStatut(item)]]</div>
+                            <div class="col-lg-4">
+                                <paper-icon-button id="bt-[[item.id]]" class="" icon="zoom-in" on-tap="showAction" data-item$="[[item.id]]"></paper-icon-button>
+                            </div>
+                        </paper-item>
+                    </template>
+                </paper-listbox>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        import _ from 'lodash/lodash';
+
+        class HtPatListPlanDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+            static get is() {
+                return 'ht-pat-list-plan-dialog';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        value: null
+                    },
+                    user: {
+                        type: Object,
+                        value: null
+                    },
+                    language: {
+                        type: String
+                    },
+                    contacts: {
+                        type: Array,
+                        value: null,
+                        observer : "contactsChanged",
+                    },
+                    opened: {
+                        type: Boolean,
+                        value: false
+                    },
+                    services:{
+                        type: Array,
+                        value: ()=>[]
+                    },
+                    comboStatus: {
+                        type: Array,
+                        value : () => [
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}
+                            },
+                            {
+                                "id"       : "error",
+                                "label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
+                            },
+                            {
+                                "id"       : "refused",
+                                "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}
+                            },
+                            {
+                                "id"       : "pending",
+                                "label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}
+                            },
+                            {
+                                "id"       : "planned",
+                                "label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}
+                            },
+                            {
+                                "id"       : "completed",
+                                "label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}
+                            },
+                            {
+                                "id"       : "proposed",
+                                "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
+                            },
+                            {
+                                "id"       : "cancelled",
+                                "label": {"fr": "Annulé", "nl": "cancelled", "en": "cancelled"}
+                            }
+                        ]
+                    },
+                    selected :{
+                        type:Object,
+                        value : {}
+                    }
+                };
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            contactsChanged(){
+                if(!(this.contacts && this.contacts.length))return;
+                this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
+                    .then(services =>{
+                        console.log('services:',services)
+                        this.set("services",_.sortBy(services,["valueDate"]))
+                    })
+            }
+
+            _getContent(svc){
+                return svc.content[this.language].stringValue
+            }
+
+            _formatDate(date){
+                return this.api.moment(date).format("DD/MM/YYYY")
+            }
+
+            _getStatut(svc){
+                return this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code) ? this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code).label[this.language] : svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code
+            }
+
+            showAction(e){
+                this.set("contact",this.contacts.find(ctc => ctc.services.find(svc => svc.id===e.target.dataset.item)))
+                this.dispatchEvent(new CustomEvent('open-action', { detail: { contact: this.contact, service: this.services.find(svc => svc.id===e.target.dataset.item) } }));
+            }
+        }
+        customElements.define(HtPatListPlanDialog.is, HtPatListPlanDialog);
+    </script>
+</dom-module>
+

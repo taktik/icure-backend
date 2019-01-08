@@ -166,11 +166,6 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	@Override
-	public List<String> findServicesByLabel(String hcPartyId, String patientSecretForeignKey, String label, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByLabel(hcPartyId, label, startValueDate, endValueDate) : contactDAO.findServicesByPatientLabel(hcPartyId, patientSecretForeignKey, label, startValueDate, endValueDate);
-	}
-
-	@Override
 	public List<Service> getServices(Collection<String> selectedIds) {
 		Set<String> serviceIdsFilter = new HashSet<>(selectedIds);
 		List<String> contactIds = new ArrayList<>(contactDAO.listIdsByServices(selectedIds));
@@ -230,15 +225,6 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	@Override
 	public List<Contact> findContactsByHCPartyFormId(String hcPartyId, String formId) {
 		return contactDAO.findByHcPartyFormId(hcPartyId, formId);
-	}
-
-	@Override
-	public List<LabelledOccurence> getServiceLabelsOccurences(String hcPartyId, long minOccurences) {
-		return contactDAO.listServicesByLabel(hcPartyId, null).parallelStream()
-				.filter(v -> v.getValue() != null && v.getValue() >= minOccurences)
-				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(0), v.getValue()))
-				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
-				.collect(Collectors.toList());
 	}
 
 	@Override

@@ -37,7 +37,6 @@ import org.taktik.icure.dao.impl.ektorp.CouchKeyValue;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.MediumType;
@@ -57,7 +56,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	public PaginatedList<Invoice> findByHcParty(String hcParty, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset) {
 		ComplexKey startKey = paginationOffset == null || paginationOffset.getStartKey() == null ? ComplexKey.of(hcParty, fromDate) : paginationOffset.getStartKey();
 		ComplexKey endKey = ComplexKey.of(hcParty, toDate == null ? ComplexKey.emptyObject(): toDate);
-		return pagedQueryView("by_hcparty_date", startKey, endKey, paginationOffset, true);
+		return pagedQueryView("by_hcparty_date", startKey, endKey, paginationOffset, false);
 	}
 
 	@Override

@@ -17,8 +17,9 @@
 		<style include="dialog-style scrollbar-style">
 			paper-dialog {
 				width: 60%;
-				height: 70%;
+				height: 80%;
 				max-width: 1024px;
+				max-height:690px;
 			}
 
 
@@ -40,14 +41,14 @@
 				flex-flow: row wrap;
 				justify-content: flex-start;
 				align-items: center;
-                margin:8px 0;
+				margin-top: 8px;
 			}
 
 			.label{
                 background: var(--app-background-color-dark);
                 color: var(--app-primary-color-dark);
                 --paper-item-min-height: 28px;
-                width: 90px;
+                width: 120px;
                 font-size: 12px;
                 padding: 0 0 0 8px;
 				justify-content: space-between;
@@ -75,15 +76,17 @@
 				max-width: 200px;
 			}
 
-            vaadin-date-picker{
-                margin:8px 0;
-            }
+			vaadin-date-picker {
+				height: 56px;
+			}
 
-            tk-token-field{
-                margin:8px 0;
-            }
+			tk-token-field {
+				top: -16px;
+			}
 
-
+			.content {
+				position: relative;
+			}
 
 		</style>
 
@@ -94,14 +97,28 @@
 					<paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
 						<paper-radio-button name="healthcareelement">[[localize('healthcareelement','Problem',language)]]</paper-radio-button>
-						<paper-radio-button name="allergy">[[localize('allergy','Allergy',language)]]</paper-radio-button>
 						<paper-radio-button name="familyrisk">[[localize('familyrisk','Family Risk',language)]]</paper-radio-button>
 						<paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
 						<paper-radio-button name="socialrisk">[[localize('socialrisk','Social risk',language)]]</paper-radio-button>
+						<paper-radio-button name="allergy">[[localize('allergy','Allergy',language)]]</paper-radio-button>
 						<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
+						<paper-radio-button name="surgery">[[localize('surg_abr','Surgery',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
-				<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
+				<div class="flex">
+					<template is="dom-if" if="[[!searchSurgery]]">
+						<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
+						<template is="dom-if" if="[[searchAllergen]]">
+							<vaadin-combo-box id="entities-list" filtered-items="[[allergenItems]]" on-filter-changed="_allergenFilterChanged" item-label-path="descr" selected-item="{{allergenSelectedItem}}" item-value-path="id" label="[[localize('sea_for_alle','Search for allergens',language)]]"></vaadin-combo-box>
+						</template>
+						<template is="dom-if" if="[[searchFamilyLink]]">
+							<vaadin-combo-box id="entities-list" filtered-items="[[familyLinkItems]]" on-filter-changed="_familyRiskFilterChanged" item-label-path="descr" selected-item="{{familyRiskSelectedItem}}" item-value-path="id" label="[[localize('sea_for_fam_link','Search for family link',language)]]"></vaadin-combo-box>
+						</template>
+					</template>
+					<template is="dom-if" if="[[searchSurgery]]">
+						<vaadin-combo-box id="entities-list" filtered-items="[[surgeryItems]]" on-filter-changed="_surgeryFilterChanged" item-label-path="descr" selected-item="{{surgerySelectedItem}}" item-value-path="id" label="[[localize('sea_for_surgery','Search for surgery',language)]]"></vaadin-combo-box>
+					</template>
+				</div>
 				<div class="flex">
 					<paper-item class="label">[[localize('sta','Status',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
 					<paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
@@ -131,22 +148,33 @@
 					</paper-radio-group>
 				</div>
 				<div class="flex">
-					<paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-					<paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
-						<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
+					<paper-item class="label">[[localize('ext_temp','Extra temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+					<paper-radio-group selected="[[_extraTemporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_extraTemporalityChanged">
+						<!--<paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
 						<paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
-						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]&nbsp;|</paper-radio-button>
+						<paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>-->
 						<paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
 						<paper-radio-button name="relapse">[[localize('relapse','Relapse',language)]]</paper-radio-button>
 					</paper-radio-group>
 				</div>
+
 				<paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
 
-				<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
-				<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+				<div class="flex">
+					<vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+					<vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
 
-				<tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
-				<tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+					<paper-dropdown-menu id="temporality" label="[[localize('temp','Temporality',language)]]">
+						<paper-listbox slot="dropdown-content" class="dropdown-temporality" selected={{temporalityItemIdx}} selected-item="{{temporalityItem}}">
+							<template is="dom-repeat" items="[[temporalityList]]" as="tp">
+								<paper-item id="[[tp.code]]">[[_getTpLabel(tp)]]</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
+				</div>
+
+				<tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]" always-float-label></tk-token-field>
+				<tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr" always-float-label></tk-token-field>
 
 				<slot name="suffix"></slot>
 			</div>
@@ -160,6 +188,7 @@
 	<script>
 
 import _ from 'lodash/lodash';
+import moment from 'moment/src/moment';
 
 class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -199,6 +228,11 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: null
 			},
 
+            allergenDataProvider:{
+                type: Object,
+                value: null
+			},
+
 			i18n: {
 				type: Object
 			},
@@ -212,19 +246,62 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Array,
 				value: () => []
 			},
-
+            allergenItems: {
+                type: Array,
+                value: () => []
+			},
+            familyLinkItems: {
+			  type: Array,
+				value:  () => []
+			},
 			_openingDateAsString: {
 				type: String
 			},
-
 			_closingDateAsString: {
 				type: String
+			},
+            searchAllergen:{
+                type: Boolean,
+                value: false
+			},
+            searchFamilyLink:{
+                type: Boolean,
+                value: false
+			},
+            allergenFilterValue: {
+			    type: String
+			},
+            familyLinkFilterValue: {
+                type: String
+            },
+			searchSurgery: {
+			    type: Boolean,
+				value: false
+			},
+            surgeryItems:{
+                type: Array,
+                value:  () => []
+			},
+			surgeryFilterValue: {
+                type: String
+            },
+            temporalityItemIdx: {
+                type: Number,
+                value: 0
+			},
+			temporalityList:{
+			    type: Array,
+				value: () => []
+			},
+            temporalityItem:{
+			    type: Object,
+				value: () => {}
 			}
 		};
 	}
 
 	static get observers() {
-		return ['_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
+		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
 	}
 
 	constructor() {
@@ -241,7 +318,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			return;
 		}
 
-		this.dataProvider && this.dataProvider.filter((this._cdItemTagForEntity(this.entity, true).code || '') + ':' + latestSearchValue, 500, 0, 'descr', false).then(res => {
+		this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false).then(res => {
 			if (latestSearchValue !== this.latestSearchValue) {
 				console.log("Cancelling obsolete search");
 				return;
@@ -250,14 +327,81 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		});
 	}
 
+	_updateDescription() {
+        if (this.selectedItem || this.surgerySelectedItem) {
+            this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : (this.searchSurgery && this.surgerySelectedItem) ? `${this.surgerySelectedItem.descr}` : this.selectedItem.descr);
+        }
+    }
+
 	_selectedItemChanged() {
 		if (this.selectedItem) {
-			this.set('entity.descr', this.selectedItem.descr);
 			this.set('entity.plansOfAction', this.selectedItem.plansOfAction || []);
 			this.api.code().getCodes(this.selectedItem.codes.join(',')).then(codes => {
 				this.set('entity.codes', codes);
 			});
 		}
+	}
+
+    _selectSurgerySelectedItem(){
+        if (this.surgerySelectedItem) {
+            this.set('entity.plansOfAction', this.surgerySelectedItem.plansOfAction || []);
+            this.api.code().getCodes(this.surgerySelectedItem.codes.join(',')).then(codes => {
+                this.set('entity.codes', codes);
+            });
+        }
+	}
+
+
+    _allergenFilterChanged(e){
+
+        let latestSearchValue = e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('allergenItems', []);
+            return;
+        }
+        this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false, ['BE-ALLERGEN','CD-ATC']).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('allergenItems', res.rows);
+        });
+	}
+
+    _familyRiskFilterChanged(e){
+        let latestSearchValue = e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('familyLinkItems', []);
+            return;
+        }
+        this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false, ['BE-FAMILY-LINK']).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('familyLinkItems', res.rows);
+        });
+	}
+
+    _surgeryFilterChanged(e){
+        let latestSearchValue = e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('surgeryItems', []);
+            return;
+        }
+        this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false, ['BE-THESAURUS-SURGICAL-PROCEDURES']).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('surgeryItems', res.rows);
+        });
 	}
 
 	_tagForEntity(e, type, code) {
@@ -283,8 +427,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return code && code.code;
     }
 
-    _temporality() {
-        const code = this._tagForEntity(this.entity, 'CD-TEMPORALITY');
+    _extraTemporality() {
+        const code = this._tagForEntity(this.entity, 'CD-EXTRA-TEMPORALITY');
         return code && code.code;
     }
 
@@ -295,6 +439,10 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_natureChanged(e) {
 		this._cdItemTagForEntity(this.entity, true).code = e.detail.value;
+
+        e.detail.value === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
+		e.detail.value === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
+		e.detail.value === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 	}
 
 	_statusChanged(e) {
@@ -315,8 +463,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._tagForEntity(this.entity, 'CD-SEVERITY', 'normal').code = e.detail.value
     }
 
-    _temporalityChanged(e) {
-        this._tagForEntity(this.entity, 'CD-TEMPORALITY', 'oneshot').code = e.detail.value
+    _extraTemporalityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-EXTRA-TEMPORALITY', 'oneshot').code = e.detail.value
 	}
 
     _certaintyChanged(e) {
@@ -386,10 +534,16 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	open() {
 	    this.set('filterValue','')
 		this.set('selectedItem','')
-		this.$.dialog.open();
-	    this.$.dialog.scrollTop = 0;
 
-        this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
+        this.api.code().findPaginatedCodes('be', 'CD-TEMPORALITY', '')
+			.then(c => this.set("temporalityList", c.rows.filter(c => c.code === "acute" || c.code === "subacute" || c.code === "chronic")))
+			.finally(() => {
+				this.$.dialog.open();
+				this.$.dialog.scrollTop = 0;
+
+				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
+		})
+
 	}
 
 	_closingDateChanged(date) {
@@ -404,6 +558,31 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (dateString !== this._openingDateAsString) {
 			this.set('_openingDateAsString', dateString);
 		}
+	}
+
+	_ehDateChanged(startingDate, closingDate){
+
+	    if(startingDate){
+	        let startingDateAsString = this.api.moment(startingDate).format('YYYY-MM-DD') || ''
+	        let closingDateAsString = closingDate ? this.api.moment(closingDate).format('YYYY-MM-DD') : closingDate = moment().format("YYYY-MM-DD")
+
+            this._isChronical(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "chronic"))) :
+                this._isSubAcute(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "subacute"))) :
+                    this._isAcute(startingDateAsString, closingDateAsString) === true ? this.set("temporalityItemIdx", this.temporalityList.indexOf(this.temporalityList.find(c => c.code === "acute"))) :
+						console.log("bug")
+		}
+	}
+
+	_isChronical(start, end){
+        return moment(start).isSameOrBefore(moment(end).subtract(6, "month"))
+	}
+
+	_isSubAcute(start, end){
+       return moment(start).isBetween(moment(end).subtract(6, "month"), moment(end).subtract(1, "month"))
+	}
+
+	_isAcute(start, end){
+        return moment(start).isSameOrAfter(moment(end).subtract(1, "month"))
 	}
 
 	_closingDateAsStringChanged(dateAsString) {
@@ -425,6 +604,29 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.entity && this.set('entity.openingDate', date);
 		}
 	}
+
+    _selectedTemporalityItemChanged(item){
+        if(item && item.id && this.entity){
+            const selectedItem = this.temporalityList.find(c => c.code === item.id)
+
+            if(this.entity.tags.find(t => t.type === "CD-TEMPORALITY")){
+                this.entity.tags.splice(this.entity.tags.indexOf(this.entity.tags.find(t => t.type === "CD-TEMPORALITY")), 1);
+                this.entity.tags.push(selectedItem);
+            }else{
+                this.entity.tags.push(selectedItem);
+            }
+
+            console.log(this.entity.tags)
+
+
+		}
+	}
+
+    _getTpLabel(item){
+	    return item.label[this.language] ? item.label[this.language] : item.label.en
+	}
+
+
 
 }
 

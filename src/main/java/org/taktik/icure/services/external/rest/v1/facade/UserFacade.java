@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginatedList;
@@ -33,6 +34,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
@@ -50,6 +52,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +90,19 @@ public class UserFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "Get Currently logged-in user session.",
+			response = String.class,
+			httpMethod = "GET",
+			notes = "Get current user."
+	)
+	@GET
+	@Path("/session")
+	@Produces({ "text/plain" })
+	public Response getCurrentSession(){
+		return Response.ok().entity(sessionLogic.getOrCreateSession().getId()).build();
+	}
+
+	@ApiOperation(
 			value = "List users with(out) pagination",
 			response = UserPaginatedList.class,
 			httpMethod = "GET",
@@ -121,6 +137,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		User user;
 		try {
@@ -233,6 +252,9 @@ public class UserFacade implements OpenApiFacade{
 		if (userDto == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
+
+		//Sanitize group
+		userDto.setGroupId(null);
 
 		userLogic.modifyUser(mapper.map(userDto, User.class));
 		User modifiedUser = userLogic.getUser(userDto.getId());

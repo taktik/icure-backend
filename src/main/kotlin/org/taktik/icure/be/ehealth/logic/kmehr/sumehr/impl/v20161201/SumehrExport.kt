@@ -40,7 +40,6 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
-import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyLabelFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
@@ -189,8 +188,6 @@ class SumehrExport : KmehrExport() {
 
 		addHealthCareElements(sender.id, sfks, trn)
 
-		extraLabels?.let { addServiceUsingContent(sender.id, sfks, trn, extraLabels, language, decryptor, false, "labresult") }
-
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
 		}
@@ -213,7 +210,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-		return getAllServices(hcPartyId, sfks, decryptor) + getNonPassiveIrrelevantServicesWithLabels(hcPartyId, sfks, labelsMap.values.flatten(), decryptor)
+		return getAllServices(hcPartyId, sfks, decryptor)
 	}
 
 	private fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
@@ -228,36 +225,6 @@ class SumehrExport : KmehrExport() {
 
 		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
 			s.endOfLife == null && //Not end of lifed
-				!(((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
-					&& (((s.status ?: 0) and 2) != 0)) //And irrelevant
-				&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
-		}
-
-		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
-
-		if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-			val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
-			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
-		}
-
-		return services ?: emptyList()
-	}
-
-	private fun getNonPassiveIrrelevantServicesWithLabels(hcPartyId: String, sfks: List<String>, labels: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-		val labelsPatterns = labels.map { Regex(it.replace("*", ".*")) }
-		val labelsFilters = labels.map { StringUtils.removeDiacriticalMarks(it.replace(Regex("\\*.*"), "").toLowerCase()) + "*" }
-		val f = Filters.UnionFilter(
-			sfks.map { k ->
-				Filters.UnionFilter(labelsFilters.map { label ->
-					ServiceByHcPartyLabelFilter(hcPartyId, k, label, null, null)
-				}
-				)
-			}
-		)
-
-		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
-			s.endOfLife == null && //Not end of lifed
-				labelsPatterns.any { lp -> s.label?.let { lp.matches(it) } ?: false } && //Label really matches
 				!(((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
 					&& (((s.status ?: 0) and 2) != 0)) //And irrelevant
 				&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
@@ -353,52 +320,6 @@ class SumehrExport : KmehrExport() {
 					}
 
 					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList())
-					if (it != null) {
-						for ((key, value) in svc.content) {
-							if (value.medicationValue != null) {
-								fillMedicationItem(svc, it, key)
-								break
-							}
-						}
-
-						if (svc.comment != null) {
-							it.texts.add(TextType().apply { l = "fr"; value = svc.comment })
-						}
-						items.add(it)
-					}
-				}
-			}
-		} catch (e: RuntimeException) {
-			log.error("Unexpected error", e)
-		}
-	}
-
-	private fun addServiceUsingContent(hcPartyId: String, sfks: List<String>, trn: TransactionType, labels: Map<Pair<String, String>, List<String>>, language: String, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
-		try {
-			val svcs = getNonConfidentialItems(getNonPassiveIrrelevantServicesWithLabels(hcPartyId, sfks, labels.values.flatten(), decryptor))
-			if (svcs.isEmpty()) {
-				log.debug("_writeItems : no services found with labels: " + labels)
-			} else {
-				svcs.forEach { svc ->
-					svc.label?.let { label ->
-						//Force tag from labels map
-						labels.any { e ->
-							if (e.value.any { p ->
-								Regex(p.replace("*", ".*")).matches(label)
-							}) {
-								svc.tags.add(CodeStub(e.key.first, e.key.second, "1.0"))
-								true
-							} else false
-						}
-					}
-
-					val items = if (!((svc.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } || ((svc.status ?: 0) and 1) != 0) && !forcePassive)) {
-						getAssessment(trn).headingsAndItemsAndTexts
-					} else {
-						getHistory(trn).headingsAndItemsAndTexts
-					}
-
-					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: svc.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "labresult", (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList())
 					if (it != null) {
 						for ((key, value) in svc.content) {
 							if (value.medicationValue != null) {
