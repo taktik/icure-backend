@@ -57,6 +57,8 @@ public class StoredDocument implements Versionable<String> {
 	@JsonProperty("rev_history")
 	protected Map<String, String> revHistory = reversedTreeMap();
 
+	protected String placeId;
+
 	@JsonIgnore
 	public void addInlineAttachment(Attachment a) {
 		Assert.notNull(a, "attachment may not be null");
