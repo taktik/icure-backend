@@ -835,8 +835,8 @@
                 <div class="buttons">
                     <paper-spinner class="center" active="[[isReceiving]]"></paper-spinner>
                     <paper-spinner class="center" active="[[isSending]]"></paper-spinner>
-                    <paper-button on-tap="receiveInvoices" class="modal-button" disabled="[[isReceiving]]">[[localize('inv_get','Get',language)]]</paper-button>
-                    <paper-button on-tap="sendInvoices" class="modal-button" disabled="[[isSending]]">[[localize('inv_send','Send',language)]]</paper-button>
+                    <paper-button on-tap="receiveInvoices" class="modal-button" disabled="[[cannotGet]]">[[localize('inv_get','Get',language)]]</paper-button>
+                    <paper-button on-tap="sendInvoices" class="modal-button" disabled="[[cannotSend]]">[[localize('inv_send','Send',language)]]</paper-button>
                 </div>
             </template>
             <template is="dom-if" if="[[!statusToBeSend]]">
@@ -1206,7 +1206,7 @@
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">[[localize('inv_batch_paid_date','Date',language)]]</template>
-                                                <template>[[formatDate(item.dateCode)]]</template>
+                                                <template>[[formatDate(item.dateCode,'date')]]</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header">Code</template>
@@ -1363,12 +1363,12 @@
                 <div>
                     Détail de l'envoi n° [[activeGridItem.invoice.invoiceReference]]
                     <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
-                    <paper-input label="Mutuelle" value="[[activeGridItem.insurance.code]]"readonly></paper-input>
+                    <paper-input label="Mutuelle" value="[[activeGridItem.insuranceCode]]"readonly></paper-input>
                 </div>
                     <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">Date</template>
-                            <template>[[formatDate(item.dateCode)]]</template>
+                            <template>[[formatDate(item.dateCode,"date")]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">Code</template>
@@ -1395,22 +1395,22 @@
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumReimb]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Patient</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumPatInter]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Supplément</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumDoctorSup]] €</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Total</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]</span></template>
-                                <template class="footer">0.00€</template>
+                                <template class="footer">[[sumTot]] €</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
                     </vaadin-grid>
@@ -1641,6 +1641,34 @@
                     messageIdsCanBeAutoArchived:{
                         type: Array,
                         value: []
+                    },
+                    isMessagesLoaded:{
+                        type: Boolean,
+                        value: false,
+                    },
+                    sumReimb:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumPatInter:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumDoctorSup:{
+                        type: Object,
+                        value : "0.00"
+                    },
+                    sumTot:{
+                        type: Object,
+                        value: "0.00"
+                    },
+                    cannotSend: {
+                        type: Boolean,
+                        value: false
+                    },
+                    cannotGet: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -1650,14 +1678,31 @@
             }
 
             static get observers() {
-                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)'];
+                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)','activeGridItemChanged(activeGridItem)'];
+            }
+
+            activeGridItemChanged(item){
+                if(!item || item.length==0)return;
+                console.log("selected:",item)
+                this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
+                this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
+                this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
+                this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
             }
 
             ready() {
                 super.ready();
+                this.set("isMessagesLoaded",false)
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
                 })
+
+                const LastSend = parseInt(localStorage.getItem('lastInvoicesSent')) ? parseInt(localStorage.getItem('lastInvoicesSent')) : -1
+                const maySend = (LastSend < Date.now() + 24*60*60000 || LastSend==-1)
+                this.set('cannotSend',!maySend)
+                const LastGet = parseInt(localStorage.getItem('lastInvoicesGet')) ? parseInt(localStorage.getItem('lastInvoicesGet')) : -1
+                const mayGet = (LastGet < Date.now() + 24*60*60000 || LastGet==-1)
+                this.set('cannotGet',!mayGet)
             }
 
             _detailsChanged() {
@@ -1809,12 +1854,14 @@
                         this._isLoadingMessages = false
                         this.set('allMessages', msgsStructs)
                         this.dispatchMessages()
+                        this.set("isMessagesLoaded",true)
                     })
 
                 })
             }
 
             getMessage(){
+                if(!this.isMessagesLoaded)
                 this.fetchMessageToBeSendOrToBeCorrected()
             }
 
@@ -2096,22 +2143,28 @@
             }
 
             sendInvoices(){
-                this.set('isSending',true)
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
-                    let prom = Promise.resolve()
-                    _.chain(this.selectedInvoicesToBeSend)
-                        .groupBy(fact => fact.insuranceParent)
-                        .toPairs().value()
-                        .forEach(([fedId,invoices]) => {
-                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
-                                        .then(message => this.api.register(message,'message'))
-                        })
+                const LastSend = parseInt(localStorage.getItem('lastInvoicesSent')) ? parseInt(localStorage.getItem('lastInvoicesSent')) : -1
+                const maySend = (LastSend < Date.now() + 24*60*60000 || LastSend==-1)
+                if (maySend) {
+                    this.set('cannotSend',true)
+                    localStorage.setItem('lastInvoicesSent', Date.now())
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
+                        let prom = Promise.resolve()
+                        _.chain(this.selectedInvoicesToBeSend)
+                            .groupBy(fact => fact.insuranceParent)
+                            .toPairs().value()
+                            .forEach(([fedId,invoices]) => {
+                                prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
+                                            .then(message => this.api.register(message,'message'))
+                            })
 
-                    return prom.then(() => {
-                        this.set('isSending',false)
-                        this.getMessage()
+                        return prom.then(() => {
+                            this.set('isSending',false)
+                            this.set("isMessagesLoaded",false)
+                            this.getMessage()
+                        })
                     })
-                })
+                }
             }
 
             _showInvoiceToBeSendDetails(){
@@ -2620,55 +2673,61 @@
             }
 
             receiveInvoices() {
-                this.set('isReceiving',true)
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
-                    let prom = Promise.resolve()
-                    response.forEach(message => {
-                        // console.log(message)
+                const LastGet = parseInt(localStorage.getItem('lastInvoicesGet')) ? parseInt(localStorage.getItem('lastInvoicesGet')) : -1
+                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet==-1)
+                if (mayGet) {
+                    this.set('cannotGet',true)
+                    localStorage.setItem('lastInvoicesGet', Date.now())
+                    this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
+                        let prom = Promise.resolve()
+                        response.forEach(message => {
+                            // console.log(message)
 
-                        prom = prom.then(() =>
-                            new Promise((resolve) => {
-                                if (message.detail) {
-                                    this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
-                                        .then(msg => {
-                                            msg ? resolve(message) : resolve()
-                                        })
-                                        .catch(e => {
-                                            // console.log(e)
-                                            resolve()
-                                        })
-                                } else if (message.tack) {
-                                    this.api.message().processTack(this.user, this.hcp, message)
-                                        .then(rcpt => {
-                                            rcpt ? resolve(message) : resolve()
-                                        })
-                                        .catch(e => {
-                                            // console.log(e)
-                                            resolve()
-                                        })
-                                }
-                            })
-                        )
-                    })
-/*
-                    prom = prom.then(treatedMessages => {
-                        let sprom = Promise.resolve()
-                        _.chunk(treatedMessages, 20).forEach(chunk => {
-                            const tacks = chunk.filter(x => x && x.tack)
-                            const responses = chunk.filter(x => x && x.detail)
-
-                            sprom = sprom
-                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                            prom = prom.then(() =>
+                                new Promise((resolve) => {
+                                    if (message.detail) {
+                                        this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
+                                            .then(msg => {
+                                                msg ? resolve(message) : resolve()
+                                            })
+                                            .catch(e => {
+                                                // console.log(e)
+                                                resolve()
+                                            })
+                                    } else if (message.tack) {
+                                        this.api.message().processTack(this.user, this.hcp, message)
+                                            .then(rcpt => {
+                                                rcpt ? resolve(message) : resolve()
+                                            })
+                                            .catch(e => {
+                                                // console.log(e)
+                                                resolve()
+                                            })
+                                    }
+                                })
+                            )
                         })
-                        return sprom
+
+                        prom = prom.then(treatedMessages => {
+                            let sprom = Promise.resolve()
+                            _.chunk(treatedMessages, 20).forEach(chunk => {
+                                const tacks = chunk.filter(x => x && x.tack)
+                                const responses = chunk.filter(x => x && x.detail)
+
+                                sprom = sprom
+                                    .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                    .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                            })
+                            return sprom
+                        })
+
+                        return prom.then(() => {
+                            this.set('isReceiving',false)
+                            this.set("isMessagesLoaded",false)
+                            this.getMessage()
+                        })
                     })
-*/
-                    return prom.then(() => {
-                        this.set('isReceiving',false)
-                        this.getMessage()
-                    })
-                })
+                }
             }
 
             _dateFormat(date) {
@@ -2810,7 +2869,6 @@
                         }))).then(() => this.getMessage())
                 }
             }
-
         }
 
         customElements.define(HtMsgInvoice.is, HtMsgInvoice);

@@ -160,6 +160,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	}
 
 	@Override
+	public PaginatedList<String> findByHcPartyIdsOnly(String healthcarePartyId, PaginationOffset offset) {
+		return patientDAO.findIdsByHcParty(healthcarePartyId, offset);
+	}
+
+	@Override
     public PaginatedList<Patient> findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(String healthcarePartyId, PaginationOffset offset, String searchString, Sorting sorting) {
 	    PaginatedList<Patient> patientsPaginatedList;
 

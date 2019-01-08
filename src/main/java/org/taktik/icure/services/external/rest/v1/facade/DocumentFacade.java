@@ -306,7 +306,6 @@ public class DocumentFacade implements OpenApiFacade{
 		return response;
 	}
 
-
 	@ApiOperation(response = DocumentDto.class, value = "Updates a document")
 	@PUT
 	public Response modifyDocument(DocumentDto documentDto) {
@@ -335,6 +334,44 @@ public class DocumentFacade implements OpenApiFacade{
 		}
 
 		return response;
+	}
+
+	@ApiOperation(
+			value = "Updates a batch of documents",
+			response = DocumentDto.class,
+			responseContainer = "Array",
+			httpMethod = "PUT",
+			notes = "Returns the modified documents."
+	)
+	@PUT
+	@Path("/batch")
+	public Response modifyDocuments(List<DocumentDto> documentDtos) {
+		Response response;
+
+		if (documentDtos == null) {
+			return ResponseUtils.badRequest("Cannot modify non-existing document");
+		}
+
+		try {
+
+			List<Document> indocs = documentDtos.stream().map(f -> mapper.map(f, Document.class)).collect(Collectors.toList());
+			for(int i = 0; i < documentDtos.size(); i++) {
+				if (documentDtos.get(i).getAttachmentId()!=null) {
+					Document prevDoc = documentLogic.get(indocs.get(i).getId());
+					indocs.get(i).setAttachments(prevDoc.getAttachments());
+
+					if (documentDtos.get(i).getAttachmentId().equals(indocs.get(i).getAttachmentId())) {
+						indocs.get(i).setAttachment(prevDoc.getAttachment());
+					}
+				}
+			}
+
+			List<Document> docs = documentLogic.updateEntities(indocs);
+			return Response.ok().entity(docs.stream().map(f -> mapper.map(f, DocumentDto.class)).collect(Collectors.toList())).build();
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+		}
 	}
 
 	@ApiOperation(

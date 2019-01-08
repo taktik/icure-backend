@@ -49,6 +49,7 @@ public interface PatientDAO extends GenericDAO<Patient> {
 
 	List<String> listIdsByHcPartyAndExternalId(String externalId, String healthcarePartyId);
 
+	PaginatedList<String> findIdsByHcParty(String healthcarePartyId, PaginationOffset pagination);
 	PaginatedList<Patient> findPatientsByHcPartyAndName(String name, String healthcarePartyId, PaginationOffset pagination, boolean descending);
 	PaginatedList<Patient> findPatientsOfHcPartyAndName(String name, String healthcarePartyId, PaginationOffset offset, boolean descending);
 	PaginatedList<Patient> findPatientsByHcPartyAndSsin(String ssin, String healthcarePartyId, PaginationOffset pagination, boolean descending);

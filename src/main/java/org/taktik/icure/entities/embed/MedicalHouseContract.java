@@ -1,12 +1,18 @@
 package org.taktik.icure.entities.embed;
 
+//NOTE: better classname would be MedicalHouseInscriptionPeriod
 public class MedicalHouseContract {
 
+	private String contractId;
 	private Long validFrom; //yyyyMMdd : start of contract period
 	private Long validTo; //yyyyMMdd : end of contract period
-	private ContractChangeType contractChangeType; //inscription, inscription end, suspension, coverageChange
-	private String changedBy; //user, mcn
 	private String mmNihii;
+	private String hcpId;
+	private ContractChangeType contractChangeType; //inscription, coverageChange, suspension
+	private String parentContractId;
+	private String changedBy; //user, mcn
+
+	//Coverage specific data (coverage = forfait-inscription)
 	private Long startOfContract; //yyyyMMdd : signdate
 	private Long startOfCoverage; //yyyyMMdd
 	private Long endOfContract; //yyyyMMdd : signdate
@@ -14,16 +20,21 @@ public class MedicalHouseContract {
 	private boolean kine;
 	private boolean gp;
 	private boolean nurse;
-    private String hcpId;
-    private Integer unsubscriptionReasonId;
 	private boolean noKine;
 	private boolean noGp;
 	private boolean noNurse;
+	private Integer unsubscriptionReasonId;
+
+	//Suspension specific data:
 	private Long startOfSuspension; //yyyyMMdd
 	private Long endOfSuspension; //yyyyMMdd
 	private SuspensionReason suspensionReason;
 	private String suspensionSource;
 	private boolean forcedSuspension; //no automatic unSuspension
+
+	public String getContractId() { return contractId; }
+
+	public void setContractId(String contractId) { contractId = contractId; }
 
 	public Long getValidFrom() { return validFrom; }
 
@@ -36,6 +47,10 @@ public class MedicalHouseContract {
 	public ContractChangeType getChangeType() { return contractChangeType; }
 
 	public void setChangeType(ContractChangeType contractChangeType) { this.contractChangeType = contractChangeType; }
+
+	public String getParentContractId() { return parentContractId; }
+
+	public void setParentContractId(String parentContractId) { this.parentContractId = parentContractId; }
 
 	public String getChangedBy() { return changedBy; }
 
@@ -137,9 +152,7 @@ public class MedicalHouseContract {
 		return unsubscriptionReasonId;
 	}
 
-	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) {
-		this.unsubscriptionReasonId = unsubscriptionReasonId;
-	}
+	public void setUnsubscriptionReasonId(Integer unsubscriptionReasonId) { this.unsubscriptionReasonId = unsubscriptionReasonId; }
 
 	public boolean isNoKine() {
 		return noKine;

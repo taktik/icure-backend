@@ -19,7 +19,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Partner Name",
+							"label" : "partner_name",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "partnerName"
@@ -40,7 +40,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Gender",
+							"label" : "gender",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "gender"
@@ -61,7 +61,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Ssin",
+							"label" : "ssin",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "ssin"
@@ -81,7 +81,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Date of Death",
+							"label" : "dat_of_dead",
 							"subForm" : false,
 							"type" : "TKDate",
 							"name" : "dateOfDeath"
@@ -101,7 +101,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Place of death",
+							"label" : "place_of_death",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "placeOfDeath"
@@ -125,7 +125,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Reference hcp",
+							"label" : "reference_hcp",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "preferredUser"
@@ -145,7 +145,7 @@
 							"codeTypes" : [
 								{"type":"ISO-639-1"}
 							],
-							"label" : "Languages",
+							"label" : "languages",
 							"subForm" : false,
 							"type" : "TKStringTable",
 							"name" : "languages"
@@ -165,7 +165,7 @@
 							"codeTypes" : [
 								{"type":"CD-FED-COUNTRY"}
 							],
-							"label" : "Nationality",
+							"label" : "nationality",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "nationality"
@@ -192,7 +192,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Status",
+							"label" : "status",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "personalStatus"
@@ -212,7 +212,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Name",
+							"label" : "name",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "lastName"
@@ -232,7 +232,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "First Name",
+							"label" : "fir_nam",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "firstName"
@@ -242,13 +242,13 @@
 								"readOnly" : false,
 								"height" : 22,
 								"menuOptions" : [
-									"enseignement fondamental",
-									"secondaire cycle inférieur",
-									"secondaire cycle supérieur",
-									"universitaire",
-									"supérieur de type long",
-									"supérieur de type court",
-									"promotion sociale"
+									"ens_fond",
+									"ens_sec_inf",
+									"ens_sec_sup",
+									"ens_uni",
+									"ens_sup_lg",
+									"ens_sup_crt",
+									"ens_prom_soc"
 								],
 								"labelPosition" : "Left",
 								"width" : 498,
@@ -261,7 +261,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Education",
+							"label" : "education",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "education"
@@ -281,7 +281,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Alias",
+							"label" : "alias",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -302,7 +302,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "External ID",
+							"label" : "ext_id",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -323,7 +323,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Job",
+							"label" : "job",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -344,7 +344,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Date of Birth",
+							"label" : "dat_of_bir",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKDate",
@@ -365,7 +365,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Place of birth",
+							"label" : "place_of_bir",
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
@@ -393,7 +393,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Addresses",
+							"label" : "addresses",
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "addresses"
@@ -413,7 +413,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Active",
+							"label" : "act",
 							"irrelevant" : false,
 							"subForm" : false,
 							"type" : "TKBoolean",
@@ -440,7 +440,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Insurances",
+							"label" : "adm_ins",
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "insurabilities"
@@ -466,7 +466,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Medical House Contract",
+							"label" : "medical_house_contract",
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "medicalHouseContracts"

@@ -26,11 +26,14 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.encoding.PasswordEncoder
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.security.web.firewall.HttpFirewall
+import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PermissionLogic
@@ -74,13 +77,18 @@ class SecurityConfig {
     fun exceptionTranslationFilter(authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint)
 
     @Bean
+    fun httpFirewal() = StrictHttpFirewall().apply { setAllowSemicolon(true) }
+
+    @Bean
     fun securityConfigAdapter(
             daoAuthenticationProvider: CustomAuthenticationProvider,
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter)
-        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
+            remotingExceptionTranslationFilter: ExceptionTranslationFilter,
+            httpFirewall: HttpFirewall
+                             )
+        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
@@ -94,18 +102,30 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                             private val basicAuthenticationFilter: Filter,
                             private val usernamePasswordAuthenticationFilter: Filter,
                             private val exceptionTranslationFilter: Filter,
-                            private val remotingExceptionTranslationFilter: Filter) : WebSecurityConfigurerAdapter(false) {
+                            private val remotingExceptionTranslationFilter: Filter,
+                            private val httpFirewall: HttpFirewall
+    ) : WebSecurityConfigurerAdapter(false) {
+
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder?) {
         auth!!.authenticationProvider(daoAuthenticationProvider)
     }
 
+    override fun configure(web: WebSecurity) {
+        web.httpFirewall(httpFirewall)
+    }
+
     override fun configure(http: HttpSecurity?) {
+        //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation
         http!!.csrf().disable().addFilterBefore(
-                FilterChainProxy(
-                        listOf(
-                DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
-                DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter))), FilterSecurityInterceptor::class.java)
+            FilterChainProxy(
+                listOf(
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
+                      )
+                ).apply {
+                    setFirewall(httpFirewall)
+                }, FilterSecurityInterceptor::class.java)
                 .authorizeRequests()
                 .antMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .antMatchers("/rest/*/auth/login").permitAll()

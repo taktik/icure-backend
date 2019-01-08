@@ -19,7 +19,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Street",
+							"label" : "street",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "street",
@@ -40,7 +40,7 @@
 							"codeTypes" : [
 								{"type":"CD-FED-COUNTRY"}
 							],
-							"label" : "Country",
+							"label" : "country",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "country",
@@ -61,7 +61,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Postal code",
+							"label" : "postalCode",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "postalCode",
@@ -82,7 +82,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "City",
+							"label" : "city",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "city",
@@ -109,7 +109,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Telecoms",
+							"label" : "telecoms",
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "telecoms",
@@ -133,7 +133,7 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Type",
+							"label" : "type",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "addressType",
@@ -154,10 +154,31 @@
 							"codeTypes" : [
 
 							],
-							"label" : "Number",
+							"label" : "number",
 							"type" : "TKString",
 							"subForm" : false,
 							"name" : "houseNumber",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 74,
+								"multiline" : false,
+								"left" : 1111,
+								"top" : 5,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "box_number",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "postboxNumber",
 							"irrelevant" : true
 						}
 					]
