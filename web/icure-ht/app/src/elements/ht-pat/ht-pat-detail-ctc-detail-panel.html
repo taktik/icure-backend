@@ -621,7 +621,7 @@
 
 		<paper-dialog id="prose-editor-dialog" no-cancel-on-outside-click no-cancel-on-esc-key>
 			<h2 class="modal-title">New Report</h2>
-			<prose-editor id="prose-editor"></prose-editor>
+			<prose-editor id="prose-editor" on-refresh-context="_refreshContext"></prose-editor>
 			<div class="buttons">
 				<div class="fleft">
 					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
@@ -1405,7 +1405,17 @@ import * as evaljs from "evaljs"
                         reject(e)
 					}
 				})
-			}, {patient:this.patient, servicesMap:this.servicesMap, language: this.language})
+			}, {
+			    patient:this.patient,
+			    contacts:this.contacts,
+                healthElements:this.healthElements,
+			    subContact:this.currentContact.subContacts,
+                form:this.contactsFormsAndDocuments,
+                servicesMap:this.servicesMap,
+                user:this.user,
+                hcp:this.user.healthcarePartyId,
+                language: this.language
+			})
 		})
     }
 
@@ -1554,33 +1564,104 @@ import * as evaljs from "evaljs"
 		return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
 	}
 
-			formTemplatesSelectorDataProvider() {
-				return {
-					filter: function (filterValue, limit, offset, sortKey, descending) {
-						const regExp = filterValue && new RegExp(filterValue, "i");
+    formTemplatesSelectorDataProvider() {
+        return {
+            filter: function (filterValue, limit, offset, sortKey, descending) {
+                const regExp = filterValue && new RegExp(filterValue, "i");
 
-						const all = this.allTemplates || (this.allTemplates = Promise.all([
-							this.api.form().findFormTemplates(),
-							this.api.form().findFormTemplatesBySpeciality(((this.api.hcParties[this.user.healthcarePartyId]||{}).specialityCodes||[])[0] || 'deptgeneralpractice')
-						]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
+                const all = this.allTemplates || (this.allTemplates = Promise.all([
+                    this.api.form().findFormTemplates(),
+                    this.api.form().findFormTemplatesBySpeciality(((this.api.hcParties[this.user.healthcarePartyId]||{}).specialityCodes||[])[0] || 'deptgeneralpractice')
+                ]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
 
-						return all
-								.then(fts => {
-									const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
-									return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
-								});
-					}.bind(this)
-				};
-			}
+                return all
+                        .then(fts => {
+                            const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
+                            return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
+                        });
+            }.bind(this)
+        };
+    }
 
-			refreshIcons() {
-				Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
-			}
+    refreshIcons() {
+        Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
+    }
+
+
+
+    _saveProse() {
+        const prose = this.root.querySelector("#prose-editor");
+        const proseContent = prose.editorView.state.doc.toString();
+        console.log(proseContent);
+        /*
+        this.api.message().newInstance(this.user).then(newMessageInstance=>{
+            this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "DOC:TEMPLATE:PRINT", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))]} )).then(createMessageResponse => {
+                this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("prose/json"), name: "Give me a name"}).then(newDocumentResponse => {
+                    this.api.document().createDocument(newDocumentResponse).then(createDocumentResponse => {
+                        this.api.document().setAttachment(createDocumentResponse.id, null, proseContent).then(setAttachmentResponse => {
+
+                            setAttachmentResponse
+
+                        })
+                    })
+                })
+            })
+        });
+        */
+    }
+
+
+
+    _refreshContext(e,eventDetails) {
+        const prose = this.root.querySelector("#prose-editor")
+
+        // eventDetails.name
+        // eventDetails.expr
+
+        prose.applyContext((expr, template, ctx, cache) => {
+            return new Promise(function (resolve, reject) {
+                try {
+                    const env = new evaljs.Environment(_.assign(ctx, {resolve, reject}));
+                    const gen = (env.gen(expr)())
+                    let status = {done: false}
+                    while (!status.done) {
+                        status = gen.next() //Execute lines one by one
+                    }
+
+                    if (status.value && status.value.asynchronous) {
+                        //Wait for internal resolution
+                    } else {
+                        resolve({ctx:status.value})
+                    }
+                } catch (e) {
+                    reject(e)
+                }
+            })
+        }, {
+            patient:this.patient,
+            contacts:this.contacts,
+            healthElements:this.healthElements,
+            subContact:this.currentContact.subContacts,
+            form:this.contactsFormsAndDocuments,
+            servicesMap:this.servicesMap,
+            user:this.user,
+            hcp:this.user.healthcarePartyId,
+            language: this.language,
+            dataProvider: this.editedReportDataProvider
+        })
+    }
+
+
 
 	newReport(e) {
-		this.newReportDataProvider = e.detail.dataProvider
+		this.editedReportDataProvider = e.detail.dataProvider
 		this.$['prose-editor-dialog'].open()
+        const prose = this.root.querySelector("#prose-editor")
+        // prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: "dataProvider.getValue('${varname}')"} }) );
+        prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: "dataProvider.getValue('Poids')"} }) );
 	}
+
+
 
 	_saveReport() {
 		//Create document with attachment from prose-editor and ...
@@ -1589,7 +1670,7 @@ import * as evaljs from "evaljs"
             detail: {
                 ctc: this.currentContact,
                 svc: svc,
-                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.newReportDataProvider.getId())
+                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
             }, composed: true
         }));
 
