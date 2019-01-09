@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-hcp-list">
 	<template>
@@ -131,6 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					min-width: 100px;
 					@apply --shadow-elevation-2dp;
 					padding: 10px 1.2em;
+					text-transform: capitalize;
 				}
 
 				.container {
@@ -156,12 +157,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					width: 100%;
 					left: 0;
 				}
-                paper-spinner {
+                ht-spinner {
                     position: fixed;
-                    top: 210px;
+                    top: 50%;
                     left: 50%;
                     z-index: 9999;
-                    transform: translateX(-50%);
+                    transform: translate(-50%, -50%);
+					height: 42px;
+					width: 42px;
                 }
 				paper-dialog#newHcpDialog{
 					width: 50vw;
@@ -309,7 +312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<template is="dom-if" if="{{!modeGrid}}">
 				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 			</template>
-			<paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
+			<ht-spinner class="center" active="[[isLoadingHcp]]"></ht-spinner>
 			<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 
 
