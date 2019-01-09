@@ -60,7 +60,7 @@
                 padding: 0;
                 font-size: 12px;
                 line-height: 0.8;
-                background: var(--app-background-color);
+                background: white;
                 border: 0;
             }
             .view .item.title > div:nth-child(3) > div {
@@ -74,6 +74,13 @@
                 transform:skew(45deg,0deg);
                 overflow: hidden;
                 background: var(--app-background-color);
+            }
+            .view .item.title > .vacc:nth-child(2n) > div,
+            .view .item.entry > .vacc:nth-child(2n){
+                background: var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc:hover > div {
+                overflow: initial;
             }
             .view .item.title > .vacc > div > span {
                 transform:skew(-45deg,0deg) rotate(45deg);
@@ -130,17 +137,17 @@
                     <div class="name">[[localize('cdItemVaccine','Vaccine',language)]]</div>
                     <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
                         <div class="vacc">
-                            <div><span>[[allvac.code]]</span></div>
+                            <div><span>[[_getVaccNameFromThes(allvac)]]</span></div>
                         </div>
                     </template>
                 </div>
                 <template is="dom-repeat" items="[[vaccines]]">
                     <div class="item entry">
                         <div class="time">[[item.date]]</div>
-                        <div class="name">[[item.name]]</div>
+                        <div class="name">[[item.name]] ([[item.code]])</div>
                         <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
                             <div class="vacc">
-                                <vaadin-checkbox disabled></vaadin-checkbox>
+                                <vaadin-checkbox checked="[[isMatching(item.code,allvac.code)]]" disabled></vaadin-checkbox>
                             </div>
                         </template>
                     </div>
@@ -250,13 +257,22 @@
 
             getAllVaccFromThesaurus() {
                 let allVacc = []
-                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', null, null, null, 100).then(results => {
+                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', null, null, null, 50).then(results => {
+                    console.log('findPaginatedCodes',results.rows)
+                    let tempVacc = []
                     results.rows.map(th=>{
-                        // this.push('allVaccines',th)
-                        this.push('allVaccines',{code:th.code,label:th.label,links:th.links})
+                        tempVacc.push({code:th.code,label:th.label,links:th.links})
                     })
+                    this.set('allVaccines', _.sortBy(tempVacc,'code'))
                     console.log('getAllVaccFromThesaurus',this.allVaccines)
                 })
+            }
+            _getVaccNameFromThes(vac) {
+                console.log('_getVaccNameFromThes',vac)
+                return vac.label[this.language] ? vac.label[this.language]+` (${vac.code})` : vac.label[0] ? vac.label[0]+` (${vac.code})` : 'no name'
+            }
+            isMatching(a,b) {
+                return a == b
             }
 
         }
