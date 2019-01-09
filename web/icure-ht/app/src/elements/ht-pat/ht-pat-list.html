@@ -920,11 +920,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                             <template is="dom-if" if="[[btnSelectionPatient]]">
                                 <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
-                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export
-                                    patients',language)]]
+                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </div>
-                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
-                                    patients',language)]]
+                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
                                 </div>
                             </template>
                             <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
@@ -957,14 +955,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-button>
 
                             <template is="dom-if" if="[[btnSelectionPatient]]">
-                                <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
                                 </paper-button>
                             </template>
 
@@ -990,7 +985,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <paper-dialog id="patient-import-dialog">
-            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]] <span class="extra-info">(XML files)</span></h2>
+            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]] <span class="extra-info">[[localize('xml_files', '(XML files)', language)]]</span></h2>
             <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
             <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml"
                            target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment"
@@ -1240,8 +1235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share
-                    patients',language)]]
+                <paper-button dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share patients',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
@@ -1306,11 +1300,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="importPatientStatus">
             <h4>[[localize("pat_import_sta","Patient import status",language)]]
-                <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files")]])</span></h4>
+                <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files", language)]])</span></h4>
             <vaadin-grid items="[[patientImportStatuses]]">
                 <vaadin-grid-column width="150px">
                     <template class="header">
-                        Fichier
+                        [[localize("file", "Fichier", language)]]
                     </template>
                     <template>
                         [[item.filename]]
@@ -1318,7 +1312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="150px">
                     <template class="header">
-                        Patient
+                        [[localize("pati", "Patient", language)]]
                     </template>
                     <template>
                         [[item.patient.firstName]] [[item.patient.lastName]]
@@ -1326,7 +1320,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="70px">
                     <template class="header">
-                        Dossier
+                        [[localize("folder", "Dossier", language)]]
                     </template>
                     <template>
                         <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
@@ -1334,7 +1328,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="70px">
                     <template class="header">
-                        Contacts
+                        [[localize("contacts", "Contacts", language)]]
                     </template>
                     <template>
                         <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
@@ -1342,7 +1336,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="70px">
                     <template class="header">
-                        Health elements
+                        [[localize("healthcareelements", "Health Elements", language)]]
                     </template>
                     <template>
                         <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
@@ -1350,7 +1344,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="70px">
                     <template class="header">
-                        Invoices
+                        [[localize("invoices", "Invoices", language)]]
                     </template>
                     <template>
                         <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
@@ -1358,7 +1352,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column width="70px">
                     <template class="header">
-                        Documents
+                        [[localize("documents", "Documents", language)]]
                     </template>
                     <template>
                         <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
@@ -1367,7 +1361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </vaadin-grid>
             <div class="buttons">
                 <paper-spinner class="import-spinner" active="[[isImportingPatients]]"></paper-spinner>
-                <paper-button dialog-dismiss>[[localize('close','Close',language)]]</paper-button>
+                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
                 </paper-button>
                 <paper-button on-click="abortImport">[[localize('abort','Abort',language)]]</paper-button>
                 </paper-button>
@@ -1397,8 +1391,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion
-                    patients',language)]]
+                <paper-button dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion patients',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
