@@ -43,6 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 :host #patients-list {
                     height: calc(100% - 185px);
                     outline: none;
+                    flex-grow: 1;
                 }
 
                 #scroller tbody#item {
@@ -1910,7 +1911,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (e.path[0].nodeName === 'TABLE') return
 
                 const selected = this.activeItem
-                console.log('selected ' + selected + ' - ' + this.latestSelected)
+                console.log('selected ', selected, ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
                 this.set('isLoadingPatient', false)
             }

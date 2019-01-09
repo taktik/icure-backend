@@ -897,7 +897,6 @@
                         this.set('isLoadingDestinations',true)
                         this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
                             .then(hcps => {
-                            console.log(hcps)
                             let setList = []
                             hcps.map(hcp=>{
                                 hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`

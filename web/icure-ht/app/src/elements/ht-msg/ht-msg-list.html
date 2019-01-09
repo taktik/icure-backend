@@ -433,12 +433,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <div class="actions">
                     <template is="dom-if" if="[[!checkedMessages.length]]">
-                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
-                            <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
-                        </template>
+                        <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
+                        <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
+                        <!-- TODO: multiple restore or delete in trash -->
                         <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
                             <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
@@ -1040,9 +1039,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     , mailList = this.shadowRoot.querySelector('#mail-list')
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 // checkerAll.checked = false;
-                allCheckboxes.forEach(box=>{
-                    box.checked = false;
-                })
+                // mailList.querySelector('#checkerAll').checked = false
+                allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                 this.set('checkedMessages',[])
             }
 
@@ -1080,7 +1078,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         }
                     }
-                    allCheckboxes.forEach(box=>box.checked = false)
+                    // mailList.querySelector('#checkerAll').checked = false
+                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                     this._deselectAll();
                 } // if checked length end
@@ -1091,7 +1090,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _restoreMsgs(){
                 const checkedMsgs = this.checkedMessages
-                if(checkedMsgs.length) {
+                if(checkedMsgs.length && this.selectList.selection.item.toUpperCase() === "TRASH") {
                     let mailList = this.shadowRoot.querySelector('#mail-list')
                         , allCheckboxes = mailList.querySelectorAll('.checkbox')
                         , tempBinInbox = [] // msgs to recover to inbox
@@ -1103,13 +1102,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
                         if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
                         msgsToRestore.push(msg) // in any case, add to restore selection
-                        console.log('restore',msgId,thisBox)
+                        console.log('restore '+msgId+' to',thisBox)
                     }) // forEach end
-                    console.log(tempBinInbox,tempBinSentbox)
+                    console.log('all msgs to restore',msgsToRestore)
                     if(tempBinInbox.length){ // for all msgs to send to inbox
+                        console.log('to inbox',tempBinInbox)
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
                     }
                     if(tempBinSentbox.length){ // for all msgs to send to sentbox
+                        console.log('to sentbox',tempBinSentbox)
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
                     }
                     msgsToRestore.forEach(msg=>{ // for all msgs
@@ -1121,9 +1122,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.api.message().modifyMessage(msg.id)
                     })
                     this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
-                    allCheckboxes.forEach(box=>box.checked = false)
+                    // mailList.querySelector('#checkerAll').checked = false
+                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                     this._refresh()
                 } // if checked length end
+                else {
+                    console.log('no length or not trash')
+                }
             }
 
             _timeFormat(date) {

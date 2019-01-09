@@ -78,6 +78,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.card-title {
+                display: flex;
+                flex-grow: 1;
 				padding: 0;
 				margin: 0;
 				font-size: 16px;
@@ -116,9 +118,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 				display: flex;
 				flex-direction: row;
-				justify-content: space-between;
+				justify-content: space-around;
 				align-items: center;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				margin-bottom: 24px;
 			}
 
@@ -187,7 +189,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.card-table-header div, .card-table-cell {
-				width: 40%;
+				width: 50%;
 			}
 
 			.card-header-cell--date, .card-table-cell--date {
@@ -203,24 +205,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding: 0;
 			}
 
-			.card-table-cell:first-child {
-				text-align: center;
+            .card-table-cell {
+                font-size: 14px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                text-align: left;
+                padding-right: 8px;
+            }
+
+            .card-table-header div.lab-name, .card-table-cell.lab-name {
+                padding-left: 8px;
+                box-sizing: border-box;
+                width: 35%;
+            }
+            .card-table-header div.main-cell, .card-table-cell.main-cell {
+                width: 55%;
+            }
+
+			.card-table-cell.main-cell, div.card-table-cell.unread {
 				display: flex;
 				flex-direction: row;
-				justify-content: center;
 				flex-wrap: nowrap;
 				align-items: center;
 				font-size: 14px;
 				font-weight:600;
-			}
-
-			.card-table-cell {
-				font-size: 14px;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				overflow: hidden;
-				text-align: left;
-				padding-right: 8px;
 			}
 
 			.card-table-cell:first-child {
@@ -232,7 +241,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				flex-wrap: nowrap;
 				height:48px;
 				margin:0;
+                border-bottom: 1px solid var(--app-background-color-dark);
 			}
+            .card-table-row:hover {
+                background-color: var(--app-background-color-dark);
+            }
 
 
 
@@ -598,7 +611,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
 					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
-							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]] [[unreadCount]]</h1>
+                            <paper-icon-button icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
@@ -610,15 +624,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('sen','Sender',language)]]</div>
 								<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
+								<div class="card-header-cell">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell lab-name">[[localize('boxtitle.labResult','Laboratory',language)]]</div>
 							</div>
-							<template is="dom-repeat" items="[[messages]]" as="msg">
-								<div class="row card-table-row" data-id$="[[msg.id]]" on-tap="openMessage">
-									<div class="card-table-cell">[[msg.fromAddress]]</div>
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.metas.CM-SendDateTime)]]</div>
-									<div class="card-table-cell">[[msg.subject]] </div>
+							<template is="dom-repeat" items="[[labResults]]" as="result">
+								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
+									<div class$="card-table-cell [[result.readStatus]]">[[result.patient.name]]</div>
+									<div class="card-table-cell lab-name">[[result.descr]]</div>
 								</div>
 							</template>
 							<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
@@ -648,7 +662,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-listbox>
 									<paper-item>
 										<div class="row card-table-row" data-id$="[[service.service.id]]">
-											<div class="card-table-cell">
+											<div class="card-table-cell main-cell">
 												<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
 												<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
 											</div>
@@ -741,7 +755,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					return [];
 				}
 			},
-			messages: {
+            labResults: {
 				type: Array,
 				value: function () {
 					return [];
@@ -858,18 +872,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				});
 			}).then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)));
 
-			this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-				messages.rows.forEach(function (m, index, messages) {
-					if (m.status && 1 << 1 == 0) {
-						messages.splice(index, 1);
-					}
-				}); //todo refaire reduce
-				messages.rows.sort(function (a, b) {
-					return a.status && (1 << 0) - b.status && 1 << 0;
-				});
-				this._isLoadingLatestLabResults = false;
-				return messages.rows;
-			}).then(messages => {this.set('messages', messages || []); console.log(this.messages)});
+            this._updateLabResults()
 
 			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
 				return appointments && this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
@@ -923,6 +926,35 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		});
 	}
 
+	_updateLabResults() {
+	    console.log('update Lab Results')
+        this._isLoadingLatestLabResults = true;
+        this.api.contact().getServiceCodesOccurences('labResult',0).then(occurences=>{
+            let occurList = []
+            occurences.map(occurence=>occurList.push(occurence.label))
+            return occurList
+        }).then((occurList)=>{
+            return this.api.contact().getContactsWithUser(this.user,{ids:occurList}).then(cs=>{
+                let resList = []
+                cs.forEach(c=>{
+                    console.log('c',c)
+                    const svc = c.services.filter(s=> s.label==='labResult')
+                    resList.push({
+                        patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},
+                        created: c.created,
+                        descr: c.descr,
+                        readStatus: 'unread'
+                    })
+                })
+                let unreadCount = 0
+                resList.forEach(res=>{if(res.readSatus === 'unread') unreadCount+= 1})
+                this.set('unreadCount',unreadCount)
+                this._isLoadingLatestLabResults = false;
+                return _.sortBy(resList,'created').reverse()
+            }).then(resList=> this.set('labResults',resList || []))
+        })
+    }
+
 	_timeFormat(date) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
 	}
@@ -957,15 +989,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
 
-	openMessage(ev) {
-
-		console.log(ev)
-		let target = ev.path[0];
-		while (target && !target.dataset.id) {
-			target = target.parentNode;
-		}
-		location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
-	}
+	// openLabResult(ev) {
+	// 	let target = ev.target;
+    //     while (target && !target.dataset.id) {
+    //         target = target.parentNode;
+    //     }
+	// 	console.log(target)
+    //     console.log(target.dataset.id)
+	// 	// location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
+	// }
 
 	_layoutDialog(e){
 		e.stopPropagation()

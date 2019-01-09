@@ -1366,9 +1366,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const unassigned = this.unassignedResults ? this.unassignedResults : []
         const document = this.thisDocument ? this.thisDocument : null
         delete docInfo.formatedDemandDate
-        console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document)
         if (tempSelect && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
+                console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
                     groupId : document.id,
                     created: new Date().getTime() ,
@@ -1379,17 +1379,28 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     closingDate: moment().format('YYYYMMDDhhmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
+                    // cryptedForeignKeys: document.encryptionKeys,
                     subContacts: []
                 }).then(c => {
-                    console.log('newInstance', c)
+                    c.services.push({
+                        id: this.api.crypto().randomUuid(),
+                        codes: [{type:'labResult',code:c.id}],
+                        label: 'labResult',
+                        content:{
+                            'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
+                            'patientId': {stringValue: thisPat.id}
+                        }
+                    })
+                    console.log('c services',c.services)
                     return this.api.contact().createContactWithUser(this.user,c)
                 }).then(c => {
                     console.log('createContactWithUser',c)
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
+                        // cryptedForeignKeys: thisPat.cryptedForeignKeys,
                         descr: "Lab " + new Date().getTime(),
                     }).then(f => {
-                        console.log('should do Import',thisPat,docInfo,document)
+                        console.log('should do Import',f)
                         return this.api.form().createForm(f).then(f =>
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                                 this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
@@ -1397,31 +1408,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         )
                     })
                 }).then(c => {
-                    console.log("I'm your helper : ",c,document,docInfo);
                     let tempUnassign = this.unassignedResults
                     Object.keys(unassigned).forEach(res => {
-                        console.log('unassigned,res',unassigned[res], typeof unassigned[res])
                         if (unassigned[res] === docInfo.protocol) {
-                            console.log('splice')
                             tempUnassign.splice(tempUnassign.indexOf(docInfo.protocol))
                             this.set('unassignedResults',tempUnassign)
                         }
                     })
-                    // this.set("unimportedPats", unassigned)
-                    // assigned.push({[c.contactId]: thisPat.protocol})
                     let tempAssign = _.clone(this.assignedResults)
                     tempAssign[c.id] = docInfo.protocol
                     this.set('assignedResults',tempAssign)
-                    console.log('unassignedResults', this.unassignedResults)
-                    console.log('assignedResults', this.assignedResults)
-                    console.log('un/assigned changed')
-                    tempSelect.unassignedResults = this.unassignedResults
-                    tempSelect.assignedResults = this.assignedResults
-                    console.log('tempSelect', tempSelect)
+                    tempSelect.unassignedResults = tempUnassign
+                    tempSelect.assignedResults = tempAssign
+                    return tempSelect
+                }).then(tempSelect=>{
                     return this.api.message().modifyMessage(tempSelect).then(msg => {
-                        console.log(msg,'modifyMessage', tempSelect.unassignedResults.length + " unassigned", tempSelect)
-                        if (tempSelect.unassignedResults.length == 0) {
-                            console.log('no more assigned')
+                        if (msg.unassignedResults.length == 0) {
                             this.closeSuggestions()
                             return this._removeMsg(msg)
                         } else {
