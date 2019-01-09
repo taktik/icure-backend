@@ -626,9 +626,10 @@
 				<div class="fleft">
 					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
 					<paper-button class="modal-button" on-tap="loadTemplate">[[localize('load_temp','Load template',language)]]</paper-button>
+					<paper-button class="modal-button" on-tap="printDocument">[[localize('print','Print',language)]]</paper-button>
 				</div>
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('save','Save',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="saveDocument">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 		<canvas id="barCode"></canvas>
@@ -760,6 +761,10 @@ import * as evaljs from "evaljs"
             subcontactType: {
                 type: Array,
                 value: () => []
+            },
+            proseJsonContent: {
+                type: Object,
+                value: null
             }
 		};
 	}
@@ -1589,10 +1594,39 @@ import * as evaljs from "evaljs"
 
 
 
-    _saveProse() {
+    saveDocument() {
         const prose = this.root.querySelector("#prose-editor");
-        const proseContent = prose.editorView.state.doc.toString();
-        console.log(proseContent);
+    }
+
+
+    _dropVarValuesFromProseDocumentJson( inputData ) {
+
+        // First hit
+        if(!_.trim(inputData)) inputData = this.proseJsonContent;
+
+        _.forEach(inputData.content, (v,k)=>{
+            if(_.size(_.get(v, "content", {}))) {
+                if( v.type === "variable" ) {
+                    if(_.trim(_.get(v, "content[0].text", ""))) v.content[0].text = "";
+                    return v;
+                } else {
+                    this._dropVarValuesFromProseDocumentJson(v);
+                }
+            }
+        })
+
+    }
+
+
+    saveTemplate() {
+        const prose = this.root.querySelector("#prose-editor");
+
+        this.proseJsonContent = prose.editorView.state.doc.toJSON();
+        const proseJsonContentWithoutVars = this._dropVarValuesFromProseDocumentJson();
+
+        console.log(proseJsonContent);
+        console.log(proseJsonContentWithoutVars);
+
         /*
         this.api.message().newInstance(this.user).then(newMessageInstance=>{
             this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "DOC:TEMPLATE:PRINT", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))]} )).then(createMessageResponse => {
@@ -1657,8 +1691,7 @@ import * as evaljs from "evaljs"
 		this.editedReportDataProvider = e.detail.dataProvider
 		this.$['prose-editor-dialog'].open()
         const prose = this.root.querySelector("#prose-editor")
-        // prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: "dataProvider.getValue('${varname}')"} }) );
-        prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: "dataProvider.getValue('Poids')"} }) );
+        prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: `dataProvider.getValue("${k}")`} }) );
 	}
 
 
@@ -1673,6 +1706,323 @@ import * as evaljs from "evaljs"
                 scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
             }, composed: true
         }));
+    }
+
+
+
+    _getPdfHeader() {
+
+                return `<html>
+                            <head>
+                                <style>
+
+                                    body {margin: 0;}
+                                    @page {size: A4; margin: 0; }
+
+                                    article.page {
+                                        width: 210mm;
+                                        height: 283mm;
+                                        padding: 20px;
+                                        overflow:hidden;
+                                    }
+                                    :host {
+                                        background: 0 0;
+                                        height: 100%;
+                                        width: 100%;
+                                        font-family: 'Roboto', sans-serif;
+                                        font-size: 13px;
+                                        min-height: 100vw;
+
+                                    }
+
+                                    .prose-editor-container{
+                                        height: 100%;
+                                        display: flex;
+                                        flex-flow: column nowrap;
+                                        justify-content: space-between;
+                                    }
+
+                                    .container {
+                                        left: 50%;
+                                        transform: translateX(-50%);
+                                        position: absolute;
+                                    }
+
+                                    .page {
+                                        padding: 20px;
+                                        outline: 0;
+                                        background: #fefefe;
+                                        border-radius: 3px;
+                                        box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.14),
+                                        0 3px 4px 0 rgba(0, 0, 0, 0.12),
+                                        0 1px 8px 0 rgba(0, 0, 0, 0.20);
+
+                                        width: 555px;
+                                        min-height: 801px;
+                                        transition: height .2s ease-in;
+
+                                        font-family: 'Roboto', sans-serif;
+                                        font-size: 11px;
+
+                                        margin-bottom: 24px;
+                                    }
+
+                                    h1 {
+                                        font-size: 1.8em;
+                                        font-weight: bold;
+                                    }
+
+                                    h2 {
+                                        font-size: 1.5em;
+                                        font-weight: bold;
+                                    }
+
+                                    h3 {
+                                        font-size: 1.3em;
+                                        font-weight: bold;
+                                    }
+
+                                    h4 {
+                                        font-size: 1em;
+                                        font-weight: bold;
+                                        text-decoration: underline;
+                                    }
+
+
+                                    h5 {
+                                        font-size: 1em;
+                                        text-decoration: underline;
+                                    }
+
+                                    #editor {
+                                        outline: 0;
+                                        padding: 20px;
+                                    }
+
+                                    .ProseMirror {
+                                        outline: 0;
+                                        position: relative;
+                                        word-wrap: break-word;
+                                        white-space: pre-wrap;
+                                        -webkit-font-variant-ligatures: none;
+                                        font-variant-ligatures: none;
+                                    }
+
+                                    .ProseMirror pre {
+                                        white-space: pre-wrap;
+                                    }
+
+                                    .ProseMirror li {
+                                        position: relative;
+                                    }
+
+                                    .ProseMirror .tableWrapper {
+                                        overflow-x: auto;
+                                    }
+                                    .ProseMirror table {
+                                        border-collapse: collapse;
+                                        table-layout: fixed;
+                                        width: 100%;
+                                        overflow: hidden;
+                                        margin: 0;
+                                    }
+
+                                    .ProseMirror td, .ProseMirror th {
+                                        vertical-align: top;
+                                        box-sizing: border-box;
+                                        position: relative;
+                                    }
+
+                                    .ProseMirror .column-resize-handle {
+                                        position: absolute;
+                                        right: -2px; top: 0; bottom: 0;
+                                        width: 4px;
+                                        z-index: 20;
+                                        background-color: #adf;
+                                        pointer-events: none;
+                                    }
+
+                                    .ProseMirror.resize-cursor {
+                                        cursor: ew-resize;
+                                        cursor: col-resize;
+                                    }
+
+                                    /* Give selected cells a blue overlay */
+                                    .ProseMirror .selectedCell:after {
+                                        z-index: 2;
+                                        position: absolute;
+                                        content: "";
+                                        left: 0; right: 0; top: 0; bottom: 0;
+                                        background: rgba(200, 200, 255, 0.4);
+                                        pointer-events: none;
+                                    }
+
+                                    .ProseMirror th, .ProseMirror td {
+                                        min-width: 1em;
+                                        border: 1px solid #ddd;
+                                        padding: 3px 5px;
+                                    }
+
+                                    .ProseMirror-hideselection *::selection {
+                                        background: transparent;
+                                    }
+
+                                    .ProseMirror-hideselection *::-moz-selection {
+                                        background: transparent;
+                                    }
+
+                                    .ProseMirror-hideselection {
+                                        caret-color: transparent;
+                                    }
+
+                                    .ProseMirror-selectednode {
+                                        outline: 2px solid #8cf;
+                                    }
+
+                                    /* Make sure li selections wrap around markers */
+
+                                    li.ProseMirror-selectednode {
+                                        outline: none;
+                                    }
+
+                                    li.ProseMirror-selectednode:after {
+                                        content: "";
+                                        position: absolute;
+                                        left: -32px;
+                                        right: -2px;
+                                        top: -2px;
+                                        bottom: -2px;
+                                        border: 2px solid #8cf;
+                                        pointer-events: none;
+                                    }
+
+                                    paper-toolbar {
+                                        --paper-toolbar-background: ligh-gray;
+                                    }
+
+                                    paper-dropdown-menu {
+                                        display:block;
+                                        width: 10%;
+                                        height: 40px;
+                                        margin: 0 4px;
+                                        --paper-dropdown-menu-button: {
+                                            height: 40px;
+                                        };
+                                        --paper-dropdown-menu-input: {
+                                            height: 40px;
+                                        };
+                                        --paper-input-container: {
+                                            height: 40px;
+                                        };
+                                        --paper-input-container-input: {
+                                        }
+                                        --paper-input-container-input-align: center;
+                                    }
+
+                                    .toolbar {
+                                        width: 100%;
+                                        height: 48px;
+                                        min-height: 40px;
+                                        overflow: hidden;
+                                        border-bottom: 1px solid #e0e0e0;
+                                        background: #fff;
+                                        padding: 0;
+                                        display: flex;
+                                        flex-flow: row nowrap;
+                                        align-items: center;
+                                        justify-content: flex-start;
+                                        box-sizing: border-box;
+                                        padding: 0 8px;
+                                    }
+
+                                    .scroll-area {
+                                        flex-grow: 1;
+                                        width: 100%;
+                                        height: 100%;
+                                        overflow: auto;
+                                        position: relative;
+                                        background: var(--app-background-color);
+                                        min-height:calc(100vh - 400px);
+                                    }
+
+                                    .status-bar {
+                                        width: 100%;
+                                        height: 38px;
+                                        bottom: 0;
+                                        overflow: hidden;
+                                        padding-top: 5px;
+                                        padding-bottom: 5px;
+
+                                        border-top: 1px solid #e0e0e0;
+                                        border-bottom: 1px solid #e0e0e0;
+                                    }
+
+                                    paper-icon-button:hover{
+                                        color: var(--app-text-color);
+                                        background: --app-background-color-dark;
+                                    }
+
+                                    paper-icon-button{
+                                        color: var(--app-text-color-disabled);
+                                        border-radius: 50%;
+                                        transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+                                    }
+
+                                    paper-icon-button[active] {
+                                        color: var(--app-text-color);
+                                    }
+
+                                    paper-input.zoom {
+                                        padding-left: 8px;
+                                        width: 60px;
+                                        height: 40px;
+                                    }
+
+                                    .divider{
+                                        display: block;
+                                        border-left: 1px solid #e0e0e0;
+                                        height: 100%;
+                                        margin: 0 4px;
+                                        padding: 0;
+                                    }
+
+                                    .dropdown-content paper-item {
+                                        cursor: pointer;
+                                    }
+
+                                    .ProseMirror table {
+                                        margin: 0;
+                                    }
+                                    .ProseMirror th, .ProseMirror td {
+                                        min-width: 1em;
+                                        border: 1px solid #ddd;
+                                        padding: 3px 5px;
+                                    }
+                                    .ProseMirror .tableWrapper {
+                                        margin: 1em 0;
+                                    }
+
+                                </style>
+                                </head>
+                                <body>`
+            }
+
+    _getPdfFooter() {
+        return "</body></html>";
+    }
+
+
+    printDocument() {
+
+        const prose = this.root.querySelector("#prose-editor");
+        const proseContent = prose.editorView.state.doc.toString();
+        const proseContainer = prose.$.container;
+        const proseHtmlContent = proseContainer.innerHTML;
+
+        this.api.pdfReport(this._getPdfHeader() + proseHtmlContent + this._getPdfFooter() ).then(pdfFileContent =>{
+            this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
+        });
+
 
     }
 
