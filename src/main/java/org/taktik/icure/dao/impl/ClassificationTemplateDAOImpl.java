@@ -26,6 +26,8 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.ClassificationTemplateDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.ClassificationTemplate;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
  * Created by dlm on 16-07-18
  */
 @Repository("classificationTemplateDAO")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ClassificationTemplate' && !doc.deleted) emit( doc.patientId, doc._id )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ClassificationTemplate' && !doc.deleted) emit( doc.label, doc._id )}")
 class ClassificationTemplateDAOImpl extends GenericIcureDAOImpl<ClassificationTemplate> implements ClassificationTemplateDAO {
     @Autowired
     public ClassificationTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
@@ -59,6 +61,16 @@ class ClassificationTemplateDAOImpl extends GenericIcureDAOImpl<ClassificationTe
 
         return result;
     }
+
+	@Override
+	public PaginatedList<ClassificationTemplate> listClassificationTemplates(PaginationOffset paginationOffset) {
+		return pagedQueryView(
+				"all",
+				paginationOffset.getStartKey() != null ? paginationOffset.getStartKey().toString() : "\u0000",
+				"\ufff0",
+				paginationOffset, false
+		);
+	}
 
 
 }

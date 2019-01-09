@@ -403,7 +403,7 @@
 					subContactTitle: () => {
                         const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
 						const contactType = scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
-						const type = this.subcontactType && this.subcontactType.find(c => c.id === contactType.id)
+						const type = this.subcontactType && this.subcontactType.length && this.subcontactType.find(c => c.id === contactType.id)
 						return type && "("+type.label[this.language]+")" || ""
 
 
