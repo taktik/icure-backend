@@ -304,10 +304,11 @@
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
-                ctc.services.map(s => s.tags.filter(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
+                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
 					.forEach(svc => {
-                        if (!idLinkables.includes(svc.id)) {
-                            this.splice('healthElements', 0, 0, [{
+                        const descr = this.shortServiceDescription(svc, this.language)
+                        if (descr && descr.length && !idLinkables.includes(svc.id)) {
+                            const he = {
                                 created: svc.created,
                                 modified: svc.modified,
                                 endOfLife: svc.endOfLife,
@@ -318,12 +319,18 @@
                                 valueDate: svc.valueDate,
                                 openingDate: svc.openingDate,
                                 closingDate: svc.closingDate,
-                                descr: this.shortServiceDescription(svc, this.language),
+                                descr: descr,
                                 idService: svc.id,
                                 status: svc.status,
                                 svc: svc,
                                 plansOfAction: []
-                            }])
+                            }
+                            this.api.code().icpcChapters([he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code)]).then(([code]) => code && code.descr && ((he.colour = cc.descr.colour)))
+
+							idLinkables.push(svc.id)
+
+							this.splice('healthElements', 0, 0, he)
+                            this.splice('mainHealthElements', 0, 0, he)
                         }
                     })
 
@@ -395,7 +402,7 @@
                     },
 					subContactTitle: () => {
                         const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
-						const contactType = scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
+						const contactType = scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
 						const type = this.subcontactType && this.subcontactType.find(c => c.id === contactType.id)
 						return type && "("+type.label[this.language]+")" || ""
 

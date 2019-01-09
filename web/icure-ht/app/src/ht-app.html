@@ -68,10 +68,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
+<link rel="import" href="./dialog-style.html">
+
 <dom-module id="ht-app">
 
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles dialog-style">
             :host {
                 display: block;
             }
@@ -412,6 +414,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 box-sizing: border-box;
             }
 
+            .formNewHcp paper-input{
+                --paper-input-container-focus-color: var(--app-secondary-color);
+            }
+
             .top-gradient {
                 line-height: 0;
                 font-size: 0;
@@ -688,8 +694,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-drawer-layout>
 
         <paper-dialog id="ht-invite-hcp">
-            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
-            <div id="" class="formNewHcp">
+            <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <div id="" class="content formNewHcp">
                 <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>

@@ -18,8 +18,6 @@
 <link rel="import" href="../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
 <link rel="import" href="../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
-<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
-
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
@@ -46,6 +44,8 @@
 <link rel="import" href="../../../../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
 
+
+<link rel="import" href="../../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../../spinner-style.html">
@@ -923,10 +923,12 @@
             .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
                 transform: rotate(180deg)
             }
-            paper-spinner.validAndTarif {
+            ht-spinner.validAndTarif {
                 position: absolute;
                 top: 10px;
                 transform: translateX(-10px);
+                height: 42px;
+                width: 42px;
             }
 
             .modal-button-red {
@@ -1160,7 +1162,7 @@
                                              validator="ht-inami-validator" auto-validate></paper-input>
                             </template>
                             <template is="dom-if" if="[[isLoadingLocations]]">
-                                <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
+                                <ht-spinner class="locations-spinner" active="[[isLoadingLocations]]"></ht-spinner>
                             </template>
                         </template>
 
@@ -1186,7 +1188,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
+                                <!--<ht-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></ht-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="80px">
@@ -1415,8 +1417,8 @@
                 </div>
 
                 <div class="buttons">
-                    <paper-spinner class="validAndTarif" active="[[isLoadingValidation]]"></paper-spinner>
-                    <paper-spinner class="validAndTarif" active="[[isLoadingJustif]]"></paper-spinner>
+                    <ht-spinner class="validAndTarif" active="[[isLoadingValidation]]"></ht-spinner>
+                    <ht-spinner class="validAndTarif" active="[[isLoadingJustif]]"></ht-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">

@@ -15,11 +15,12 @@
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../dynamic-form/dynamic-link.html">
 <link rel="import" href="../../dynamic-form/dynamic-pills.html">
+
+<link rel="import" href="../../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-pat-edmg-dialog">
     <template>
@@ -158,9 +159,11 @@
                 background: var(--app-secondary-color);
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
             }
-            paper-spinner {
+            ht-spinner {
                 position: relative;
                 top: 10px;
+                height: 42px;
+                width: 42px;
             }
         </style>
 
@@ -178,7 +181,7 @@
                             <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
                             <paper-button class="action" on-tap="_consultDmg" disabled="[[isLoading]]">[[localize('refresh','Refresh',language)]]</paper-button>
-                            <paper-spinner active="[[isLoading]]"></paper-spinner>
+                            <ht-spinner active="[[isLoading]]"></ht-spinner>
                         </div>
                         <!-- Show consultation result/errors -->
                         <div class="edmg-info">
@@ -239,7 +242,7 @@
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
                             <paper-button class="action" on-tap="_dmgNotify" disabled="[[isLoading]]">[[localize('dmg_not','Notify',language)]]</paper-button>
-                            <paper-spinner active="[[isLoading]]"></paper-spinner>
+                            <ht-spinner active="[[isLoading]]"></ht-spinner>
 
                             <template is="dom-if" if="{{notifyDmgResp}}">
                                 <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
