@@ -1,0 +1,159 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="ht-pat-vaccine-history-dialog">
+    <template>
+        <style>
+            #dialog{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 480px;
+                min-width: 800px;
+                max-height: 80vh;
+                max-width: 80vw;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+            }
+            .view {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                overflow-x: scroll;
+                overflow-y: auto;
+                border-top: 1px solid var(--app-background-color-darker);
+                border-bottom: 1px solid var(--app-background-color-darker);
+            }
+            .view .item {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .view .item.title {
+                font-weight: 600;
+                text-align: left;
+            }
+            .view .item.entry {
+                height: 48px;
+                line-height: 48px;
+            }
+            .view .item div.time {
+                width: 96px;
+            }
+            .view .item div.name {
+                font-weight: bold;
+                max-width: 160px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            div.button {
+                border-top: 1px solid var(--app-background-color-dark);
+                justify-content: flex-end;
+            }
+            paper-button {
+                color: #000;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <h2>[[localize('vacc_his','Vaccine history',language)]]</h2>
+            <div class="view">
+                <div class="item title">
+                    <div class="time">[[localize('dat','Date',language)]]</div>
+                    <div class="name">[[localize('cdItemVaccine','Vaccine',language)]]</div>
+                </div>
+                <template is="dom-repeat" items="[[vaccines]]">
+                    <div class="item entry">
+                        <div class="time">[[_timeFormat(item.created)]]</div>
+                        <div class="name">[[_getContent(item)]]</div>
+                    </div>
+                </template>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        import _ from 'lodash/lodash';
+
+        class HtPatVaccineHistory extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-pat-vaccine-history-dialog';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    language: {
+                        type: String
+                    },
+                    contacts: {
+                        type: Array,
+                        value: null
+                    },
+                    vaccines: {
+                        type: Object,
+                        value: []
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['setList(contacts)']
+            }
+
+            constructor() {
+                super();
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            setList(){
+                if(!(this.contacts && this.contacts.length)) return;
+                this.api.contact().filterServices(this.contacts,s => s.label==='Actes').then(services =>{
+                    let vaccines = []
+                    services.forEach(svc=>{Object.keys(svc.tags).forEach(k=>{if (svc.tags[k].code == 'vaccine') {
+                        console.log('vacc is',svc)
+                        vaccines.push(svc)
+                    }})})
+                    this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
+                })
+            }
+
+            _getContent(svc){
+                return svc && svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name'
+            }
+            _getStatut(svc){
+                return this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code) ? this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code).label[this.language] : svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code
+            }
+            showAction(e){
+                this.set("contact",this.contacts.find(ctc => ctc.services.find(svc => svc.id===e.target.dataset.item)))
+                this.dispatchEvent(new CustomEvent('open-action', { detail: { contact: this.contact, service: this.services.find(svc => svc.id===e.target.dataset.item) } }));
+            }
+
+            _timeFormat(date) {
+                return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';
+            }
+
+        }
+
+        customElements.define(HtPatVaccineHistory.is, HtPatVaccineHistory);
+    </script>
+</dom-module>

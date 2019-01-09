@@ -14,19 +14,16 @@
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
 
+<link rel="import" href="../../dialog-style.html">
+
 <dom-module id="ht-access-log">
     <template>
-        <style>
+        <style include="dialog-style">
             paper-dialog {
                 width: 60%;
-                display:flex;
-                flex-flow: row wrap;
-                justify-content: space-between;
-                align-items: flex-start;
+                height: 50%;
             }
-            #dialog{
-                overflow: auto;
-            }
+
             div {
                 width : 100%;
             }
@@ -34,27 +31,14 @@
                 width : 100%;
             }
 
-            .modal-button{
-                --paper-button-ink-color: var(--app-secondary-color-dark);
-                color: var(--app-text-color);
-                font-weight: 400;
-                font-size: 14px;
-                height: 40px;
-                min-width: 100px;
-                padding: 10px 1.2em;
-                text-transform: capitalize;
+            paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
-
-            .modal-button--save{
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                background: var(--app-secondary-color);
-                color: var(--app-primary-color-dark);
-                font-weight: 700;
-
-            }
+            
         </style>
         <paper-dialog id="dialog" opened="{{opened}}">
-            <div>
+            <h3 class="modal-title">Access log</h3>
+            <div class="content">
                 <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
                              on-keydown="refresh"></paper-input>
                 <vaadin-grid items="[[logList]]">

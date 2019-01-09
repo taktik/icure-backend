@@ -68,10 +68,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
+<link rel="import" href="./dialog-style.html">
+
 <dom-module id="ht-app">
 
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles dialog-style">
             :host {
                 display: block;
             }
@@ -412,6 +414,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 box-sizing: border-box;
             }
 
+            .formNewHcp paper-input{
+                --paper-input-container-focus-color: var(--app-secondary-color);
+            }
+
             .top-gradient {
                 line-height: 0;
                 font-size: 0;
@@ -688,8 +694,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-drawer-layout>
 
         <paper-dialog id="ht-invite-hcp">
-            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
-            <div id="" class="formNewHcp">
+            <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <div id="" class="content formNewHcp">
                 <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
@@ -971,12 +977,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
+            _inboxMessageCheck(period = 600000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
                     console.log("First launch, check msgs")
-
+                    this.checkEhboxMessage()
                 } else {
                     console.log("ehbox already active, launch the interval",period)
                     this.timeOutId = setInterval(() => {
@@ -1291,8 +1297,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad < Date.now() + (10*60000) || lastLoad==-1)
-                console.log('checkEhboxMessage', lastLoad+'<'+Date.now() + (10*60000),shouldLoad)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)

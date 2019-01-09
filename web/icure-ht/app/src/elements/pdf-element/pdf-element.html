@@ -21,7 +21,6 @@
 <link rel="import" href="../../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../../../bower_components/iron-validator-behavior/iron-validator-behavior.html">
@@ -29,6 +28,9 @@
 <script src="../../../bower_components/pdfjs-dist/web/compatibility.js"></script>
 <script src="../../../bower_components/pdfjs-dist/build/pdf.js"></script>
 <script src="../../../bower_components/pdfjs-dist/build/pdf.worker.js"></script>
+
+<link rel="import" href="../ht-spinner/ht-spinner.html">
+
 
 <script src="main.js"></script>
 
@@ -139,9 +141,12 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
 				padding: 0 3px;
 			}
 
-			paper-spinner {
+			ht-spinner {
 				position: absolute;
 				left: 50%;
+				height: 42px;
+				width: 42px;
+				transform: translateX(-50%);
 			}
 
 			.textLayer {
@@ -428,13 +433,6 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
 				border: 0;
 			}
 
-			paper-spinner{
-				--paper-spinner-layer-1-color: var(--app-secondary-color);
-				--paper-spinner-layer-2-color: var(--app-primary-color-light);
-				--paper-spinner-layer-3-color: var(--app-secondary-color-dark);
-				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
-			}
-
 		</style>
 
 		<div id="pdf-viewer" class="pdf-viewer">
@@ -459,7 +457,7 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
 				<canvas class="pdf-viewport"></canvas>
 				<div id="text-layer" class="textLayer" hidden$="{{!enableTextSelection}}"></div>
 			</div>
-			<paper-spinner class="spinner" hidden$="{{!showSpinner}}"></paper-spinner>
+			<ht-spinner class="spinner" hidden$="{{!showSpinner}}"></ht-spinner>
 		</div>
 
 	</template>

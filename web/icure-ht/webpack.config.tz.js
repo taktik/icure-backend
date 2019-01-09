@@ -91,7 +91,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             inject: false,
 	        debug: true,
-            template: path.resolve(__dirname, 'app/index.tz.ejs')
+            template: path.resolve(__dirname, 'app/index.tz.ejs'),
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST

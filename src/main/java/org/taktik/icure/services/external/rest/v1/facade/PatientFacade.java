@@ -36,6 +36,7 @@ import org.taktik.icure.db.Sorting;
 import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
@@ -109,7 +110,7 @@ public class PatientFacade implements OpenApiFacade{
     @GET
     @Path("/byNameBirthSsinAuto")
     public Response findByNameBirthSsinAuto(
-    		@ApiParam(value = "Mendatory healthcareParty Id") @QueryParam("healthcarePartyId") String healthcarePartyId,
+    		@ApiParam(value = "HealthcareParty Id, if unset will user user's hcpId") @QueryParam("healthcarePartyId") String healthcarePartyId,
             @ApiParam(value = "Optional value for filtering results") @QueryParam("filterValue") String filterValue,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
                     "components to form the Complex Key's startKey") @QueryParam("startKey") String startKey,
@@ -119,6 +120,10 @@ public class PatientFacade implements OpenApiFacade{
 	            defaultValue = "asc") @QueryParam("sortDirection") String sortDirection) {
 
         Response response;
+
+        if (healthcarePartyId==null) {
+	        healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId();
+        }
 
         String[] startKeyElements = new Gson().fromJson(startKey, String[].class);
         @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null,

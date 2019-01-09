@@ -60,6 +60,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
 
+<link rel="import" href="../ht-spinner/ht-spinner.html">
+
 <dom-module id="ht-msg-menu">
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
@@ -517,12 +519,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: space-between;
             }
 
-            paper-spinner {
+            ht-spinner {
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 z-index: 9999;
                 transform: translate(-50% -50%);
+				height: 42px;
+				width: 42px;
             }
 
             #flatrateinvoiceboxcollapse {
@@ -535,7 +539,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</style>
 		<div class="col-left">
-            <template is="dom-if" if="[[isLoadingMailList]]"><paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner></template>
+            <template is="dom-if" if="[[isLoadingMailList]]"><ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner></template>
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
@@ -589,7 +593,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j3">[[localize('_e_flatrateinv_listing','Listing',language)]]</paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej3">[[localize('_e_flatrateinv_archives_listing','Archives listing',language)]]</paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20">[[localize('_e_flatrateinv_invoicing','Facturation',language)]]</paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej20">[[localize('_e_flatrateinv_archives_invoicing','Archives facturation',language)]]</paper-item>
+                    <!--<paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej20">[[localize('_e_flatrateinv_archives_invoicing','Archives facturation',language)]]</paper-item>-->
                 </paper-listbox>
             </collapse-button>
 

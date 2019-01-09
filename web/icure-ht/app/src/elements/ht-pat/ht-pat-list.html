@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
@@ -30,10 +30,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 
+<link rel="import" href="../../dialog-style.html">
+
 <dom-module id="ht-pat-list">
     <template>
         <custom-style>
-            <style is="custom-style">
+            <style is="custom-style dialog-style">
                 :host {
                     display: block;
                     height: 100%;
@@ -41,8 +43,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 :host #patients-list {
-                    height: calc(100% - 185px);
+                    height: calc(100% - 200px);
                     outline: none;
+                    flex-grow: 1;
                 }
 
                 #scroller tbody#item {
@@ -191,7 +194,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .line {
                     display: flex;
-                    flex-direction: row;
+                    flex-flow: row nowrap;
+                    align-items: center;
+                    justify-content: space-between;
                     margin: 8px 0;
                 }
 
@@ -206,6 +211,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin: 4px auto;
 
                     flex-grow: 1;
+                }
+
+                .cancel-btn {
+                    --paper-button-ink-color: var(--app-text-color);
+                    color: var(--app-text-color);
+                    font-weight: bold;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
                 }
 
                 .add-btn {
@@ -378,16 +394,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 #selectPatientOption {
-                    height: 34px;
+                    height: calc(58px + 78px);
+                    box-sizing: border-box;
                     padding: 14px;
                     background: var(--app-background-color-dark);
                     -webkit-transition: background .15s;
                     transition: background .15s;
                     z-index: 2;
                     display: flex;
-                    border-left: 1px solid rgba(0, 0, 0, .05);
-                    border-right: 1px solid rgba(0, 0, 0, .05);
-
+                    border-left: 1px solid rgba(0,0,0,.05);
+                    border-right: 1px solid rgba(0,0,0,.05);
+                    display: flex;
+                    flex-flow: row wrap;
+                    align-items: center;
                 }
 
                 #selectPatientOption_back {
@@ -434,8 +453,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 #fusionDialog {
-                    height: 200px;
-                    width: 700px;
+                    width: 50%;
                 }
 
                 #duplicate-list {
@@ -522,11 +540,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 paper-dialog {
-                    width: 80%;
-                    display: flex;
-                    flex-flow: row wrap;
-                    justify-content: space-between;
-                    align-items: flex-start;
+                    width: 50%;
                 }
 
                 paper-input {
@@ -556,7 +570,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 34px;
                     font-size: 13px;
                     min-width: initial;
-
                     margin: 0 8px 8px 0;
                     border-radius: 5px;
                     text-transform: capitalize;
@@ -718,12 +731,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
-                paper-spinner {
+                ht-spinner {
                     position: fixed;
-                    top: 210px;
+                    top: 50%;
                     left: 50%;
                     z-index: 9999;
-                    transform: translateX(-50%);
+                    transform: translate(-50%, -50%);
+                    height: 42px;
+                    width: 42px;
                 }
 
                 import-spinner {
@@ -839,7 +854,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
 
 
-                <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
+                <ht-spinner class="center" active="[[isLoadingPatient]]"></ht-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="clickOnRow">
                     <vaadin-grid-column flex-grow="0" width="5%">
@@ -919,11 +934,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                             <template is="dom-if" if="[[btnSelectionPatient]]">
                                 <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
-                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export
-                                    patients',language)]]
+                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </div>
-                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
-                                    patients',language)]]
+                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
                                 </div>
                             </template>
                             <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
@@ -934,10 +947,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                            <div class="add-elem-mobile" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
-                            </div>
-                            <div class="add-elem-mobile" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]</iron-icon>
-                            </div>
+                            <div class="add-elem-mobile" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]</div>
+                            <div class="add-elem-mobile" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]</iron-icon></div>
                             <template is="dom-if" if="[[taskProgress]]">
                                 <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
                             </template>
@@ -956,14 +967,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-button>
 
                             <template is="dom-if" if="[[btnSelectionPatient]]">
-                                <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
-                                    patients',language)]]
+                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
                                 </paper-button>
                             </template>
 
@@ -974,10 +982,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-button>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                            <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
-                            </paper-button>
-                            <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]
+                            <paper-button class="cancel-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]</paper-button>
+                            <paper-button class="add-btn" on-tap="_openPatientActionDialog">
                                 <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
+                                [[localize('sel','Select',language)]]
                             </paper-button>
                             <template is="dom-if" if="[[taskProgress]]">
                                 <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
@@ -989,14 +997,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <paper-dialog id="patient-import-dialog">
-            <h2>[[localize('upl_mffil','Upload SMF/PMF files',language)]] <span class="extra-info">(XML files)</span></h2>
-            <paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-            <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml"
-                           target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment"
-                           on-upload-success="_mfFileUploaded"></vaadin-upload>
+            <h2 class="modal-title">[[localize('upl_mffil','Upload SMF/PMF files',language)]]<span class="extra-info">[[localize('xml_files', '(XML files)', language)]]</span></h2>
+            <div class="content">
+                <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="text/xml,application/xml"
+                    target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment"
+                    on-upload-success="_mfFileUploaded"></vaadin-upload>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+            </div>
         </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
+            <h2 class="modal-title">Add a patient</h2>
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
                     <paper-tab class="adm-tab">
@@ -1009,7 +1022,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-tab>
                 </paper-tabs>
 
-
+                <div class="content">
                 <iron-pages selected="[[tabs]]" class="">
                     <page>
                         <div class="horizontal" style="margin-top:20px">
@@ -1125,7 +1138,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid>
                     </template>
                 </div>
-                <div class="buttons" style="margin-top:30px; float:right">
+                </div>
+                </div>
+               <div class="buttons" style="margin-top:30px; float:right">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
                 </div>
@@ -1146,9 +1161,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="sharePatientDialog">
-            <h4>Avec quel prestataire souhaitez-vous partager ces patients ?</h4>
-            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
-            <div>
+            <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
+            <div class="content">
+                <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
                 <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
                     <vaadin-grid-column width="100px">
                         <template class="header">
@@ -1196,16 +1211,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
                     patients',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
 
         <paper-dialog id="sharePatientDelegationDialog">
-            <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
-            <div>
+            <h2 class="modal-title">[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h2>
+            <div class="content">
                 <vaadin-grid items="[[hcpSelectedForSharing]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
@@ -1238,148 +1253,146 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share
-                    patients',language)]]
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share patients',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
 
         <paper-dialog id="sharingPatientStatus">
-            <h4>[[localize("pat_sha_sta","Patient sharing status",language)]]</h4>
-            <vaadin-grid items="[[patientShareStatuses]]">
-                <vaadin-grid-column width="150px">
-                    <template class="header">
-                        Patient
-                    </template>
-                    <template>
-                        [[item.patient.firstName]] [[item.patient.lastName]]
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Patient
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Contacts
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Health elements
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Invoices
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Documents
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
-                    </template>
-                </vaadin-grid-column>
-            </vaadin-grid>
+            <h2 class="modal-title">[[localize("pat_sha_sta","Patient sharing status",language)]]</h2>
+            <div class="content">
+                <vaadin-grid items="[[patientShareStatuses]]">
+                    <vaadin-grid-column width="150px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            [[item.patient.firstName]] [[item.patient.lastName]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Contacts
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Health elements
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Invoices
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Documents
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('done','Done',language)]]</paper-button>
-                </paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-dismiss>[[localize('done','Done',language)]]</paper-button>
             </div>
         </paper-dialog>
 
         <paper-dialog id="importPatientStatus">
-            <h4>[[localize("pat_import_sta","Patient import status",language)]]
-                <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files")]])</span></h4>
-            <vaadin-grid items="[[patientImportStatuses]]">
-                <vaadin-grid-column width="150px">
-                    <template class="header">
-                        Fichier
-                    </template>
-                    <template>
-                        [[item.filename]]
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="150px">
-                    <template class="header">
-                        Patient
-                    </template>
-                    <template>
-                        [[item.patient.firstName]] [[item.patient.lastName]]
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Dossier
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Contacts
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Health elements
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Invoices
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="70px">
-                    <template class="header">
-                        Documents
-                    </template>
-                    <template>
-                        <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
-                    </template>
-                </vaadin-grid-column>
-            </vaadin-grid>
+            <h2 class="modal-title">[[localize("pat_import_sta","Patient import status",language)]] <span>([[remainingPatientImports.length]] [[localize("file_import_remaining", "remaining files")]])</span></h2>
+            <div  class="content">
+                <vaadin-grid items="[[patientImportStatuses]]">
+                    <vaadin-grid-column width="150px">
+                        <template class="header">
+                            Fichier
+                        </template>
+                        <template>
+                            [[item.filename]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="150px">
+                        <template class="header">
+                            Patient
+                        </template>
+                        <template>
+                            [[item.patient.firstName]] [[item.patient.lastName]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Dossier
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Contacts
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Health elements
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.healthElements)]]">[[_statusDetail(item.statuses.healthElements)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Invoices
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.invoices)]]">[[_statusDetail(item.statuses.invoices)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="70px">
+                        <template class="header">
+                            Documents
+                        </template>
+                        <template>
+                            <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
             <div class="buttons">
-                <paper-spinner class="import-spinner" active="[[isImportingPatients]]"></paper-spinner>
+                <ht-spinner class="import-spinner" active="[[isImportingPatients]]"></ht-spinner>
                 <paper-button dialog-dismiss>[[localize('close','Close',language)]]</paper-button>
-                </paper-button>
-                <paper-button on-click="abortImport">[[localize('abort','Abort',language)]]</paper-button>
-                </paper-button>
-                <paper-button on-click="saveImportLog">[[localize('save_import_log','Save import log',language)]]</paper-button>
-                </paper-button>
+                <paper-button on-click="abortImport" >[[localize('abort','Abort',language)]]</paper-button>
+                <paper-button on-click="saveImportLog" >[[localize('save_import_log','Save import log',language)]]</paper-button>
             </div>
         </paper-dialog>
 
         <paper-dialog id="fusionDialog">
-            <div>
-                <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]
-                </label>
+            <h2 class="modal-title">Fusionner les patients</h2>
+            <div class="content">
                 <paper-input-container>
+                    <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]</label>
                     <iron-input slot="input">
                         <input id="fusionPatSelect" value="{{getNamePat(idFusionPat,idFusionPat.*)}}" readonly on-tap="_openPopupMenu"></input>
                     </iron-input>
@@ -1392,12 +1405,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-listbox>
                     </paper-menu-button>
                 </paper-input-container>
-
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion
-                    patients',language)]]
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion patients',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
@@ -1910,7 +1921,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (e.path[0].nodeName === 'TABLE') return
 
                 const selected = this.activeItem
-                console.log('selected ' + selected + ' - ' + this.latestSelected)
+                console.log('selected ', selected, ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
                 this.set('isLoadingPatient', false)
             }

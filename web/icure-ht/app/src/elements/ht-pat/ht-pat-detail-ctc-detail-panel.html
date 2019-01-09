@@ -9,8 +9,6 @@
 <link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
 <link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
-
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
@@ -41,6 +39,7 @@
 <link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 
 <dom-module id="ht-pat-detail-ctc-detail-panel">
@@ -269,8 +268,19 @@
 			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc, .layout-bar .table {
 				height: 32px;
 				width: 32px;
-				padding: 6px;
 				color: var(--app-text-color-disabled);
+			}
+
+			.layout-bar .list{
+				padding: 0;
+			}
+
+			.layout-bar .doc{
+				padding: 4px;
+			}
+
+			.layout-bar .table{
+				padding: 6px;
 			}
 
 			.icn-selected {
@@ -369,12 +379,14 @@
 				white-space: nowrap;
 			}
 
-			paper-spinner.center {
-				position: absolute;
-				left: 50%;
-				top: 50%;
-				transform: translateX(-50%) translateY(-50%);
-			}
+            ht-spinner.center {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+				height: 42px;
+				width: 42px;
+            }
 
 			.paper-fab-container {
 				position:relative;
@@ -450,7 +462,7 @@
 			<div class="layout horizontal">
 				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
-					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
 					<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
 
@@ -461,7 +473,7 @@
 				</div>
 			</div>
 			<div class="contact-card-container">
-				<paper-spinner class="center" active="[[isLoadingDoc]]"></paper-spinner>
+				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
@@ -490,7 +502,7 @@
 														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
 														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-														 on-data-change="_refreshDrugs" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
+														 on-data-change="_refreshFromServices" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
@@ -607,9 +619,9 @@
 
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 
-		<paper-dialog id="prose-editor" no-cancel-on-outside-click no-cancel-on-esc-key>
+		<paper-dialog id="prose-editor-dialog" no-cancel-on-outside-click no-cancel-on-esc-key>
 			<h2 class="modal-title">New Report</h2>
-			<prose-editor></prose-editor>
+			<prose-editor id="prose-editor"></prose-editor>
 			<div class="buttons">
 				<div class="fleft">
 					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
@@ -628,6 +640,7 @@ import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
 import '../prose-editor/prose-editor/prose-editor';
 import mustache from "mustache/mustache.js";
+import * as evaljs from "evaljs"
 
 		class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			static get is() {
@@ -786,8 +799,10 @@ import mustache from "mustache/mustache.js";
 				this.showAddFormsContainer = !this.showAddFormsContainer;
 			}
 
-			_refreshDrugs() {
+			_refreshFromServices() {
 				this.set('_drugsRefresher', this._drugsRefresher + 1)
+
+
 			}
 
 			_actionIcon(showAddFormsContainer) {
@@ -882,6 +897,8 @@ import mustache from "mustache/mustache.js";
 				if (prefForms && prefForms.typedValue) {
 					const formsMap = JSON.parse(prefForms.typedValue.stringValue);
 					this.addForm(formsMap['org.taktik.icure.form.standard.consultation']);
+				} else {
+                    this.addForm("FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION");
 				}
 			}
 
@@ -1071,15 +1088,8 @@ import mustache from "mustache/mustache.js";
 						} else {
 							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
 						}
-						// const ridTag = s.tags.find(t => t.type === 'RID')
-						// if (ridTag) {
-						// 	ridTag.id = 'RID|' + tmpRID + '|1';
-						// 	ridTag.code = tmpRID
-						// } else {
-						// 	s.tags.push(this.api.code().normalize({id: 'RID|' + tmpRID + '|1'}))
-						// }
 					}) // forEach end
-					this.saveCurrentContact().then(() => this._refreshDrugs())
+					this.saveCurrentContact().then(() => this._refreshFromServices())
 				})
 			}
 
@@ -1099,7 +1109,10 @@ import mustache from "mustache/mustache.js";
 						feedback: false,
 						medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 						deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
-					}).then(prescri => rid.push(prescri.rid) )))) //push the presci.rid to rid the array
+					}).then(prescri => {
+						rid.push(prescri.rid)
+						drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).map(mv => mv.prescriptionRID = prescri.rid)
+					} )))) //push the presci.rid to the rid array
 							.finally(()=>{
 								toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
 								this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
@@ -1370,8 +1383,29 @@ import mustache from "mustache/mustache.js";
 			}
 
     _reportTemplateSelected(e, reportTemplate) {
-	    this.api.doctemplate().getAttachment(reportTemplate.id, reportTemplate.attachmentId).then(dt => {
-	        this.prose
+	    this.api.doctemplate().getAttachment(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
+	        const prose = this.root.querySelector("#prose-editor")
+            prose.setJSONContent(this.api.crypto().utils.ua2utf8(attach))
+			prose.applyContext((expr, template, ctx, cache) => {
+			    return new Promise(function (resolve, reject) {
+			        try {
+                        const env = new evaljs.Environment(_.assign(ctx, {resolve, reject}));
+                        const gen = (env.gen(expr)())
+                        let status = {done: false}
+                        while (!status.done) {
+                            status = gen.next() //Execute lines one by one
+                        }
+
+                        if (status.value && status.value.asynchronous) {
+                            //Wait for internal resolution
+                        } else {
+                            resolve(status.value)
+                        }
+                    } catch (e) {
+                        reject(e)
+					}
+				})
+			}, {patient:this.patient, servicesMap:this.servicesMap, language: this.language})
 		})
     }
 
@@ -1543,9 +1577,23 @@ import mustache from "mustache/mustache.js";
 				Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
 			}
 
-	newReport() {
-		this.$['prose-editor'].open()
+	newReport(e) {
+		this.newReportDataProvider = e.detail.dataProvider
+		this.$['prose-editor-dialog'].open()
 	}
+
+	_saveReport() {
+		//Create document with attachment from prose-editor and ...
+        const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+        this.dispatchEvent(new CustomEvent('new-service', {
+            detail: {
+                ctc: this.currentContact,
+                svc: svc,
+                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.newReportDataProvider.getId())
+            }, composed: true
+        }));
+
+    }
 
 }
 

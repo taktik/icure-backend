@@ -69,10 +69,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="elements/icc-api/icc-api.html">
 
+<link rel="import" href="./dialog-style.html">
+
 <dom-module id="ht-app-tz">
 
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles dialog-style">
             :host {
                 display: block;
             }
@@ -396,6 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 0;
                 transform: translateX(50%);
                 margin: 0;
+                height: 40%;
             }
             paper-dialog#ht-invite-hcp-user-already-exists{
                 width: 60%;
@@ -408,18 +411,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
-            #ht-invite-hcp .buttons {
-                border-top: 1px solid var(--app-background-color-dark);
-                color: var(--app-text-color-light);
-            }
-            #ht-invite-hcp .buttons * {
-                background: var(--app-secondary-color-dark);
-            }
-
             .formNewHcp {
                 height: 350px;
                 width: 100%;
                 box-sizing: border-box;
+            }
+
+            .formNewHcp paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
             .top-gradient {
@@ -1157,7 +1156,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-drawer-layout>
 
         <paper-dialog id="ht-invite-hcp">
-            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
             <div id="" class="formNewHcp">
                 <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
@@ -1450,12 +1449,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
+            _inboxMessageCheck(period = 600000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
                     console.log("First launch, check msgs")
-
+                    this.checkEhboxMessage()
                 } else {
                     console.log("ehbox already active, launch the interval",period)
                     this.timeOutId = setInterval(() => {
@@ -1766,8 +1765,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad < Date.now() + (10*60000) || lastLoad==-1)
-                console.log('checkEhboxMessage', lastLoad+'<'+Date.now() + (10*60000),shouldLoad)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)

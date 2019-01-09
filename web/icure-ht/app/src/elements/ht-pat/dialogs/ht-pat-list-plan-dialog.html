@@ -169,12 +169,12 @@
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
                     .then(services =>{
                         console.log('services:',services)
-                        this.set("services",_.sortBy(services,["valueDate"]))
+                        this.set("services",_.sortBy(services,"valueDate"))
                     })
             }
 
             _getContent(svc){
-                return svc.content[this.language].stringValue
+                return svc && svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name'
             }
 
             _formatDate(date){
