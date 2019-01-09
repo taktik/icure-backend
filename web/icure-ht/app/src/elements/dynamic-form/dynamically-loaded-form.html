@@ -647,7 +647,7 @@
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
                                 template: subForm.template.layout,
 								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
-									.concat(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction'))))
+									.concat(_.compact(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction' && null || null)))))
 									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
                             };
                         });
