@@ -542,6 +542,15 @@
                         const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
                         return s && s.svc && !s.svc.endOfLife && s.svc.valueDate;
                     },
+                    getValue: (label) => {
+                      return this.api.contact().
+                        self.getStringValue(label) ||
+                        self.getNumberValue(label) ||
+                        self.getMeasureValue(label) ||
+                        self.getDateValue(label) ||
+                        self.getBooleanValue(label) ||
+                        self.getValueContainers(label).join(", ")
+                    },
                     setStringValue: function (label, value) {
                         const currentValue = self.getStringValue(label)
                         if ((currentValue || null) === (value || null) || ((!currentValue || !currentValue.length) && (!value || !value.length))) {
@@ -671,9 +680,11 @@
                             }
                         });
 
-                        this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
-                            this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
-                        });
+                        if( parseInt( _.get(form, "id", 0) ) ) {
+                            this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
+                                this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
+                            });
+                        }
                     }.bind(this),
                     getId: () => form.id,
                     deleteSubForm: (key, id) => {
