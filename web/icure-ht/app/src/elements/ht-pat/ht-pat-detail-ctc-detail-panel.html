@@ -1604,13 +1604,15 @@ import * as evaljs from "evaljs"
         // First hit
         if(!_.trim(inputData)) inputData = this.proseJsonContent;
 
+        // FZ: refaire avec while bon récursif, jusqu'à fin doc, drop all text values
+
         _.forEach(inputData.content, (v,k)=>{
             if(_.size(_.get(v, "content", {}))) {
                 if( v.type === "variable" ) {
                     if(_.trim(_.get(v, "content[0].text", ""))) v.content[0].text = "";
                     return v;
                 } else {
-                    this._dropVarValuesFromProseDocumentJson(v);
+                    return this._dropVarValuesFromProseDocumentJson(v);
                 }
             }
         })
