@@ -303,14 +303,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: var(--app-background-color);
 			}
 
-			.new-notif::after {
-				content: '';
+			h1 span.notif {
 				display: inline-block;
-				width: 7px;
-				height: 7px;
 				margin-left: 6px;
 				margin-bottom: 8px;
-				border-radius: 3.5px;
+				border-radius: 4px;
+                padding: 0 4px;
+                color: white;
 				background-color: var(--app-secondary-color);
 			}
 
@@ -615,14 +614,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
 					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
-							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]] [[unreadCount]]</h1>
+							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]
+                                <template is="dom-if" if="[[!_isEqual(unreadCount,0)]]">
+                                    <span class="notif">[[unreadCount]] [[localize('is_not_read','unread',language)]]</span>
+                                </template>
+                            </h1>
                             <paper-icon-button icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
 						</div>
@@ -635,11 +637,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[result.readStatus]]">[[result.patient.name]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result)]]">[[result.patient.name]]</div>
 									<div class="card-table-cell lab-name">[[result.descr]]</div>
 								</div>
 							</template>
-							<ht-spinner class="spinner" active=[[_isLoadingLatestLabResults]]"></ht-spinner>
+							<ht-spinner class="spinner" active=[[isLoadingLabResults]]></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -823,7 +825,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				],
 				notify: true,
 				observers: this._applySettings,
-			}
+			},
+            isLoadingLabResults: {
+			    type: Boolean,
+                value: false
+            },
+            unreadCount: {
+			    type: Number,
+                value: 0
+            }
 		};
 	}
 
@@ -853,7 +863,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.user || !this.api) { return }
 
 		this._isLoadingLatestPatients = true;
-        this.set('_isLoadingLatestLabResults',true)
+        this.set('isLoadingLabResults',true)
 		this._isLoadingTodaysConsultations = true;
 		this._isLoadingToDoList = true;
 		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -932,31 +942,29 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_updateLabResults() {
 	    console.log('update Lab Results')
-        this.set('_isLoadingLatestLabResults',true)
+        this.set('isLoadingLabResults',true)
         this.api.contact().getServiceCodesOccurences('labResult',0).then(occurences=>{
             let occurList = []
             occurences.map(occurence=>occurList.push(occurence.label))
             return occurList
         }).then((occurList)=>{
             return this.api.contact().getContactsWithUser(this.user,{ids:occurList}).then(cs=>{
-                let resList = []
+                let results = []
                 cs.forEach(c=>{
-                    console.log('c',c)
                     const svc = c.services.filter(s=> s.label==='labResult')
-                    resList.push({
-                        patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},
-                        created: c.created,
-                        descr: c.descr,
-                        readStatus: 'unread'
-                    })
+                    results.push({patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},created: c.created,descr: c.descr,groupId:c.groupId})
                 })
-                let unreadCount = 0
-                resList.forEach(res=>{if(res.readSatus === 'unread') unreadCount+= 1})
-                this.set('unreadCount',unreadCount)
-                this.set('_isLoadingLatestLabResults',false)
-                return _.sortBy(resList,'created').reverse()
-            }).then(resList=> this.set('labResults',resList || []))
+                return _.sortBy(results,'created').reverse()
+            }).then(results=> {
+                this.set('labResults',results || [])
+                this.set('isLoadingLabResults',false);
+                results.forEach(labResult=>{this.api.message().getMessage(labResult.groupId).then(m=>{if ((m.status & 1 << 1) !== 0) this.set('unreadCount',this.unreadCount+1)})})
+            })
         })
+    }
+
+    _isUnreadResult(res) {
+        this.api.message().getMessage(res.groupId).then(m=>{return ((m.status & 1 << 1) !== 0) ? 'unread' : '' }).catch(()=>{return 'err'})
     }
 
 	_timeFormat(date) {
@@ -990,18 +998,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
+		if (target.dataset.id != '0') location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
-
-	// openLabResult(ev) {
-	// 	let target = ev.target;
-    //     while (target && !target.dataset.id) {
-    //         target = target.parentNode;
-    //     }
-	// 	console.log(target)
-    //     console.log(target.dataset.id)
-	// 	// location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
-	// }
 
 	_layoutDialog(e){
 		e.stopPropagation()

@@ -521,7 +521,7 @@
             }
 
             planAction() {
-                const tabProfession = this.plannedAction.ProfessionId.split("|")
+                const tabProfession = this.plannedAction.ProfessionId ? this.plannedAction.ProfessionId.split("|") : []
 
                 Promise.all(
                     [
@@ -529,7 +529,7 @@
                         this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
                     ]).then(
                     ([results, code]) => {
-                        if(this.plannedAction.VaccineCommercialNameId !== ""){
+                        if(this.plannedAction.VaccineCommercialNameId && this.plannedAction.VaccineCommercialNameId !== ""){
                             this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
                                 mpp => {
                                     this.set('plannedAction.VaccineInfo', mpp)
@@ -553,7 +553,7 @@
                 const action = this.plannedAction
                 const contactId = this.currentContact.id
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
-                const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+                const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
                 this.service.label="Actes"
                 this.service.modified= +new Date()
