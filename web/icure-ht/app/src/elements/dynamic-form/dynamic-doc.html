@@ -349,20 +349,6 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.showDetail = !this.showDetail
 	}
 
-	importPatient(){
-	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
-	        contacts => {
-	            contacts.forEach(contact => {
-					contact.ctcs.forEach(ctc => {
-                        this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-                            console.log('initDelegationsAndEncryptionKeys',c)
-                            return c
-                        });
-					})
-				})
-			})
-	}
-
 }
 
 customElements.define(DynamicDoc.is, DynamicDoc);
