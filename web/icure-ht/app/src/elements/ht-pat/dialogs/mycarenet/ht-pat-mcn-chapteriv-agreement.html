@@ -19,13 +19,14 @@
 <link rel="import" href="../../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="../../../../../bower_components/vaadin-grid/vaadin-grid.html">
 
 <link rel="import" href="../../../../../bower_components/tk-token-field/tk-token-field.html">
 
 <link rel="import" href="../../../../scrollbar-style.html">
 <link rel="import" href="../../../../spinner-style.html">
+<link rel="import" href="../../../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="ht-pat-mcn-chapteriv-verse.html">
@@ -58,7 +59,7 @@
                 margin: 0;
                 padding: 0;
                 display: grid;
-                height:100%;
+                height: 100%;
                 width: 100%;
                 grid-template-columns: 25% auto;
                 grid-template-rows: 100%;
@@ -146,7 +147,6 @@
                 grid-row: 1/1;
                 width: 100%;
                 height: 72px;
-                top: -24px;
                 position: relative;
             }
 
@@ -657,10 +657,12 @@
                 font-weight: lighter;
                 font-size: 0.8em;
             }
-            paper-spinner.asking {
+            ht-spinner.asking {
                 top: 12px;
                 left: 5px;
                 position: relative;
+                height: 42px;
+                width: 42px;
             }
 
             div.one-line {
@@ -787,7 +789,7 @@
                             </paper-material>
                         </template>
                     </paper-listbox>
-                    <paper-spinner class="spinner chapter-list-spinner" alt="Loading chapter4 list" active=[[_isLoadingChapter]]></paper-spinner>
+                    <ht-spinner class="spinner chapter-list-spinner" alt="Loading chapter4 list" active=[[_isLoadingChapter]]></ht-spinner>
                     <div class="bottom-btn-container">
                         <paper-button disabled="[[_isLoadingChapter]]" class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
                             agr.',language)]]
@@ -799,7 +801,7 @@
                                       on-filter-changed="_filterChanged" item-label-path="descr"
                                       selected-item="{{selectedParagraph}}" item-value-path="id"
                                       label="[[localize('sea_for_par','Search for paragraph‚ medication‚ pathology...',language)]]"></vaadin-combo-box>
-                    <paper-spinner class="spinner paragraph-spinner" alt="Loading chapter4 list" active=[[_isLoadingParagraph]]></paper-spinner>
+                    <ht-spinner class="spinner paragraph-spinner" alt="Loading chapter4 list" active=[[_isLoadingParagraph]]></ht-spinner>
                     <div class="paragraph">
                         <template is="dom-if" if="[[displayedParagraph.paragraphInfo]]">
                             <paper-tabs selected="{{tabs}}">
@@ -1003,26 +1005,26 @@
                                     <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isClosingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
+                                    <ht-spinner class="asking" active="[[isClosingAgreement]]"></ht-spinner>
                                 </template>
                                 <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
                                     <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
+                                    <ht-spinner class="asking" active="[[isClosingAgreement]]"></ht-spinner>
                                 </template>
                                 <template is="dom-if" if="[[_complimentaryAnnex(isAgreementSelected, displayedParagraph, appendicesTokens.*)]]">
                                     <paper-button class="bottom-btn" id="complimentaryAnnex" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
                                         [[localize('sen_com_app','Send complimentary annex',language)]]
                                     </paper-button>
-                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                    <ht-spinner class="asking" active="[[isAskingAgreement]]"></ht-spinner>
                                 </template>
                                 <template is="dom-if" if="[[_extension(isAgreementSelected, displayedParagraph)]]">
                                     <template is="dom-if" if="[[displayedParagraph.end]]">
                                         <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
                                             agreement',language)]]
                                         </paper-button>
-                                        <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                        <ht-spinner class="asking" active="[[isAskingAgreement]]"></ht-spinner>
                                     </template>
                                 </template>
 
@@ -1031,7 +1033,7 @@
                                         [[localize('req_agr','Request
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                    <ht-spinner class="asking" active="[[isAskingAgreement]]"></ht-spinner>
                                 </template>
                             </div>
 

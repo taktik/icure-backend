@@ -83,6 +83,19 @@ object Utils {
         }
     }
 
+    fun makeMomentTypeDateFromFuzzyLong(date : Long?) : MomentType? {
+        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
+            MomentType().apply {
+                when (FIELD_UNDEFINED) {
+                    it.month -> { year = it }
+                    it.day -> { yearmonth = it }
+                    it.hour -> { this.date = it }
+                    else -> { this.date = it}
+                }
+            }
+        }
+    }
+
     fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Int? {
         return cal?.let {
             it.year*10000+it.month*100+it.day

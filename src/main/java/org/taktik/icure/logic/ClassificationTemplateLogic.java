@@ -18,7 +18,10 @@
 
 package org.taktik.icure.logic;
 
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.ClassificationTemplate;
+import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 
 import java.util.ArrayList;
@@ -45,4 +48,6 @@ public interface ClassificationTemplateLogic extends EntityPersister<Classificat
     List<ClassificationTemplate> getClassificationTemplateByIds(List<String> asList);
 
     List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> strings);
+
+	PaginatedList<ClassificationTemplate> listClassificationTemplates(PaginationOffset paginationOffset);
 }
