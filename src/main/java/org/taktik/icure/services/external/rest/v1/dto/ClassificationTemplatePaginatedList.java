@@ -20,11 +20,11 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import java.util.List;
 
-public class UserPaginatedList extends PaginatedList<UserDto> {
-    public UserPaginatedList() {
+public class ClassificationTemplatePaginatedList extends PaginatedList<ClassificationTemplateDto> {
+    public ClassificationTemplatePaginatedList() {
     }
 
-    public UserPaginatedList(PaginatedList<UserDto> plist) {
+    public ClassificationTemplatePaginatedList(PaginatedList<ClassificationTemplateDto> plist) {
         this.setPageSize(plist.getPageSize());
         this.setTotalSize(plist.getTotalSize());
         this.setRows(plist.getRows());
@@ -32,11 +32,11 @@ public class UserPaginatedList extends PaginatedList<UserDto> {
     }
 
     @Override
-    public List<UserDto> getRows() {
+    public List<ClassificationTemplateDto> getRows() {
         return super.getRows();
     }
     @Override
-    public void setRows(List<UserDto> rows) {
+    public void setRows(List<ClassificationTemplateDto> rows) {
         super.setRows(rows);
     }
 }

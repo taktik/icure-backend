@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.ClassificationTemplateDAO;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.ClassificationTemplate;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationTemplateLogic;
@@ -137,5 +139,10 @@ public class ClassificationTemplateLogicImpl extends GenericLogicImpl<Classifica
     public List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys) {
         return classificationTemplateDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys);
     }
+
+	@Override
+	public PaginatedList<ClassificationTemplate> listClassificationTemplates(PaginationOffset paginationOffset) {
+		return classificationTemplateDAO.listClassificationTemplates(paginationOffset);
+	}
 
 }
