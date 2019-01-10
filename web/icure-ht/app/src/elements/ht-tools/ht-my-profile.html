@@ -781,7 +781,7 @@
                     },
                     receiveMailAuto: {
                         type: Boolean,
-                        value: localStorage.getItem('receiveMailAuto') == 'true' ? true : false
+                        value: localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true
                     }
                 };
             }
@@ -793,7 +793,7 @@
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
-                this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') == 'true' ? true : false)
+                this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true)
             }
 
             _autoMailChanged() {

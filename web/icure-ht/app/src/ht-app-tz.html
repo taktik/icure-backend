@@ -1353,6 +1353,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+
+            }
+
+            _updateServerUrl(url) {
+                this.set('icureUrl',`${url}/rest/v1`)
             }
 
             reset() {
@@ -1365,16 +1370,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.icure().isReady().then(ok => {
                     if (ok === 'false') {
                         this.set('showWelcomePage', true)
+                        this.$["loginDialog"].disable()
                         this.$["setupPrompt"].close()
                     } else if (ok !== 'true') {
-                        if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                        this.$["setupPrompt"].close()
+                        this.$["loginDialog"].disable()
                         setTimeout(() => this._checkShowWelcomePage(), 10000)
                     }else {
                         localStorage.setItem('last_app_startup', Date.now().toString())
+                        this.$["loginDialog"].enable()
                         this.$["setupPrompt"].close()
                     }
                 }).catch(() => {
                     if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                    this.$["loginDialog"].disable()
                     setTimeout(() => this._checkShowWelcomePage(), 10000)
                 })
             }
@@ -1701,7 +1710,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return Promise.resolve(null);
             }
 
-            login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
+            login(event, loginObject) { /* this is called from mouseDown with 2 arguments */
+
+                this._updateServerUrl( loginObject.url )
+
                 this.set('credentials', loginObject && loginObject.credentials)
                 this.loginAndRedirect(loginObject && loginObject.page)
             }

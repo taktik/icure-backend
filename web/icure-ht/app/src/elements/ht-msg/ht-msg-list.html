@@ -701,11 +701,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
-                }).then(messages => {
-                    console.log('getInbox',messages)
-                    this.set('messages', messages || [])
-                });
+                    return this.sortByDatesAndGUID(messages.rows)
+                        .filter(msg => msg.fromAddress !== 'EFACT')
+                        .filter(msg => !msg.transportGuid.startsWith('BIN'))
+                        .filter(m=>!m.transportGuid.startsWith('PROSE:'));
+                }).then(messages => this.set('messages', messages || []));
             }
 
             getEheIn(){

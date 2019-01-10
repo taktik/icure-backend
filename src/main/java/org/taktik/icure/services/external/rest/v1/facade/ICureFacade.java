@@ -187,6 +187,18 @@ public class ICureFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "Force update design doc",
+			response = Boolean.class
+	)
+	@POST
+	@Path("/dd/{entityName}")
+	public Response updateDesignDoc(@PathParam("entityName") String entityName) {
+		iCureLogic.updateDesignDoc(entityName);
+		return Response.ok(true).build();
+	}
+
+
+	@ApiOperation(
 			value = "Get index info",
 			response = IndexingInfoDto.class
 	)

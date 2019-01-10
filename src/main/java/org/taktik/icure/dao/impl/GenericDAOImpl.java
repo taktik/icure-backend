@@ -527,7 +527,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		}
 		log.debug("Generating DesignDocument for {}", type);
 		DesignDocument generated = getDesignDocumentFactory().generateFrom(this);
-		boolean changed = designDoc.mergeWith(generated);
+		boolean changed = designDoc.mergeWith(generated, false);
 		if (log.isDebugEnabled()) {
 			debugDesignDoc(designDoc);
 		}
