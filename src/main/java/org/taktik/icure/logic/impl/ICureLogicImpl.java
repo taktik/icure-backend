@@ -32,7 +32,7 @@ import org.taktik.icure.logic.ICureLogic;
 @Service
 public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
-	List<CouchDbRepositorySupport> allDaos;
+	List<GenericDAO> allDaos;
 
 	@Override
 	public Map<String,Number> getIndexingStatus(String groupId) {
@@ -44,7 +44,7 @@ public class ICureLogicImpl implements ICureLogic {
 		allDaos.stream()
 				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
 				.findFirst()
-				.ifPresent(couchDbRepositorySupport -> couchDbRepositorySupport.forceInitStandardDesignDocument(groupId));
+				.ifPresent(dao -> dao.forceInitStandardDesignDocument(groupId));
 	}
 
 	@Autowired
@@ -53,7 +53,7 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Autowired
-	public void setAllDaos(List<CouchDbRepositorySupport> allDaos) {
+	public void setAllDaos(List<GenericDAO> allDaos) {
 		this.allDaos = allDaos;
 	}
 

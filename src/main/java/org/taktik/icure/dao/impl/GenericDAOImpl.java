@@ -508,6 +508,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		return ektorpOptions;
 	}
 
+	@Override
 	public void initStandardDesignDocument(String groupId) {
 		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
 			this.initStandardDesignDocument();
@@ -516,6 +517,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		}
 	}
 
+	@Override
 	public void forceInitStandardDesignDocument(String groupId) {
 		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
 			this.forceInitStandardDesignDocument();

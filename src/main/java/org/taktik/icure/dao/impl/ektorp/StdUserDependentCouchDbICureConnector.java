@@ -3,6 +3,7 @@ package org.taktik.icure.dao.impl.ektorp;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbInstance;
@@ -63,7 +64,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     @Value("${icure.couchdb.prefix}")
     private String couchDbPrefix;
 
-    private String uuid = UUID.randomUUID().toString();
+    private final String uuid;
 
     @Autowired
     @Lazy
@@ -87,6 +88,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         this.dbInstance = dbInstance;
 
         fallbackConnector = new StdCouchDbICureConnector(databaseName, dbInstance);
+        uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
     }
 
     public StdUserDependentCouchDbICureConnector(String databaseName, CouchDbInstance dbInstance, boolean allowAnonymousAccess) {
@@ -95,6 +97,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         this.allowAnonymousAccess = allowAnonymousAccess;
 
         fallbackConnector = new StdCouchDbICureConnector(databaseName, dbInstance);
+        uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
     }
 
     public StdUserDependentCouchDbICureConnector(String databaseName, CouchDbInstance dbInstance, ObjectMapperFactory om) {
@@ -103,6 +106,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         this.om = om;
 
         fallbackConnector = new StdCouchDbICureConnector(databaseName, dbInstance, om);
+        uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
     }
 
     @Override

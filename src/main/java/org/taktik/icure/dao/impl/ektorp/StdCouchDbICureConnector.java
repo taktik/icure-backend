@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao.impl.ektorp;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbConnector;
@@ -51,14 +52,16 @@ import java.util.UUID;
  * Created by emad7105 on 16/10/2014.
  */
 public class StdCouchDbICureConnector extends StdCouchDbConnector implements CouchDbICureConnector {
-	private String uuid = UUID.randomUUID().toString();
+	private final String uuid;
 
 	public StdCouchDbICureConnector(String databaseName, CouchDbInstance dbInstance) {
 		super(databaseName, dbInstance);
+		uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
 	}
 
 	public StdCouchDbICureConnector(String databaseName, CouchDbInstance dbi, ObjectMapperFactory om) {
 		super(databaseName, dbi, om);
+		uuid = DigestUtils.sha256Hex(databaseName+':'+dbi.getUuid());
 	}
 
 	@Override

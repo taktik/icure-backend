@@ -92,4 +92,5 @@ public interface GenericDAO<T extends Identifiable<String>> extends LookupDAO<T>
 
 	void initStandardDesignDocument(String groupId);
 
+	void forceInitStandardDesignDocument(String groupId);
 }
