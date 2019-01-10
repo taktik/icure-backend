@@ -85,6 +85,10 @@
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
+            p.errmsg {
+                color: var(--app-error-color);
+            }
+
             .buttons {
                 position: absolute;
                 bottom: 0;
@@ -164,8 +168,11 @@
 
             </div>
             <div class="buttons">
+                <p class="errmsg">[[errMsg]]</p>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                <template is="dom-if" if="[[isVaccineProcedure]]">
+                    <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                </template>
             </div>
         </paper-dialog>
 
@@ -332,6 +339,10 @@
                     hasSurgical:{
                         type: Boolean,
                         value: false
+                    },
+                    errMsg: {
+                        type: String,
+                        value: ''
                     }
                 };
             }
@@ -521,39 +532,57 @@
             }
 
             planAction() {
-                const tabProfession = this.plannedAction.ProfessionId.split("|")
-
-                Promise.all(
-                    [
-                        this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
-                        this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
-                    ]).then(
-                    ([results, code]) => {
-                        if(this.plannedAction.VaccineCommercialNameId !== ""){
-                            this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
-                                mpp => {
-                                    this.set('plannedAction.VaccineInfo', mpp)
-                                    this.set('plannedAction.ProcedureInfo', results.rows[0])
-                                    this.set('plannedAction.ProfessionInfo', code.rows[0])
+                console.log('planAction',this.plannedAction)
+                if (this.plannedAction && this.plannedAction.ProcedureId && this.plannedAction.BatchNumber !== '' && this.plannedAction.DoseNumber !== '' && this.plannedAction.Status !== '') {
+                    const tabProfession = this.plannedAction.ProfessionId ? this.plannedAction.ProfessionId.split("|") : []
+                    Promise.all(
+                        [
+                            this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
+                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
+                        ]).then(
+                        ([results, code]) => {
+                            if(this.plannedAction.VaccineCommercialNameId && this.plannedAction.VaccineCommercialNameId !== ""){
+                                this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
+                                    mpp => {
+                                        this.set('plannedAction.VaccineInfo', mpp)
+                                        this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                        this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                        if (this.plannedAction.VaccineInfo && this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
+                                            this._planAction()
+                                        } else {
+                                            this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                                        }
+                                    }
+                                )
+                            }else{
+                                this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                if (this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
                                     this._planAction()
+                                } else {
+                                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
                                 }
-                            )
-                        }else{
-                            this.set('plannedAction.ProcedureInfo', results.rows[0])
-                            this.set('plannedAction.ProfessionInfo', code.rows[0])
-                            this._planAction()
-                        }
-                    });
+                            }
+                        });
 
+                } else {
+                    console.log('empty fields !');
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                }
             }
 
             _planAction() {
-                console.log(this.plannedAction)
+                console.log('_planAction',this.plannedAction)
 
                 const action = this.plannedAction
                 const contactId = this.currentContact.id
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
-                const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+                const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+
+                if (!action || !contactId || !responsible || !valueDate) {
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                    return
+                }
 
                 this.service.label="Actes"
                 this.service.modified= +new Date()
@@ -675,6 +704,7 @@
             }
 
             open(svc,readonly) {
+                this.set('errMsg','')
                 if(!readonly)readonly=false;
                 this.set("readonly",readonly)
                 this.set("plannedAction",{})

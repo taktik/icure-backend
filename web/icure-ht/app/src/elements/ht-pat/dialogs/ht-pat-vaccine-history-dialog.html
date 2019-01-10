@@ -60,7 +60,6 @@
                 padding: 0;
                 font-size: 12px;
                 line-height: 0.8;
-                background: white;
                 border: 0;
             }
             .view .item.title > div:nth-child(3) > div {
@@ -75,9 +74,12 @@
                 overflow: hidden;
                 background: var(--app-background-color);
             }
-            .view .item.title > .vacc:nth-child(2n) > div,
-            .view .item.entry > .vacc:nth-child(2n){
+            .view .item.title > .vacc:nth-child(odd) > div,
+            .view .item.entry > .vacc:nth-child(odd){
                 background: var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc:nth-child(even) > div {
+                border-right: 1px solid var(--app-background-color-dark);
             }
             .view .item.title > .vacc:hover > div {
                 overflow: initial;
@@ -104,6 +106,9 @@
                 padding: 0 12px;
                 box-sizing: border-box;
             }
+            .view .item.title div {
+                border: 0;
+            }
             .view .item.entry {
                 height: 64px;
                 line-height: 64px;
@@ -112,7 +117,7 @@
                 min-width: 15%;
             }
             div.name {
-                min-width: 50%;
+                width: 50%;
             }
             div.time, div.name {
                 font-weight: bold;
@@ -211,7 +216,7 @@
             }
 
             static get observers() {
-                return ['setList(contacts)']
+                return ['setList(contacts)','getAllVaccFromThesaurus(vaccines)']
             }
 
             constructor() {
@@ -220,28 +225,24 @@
 
             ready() {
                 super.ready();
-                this.getAllVaccFromThesaurus()
             }
 
             setList(){
                 if(!(this.contacts && this.contacts.length)) return;
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes').then(services =>{
                     let vaccines = []
-                    services.forEach(svc=>{Object.keys(svc.tags).forEach(k=>{if (svc.tags[k].code == 'vaccine') {
-                        console.log('is vaccine',svc)
-                        let thesCode = '0'
-                        Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
-                        const vacc = {
-                            name: this._getName(svc),
-                            date: this._timeFormat(svc.valueDate),
-                            status: this._getStatut(svc),
-                            code: thesCode
-                        }
-                        // if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
-                        vaccines.push(vacc) // WIP test
-                    }})})
+                    services.forEach(svc=>{
+                        Object.keys(svc.tags).forEach(k=>{
+                            if (svc.tags[k].code == 'vaccine') {
+                                let thesCode = '0'
+                                Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
+                                const vacc = {name: this._getName(svc),date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
+                                if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
+                            }
+                        })
+                    })
+                    console.log('vaccines',vaccines)
                     this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
-                    console.log('vaccines',this.vaccines)
                 })
             }
 
@@ -257,18 +258,13 @@
 
             getAllVaccFromThesaurus() {
                 let allVacc = []
-                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', null, null, null, 50).then(results => {
-                    console.log('findPaginatedCodes',results.rows)
+                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', 'vaccin', null, null, 100).then(results => {
                     let tempVacc = []
-                    results.rows.map(th=>{
-                        tempVacc.push({code:th.code,label:th.label,links:th.links})
-                    })
+                    results.rows.map(th=>{this.vaccines.forEach(v=>{if (v.code == th.code && (tempVacc.indexOf(th) < 0)) tempVacc.push(th)})})
                     this.set('allVaccines', _.sortBy(tempVacc,'code'))
-                    console.log('getAllVaccFromThesaurus',this.allVaccines)
                 })
             }
             _getVaccNameFromThes(vac) {
-                console.log('_getVaccNameFromThes',vac)
                 return vac.label[this.language] ? vac.label[this.language]+` (${vac.code})` : vac.label[0] ? vac.label[0]+` (${vac.code})` : 'no name'
             }
             isMatching(a,b) {
