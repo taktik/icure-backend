@@ -193,7 +193,7 @@ public class ICureFacade implements OpenApiFacade{
 	@POST
 	@Path("/dd/{entityName}")
 	public Response updateDesignDoc(@PathParam("entityName") String entityName) {
-		iCureLogic.updateDesignDoc(entityName);
+		iCureLogic.updateDesignDoc(sessionLogic.getCurrentSessionContext().getGroupId(), entityName);
 		return Response.ok(true).build();
 	}
 

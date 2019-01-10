@@ -512,11 +512,19 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
 			this.initStandardDesignDocument();
 		} else {
-			initDesignDocInternal(groupId,0);
+			initDesignDocInternal(groupId,0, false);
 		}
 	}
 
-	private void initDesignDocInternal(String groupId, int invocations) {
+	public void forceInitStandardDesignDocument(String groupId) {
+		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
+			this.forceInitStandardDesignDocument();
+		} else {
+			initDesignDocInternal(groupId, 0, true);
+		}
+	}
+
+	private void initDesignDocInternal(String groupId, int invocations, boolean forceUpdate) {
 		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId) : db;
 		DesignDocument designDoc;
 		if (cdb.contains(stdDesignDocumentId)) {
@@ -527,7 +535,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		}
 		log.debug("Generating DesignDocument for {}", type);
 		DesignDocument generated = getDesignDocumentFactory().generateFrom(this);
-		boolean changed = designDoc.mergeWith(generated, false);
+		boolean changed = designDoc.mergeWith(generated, forceUpdate);
 		if (log.isDebugEnabled()) {
 			debugDesignDoc(designDoc);
 		}
@@ -540,7 +548,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 				if (invocations == 0) {
 					backOff();
 					log.info("retrying initStandardDesignDocument for design document: {}", designDoc.getId());
-					initDesignDocInternal(groupId, 1);
+					initDesignDocInternal(groupId, 1, forceUpdate);
 				}
 			}
 		} else {

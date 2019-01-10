@@ -40,11 +40,11 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Override
-	public void updateDesignDoc(String daoEntityName) {
+	public void updateDesignDoc(String groupId, String daoEntityName) {
 		allDaos.stream()
 				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
 				.findFirst()
-				.ifPresent(CouchDbRepositorySupport::forceInitStandardDesignDocument);
+				.ifPresent(couchDbRepositorySupport -> couchDbRepositorySupport.forceInitStandardDesignDocument(groupId));
 	}
 
 	@Autowired

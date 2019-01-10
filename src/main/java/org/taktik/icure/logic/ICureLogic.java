@@ -21,7 +21,7 @@ package org.taktik.icure.logic;
 import java.util.Map;
 
 public interface ICureLogic {
-	Map<String,Number> getIndexingStatus(groupId);
+	Map<String,Number> getIndexingStatus(String groupId);
 
-	void updateDesignDoc(String daoEntityName);
+	void updateDesignDoc(String groupId, String daoEntityName);
 }
