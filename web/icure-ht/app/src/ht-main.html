@@ -959,7 +959,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 this.set('labResults',results || [])
                 this.set('isLoadingLabResults',false);
                 let msgs = [], docs = []
-                // })
+                this.set('unreadCount',0)
                 this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {
                     _.filter(messages.rows,m=>m.assignedResults).forEach(m=>{
                         if ((m.status & 1 << 1) !== 0) {
