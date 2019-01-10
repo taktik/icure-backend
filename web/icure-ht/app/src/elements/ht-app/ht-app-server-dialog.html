@@ -93,10 +93,10 @@
             }
 
 		</style>
-        <paper-dropdown-menu close-on-activate="false" label="Database server" horizontal-align="left">
+        <paper-dropdown-menu close-on-activate="false" label="[[title]]" horizontal-align="left">
             <paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}"
                 selected-item="{{dbServerObject}}">
-                <paper-item data-server="http://127.0.0.1">Local</paper-item>
+                <paper-item data-server$="[[localUrl]]">[[localize("local","Local",language)]]</paper-item>
                 <template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">
                     <paper-item class="server-item" data-server$="[[server.url]]">
                         <div>
@@ -109,7 +109,7 @@
                 <paper-item class="server-item">
                     <iron-icon role="button" icon="icons:add" class="server-icon server-icon--add"></iron-icon>
                     <div>
-                        Add a server
+                        [[localize("add_server","Add a server", language)]]
                     </div>
                 </paper-item>
             </paper-listbox>
@@ -118,7 +118,7 @@
         <paper-dialog id="add-server-dialog" opened="{{addServerOpened}}" horizontal-align="center" on-changed="_handleAddOpen">
             <div class="top-gradient">&nbsp;</div>
             <div style="text-align: center;">
-                <h3>Add a server</h3>
+                <h3>[[localize("add_server","Add a server", language)]]</h3>
             </div>
             <form is="form" id="add-server-form">
                 <paper-input label="name" value="{{dbServerInput.name}}" type="name" autofocus></paper-input>
@@ -141,16 +141,11 @@
                 return {
                     dbServers: {
                         type: Array,
-                        value: () => {
-
-                            let array = JSON.parse(localStorage.getItem("server-list"))
-
-                            return array || []
-                        }
+                        value: () => ([])
                     },
                     dbServerSelected: {
                         type: Number,
-                        value: () => localStorage.getItem("server-selected") || 0,
+                        value: () => 0,
                         observer: '_handleServerSelect'
                     },
                     addServerOpened: {
@@ -163,12 +158,27 @@
                             name: "",
                             url: ""
                         })
+                    },
+                    title: {
+                        type: String
+                    },
+                    serverName: {
+                        type: String
+                    },
+                    localUrl: {
+                        type: String
                     }
                 };
             }
 
             constructor() {
                 super();
+            }
+
+            ready() {
+                super.ready()
+                this.set("dbServers", JSON.parse(localStorage.getItem("server-list-" + this.serverName)))
+                this.set("dbServerSelected",localStorage.getItem("server-selected" + this.serverName))
             }
 
             getSelectedServerURL() {
@@ -187,7 +197,9 @@
 
             _handleServerAddition(e) {
 
-                const urlMatches = this.dbServerInput.url.match("(http[s]{0,1}:\/\/)?([^:\/]*)(.*)")
+                const urlMatches = this.dbServerInput.url.trim().match("(http[s]{0,1}:\/\/)?(.*)")
+
+                urlMatches[2] = urlMatches[2].endsWith('/') ? urlMatches[2].substring(0,urlMatches[2].length - 1) : urlMatches[2]
 
                 if (typeof this.dbServerInput.name == "string" && urlMatches) {
 
@@ -234,8 +246,8 @@
             }
 
             saveServers() {
-                localStorage.setItem("server-list", JSON.stringify(this.dbServers))
-                localStorage.setItem("server-selected", this.dbServerSelected)
+                localStorage.setItem("server-list-"+ this.serverName, JSON.stringify(this.dbServers))
+                localStorage.setItem("server-selected" + this.serverName, this.dbServerSelected)
             }
 
         }

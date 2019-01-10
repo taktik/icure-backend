@@ -163,7 +163,11 @@
 						</paper-listbox>
 					</paper-dropdown-menu> -->
 					
-					<ht-app-server-dialog id="servers-list" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+					<ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
+					 local-url="http://127.0.0.1:16043" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+					
+					<ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
+					 server-name="fhc" local-url="http://127.0.0.1:8090" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
 
 					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
@@ -244,9 +248,10 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	login() {
 	
-		const currentServerUrl = this.$["servers-list"].getSelectedServerURL()
+		const currentIcureServerUrl = this.$["icure-servers-list"].getSelectedServerURL()
+		const currentFhcServerUrl = this.$["fhc-servers-list"].getSelectedServerURL()
 
-        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, url: currentServerUrl}, bubbles: true, composed: true }))
+        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, icureurl: currentIcureServerUrl, fhcurl: currentFhcServerUrl}, bubbles: true, composed: true }))
 
 	}
 
