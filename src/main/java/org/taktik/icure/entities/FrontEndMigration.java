@@ -19,6 +19,7 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
     protected String userId;
     protected String startKey;
     protected String startKeyDocId;
+    protected Long processCount;
 
 
     public FrontEndMigration() {
@@ -100,6 +101,15 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
 
     public void setStartKeyDocId(String startKeyDocId) {
         this.startKeyDocId = startKeyDocId;
+    }
+
+
+    public Long getProcessCount() {
+        return processCount;
+    }
+
+    public void setProcessCount(Long processCount) {
+        this.processCount = processCount;
     }
 
     @Override

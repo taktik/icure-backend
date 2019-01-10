@@ -31,6 +31,8 @@ public abstract class IcureDto extends StoredDto {
     protected String author; //userId
     protected String responsible; //healthcarePartyId
 
+    protected String medicalLocationId;
+
     protected java.util.Set<CodeDto> codes = new HashSet<>();
     protected java.util.Set<CodeDto> tags = new HashSet<>();
 
@@ -141,6 +143,14 @@ public abstract class IcureDto extends StoredDto {
 
     public void setDelegations(Map<String, List<DelegationDto>> delegations) {
         this.delegations = delegations;
+    }
+
+    public String getMedicalLocationId() {
+        return medicalLocationId;
+    }
+
+    public void setMedicalLocationId(String medicalLocationId) {
+        this.medicalLocationId = medicalLocationId;
     }
 
     public void addCryptedForeignKeys(String delegateId, DelegationDto delegation) {
