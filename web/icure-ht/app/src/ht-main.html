@@ -956,17 +956,11 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
                 return _.orderBy(results,'created','desc')
             }).then(results=> {
+                this.set('unreadCount',0)
                 this.set('labResults',results || [])
                 this.set('isLoadingLabResults',false);
                 let msgs = [], docs = []
-                this.set('unreadCount',0)
-                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {
-                    _.filter(messages.rows,m=>m.assignedResults).forEach(m=>{
-                        if ((m.status & 1 << 1) !== 0) {
-                            this.set('unreadCount',this.unreadCount+1)
-                        }
-                    })
-                })
+                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {_.filter(messages.rows,m=>m.assignedResults).forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadCount',this.unreadCount+1)}})})
             })
         })
     }

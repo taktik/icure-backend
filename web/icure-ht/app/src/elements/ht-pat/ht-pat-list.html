@@ -429,11 +429,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #sharePatientDialog {
                     width: 1000px;
+                    display: flex;
+                    flex-direction: column;
+                    height: 60vh;
+                    justify-content: space-between;
                 }
 
                 #sharePatientDialog > * {
                     width: 100%;
                     box-sizing: border-box;
+                }
+                #sharePatientDialog > h2 {
+                    min-height: 54px;
+                }
+                #sharePatientDialog #hcpFilter, #hcp-list {
+                    margin: 0;
+                }
+                #sharePatientDialog #hcpFilter {
+                    max-height: 62px;
+                }
+                #sharePatientDialog #hcp-list {
+                    flex-grow: 1;
+                }
+                #sharePatientDialog div.buttons {
+                    display: block;
+                    text-align: right;
+                    flex-direction: row;
+                    height: 56px;
                 }
 
                 #inputGender {
@@ -786,14 +808,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 vaadin-upload {
                     overflow-y: auto;
                     height: 40vh;
-                    width: 100%;
+                    /*width: 100%;*/
                     margin: 16px;
                     min-height: 280px;
                     background: var(--app-background-color);
                     --vaadin-upload-buttons-primary: {
                         padding: 16px;
                     };
-                    --vaadin-upload-button-add: {
+                    --vaadin-upload-button-add: {#newHcpDialog .buttons *
                         background: var(--app-secondary-color);
                         color: var(--app-text-color);
                     };
@@ -1162,55 +1184,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="sharePatientDialog">
             <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
-            <div class="content">
-                <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
-                <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
-                        </template>
-                        <template>
-                            <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.lastName]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.firstName]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.speciality]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.email]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </div>
+            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
+            <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
+                    </template>
+                    <template>
+                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.lastName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.firstName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.speciality]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.email]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
