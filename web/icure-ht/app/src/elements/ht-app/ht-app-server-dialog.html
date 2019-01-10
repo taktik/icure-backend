@@ -57,7 +57,7 @@
 			.server-icon {
 
 				box-sizing: border-box;
-				
+
 				height: 24px;
 				width: 24px;
 				text-align: right;
@@ -87,13 +87,13 @@
 			#add-server-form {
 				margin-top: 7px;
 			}
-            
+
             paper-dialog {
                 margin: 0;
             }
 
 		</style>
-        <paper-dropdown-menu close-on-activate="false" label="Database server" horizontal-align="left">
+        <paper-dropdown-menu close-on-activate="false" label="[[localize('app_srv','Application Server',language)]]" horizontal-align="left">
             <paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}"
                 selected-item="{{dbServerObject}}">
                 <paper-item data-server="http://127.0.0.1">Local</paper-item>

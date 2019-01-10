@@ -1357,10 +1357,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _updateServerUrl(url) {
-                
-                this.set('icureUrl',`${url}:16043/rest/v1`)
-                this.set('fhcUrl',`${url}:8090`)
-
+                this.set('icureUrl',`${url}/rest/v1`)
             }
 
             reset() {
@@ -1714,7 +1711,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             login(event, loginObject) { /* this is called from mouseDown with 2 arguments */
-                
+
                 this._updateServerUrl( loginObject.url )
 
                 this.set('credentials', loginObject && loginObject.credentials)
