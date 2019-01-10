@@ -183,8 +183,8 @@ open class KmehrExport {
 
 
             isIsrelevant = ((svc.status?: 0) and 2) == 0
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
+            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
+            endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
             recorddatetime = makeXGC(svc.modified)
         }
     }
@@ -420,8 +420,8 @@ open class KmehrExport {
                 }
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
-                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
-                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
+//                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
+//                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
                 }
             }
         }

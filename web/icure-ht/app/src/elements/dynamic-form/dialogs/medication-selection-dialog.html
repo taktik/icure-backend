@@ -14,8 +14,8 @@
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
-<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../atc-styles.html">
+<link rel="import" href="../../ht-spinner/ht-spinner.html">
 
 <dom-module id="medication-selection-dialog">
     <template>
@@ -159,17 +159,19 @@
 
             }
 
-            paper-spinner {
+            ht-spinner {
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 z-index: 150;
                 transform: translate(-50%,-50%);
+                height: 42px;
+				width: 42px;
             }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
-            <paper-spinner class="center" active="[[isLoadingEntities]]"></paper-spinner>
+            <ht-spinner class="center" active="[[isLoadingEntities]]"></ht-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
             <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                 <paper-tab name="chronical" on-tap="setMedicationType">
