@@ -761,7 +761,8 @@
     "has_m":"Has doctor subscription",
     "has_k":"Has physiotherapist subscription",
     "has_i":"Has nurse subscription",
-    "invoicingExport":"Invoicing download"
+    "invoicingExport":"Invoicing download",
+    "print":"Print"
   },
   "fr": {
     "AFF" : "N° d'affiliation",
@@ -1613,7 +1614,8 @@
     "has_m":"Abonnement médecin",
     "has_k":"Abonnement kiné",
     "has_i":"Abonnement infi",
-    "invoicingExport":"Télécharger la facturation"
+    "invoicingExport":"Télécharger la facturation",
+    "print":"Imrpimer"
  },
   "nl": {
     "AFF" : "Lidnummer",
@@ -2472,6 +2474,7 @@
     "has_m":"Arts",
     "has_k":"Kine",
     "has_i":"Verpleging",
-    "invoicingExport":"Facturatie downloaden"
+    "invoicingExport":"Facturatie downloaden",
+    "print":"Afdrukken"
   }
 }
