@@ -440,13 +440,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
-                        <!-- TODO: multiple restore or delete in trash -->
-                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
-                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                            <paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>
-                        </template>
+                        <!--&lt;!&ndash; TODO: multiple restore or delete in trash &ndash;&gt;-->
+                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
+                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
+                        <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>

@@ -639,7 +639,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<div class="card-table-cell lab-name">[[result.descr]]</div>
 								</div>
 							</template>
-							<ht-spinner class="spinner" active=[[_isLoadingLatestLabResults]]></ht-spinner>
+							<ht-spinner class="spinner" active=[[_isLoadingLatestLabResults]]"></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -853,7 +853,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.user || !this.api) { return }
 
 		this._isLoadingLatestPatients = true;
-		this._isLoadingLatestLabResults = true;
+        this.set('_isLoadingLatestLabResults',true)
 		this._isLoadingTodaysConsultations = true;
 		this._isLoadingToDoList = true;
 		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -932,7 +932,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_updateLabResults() {
 	    console.log('update Lab Results')
-        this._isLoadingLatestLabResults = true;
+        this.set('_isLoadingLatestLabResults',true)
         this.api.contact().getServiceCodesOccurences('labResult',0).then(occurences=>{
             let occurList = []
             occurences.map(occurence=>occurList.push(occurence.label))
@@ -953,7 +953,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 let unreadCount = 0
                 resList.forEach(res=>{if(res.readSatus === 'unread') unreadCount+= 1})
                 this.set('unreadCount',unreadCount)
-                this._isLoadingLatestLabResults = false;
+                this.set('_isLoadingLatestLabResults',false)
                 return _.sortBy(resList,'created').reverse()
             }).then(resList=> this.set('labResults',resList || []))
         })

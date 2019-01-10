@@ -1640,7 +1640,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if(msg.transportGuid.startsWith("BIN")){
                 msg.transportGuid = msg.transportGuid.substring(3);
                 this.api.message().modifyMessage(msg)
-                    .then(()=> this._refresh());
+                    .then(()=> this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
             }
         }
     }
