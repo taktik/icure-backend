@@ -260,7 +260,7 @@
                 let allVacc = []
                 this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', 'vaccin', null, null, 100).then(results => {
                     let tempVacc = []
-                    results.rows.map(th=>{this.vaccines.forEach(v=>{if (v.code == th.code) tempVacc.push({code:th.code,label:th.label,links:th.links})})})
+                    results.rows.map(th=>{this.vaccines.forEach(v=>{if (v.code == th.code && (tempVacc.indexOf(th) < 0)) tempVacc.push(th)})})
                     this.set('allVaccines', _.sortBy(tempVacc,'code'))
                 })
             }
