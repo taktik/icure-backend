@@ -551,12 +551,7 @@
                     },
                     getValue: (label) => {
                         const s = self.getServicesLineForContact(label)[0];
-                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
-                        console.log(label);
-                        console.log(s);
-                        console.log(c);
-                        console.log(this.api.contact().shortServiceDescription(s, this.language));
-                        return this.api.contact().shortServiceDescription(s, this.language);
+                        return s ? s.svc ? this.api.contact().shortServiceDescription(s.svc, this.language) : "<NA>" : "-";
 
                         // return this.api.contact().shortServiceDescription(
                         //     self.getStringValue(label) || self.getNumberValue(label) || self.getMeasureValue(label) || self.getDateValue(label) || self.getBooleanValue(label) || self.getValueContainers(label).join(", "),
