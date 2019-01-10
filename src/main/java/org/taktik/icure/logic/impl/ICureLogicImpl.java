@@ -21,6 +21,7 @@ package org.taktik.icure.logic.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.ektorp.support.CouchDbRepositorySupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.GenericDAO;
@@ -31,15 +32,29 @@ import org.taktik.icure.logic.ICureLogic;
 @Service
 public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
+	List<CouchDbRepositorySupport> allDaos;
 
 	@Override
 	public Map<String,Number> getIndexingStatus() {
 		return iCureDAO.getIndexingStatus();
 	}
 
+	@Override
+	public void updateDesignDoc(String daoEntityName) {
+		allDaos.stream()
+				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
+				.findFirst()
+				.ifPresent(CouchDbRepositorySupport::forceInitStandardDesignDocument);
+	}
+
 	@Autowired
 	public void setiCureDAO(ICureDAO iCureDAO) {
 		this.iCureDAO = iCureDAO;
+	}
+
+	@Autowired
+	public void setAllDaos(List<CouchDbRepositorySupport> allDaos) {
+		this.allDaos = allDaos;
 	}
 
 }
