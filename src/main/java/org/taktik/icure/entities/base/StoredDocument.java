@@ -57,7 +57,7 @@ public class StoredDocument implements Versionable<String> {
 	@JsonProperty("rev_history")
 	protected Map<String, String> revHistory = reversedTreeMap();
 
-	protected String placeId;
+	protected String medicalLocationId;
 
 	@JsonIgnore
 	public void addInlineAttachment(Attachment a) {
