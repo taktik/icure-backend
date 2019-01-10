@@ -11,6 +11,7 @@ public class FrontEndMigrationDto extends StoredDto {
     protected String logs;
     protected String startKey;
     protected String startKeyDocId;
+    protected Long processCount;
 
     public String getName() {
         return name;
@@ -67,4 +68,8 @@ public class FrontEndMigrationDto extends StoredDto {
     public String getStartKeyDocId() { return startKeyDocId; }
 
     public void setStartKeyDocId(String startKeyDocId) { this.startKeyDocId = startKeyDocId; }
+
+    public Long getProcessCount() { return processCount; }
+
+    public void setProcessCount(Long processCount) { this.processCount = processCount; }
 }
