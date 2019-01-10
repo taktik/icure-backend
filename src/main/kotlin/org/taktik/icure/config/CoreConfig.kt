@@ -21,6 +21,8 @@ package org.taktik.icure.config
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.hazelcast.cache.HazelcastCacheManager
+import com.hazelcast.core.HazelcastInstance
 import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
@@ -33,7 +35,7 @@ import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1Mappe
 
 @Configuration
 class CoreConfig {
-    @Bean fun cacheManager() = ConcurrentMapCacheManager()
+    @Bean fun cacheManager(hazelcastInstance: HazelcastInstance) = com.hazelcast.spring.cache.HazelcastCacheManager(hazelcastInstance)
     @Bean fun uuidGenerator() = UUIDGenerator()
     @Bean fun gsonMapper() = GsonMessageBodyHandler().gson
     @Bean fun mapper(gsonMapper : Gson) = V1MapperFactory(gsonMapper).mapper

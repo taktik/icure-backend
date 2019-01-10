@@ -62,13 +62,13 @@ public class PropertyTypeDAOImpl extends CachedDAOImpl<PropertyType> implements 
 	@Override
 	public void evictFromCache(PropertyType entity) {
 		super.evictFromCache(entity);
-		cache.evict("PID:"+entity.getIdentifier());
+		super.evictFromCache("PID:"+entity.getIdentifier());
 	}
 
 	@Override
 	public void putInCache(String key, PropertyType entity) {
 		super.putInCache(key, entity);
-		cache.put("PID:"+entity.getIdentifier(), entity);
+		super.putInCache("PID:"+entity.getIdentifier(), entity);
 	}
 
 }

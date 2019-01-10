@@ -95,10 +95,10 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User getOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
-			cache.put(userId, user);
+			putInCache(null, userId, user);
 			if (user == null) {
 				throw new DocumentNotFoundException(userId);
 			}
@@ -112,11 +112,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User findOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, userId);
 		if (valueWrapper == null) {
-			User res = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
-			cache.put(userId, res);
-			return res;
+			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
+			putInCache(null, userId, user);
+			return user;
 		}
 		return (User) valueWrapper.get();
 	}
@@ -142,12 +142,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	public User getUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
-		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, userId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
-			cache.put(fullId, user);
+			putInCache(groupId, userId, user);
 			if (user == null) {
 				throw new DocumentNotFoundException(userId);
 			}
@@ -163,12 +162,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	public User findUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
-		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, userId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
-			cache.put(fullId, user);
+			putInCache(groupId, userId, user);
 			return user;
 		}
 		return (User) value.get();
