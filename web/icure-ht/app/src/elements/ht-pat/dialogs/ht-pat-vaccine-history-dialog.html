@@ -60,7 +60,6 @@
                 padding: 0;
                 font-size: 12px;
                 line-height: 0.8;
-                background: white;
                 border: 0;
             }
             .view .item.title > div:nth-child(3) > div {
@@ -78,6 +77,9 @@
             .view .item.title > .vacc:nth-child(odd) > div,
             .view .item.entry > .vacc:nth-child(odd){
                 background: var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc:nth-child(even) > div {
+                border-right: 1px solid var(--app-background-color-dark);
             }
             .view .item.title > .vacc:hover > div {
                 overflow: initial;
@@ -103,6 +105,9 @@
                 border-right: 1px solid var(--app-background-color-dark);
                 padding: 0 12px;
                 box-sizing: border-box;
+            }
+            .view .item.title div {
+                border: 0;
             }
             .view .item.entry {
                 height: 64px;
@@ -211,7 +216,7 @@
             }
 
             static get observers() {
-                return ['setList(contacts)']
+                return ['setList(contacts)','getAllVaccFromThesaurus(vaccines)']
             }
 
             constructor() {
@@ -220,19 +225,23 @@
 
             ready() {
                 super.ready();
-                this.getAllVaccFromThesaurus()
             }
 
             setList(){
                 if(!(this.contacts && this.contacts.length)) return;
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes').then(services =>{
                     let vaccines = []
-                    services.forEach(svc=>{Object.keys(svc.tags).forEach(k=>{if (svc.tags[k].code == 'vaccine') {
-                        let thesCode = '0'
-                        Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
-                        const vacc = {name: this._getName(svc),date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
-                        if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
-                    }})})
+                    services.forEach(svc=>{
+                        Object.keys(svc.tags).forEach(k=>{
+                            if (svc.tags[k].code == 'vaccine') {
+                                let thesCode = '0'
+                                Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
+                                const vacc = {name: this._getName(svc),date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
+                                if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
+                            }
+                        })
+                    })
+                    console.log('vaccines',vaccines)
                     this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
                 })
             }
