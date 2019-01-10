@@ -565,6 +565,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
+                                <paper-button name="diary" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:calendar"></iron-icon>
+                                    [[localize('diary')]]
+                                </paper-button>
                             </paper-listbox>
                         </div>
                         </div>
@@ -586,7 +590,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                 [[localize('msg')]]
                             </paper-tab>
-
+                            <paper-button name="diary" on-tap="doRoute">
+                                <iron-icon icon="vaadin:calendar"></iron-icon>
+                                [[localize('diary')]]
+                            </paper-button>
                         </paper-tabs>
                         <div class="log-info">
                             <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
@@ -1140,6 +1147,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
+                    <ht-diary name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                        <splash-screen-tz></splash-screen-tz>
+                    </ht-diary>
                     <ht-view404 name="view404"></ht-view404>
                 </iron-pages>
             </app-header-layout>
@@ -1270,6 +1280,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             msg() {
                                 import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
                             },
+                            diary(){
+                                import(/* webpackChunkName: "ht-diary" */ './ht-diary.html')
+                            },
                             view404() {
                                 import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
                             }
@@ -1345,7 +1358,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reset() {
                 const props = HtAppTz.properties
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
-                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-diary'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
             _checkShowWelcomePage() {

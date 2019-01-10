@@ -18,6 +18,8 @@
 
 package org.taktik.icure.dao;
 
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.ClassificationTemplate;
 
 import java.util.ArrayList;
@@ -27,4 +29,6 @@ public interface ClassificationTemplateDAO extends GenericDAO<ClassificationTemp
 	ClassificationTemplate getClassificationTemplate(String classificationTemplateId);
 
     List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys);
+
+	PaginatedList<ClassificationTemplate> listClassificationTemplates(PaginationOffset paginationOffset);
 }
