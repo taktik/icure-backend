@@ -1,0 +1,282 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
+
+<dom-module id="ht-pat-vaccine-history-dialog">
+    <template>
+        <style>
+            #dialog{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 60vh;
+                max-height: none !important;
+                width: 80vw;
+                max-width: 800px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                overflow: hidden;
+            }
+            .view {
+                display: block;
+                flex-grow: 1; /* I don't believe it works with block */
+                overflow-x: auto;
+                overflow-y: auto;
+                border-top: 1px solid var(--app-background-color-darker);
+                border-bottom: 1px solid var(--app-background-color-darker);
+                padding: 0;
+            }
+            .view .item {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .view .item.title {
+                font-weight: 600;
+                text-align: left;
+                min-width: 100%;
+                /*height: 24px;*/
+                background: var(--app-background-color);
+                border: none;
+                /*padding-top: 128px;*/
+                /*padding-right: 100px;*/
+                z-index: 10;
+            }
+            .view .item.title div.time, .view .item.title div.name {
+                padding-top: 120px;
+            }
+            .view .item.title > .vacc {
+                height: 160px;
+                width: 48px;
+                min-width: 48px;
+                max-width: 48px;
+                position: relative;
+                vertical-align: bottom;
+                padding: 0;
+                font-size: 12px;
+                line-height: 0.8;
+                background: white;
+                border: 0;
+            }
+            .view .item.title > div:nth-child(3) > div {
+                border-left: 1px solid var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc > div {
+                position: relative;
+                top: 0px;
+                left: -80px; /* 80 * tan(45) / 2 = 40 where 80 is the height on the cell and 45 is the transform angle*/
+                height: 100%;
+                transform:skew(45deg,0deg);
+                overflow: hidden;
+                background: var(--app-background-color);
+            }
+            .view .item.title > .vacc:nth-child(2n) > div,
+            .view .item.entry > .vacc:nth-child(2n){
+                background: var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc:hover > div {
+                overflow: initial;
+            }
+            .view .item.title > .vacc > div > span {
+                transform:skew(-45deg,0deg) rotate(45deg);
+                position: absolute;
+                bottom: 120px; /* 40 cos(45) = 28 with an additional 2px margin*/
+                left: -25px; /*Because it looked good, but there is probably a mathematical link here as well*/
+                display: inline-block;
+                width: 100%;
+                width: 85px; /* 80 / cos(45) - 40 cos (45) = 85 where 80 is the height of the cell, 40 the width of the cell and 45 the transform angle*/
+                text-align: left;
+                white-space: nowrap; /*whether to display in one line or not*/
+            }
+            .view .item .vacc {
+                width: 48px;
+            }
+            .view .item:last-child {
+                border-bottom: 0;
+            }
+            .view .item div {
+                border-right: 1px solid var(--app-background-color-dark);
+                padding: 0 12px;
+                box-sizing: border-box;
+            }
+            .view .item.entry {
+                height: 64px;
+                line-height: 64px;
+            }
+            div.time {
+                min-width: 15%;
+            }
+            div.name {
+                min-width: 50%;
+            }
+            div.time, div.name {
+                font-weight: bold;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            div.button {
+                border-top: 1px solid var(--app-background-color-dark);
+                justify-content: flex-end;
+            }
+            paper-button {
+                color: #000;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <h2>[[localize('vacc_his','Vaccine history',language)]]</h2>
+            <div class="view">
+                <div class="item title">
+                    <div class="time">[[localize('dat','Date',language)]]</div>
+                    <div class="name">[[localize('cdItemVaccine','Vaccine',language)]]</div>
+                    <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
+                        <div class="vacc">
+                            <div><span>[[_getVaccNameFromThes(allvac)]]</span></div>
+                        </div>
+                    </template>
+                </div>
+                <template is="dom-repeat" items="[[vaccines]]">
+                    <div class="item entry">
+                        <div class="time">[[item.date]]</div>
+                        <div class="name">[[item.name]] ([[item.code]])</div>
+                        <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
+                            <div class="vacc">
+                                <vaadin-checkbox checked="[[isMatching(item.code,allvac.code)]]" disabled></vaadin-checkbox>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        import _ from 'lodash/lodash';
+
+        class HtPatVaccineHistory extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-pat-vaccine-history-dialog';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    language: {
+                        type: String
+                    },
+                    contacts: {
+                        type: Array,
+                        value: null
+                    },
+                    vaccines: {
+                        type: Array,
+                        value: []
+                    },
+                    allVaccines: {
+                        type: Array,
+                        value: []
+                    },
+                    comboStatus: {
+                        type: Array,
+                        value : () => [
+                            {"id" : "aborted","label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}},
+                            {"id" : "aborted","label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}},
+                            {"id" : "aborted","label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}},
+                            {"id" : "error","label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}},
+                            {"id" : "aborted","label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}},
+                            {"id" : "refused","label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}},
+                            {"id" : "aborted","label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}},
+                            {"id" : "aborted","label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}},
+                            {"id" : "pending","label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}},
+                            {"id" : "planned","label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}},
+                            {"id" : "completed","label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}},
+                            {"id" : "proposed","label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}},
+                            {"id" : "cancelled","label": {"fr": "Annulé", "nl": "cancelled", "en": "cancelled"}}
+                        ]
+                    },
+                }
+            }
+
+            static get observers() {
+                return ['setList(contacts)']
+            }
+
+            constructor() {
+                super();
+            }
+
+            ready() {
+                super.ready();
+                this.getAllVaccFromThesaurus()
+            }
+
+            setList(){
+                if(!(this.contacts && this.contacts.length)) return;
+                this.api.contact().filterServices(this.contacts,s => s.label==='Actes').then(services =>{
+                    let vaccines = []
+                    services.forEach(svc=>{Object.keys(svc.tags).forEach(k=>{if (svc.tags[k].code == 'vaccine') {
+                        console.log('is vaccine',svc)
+                        let thesCode = '0'
+                        Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
+                        const vacc = {
+                            name: this._getName(svc),
+                            date: this._timeFormat(svc.valueDate),
+                            status: this._getStatut(svc),
+                            code: thesCode
+                        }
+                        // if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
+                        vaccines.push(vacc) // WIP test
+                    }})})
+                    this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
+                    console.log('vaccines',this.vaccines)
+                })
+            }
+
+            _getName(svc){
+                return svc && svc.content['medication'] ? svc.content['medication'].medicationValue.medicinalProduct.intendedname : (svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name')
+            }
+            _timeFormat(date) {
+                return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';
+            }
+            _getStatut(svc){
+                return this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code) ? this.comboStatus.find(statut => statut.id===svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code).label[this.language] : svc.tags.find(tag => tag.type==="CD-LIFECYCLE").code
+            }
+
+            getAllVaccFromThesaurus() {
+                let allVacc = []
+                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', null, null, null, 50).then(results => {
+                    console.log('findPaginatedCodes',results.rows)
+                    let tempVacc = []
+                    results.rows.map(th=>{
+                        tempVacc.push({code:th.code,label:th.label,links:th.links})
+                    })
+                    this.set('allVaccines', _.sortBy(tempVacc,'code'))
+                    console.log('getAllVaccFromThesaurus',this.allVaccines)
+                })
+            }
+            _getVaccNameFromThes(vac) {
+                console.log('_getVaccNameFromThes',vac)
+                return vac.label[this.language] ? vac.label[this.language]+` (${vac.code})` : vac.label[0] ? vac.label[0]+` (${vac.code})` : 'no name'
+            }
+            isMatching(a,b) {
+                return a == b
+            }
+
+        }
+
+        customElements.define(HtPatVaccineHistory.is, HtPatVaccineHistory);
+    </script>
+</dom-module>

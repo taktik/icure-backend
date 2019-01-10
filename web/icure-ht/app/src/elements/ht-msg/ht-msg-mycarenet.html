@@ -15,6 +15,8 @@
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
+<link rel="import" href="../ht-spinner/ht-spinner.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-mycarenet">
@@ -139,14 +141,16 @@
                     width: 20px;
                 }
 
-                paper-spinner.center {
+                ht-spinner.center {
                     position: absolute;
                     top: 50%;
                     left: 50%;
                     z-index: 9999;
                     transform: translate(-50%, -50%);
+                    height: 42px;
+                    width: 42px;
                 }
-                paper-spinner.loading-req {
+                ht-spinner.loading-req {
                     transform: translateY(12px);
                 }
 
@@ -159,7 +163,7 @@
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <template is="dom-if" if="[[isLoadingDmg]]"><paper-spinner class="center" active="[[isLoadingDmg]]"></paper-spinner></template>
+            <template is="dom-if" if="[[isLoadingDmg]]"><ht-spinner class="center" active="[[isLoadingDmg]]"></ht-spinner></template>
             <div class="grid-panel">
                 <div id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{leftFilterValue}}"
@@ -265,7 +269,7 @@
                 </div>
             </div>
             <div class="btns-container">
-                <paper-spinner class="loading-req" active="[[isLoadingReq]]"></paper-spinner>
+                <ht-spinner class="loading-req" active="[[isLoadingReq]]"></ht-spinner>
                 <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages" disabled="[[isLoadingReq]]">[[localize('req_msg_lists','Request Messages Lists',language)]]
                 </paper-button>
                 <paper-button class="bottom-btn" id="getMessagesBtn" on-tap="getMessages" disabled="[[isLoadingDmg]]">[[localize('get_msg','Get Messages',language)]]

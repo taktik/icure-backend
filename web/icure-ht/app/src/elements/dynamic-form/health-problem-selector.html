@@ -241,7 +241,18 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Object,
 				value: null
 			},
-
+            surgerySelectedItem:{
+                type: Object,
+                value: null
+			},
+            allergenSelectedItem: {
+                type: Object,
+                value: null
+			},
+            familyRiskSelectedItem:{
+                type: Object,
+                value: null
+			},
 			items: {
 				type: Array,
 				value: () => []
@@ -532,18 +543,32 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	open() {
-	    this.set('filterValue','')
-		this.set('selectedItem','')
-
+		this.flushComboData()
         this.api.code().findPaginatedCodes('be', 'CD-TEMPORALITY', '')
 			.then(c => this.set("temporalityList", c.rows.filter(c => c.code === "acute" || c.code === "subacute" || c.code === "chronic")))
 			.finally(() => {
 				this.$.dialog.open();
 				this.$.dialog.scrollTop = 0;
 
+				const type = this.entity.tags.find(t => t.type === "CD-ITEM")
+				type && type.code === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
+                type && type.code === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
+                type && type.code === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
+
 				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
 		})
 
+	}
+
+	flushComboData(){
+        this.set('filterValue','')
+        this.set('selectedItem',null)
+        this.set('allergenFilterValue', '')
+        this.set('allergenSelectedItem', null)
+        this.set('familyLinkFilterValue', '')
+        this.set('familyRiskSelectedItem', null)
+        this.set('surgeryFilterValue', '')
+        this.set('surgerySelectedItem', null)
 	}
 
 	_closingDateChanged(date) {

@@ -65,13 +65,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 <link rel="import" href="elements/ht-app/ht-app-entities-selector.html">
+<link rel="import" href="elements/ht-app/ht-app-setup-prompt.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
+
+<link rel="import" href="./dialog-style.html">
 
 <dom-module id="ht-app-tz">
 
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles dialog-style">
             :host {
                 display: block;
             }
@@ -395,6 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 0;
                 transform: translateX(50%);
                 margin: 0;
+                height: 40%;
             }
             paper-dialog#ht-invite-hcp-user-already-exists{
                 width: 60%;
@@ -407,18 +411,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
-            #ht-invite-hcp .buttons {
-                border-top: 1px solid var(--app-background-color-dark);
-                color: var(--app-text-color-light);
-            }
-            #ht-invite-hcp .buttons * {
-                background: var(--app-secondary-color-dark);
-            }
-
             .formNewHcp {
                 height: 350px;
                 width: 100%;
                 box-sizing: border-box;
+            }
+
+            .formNewHcp paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
             .top-gradient {
@@ -513,6 +513,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
 
+        <ht-app-setup-prompt id="setupPrompt"></ht-app-setup-prompt>
+
         <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login"></ht-app-welcome-tz>
 
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
@@ -563,6 +565,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
+                                <paper-button name="diary" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:calendar"></iron-icon>
+                                    [[localize('diary')]]
+                                </paper-button>
                             </paper-listbox>
                         </div>
                         </div>
@@ -584,7 +590,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                 [[localize('msg')]]
                             </paper-tab>
-
+                            <paper-button name="diary" on-tap="doRoute">
+                                <iron-icon icon="vaadin:calendar"></iron-icon>
+                                [[localize('diary')]]
+                            </paper-button>
                         </paper-tabs>
                         <div class="log-info">
                             <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
@@ -1138,13 +1147,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
+                    <ht-diary name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                        <splash-screen-tz></splash-screen-tz>
+                    </ht-diary>
                     <ht-view404 name="view404"></ht-view404>
                 </iron-pages>
             </app-header-layout>
         </app-drawer-layout>
 
         <paper-dialog id="ht-invite-hcp">
-            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
             <div id="" class="formNewHcp">
                 <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
@@ -1268,6 +1280,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             msg() {
                                 import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
                             },
+                            diary(){
+                                import(/* webpackChunkName: "ht-diary" */ './ht-diary.html')
+                            },
                             view404() {
                                 import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
                             }
@@ -1343,19 +1358,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reset() {
                 const props = HtAppTz.properties
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
-                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-diary'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
             _checkShowWelcomePage() {
                 this.api.icure().isReady().then(ok => {
                     if (ok === 'false') {
                         this.set('showWelcomePage', true)
+                        this.$["setupPrompt"].close()
                     } else if (ok !== 'true') {
-                        setTimeout(() => this._checkShowWelcomePage(), 1000)
+                        if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                        setTimeout(() => this._checkShowWelcomePage(), 10000)
+                    }else {
+                        localStorage.setItem('last_app_startup', Date.now().toString())
+                        this.$["setupPrompt"].close()
                     }
-                }).catch(() =>
-                    setTimeout(() => this._checkShowWelcomePage(), 1000)
-                )
+                }).catch(() => {
+                    if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                    setTimeout(() => this._checkShowWelcomePage(), 10000)
+                })
             }
 
             ready() {
@@ -1428,12 +1449,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
+            _inboxMessageCheck(period = 600000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
                     console.log("First launch, check msgs")
-
+                    this.checkEhboxMessage()
                 } else {
                     console.log("ehbox already active, launch the interval",period)
                     this.timeOutId = setInterval(() => {
@@ -1613,7 +1634,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
-                    //this._selectEntities()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
@@ -1745,8 +1765,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad < Date.now() + (10*60000) || lastLoad==-1)
-                console.log('checkEhboxMessage', lastLoad+'<'+Date.now() + (10*60000),shouldLoad)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)

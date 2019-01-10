@@ -11,6 +11,7 @@
                     width: 100%;
                     font-family: 'Roboto', sans-serif;
                     font-size: 13px;
+                    min-height: 100vw;
 
                 }
 
@@ -221,6 +222,7 @@
                     overflow: auto;
                     position: relative;
                     background: var(--app-background-color);
+                    min-height:calc(100vh - 400px);
                 }
 
                 .status-bar {
@@ -333,7 +335,22 @@
                     </div>
                 </paper-menu-button>
 
-                <paper-icon-button icon="vaadin:code" active="[[isCode]]" on-tap="insertOrEditCode"></paper-icon-button>
+                <template is="dom-if" if="[[dynamicVars]]">
+                    <span class="divider"></span>
+                    <paper-menu-button id="insertVarMenuButton" vertical-offset="42" horizontal-offset="16">
+                        <paper-icon-button
+                                id="insertVarButton"
+                                icon="vaadin:database"
+                                slot="dropdown-trigger"
+                                alt="insert variable">
+                        </paper-icon-button>
+                        <div slot="dropdown-content" class="dropdown-content box" id="dropdownVar">
+                            <template id="varsRepeat" is="dom-repeat" items="[[dynamicVars]]" as="singleVar">
+                                <paper-item on-tap="_insertOrEditVar" data-var="[[singleVar.name]]" data-expr="[[singleVar.expr]]">[[singleVar.name]]</paper-item>
+                            </template>
+                        </div>
+                    </paper-menu-button>
+                </template>
 
                 <span class="divider"></span>
 

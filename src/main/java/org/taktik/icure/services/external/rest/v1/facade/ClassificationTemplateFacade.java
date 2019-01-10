@@ -21,17 +21,23 @@ package org.taktik.icure.services.external.rest.v1.facade;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Classification;
 import org.taktik.icure.entities.ClassificationTemplate;
+import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationTemplateLogic;
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto;
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto;
+import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplatePaginatedList;
+import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -227,8 +233,32 @@ public class ClassificationTemplateFacade implements OpenApiFacade{
 		}
 	}
 
+	@ApiOperation(
+			value = "List all classification templates with pagination",
+			response = ClassificationTemplatePaginatedList.class,
+			httpMethod = "GET",
+			notes = "Returns a list of classification templates."
+	)
+	@GET
+	public Response listClassificationTemplates(
+			@ApiParam(value = "A label", required = false) @QueryParam("startKey") String startKey,
+			@ApiParam(value = "An classification template document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
+			@ApiParam(value = "Number of rows", required = false) @QueryParam("limit") String limit ) {
 
-    @Context
+		PaginationOffset paginationOffset = new PaginationOffset(startKey, startDocumentId, null, limit == null ? null : Integer.valueOf(limit));
+
+		PaginatedList<ClassificationTemplate> classificationTemplates = classificationTemplateLogic.listClassificationTemplates(paginationOffset);
+
+		boolean succeed = (classificationTemplates != null);
+		if (succeed) {
+			return Response.ok().entity(mapper.map(classificationTemplates, ClassificationTemplatePaginatedList.class)).build();
+		} else {
+			return Response.status(500).type("text/plain").entity("Listing classification templates failed.").build();
+		}
+	}
+
+
+	@Context
     public void setMapper(MapperFacade mapper) {
         this.mapper = mapper;
     }
