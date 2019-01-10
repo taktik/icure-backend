@@ -104,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.card-body {
 				display: block;
 				padding: 16px;
-				height: calc(100% - 96px);
+				height: calc(100% - 88px);
 				overflow: auto;
 				position: relative;
 			}
@@ -954,11 +954,19 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     const svc = c.services.filter(s=> s.label==='labResult')
                     results.push({patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},created: c.created,descr: c.descr,groupId:c.groupId})
                 })
-                return _.sortBy(results,'created').reverse()
+                return _.orderBy(results,'created','desc')
             }).then(results=> {
                 this.set('labResults',results || [])
                 this.set('isLoadingLabResults',false);
-                results.forEach(labResult=>{this.api.message().getMessage(labResult.groupId).then(m=>{if ((m.status & 1 << 1) !== 0) this.set('unreadCount',this.unreadCount+1)})})
+                let msgs = [], docs = []
+                // })
+                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {
+                    _.filter(messages.rows,m=>m.assignedResults).forEach(m=>{
+                        if ((m.status & 1 << 1) !== 0) {
+                            this.set('unreadCount',this.unreadCount+1)
+                        }
+                    })
+                })
             })
         })
     }

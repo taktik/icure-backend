@@ -1167,9 +1167,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
                     <vaadin-grid-column width="100px">
                         <template class="header">
+                            <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
                         </template>
                         <template>
-                            <vaadin-checkbox id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                            <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
                         </template>
                     </vaadin-grid-column>
                     <vaadin-grid-column width="100px">
@@ -2596,6 +2597,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('shareOption', false)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
+            }
+
+            _toggleBoxes(e) {
+                const checked = e.target.getAttribute('checked')
+                console.log('checked ?',checked)
+                let boxList = this.shadowRoot.querySelector('#hcp-list');
+                let allCheckBoxes = boxList ? boxList.querySelectorAll('.checkbox') : [];
+                allCheckBoxes.forEach(box=>{
+                    box.checked = !box.checked;
+                })
             }
 
             _checkHcp(e) {
