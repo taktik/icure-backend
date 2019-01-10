@@ -704,6 +704,7 @@
             }
 
             open(svc,readonly) {
+                this.set('errMsg','')
                 if(!readonly)readonly=false;
                 this.set("readonly",readonly)
                 this.set("plannedAction",{})
