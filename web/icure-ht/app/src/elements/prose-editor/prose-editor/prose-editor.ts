@@ -30,6 +30,8 @@ import Element = Polymer.Element;
 import {addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, columnResizing, deleteColumn, deleteRow, deleteTable, goToNextCell, mergeCells, splitCell, tableEditing, tableNodes, toggleHeaderCell, toggleHeaderColumn, toggleHeaderRow} from "prosemirror-tables";
 import {fixTables} from "./fixtables";
 
+import _ from 'lodash';
+
 /**
  * MyApp main class.
  *
@@ -104,7 +106,9 @@ export class ProseEditor extends Polymer.Element {
 
   variableNodeSpec: NodeSpec = {
     inline: true,
+    group: "inline",
     draggable: true,
+    content: "text*",
     attrs: {
       expr: {default: ''},
       renderTimestamp: {default: 0}
@@ -116,7 +120,7 @@ export class ProseEditor extends Polymer.Element {
     },
     parseDOM: [{
       tag: "span.variable", getAttrs(dom) {
-        return (dom instanceof HTMLDivElement) && {
+        return (dom instanceof HTMLSpanElement) && {
           expr: dom.dataset.expr,
           renderTimestamp: Number(dom.dataset.ts || 0)
         } || {}
@@ -151,7 +155,7 @@ export class ProseEditor extends Polymer.Element {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
       }))
-      .append("variable", this.variableNodeSpec)
+      .append({"variable":this.variableNodeSpec})
       .append(tableNodes({
         tableGroup: "block",
         cellContent: "block+",
@@ -350,7 +354,7 @@ export class ProseEditor extends Polymer.Element {
               proseEditor.set('isUnderlined', !!underlinedMark )
               proseEditor.set('currentColor', colorMark && colorMark.attrs.color || '#000000' )
               proseEditor.set('currentBgColor', bgcolorMark && bgcolorMark.attrs.color || '#000000' )
-              proseEditor.set('isCode',  varMark && varMark.attrs.expr &&  varMark && varMark.attrs.expr.length)
+              proseEditor.set('isVar',  varMark && varMark.attrs.expr &&  varMark && varMark.attrs.expr.length)
               proseEditor.set('codeExpression',  varMark && varMark.attrs.expr || '')
 
               proseEditor.set('isLeft', align && align === 'left')
@@ -476,33 +480,30 @@ export class ProseEditor extends Polymer.Element {
     if (this.editorView) {
       const ts = +new Date()
       const state = this.editorView.state
-      const tr = state.tr
-
-      let prom = Promise.resolve(tr)
 
       const visit = (prom:Promise<Transaction>) : Promise<Transaction> => {
         return prom.then(tr => {
 
           const detect = (node: Node, absPos: number, lazyCtx: () => Promise<{ [key: string] : any }>) : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> => {
             if (node.type === this.editorSchema.nodes.template) {
-              if (node.attrs.renderedTimestamp < ts) {
+              if (node.attrs.renderTimestamp < ts) {
                 return Promise.resolve({node: node, pos: absPos, ctx: lazyCtx()})
               } else {
                 let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
                 node.forEach((child, pos, idx) => {
                   prom = prom.then(selected => {
-                    return selected || detect(child, absPos+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[idx])))
+                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[0] && ctx[idx] || ctx)))
                   })
                 })
                 return prom
               }
-            } else if (node.type === this.editorSchema.nodes.variable && node.attrs.renderedTimestamp < ts) {
+            } else if (node.type === this.editorSchema.nodes.variable && (node.attrs.renderTimestamp || 0)  < ts) {
               return Promise.resolve({node: node, pos: absPos, ctx: ctx})
             } else if (node.childCount) {
               let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
               node.forEach((child, pos) => {
                 prom = prom.then(selected => {
-                  return selected || detect(child, absPos+pos, lazyCtx)
+                  return selected || detect(child, absPos+1+pos, lazyCtx)
                 })
               })
               return prom
@@ -511,22 +512,22 @@ export class ProseEditor extends Polymer.Element {
             }
           }
 
-          return detect(tr.doc, 0, () => Promise.resolve(ctx))
+          return detect(tr.doc, -1 /* Because there is always a doc and 0 is inside the doc */, () => Promise.resolve(ctx))
             .then(selected => {
               if (selected) {
                 if (selected.node.type === this.editorSchema.nodes.template) {
                   return visit(ctxFn(selected.node.attrs.expr, selected.node.attrs.template, ctx)
                     .then(({rendered}) => {
                       return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize,
-                          this.editorSchema.nodes.template.create({expr: selected.node.attrs.expr, template: selected.node.attrs.template, renderedTimestamp: ts},
+                          this.editorSchema.nodes.template.create({expr: selected.node.attrs.expr, template: selected.node.attrs.template, renderTimestamp: ts},
                             Node.fromJSON(this.editorSchema, JSON.parse(rendered))))
                     })
                   )
                 } else {
                   return visit(ctxFn(selected.node.attrs.expr, undefined, ctx)
-                    .then(({rendered}) => {
-                      return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize, this.editorSchema.nodes.template.create({expr: selected.node.attrs.expr, renderedTimestamp: ts},
-                          Node.fromJSON(this.editorSchema, JSON.parse(rendered))))
+                    .then(({ctx}) => {
+                      return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize, this.editorSchema.nodes.variable.create({expr: selected.node.attrs.expr, renderTimestamp: ts},
+                        this.editorSchema.text(ctx.toString()||" "))) // Text nodes can't be empty
                     })
                   )
                 }
@@ -536,7 +537,7 @@ export class ProseEditor extends Polymer.Element {
             })
         })
       }
-      prom.then(tr => state.apply(tr))
+      visit(Promise.resolve(state.tr)).then(tr => this.editorView && this.editorView.dispatch(tr))
     }
   }
 
@@ -855,6 +856,24 @@ export class ProseEditor extends Polymer.Element {
       toggleHeaderCell(this.editorView.state, this.editorView.dispatch)
       this.editorView.focus()
     }
+  }
+
+  _insertOrEditVar(e: CustomEvent) {
+      e.stopPropagation()
+      e.preventDefault()
+      if (this.editorView) {
+          const state = this.editorView.state;
+          let {$from, $to} = state.selection, index = $from.index()
+          if ($from !== $to) { return false }
+          if (this.editorView.dispatch) {
+              const scNodes = state.schema.nodes;
+              const newState = state.tr.replaceSelectionWith(scNodes.variable.create({expr: _.get( e, "target.dataExpr", "" )}));
+              this.editorView.dispatch(newState)
+              this.dispatchEvent(new CustomEvent("refresh-context",{bubbles: true, detail: {name:_.get( e, "target.dataVar", "" )}}));
+          }
+          if(!this.editorView.hasFocus()) this.editorView.focus()
+          return true
+      }
   }
 
 }

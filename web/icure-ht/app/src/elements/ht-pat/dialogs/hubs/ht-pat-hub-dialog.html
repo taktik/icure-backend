@@ -11,10 +11,10 @@
 <link rel="import" href="../../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../../dynamic-form/dynamic-link.html">
 <link rel="import" href="../../../dynamic-form/dynamic-pills.html">
+<link rel="import" href="../../../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-pat-hub-dialog">
     <template>
@@ -169,9 +169,11 @@
                 font-weight: 700;
             }
 
-            paper-spinner {
+            ht-spinner {
                 position: relative;
                 top: 10px;
+                height: 42px;
+                width: 42px;
             }
 
             #kmehr_slot{
@@ -181,7 +183,7 @@
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <h2 class="modal-title">[[localize('hub','Hubs',language)]]<paper-spinner active="[[isLoading]]"></paper-spinner></h2>
+            <h2 class="modal-title">[[localize('hub','Hubs',language)]]<ht-spinner active="[[isLoading]]"></ht-spinner></h2>
             <div>
                 <paper-dropdown-menu id="preferredHub" label="[[localize('cur_hub','Current hub',language)]]">
                     <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{curHub}}">
@@ -712,13 +714,13 @@
 
             generateAndPutMedicationScheme(versionNumber){
                 if (this.patient) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.patient().getPatientWithUser(this.user,this.patient.id)
                             .then(patientDto =>
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
-                                        this.api.bekmehr().generateMedicationSchemeWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", versionNumber, {
+                                        return this.api.bekmehr().generateMedicationSchemeWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", versionNumber, {
                                             secretForeignKeys: secretForeignKeys.extractedKeys,
                                             recipient: hcp,
                                             comment: "mycomment"

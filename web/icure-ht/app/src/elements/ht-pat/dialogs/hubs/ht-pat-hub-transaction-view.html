@@ -10,10 +10,10 @@
 <link rel="import" href="../../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../../dynamic-form/dynamic-link.html">
 <link rel="import" href="../../../dynamic-form/dynamic-pills.html">
+<link rel="import" href="../../../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-pat-hub-transaction-view">
     <template>
@@ -153,9 +153,11 @@
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
             }
 
-            paper-spinner {
+            ht-spinner {
                 position: relative;
                 top: 10px;
+                height: 42px;
+                width: 42px;
             }
 
             #kmehr_slot{
@@ -166,7 +168,7 @@
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('hub_doc','Document',language)]]</h2>
-            <paper-spinner active="[[isLoading]]"></paper-spinner>
+            <ht-spinner active="[[isLoading]]"></ht-spinner>
             <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('tra_vwr','Viewer',language)]]</paper-tab>
                 <paper-tab>[[localize('tra_vwr','Viewer 2',language)]]</paper-tab>

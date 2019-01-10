@@ -1,0 +1,114 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./shared-styles.html">
+
+
+<dom-module id="ht-diary">
+
+	<template>
+
+		<style include="shared-styles">
+			:host {
+				display: block;
+				height: calc(100% - 20px);
+				/*padding: 10px;*/
+			}
+
+			#iframe{
+				height: 100%;
+				width: 100%;
+			}
+		</style>
+
+
+		<template is="dom-if" if="[[showAgenda]]">
+			<iframe id="iframe" src="https://[[mikronoData.user]]:[[mikronoData.password]]@[[mikronoData.url]]/iCureShortcut.jsp?id=[[user.id]]"></iframe>
+		</template>
+
+	</template>
+
+	<script>
+        class HtMsg extends Polymer.Element {
+            static get is() {
+                return 'ht-diary'
+            }
+
+            static get properties() {
+                return {
+                    api:{
+                        type: Object,
+                        noReset: true
+                    },
+                    user:{
+                        type: Object,
+                        noReset: true
+                    },
+                    credentials:{
+                        type: Object,
+                        noReset: true
+                    },
+                    showAgenda:{
+                        type: Boolean,
+						value: false
+					},
+					mikronoData:{
+                        type: Object,
+						value: () => {}
+					}
+                }
+            }
+
+            constructor() {
+                super()
+            }
+
+            reset() {
+                const props = HtMsg.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+            }
+
+            ready() {
+                super.ready()
+                this.checkAndLoadMikrono()
+            }
+
+            checkAndLoadMikrono(){
+               	if(this.user){
+               	   const applicationTokens = this.user.applicationTokens
+					if(applicationTokens && !applicationTokens.MIKRONO){
+                        this.api.bemikrono().register(this.user.id, {}).then(user => {
+                            this.set("mikronoData",  {
+                                url : user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || "",
+                                user: user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || "",
+                                password: user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || ""
+                            })
+                            this.set('showAgenda', true)
+                        })
+					}else{
+                        this.set("mikronoData",  {
+                            url : this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || "",
+                            user: this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || "",
+                            password: this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || ""
+						})
+
+						console.log("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id)
+
+                        this.set('showAgenda', true)
+
+					}
+			   }
+			}
+        }
+
+        customElements.define(HtMsg.is, HtMsg)
+	</script>
+</dom-module>

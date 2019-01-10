@@ -10,14 +10,17 @@
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
 
+<link rel="import" href="../../dialog-style.html">
+
 <script src="../../../../node_modules/node-forge/dist/forge.min.js"></script>
 
 <dom-module id="ht-import-keychain">
 	<template>
-		<style>
+		<style include="dialog-style">
 			paper-dialog {
 				width: 60%;
 				min-height: 300px;
+				height: 50%;
 			}
 
 			paper-input {
@@ -28,34 +31,21 @@
 				};
 			}
 
-			.modal-button{
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-				color: var(--app-text-color);
-				font-weight: 700;
-				font-size: 14px;
-				height: 40px;
-				min-width: 100px;
-				padding: 10px 1.2em;
-				text-transform: capitalize;
-			}
-
-			.modal-button--save{
-				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-secondary-color);
-                color: var(--app-text-color);
-			}
-
 			.remove-msgKeystore-btn{
 				background: var(--app-status-color-nok);
 			}
 
-            h5 {
-                margin-bottom: 0;
-            }
+			h4 {
+				margin: 8px 0;
+			}
 
-            .buttons {
-                margin: 0 12px;
-            }
+            h5 {
+                margin: 4px 0;
+			}
+			
+			#currentEhKeychainList{
+				height: 350px;
+			}
 
             #ehKeychainFileInput {
                 margin-bottom: 8px;
@@ -70,82 +60,83 @@
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}" style="overflow: auto">
-			<form is="form" id="keys-form" >
-				<div class="layout vertical center">
-
-					<h3>[[localize('ehe_key','eHealth keychain',language)]]</h3>
-
-                    <h4>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h4>
-                    <h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
-                    <paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
-
-					<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
-						<vaadin-grid-column flex-grow="15">
-							<template class="header">
-								<div>Name</div>
-							</template>
-							<template>
-								<div class="cell frozen">[[item.keystore.name]]</div>
-							</template>
-						</vaadin-grid-column>
-						<vaadin-grid-column flex-grow="4">
-							<template class="header">
-								<div>Set the active keystore</div>
-							</template>
-							<template>
-								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveButtonIconName(item.onlyDecrypt)]]" keystore$='[[index]]'></iron-icon></paper-button>
-							</template>
-						</vaadin-grid-column>
-						<vaadin-grid-column flex-grow="4">
-							<template class="header">
-								<div>Set as MH keystore</div>
-							</template>
-							<template>
-								<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveMMButtonIconName(item.personalKeystore)]]" keystore$='[[index]]'></iron-icon></paper-button>
-							</template>
-						</vaadin-grid-column>
-						<vaadin-grid-column flex-grow="4">
-							<template class="header">
-								<div>Set the keystore password</div>
-							</template>
-							<template>
-								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' ><iron-icon icon="[[getPasswordButtonIconName(item.hasPassword)]]" index$='[[index]]'></iron-icon></paper-button>
-							</template>
-						</vaadin-grid-column>
-						<vaadin-grid-column flex-grow="1">
-							<template class="header">
-								<div>[[localize('del','Delete',language)]]</div>
-							</template>
-							<template>
-								<div class="cell frozen">
-									<paper-button   hidden='[[_displayAltDeleteButton(item)]]'><iron-icon icon="delete" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'></iron-icon></paper-button>
-									<!--<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>-->
-								</div>
-							</template>
-						</vaadin-grid-column>
-					</vaadin-grid>
-
-				</div>
-				<div>{{message}}</div>
-			</form>
+			<h2 class="modal-title">[[localize('ehe_key','eHealth keychain',language)]]</h2>
+			<div class="content">
+				<form is="form" id="keys-form" >
+					<div class="layout vertical center">
+						<h4>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h4>
+						<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
+						<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
+	
+						<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
+							<vaadin-grid-column flex-grow="15">
+								<template class="header">
+									<div>Name</div>
+								</template>
+								<template>
+									<div class="cell frozen">[[item.keystore.name]]</div>
+								</template>
+							</vaadin-grid-column>
+							<vaadin-grid-column flex-grow="4">
+								<template class="header">
+									<div>Set the active keystore</div>
+								</template>
+								<template>
+									<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveButtonIconName(item.onlyDecrypt)]]" keystore$='[[index]]'></iron-icon></paper-button>
+								</template>
+							</vaadin-grid-column>
+							<vaadin-grid-column flex-grow="4">
+								<template class="header">
+									<div>Set as MH keystore</div>
+								</template>
+								<template>
+									<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveMMButtonIconName(item.personalKeystore)]]" keystore$='[[index]]'></iron-icon></paper-button>
+								</template>
+							</vaadin-grid-column>
+							<vaadin-grid-column flex-grow="4">
+								<template class="header">
+									<div>Set the keystore password</div>
+								</template>
+								<template>
+									<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' ><iron-icon icon="[[getPasswordButtonIconName(item.hasPassword)]]" index$='[[index]]'></iron-icon></paper-button>
+								</template>
+							</vaadin-grid-column>
+							<vaadin-grid-column flex-grow="1">
+								<template class="header">
+									<div>[[localize('del','Delete',language)]]</div>
+								</template>
+								<template>
+									<div class="cell frozen">
+										<paper-button   hidden='[[_displayAltDeleteButton(item)]]'><iron-icon icon="delete" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'></iron-icon></paper-button>
+										<!--<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>-->
+									</div>
+								</template>
+							</vaadin-grid-column>
+						</vaadin-grid>
+	
+					</div>
+					<div>{{message}}</div>
+				</form>
+			</div>
+			
 				<div class="buttons">
 					<!--<paper-button dialog-dismiss on-tap="close" class="modal-button modal-button&#45;&#45;cancel">[[localize('can','Cancel',language)]]</paper-button>-->
 					<paper-button dialog-confirm autofocus class="modal-button modal-button--save" >[[localize('clo','Close',language)]]</paper-button>
 				</div>
 		</paper-dialog>
 		<paper-dialog id="keystorePasswordDialog">
+			<h2 class="modal-title">[[localize('mdp','Password',language)]]</h2>
+			<div class="content">
+				<h5 id="passwordDialogSubtitle"></h5>
 
-			<h3>[[localize('mdp','Password',language)]]</h3>
-			<h5 id="passwordDialogSubtitle"></h5>
-
-			<span id="errorKeystorePassword"></span>
-			<paper-input id="newPasswordKeystore" label="Set password" type="password"></paper-input>
-
+				<span id="errorKeystorePassword"></span>
+				<paper-input id="newPasswordKeystore" label="Set password" type="password"></paper-input>
+			</div>
+			
 			<div class="buttons">
 				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button autofocus on-tap="_setPassword" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
 			</div>
-
 		</paper-dialog>
 	</template>
 	<script>
