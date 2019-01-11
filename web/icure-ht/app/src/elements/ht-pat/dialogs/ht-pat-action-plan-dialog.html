@@ -170,7 +170,7 @@
             <div class="buttons">
                 <p class="errmsg">[[errMsg]]</p>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <template is="dom-if" if="[[isVaccineProcedure]]">
+                <template is="dom-if" if="[[isValid]]">
                     <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
                 </template>
             </div>
@@ -343,12 +343,16 @@
                     errMsg: {
                         type: String,
                         value: ''
+                    },
+                    isValid: {
+                        type: Boolean,
+                        value : false
                     }
                 };
             }
 
             static get observers() {
-                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
+                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)","_checkValidity(plannedAction.*,selectedVaccineItem,selectedProfessionItem)"];
             }
 
             ready() {
@@ -819,6 +823,16 @@
 
             _checkReadonlySurgical(){
                 return this.hasSurgical && this.readonly;
+            }
+
+            _checkValidity(){
+                this.set("isValid",false);
+                console.log(this.plannedAction)
+                if(this.plannedAction.Deadline && this.plannedAction.Deadline!="" && this.plannedAction.ProcedureId && this.plannedAction.ProcedureId!="" &&
+                    (!this.isVaccineProcedure || (this.isVaccineProcedure && this.selectedVaccineItem!="" && this.plannedAction.DoseNumber && this.plannedAction.DoseNumber!=="" && this.plannedAction.BatchNumber && this.plannedAction.BatchNumber!='')
+                    && this.selectedProfessionItem !='' && this.plannedAction.Status!='')){
+                    this.set("isValid",true);
+                }
             }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);
