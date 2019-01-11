@@ -177,8 +177,8 @@
 
             ready() {
                 super.ready()
-                this.set("dbServers", JSON.parse(localStorage.getItem("server-list-" + this.serverName)))
-                this.set("dbServerSelected",localStorage.getItem("server-selected" + this.serverName))
+                this.set("dbServers", JSON.parse(localStorage.getItem("server-list-" + this.serverName)) || [])
+                this.set("dbServerSelected",localStorage.getItem("server-selected" + this.serverName) || 0)
             }
 
             getSelectedServerURL() {
@@ -189,6 +189,7 @@
             }
 
             _handleServerSelect(value, oldValue) {
+
                 if (value == this.dbServers.length + 1) {
                     this.dbServerSelected = oldValue
                     this.set("addServerOpened", true)
