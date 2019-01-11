@@ -665,7 +665,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Object
 			},
             unreadNumber: {
-			    type: Number
+			    type: Number,
+                value: 0
 			},
 			batchCounter: {
 			    type: Object,
@@ -703,16 +704,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
-        this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-            const msg = messages.rows.reduce((acc, m) => {
-                if (!(m.status && 1 << 1 == 0)) {//status unread
-                    acc.push(m)
-                }return acc.filter(msg => msg.fromAddress !== 'EFACT')}, []).filter(msg => !msg.transportGuid.startsWith('BIN'))
-            return msg.length;
-        }).then(num => {
-            const displayNum = (num) ? (num > 999) ? "999+" : num : 0
-            this.set('unreadNumber', displayNum)
-        });
+        this.set('unreadNumber',0)
+        this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {messages.rows.forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadNumber',this.unreadNumber+1)}})})
     }
 
 	_newMsg(params){
