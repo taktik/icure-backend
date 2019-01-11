@@ -550,7 +550,7 @@
                             this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
                         ]).then(
                         ([results, code]) => {
-                            if(!(results.rows[0] && code.row[0])){
+                            if(!(results.rows[0] && code.rows[0])){
                                 console.log('Procédure/profession non trouvé !');
                                 this.set('errMsg',this.localize('proc_or_prof_not_exist','Procédure/Profession inexistante',this.language))
                                 return;
