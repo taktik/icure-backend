@@ -923,6 +923,9 @@ import * as evaljs from "evaljs"
 
 			addDocument() {
 				this.set('showAddFormsContainer', false);
+                const vaadinUpload = this.$['vaadin-upload'];
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
 				this.$['upload-dialog'].open();
 			}
 
