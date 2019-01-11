@@ -514,7 +514,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="104px" flex-grow="0">
+                        <vaadin-grid-column width="130px" flex-grow="0">
                             <template>
                                 <template is="dom-if" if="[[isImportant(item)]]">
                                     <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
@@ -527,6 +527,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template is="dom-if" if="[[hasAnnex(item)]]">
                                     <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
                                     <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
+                                </template>
+                                <template is="dom-if" if="[[hasLabResult(item)]]">
+                                    <iron-icon id="hasLab-[[item.id]]" icon="icons:assignment"></iron-icon>
+                                    <paper-tooltip position="left" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
                                 </template>
                             </template>
                         </vaadin-grid-column>
@@ -726,6 +730,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             hasAnnex(m) {
                 return (m.status & (1 << 4)) !== 0 ? true : false
+            }
+            hasLabResult(m) {
+                if (m.assignedResults && m.unassignedResults) {
+                    return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
+                } else {
+                    return false
+                }
             }
 
             getUnreadEmail() {
