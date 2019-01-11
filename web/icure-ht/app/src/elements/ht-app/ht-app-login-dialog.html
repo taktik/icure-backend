@@ -164,10 +164,10 @@
 					</paper-dropdown-menu> -->
 					
 					<ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
-					 local-url="http://127.0.0.1:16043" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+					 local-url="[[host]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
 					
 					<ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
-					 server-name="fhc" local-url="https://fhcprd.icure.cloud" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+					 server-name="fhc" local-url="[[host-fhc]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
 
 					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
