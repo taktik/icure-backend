@@ -464,6 +464,7 @@
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+					<!--<paper-icon-button id="graph_icn" class$="graph [[_activeIconClass(graph)]]" icon="icons:timeline" on-tap="_graphique"></paper-icon-button>-->
 					<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
 
 					<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
@@ -923,6 +924,9 @@ import * as evaljs from "evaljs"
 
 			addDocument() {
 				this.set('showAddFormsContainer', false);
+                const vaadinUpload = this.$['vaadin-upload'];
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
 				this.$['upload-dialog'].open();
 			}
 
