@@ -2647,7 +2647,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _statusDetail(status) {
-                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error.message
+                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error && status.error.message || 'NOK'
             }
 
             _statusDetailClass(status) {
