@@ -114,7 +114,7 @@
                 line-height: 64px;
             }
             div.time {
-                min-width: 15%;
+                width: 15%;
             }
             div.name {
                 width: 50%;
@@ -125,12 +125,14 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-            div.button {
-                border-top: 1px solid var(--app-background-color-dark);
-                justify-content: flex-end;
-            }
             paper-button {
                 color: #000;
+            }
+
+            @media screen and (max-width: 1025px) {
+                #dialog {
+                    margin: 0;
+                }
             }
         </style>
 
@@ -236,13 +238,13 @@
                             if (svc.tags[k].code == 'vaccine') {
                                 let thesCode = '0'
                                 Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
-                                const vacc = {name: this._getName(svc),date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
+                                const vacc = {name: this._getName(svc),intDate:svc.valueDate, date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
                                 if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
                             }
                         })
                     })
                     console.log('vaccines',vaccines)
-                    this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
+                    this.set("vaccines",_.orderBy(vaccines,'intDate','desc'))
                 })
             }
 
