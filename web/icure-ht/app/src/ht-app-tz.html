@@ -505,6 +505,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 2000;
                 background: white;
             }
+
+            #tutorialDialog{
+                height: 500px;
+                width: 600px;
+            }
+
+            .btnContainer{
+
+            }
+
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -1115,6 +1125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_logList">[[localize('acc_log','Access Log',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_tuto">[[localize('tutorial','Tutorial',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_myProfile">
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
@@ -1175,15 +1186,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h4>[[invitedHcpLink]]</h4>
         </paper-dialog>
 
-
-
         <paper-dialog id="ht-invite-hcp-user-already-exists">
             <h3>[[localize('warning','Attention',language)]]</h3>
             <h4> [[localize( 'email_address_already_exists', 'L\'adresse email de ce collègue existe déjà\, veuillez svp en spécifier une autre', language)]]</h4>
             <paper-button dialog-confirm autofocus class="modal-button modal-button--close" on-tap="_inviteHCP" >[[localize('clo','Close',language)]]</paper-button>
         </paper-dialog>
 
-
+        <paper-dialog id="tutorialDialog">
+            <h3>[[localize('tutorialList','Tutorial list',language)]]</h3>
+            <div id="tutorialContainer">
+                <ul>
+                    <li><a href="../docs/1_1_connexion.pdf" target="_blank">Connexion</a></li>
+                    <li><a href="../docs/1_2_Configuration_du_compte_utilisateur.pdf" target="_blank">Configuration du compte utilisateur</a></li>
+                    <li><a href="../docs/1_3_Configuration_et_importation_du_trousseau_eHealth.pdf" target="_blank">Configuration et importation du trousseau eHealth</a></li>
+                    <li><a href="../docs/1_4_dashboard_first_use.pdf" target="_blank">Tableau de bord</a></li>
+                    <li><a href="../docs/2_1_presentation_generale.pdf" target="_blank">Présentation générale</a></li>
+                    <li><a href="../docs/2_2_creation_et_configuration_patient.pdf" target="_blank">Création et configuration d'un patient</a></li>
+                    <li><a href="../docs/2_3_Partage_de_patients.pdf" target="_blank">Partager un patient</a></li>
+                    <li><a href="../docs/3_1_dossier_complet.pdf" target="_blank">Dossier complet</a></li>
+                    <li><a href="../docs/manuel.pdf" target="_blank">Manuel</a></li>
+                </ul>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
+        </paper-dialog>
 
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>
@@ -1877,6 +1904,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(e.detail){
                     this.login(e, {credentials: e.detail})
                 }
+            }
+
+            _tuto(){
+                this.$['tutorialDialog'].open()
             }
 
         }
