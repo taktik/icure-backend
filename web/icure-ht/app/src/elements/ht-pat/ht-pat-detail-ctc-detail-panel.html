@@ -610,7 +610,7 @@
 			</paper-tooltip>
 		</div>
 
-		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportCustomTemplatesSelectorDataProvider()]]" entity-type="[[localize('template','Template',language)]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
+		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportCustomTemplatesSelectorDataProvider()]]" entity-icon="vaadin:doctor" entity-type="[[localize('template','Template',language)]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
 		<entity-selector id="add-form-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
 
 		<paper-dialog id="upload-dialog">
@@ -701,7 +701,7 @@
 					<paper-button class="modal-button" on-tap="printDocument">[[localize('print','Print',language)]]</paper-button>
 				</div>
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="saveDocument">[[localize('save','Save',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveReport">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 		<canvas id="barCode"></canvas>
@@ -1466,7 +1466,7 @@ import * as evaljs from "evaljs"
     _reportTemplateSelected(e, reportTemplate) {
 
         this.savedDocTemplateId = reportTemplate.id;
-        this.$.templateDescription.value = _.trim( _.get(reportTemplate,"descr", reportTemplate.name) )
+        this.$.templateDescription.value = _.trim( _.get(reportTemplate,"descr", _.get(reportTemplate, "name", this.localize('rep',this.language) ) ) )
 
 	    this.api.doctemplate().getAttachmentText(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
 	        const prose = this.root.querySelector("#prose-editor")
@@ -1701,11 +1701,6 @@ import * as evaljs from "evaljs"
 
 
 
-    saveDocument() {
-        const prose = this.root.querySelector("#prose-editor");
-    }
-
-
 
     dropVarsFromProseJsonContent(proseJsonContent, variablesPath) {
         if(!_.size(variablesPath)) return proseJsonContent;
@@ -1822,15 +1817,71 @@ import * as evaljs from "evaljs"
 
 
 	_saveReport() {
-		//Create document with attachment from prose-editor and ...
-        const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
-        this.dispatchEvent(new CustomEvent('new-service', {
-            detail: {
-                ctc: this.currentContact,
-                svc: svc,
-                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-            }, composed: true
-        }));
+
+        const prose = this.root.querySelector("#prose-editor");
+        const proseJsonContent = prose.editorView.state.doc.toJSON();
+        const proseHtmlContent = prose.$.container.innerHTML;
+        const variablesPath = this.api.findJsonObjectPathByPropNameAndPropValue( proseJsonContent, "type", "variable" );
+        const reportData = {
+            "title" : this.localize('rep',this.language) + " " + _.get( _.head( _.filter( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ), { "id" : this.editedReportDataProvider.getId() } ) ), "form.descr", "" ),
+            "description" : _.trim( this.$.templateDescription.value ),
+            "formId" : this.editedReportDataProvider.getId(),
+            "totalForms": _.size( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ) ),
+            "totalVars": _.size(variablesPath),
+            "totalPages": _.size(proseJsonContent.content),
+            "created": ""+ +new Date(),
+        }
+
+        this.api.message().newInstanceWithPatient(this.user, this.patient).then((newMessageInstance)=>{
+            this.api.message().createMessage(_.merge(
+                newMessageInstance,
+                {
+                    transportGuid: "DOC:REPORT:ARCHIVE",
+                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                    metas: reportData,
+                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                    subject: "DOC:REPORT:ARCHIVE"
+                }
+            )).then((createMessageResponse) => {
+                console.log( "createMessageResponse: ", createMessageResponse );
+                this.api.document().newInstance(
+                    this.user,createMessageResponse,
+                    {
+                        documentType: 'report',
+                        mainUti: this.api.document().uti("report/html"),
+                        name: reportData.title + " " + reportData.description
+                    }
+                ).then((newDocumentResponse) => {
+                    console.log( "newDocumentResponse: ", newDocumentResponse );
+                    this.api.document().createDocument(newDocumentResponse).then((createDocumentResponse) => {
+                        console.log( "createDocumentResponse: ", createDocumentResponse );
+                        this.api.encryptDecryptFileContentByHcpId("encrypt", proseHtmlContent, this.user.healthcarePartyId).then(encryptedFileContent =>{
+                            console.log( "encryptedFileContent: ", encryptedFileContent );
+                            this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
+                                console.log( "setAttachmentResponse: ", setAttachmentResponse );
+                                const svc = this.api.contact().service().newInstance(
+                                    this.user,
+                                    {
+                                        content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
+                                        encryptedContent: encryptedFileContent,
+                                        label: 'document',
+                                        formId: reportData.formId
+                                    }
+                                );
+                                this.dispatchEvent(new CustomEvent('new-service', {
+                                    detail: {
+                                        ctc: this.currentContact,
+                                        svc: svc,
+                                        scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
+                                    }, composed: true
+                                }));
+                            }).catch(()=>{})
+                        }).catch(()=>{})
+                    }).catch(()=>{})
+                }).catch(()=>{})
+            }).catch(()=>{})
+        }).catch(()=>{})
+
     }
 
 
