@@ -27,20 +27,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.taktik.icure.entities.DocumentTemplate;
 import org.taktik.icure.entities.embed.DocumentType;
+import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.DocumentTemplateLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto;
 import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto;
 import org.taktik.icure.utils.FormUtils;
 import org.taktik.icure.utils.ResponseUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -52,6 +48,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,6 +104,25 @@ public class DocumentTemplateFacade implements OpenApiFacade {
         return response;
     }
 
+    @ApiOperation(response = DocumentDto.class, value = "Deletes a document template")
+    @DELETE
+    @Path("/{documentTemplateIds}")
+    public Response deleteDocumentTemplate(@PathParam("documentTemplateIds") String documentTemplateIds) throws DeletionException {
+        Response response;
+
+        if (documentTemplateIds == null) {
+            return ResponseUtils.badRequest("Cannot delete document template: provided document template ID is null");
+        }
+
+        List<String> documentTemplateIdsList = Arrays.asList(documentTemplateIds.split(","));
+        try {
+            documentTemplateLogic.deleteEntities(documentTemplateIdsList);
+            response = ResponseUtils.ok();
+        } catch (Exception e) {
+            response = ResponseUtils.internalServerError("Document template deletion failed");
+        }
+        return response;
+    }
 
     @ApiOperation(
             response = DocumentTemplateDto.class,

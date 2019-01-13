@@ -85,6 +85,10 @@
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
+            p.errmsg {
+                color: var(--app-error-color);
+            }
+
             .buttons {
                 position: absolute;
                 bottom: 0;
@@ -164,8 +168,11 @@
 
             </div>
             <div class="buttons">
+                <p class="errmsg">[[errMsg]]</p>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                <template is="dom-if" if="[[isValid]]">
+                    <paper-button class="modal-button--save" autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                </template>
             </div>
         </paper-dialog>
 
@@ -332,12 +339,20 @@
                     hasSurgical:{
                         type: Boolean,
                         value: false
+                    },
+                    errMsg: {
+                        type: String,
+                        value: ''
+                    },
+                    isValid: {
+                        type: Boolean,
+                        value : false
                     }
                 };
             }
 
             static get observers() {
-                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
+                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)","_checkValidity(plannedAction.*,selectedVaccineItem,selectedProfessionItem)"];
             }
 
             ready() {
@@ -521,39 +536,67 @@
             }
 
             planAction() {
-                const tabProfession = this.plannedAction.ProfessionId.split("|")
-
-                Promise.all(
-                    [
-                        this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
-                        this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
-                    ]).then(
-                    ([results, code]) => {
-                        if(this.plannedAction.VaccineCommercialNameId !== ""){
-                            this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
-                                mpp => {
-                                    this.set('plannedAction.VaccineInfo', mpp)
-                                    this.set('plannedAction.ProcedureInfo', results.rows[0])
-                                    this.set('plannedAction.ProfessionInfo', code.rows[0])
+                console.log('planAction',this.plannedAction)
+                if (this.plannedAction && this.plannedAction.ProcedureId && this.plannedAction.Status !== '') {
+                    if(!(this.plannedAction.ProfessionId && this.plannedAction.ProfessionId.match(new RegExp('^.+\|.+\|.+$')))){
+                        console.log('Procédure incorrecte !');
+                        this.set('errMsg',this.localize('proc_error','Procédure incorrecte',this.language))
+                        return;
+                    }
+                    const tabProfession = this.plannedAction.ProfessionId ? this.plannedAction.ProfessionId.split("|") : []
+                    Promise.all(
+                        [
+                            this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
+                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
+                        ]).then(
+                        ([results, code]) => {
+                            if(!(results.rows[0] && code.rows[0])){
+                                console.log('Procédure/profession non trouvé !');
+                                this.set('errMsg',this.localize('proc_or_prof_not_exist','Procédure/Profession inexistante',this.language))
+                                return;
+                            }
+                            if(this.plannedAction.VaccineCommercialNameId && this.plannedAction.VaccineCommercialNameId !== ""){
+                                this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
+                                    mpp => {
+                                        this.set('plannedAction.VaccineInfo', mpp)
+                                        this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                        this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                        if (this.plannedAction.VaccineInfo && this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
+                                            this._planAction()
+                                        } else {
+                                            this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                                        }
+                                    }
+                                )
+                            }else{
+                                this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                if (this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
                                     this._planAction()
+                                } else {
+                                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
                                 }
-                            )
-                        }else{
-                            this.set('plannedAction.ProcedureInfo', results.rows[0])
-                            this.set('plannedAction.ProfessionInfo', code.rows[0])
-                            this._planAction()
-                        }
-                    });
+                            }
+                        });
 
+                } else {
+                    console.log('empty fields !');
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                }
             }
 
             _planAction() {
-                console.log(this.plannedAction)
+                console.log('_planAction',this.plannedAction)
 
                 const action = this.plannedAction
                 const contactId = this.currentContact.id
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
-                const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+                const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+
+                if (!action || !contactId || !responsible || !valueDate) {
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                    return
+                }
 
                 this.service.label="Actes"
                 this.service.modified= +new Date()
@@ -659,6 +702,8 @@
                 if(!this.hasSurgical && action.isSurgical){
 
                 }
+
+                this.close()
             }
 
             linkToHealthElement(e) {
@@ -675,6 +720,7 @@
             }
 
             open(svc,readonly) {
+                this.set('errMsg','')
                 if(!readonly)readonly=false;
                 this.set("readonly",readonly)
                 this.set("plannedAction",{})
@@ -755,8 +801,6 @@
                         if(this.plannedAction.isSurgical){
                             this.set("hasSurgical",true)
                         }
-
-
                     })
 
                 }
@@ -789,6 +833,16 @@
 
             _checkReadonlySurgical(){
                 return this.hasSurgical && this.readonly;
+            }
+
+            _checkValidity(){
+                this.set("isValid",false);
+                console.log(this.plannedAction)
+                if(this.plannedAction.Deadline && this.plannedAction.Deadline!="" && this.plannedAction.ProcedureId && this.plannedAction.ProcedureId!="" &&
+                    (!this.isVaccineProcedure || (this.isVaccineProcedure && this.selectedVaccineItem!="" && this.plannedAction.DoseNumber && this.plannedAction.DoseNumber!=="" && this.plannedAction.BatchNumber && this.plannedAction.BatchNumber!='')
+                    && this.selectedProfessionItem !='' && this.plannedAction.Status!='')){
+                    this.set("isValid",true);
+                }
             }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);

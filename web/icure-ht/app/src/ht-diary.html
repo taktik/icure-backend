@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="elements/ht-spinner/ht-spinner.html">
 
 
 <dom-module id="ht-diary">
@@ -24,14 +25,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#iframe{
-				height: 100%;
-				width: 100%;
+                height: calc(100vh - 68px);
+                width: 100vw;
+                box-sizing: border-box;
+                overflow-x: auto;
+                overflow-y: auto;
+                border: 0;
 			}
+
+            ht-spinner.center {
+                position: fixed;
+                top: 50vh;
+                left: 50vw;
+                height: 128px;
+                transform: translate(-50%,-50%);
+                z-index: -1;
+            }
 		</style>
 
 
 		<template is="dom-if" if="[[showAgenda]]">
 			<iframe id="iframe" src$="https://[[mikronoData.user]]:[[mikronoData.password]]@[[mikronoData.url]]/iCureShortcut.jsp?id=[[user.id]]"></iframe>
+            <ht-spinner class="center" active="[[showAgenda]]"></ht-spinner>
 		</template>
 
 	</template>

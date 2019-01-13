@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties("icure.couchdb")
 class CouchDbProperties {
-	var autoUpdateViewOnChange = true
+	var autoUpdateViewOnChange = false
 	var prefix = ""
 	var url = "http://127.0.0.1:5984"
 	var maxConnections = 500
