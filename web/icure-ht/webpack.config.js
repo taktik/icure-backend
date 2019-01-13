@@ -63,7 +63,7 @@ module.exports = {
                 use: [{loader: 'ts-loader', options: {/*allowTsInNodeModules: true*/}}]
             },
             {
-                test: /\.(gif|png|jpe?g|svg)$/i,
+                test: /\.(gif|png|jpe?g|svg|pdf)$/i,
                 use: [{
                     loader: "url-loader",
                     options: {
