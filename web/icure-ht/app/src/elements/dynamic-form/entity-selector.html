@@ -3,6 +3,7 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
 
 
 <dom-module id="entity-selector">
@@ -57,8 +58,10 @@
 		</style>
 
 		<paper-dialog id="dialog">
-			<h2 class="modal-title">[[localize('sel','Select',language)]] [[entityType]]</h2>
-			<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+			<h2 class="modal-title">
+			    [[localize('sel','Select',language)]] [[entityType]]
+            </h2>
+			<paper-input id="filter" label="Filter" value="{{filterValue}}" id="entitySelectorSearch" autofocus on-keydown="refresh"></paper-input>
 			<vaadin-grid id="entities-list" class="material" active-item="{{activeItem}}" on-tap="click">
 				<template is="dom-repeat" items="[[columns]]" as="column">
 					<vaadin-grid-column width="100px">
@@ -74,7 +77,7 @@
 			<slot name="suffix"></slot>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
@@ -156,20 +159,14 @@ class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			let latestSearchValue = this.filterValue;
 			this.latestSearchValue = latestSearchValue;
 			if (!latestSearchValue || latestSearchValue.length < 2) {
-				console.log("Cancelling empty search");
 				//grid.set("size", 0);
 				callback([], 0);
 				return;
 			}
 
 			grid.lastParams = thisParams;
-			console.log("Starting search for " + thisParams);
-
 			this.dataProvider && this.dataProvider.filter(latestSearchValue, endIndex || grid.pageSize, params.index, sort, desc).then(function (res) {
-				if (this.filterValue !== latestSearchValue) {
-					console.log("Cancelling obsolete search");
-					return;
-				}
+				if (this.filterValue !== latestSearchValue) return;
 				callback(_.slice(res.rows, startIndex, endIndex), res.totalSize);
 			}.bind(this));
 		}.bind(this);
@@ -185,8 +182,6 @@ class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	click(e) {
 		const selected = this.activeItem;
-
-		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
 			this.select(this.latestSelected || selected);
 		} else {
@@ -203,18 +198,9 @@ class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		//Give the gui the time to update the field
 		setTimeout(function () {
 			let currentValue = this.filterValue;
-
-			if (this.latestSearchValue === currentValue) {
-				return;
-			}
-			setTimeout(function () {
-				if (currentValue === this.filterValue) {
-					console.log("Triggering search for " + this.filterValue);
-					this.$['entities-list'].clearCache();
-				} else {
-					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
-				}
-			}.bind(this), 500); //Wait for the user to stop typing
+			if (this.latestSearchValue === currentValue) { return; }
+			// Imrpove with lodash _.defer
+			setTimeout(function () { if (currentValue === this.filterValue) { this.$['entities-list'].clearCache(); } }.bind(this), 500); //Wait for the user to stop typing
 		}.bind(this), 100);
 	}
 
