@@ -19,6 +19,8 @@ class TarificationCodeUpdater {
         assert root?.exists()
 
         def codes = null
+        def subset = (args.length == 4) ? Arrays.asList(args[2].split(',')) : null
+
 
         new File(args[0]).withReader { it.eachLine {
             def fields = it.split("\\s")
@@ -26,7 +28,7 @@ class TarificationCodeUpdater {
             def type = 'INAMI-RIZIV'
             println "Importing ${fields[0]}"
 
-            codes = importer.doScan(root, type, codes)
+            codes = importer.doScan(root, type, codes, subset)
         }}
         println "Process completed in ${(System.currentTimeMillis() - start) / 1000.0} seconds"
     }
