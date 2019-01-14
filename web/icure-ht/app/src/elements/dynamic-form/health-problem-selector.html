@@ -563,7 +563,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type && type.code === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 
 				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
-		})
+				this._checkValidity();
+			})
 
 	}
 
@@ -662,6 +663,9 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    if(this.entity.codes){
 	        this.set("isValid",true)
 		}
+		else{
+            this.set("isValid",false)
+        }
 	}
 
 }
