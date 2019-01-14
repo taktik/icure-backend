@@ -525,10 +525,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <ht-app-setup-prompt id="setupPrompt"></ht-app-setup-prompt>
 
-        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login"></ht-app-welcome-tz>
+        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login" host="[[servIcureUrl]]" fhc-host="[[servFhcUrl]]"></ht-app-welcome-tz>
 
         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
-                             on-login="login"></ht-app-login-dialog>
+                             on-login="login" host="[[servIcureUrl]]" fhc-host="[[servFhcUrl]]"></ht-app-login-dialog>
 
         <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]" credentials="[[credentials]]" on-redirect-another-entity="_redirectToAnotherEntity"></ht-app-entities-selector>
 
@@ -1378,15 +1378,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+
+                this.set('servIcureUrl', this.icureUrl)
+                this.set('servFhcUrl', this.fhcUrl)
 
             }
 
             _updateServerUrl(icureurl, fhcurl) {
                 
-                if(icureurl) this.set('icureUrl',`${icureurl}/rest/v1`)
-                if(fhcurl) this.set('fhcUrl',`${fhcurl}`)
+                if(icureurl) this.set('icureUrl',icureurl)
+                if(fhcurl) this.set('fhcUrl',fhcurl)
 
             }
 
