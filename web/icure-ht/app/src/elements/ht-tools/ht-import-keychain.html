@@ -42,6 +42,16 @@
             h5 {
                 margin: 4px 0;
 			}
+
+            #errorKeystorePassword {
+                color: var(--app-error-color);
+            }
+            #successKeystorePassword, #successKeystorePasswordMultiple {
+                color: var(--app-status-color-ok);
+            }
+            #successKeystorePasswordMultiple {
+                padding-right: 16px;
+            }
 			
 			#currentEhKeychainList{
 				height: 350px;
@@ -129,7 +139,7 @@
 			<div class="content">
 				<h5 id="passwordDialogSubtitle"></h5>
 
-				<span id="errorKeystorePassword"></span>
+                <span id="errorKeystorePassword"></span>
 				<paper-input id="newPasswordKeystore" label="Set password" type="password"></paper-input>
 			</div>
 			
