@@ -1534,7 +1534,14 @@ import * as evaljs from "evaljs"
 						}, [])).sortBy(f=>-f.created).value()
 					});
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
-				}).finally(() => this.set('isLoadingDoc',false));
+				}).finally(() => {
+				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
+                    if (this.contactsFormsAndDocuments.length) { // auto display in list if labresult
+                        if (this.contactsFormsAndDocuments[0].unmappedServices.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes[0].type === "labResult") this._list()
+                        if (this.contactsFormsAndDocuments[0].forms.length && this.contactsFormsAndDocuments[0].forms[0].form && this.contactsFormsAndDocuments[0].forms[0].form.descr.startsWith('Lab')) this._list()
+                    }
+				    this.set('isLoadingDoc',false)
+                });
 			}
 
 			toggleDetailsFiltersPanel() {
