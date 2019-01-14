@@ -12,13 +12,32 @@
     <template>
         <style>
             #dialog{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
                 min-height: 480px;
                 min-width: 800px;
-                max-height: calc( 90vh - 64px ) !important;
+                height: 60vh !important;
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%,-50%);
+            }
+            h2 {
+                min-height: 44px;
+            }
+            .view {
+                margin-top: 0;
+                flex-grow: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                border-top: 1px solid var(--app-background-color-dark);
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .buttons {
+                height: 56px;
+                display: flex;
+                justify-content: flex-end;
             }
 
             .col-lg-1{
@@ -36,10 +55,15 @@
             .col-lg-4{
                 width: 5%;
             }
+
+            .modal-button {
+                color: black;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <div>
+            <h2>[[localize('plan_of_act','Action plan',language)]]</h2>
+            <div class="view">
                 <paper-listbox id="services-list" class="" selected="{{selected}}">
                     <template is="dom-repeat" items="[[services]]">
                         <paper-item class="">
@@ -54,7 +78,7 @@
                 </paper-listbox>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
@@ -157,7 +181,7 @@
             }
 
             static get observers() {
-                return [];
+                return ['contactsChanged(contacts)'];
             }
 
             ready() {
@@ -169,12 +193,12 @@
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
                     .then(services =>{
                         console.log('services:',services)
-                        this.set("services",_.sortBy(services,"valueDate"))
+                        this.set("services",_.orderBy(services,"valueDate",'desc'))
                     })
             }
 
             _getContent(svc){
-                return _svc.content && _.get( svc.content[this.language], "stringValue", "" ) || ""
+                return svc.content && _.get( svc.content[this.language], "stringValue", "" ) || ""
             }
 
             _formatDate(date){

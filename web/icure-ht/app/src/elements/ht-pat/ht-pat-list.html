@@ -429,11 +429,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #sharePatientDialog {
                     width: 1000px;
+                    display: flex;
+                    flex-direction: column;
+                    height: 60vh;
+                    justify-content: space-between;
                 }
 
                 #sharePatientDialog > * {
                     width: 100%;
                     box-sizing: border-box;
+                }
+                #sharePatientDialog > h2 {
+                    min-height: 54px;
+                }
+                #sharePatientDialog #hcpFilter, #hcp-list {
+                    margin: 0;
+                }
+                #sharePatientDialog #hcpFilter {
+                    max-height: 62px;
+                }
+                #sharePatientDialog #hcp-list {
+                    flex-grow: 1;
+                }
+                #sharePatientDialog div.buttons {
+                    display: block;
+                    text-align: right;
+                    flex-direction: row;
+                    height: 56px;
                 }
 
                 #inputGender {
@@ -467,6 +489,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #sharePatientDelegationDialog > * {
                     width: 100%;
                     box-sizing: border-box;
+                }
+                #sharePatientDelegationDialog > div.content,
+                #sharingPatientStatus > div.content {
+                    margin-top: 8px;
                 }
 
                 #importPatientStatus {
@@ -786,7 +812,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 vaadin-upload {
                     overflow-y: auto;
                     height: 40vh;
-                    width: 100%;
+                    /*width: 100%;*/
                     margin: 16px;
                     min-height: 280px;
                     background: var(--app-background-color);
@@ -819,10 +845,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div id="selectPatientOption">
                         <div id="selectPatientOption_back" on-tap="_deselectAllSelectedPatients">
                             <iron-icon icon="vaadin:arrow-left"></iron-icon>
-                            <span>Back</span>
+                            <span>[[localize('can','Cancel',language)]]</span>
                         </div>
                         <div id="selectPatientOption_text">
-                            [[nbPatientSelected]] patient(s) selected
+                            [[nbPatientSelected]] [[localize('pat','Patients',language)]] [[localize('multiple_selected','Selected',language)]]
                         </div>
                     </div>
                 </template>
@@ -934,10 +960,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                             <template is="dom-if" if="[[btnSelectionPatient]]">
                                 <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
-                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
-                                </div>
-                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
-                                </div>
+                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]</div>
+                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fus_pat','Fusion patients',language)]]</div>
                             </template>
                             <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
                             </div>
@@ -971,7 +995,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-button>
                                 <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
+                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fus_pat','Fusion patients',language)]]
                                 </paper-button>
                             </template>
 
@@ -1009,7 +1033,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
-            <h2 class="modal-title">Add a patient</h2>
+            <h2 class="modal-title">[[localize('add_pat','Add a patient',language)]]</h2>
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
                     <paper-tab class="adm-tab">
@@ -1162,54 +1186,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="sharePatientDialog">
             <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
-            <div class="content">
-                <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
-                <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                        </template>
-                        <template>
-                            <vaadin-checkbox id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.lastName]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.firstName]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.speciality]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.email]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </div>
+            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
+            <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
+                    </template>
+                    <template>
+                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.lastName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.firstName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.speciality]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
+                        </vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.email]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
@@ -1262,6 +1285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="sharingPatientStatus">
             <h2 class="modal-title">[[localize("pat_sha_sta","Patient sharing status",language)]]</h2>
             <div class="content">
+                <ht-spinner class="sharePatSpinner" active="[[isSharingPatient]]"></ht-spinner>
                 <vaadin-grid items="[[patientShareStatuses]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
@@ -1663,6 +1687,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     remainingPatientImports: {
                         type: Array,
                         value: []
+                    },
+                    isSharingPatient: {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -2110,6 +2138,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _openImportPatientFromMfDialog() {
+                const vaadinUpload = this.$['vaadin-upload']
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
                 if (this.remainingPatientImports === undefined || this.remainingPatientImports.length === 0) {
                     this.remainingPatientImports = []
                     this.patientImportStatuses = []
@@ -2598,6 +2629,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('fusionOption', false)
             }
 
+            _toggleBoxes(e) {
+                const checked = e.target.getAttribute('checked')
+                console.log('checked ?',checked)
+                let boxList = this.shadowRoot.querySelector('#hcp-list');
+                let allCheckBoxes = boxList ? boxList.querySelectorAll('.checkbox') : [];
+                allCheckBoxes.forEach(box=>{
+                    box.checked = !box.checked;
+                })
+            }
+
             _checkHcp(e) {
                 if (e.target.id !== "") {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === e.target.id)
@@ -2616,7 +2657,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _statusDetail(status) {
-                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error.message
+                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error && status.error.message || 'NOK'
             }
 
             _statusDetailClass(status) {
@@ -2670,6 +2711,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _sharePatients(patients) {
                 this.set('patientShareStatuses', [])
+                this.set('isSharingPatient',true)
 
                 const hcpId = this.user.healthcarePartyId
                 const delegates = this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id)
@@ -2706,7 +2748,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             return [newStatuses, newTreatedIds]
                         })
-                    )
+                    ).then(()=>this.set('isSharingPatient',false))
                 })
             }
 
