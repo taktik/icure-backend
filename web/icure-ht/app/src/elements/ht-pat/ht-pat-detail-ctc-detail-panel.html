@@ -1499,7 +1499,7 @@ import * as evaljs from "evaljs"
 					docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
 				};
 			}), f => -f.created),
-			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
 		}));
 
 				const climbFormHierarchy = function (formIds, formsCache) {
