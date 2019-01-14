@@ -8,7 +8,6 @@ var Clean = require('clean-webpack-plugin')
 var path = require('path')
 
 console.log(path.resolve(__dirname))
-
 module.exports = {
     // Tell Webpack which file kicks off our app.
     entry: path.resolve(__dirname, 'app/index.js'),
@@ -23,35 +22,33 @@ module.exports = {
     // bower_components folder.
     resolve: {
         modules: [
-            path.resolve(__dirname, 'app/bower_components'),
-            path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname,  'app/bower_components'),
+            path.resolve(__dirname,  'node_modules'),
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
     devtool: 'eval-source-map',
-    // devtool: 'inline-source-map',
-    // devtool: 'inline-module-source-map',
-    node: {
-        fs: 'empty'
-    },
-    module: {
+	node: {
+    	fs: 'empty'
+	},
+	module: {
         rules: [
-            {
-                test: /\.html$/,
-                use: [
-                    {
-                        loader: 'babel-loader',
+	        {
+		        test: /\.html$/,
+		        use: [
+			        {
+				        loader: 'babel-loader',
 
-                        options: {
-                            /*presets: ['es2015'],*/
-                            plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
-                        }
-                    },
-                    {
-                        loader: 'polymer-webpack-loader'
-                    }
-                ]
-            },
+				        options: {
+				        	/*presets: ['es2015'],*/
+					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+				        }
+			        },
+			        {
+				        loader: 'polymer-webpack-loader'
+			        }
+		        ]
+	        },
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
@@ -60,20 +57,20 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: [{loader: 'ts-loader', options: {/*allowTsInNodeModules: true*/}}]
+                use: [{loader: 'ts-loader', options: { /*allowTsInNodeModules: true*/ }}]
             },
-            {
-                test: /\.(gif|png|jpe?g|svg)$/i,
+	        {
+		        test: /\.(gif|png|jpe?g|svg)$/i,
                 use: [{
                     loader: "url-loader",
-                    options: {
+				        options: {
                         limit: 10000,
-                    },
+				        },
                 }],
-            }
+	        }
         ]
     },
-    mode: 'development',
+	mode: 'development',
     plugins: [
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
@@ -102,6 +99,9 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
+        },{
+            from : path.resolve(__dirname, 'app/docs/*.pdf'),
+            to: 'docs/[name].[ext]'
         }]),
         new Clean(['dist']),
     ],
