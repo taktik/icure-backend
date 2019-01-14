@@ -1859,37 +1859,33 @@ import * as evaljs from "evaljs"
                 ).then((newDocumentResponse) => {
                     this.api.document().createDocument(newDocumentResponse).then((createDocumentResponse) => {
                         this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
-                            this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, createDocumentResponse.encryptionKeys && Object.keys(createDocumentResponse.encryptionKeys).length ? createDocumentResponse.encryptionKeys : createDocumentResponse.delegations).then(decryptedAndImportedAesHcPartyKeys => {
-                                let collatedAesKeys = {}; decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
-                                this.api.crypto().decryptDelegationsSFKs((createDocumentResponse.encryptionKeys && Object.keys(createDocumentResponse.encryptionKeys).length? createDocumentResponse.encryptionKeys: createDocumentResponse.delegations)[this.user.healthcarePartyId], collatedAesKeys, createDocumentResponse.id).then(enckeys => {
-                                    this.api.encryptDecryptFileContentByEncKey("encrypt", _.get( _.head(decryptedAndImportedAesHcPartyKeys), "key", null ), pdfFileContent).then(encryptedFileContent =>{
-                                        this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
-                                            const svc = this.api.contact().service().newInstance(
-                                                this.user,
-                                                {
-                                                    content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
-                                                    encryptedContent: encryptedFileContent,
-                                                    label: 'document',
-                                                    formId: reportData.formId
-                                                }
-                                            );
-                                            this.dispatchEvent(new CustomEvent('new-service', {
-                                                detail: {
-                                                    ctc: this.currentContact,
-                                                    svc: svc,
-                                                    scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-                                                }, composed: true
-                                            }));
-                                            this.busySpinner = false;
-                                        }).catch(()=>{this.busySpinner = false;})
-                                    }).catch(()=>{this.busySpinner = false;})
-                                }).catch(()=>{this.busySpinner = false;})
-                            }).catch(()=>{this.busySpinner = false;})
-                        }).catch(()=>{this.busySpinner = false;})
-                    }).catch(()=>{this.busySpinner = false;})
-                }).catch(()=>{this.busySpinner = false;})
-            }).catch(()=>{this.busySpinner = false;})
-        }).catch(()=>{this.busySpinner = false;})
+                            this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createDocumentResponse, pdfFileContent).then(encryptedFileContent =>{
+                                this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
+                                    const svc = this.api.contact().service().newInstance(
+                                        this.user,
+                                        {
+                                            content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
+                                            encryptedContent: encryptedFileContent,
+                                            label: 'document',
+                                            formId: reportData.formId
+                                        }
+                                    );
+                                    this.dispatchEvent(new CustomEvent('new-service', {
+                                        detail: {
+                                            ctc: this.currentContact,
+                                            svc: svc,
+                                            scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
+                                        }, composed: true
+                                    }));
+                                    this.busySpinner = false;
+                                    this.confirmSaved();
+                                }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                            }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                        }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                    }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                }).catch((e)=>{console.log(e);this.busySpinner = false;})
+            }).catch((e)=>{console.log(e);this.busySpinner = false;})
+        }).catch((e)=>{console.log(e);this.busySpinner = false;})
 
     }
 
