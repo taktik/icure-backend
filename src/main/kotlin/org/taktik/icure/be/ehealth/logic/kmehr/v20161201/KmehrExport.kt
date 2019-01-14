@@ -169,10 +169,22 @@ open class KmehrExport {
                         cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
                     }
                 }
+                //TODO: this code is not finished! Contains hard-coded test data
+                regimen = ItemType.Regimen()
+                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
+                //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
+                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
+                            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
+                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
+                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                        }
+                    }
             }
+
+
             isIsrelevant = ((svc.status?: 0) and 2) == 0
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
+            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
+            endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
             recorddatetime = makeXGC(svc.modified)
         }
     }
@@ -400,7 +412,7 @@ open class KmehrExport {
     fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
-                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD";sv = "1.1"; value = STANDARD } }
+                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD";sv = "1.4"; value = STANDARD } }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + System.currentTimeMillis() })
                 makeXGC(Instant.now().toEpochMilli()).let {
                     date = it
@@ -408,8 +420,8 @@ open class KmehrExport {
                 }
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
-                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
-                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
+//                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
+//                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
                 }
             }
         }

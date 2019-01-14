@@ -56,7 +56,7 @@ public class StoredDocument implements Versionable<String> {
 	protected String _type = this.getClass().getName();
 	@JsonProperty("rev_history")
 	protected Map<String, String> revHistory = reversedTreeMap();
-
+	
 	@JsonIgnore
 	public void addInlineAttachment(Attachment a) {
 		Assert.notNull(a, "attachment may not be null");
@@ -174,8 +174,7 @@ public class StoredDocument implements Versionable<String> {
 		if (!(o instanceof StoredDocument)) return false;
 		StoredDocument that = (StoredDocument) o;
 		return Objects.equals(deletionDate, that.deletionDate) &&
-				Objects.equals(id, that.id) &&
-				Objects.equals(rev, that.rev);
+				Objects.equals(id, that.id);
 	}
 
 	@Override

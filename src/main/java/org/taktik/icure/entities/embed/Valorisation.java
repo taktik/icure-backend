@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -111,5 +112,26 @@ public class Valorisation implements Serializable {
 
 	public void setVat(Double vat) {
 		this.vat = vat;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Valorisation that = (Valorisation) o;
+		return Objects.equals(startOfValidity, that.startOfValidity) &&
+				Objects.equals(endOfValidity, that.endOfValidity) &&
+				Objects.equals(predicate, that.predicate) &&
+				Objects.equals(totalAmount, that.totalAmount) &&
+				Objects.equals(reimbursement, that.reimbursement) &&
+				Objects.equals(patientIntervention, that.patientIntervention) &&
+				Objects.equals(doctorSupplement, that.doctorSupplement) &&
+				Objects.equals(vat, that.vat) &&
+				Objects.equals(label, that.label);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(startOfValidity, endOfValidity, predicate, totalAmount, reimbursement, patientIntervention, doctorSupplement, vat, label);
 	}
 }

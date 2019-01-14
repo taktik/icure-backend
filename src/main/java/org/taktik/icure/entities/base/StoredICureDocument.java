@@ -71,6 +71,7 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 	//He/she encrypts it using his own AES exchange key and stores it as a delegation
 	protected Map<String,Set<Delegation>> encryptionKeys = new HashMap<>();
 
+	protected String medicalLocationId;
 
 	public void addDelegation(String healthcarePartyId, Delegation delegation) {
 		delegations.computeIfAbsent(healthcarePartyId, k -> new HashSet<>()).add(delegation);
@@ -163,6 +164,14 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 
     public Set<String> getSecretForeignKeys() {
         return secretForeignKeys;
+    }
+
+    public String getMedicalLocationId() {
+        return medicalLocationId;
+    }
+
+    public void setMedicalLocationId(String medicalLocationId) {
+        this.medicalLocationId = medicalLocationId;
     }
 
     public void setSecretForeignKeys(Set<String> secretForeignKeys) {

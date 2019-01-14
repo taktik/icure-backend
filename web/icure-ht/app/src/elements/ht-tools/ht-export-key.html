@@ -8,6 +8,7 @@
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
 <link rel="import" href="../../dialog-style.html">
+<link rel="import" href="./ht-print-key.html">
 
 <dom-module id="ht-export-key">
 	<template>
@@ -64,16 +65,23 @@
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<h2 class="modal-title">[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
 			<div class="content">
-				<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+                <div id="printable"><qrcode-printer id="qrcode_printer" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			</div>
 			<div class="buttons">
 				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="_print">[[localize('pri','Print',language)]]</paper-button>
 				<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<ht-print-key id="print-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-print-key>
 	</template>
 	<script>
+import moment from 'moment/src/moment';
+import mustache from "mustache/mustache.js";
+
 class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+
 	static get is() {
 		return 'ht-export-key';
 	}
@@ -188,6 +196,48 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 
 	close() {
 		this.$.dialog.close();
+	}
+
+	_print(){
+	    let first=true;
+		let html = `
+		<html>
+			<body>{{label}}<table style="text-align: center;width:100%">`;
+		this.$["print-key"].getCodes().map(el => {
+		    if(first){
+		        html+="<tr>"
+            }
+            html+="<td style='height: 350px;'>"
+		    html+=el.innerHTML
+            html+="</td>"
+            if(!first){
+                html+="</tr>"
+            }
+            first=!first
+        })
+		html+=`</table></body>
+		</html>
+		`;
+
+        this.api.pdfReport(mustache.render(html,{label: this.localize('key_top','Private Key Topaz:',this.language)}),{
+            paperWidth: 210,
+            paperHeight: 297,
+            marginLeft: 5,
+            marginRight: 5,
+            marginTop: 5,
+            marginBottom: 5
+        })
+            .then(data => {
+                let blob = new Blob([data], {type: 'application/pdf'});
+                let url = window.URL.createObjectURL(blob)
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none;";
+                a.href = url;
+                a.download = "private_key_qrCode_"+ this.user.id +"_" + moment() + ".pdf";
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
 	}
 }
 customElements.define(HtExportKey.is, HtExportKey);

@@ -26,12 +26,15 @@
             #dialog{
                 min-height: 480px;
                 min-width: 800px;
-                max-height: 80vh !important;
-                overflow-y: auto;
+                max-height: calc( 90vh - 64px ) !important;
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%,-50%);
+            }
+
+            .title {
+                position: absolute;
             }
 
             .links {
@@ -48,6 +51,10 @@
                 top:4px;
             }
 
+            vaadin-date-picker#date-picker {
+                padding: 0!important;
+            }
+
             vaadin-combo-box {
                 width: 100%;
             }
@@ -57,14 +64,40 @@
             }
 
             .containerPlanAction {
-                height: 50vh;
+                /* position: absolute; */
+                /* height: calc(100% - 120px); */
+
+                box-sizing: border-box;
+                /* top: 0; */
+                /* left: 0; */
+
                 overflow-y: auto;
-                padding: 24px;
+                width: 100%;
+
+                max-height: calc(90vh - 184px);
+
+                padding: 12px 24px;
+
+                margin-top: 60px;
+                margin-bottom: 60px;
+
                 border-top: 1px solid var(--app-background-color-dark);
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
 
+            p.errmsg {
+                color: var(--app-error-color);
+            }
+
             .buttons {
+                position: absolute;
+                bottom: 0;
+
+                box-sizing: border-box;
+                width: 100%;
+
+                /* border-top: 1px solid var(--app-background-color-dark); */
+
                 color: black;
             }
             .modal-button--save {
@@ -75,66 +108,71 @@
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <div class="links">
-                <dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" on-link-to-health-element="linkToHealthElement" api="[[api]]" no-status></dynamic-link>
+                <template is="dom-if" if="[[!readonly]]">
+                    <dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" on-link-to-health-element="linkToHealthElement" api="[[api]]" no-status></dynamic-link>
+                </template>
                 <div class="pills">
                     <dynamic-pills health-elements="[[linkedHes]]"></dynamic-pills>
                 </div>
             </div>
-            <h3>[[localize('plan_act','Plan an action',language)]]</h3>
+            <h3 class="title">[[localize('plan_act','Plan an action',language)]]</h3>
             <div class="containerPlanAction">
-                <vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                <vaadin-date-picker id="date-picker" label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
 
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="procedureChanged" label="Procédure" value="{{plannedAction.ProcedureId}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="procedureChanged" label="Procédure" value="{{plannedAction.ProcedureId}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
                 <template is="dom-if" if="[[isVaccineProcedure]]">
                     <vaadin-form-layout>
                         <vaadin-form-item colspan="2">
-                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial"></vaadin-combo-box>
+                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial" readonly="[[readonly]]"></vaadin-combo-box>
                         </vaadin-form-item>
                         <vaadin-form-item>
-                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
+                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}" readonly="[[readonly]]"></paper-input>
                         </vaadin-form-item>
                         <vaadin-form-item>
-                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
+                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}" readonly="[[readonly]]"></paper-input>
                         </vaadin-form-item>
                     </vaadin-form-layout>
                 </template>
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
-                        <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
+                        <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}" readonly="[[readonly]]"></vaadin-text-area>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié"></vaadin-combo-box>
+                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" selected-item="{{selectedProfessionItem}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
 
                 <template is="dom-if" if="[[isStatusRefusal]]">
                     <div>
-                        <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
+                        <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}" readonly="[[readonly]]"></vaadin-text-area>
                     </div>
                 </template>
 
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
                         <template is="dom-if" if="[[isStatusComplete]]">
-                            <vaadin-checkbox on-checked-changed="_isSurgical"></vaadin-checkbox> Chirurgical
+                            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Chirurgical
                         </template>
                     </vaadin-form-item>
                 </vaadin-form-layout>
 
             </div>
             <div class="buttons">
+                <p class="errmsg">[[errMsg]]</p>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                <template is="dom-if" if="[[isValid]]">
+                    <paper-button class="modal-button--save" autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+                </template>
             </div>
         </paper-dialog>
 
@@ -293,12 +331,28 @@
                     service : {
                         type : Object,
                         value : {}
+                    },
+                    readonly:{
+                        type: Boolean,
+                        value: false
+                    },
+                    hasSurgical:{
+                        type: Boolean,
+                        value: false
+                    },
+                    errMsg: {
+                        type: String,
+                        value: ''
+                    },
+                    isValid: {
+                        type: Boolean,
+                        value : false
                     }
                 };
             }
 
             static get observers() {
-                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)"];
+                return ["hcpItemChanged(selectedHcpItem)","vaccineItemChanged(selectedVaccineItem)","professionItemChanged(selectedProfessionItem)","_checkValidity(plannedAction.*,selectedVaccineItem,selectedProfessionItem)"];
             }
 
             ready() {
@@ -482,39 +536,67 @@
             }
 
             planAction() {
-                const tabProfession = this.plannedAction.ProfessionId.split("|")
-
-                Promise.all(
-                    [
-                        this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
-                        this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
-                    ]).then(
-                    ([results, code]) => {
-                        if(this.plannedAction.VaccineCommercialNameId !== ""){
-                            this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
-                                mpp => {
-                                    this.set('plannedAction.VaccineInfo', mpp)
-                                    this.set('plannedAction.ProcedureInfo', results.rows[0])
-                                    this.set('plannedAction.ProfessionInfo', code.rows[0])
+                console.log('planAction',this.plannedAction)
+                if (this.plannedAction && this.plannedAction.ProcedureId && this.plannedAction.Status !== '') {
+                    if(!(this.plannedAction.ProfessionId && this.plannedAction.ProfessionId.match(new RegExp('^.+\|.+\|.+$')))){
+                        console.log('Procédure incorrecte !');
+                        this.set('errMsg',this.localize('proc_error','Procédure incorrecte',this.language))
+                        return;
+                    }
+                    const tabProfession = this.plannedAction.ProfessionId ? this.plannedAction.ProfessionId.split("|") : []
+                    Promise.all(
+                        [
+                            this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10),
+                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
+                        ]).then(
+                        ([results, code]) => {
+                            if(!(results.rows[0] && code.rows[0])){
+                                console.log('Procédure/profession non trouvé !');
+                                this.set('errMsg',this.localize('proc_or_prof_not_exist','Procédure/Profession inexistante',this.language))
+                                return;
+                            }
+                            if(this.plannedAction.VaccineCommercialNameId && this.plannedAction.VaccineCommercialNameId !== ""){
+                                this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
+                                    mpp => {
+                                        this.set('plannedAction.VaccineInfo', mpp)
+                                        this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                        this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                        if (this.plannedAction.VaccineInfo && this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
+                                            this._planAction()
+                                        } else {
+                                            this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                                        }
+                                    }
+                                )
+                            }else{
+                                this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                if (this.plannedAction.ProcedureInfo && this.plannedAction.ProfessionInfo) {
                                     this._planAction()
+                                } else {
+                                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
                                 }
-                            )
-                        }else{
-                            this.set('plannedAction.ProcedureInfo', results.rows[0])
-                            this.set('plannedAction.ProfessionInfo', code.rows[0])
-                            this._planAction()
-                        }
-                    });
+                            }
+                        });
 
+                } else {
+                    console.log('empty fields !');
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                }
             }
 
             _planAction() {
-                console.log(this.plannedAction)
+                console.log('_planAction',this.plannedAction)
 
                 const action = this.plannedAction
                 const contactId = this.currentContact.id
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
-                const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+                const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
+
+                if (!action || !contactId || !responsible || !valueDate) {
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                    return
+                }
 
                 this.service.label="Actes"
                 this.service.modified= +new Date()
@@ -592,7 +674,7 @@
                     }
                 }
 
-                if (action.isSurgical) {
+                if(action.isSurgical) {
                     this.service.content.isSurgical = {
                         booleanValue: action.isSurgical
                     }
@@ -615,6 +697,13 @@
                         composed: true
                     }))
                 }
+
+
+                if(!this.hasSurgical && action.isSurgical){
+
+                }
+
+                this.close()
             }
 
             linkToHealthElement(e) {
@@ -630,7 +719,10 @@
                 this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
             }
 
-            open(svc) {
+            open(svc,readonly) {
+                this.set('errMsg','')
+                if(!readonly)readonly=false;
+                this.set("readonly",readonly)
                 this.set("plannedAction",{})
                 this.set('drugsListItem',[]);
                 this.set("selectedHcpItem","")
@@ -638,6 +730,7 @@
                 this.set("selectedProfessionItem","")
                 const service = svc
                 this.set("isExistingSvc",false)
+                this.set("hasSurgical",false)
                 if(service!==null && service.id) {
                     this.set("isExistingSvc",true)
                     this.set("service",service);
@@ -705,7 +798,9 @@
                             this.set("isStatusRefusal", false)
                         }
 
-
+                        if(this.plannedAction.isSurgical){
+                            this.set("hasSurgical",true)
+                        }
                     })
 
                 }
@@ -734,6 +829,20 @@
             professionItemChanged(){
                 if(!(this.selectedProfessionItem && this.selectedProfessionItem.id))return;
                 this.set("plannedAction.ProfessionId",this.selectedProfessionItem.id)
+            }
+
+            _checkReadonlySurgical(){
+                return this.hasSurgical && this.readonly;
+            }
+
+            _checkValidity(){
+                this.set("isValid",false);
+                console.log(this.plannedAction)
+                if(this.plannedAction.Deadline && this.plannedAction.Deadline!="" && this.plannedAction.ProcedureId && this.plannedAction.ProcedureId!="" &&
+                    (!this.isVaccineProcedure || (this.isVaccineProcedure && this.selectedVaccineItem!="" && this.plannedAction.DoseNumber && this.plannedAction.DoseNumber!=="" && this.plannedAction.BatchNumber && this.plannedAction.BatchNumber!='')
+                    && this.selectedProfessionItem !='' && this.plannedAction.Status!='')){
+                    this.set("isValid",true);
+                }
             }
         }
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);

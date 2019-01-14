@@ -436,18 +436,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <div class="actions">
                     <template is="dom-if" if="[[!checkedMessages.length]]">
-                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
-                            <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
-                        </template>
+                        <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
+                        <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
-                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>
-                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
-                            <paper-icon-button id="del-button" icon="delete" on-tap="debugRemove"></paper-icon-button>
-                            <paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>
-                        </template>
+                        <!--&lt;!&ndash; TODO: multiple restore or delete in trash &ndash;&gt;-->
+                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
+                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>-->
+                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
+                        <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
@@ -482,12 +481,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <vaadin-checkbox on-checked-changed="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="102px">
+                        <vaadin-grid-column flex-grow="0" width="104px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received" direction="asc">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                             </template>
                             <template>
                                 <div class="cell frozen">[[_timeFormat(item.received)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="48px">
+                            <template>
+                                <template is="dom-if" if="[[isUnread(item)]]">
+                                    <iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>
+                                    <paper-tooltip position="right" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>
+                                </template>
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="1">
@@ -497,32 +504,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                             <template>
                                 <div class="cell frozen">
-                                    <b>[[item.fromAddress]]</b> - [[item.subject]]
-                                    <template is="dom-if" if="[[isImportant(item)]]">
-                                        <iron-icon id="[[item.id]]-important" icon="warning"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-important">Important</paper-tooltip>
+                                    <template is="dom-if" if="[[!isUnread(item)]]">
+                                        [[item.fromAddress]] - [[item.subject]]
                                     </template>
-                                    <template is="dom-if" if="[[isCrypted(item)]]">
-                                        <iron-icon id="[[item.id]]-crypted" icon="lock"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-crypted">Crypted</paper-tooltip>
-                                    </template>
-                                    <template is="dom-if" if="[[hasAnnex(item)]]">
-                                        <iron-icon id="[[item.id]]-hasAnnex" icon="editor:attach-file"></iron-icon>
-                                        <paper-tooltip for="[[item.id]]-hasAnnex">Attachments</paper-tooltip>
+                                    <template is="dom-if" if="[[isUnread(item)]]">
+                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]] - [[item.subject]]</span>
+                                        <paper-tooltip position="left" for="unread-[[item.id]]-title">[[localize('is_not_read','not read',language)]]</paper-tooltip>
                                     </template>
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="48px">
-                            <template class="header">
-                                [[localize('is_read','Read',language)]]
-                            </template>
+                        <vaadin-grid-column width="138px" flex-grow="0">
                             <template>
-                                <template is="dom-if" if="[[!isUnread(item)]]">
-                                    <iron-icon icon="done"></iron-icon>
+                                <template is="dom-if" if="[[isImportant(item)]]">
+                                    <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
+                                    <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
                                 </template>
-                                <template is="dom-if" if="[[isUnread(item)]]">
-                                    <iron-icon icon="mail"></iron-icon>
+                                <template is="dom-if" if="[[isCrypted(item)]]">
+                                    <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
+                                    <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
+                                </template>
+                                <template is="dom-if" if="[[hasAnnex(item)]]">
+                                    <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
+                                    <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
+                                </template>
+                                <template is="dom-if" if="[[hasLabResult(item)]]">
+                                    <iron-icon id="hasLab-[[item.id]]" icon="icons:assignment"></iron-icon>
+                                    <paper-tooltip position="left" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
                                 </template>
                             </template>
                         </vaadin-grid-column>
@@ -697,30 +705,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDatesAndGUID(messages.rows).filter(msg => msg.fromAddress !== 'EFACT').filter(msg => !msg.transportGuid.startsWith('BIN'));
-                }).then(messages => {
-                    console.log('getInbox',messages)
-                    this.set('messages', messages || [])
+                    return this.sortByDatesAndGUID(messages.rows)
+                        .filter(msg => msg.fromAddress !== 'EFACT')
+                        .filter(msg => !msg.transportGuid.startsWith('BIN'))
+                        .filter(m=>!m.transportGuid.startsWith('PROSE:'));
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEheIn(){
+                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
+                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    this.set('messages', msgs || [])
                 });
             }
 
             isUnread(m) {
-                return ((m.status & (1 << 1)) !== 0)
+                return (m.status & (1 << 1)) !== 0 ? true : false
             }
             isImportant(m) {
-                return ((m.status & (1 << 2)) !== 0)
+                return (m.status & (1 << 2)) !== 0 ? true : false
             }
             isCrypted(m) {
-                return ((m.status & (1 << 3)) !== 0)
+                return (m.status & (1 << 3)) !== 0 ? true : false
             }
             hasAnnex(m) {
-                return ((m.status & (1 << 4)) !== 0)
+                return (m.status & (1 << 4)) !== 0 ? true : false
+            }
+            hasLabResult(m) {
+                if (m.assignedResults && m.unassignedResults) {
+                    return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
+                } else {
+                    return false
+                }
             }
 
             getUnreadEmail() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 1 == 0)) {//status unread
+                        if (!(m.status & 1 << 1 == 0)) {//status unread
                             acc.push(m)
                         }
                         return acc
@@ -738,7 +760,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getSubmitMessages(){
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                        if (!(m.status & 1 << 8 == 0)) {//status STATUS_SUBMITTED
                             acc.push(m)
                         }
                         return acc
@@ -747,10 +769,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => this.set('messages', messages || []));
             }
 
-            getLabResult(){
+            getLabResult(){ // all labresult
+                console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status && 1 << 0 == 0)) {//status labResult
+                        if ((m.assignedResults && m.unassignedResults) && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
                             acc.push(m)
                         }
                         return acc
@@ -760,10 +783,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getReport(){
-                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
-                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
-                    this.set('messages', msgs || [])
-                });
+                // this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => {
+                //     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
+                //     this.set('messages', msgs || [])
+                // });
+                console.log('sent labresult')
+                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        console.log(m,'sentlabres',m.status,(m.status & (1 << 0)) )
+                        if (m.status & (1 << 0)) {//status labResult
+                            acc.push(m)
+                        }
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
+                }).then(messages => this.set('messages', messages || []));
             }
 
             getEInv(){
@@ -789,25 +823,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
-            getEheIn(){
-                this.findMessagesByTransportGUID('INBOX:*').then(messages => {
-                    let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
-                    this.set('messages', msgs || [])
-                });
-            }
-
 			getChap4In(){
 				this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
 			}
 
-            getProtIn(){
+            getProtIn(){ // assigned labresult
+                console.log('Assigned')
                 this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
-                    let assignedMsgs = []
+                    let msgsToDisplay = []
                     messages.map(msg=>{
-                        if (msg.assignedResults && msg.assignedResults.length >= 1) assignedMsgs.push(msg)
+                        if (msg.assignedResults) {
+                            let assignedResults = Object.keys(msg.assignedResults).length
+                            let unassignedResults = Object.keys(msg.unassignedResults).length
+                            if (assignedResults > 0 && !unassignedResults) msgsToDisplay.push(msg)
+                        }
                     })
-                    this.set('messages', assignedMsgs || [])
+                    this.set('messages', msgsToDisplay || [])
                 });
+            }
+            getUnassigned(){ // unassigned labresult
+                console.log('Unassigned')
+                this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
+                    let msgsToDisplay = []
+                    messages.map(msg=>{
+                        if (msg.unassignedResults && msg.unassignedResults.length > 0) msgsToDisplay.push(msg)
+                    })
+                this.set('messages', msgsToDisplay || [])
+            });
             }
 
             getEheOut(){
@@ -922,6 +964,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'protIn' :
                             this.getProtIn();
                             break;
+                        case 'unsettedProtIn' :
+                            this.getUnassigned();
+                            break;
                         case 'eheOut' :
                             this.getEheOut();
                             break;
@@ -1008,9 +1053,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     , mailList = this.shadowRoot.querySelector('#mail-list')
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 // checkerAll.checked = false;
-                allCheckboxes.forEach(box=>{
-                    box.checked = false;
-                })
+                // mailList.querySelector('#checkerAll').checked = false
+                allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                 this.set('checkedMessages',[])
             }
 
@@ -1024,18 +1068,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
                     console.log('remove',msgsToDelete,thisBox,delBox)
                     if(msgsToDelete.length){
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
                         if (thisBox == 'BIN') {
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, delBox)
-                            .then(()=>this._refresh())
+                            console.log('will DELETE')
+                            let tempBinInbox = []
+                            let tempBinSentbox = []
+                            checkedMsgs.forEach(msg=>{
+                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                                const thatMailBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
+                                if (thatMailBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
+                                if (thatMailBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
+                            })
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX')
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX')
+                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
+                        } else {
+                            console.log('will MOVE',msgsToDelete,thisBox,delBox)
+                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
+                            checkedMsgs.forEach(msg=>{
+                                msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
+                                this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                    .finally(()=>this._refresh())
+                            })
                         }
-                        checkedMsgs.forEach(msg=>{
-                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                            .finally(()=>this._refresh())
-                        })
                     }
-                    allCheckboxes.forEach(box=>box.checked = false)
+                    // mailList.querySelector('#checkerAll').checked = false
+                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                     this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                     this._deselectAll();
                 } // if checked length end
@@ -1046,7 +1104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _restoreMsgs(){
                 const checkedMsgs = this.checkedMessages
-                if(checkedMsgs.length) {
+                if(checkedMsgs.length && this.selectList.selection.item.toUpperCase() === "TRASH") {
                     let mailList = this.shadowRoot.querySelector('#mail-list')
                         , allCheckboxes = mailList.querySelectorAll('.checkbox')
                         , tempBinInbox = [] // msgs to recover to inbox
@@ -1058,13 +1116,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
                         if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
                         msgsToRestore.push(msg) // in any case, add to restore selection
-                        console.log('restore',msgId,thisBox)
+                        console.log('restore '+msgId+' to',thisBox)
                     }) // forEach end
-                    console.log(tempBinInbox,tempBinSentbox)
+                    console.log('all msgs to restore',msgsToRestore)
                     if(tempBinInbox.length){ // for all msgs to send to inbox
+                        console.log('to inbox',tempBinInbox)
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
                     }
                     if(tempBinSentbox.length){ // for all msgs to send to sentbox
+                        console.log('to sentbox',tempBinSentbox)
                         this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
                     }
                     msgsToRestore.forEach(msg=>{ // for all msgs
@@ -1076,9 +1136,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.api.message().modifyMessage(msg.id)
                     })
                     this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
-                    allCheckboxes.forEach(box=>box.checked = false)
+                    // mailList.querySelector('#checkerAll').checked = false
+                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
                     this._refresh()
                 } // if checked length end
+                else {
+                    console.log('no length or not trash')
+                }
             }
 
             _timeFormat(date) {

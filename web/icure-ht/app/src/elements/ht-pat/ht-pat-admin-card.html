@@ -440,7 +440,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
-                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
@@ -872,7 +872,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.initCurrentCareTeam();
 
-            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
+            this.api.code().getCodes((this.patient.languages || []).map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
                     (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
                         this.set('patient.partnerships', this.patient.partnerships.map(pp => {

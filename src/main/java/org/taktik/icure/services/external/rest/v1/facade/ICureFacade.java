@@ -77,7 +77,7 @@ public class ICureFacade implements OpenApiFacade{
 	private SessionLogic sessionLogic;
 	private MapperFacade mapper;
 	private ApplicationContext context;
-	
+
 	@ApiOperation(
 			value = "Get version",
 			response = String.class
@@ -184,6 +184,18 @@ public class ICureFacade implements OpenApiFacade{
 		}
 		return Response.ok(ri).build();
 	}
+
+	@ApiOperation(
+			value = "Force update design doc",
+			response = Boolean.class
+	)
+	@POST
+	@Path("/dd/{entityName}")
+	public Response updateDesignDoc(@PathParam("entityName") String entityName) {
+		iCureLogic.updateDesignDoc(entityName);
+		return Response.ok(true).build();
+	}
+
 
 	@ApiOperation(
 			value = "Get index info",

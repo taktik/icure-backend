@@ -182,7 +182,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					color: var(--app-text-color-light);
 				}
 				#newHcpDialog .buttons * {
-					background: var(--app-secondary-color-dark);
+                    color: black;
+                }
+				#newHcpDialog .buttons .modal-button--save {
+					background: var(--app-secondary-color);
 				}
 
 				.formNewHcp {
@@ -217,6 +220,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					font-weight: 700;
 
 				}
+
+                #patients-list {
+                    flex-grow: 1;
+                }
 
 				.hcp-photo {
 					background: rgba(0, 0, 0, 0.1);
@@ -262,10 +269,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					width: 200px;
 				}
 
-				#fusionDialog{
+				paper-dialog#fusionDialog{
 					width:650px;
 					height: 200px;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 8px;
 				}
+
+                paper-dialog#fusionDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                paper-dialog#fusionDialog .buttons {
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
 
 				#fusionHcpSelect{
 					border : 0px
@@ -279,10 +305,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<div id="selectHcpOption">
 					<div id="selectHcpOption_back" on-tap="_switchMode">
 						<iron-icon icon="vaadin:arrow-left"></iron-icon>
-						<span>Back</span>
+						<span>[[localize('can','Cancel',language)]]</span>
 					</div>
 					<div id="selectHcpOption_text">
-						[[nbHcpSelected]] prestataire(s) selected
+						[[nbHcpSelected]] [[localize('hc_par','Prestataire',language)]] [[localize('multiple_selected','Selected',language)]]
 					</div>
 				</div>
 			</template>
@@ -366,6 +392,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-button class="exportcsv-btn" on-tap="_switchMode">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
 				</template>
 				<template is="dom-if" if="{{modeGrid}}">
+                    <paper-button on-tap="_switchMode">[[localize('can','Cancel',language)]]</paper-button>
 					<paper-button class="exportcsv-btn" on-tap="_openFusionDialog">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
 				</template>
 			</div>

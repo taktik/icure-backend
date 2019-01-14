@@ -63,8 +63,12 @@
             }
 
             #dialog{
+                position: fixed;
                 min-height: 800px;
                 min-width: 1024px;
+                left: 50vw !important;
+                top: 50vh !important;
+                transform: translate(-50%,-50%);
             }
 
             .links {
@@ -266,6 +270,7 @@
                     <!--<paper-button on-tap="_runRevokeHubTransaction">Revoke transaction</paper-button>-->
                     <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
                     <paper-button on-tap="_runGenerateMedicationScheme">Generate medicationscheme</paper-button>
+                    <paper-button on-tap="_runPutMedicationScheme">Put medicationscheme</paper-button>
                 </template>
                 <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
                     <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
@@ -690,12 +695,49 @@
                                             //download the new file
                                             let url = window.URL.createObjectURL(file);
                                             a.href = url;
-                                            a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
+                                            a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"medicationscheme.xml";
                                             a.click();
                                             window.URL.revokeObjectURL(url);
 
                                             document.body.removeChild(a);
                                         }).catch( error=> console.log(error))
+                                    })
+                            ))
+                }
+            }
+
+            _runPutMedicationScheme(){
+                const versionNumber = 23;
+                this.generateAndPutMedicationScheme(versionNumber).then(putResp => {
+                    this.set('putTransactionSetResponse', putResp);
+                    //this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
+                }).catch(error => {
+                    console.log(error);
+                });
+            }
+
+            generateAndPutMedicationScheme(versionNumber){
+                if (this.patient) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.patient().getPatientWithUser(this.user,this.patient.id)
+                            .then(patientDto =>
+                                this.api.crypto()
+                                    .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                    .then(secretForeignKeys => {
+                                        return this.api.bekmehr().generateMedicationSchemeWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", versionNumber, {
+                                            secretForeignKeys: secretForeignKeys.extractedKeys,
+                                            recipient: hcp,
+                                            comment: "mycomment"
+                                        }).then(output =>{
+                                            return this.api.fhc().Hubcontroller().putTransactionSetUsingPOST(this.hubEndPoint,
+                                                    this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                                    this.hubId,
+                                                    this.patient.ssin,
+                                                    output,
+                                                    this.hubPackageId, this.hubApplication
+                                                )}
+                                        )
                                     })
                             ))
                 }

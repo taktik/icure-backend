@@ -56,19 +56,16 @@
             }
 		</style>
 
-		<paper-dialog id="dialog" opened="{{opened}}">
-			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
-			<div id="printable_0"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.0]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_1"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.1]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_2"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.2]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_3"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.3]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_4"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.4]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_5"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.5]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_6"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.6]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div id="printable_7"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyParts.7]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
-			<div class="buttons">
-				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
+		<paper-dialog id="dialog_printable" opened="{{opened}}">
+			<div id="printable_image">
+				<div id="printable_0"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_0" text="[[privateKeys.0]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_1"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_1" text="[[privateKeys.1]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_2"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_2" text="[[privateKeys.2]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_3"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_3" text="[[privateKeys.3]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_4"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_4" text="[[privateKeys.4]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_5"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_5" text="[[privateKeys.5]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_6"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_6" text="[[privateKeys.6]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+				<div id="printable_7"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode_7" text="[[privateKeys.7]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			</div>
 		</paper-dialog>
 	</template>
@@ -93,12 +90,11 @@ class HtPrintKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polyme
 			},
 			qrCodeWidth: {
 				type: Number,
-				value: 200
+				value: 300
 			},
-			privateKeyPart: {
-				type: String,
-				value: null,
-				observer: ''
+			privateKeys: {
+				type: [],
+				value: null
 			},
 			opened: {
 				type: Boolean,
@@ -125,29 +121,29 @@ class HtPrintKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polyme
 	}
 
 	apiReady() {
-		if (!this.api || !this.user || !this.user.id || !this.opened) return;
+		if (!this.api || !this.user || !this.user.id) return;
 
-		try {
-			const pair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId);
-			if (pair) {
-				const pk = _.cloneDeep(pair.privateKey);
-				delete pk.n;
-				delete pk.e;
+        try {
+            const pair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId);
+            if (pair) {
+                const pk = _.cloneDeep(pair.privateKey);
+                delete pk.n;
+                delete pk.e;
 
-				if (this.verbose) {
-					this.set('privateKey', JSON.stringify(pk).replace(/ /g, ''));
-				} else {
-					const a = this.api.crypto().utils.text2ua([pk.d, pk.dp, pk.dq, pk.p, pk.q, pk.qi].join(' '));
-					this.set('privateKey', this.api.crypto().utils.ua2hex(pako.deflate(a)));
-					//const jwk = {alg: 'RSA-OAEP', key_ops: ['decrypt'], kty: 'RSA', ext: true};
-					//[jwk.d,jwk.dp,jwk.dq,jwk.p,jwk.q,jwk.qi] = String.fromCharCode.apply(null, pako.inflate(this.api.crypto().utils.text2ua(this.privateKey))).split(' ')
-					console.log("Check code: ", this.privateKey);
-				}
-				this.set('privateKeys', [...Array(this.segments).keys()].map(step => '' + step + this.segments + (step === this.segments ? this.privateKey.substr((step - 1) * this.privateKey.length / this.segments) : this.privateKey.substr((step - 1) * this.privateKey.length / this.segments, this.privateKey.length / this.segments))))
-			}
-		} catch (e) {
-			console.log(e);
-		}
+                if (this.verbose) {
+                    this.set('privateKey', JSON.stringify(pk).replace(/ /g, ''));
+                } else {
+                    const a = this.api.crypto().utils.text2ua([pk.d, pk.dp, pk.dq, pk.p, pk.q, pk.qi].join(' '));
+                    this.set('privateKey', this.api.crypto().utils.ua2hex(pako.deflate(a)));
+                    //const jwk = {alg: 'RSA-OAEP', key_ops: ['decrypt'], kty: 'RSA', ext: true};
+                    //[jwk.d,jwk.dp,jwk.dq,jwk.p,jwk.q,jwk.qi] = String.fromCharCode.apply(null, pako.inflate(this.api.crypto().utils.text2ua(this.privateKey))).split(' ')
+                    console.log("Check code: ", this.privateKey);
+                }
+                this.set('privateKeys', [...Array(this.segments).keys()].map(step => '' + step + this.segments + (step === this.segments ? this.privateKey.substr((step - 1) * this.privateKey.length / this.segments) : this.privateKey.substr((step - 1) * this.privateKey.length / this.segments, this.privateKey.length / this.segments))))
+            }
+        } catch (e) {
+            console.log(e);
+        }
 	}
 
 	attached() {
@@ -156,8 +152,8 @@ class HtPrintKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polyme
 	}
 
 	onWidthChange() {
-		const offsetWidth = this.$.dialog.offsetWidth;
-		const offsetHeight = this.$.dialog.offsetHeight;
+		const offsetWidth = this.$.dialog_printable.offsetWidth;
+		const offsetHeight = this.$.dialog_printable.offsetHeight;
 		if (!offsetWidth || !offsetHeight) {
 			return;
 		}
@@ -165,11 +161,26 @@ class HtPrintKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polyme
 	}
 
 	open() {
-		this.$.dialog.open();
+		this.$.dialog_printable.open();
 	}
 
 	close() {
-		this.$.dialog.close();
+		this.$.dialog_printable.close();
+	}
+
+    getCodes(){
+	    this.apiReady();
+	    let list = [];
+        list.push(this.$['qrcode_0'].getImage())
+        list.push(this.$['qrcode_1'].getImage())
+        list.push(this.$['qrcode_2'].getImage())
+        list.push(this.$['qrcode_3'].getImage())
+        list.push(this.$['qrcode_4'].getImage())
+        list.push(this.$['qrcode_5'].getImage())
+        list.push(this.$['qrcode_6'].getImage())
+        list.push(this.$['qrcode_7'].getImage())
+
+	    return list;
 	}
 }
 customElements.define(HtPrintKey.is, HtPrintKey);

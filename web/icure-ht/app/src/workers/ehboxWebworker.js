@@ -57,24 +57,24 @@ onmessage = e => {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
                 const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                console.log('remove',idOfMsg,thisBox,delBox)
-                if (!msg.transportGuid.startsWith("BIN")) {
-                    console.log('move to bin',idOfMsg,thisBox,delBox)
+                // console.log('remove',idOfMsg,thisBox,delBox)
+                if (msg.transportGuid && !msg.transportGuid.startsWith("BIN")) {
+                    // console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
+                            // console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
                             msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                             msgApi.modifyMessage(msg).then(()=> {
-                                console.log('modify done',idOfMsg,thisBox,delBox)
+                                // console.log('modify done',idOfMsg,thisBox,delBox)
 
                             } )
                         })
                         .catch(err => {
-                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
                 } else {
-                    console.log('delete',idOfMsg,thisBox,delBox)
-                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                    // console.log('delete',idOfMsg,thisBox,delBox)
+                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], delBox)
                 }
             }
         }
@@ -82,27 +82,27 @@ onmessage = e => {
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
+                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                console.log('remove from server',idOfMsg,thisBox,delBox)
-                if (!thisBox.transportGuid.startsWith("BIN")) {
-                    console.log('move to bin',idOfMsg,thisBox,delBox)
+                // console.log('remove from server',idOfMsg,thisBox,delBox)
+                if (thisBox.transportGuid && !thisBox.transportGuid.startsWith("BIN")) { // if it was not in bin
+                    // console.log('move to bin',idOfMsg,thisBox,delBox)
                     return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
                         .then(()=>{
-                            console.log('move to bin done',idOfMsg,thisBox,delBox)
+                            // console.log('move to bin done',idOfMsg,thisBox,delBox)
                         })
                         .catch(err => {
-                            console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
                         })
-                } else {
-                    console.log('delete',idOfMsg,thisBox)
-                    return ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox)
+                } else { // if already in bin, del forever
+                    // console.log('delete',idOfMsg,thisBox)
+                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox)
                 }
             }
         }
 
-		const assignResult = (messageId,docInfo,document) => {
-            console.log('assignResult')
+		const assignResult = (message,docInfo,document) => {
+            console.log('assignResult',message,docInfo,document)
             // assign to patient/contact the result matching docInfo from all the results of the document
             // return {id: contactId, protocolId: protocolIdString} if success else null (in promise)
             if (textType(document.mainUti, document.otherUtis)) {
@@ -120,12 +120,12 @@ onmessage = e => {
                                 }
                             })
                         }
-                        console.log('pat > ',thisPat)
+                        // console.log('pat > ',thisPat)
                         return iccContactXApi.newInstance(user, thisPat, {
-                            groupId: messageId,
+                            groupId: message.id,
                             created: new Date().getTime(),
                             modified: new Date().getTime(),
-                            author: user.healthcarePartyId,
+                            author: user.id,
                             responsible: user.healthcarePartyId,
                             openingDate: moment().format('YYYYMMDDhhmmss') || '',
                             closingDate: moment().format('YYYYMMDDhhmmss') || '',
@@ -134,18 +134,28 @@ onmessage = e => {
                                 version: docInfo.codes.version,
                                 code: docInfo.codes.code
                             },
+                            // cryptedForeignKeys: thisPat.cryptedForeignKeys,
                             descr: docInfo.labo,
                             subContacts: []
                         }).then(c => {
-                             // console.log('newInstance',c)
+                            c.services.push({
+                                id: iccCryptoXApi.randomUuid(),
+                                codes: [{type:'labResult',code:c.id}],
+                                label: 'labResult',
+                                content:{
+                                    'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
+                                    'patientId': {stringValue: thisPat.id}
+                                }
+                            })
+                            console.log('c services',c.services)
                             return iccContactApi.createContact(c)
                         }).then(c => {
-                            // console.log('createContact',c)
+                            console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
                                 contactId: c.id,
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
-                                console.log('should do Import',thisPat,docInfo)
+                                // console.log('should do Import',f)
                                 return iccFormXApi.createForm(f).then(f =>
                                     iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
                                         beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
@@ -153,10 +163,10 @@ onmessage = e => {
                                 )
                             })
                         }).then(c => {
-                            console.log("did import ", c, docInfo.firstName+" "+docInfo.lastName);
+                            console.log("did import ", c, docInfo);
                             return {id: c.id, protocolId: docInfo.protocol}
                         }).catch(err => {
-                            console.log("error:" + err)
+                            console.log(err)
                         })
                     } else {
                         console.log("pat not found:", docInfo.lastName + " " + docInfo.firstName)
@@ -164,35 +174,41 @@ onmessage = e => {
                     }
                 })
             } else {
-                console.log("message not text type")
+                // console.log("message not text type")
                 return Promise.resolve()
             }
-        }
+        } // assignResult end
 
         const treatMessage =  (message,boxId) => {
-            return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
-                .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
-                .then(([fullMessage, existingMess]) => {
-                    if (existingMess.rows.length > 0) {
-                        //console.log("Message already known in DB",existingMess.rows)
-                        const existingMessage = existingMess.rows[0]
-                        // remove messages older than 24h
-                        if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) {
-                            return removeMsgFromEhboxServer(existingMessage)
+            // console.log('treatMessage',message,boxId)
+            // if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === 'false') {
+            //     console.log('Automatic ehbox treatMessage disabled by user param')
+            // } else {
+                return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+                    .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
+                    .then(([fullMessage, existingMess]) => {
+                        if (existingMess.rows.length > 0) {
+                            //console.log("Message already known in DB",existingMess.rows)
+                            const existingMessage = existingMess.rows[0]
+                            // remove messages older than 24h
+                            if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) {
+                                return removeMsgFromEhboxServer(existingMessage)
+                            }
+                            return Promise.resolve()
+                        } else {
+                            console.log('fullMessage',fullMessage)
+                            console.log('boxId',boxId)
+                            registerNewMessage(fullMessage, boxId)
+                                .then(([createdMessage, annexDocs]) => {
+                                    return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
+                                })
                         }
-                        return Promise.resolve()
-                    } else {
-                        // console.log('fullMessage',fullMessage)
-                        registerNewMessage(fullMessage, boxId)
-                            .then(([createdMessage, annexDocs]) => {
-                                return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
-                            })
-                    }
-                })
+                    })
+            // }
         }
 
         const treatAnnexes = (createdMessage, fullMessage, annexDocs, boxId) => {
-            console.log('treatAnnex')
+            // console.log('treatAnnex',createdMessage, fullMessage, annexDocs, boxId)
             if (boxId == "INBOX" && annexDocs) { // only import annexes in inbox
                 let results = annexDocs.filter(doc => doc.documentLocation !== "body").map(doc => {
                     return treatAnnex(fullMessage, doc)
@@ -211,9 +227,10 @@ onmessage = e => {
                         })
                         createdMessage.unassignedResults = unassignedList
                         createdMessage.assignedResults = assignedMap
-                        console.log('treatAnnex, createdMessage', createdMessage)
+                        // console.log('treatAnnex, createdMessage', createdMessage)
                         return msgApi.modifyMessage(createdMessage).then(msg => {
-                            if(createdMessage.unassignedResults.length == 0) {
+                            // console.log('msg',msg)
+                            if(createdMessage.unassignedResults.length == 0 && createdMessage.assignedResults.length >= 1 ) {
                                 return removeMsg(msg)
                             }
                             return Promise.resolve()
@@ -225,13 +242,15 @@ onmessage = e => {
         }
 
         const treatAnnex = (fullMessage, createdDocument) => {
+            // console.log('treatAnnex',fullMessage,createdDocument)
             return beResultApi.getInfos(createdDocument.id)
                 .then(docInfos => {
                     console.log('treatAnnex',fullMessage,createdDocument,docInfos)
                     return Promise.all(
                         docInfos.map(docInfo => {
-                           return assignResult(fullMessage.id, docInfo, createdDocument).then(result => {
+                           return assignResult(fullMessage, docInfo, createdDocument).then(result => {
                                if(result != null) {
+                                   console.log('result',result)
                                    return {assigned: true, protocolId: result.protocolId, contactId: result.id}
                                } else {
                                    return {assigned: false, protocolId: docInfo.protocol, contactId: null}
@@ -241,14 +260,26 @@ onmessage = e => {
                     )
                 })
                 .catch(err => {
-                    console.log("document can not be parsed", createdDocument)
+                    // console.log("document can not be parsed", createdDocument)
                     return []
                 })
         }
 
         const registerNewMessage = (fullMessage, boxId) => {
+            // console.log('registerNewMessage',fullMessage,boxId)
             let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
             let receivedDate = new Date().getTime()
+
+            let tempStatus = fullMessage.status ? fullMessage.status : 0<<0 | 1<<1
+            if (!fullMessage.status ) {
+                tempStatus = fullMessage && fullMessage.important ? tempStatus|1<<2 : tempStatus
+                tempStatus = fullMessage && fullMessage.encrypted ? tempStatus|1<<3 : tempStatus
+                tempStatus = fullMessage && fullMessage.annex.length ? tempStatus|1<<4 : tempStatus
+            }
+
+            (fullMessage.destinations).forEach(dest=>{
+                //
+            })
 
             let newMessage = {
                 created: createdDate,
@@ -258,9 +289,11 @@ onmessage = e => {
                 toAddresses: [boxId],
                 transportGuid: boxId + ":" + fullMessage.id,
                 fromHealthcarePartyId: fullMessage.fromHealthcarePartyId ? fullMessage.fromHealthcarePartyId : fullMessage.sender.id,
-                received: receivedDate
+                received: receivedDate,
+                status: tempStatus
             }
-            console.log('Unknown message : ', newMessage)
+            // console.log('new message : ', newMessage)
+            // console.log('its status', isUnread(fullMessage), isImportant(fullMessage), isCrypted(fullMessage))
 
             return iccMessageXApi.newInstance(user, newMessage)
                 .then(messageInstance => msgApi.createMessage(messageInstance))
@@ -283,6 +316,7 @@ onmessage = e => {
 
         const registerNewDocument = (document, createdMessage, fullMessage) => {
             let a = document
+            // console.log('registerNewDocument',a)
             return docxApi.newInstance(user, createdMessage, {
                 documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
                 documentType:       'result', //Todo identify message and set type accordingly
@@ -309,9 +343,10 @@ onmessage = e => {
                 .then(messages => {
                     let p = Promise.resolve([])
                     messages.forEach(m => {
+                        // console.log(m,'its status', isUnread(m), isImportant(m), isCrypted(m))
                         p = p.then(() => {
                             return treatMessage(m, boxId)
-                                .catch(e => {console.log("Error processing message "+m.id); return Promise.resolve()})
+                                .catch(e => {console.log("Error processing message "+m.id,e); return Promise.resolve()})
                         })
                     })
                     return p
@@ -322,16 +357,16 @@ onmessage = e => {
 };
 
 function isUnread(m) {
-    return ((m.status & (1 << 1)) !== 0)
+    return (m.status & (1 << 1))
 }
 function isImportant(m) {
-    return ((m.status & (1 << 2)) !== 0)
+    return (m.status & (1 << 2))
 }
 function isCrypted(m) {
-    return ((m.status & (1 << 3)) !== 0)
+    return (m.status & (1 << 3))
 }
 function hasAnnex(m) {
-    return ((m.status & (1 << 4)) !== 0)
+    return (m.status & (1 << 4))
 }
 
 function getFromAddress(sender){

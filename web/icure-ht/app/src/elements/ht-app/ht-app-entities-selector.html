@@ -1,0 +1,127 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="ht-app-entities-selector">
+
+    <template>
+        <style>
+
+            paper-dialog{
+                border-radius:2px;
+            }
+            .top-gradient{
+                line-height:0;
+                font-size:0;
+                display:block;
+                background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+                height:10px;
+                position:relative;
+                top:0;
+                left:0;
+                right:0;
+                margin:0;
+                border-radius:2px 2px 0 0;
+            }
+
+            #accountSelectorDialog{
+                height: 400px;
+                width: 800px;
+            }
+
+            #entitiesGrid{
+                height: 250px;
+            }
+
+        </style>
+
+        <paper-dialog id="accountSelectorDialog" opened="{{opened}}">
+            <div class="top-gradient">&nbsp;</div>
+            <h3>[[localize('select-entities','In which entity do you want to connect',language)]]</h3>
+            <vaadin-grid id="entitiesGrid" items="[[entities]]" active-item="{{activeEntity}}">
+                <vaadin-grid-column flex-grow="1" width="160px">
+                    <template class="header">
+                        Entité
+                    </template>
+                    <template>
+                        [[item.groupName]]
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+        </paper-dialog>
+    </template>
+    <script>
+        import { sha256, sha224 } from 'js-sha256/src/sha256';
+        //noinspection JSUnusedGlobalSymbols
+        class HtAppEntitiesSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return "ht-app-entities-selector";
+            }
+
+            static get properties() {
+                return {
+                    credentials: {
+                        type: Object
+                    },
+                    opened: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    },
+                    token: {
+                        type: String
+                    },
+                    userId:{
+                        type: String
+                    },
+                    user: {
+                        type: Object,
+                        value: null
+                    },
+                    api: {
+                        type: Object
+                    },
+                    entities: {
+                        type: Array
+                    },
+                    activeEntity: {
+                        type: Object,
+                        value: () => {}
+                    }
+                };
+            }
+
+            static get observers() {
+                return ['_redirectToSelectedEntity(activeEntity)']
+            }
+
+            constructor() {
+                super();
+            }
+
+            open() {
+                this.api.user().getMatchingUsers()
+                    .then(ent => {
+                        console.log(ent)
+                        this.set("entities", ent)
+                    })
+                    .finally(()=> this.entities && this.entities.length > 0 ? this.$['accountSelectorDialog'].open() : null )
+            }
+
+            _redirectToSelectedEntity(){
+                console.log( this.activeEntity)
+                if(this.activeEntity){
+                    this.set("credentials.username", this.activeEntity && this.activeEntity.groupId ? this.activeEntity.groupId+":"+this.activeEntity.userId : this.activeEntity.userId)
+                    this.dispatchEvent(new CustomEvent('redirect-another-entity', {detail: this.credentials}));
+                }
+            }
+
+        }
+
+        customElements.define(HtAppEntitiesSelector.is, HtAppEntitiesSelector);
+
+    </script>
+
+</dom-module>

@@ -22,6 +22,7 @@
     import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
     import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
     import {IccReceiptXApi} from 'icc-api/dist/icc-x-api/icc-receipt-x-api'
+    import {IccUserXApi} from 'icc-api/dist/icc-x-api/icc-user-x-api'
     import {IccInvoiceXApi} from 'icc-api/dist/icc-x-api/icc-invoice-x-api'
     import {IccMessageXApi} from 'icc-api/dist/icc-x-api/icc-message-x-api'
 
@@ -67,7 +68,11 @@
                     value: function () {
                         return {}
                     }
-                }
+                },
+                sessionId: {
+                    type: String
+                },
+
             }
         }
 
@@ -97,8 +102,9 @@
             this.insuranceicc = new api.iccInsuranceApi(this.host, this.headers)
             this.replicationicc = new api.iccReplicationApi(this.host, this.headers)
             this.tarificationicc = new api.iccTarificationApi(this.host, this.headers)
-            this.usericc = new api.iccUserApi(this.host, this.headers)
             this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
+
+            this.usericc = new IccUserXApi(this.host, this.headers)
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
@@ -113,8 +119,8 @@
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
-            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
@@ -357,7 +363,7 @@
 
         getRowsUsingPagination(paginator) {
             const executePaginator = (latestResult, acc) =>
-                paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
+                paginator(latestResult.nextKey,latestResult.nextDocId).then((newResult) => {
                     acc.push(...newResult.rows)
                     return newResult.done ? acc : executePaginator(newResult, acc)
                 })
@@ -374,7 +380,8 @@
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
-            }, {})))
+            }, {}))
+            ).catch(() => setTimeout(() => this.loadUsersAndHcParties(), 10000))
         }
 
         unregisterAll(domain) {
@@ -575,6 +582,27 @@
 
             window.URL.revokeObjectURL(urlObject);
 
+        }
+
+        encryptDecryptFileContentByHcpId( encryptOrDecrypt, rawFileContent, hcpId ) {
+            if( !_.trim(encryptOrDecrypt) || !_.trim(rawFileContent) || !_.trim(hcpId) ) return Promise.resolve(null);
+            return new Promise((resolve) => {
+
+                // Imrove from here
+                    // this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
+                    // Then get & set attachment passing encKeys
+                    this.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(_.trim(hcpId)).then(encryptedHcPartyKey => {
+                        this.crypto().decryptHcPartyKey(_.trim(hcpId), _.trim(hcpId), _.trim(encryptedHcPartyKey[_.trim(hcpId)]), true).then(importedAESHcPartyKey => {
+                // To here
+
+                        if(_.trim(encryptOrDecrypt).toLocaleLowerCase()==="encrypt") {
+                            this.crypto().AES.encrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
+                        } else {
+                            this.crypto().AES.decrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
+                        }
+                    })
+                })
+            })
         }
 
     }

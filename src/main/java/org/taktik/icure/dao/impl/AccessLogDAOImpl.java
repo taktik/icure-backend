@@ -46,7 +46,7 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
 	@View(name = "all_by_date", map = "classpath:js/accesslog/all_by_date_map.js")
 	public PaginatedList<AccessLog> list(PaginationOffset pagination) {
 		String key = pagination.getStartKey() == null ? null : (String) pagination.getStartKey();
-		return pagedQueryView("all_by_date", key, null, pagination, true);
+		return pagedQueryView("all_by_date", key, null, pagination, false);
 	}
 
     @Override
@@ -54,11 +54,11 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
     public PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset pagination, boolean descending) {
         if (startDate == null) {
             ComplexKey key = pagination.getStartKey() == null ? ComplexKey.of(userId, accessType, 0l) : (ComplexKey) pagination.getStartKey();
-            return pagedQueryView("all_by_user_date", key, null, pagination, true);
+            return pagedQueryView("all_by_user_date", key, null, pagination, descending);
         } else {
             ComplexKey startKey = pagination.getStartKey() == null ? ComplexKey.of(userId, accessType, startDate.toEpochMilli()) : (ComplexKey) pagination.getStartKey();
             ComplexKey endKey = ComplexKey.of(userId, accessType, Long.MAX_VALUE);
-            return pagedQueryView("all_by_user_date", descending?endKey:startKey, descending?startKey:endKey, pagination, true, descending);
+            return pagedQueryView("all_by_user_date", descending?endKey:startKey, descending?startKey:endKey, pagination, descending);
         }
     }
 }

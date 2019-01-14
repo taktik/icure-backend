@@ -603,9 +603,7 @@
             }
 
             confirm() {
-                this.set('filterValue','')
-                this.set('medicationType','medicinalProduct')
-                if (this.compoundPrescriptionText) {
+                if (this.medicationType === 'compoundPrescription' && this.compoundPrescriptionText) {
                     this.select({name: this.compoundPrescriptionText})
                 } else if (this.selectedMedicationFromList) {
                     this.select(this.selectedMedicationFromList);
@@ -633,6 +631,7 @@
                 if (item) {
                     this.selectMedicationFromList(item);
                     this.set('filterValue','')
+                    this.set('medicationType','medicinalProduct')
                     this.$['entities-list'].clearCache();
                     this.$['medication-selection'].close();
                 }

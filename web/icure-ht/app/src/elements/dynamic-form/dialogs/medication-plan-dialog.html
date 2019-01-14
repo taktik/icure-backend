@@ -34,16 +34,8 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            .patient {
-                height: calc(100% - 48px - 48px);
-                overflow-y: auto;
-                margin-top: 0;
-                padding: 24px;
-                box-sizing: border-box;
-            }
-
-            .present {
-                height: calc(100% - 48px - 48px);
+            .present, .patient {
+                height: 100%;
                 overflow-y: auto;
                 margin-top: 0;
                 padding: 24px;
@@ -124,7 +116,7 @@
                 text-align: center;
                 flex-grow: 1;
             }
-          
+
             .col--noMoment{
                 max-width: 168px;
                 min-width: 168px;
@@ -1003,9 +995,9 @@
            
 
             <div class="buttons">
-                <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">Close</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('close','Close',language)]]</paper-button>
 
-                <paper-button dialog-confirm autofocus on-tap="" class="modal-button modal-button--save">Add medication</paper-button>
+                <!--<paper-button dialog-confirm autofocus on-tap="" class="modal-button modal-button--save">[[localize('add_medication','Add Medication',language)]]</paper-button>-->
 
             </div>
         </paper-dialog>
