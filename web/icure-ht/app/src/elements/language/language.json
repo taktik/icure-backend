@@ -1,5 +1,7 @@
 {
   "en": {
+    "del" : "Delete",
+    "name": "Name",
     "Apr":"Apr",
     "Aug":"Aug",
     "Dec":"Dec",
@@ -778,7 +780,15 @@
     "has_k":"Has physiotherapist subscription",
     "has_i":"Has nurse subscription",
     "invoicingExport":"Invoicing download",
-    "print":"Print"
+    "print":"Print",
+    "saved_template": "Template saved",
+    "template_description": "Template name / description",
+    "save_current_version": "Overwrite current version",
+    "save_new_version": "Save NEW version",
+    "sav_temp": "Save template",
+    "load_temp": "Load template",
+    "creation": "Creation",
+    "template": "Template"
   },
   "fr": {
     "AFF" : "N° d'affiliation",
@@ -1647,7 +1657,15 @@
     "has_k":"Abonnement kiné",
     "has_i":"Abonnement infi",
     "invoicingExport":"Télécharger la facturation",
-    "print":"Imrpimer"
+    "print":"Imrpimer",
+    "saved_template": "Template enregistrée",
+    "template_description": "Nom / description de votre template",
+    "save_current_version": "Ecraser la version actuelle",
+    "save_new_version": "Enregistrer une NOUVELLE version",
+    "sav_temp": "Sauvegarder la template",
+    "load_temp": "Charger une template",
+    "creation": "Création",
+    "template": "Template"
  },
   "nl": {
     "AFF" : "Lidnummer",
@@ -2522,6 +2540,14 @@
     "has_k":"Kine",
     "has_i":"Verpleging",
     "invoicingExport":"Facturatie downloaden",
-    "print":"Afdrukken"
+    "print":"Afdrukken",
+    "saved_template": "Template bewaard",
+    "template_description": "Naam / beschrijving van uw model",
+    "save_current_version": "Bewaard model",
+    "save_new_version": "Bewaard een NIEUWE model",
+    "sav_temp": "Bewaard model",
+    "load_temp": "Model loaden",
+    "creation": "Creatie",
+    "template": "Model"
   }
 }

@@ -41,7 +41,7 @@ export class ProseEditor extends Polymer.Element {
   $: { editor: HTMLElement, content: HTMLElement } | any
 
   @property({type: Number})
-  pageHeight: number = 846
+  pageHeight: number = 976
 
   @property({type: Number, observer: '_zoomChanged'})
   zoomLevel = 120
@@ -527,7 +527,8 @@ export class ProseEditor extends Polymer.Element {
                   return visit(ctxFn(selected.node.attrs.expr, undefined, ctx)
                     .then(({ctx}) => {
                       return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize, this.editorSchema.nodes.variable.create({expr: selected.node.attrs.expr, renderTimestamp: ts},
-                        this.editorSchema.text(ctx.toString()||" "))) // Text nodes can't be empty
+                        this.editorSchema.text(ctx.toString()||" ")))
+
                     })
                   )
                 }
