@@ -250,7 +250,7 @@
 				})))
 
             	Promise.all(reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
-					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
+					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls);})
 			}
 
             _prepareDataProvider() {

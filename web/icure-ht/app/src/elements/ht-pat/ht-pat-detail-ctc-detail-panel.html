@@ -555,7 +555,7 @@
 														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
 														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-														 on-data-change="_refreshFromServices" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
+														 on-data-change="_refreshFromServices" on-new-report="newReport" on-print-subform="printSubForm" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
@@ -1821,6 +1821,38 @@ import * as evaljs from "evaljs"
 	}
 
 
+	printSubForm(e) {
+		const subFormid = _.trim(e.detail.dataProvider.getId())
+		this.api.form().getForm(subFormid).then(subFormObject=>{
+		    this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
+		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") {
+		            this.printIncapacityForm(subFormObject, subFormTemplateObject);
+		        } else {
+		            // Todo: continue here and print other subforms. Assign default pdf render template ?
+		        }
+		    })
+		})
+	}
+
+
+
+	printIncapacityForm(subFormObject, subFormTemplateObject) {
+
+        console.log(subFormObject)
+        console.log(subFormTemplateObject)
+
+        console.log(this.patient)
+        console.log(this.globalHcp)
+
+        // Docteur Maxime, Patient Julien
+
+        // this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
+        //     this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
+        // });
+
+	}
+
+
 
 	_saveReport() {
 
@@ -1882,6 +1914,7 @@ import * as evaljs from "evaljs"
                                         }, composed: true
                                     }));
                                     this.busySpinner = false;
+                                    this._closeReportMenu();
                                     this.confirmSaved();
                                 }).catch((e)=>{console.log(e);this.busySpinner = false;})
                             }).catch((e)=>{console.log(e);this.busySpinner = false;})
@@ -2027,6 +2060,11 @@ import * as evaljs from "evaljs"
     }
 
 
+    _closeReportMenu() {
+        this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false
+    }
+
+
     printDocument() {
         this.busySpinner = true;
         const prose = this.root.querySelector("#prose-editor");
@@ -2034,8 +2072,12 @@ import * as evaljs from "evaljs"
         this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
             this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
             this.busySpinner = false;
+            this.$['prose-editor-dialog'].close()
+            this._closeReportMenu();
         }).catch(() =>{
             this.busySpinner = false
+            this.$['prose-editor-dialog'].close()
+            this._closeReportMenu();
         });
     }
 
