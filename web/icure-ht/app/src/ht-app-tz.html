@@ -1360,6 +1360,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     entities:{
                         type: Array,
                         value: () => []
+                    },
+                    isMultiUser : {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -1387,7 +1391,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _updateServerUrl(icureurl, fhcurl) {
-                
+
                 if(icureurl) this.set('icureUrl',icureurl)
                 if(fhcurl) this.set('fhcUrl',fhcurl)
 
@@ -1424,6 +1428,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready()
 
+                this.set("isMultiUser",true)
+
                 const url = new URL(window.location.href)
                 if (!url.hash || !url.hash.startsWith('#/')) {
                     url.hash = '#/'
@@ -1459,6 +1465,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('disconnectionTimer', timeBeforeDeconnection)
                     } else {
                         const creds = _.clone(this.credentials)
+                        this.set("isMultiUser",true)
                         this.set('routeData.page', 'logout')
                         this.credentials.username = creds.username
                         this.credentials.ehpassword = creds.ehpassword
@@ -1623,10 +1630,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //Be careful not to use this.api here as it might not have been defined yet
                 //TODD debounce here
                 this.$.api.user().getCurrentUser().then(u => {
+                    if(this.isMultiUser) {
+                        this._selectEntities()
+                    }
+
+                    console.log("test")
+
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
                     this.set('connectionTime', +new Date())
+
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
@@ -1744,10 +1758,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             login(event, loginObject) { /* this is called from mouseDown with 2 arguments */
-                
                 this._updateServerUrl( loginObject.icureurl, loginObject.fhcurl )
 
                 this.set('credentials', loginObject && loginObject.credentials)
+
                 this.loginAndRedirect(loginObject && loginObject.page)
             }
 
@@ -1920,6 +1934,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _redirectToAnotherEntity(e){
                 if(e.detail){
+                    this.set("isMultiUser",false)
+                    this.$['ht-app-account-selector'].close()
                     this.login(e, {credentials: e.detail})
                 }
             }
