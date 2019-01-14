@@ -178,7 +178,7 @@
             ready() {
                 super.ready()
                 this.set("dbServers", JSON.parse(localStorage.getItem("server-list-" + this.serverName)))
-                this.set("dbServerSelected",localStorage.getItem("server-selected" + this.serverName))
+                this.set("dbServerSelected",localStorage.getItem("server-selected" + this.serverName) || 0)
             }
 
             getSelectedServerURL() {
