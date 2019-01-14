@@ -483,17 +483,17 @@
 			#template-description-dialog h2 {
 			    margin:0 -24px
 			}
-			#printingReportSpinner {
+			#busySpinner {
 			    position: absolute;
                 height: 100%;
-                width: calc(100% - 46px);
+                width: 100%;
                 background: rgba(255,255,255,.6);
-                z-index:10;
+                z-index:110;
                 margin-top:0;
                 top:0;
                 left:0;
 			}
-			#printingReportSpinnerContainer {
+			#busySpinnerContainer {
 			    position: absolute;
                 left: 50%;
                 top: 50%;
@@ -692,8 +692,6 @@
                 </template>
             </paper-dialog>
 
-            <template is="dom-if" if="[[busyPrintingReport]]"><div id="printingReportSpinner"><div id="printingReportSpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
-
 			<div class="buttons">
 				<div class="fleft">
 					<paper-button class="modal-button" on-tap="_openTemplateDescriptionDialog">[[localize('sav_temp','Save template',language)]]</paper-button>
@@ -704,6 +702,9 @@
 				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveReport">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -838,7 +839,7 @@ import * as evaljs from "evaljs"
                 type: String,
                 value: ""
             },
-            busyPrintingReport: {
+            busySpinner: {
                 type: Boolean,
                 value: false
             }
@@ -1726,6 +1727,7 @@ import * as evaljs from "evaljs"
             "totalPages": _.size(proseJsonContent.content),
             "created": ""+ +new Date(),
         }
+        reportData.description = _.get(reportData, "description", _.trim(reportData.title))
 
         if( !_.trim(this.savedDocTemplateId) || _.get(e, "target.dataset.version", "") === "new" ) {
 
@@ -1818,6 +1820,8 @@ import * as evaljs from "evaljs"
 
 	_saveReport() {
 
+        this.busySpinner = true;
+
         const prose = this.root.querySelector("#prose-editor");
         const proseJsonContent = prose.editorView.state.doc.toJSON();
         const proseHtmlContent = prose.$.container.innerHTML;
@@ -1831,56 +1835,61 @@ import * as evaljs from "evaljs"
             "totalPages": _.size(proseJsonContent.content),
             "created": ""+ +new Date(),
         }
+        reportData.description = _.get(reportData, "description", _.trim(reportData.title))
 
         this.api.message().newInstanceWithPatient(this.user, this.patient).then((newMessageInstance)=>{
+
             this.api.message().createMessage(_.merge(
-                newMessageInstance,
-                {
-                    transportGuid: "DOC:REPORT:ARCHIVE",
-                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
-                    metas: reportData,
-                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
-                    subject: "DOC:REPORT:ARCHIVE"
-                }
-            )).then((createMessageResponse) => {
-                console.log( "createMessageResponse: ", createMessageResponse );
+                 newMessageInstance,
+                 {
+                     transportGuid: "DOC:REPORT:ARCHIVE",
+                     recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                     metas: reportData,
+                     toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                     subject: reportData.title + " " + reportData.description
+                 }
+             )).then((createMessageResponse) => {
                 this.api.document().newInstance(
                     this.user,createMessageResponse,
                     {
                         documentType: 'report',
-                        mainUti: this.api.document().uti("report/html"),
+                        mainUti: this.api.document().uti("application/pdf"),
                         name: reportData.title + " " + reportData.description
                     }
                 ).then((newDocumentResponse) => {
-                    console.log( "newDocumentResponse: ", newDocumentResponse );
                     this.api.document().createDocument(newDocumentResponse).then((createDocumentResponse) => {
-                        console.log( "createDocumentResponse: ", createDocumentResponse );
-                        this.api.encryptDecryptFileContentByHcpId("encrypt", proseHtmlContent, this.user.healthcarePartyId).then(encryptedFileContent =>{
-                            console.log( "encryptedFileContent: ", encryptedFileContent );
-                            this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
-                                console.log( "setAttachmentResponse: ", setAttachmentResponse );
-                                const svc = this.api.contact().service().newInstance(
-                                    this.user,
-                                    {
-                                        content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
-                                        encryptedContent: encryptedFileContent,
-                                        label: 'document',
-                                        formId: reportData.formId
-                                    }
-                                );
-                                this.dispatchEvent(new CustomEvent('new-service', {
-                                    detail: {
-                                        ctc: this.currentContact,
-                                        svc: svc,
-                                        scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-                                    }, composed: true
-                                }));
-                            }).catch(()=>{})
-                        }).catch(()=>{})
-                    }).catch(()=>{})
-                }).catch(()=>{})
-            }).catch(()=>{})
-        }).catch(()=>{})
+                        this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
+                            this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, createDocumentResponse.encryptionKeys && Object.keys(createDocumentResponse.encryptionKeys).length ? createDocumentResponse.encryptionKeys : createDocumentResponse.delegations).then(decryptedAndImportedAesHcPartyKeys => {
+                                let collatedAesKeys = {}; decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
+                                this.api.crypto().decryptDelegationsSFKs((createDocumentResponse.encryptionKeys && Object.keys(createDocumentResponse.encryptionKeys).length? createDocumentResponse.encryptionKeys: createDocumentResponse.delegations)[this.user.healthcarePartyId], collatedAesKeys, createDocumentResponse.id).then(enckeys => {
+                                    this.api.encryptDecryptFileContentByEncKey("encrypt", _.get( _.head(decryptedAndImportedAesHcPartyKeys), "key", null ), pdfFileContent).then(encryptedFileContent =>{
+                                        this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
+                                            const svc = this.api.contact().service().newInstance(
+                                                this.user,
+                                                {
+                                                    content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
+                                                    encryptedContent: encryptedFileContent,
+                                                    label: 'document',
+                                                    formId: reportData.formId
+                                                }
+                                            );
+                                            this.dispatchEvent(new CustomEvent('new-service', {
+                                                detail: {
+                                                    ctc: this.currentContact,
+                                                    svc: svc,
+                                                    scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
+                                                }, composed: true
+                                            }));
+                                            this.busySpinner = false;
+                                        }).catch(()=>{this.busySpinner = false;})
+                                    }).catch(()=>{this.busySpinner = false;})
+                                }).catch(()=>{this.busySpinner = false;})
+                            }).catch(()=>{this.busySpinner = false;})
+                        }).catch(()=>{this.busySpinner = false;})
+                    }).catch(()=>{this.busySpinner = false;})
+                }).catch(()=>{this.busySpinner = false;})
+            }).catch(()=>{this.busySpinner = false;})
+        }).catch(()=>{this.busySpinner = false;})
 
     }
 
@@ -2019,14 +2028,14 @@ import * as evaljs from "evaljs"
 
 
     printDocument() {
-        this.busyPrintingReport = true;
+        this.busySpinner = true;
         const prose = this.root.querySelector("#prose-editor");
         const proseHtmlContent = prose.$.container.innerHTML;
         this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
             this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
-            this.busyPrintingReport = false;
+            this.busySpinner = false;
         }).catch(() =>{
-            this.busyPrintingReport = false
+            this.busySpinner = false
         });
     }
 

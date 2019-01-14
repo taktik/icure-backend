@@ -584,24 +584,14 @@
 
         }
 
-        encryptDecryptFileContentByHcpId( encryptOrDecrypt, rawFileContent, hcpId ) {
-            if( !_.trim(encryptOrDecrypt) || !_.trim(rawFileContent) || !_.trim(hcpId) ) return Promise.resolve(null);
+        encryptDecryptFileContentByEncKey( encryptOrDecrypt, cryptoKey, rawFileContent  ) {
+            if( !_.trim(encryptOrDecrypt) || !rawFileContent || !cryptoKey ) return Promise.resolve(rawFileContent);
             return new Promise((resolve) => {
-
-                // Imrove from here
-                    // this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-                    // Then get & set attachment (java) passing encKeys
-                    this.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(_.trim(hcpId)).then(encryptedHcPartyKey => {
-                        this.crypto().decryptHcPartyKey(_.trim(hcpId), _.trim(hcpId), _.trim(encryptedHcPartyKey[_.trim(hcpId)]), true).then(importedAESHcPartyKey => {
-                // To here
-
-                        if(_.trim(encryptOrDecrypt).toLocaleLowerCase()==="encrypt") {
-                            this.crypto().AES.encrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
-                        } else {
-                            this.crypto().AES.decrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
-                        }
-                    })
-                })
+                if(_.trim(encryptOrDecrypt).toLocaleLowerCase()==="encrypt") {
+                    this.crypto().AES.encrypt(cryptoKey, rawFileContent).then(encryptedDecryptedFileContent => resolve(encryptedDecryptedFileContent))
+                } else {
+                    this.crypto().AES.decrypt(cryptoKey, rawFileContent).then(encryptedDecryptedFileContent => resolve(encryptedDecryptedFileContent))
+                }
             })
         }
         
