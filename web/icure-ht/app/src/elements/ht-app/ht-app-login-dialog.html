@@ -168,6 +168,8 @@
 								 value="{{credentials.username}}" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="Password" name="password" type="password" always-float-label="true"
 								 value="{{credentials.password}}" on-keydown="checkForEnter" invalid$={{credentials.error}}></paper-input>
+                    <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
+                                 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
 					<!-- <paper-dropdown-menu  label="Database server" vertical-align="bottom" horizontal-align="left">
@@ -200,8 +202,6 @@
                     <!--<template is="dom-if" if="[[showMoreOption]]">-->
                     <div class$="login-options-container visible-[[showMoreOption]]">
                         <div class$="login-options visible-[[showMoreOption]]">
-                            <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
-                                         value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
                             <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
                                 local-url="[[host]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
                             
