@@ -110,6 +110,19 @@
 				padding-bottom: 24px;
 			}
 
+            .ctc-header {
+                position: relative;
+                background: var(--app-background-color-dark);
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 16px;
+            }
+            .ctc-header .contact-title {
+                flex-grow: 1;
+            }
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
@@ -501,6 +514,12 @@
                 width:200px;
                 height:200px;
 			}
+            
+            paper-button.closeCtc {
+                background: var(--app-secondary-color);
+                height: 24px;
+                margin: 12px 36px;
+            }
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -528,19 +547,34 @@
 			<div class="contact-card-container">
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
+                    <div class="ctc-header">
+                        <span class="contact-title"></span>
+                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                    </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
 				</template>
 				<template is="dom-if" if="[[table]]">
+                    <div class="ctc-header">
+                        <span class="contact-title"></span>
+                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                    </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
 				</template>
 				<template is="dom-if" if="[[graphique]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                    </div>
 				</template>
 				<template is="dom-if" if="[[doc]]">
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<div class="ctc-header">
+                            <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+                            <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                        </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
 													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
@@ -910,6 +944,10 @@ import * as evaljs from "evaljs"
 			_planAction() {
 				this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true,detail: this.currentContact.services.filter(svc => svc.label==="Actes")[0]}))
 			}
+
+            _closeContact() {
+                this.dispatchEvent(new CustomEvent("close-contact", {composed: true, bubbles: true}))
+            }
 
 			_filesChanged() {
 				if (!this.currentContact) {
