@@ -2979,9 +2979,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const start = +new Date()
 
                 const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id => id && id.substr(4) /* format is ctc_... see DOM */)
-                //console.log("Before load "+(+new Date() - start))
+                console.log("Before load "+(+new Date() - start))
                 Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient).then(ctcs => ctcs.map(ctc => this.api.register(ctc, 'contact'))), this.api.helement().findBy(this.user.healthcarePartyId, patient, true)]).then(([ctcs, allHes]) => {
-                    //console.log("After load "+(+new Date() - start))
+                    console.log("After load "+(+new Date() - start))
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
@@ -3160,6 +3160,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             if (currentlySelectedContactsIds.some(cId => !ctcs.some(c => c.id === cId))) {
                                 this.set('selectedContactIds', _.compact(ctcs.filter(c => currentlySelectedContactsIds.includes(c.id)).map(c => `ctc_${c.id}`)))
+                            }  else {
+                                this.set('selectedContactIds',['ctc_'+newCtc.id])
+                                this.set('selectedContacts', [newCtc])
                             }
                             setTimeout(() =>
                                 this.selectedContactIds.forEach(cDomId => {
