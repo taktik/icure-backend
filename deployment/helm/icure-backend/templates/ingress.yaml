@@ -16,7 +16,10 @@ spec:
   {{- if (.Values.tls.host) and .Values.tls.refName }}
     tls:
         -   hosts:
-                - {{ .Values.tls.host }}
+                - "{{ .Values.tls.host }}"
+                - "backend.{{ .Values.tls.host }}"
+                - "ht.{{ .Values.tls.host }}"
+                - "couch.{{ .Values.tls.host }}"
             ref:
                 kind: Secret
                 name: {{ .Values.tls.refName }}
@@ -58,4 +61,4 @@ spec:
                             serviceName: {{ .Values.couchdbServiceName }}
                             servicePort: {{ .Values.couchdbPortNumber }}
                             backendRules:
-                                - "option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ .Values.couchdbCredentialsBase64 }}"
+                                - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ .Values.couchdbCredentialsBase64 }}'
