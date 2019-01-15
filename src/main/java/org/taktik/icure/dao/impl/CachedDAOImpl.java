@@ -139,7 +139,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     public void putInCache(String groupId, String key, T value) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid()) + ":" + key);
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + key;
         log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev());
         cache.put(fullId, value);
     }
@@ -155,8 +155,8 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 	}
 
     public void evictFromCache(String groupId, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid()) + ":" + id);
-        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid()) + ":" + ALL_ENTITIES_CACHE_KEY);
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + id;
+        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + ALL_ENTITIES_CACHE_KEY;
         log.debug("Cache EVICT= {}", fullId);
         log.debug("Cache EVICT= {}", fullId1);
         cache.evict(fullId);
@@ -169,7 +169,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     protected Cache.ValueWrapper getWrapperFromCache(String groupId, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid()) + ":" + id);
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + id;
         Cache.ValueWrapper value = cache.get(fullId);
         if (value != null) {
             log.debug("Cache HIT  = {}, WRAPPER", fullId);
