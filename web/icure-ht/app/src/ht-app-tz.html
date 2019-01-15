@@ -1382,7 +1382,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://backend.svc.icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
 
                 this.set('defaultIcureUrl', this.icureUrl)

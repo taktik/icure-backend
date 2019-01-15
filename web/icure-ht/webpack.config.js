@@ -82,6 +82,9 @@ module.exports = {
             appShell: '/',
             externals: [
                 '/'
+            ],
+            excludes: [
+                'docs/*.pdf','app/docs/*.pdf'
             ]
         })
         ,
