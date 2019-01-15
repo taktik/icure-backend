@@ -756,6 +756,8 @@
 
                             return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
                                 codeId: code.id, stringValue: code.label[typeLng],
+								 id: code.id,
+                                name: code.label[typeLng],
                                 codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
                             })), sorter));
                         })).then(responses => _.flatMap(responses)) : Promise.resolve([]);

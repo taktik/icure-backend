@@ -1060,10 +1060,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         (text.match(/^[0-9]+$/) ? this.api.insurance().listInsurancesByCode(text) : this.api.insurance().listInsurancesByName(text))
                             .then(res => res.map(i => ({
                                 'codeId': i.id,
+                                'id': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
                                 'codeId': i.id,
+                                'id': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
@@ -1104,7 +1106,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     localizeContent(e, lng) {
-        return this.api && this.api.contact().localize(e, lng) || "";
+        return this.api && this.api.contact().localize(e, lng) || e;
     }
 
     showAddPersonToCareTeam() {
