@@ -632,6 +632,11 @@
             return inputContent;
         }
 
+        formatRawInamigWithHyphens(inputContent) {
+            // Split with hyphens (1,6,2,3) unless already has some
+            return inputContent.indexOf("-")>-1 ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
