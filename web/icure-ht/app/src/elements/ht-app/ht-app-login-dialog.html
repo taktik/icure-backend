@@ -64,7 +64,7 @@
 			.server-icon {
 
 				box-sizing: border-box;
-				
+
 				height: 24px;
 				width: 24px;
 				text-align: right;
@@ -173,10 +173,10 @@
 					<!-- <paper-dropdown-menu  label="Database server" vertical-align="bottom" horizontal-align="left">
 						<paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}" selected-item="{{dbServerObject}}">
 							<paper-item data-server="http://127.0.0.1">Local</paper-item>
-							<template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">	
+							<template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">
 								<paper-item class="server-item" data-server$="[[server.url]]">
 									<div>
-										[[server.name]] 
+										[[server.name]]
 									</div>
 									<paper-icon-button noink icon="icons:clear" data-index$="[[index]]" class="server-icon" title="delete" on-click="_handleServerDelete"></paper-icon-button>
 								</paper-item>
@@ -203,11 +203,11 @@
                             <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
                                          value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
                             <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
-                                local-url="[[host]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
-                            
+                                local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
                             <ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
-                                server-name="fhc" local-url="[[host-fhc]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
-                            
+                                server-name="fhc" local-url="[[defaultFhcUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
                         </div>
                     </div>
                     <!--</template>-->
@@ -297,7 +297,7 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	login() {
-	
+
 		const currentIcureServerUrl = this.$["icure-servers-list"].getSelectedServerURL()
 		const currentFhcServerUrl = this.$["fhc-servers-list"].getSelectedServerURL()
 
