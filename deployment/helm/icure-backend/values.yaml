@@ -32,7 +32,7 @@ images:
     frontend:
         repository: "docker.taktik.be/icure-frontend"
         tag:
-        replicaCount: 0
+        replicaCount: 1
         memoryRequest: "64M"
         memoryLimit: "512M"
         cpuRequest: 50m

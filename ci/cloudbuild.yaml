@@ -10,4 +10,6 @@ steps:
         entrypoint: 'bash'
         args: [ '-c', './gradlew :dockerize -x test -PskipFrontend -PdockerPush :dockerizeFrontend -PdockerPush' ]
 
+options:
+    machineType: 'N1_HIGHCPU_8'
 timeout: 2700s
