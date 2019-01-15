@@ -99,6 +99,9 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
+        },{
+            from : path.resolve(__dirname, 'app/docs/*.pdf'),
+            to: 'docs/[name].[ext]'
         }]),
         new Clean(['dist-tz']),
     ],

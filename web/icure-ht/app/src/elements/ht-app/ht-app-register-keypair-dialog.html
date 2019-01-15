@@ -11,6 +11,15 @@
 <dom-module id="ht-app-register-keypair-dialog">
 	<template>
 		<style>
+            .submit-container {
+                width: 100%;
+            }
+            #submit-button {
+                margin: 0 auto;
+                display: block;
+                max-width: 120px;
+                text-align: center;
+            }
 		</style>
 
 		<paper-dialog id="registerKeyPairDialog" opened="{{opened}}" modal>
@@ -19,7 +28,9 @@
 					<h3>[[localize('a_pri_key_fil_is_nee_for_thi_use','A private key file is needed for this user',language)]]</h3>
 					<h5>ID: [[keyhcpid]]</h5>
 					<paper-input type="file" id="rsaFileInput" on-change="rsaKeySelected"></paper-input>
-					<paper-button raised="true" id="submitButton" type="submit" on-tap="selectFile" autofocus>[[localize('imp','Import',language)]]</paper-button>
+                    <div class="submit-container">
+					    <paper-button raised="true" id="submit-button" type="submit" on-tap="selectFile" autofocus>[[localize('imp','Import',language)]]</paper-button>
+                    </div>
 					<div>[[message]]</div>
 				</div>
 			</form>
@@ -78,6 +89,7 @@ class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.Elemen
 
 	rsaKeySelected() {
 		this.selectedRsaFile = this.$.rsaFileInput.inputElement && this.$.rsaFileInput.inputElement.inputElement ? this.$.rsaFileInput.inputElement.inputElement.files[0] : null;
+		if (this.selectedRsaFile != null) this.selectFile()
 	}
 
 	selectFile() {

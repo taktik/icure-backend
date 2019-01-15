@@ -2115,7 +2115,7 @@
                         this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName })).then(createMessageResponse => {
                             this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
                                 this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
-                                    this.api.encryptDecryptFileContentByHcpId("encrypt", pdfFileContent, this.user.healthcarePartyId).then(encryptedFileContent =>{
+                                    this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createDocumentResponse, pdfFileContent).then(encryptedFileContent =>{
                                         this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
@@ -2163,7 +2163,7 @@
                     if(singleMessage && singleMessage[0] && singleMessage[0].id && singleMessage[0].attachmentId && singleMessage[0].secretForeignKeys) {
                         this.api.document().getAttachment(singleMessage[0].id, singleMessage[0].attachmentId, singleMessage[0].secretForeignKeys).then(attachmentResponse => {
                             if(attachmentResponse) {
-                                this.api.encryptDecryptFileContentByHcpId("decrypt", attachmentResponse, this.user.healthcarePartyId).then(decryptedFileContent =>{
+                                this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("decrypt", this.user.healthcarePartyId, _.head(singleMessage), attachmentResponse).then(decryptedFileContent =>{
                                    this.api.triggerFileDownload(decryptedFileContent,"application/pdf",_.get( _.head(_.filter(this.archiveListingMessages, {"id":_.trim(messageId)})), "filename","listing-patients.pdf"));
                                 }).catch(()=>{})
                             }

@@ -180,7 +180,9 @@
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
+				<template is="dom-if" if="[[isValid]]">
+					<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
+				</template>
 			</div>
 		</paper-dialog>
 
@@ -307,12 +309,16 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
             temporalityItem:{
 			    type: Object,
 				value: () => {}
+			},
+            isValid: {
+			    type : Boolean,
+				value : false
 			}
 		};
 	}
 
 	static get observers() {
-		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
+		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)','_checkValidity(entity.codes)'];
 	}
 
 	constructor() {
@@ -544,6 +550,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	open() {
 		this.flushComboData()
+		this.set("isValid",false)
         this.api.code().findPaginatedCodes('be', 'CD-TEMPORALITY', '')
 			.then(c => this.set("temporalityList", c.rows.filter(c => c.code === "acute" || c.code === "subacute" || c.code === "chronic")))
 			.finally(() => {
@@ -556,7 +563,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type && type.code === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 
 				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
-		})
+				this._checkValidity();
+			})
 
 	}
 
@@ -651,7 +659,14 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return item.label[this.language] ? item.label[this.language] : item.label.en
 	}
 
-
+    _checkValidity(){
+	    if(this.entity.codes){
+	        this.set("isValid",true)
+		}
+		else{
+            this.set("isValid",false)
+        }
+	}
 
 }
 

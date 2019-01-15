@@ -22,12 +22,14 @@ buildscript {
 	}
 }
 
+apply plugin: 'git-version'
+group = 'org.taktik.icure'
+version = gitVersion
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'git-version'
 apply plugin: 'docker-java'
 apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
 
@@ -38,9 +40,6 @@ configure(allprojects) {
     apply plugin: 'propdeps-eclipse'
 }
 
-
-group = 'org.taktik.icure'
-version = gitVersion
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
