@@ -492,7 +492,8 @@ export class ProseEditor extends Polymer.Element {
                 let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
                 node.forEach((child, pos, idx) => {
                   prom = prom.then(selected => {
-                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[0] && ctx[idx] || ctx)))
+                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx)) //Execute template function on current ctx
+                      .then((subCtx:any) => subCtx[0] ? subCtx[idx] : subCtx)) //and select idxth element from the result
                   })
                 })
                 return prom
@@ -512,7 +513,7 @@ export class ProseEditor extends Polymer.Element {
             }
           }
 
-          return detect(tr.doc, -1 /* Because there is always a doc and 0 is inside the doc */, () => Promise.resolve(ctx))
+          return detect(tr.doc, -1 /* Because there is always a doc and 0 is inside the doc */, () => Promise.resolve(ctx) /* initial ctxt is just an object, so that we can just resolve to it */)
             .then(selected => {
               if (selected) {
                 if (selected.node.type === this.editorSchema.nodes.template) {
