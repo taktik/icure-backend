@@ -41,7 +41,7 @@ export class ProseEditor extends Polymer.Element {
   $: { editor: HTMLElement, content: HTMLElement } | any
 
   @property({type: Number})
-  pageHeight: number = 846
+  pageHeight: number = 976
 
   @property({type: Number, observer: '_zoomChanged'})
   zoomLevel = 120
@@ -492,7 +492,8 @@ export class ProseEditor extends Polymer.Element {
                 let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
                 node.forEach((child, pos, idx) => {
                   prom = prom.then(selected => {
-                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx[0] && ctx[idx] || ctx)))
+                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx)) //Execute template function on current ctx
+                      .then((subCtx:any) => subCtx[0] ? subCtx[idx] : subCtx)) //and select idxth element from the result
                   })
                 })
                 return prom
@@ -512,7 +513,7 @@ export class ProseEditor extends Polymer.Element {
             }
           }
 
-          return detect(tr.doc, -1 /* Because there is always a doc and 0 is inside the doc */, () => Promise.resolve(ctx))
+          return detect(tr.doc, -1 /* Because there is always a doc and 0 is inside the doc */, () => Promise.resolve(ctx) /* initial ctxt is just an object, so that we can just resolve to it */)
             .then(selected => {
               if (selected) {
                 if (selected.node.type === this.editorSchema.nodes.template) {
@@ -527,7 +528,8 @@ export class ProseEditor extends Polymer.Element {
                   return visit(ctxFn(selected.node.attrs.expr, undefined, ctx)
                     .then(({ctx}) => {
                       return tr.replaceWith(selected.pos, selected.pos + selected.node.nodeSize, this.editorSchema.nodes.variable.create({expr: selected.node.attrs.expr, renderTimestamp: ts},
-                        this.editorSchema.text(ctx.toString()||" "))) // Text nodes can't be empty
+                        this.editorSchema.text(ctx.toString()||" ")))
+
                     })
                   )
                 }

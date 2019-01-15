@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./ht-app-server-dialog.html">
 
 <link rel="import" href="../../shared-styles.html">
 
@@ -159,12 +160,19 @@
                 <div class="left">
                     <div>
                         <h1>Welcome</h1>
-                        <h2>thank you for joining iCure</h2>
+                        <h2>thank you for joining Topaz</h2>
+                        <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
+                            local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
+                        <ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
+                            server-name="fhc" local-url="[[defaultFhcUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
                     </div>
                     <div>
+                        <template is="dom-if" if="[[_isEmpty(allEmptyMsg)]]">
+                            <p class="invalid-form">[[allEmptyMsg]]</p>
+                        </template>
                         <p>If you already have a database in the cloud. You can copy your cloud key below and start using iCure. </p>
-                        <paper-input label="Cloud key"></paper-input>
-                        <paper-button>Sync from the cloud</paper-button>
+                        <paper-input label="Cloud key" value="{{cloudKey}}"></paper-input>
                     </div>
                 </div>
                 <div class="middle">
@@ -263,7 +271,7 @@ class HtAppWelcome extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
         this.addEventListener('keypress',this.checkForEnter.bind(this))
         this.$.login.addEventListener('click',e => this.register())
-        this.$.cloud.addEventListener('click',e => this.replicate())
+        // this.$.cloud.addEventListener('click',e => this.replicate())
 	}
 
     _professionChanged(item) {
@@ -282,7 +290,51 @@ class HtAppWelcome extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("invalidFormMsg", msg)
     }
 
+    errorMessageLeft(msg) {
+        this.set("allEmptyMsg", msg )
+    }
+
 	register() {
+
+        this.errorMessage(null)
+        this.errorMessageLeft(null)
+
+        const hcp = this.healthcareParty
+        const user = this.user
+
+        if (!hcp.firstName && !hcp.lastName && !hcp.nihii && !hcp.ssin && !user.email && !user.passwordHash && !this.get("professionItem") && !this.get('cloudKey')){
+
+            this.errorMessage("Please fill in at least one of the sides")
+            this.errorMessageLeft("Please fill in at least one of the sides")
+
+            return
+
+        }
+
+        Promise.all([this.createUser(), this.replicate()]).then( values => {
+
+            if(values[1] && !values[0]) {
+
+                this.set('hidden', true)
+
+            } else if (values[0]) {
+
+                this.set('hidden', true)
+
+                const currentIcureServerUrl = this.$["icure-servers-list"].getSelectedServerURL()
+                const currentFhcServerUrl = this.$["fhc-servers-list"].getSelectedServerURL()
+
+                this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, icureurl: currentIcureServerUrl, fhcurl: currentFhcServerUrl }, bubbles: true, composed: true }))
+
+            }
+
+        }).catch( err => {
+            console.warn(err)
+        })
+
+    }
+
+    createUser() {
 
         const profession = this.get("professionItem")
         let speciality = { id: ""}
@@ -322,37 +374,22 @@ class HtAppWelcome extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.credentials.username = this.user.login;
         this.credentials.password = this.user.passwordHash;
 
-        this.createUser().then( (response) => {
-            this.set('hidden',true);
-        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
-            // window.location.reload();
-        })
+        const url = this.$["servers-list"].getSelectedServerURL()
 
-    }
-
-    createUser() {
-
-        return new Promise ( (resolve, reject) => {
-
-            fetch('http://localhost:16042/create-first-user',{
+        return fetch(url + ':16042/create-first-user',{
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json; charset=utf-8"
                 },
                 body: JSON.stringify( [this.healthcareParty,this.user] )
-            }).then( response => {
-                resolve(response);
             })
-        })
+
     }
 
     replicate() {
 
         let cloudKey = this.get('cloudKey')
-
-        if(!cloudKey) {
-            return
-        }
+        if (!cloudKey) return
 
         fetch('http://localhost:16042/replicate',{
             method: "POST",

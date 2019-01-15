@@ -15,16 +15,22 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
-		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.0.1')
+		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.1.4')
+		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
+		classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // version 0.18.0 is incompatible with Spring Boot (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
 	}
 }
 
+apply plugin: 'git-version'
+group = 'org.taktik.icure'
+version = gitVersion
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
+apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
 
 configure(allprojects) {
     apply plugin: 'propdeps'
@@ -33,9 +39,6 @@ configure(allprojects) {
     apply plugin: 'propdeps-eclipse'
 }
 
-
-group = 'org.taktik.icure'
-version = '1.0.96'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -318,6 +321,22 @@ packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+
+task dockerizeFrontend(type: Exec) {
+    def push = project.hasProperty("dockerPush")
+    def dryRun = project.hasProperty("noDockerBuild")
+
+    def v = project.ext.gitVersion // get version from git-version plugin
+    def tag = "docker.taktik.be/icure-frontend:$v"
+
+    if (!dryRun) {
+        def buildCommand = ['docker', 'build', './web/icure-ht', '-t', "$tag"]
+        if (push && !v.contains("dirty")) {
+            buildCommand += ['&&', 'docker', 'push', "$tag"]
+        }
+        setCommandLine(["bash", "-c" , buildCommand.join(" ")])
+    }
+}
 
 bootRun {
    if ( project.hasProperty('jvmArgs') ) {

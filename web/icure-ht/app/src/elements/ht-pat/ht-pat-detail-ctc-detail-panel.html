@@ -364,6 +364,10 @@
 				position: absolute;
 				left: 8px;
 			}
+			.fright {
+				position: absolute;
+				right: 8px;
+			}
 
 			.floating-action-bar iron-icon{
 				box-sizing: border-box;
@@ -449,6 +453,54 @@
 					line-height: normal;
 				}
 			}
+
+			#templateSavedIndicator{
+				position: fixed;
+				top:50%;
+				right: -200px;
+				z-index:1000;
+				color: white;
+				font-size: 13px;
+				background:rgba(0,0,0,0.42);
+				height: 24px;
+				padding: 0 8px 0 12px;
+				border-radius: 3px 0 0 3px;
+				width: 170px;
+				opacity: 1;
+                transition: all 400ms ease;
+                -moz-transition: all 400ms ease;
+                -webkit-transition: all 400ms ease;
+                -o-transition: all 400ms ease;
+                -ms-transition: all 400ms ease;
+			}
+			.templateSaved{
+				right:0!important;
+			}
+			#template-description-dialog {
+                width:60%;
+                padding-bottom:20px;
+			}
+			#template-description-dialog h2 {
+			    margin:0 -24px
+			}
+			#busySpinner {
+			    position: absolute;
+                height: 100%;
+                width: 100%;
+                background: rgba(255,255,255,.6);
+                z-index:110;
+                margin-top:0;
+                top:0;
+                left:0;
+			}
+			#busySpinnerContainer {
+			    position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width:200px;
+                height:200px;
+			}
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -464,6 +516,7 @@
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+					<!--<paper-icon-button id="graph_icn" class$="graph [[_activeIconClass(graph)]]" icon="icons:timeline" on-tap="_graphique"></paper-icon-button>-->
 					<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
 
 					<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
@@ -502,7 +555,7 @@
 														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
 														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
-														 on-data-change="_refreshFromServices" on-new-report="newReport" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
+														 on-data-change="_refreshFromServices" on-new-report="newReport" on-print-subform="printSubForm" subcontact-type="[[subcontactType]]"></dynamically-loaded-form>
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
@@ -558,7 +611,7 @@
 			</paper-tooltip>
 		</div>
 
-		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportTemplatesSelectorDataProvider()]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
+		<entity-selector id="load-template-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[reportTemplatesSelectorColumns()]]" data-provider="[[reportCustomTemplatesSelectorDataProvider()]]" entity-icon="vaadin:doctor" entity-type="[[localize('template','Template',language)]]" on-entity-selected="_reportTemplateSelected"></entity-selector>
 		<entity-selector id="add-form-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
 
 		<paper-dialog id="upload-dialog">
@@ -620,18 +673,39 @@
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 
 		<paper-dialog id="prose-editor-dialog" no-cancel-on-outside-click no-cancel-on-esc-key>
+            <paper-item id="templateSavedIndicator">
+                [[localize('saved_template','Template saved',language)]] &nbsp;
+                <iron-icon icon="icons:check"></iron-icon>
+            </paper-item>
 			<h2 class="modal-title">New Report</h2>
 			<prose-editor id="prose-editor" on-refresh-context="_refreshContext"></prose-editor>
+
+			<paper-dialog id="template-description-dialog" no-cancel-on-outside-click no-cancel-on-esc-key>
+			    <h2 class="modal-title">[[localize('template_description','Template description',language)]]</h2>
+			    <paper-input label="[[localize('template_description','Template description',language)]]" autofocus value="" id="templateDescription" style="padding:0"></paper-input>
+			    <div class="fright"><paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button></div>
+                <template is="dom-if" if="[[!savedDocTemplateId]]">
+                    <paper-button class="modal-button modal-button--save" dialog-confirm on-tap="saveTemplate">[[localize('save','Save',language)]]</paper-button>
+                </template>
+			    <template is="dom-if" if="[[savedDocTemplateId]]">
+                    <paper-button class="modal-button modal-button--save" dialog-confirm on-tap="saveTemplate">[[localize('save_current_version','Save current version',language)]]</paper-button>
+			        <paper-button class="modal-button modal-button--save" dialog-confirm on-tap="saveTemplate" data-version="new">[[localize('save_new_version','Save new version',language)]]</paper-button>
+                </template>
+            </paper-dialog>
+
 			<div class="buttons">
 				<div class="fleft">
-					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
+					<paper-button class="modal-button" on-tap="_openTemplateDescriptionDialog">[[localize('sav_temp','Save template',language)]]</paper-button>
 					<paper-button class="modal-button" on-tap="loadTemplate">[[localize('load_temp','Load template',language)]]</paper-button>
 					<paper-button class="modal-button" on-tap="printDocument">[[localize('print','Print',language)]]</paper-button>
 				</div>
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="saveDocument">[[localize('save','Save',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveReport">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -762,9 +836,13 @@ import * as evaljs from "evaljs"
                 type: Array,
                 value: () => []
             },
-            proseJsonContent: {
-                type: Object,
-                value: null
+            savedDocTemplateId: {
+                type: String,
+                value: ""
+            },
+            busySpinner: {
+                type: Boolean,
+                value: false
             }
 		};
 	}
@@ -923,6 +1001,9 @@ import * as evaljs from "evaljs"
 
 			addDocument() {
 				this.set('showAddFormsContainer', false);
+                const vaadinUpload = this.$['vaadin-upload'];
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
 				this.$['upload-dialog'].open();
 			}
 
@@ -1388,7 +1469,11 @@ import * as evaljs from "evaljs"
 			}
 
     _reportTemplateSelected(e, reportTemplate) {
-	    this.api.doctemplate().getAttachment(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
+
+        this.savedDocTemplateId = reportTemplate.id;
+        this.$.templateDescription.value = _.trim( _.get(reportTemplate,"descr", _.get(reportTemplate, "name", this.localize('rep',this.language) ) ) )
+
+	    this.api.doctemplate().getAttachmentText(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
 	        const prose = this.root.querySelector("#prose-editor")
             prose.setJSONContent(this.api.crypto().utils.ua2utf8(attach))
 			prose.applyContext((expr, template, ctx, cache) => {
@@ -1404,7 +1489,8 @@ import * as evaljs from "evaljs"
                         if (status.value && status.value.asynchronous) {
                             //Wait for internal resolution
                         } else {
-                            resolve(status.value)
+                            // resolve(status.value)
+                            resolve({ctx:status.value})
                         }
                     } catch (e) {
                         reject(e)
@@ -1419,10 +1505,16 @@ import * as evaljs from "evaljs"
                 servicesMap:this.servicesMap,
                 user:this.user,
                 hcp:this.user.healthcarePartyId,
-                language: this.language
+                language: this.language,
+               dataProvider: this.editedReportDataProvider
 			})
 		})
     }
+
+	confirmSaved(event) {
+        setTimeout(() => this.$.templateSavedIndicator.classList.remove("templateSaved"), 4000);
+        this.$.templateSavedIndicator.classList.add("templateSaved");
+	}
 
 	_addedFormSelected(e, formTemplate) {
 		formTemplate && this.addForm(e.detail.guid);
@@ -1473,32 +1565,32 @@ import * as evaljs from "evaljs"
 				}, {}));
 			}
 
-    _virtualForm(services) {
-		return {id:null, template:{name:'Other services'}}
-	}
+            _virtualForm(services) {
+                return {id: null, template: {name: 'Other services'}}
+            }
 
-	_contactsChanged() {
-		this.set('contactsFormsAndDocuments', []);
-		if (!this.contacts) {
-			return;
-		}
+            _contactsChanged() {
+                this.set('contactsFormsAndDocuments', [])
+                if (!this.contacts) {
+                    return
+                }
 
-				this.set('isLoadingDoc',true)
+                this.set('isLoadingDoc', true)
 
-		const seenForms = {}
-		const formGroups = this.contacts.map(contact => ({
-			ctc: contact,
-			forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-				const serviceIds = sc.services.map(s => s.serviceId);
-				return {
-					id: sc.formId,
-					docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
-				};
-			}), f => -f.created),
-			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-		}));
+                const seenForms = {}
+                const formGroups = this.contacts.map(contact => ({
+                    ctc: contact,
+                    forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                        const serviceIds = sc.services.map(s => s.serviceId)
+                        return {
+                            id: sc.formId,
+                            docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
+                        }
+                    }), f => -f.created),
+                    unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+                }))
 
-				const climbFormHierarchy = function (formIds, formsCache) {
+                const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
 						forms.forEach(f => {
 							formsCache[f.id] = f;
@@ -1530,7 +1622,14 @@ import * as evaljs from "evaljs"
 						}, [])).sortBy(f=>-f.created).value()
 					});
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
-				}).finally(() => this.set('isLoadingDoc',false));
+				}).finally(() => {
+				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
+                    if (this.contactsFormsAndDocuments.length) { // auto display in list if labresult
+                        if (this.contactsFormsAndDocuments[0].unmappedServices.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes[0].type === "labResult") this._list()
+                        if (this.contactsFormsAndDocuments[0].forms.length && this.contactsFormsAndDocuments[0].forms[0].form && this.contactsFormsAndDocuments[0].forms[0].form.descr.startsWith('Lab')) this._list()
+                    }
+				    this.set('isLoadingDoc',false)
+                });
 			}
 
 			toggleDetailsFiltersPanel() {
@@ -1539,11 +1638,31 @@ import * as evaljs from "evaljs"
 			}
 
     loadTemplate() {
-        this.$['load-template-dialog'].open();
+        this.$['load-template-dialog'].open(); this.$['load-template-dialog'].filterValue = "  "; this.$['load-template-dialog'].refresh(); window.setTimeout(()=>{this.$['load-template-dialog'].filterValue = ""},1000);
     }
 
     reportTemplatesSelectorColumns() {
-        return [{ key: 'group.name', title: 'Groupe' }, { key: 'name', title: 'Nom' }, { key: 'guid', title: 'GUID' }];
+        return [{ key: 'name', title: this.localize('name',this.language) }, { key: 'descr', title: this.localize('des',this.language) }, { key: 'createdHr', title: this.localize('creation',this.language) }];
+    }
+
+
+    reportCustomTemplatesSelectorDataProvider() {
+        return {
+            filter: function (filterValue, limit, offset, sortKey, descending) {
+                const regExp = _.trim(filterValue) && new RegExp(_.trim(filterValue), "i");
+
+                const all = this.allTemplates || (this.allTemplates = Promise.all([
+                    this.api.doctemplate().findDocumentTemplatesByDocumentType('template'),
+                ]).then( res => _.chain(res[0]).uniqBy(x=>x.id).sortBy(['name','descr']).value()))
+
+                return all
+                    .then(fts => {
+                        _.map( fts, (ft)=>{ ft.createdHr = moment(ft.created).format('DD/MM/YYYY - HH:mm:ss'); return ft })
+                        const filtered = fts.filter(ft => ft.mainUti === "prose.template.json" && (!regExp || ft.name && ft.name.match(regExp) || ft.descr && ft.descr.match(regExp) || ft.id && ft.id.match(regExp)));
+                        return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
+                    });
+            }.bind(this)
+        };
     }
 
     reportTemplatesSelectorDataProvider() {
@@ -1594,66 +1713,72 @@ import * as evaljs from "evaljs"
 
 
 
-    saveDocument() {
-        const prose = this.root.querySelector("#prose-editor");
+
+    dropVarsFromProseJsonContent(proseJsonContent, variablesPath) {
+        if(!_.size(variablesPath)) return proseJsonContent;
+        _.map(variablesPath,(v)=>{_.set( proseJsonContent, v + ".content", [])})
+        return proseJsonContent;
     }
 
 
-    _dropVarValuesFromProseDocumentJson( inputData ) {
 
-        // First hit
-        if(!_.trim(inputData)) inputData = this.proseJsonContent;
+    saveTemplate(e) {
 
-        // FZ: refaire avec while bon récursif, jusqu'à fin doc, drop all text values
-
-        _.forEach(inputData.content, (v,k)=>{
-            if(_.size(_.get(v, "content", {}))) {
-                if( v.type === "variable" ) {
-                    if(_.trim(_.get(v, "content[0].text", ""))) v.content[0].text = "";
-                    return v;
-                } else {
-                    return this._dropVarValuesFromProseDocumentJson(v);
-                }
-            }
-        })
-
-    }
-
-
-    saveTemplate() {
         const prose = this.root.querySelector("#prose-editor");
+        const proseJsonContent = prose.editorView.state.doc.toJSON();
+        const variablesPath = this.api.findJsonObjectPathByPropNameAndPropValue( proseJsonContent, "type", "variable" );
+        const proseJsonContentWithoutVars = this.dropVarsFromProseJsonContent(proseJsonContent, variablesPath);
 
-        this.proseJsonContent = prose.editorView.state.doc.toJSON();
-        const proseJsonContentWithoutVars = this._dropVarValuesFromProseDocumentJson();
+        const reportData = {
+            "title" : this.localize('rep',this.language) + " " + _.get( _.head( _.filter( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ), { "id" : this.editedReportDataProvider.getId() } ) ), "form.descr", "" ),
+            "description" : _.trim( this.$.templateDescription.value ),
+            "formId" : this.editedReportDataProvider.getId(),
+            "totalForms": _.size( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ) ),
+            "totalVars": _.size(variablesPath),
+            "totalPages": _.size(proseJsonContent.content),
+            "created": ""+ +new Date(),
+        }
+        reportData.description = _.get(reportData, "description", _.trim(reportData.title))
 
-        console.log(proseJsonContent);
-        console.log(proseJsonContentWithoutVars);
+        if( !_.trim(this.savedDocTemplateId) || _.get(e, "target.dataset.version", "") === "new" ) {
 
-        /*
-        this.api.message().newInstance(this.user).then(newMessageInstance=>{
-            this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "DOC:TEMPLATE:PRINT", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))]} )).then(createMessageResponse => {
-                this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("prose/json"), name: "Give me a name"}).then(newDocumentResponse => {
-                    this.api.document().createDocument(newDocumentResponse).then(createDocumentResponse => {
-                        this.api.document().setAttachment(createDocumentResponse.id, null, proseContent).then(setAttachmentResponse => {
-
-                            setAttachmentResponse
-
-                        })
-                    })
+            this.api.doctemplate().createDocumentTemplate({
+                created: reportData.created,
+                documentType: "template",
+                mainUti:"prose.template.json",
+                name: reportData.title,
+                descr: reportData.description||reportData.title
+            }).then(createDocTemplate => {
+                this.api.doctemplate().setAttachment(createDocTemplate.id, JSON.stringify(proseJsonContentWithoutVars)).then(setAttachment => {
+                    this.confirmSaved();
+                    this.savedDocTemplateId = _.trim(createDocTemplate.id)
                 })
-            })
-        });
-        */
+            });
+
+        }else {
+
+            this.api.doctemplate().getDocumentTemplate(this.savedDocTemplateId).then(docTemplateLastDefinition => {
+                this.api.doctemplate().updateDocumentTemplate(
+                    _.trim(this.savedDocTemplateId),{
+                        created: reportData.created,
+                        documentType: "template",
+                        mainUti:"prose.template.json",
+                        name: reportData.title,
+                        descr: reportData.description||reportData.title,
+                        rev:docTemplateLastDefinition.rev
+                }).then(updateDocTemplate => {
+                    this.api.doctemplate().setAttachment(_.trim(this.savedDocTemplateId), JSON.stringify(proseJsonContentWithoutVars)).then(setAttachment => { this.confirmSaved(); })
+                });
+            });
+
+        }
+
     }
 
 
 
     _refreshContext(e,eventDetails) {
         const prose = this.root.querySelector("#prose-editor")
-
-        // eventDetails.name
-        // eventDetails.expr
-
         prose.applyContext((expr, template, ctx, cache) => {
             return new Promise(function (resolve, reject) {
                 try {
@@ -1688,26 +1813,124 @@ import * as evaljs from "evaljs"
     }
 
 
+    _openTemplateDescriptionDialog() {
+        this.$['template-description-dialog'].open();
+    }
+
+
 
 	newReport(e) {
 		this.editedReportDataProvider = e.detail.dataProvider
 		this.$['prose-editor-dialog'].open()
         const prose = this.root.querySelector("#prose-editor")
-        prose.set("dynamicVars", _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: `dataProvider.getValue("${k}")`} }) );
+        prose.set("dynamicVars", _.sortBy( _.map(this.servicesMap, (v,k)=>{ return {name:k, expr: `dataProvider.getValue("${k}")`} }), "name" ) );
+		this._refreshContext();
+	}
+
+
+	printSubForm(e) {
+		const subFormid = _.trim(e.detail.dataProvider.getId())
+		this.api.form().getForm(subFormid).then(subFormObject=>{
+		    this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
+		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") {
+		            this.printIncapacityForm(subFormObject, subFormTemplateObject);
+		        } else {
+		            // Todo: continue here and print other subforms. Assign default pdf render template ?
+		        }
+		    })
+		})
+	}
+
+
+
+	printIncapacityForm(subFormObject, subFormTemplateObject) {
+
+        console.log(subFormObject)
+        console.log(subFormTemplateObject)
+
+        console.log(this.patient)
+        console.log(this.globalHcp)
+
+        // Docteur Maxime, Patient Julien
+
+        // this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
+        //     this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
+        // });
+
 	}
 
 
 
 	_saveReport() {
-		//Create document with attachment from prose-editor and ...
-        const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
-        this.dispatchEvent(new CustomEvent('new-service', {
-            detail: {
-                ctc: this.currentContact,
-                svc: svc,
-                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-            }, composed: true
-        }));
+
+        this.busySpinner = true;
+
+        const prose = this.root.querySelector("#prose-editor");
+        const proseJsonContent = prose.editorView.state.doc.toJSON();
+        const proseHtmlContent = prose.$.container.innerHTML;
+        const variablesPath = this.api.findJsonObjectPathByPropNameAndPropValue( proseJsonContent, "type", "variable" );
+        const reportData = {
+            "title" : this.localize('rep',this.language) + " " + _.get( _.head( _.filter( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ), { "id" : this.editedReportDataProvider.getId() } ) ), "form.descr", "" ),
+            "description" : _.trim( this.$.templateDescription.value ),
+            "formId" : this.editedReportDataProvider.getId(),
+            "totalForms": _.size( _.get( this.contactsFormsAndDocuments, "[0].forms", [] ) ),
+            "totalVars": _.size(variablesPath),
+            "totalPages": _.size(proseJsonContent.content),
+            "created": ""+ +new Date(),
+        }
+        reportData.description = _.get(reportData, "description", _.trim(reportData.title))
+
+        this.api.message().newInstanceWithPatient(this.user, this.patient).then((newMessageInstance)=>{
+
+            this.api.message().createMessage(_.merge(
+                 newMessageInstance,
+                 {
+                     transportGuid: "DOC:REPORT:ARCHIVE",
+                     recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                     metas: reportData,
+                     toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                     subject: reportData.title + " " + reportData.description
+                 }
+             )).then((createMessageResponse) => {
+                this.api.document().newInstance(
+                    this.user,createMessageResponse,
+                    {
+                        documentType: 'report',
+                        mainUti: this.api.document().uti("application/pdf"),
+                        name: reportData.title + " " + reportData.description
+                    }
+                ).then((newDocumentResponse) => {
+                    this.api.document().createDocument(newDocumentResponse).then((createDocumentResponse) => {
+                        this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
+                            this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createDocumentResponse, pdfFileContent).then(encryptedFileContent =>{
+                                this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
+                                    const svc = this.api.contact().service().newInstance(
+                                        this.user,
+                                        {
+                                            content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
+                                            encryptedContent: encryptedFileContent,
+                                            label: 'document',
+                                            formId: reportData.formId
+                                        }
+                                    );
+                                    this.dispatchEvent(new CustomEvent('new-service', {
+                                        detail: {
+                                            ctc: this.currentContact,
+                                            svc: svc,
+                                            scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
+                                        }, composed: true
+                                    }));
+                                    this.busySpinner = false;
+                                    this._closeReportMenu();
+                                    this.confirmSaved();
+                                }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                            }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                        }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                    }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                }).catch((e)=>{console.log(e);this.busySpinner = false;})
+            }).catch((e)=>{console.log(e);this.busySpinner = false;})
+        }).catch((e)=>{console.log(e);this.busySpinner = false;})
+
     }
 
 
@@ -1721,27 +1944,14 @@ import * as evaljs from "evaljs"
                                     body {margin: 0;}
                                     @page {size: A4; margin: 0; }
 
-                                    article.page {
-                                        width: 210mm;
-                                        height: 283mm;
-                                        padding: 20px;
-                                        overflow:hidden;
-                                    }
                                     :host {
-                                        background: 0 0;
+                                        background:#ffffff;
                                         height: 100%;
                                         width: 100%;
                                         font-family: 'Roboto', sans-serif;
-                                        font-size: 13px;
+                                        font-size: 11px;
                                         min-height: 100vw;
 
-                                    }
-
-                                    .prose-editor-container{
-                                        height: 100%;
-                                        display: flex;
-                                        flex-flow: column nowrap;
-                                        justify-content: space-between;
                                     }
 
                                     .container {
@@ -1751,55 +1961,22 @@ import * as evaljs from "evaljs"
                                     }
 
                                     .page {
-                                        padding: 20px;
+                                        padding: 40px;
                                         outline: 0;
-                                        background: #fefefe;
-                                        border-radius: 3px;
-                                        box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.14),
-                                        0 3px 4px 0 rgba(0, 0, 0, 0.12),
-                                        0 1px 8px 0 rgba(0, 0, 0, 0.20);
-
-                                        width: 555px;
-                                        min-height: 801px;
-                                        transition: height .2s ease-in;
-
+                                        background: #ffffff;
                                         font-family: 'Roboto', sans-serif;
-                                        font-size: 11px;
-
-                                        margin-bottom: 24px;
+                                        font-size: 14px;
+                                        line-height: 2em;
+                                        width: 210mm;
+                                        height: calc(297mm - 40px);
+                                        overflow:hidden;
                                     }
 
-                                    h1 {
-                                        font-size: 1.8em;
-                                        font-weight: bold;
-                                    }
-
-                                    h2 {
-                                        font-size: 1.5em;
-                                        font-weight: bold;
-                                    }
-
-                                    h3 {
-                                        font-size: 1.3em;
-                                        font-weight: bold;
-                                    }
-
-                                    h4 {
-                                        font-size: 1em;
-                                        font-weight: bold;
-                                        text-decoration: underline;
-                                    }
-
-
-                                    h5 {
-                                        font-size: 1em;
-                                        text-decoration: underline;
-                                    }
-
-                                    #editor {
-                                        outline: 0;
-                                        padding: 20px;
-                                    }
+                                    h1 { font-size: 1.8em; font-weight: bold; }
+                                    h2 { font-size: 1.5em; font-weight: bold; }
+                                    h3 { font-size: 1.3em; font-weight: bold; }
+                                    h4 { font-size: 1em; font-weight: bold; text-decoration: underline; }
+                                    h5 { font-size: 1em; text-decoration: underline; }
 
                                     .ProseMirror {
                                         outline: 0;
@@ -1810,43 +1987,24 @@ import * as evaljs from "evaljs"
                                         font-variant-ligatures: none;
                                     }
 
-                                    .ProseMirror pre {
-                                        white-space: pre-wrap;
-                                    }
+                                    .ProseMirror pre { white-space: pre-wrap; }
+                                    .ProseMirror li { position: relative; }
+                                    .ProseMirror .tableWrapper { overflow-x: auto; }
 
-                                    .ProseMirror li {
-                                        position: relative;
-                                    }
-
-                                    .ProseMirror .tableWrapper {
-                                        overflow-x: auto;
-                                    }
                                     .ProseMirror table {
                                         border-collapse: collapse;
                                         table-layout: fixed;
                                         width: 100%;
                                         overflow: hidden;
                                         margin: 0;
+                                        font-size: 11px;
                                     }
 
                                     .ProseMirror td, .ProseMirror th {
                                         vertical-align: top;
                                         box-sizing: border-box;
                                         position: relative;
-                                    }
-
-                                    .ProseMirror .column-resize-handle {
-                                        position: absolute;
-                                        right: -2px; top: 0; bottom: 0;
-                                        width: 4px;
-                                        z-index: 20;
-                                        background-color: #adf;
-                                        pointer-events: none;
-                                    }
-
-                                    .ProseMirror.resize-cursor {
-                                        cursor: ew-resize;
-                                        cursor: col-resize;
+                                        font-size: 11px;
                                     }
 
                                     /* Give selected cells a blue overlay */
@@ -1863,29 +2021,14 @@ import * as evaljs from "evaljs"
                                         min-width: 1em;
                                         border: 1px solid #ddd;
                                         padding: 3px 5px;
+                                        font-size: 11px;
                                     }
 
-                                    .ProseMirror-hideselection *::selection {
-                                        background: transparent;
-                                    }
-
-                                    .ProseMirror-hideselection *::-moz-selection {
-                                        background: transparent;
-                                    }
-
-                                    .ProseMirror-hideselection {
-                                        caret-color: transparent;
-                                    }
-
-                                    .ProseMirror-selectednode {
-                                        outline: 2px solid #8cf;
-                                    }
-
-                                    /* Make sure li selections wrap around markers */
-
-                                    li.ProseMirror-selectednode {
-                                        outline: none;
-                                    }
+                                    .ProseMirror-hideselection *::selection { background: transparent; }
+                                    .ProseMirror-hideselection *::-moz-selection { background: transparent; }
+                                    .ProseMirror-hideselection { caret-color: transparent; }
+                                    .ProseMirror-selectednode { outline: 2px solid #8cf; }
+                                    li.ProseMirror-selectednode { outline: none; }
 
                                     li.ProseMirror-selectednode:after {
                                         content: "";
@@ -1898,88 +2041,6 @@ import * as evaljs from "evaljs"
                                         pointer-events: none;
                                     }
 
-                                    paper-toolbar {
-                                        --paper-toolbar-background: ligh-gray;
-                                    }
-
-                                    paper-dropdown-menu {
-                                        display:block;
-                                        width: 10%;
-                                        height: 40px;
-                                        margin: 0 4px;
-                                        --paper-dropdown-menu-button: {
-                                            height: 40px;
-                                        };
-                                        --paper-dropdown-menu-input: {
-                                            height: 40px;
-                                        };
-                                        --paper-input-container: {
-                                            height: 40px;
-                                        };
-                                        --paper-input-container-input: {
-                                        }
-                                        --paper-input-container-input-align: center;
-                                    }
-
-                                    .toolbar {
-                                        width: 100%;
-                                        height: 48px;
-                                        min-height: 40px;
-                                        overflow: hidden;
-                                        border-bottom: 1px solid #e0e0e0;
-                                        background: #fff;
-                                        padding: 0;
-                                        display: flex;
-                                        flex-flow: row nowrap;
-                                        align-items: center;
-                                        justify-content: flex-start;
-                                        box-sizing: border-box;
-                                        padding: 0 8px;
-                                    }
-
-                                    .scroll-area {
-                                        flex-grow: 1;
-                                        width: 100%;
-                                        height: 100%;
-                                        overflow: auto;
-                                        position: relative;
-                                        background: var(--app-background-color);
-                                        min-height:calc(100vh - 400px);
-                                    }
-
-                                    .status-bar {
-                                        width: 100%;
-                                        height: 38px;
-                                        bottom: 0;
-                                        overflow: hidden;
-                                        padding-top: 5px;
-                                        padding-bottom: 5px;
-
-                                        border-top: 1px solid #e0e0e0;
-                                        border-bottom: 1px solid #e0e0e0;
-                                    }
-
-                                    paper-icon-button:hover{
-                                        color: var(--app-text-color);
-                                        background: --app-background-color-dark;
-                                    }
-
-                                    paper-icon-button{
-                                        color: var(--app-text-color-disabled);
-                                        border-radius: 50%;
-                                        transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
-                                    }
-
-                                    paper-icon-button[active] {
-                                        color: var(--app-text-color);
-                                    }
-
-                                    paper-input.zoom {
-                                        padding-left: 8px;
-                                        width: 60px;
-                                        height: 40px;
-                                    }
-
                                     .divider{
                                         display: block;
                                         border-left: 1px solid #e0e0e0;
@@ -1988,21 +2049,13 @@ import * as evaljs from "evaljs"
                                         padding: 0;
                                     }
 
-                                    .dropdown-content paper-item {
-                                        cursor: pointer;
-                                    }
-
-                                    .ProseMirror table {
-                                        margin: 0;
-                                    }
+                                    .ProseMirror table { margin: 0; }
                                     .ProseMirror th, .ProseMirror td {
                                         min-width: 1em;
                                         border: 1px solid #ddd;
-                                        padding: 3px 5px;
+                                        padding: 15px 10px;
                                     }
-                                    .ProseMirror .tableWrapper {
-                                        margin: 1em 0;
-                                    }
+                                    .ProseMirror .tableWrapper { margin: 1em 0; }
 
                                 </style>
                                 </head>
@@ -2014,18 +2067,25 @@ import * as evaljs from "evaljs"
     }
 
 
+    _closeReportMenu() {
+        this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false
+    }
+
+
     printDocument() {
-
+        this.busySpinner = true;
         const prose = this.root.querySelector("#prose-editor");
-        const proseContent = prose.editorView.state.doc.toString();
-        const proseContainer = prose.$.container;
-        const proseHtmlContent = proseContainer.innerHTML;
-
-        this.api.pdfReport(this._getPdfHeader() + proseHtmlContent + this._getPdfFooter() ).then(pdfFileContent =>{
+        const proseHtmlContent = prose.$.container.innerHTML;
+        this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
             this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
+            this.busySpinner = false;
+            this.$['prose-editor-dialog'].close()
+            this._closeReportMenu();
+        }).catch(() =>{
+            this.busySpinner = false
+            this.$['prose-editor-dialog'].close()
+            this._closeReportMenu();
         });
-
-
     }
 
 }

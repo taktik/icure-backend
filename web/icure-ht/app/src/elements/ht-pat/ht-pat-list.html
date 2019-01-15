@@ -490,6 +490,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 100%;
                     box-sizing: border-box;
                 }
+                #sharePatientDelegationDialog > div.content,
+                #sharingPatientStatus > div.content {
+                    margin-top: 8px;
+                }
 
                 #importPatientStatus {
                     width: 920px;
@@ -815,7 +819,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --vaadin-upload-buttons-primary: {
                         padding: 16px;
                     };
-                    --vaadin-upload-button-add: {#newHcpDialog .buttons *
+                    --vaadin-upload-button-add: {
                         background: var(--app-secondary-color);
                         color: var(--app-text-color);
                     };
@@ -841,10 +845,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div id="selectPatientOption">
                         <div id="selectPatientOption_back" on-tap="_deselectAllSelectedPatients">
                             <iron-icon icon="vaadin:arrow-left"></iron-icon>
-                            <span>Back</span>
+                            <span>[[localize('can','Cancel',language)]]</span>
                         </div>
                         <div id="selectPatientOption_text">
-                            [[nbPatientSelected]] patient(s) selected
+                            [[nbPatientSelected]] [[localize('pat','Patients',language)]] [[localize('multiple_selected','Selected',language)]]
                         </div>
                     </div>
                 </template>
@@ -956,10 +960,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                             <template is="dom-if" if="[[btnSelectionPatient]]">
                                 <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share patients',language)]]</div>
-                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
-                                </div>
-                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
-                                </div>
+                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]</div>
+                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fus_pat','Fusion patients',language)]]</div>
                             </template>
                             <div class="add-elem-mobile" on-tap="_sharePatientAll">[[localize('share_all_pat','Share all patients',language)]]</iron-icon>
                             </div>
@@ -993,7 +995,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-button>
                                 <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export patients',language)]]
                                 </paper-button>
-                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion patients',language)]]
+                                <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fus_pat','Fusion patients',language)]]
                                 </paper-button>
                             </template>
 
@@ -1031,7 +1033,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="add-patient-dialog" class="dialog">
-            <h2 class="modal-title">Add a patient</h2>
+            <h2 class="modal-title">[[localize('add_pat','Add a patient',language)]]</h2>
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
                     <paper-tab class="adm-tab">
@@ -1283,6 +1285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="sharingPatientStatus">
             <h2 class="modal-title">[[localize("pat_sha_sta","Patient sharing status",language)]]</h2>
             <div class="content">
+                <ht-spinner class="sharePatSpinner" active="[[isSharingPatient]]"></ht-spinner>
                 <vaadin-grid items="[[patientShareStatuses]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
@@ -1684,6 +1687,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     remainingPatientImports: {
                         type: Array,
                         value: []
+                    },
+                    isSharingPatient: {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -2131,6 +2138,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _openImportPatientFromMfDialog() {
+                const vaadinUpload = this.$['vaadin-upload']
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
                 if (this.remainingPatientImports === undefined || this.remainingPatientImports.length === 0) {
                     this.remainingPatientImports = []
                     this.patientImportStatuses = []
@@ -2647,7 +2657,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _statusDetail(status) {
-                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error.message
+                return status.success === null ? 'N/A' : status.success ? 'OK' : status.error && status.error.message || 'NOK'
             }
 
             _statusDetailClass(status) {
@@ -2701,6 +2711,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _sharePatients(patients) {
                 this.set('patientShareStatuses', [])
+                this.set('isSharingPatient',true)
 
                 const hcpId = this.user.healthcarePartyId
                 const delegates = this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id)
@@ -2737,7 +2748,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             return [newStatuses, newTreatedIds]
                         })
-                    )
+                    ).then(()=>this.set('isSharingPatient',false))
                 })
             }
 

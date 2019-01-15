@@ -581,28 +581,55 @@
             aObject.click();
 
             window.URL.revokeObjectURL(urlObject);
+            window.URL.revokeObjectURL(urlObject);
 
         }
 
-        encryptDecryptFileContentByHcpId( encryptOrDecrypt, rawFileContent, hcpId ) {
-            if( !_.trim(encryptOrDecrypt) || !_.trim(rawFileContent) || !_.trim(hcpId) ) return Promise.resolve(null);
-            return new Promise((resolve) => {
-
-                // Imrove from here
-                    // this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-                    // Then get & set attachment passing encKeys
-                    this.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(_.trim(hcpId)).then(encryptedHcPartyKey => {
-                        this.crypto().decryptHcPartyKey(_.trim(hcpId), _.trim(hcpId), _.trim(encryptedHcPartyKey[_.trim(hcpId)]), true).then(importedAESHcPartyKey => {
-                // To here
-
-                        if(_.trim(encryptOrDecrypt).toLocaleLowerCase()==="encrypt") {
-                            this.crypto().AES.encrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
-                        } else {
-                            this.crypto().AES.decrypt(importedAESHcPartyKey.key, rawFileContent).then(encryptedDecryptedFileContent => { resolve(encryptedDecryptedFileContent); })
-                        }
-                    })
+        encryptDecryptFileContentByUserHcpIdAndDocumentObject( encryptOrDecryptMethod, hcpId, documentObject, rawFileContent  ) {
+            if( !_.trim(encryptOrDecryptMethod) || !_.trim(hcpId) || !documentObject || !rawFileContent || typeof this.crypto().AES[_.trim(encryptOrDecryptMethod).toLocaleLowerCase()] !== "function" ) return Promise.resolve(rawFileContent);
+            return this.crypto().decryptAndImportAesHcPartyKeysInDelegations(hcpId, documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length ? documentObject.encryptionKeys : documentObject.delegations).then(decryptedAndImportedAesHcPartyKeys => {
+                let collatedAesKeys = {}; decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
+                return this.crypto().decryptDelegationsSFKs((documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length? documentObject.encryptionKeys: documentObject.delegations)[hcpId], collatedAesKeys, documentObject.id).then(enckeys => {
+                    return new Promise((resolve) => { this.crypto().AES[_.trim(encryptOrDecryptMethod).toLocaleLowerCase()](_.get( _.head(decryptedAndImportedAesHcPartyKeys), "key", undefined ), rawFileContent).then(encryptedDecryptedFileContent => resolve(encryptedDecryptedFileContent)) })
                 })
             })
+
+        }
+        
+        findJsonObjectPathByPropNameAndPropValue( inputData, propName, propValue ) {
+          this.variablesPath = []; this.propName = propName; this.propValue = propValue;
+          this.browseObject(inputData);
+          return this.variablesPath;
+        }
+
+        browseObject(inputData, sub="") {
+            if (inputData && typeof inputData === "object") {
+              if (Array.isArray(inputData)) { for (let i = 0; i < inputData.length; i++) { this.browseObject(inputData[i], sub + "[" + i + "]"); }
+              } else {
+                for (let p in inputData) {
+                    if ((/^[a-z_$][a-z0-9_$]*$/i).test(p)) {
+                        this.browseObject(inputData[p], sub + "." + p);
+                        if(p===this.propName && inputData[p] === this.propValue ) { this.variablesPath.push(sub.substr(1)); }
+                    } else {
+                        this.browseObject(inputData[p], sub + "[\"" + p + "\"]");
+                    }
+                }
+              }
+            }
+        }
+
+        rewriteTableColumnsWidth(inputContent) {
+            // Ratio between prose editor doc width and A4 pdf impression
+            const ratioFactor = 1.39;
+            // Col group has column width definitions, in relative pxs
+            (inputContent.match(/<col style="([^"]*)">/gi)||[]).map(tagMatch=>{
+                (tagMatch.match(/(width:)(\s*)([\d]*)(px)/gi)||[]).map(widthMatch=>{
+                    (widthMatch.match(/(\d*)/gi)||[]).map(widthValue=>{
+                        if(parseInt(widthValue)) { inputContent = inputContent.replace( tagMatch, tagMatch.replace(widthMatch, widthMatch.replace(widthValue, Math.floor(widthValue*ratioFactor) ) ) ); }
+                    });
+                });
+            })
+            return inputContent;
         }
 
     }

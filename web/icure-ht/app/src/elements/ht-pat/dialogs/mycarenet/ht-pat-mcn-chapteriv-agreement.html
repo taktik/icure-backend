@@ -700,6 +700,12 @@
                 background: #fcdf354d !important;
             }
 
+            @media (max-width: 1025px) {
+                .list-panel {
+                    overflow-x: auto;
+                }
+            }
+
         </style>
 
         <!--<paper-dialog id="dialog" opened="{{opened}}">-->
@@ -1094,6 +1100,9 @@
                         type: Object,
                         value: null,
                         noReset: true
+                    },
+                    patient: {
+                        type: Object
                     },
                     language: {
                         type: String,
@@ -1651,6 +1660,10 @@
             _appendicesChanged() {
                 const files = _.clone(this.appendices)
                 const vaadinUpload = this.root.querySelector('#appendix-upload')
+                if (vaadinUpload){
+                    vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                    vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
+                }
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
                     f.attached = true
