@@ -374,8 +374,7 @@ open class KmehrExport {
                 }
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
-                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
-                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
+                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.4"; value="application" })); this.name = "iCure ${ICUREVERSION}" })
                 }
             }
         }
