@@ -1822,11 +1822,17 @@ import * as evaljs from "evaljs"
 		const subFormid = subFormDataProvider && _.trim(subFormDataProvider.getId())
 		this.api.form().getForm(subFormid).then(subFormObject=>{
 		    this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
-		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") {
-		            this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-		        } else {
-		            // Todo: continue here and print other subforms. Assign default pdf render template ?
-		        }
+
+		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+
+                // Prescription Kine
+                // AEFED10A-9A72-4B40-981B-1D79ADB05516
+
+                // Prescription Nurse
+                // 64DAB551-B007-4B5C-BD64-F886301F5326
+
+		        // Todo: continue here and print other subforms. Assign default pdf render template ?
+
 		    })
 		})
 	}
