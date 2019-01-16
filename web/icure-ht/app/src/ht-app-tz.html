@@ -575,7 +575,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
-                                <paper-button name="diary" on-tap="doRoute">
+                                <paper-button name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
                                     [[localize('diary')]]
                                 </paper-button>
@@ -600,10 +600,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                 [[localize('msg')]]
                             </paper-tab>
-                            <paper-button name="diary" on-tap="doRoute">
+                            <paper-tab name="diary" on-tap="checkAndLoadMikrono">
                                 <iron-icon icon="vaadin:calendar"></iron-icon>
                                 [[localize('diary')]]
-                            </paper-button>
+                            </paper-tab>
                         </paper-tabs>
                         <div class="log-info">
                             <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
@@ -1940,6 +1940,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _tuto(){
                 this.$['tutorialDialog'].open()
+            }
+
+            checkAndLoadMikrono(){
+                if(this.user){
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+
+                        const applicationTokens = this.user.applicationTokens
+                        const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                        const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                        const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
+
+                        if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                        }else{
+                            const addresses = hcp && hcp.addresses || null
+                            const workAddresses = addresses.find(adr => adr.addressType === "work") || null
+                            const telecoms = workAddresses && workAddresses.telecoms
+                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+                            const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
+
+                            if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
+                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+
+                                    const mikronoUrl = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                                    const mikronoUser = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                                    const mikronoPassword = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+                                    if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                                        window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                    }
+                                })
+                            }
+                        }
+
+                    })
+                }
             }
 
         }
