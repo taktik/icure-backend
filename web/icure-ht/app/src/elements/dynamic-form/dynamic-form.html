@@ -166,7 +166,9 @@
 					<span>[[displayedTitle]]</span>
 					<slot name="titlebar"></slot>
 					<div>
-					<dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
+					<template is="dom-if" if="[[_shouldDisplayTypes(readOnly, subcontactType)]]">
+						<dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
+					</template>
 					<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
 					<paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
 						<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
@@ -367,6 +369,10 @@
 
 			constructor() {
 				super();
+			}
+
+			_shouldDisplayTypes(readOnly, typesList) {
+				return !readOnly && typesList && typesList.length
 			}
 
 			_showEdit() {
