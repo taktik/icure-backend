@@ -1829,11 +1829,12 @@ import * as evaljs from "evaljs"
 
 
 	printSubForm(e) {
-		const subFormid = _.trim(e.detail.dataProvider.getId())
+		const subFormDataProvider = _.get(e.detail, "dataProvider", false );
+		const subFormid = subFormDataProvider && _.trim(subFormDataProvider.getId())
 		this.api.form().getForm(subFormid).then(subFormObject=>{
 		    this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
 		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") {
-		            this.printIncapacityForm(subFormObject, subFormTemplateObject);
+		            this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 		        } else {
 		            // Todo: continue here and print other subforms. Assign default pdf render template ?
 		        }
@@ -1842,20 +1843,132 @@ import * as evaljs from "evaljs"
 	}
 
 
+    _getA5PdfHeader() {
 
-	printIncapacityForm(subFormObject, subFormTemplateObject) {
+        return `
+            <html>
+                <head>
+                    <style>
+
+                        @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; font-family: Arial, Helvetica, sans-serif; }
+                        body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+                        .page { width: 148mm; height: 230mm; overflow:hidden; color:#000000; font-size:19px; margin-top:23mm; margin-left:31mm; /* border:1px solid #000; */ font-family: Arial, Helvetica, sans-serif; }
+
+                        p {margin-top:0}
+
+                        .alignCenter {text-align: center;}
+                        .alignLeft {text-align: left;}
+                        .alignRight {text-align: right;}
+
+                        .bold { font-weight:700 }
+                        .italic { font-style: italic }
+                        .fs1em { font-size:1em; } .fs11em { font-size:1.1em; } .fs12em { font-size:1.2em; } .fs13em { font-size:1.3em; } .fs14em { font-size:1.4em; } .fs15em { font-size:1.5em; } .fs16em { font-size:1.6em; } .fs17em { font-size:1.7em; } .fs18em { font-size:1.8em; } .fs19em { font-size:1.9em; } .fs2em { font-size:2em; }
+
+                        .mt0 {margin-top: 0px!important;} .mt1 {margin-top: 1px!important;} .mt2 {margin-top: 2px!important;} .mt3 {margin-top: 3px!important;} .mt4 {margin-top: 4px!important;} .mt5 {margin-top: 5px!important;} .mt10 {margin-top: 10px!important;} .mt15 {margin-top: 15px!important;} .mt20 {margin-top: 20px!important;}
+                        .mr0 {margin-right: 0px!important;} .mr1 {margin-right: 1px!important;} .mr2 {margin-right: 2px!important;} .mr3 {margin-right: 3px!important;} .mr4 {margin-right: 4px!important;} .mr5 {margin-right: 5px!important;} .mr10 {margin-right: 10px!important;} .mr15 {margin-right: 15px!important;} .mr20 {margin-right: 20px!important;}
+                        .mb0 {margin-bottom: 0px!important;} .mb1 {margin-bottom: 1px!important;} .mb2 {margin-bottom: 2px!important;} .mb3 {margin-bottom: 3px!important;} .mb4 {margin-bottom: 4px!important;} .mb5 {margin-bottom: 5px!important;} .mb10 {margin-bottom: 10px!important;} .mb15 {margin-bottom: 15px!important;} .mb20 {margin-bottom: 20px!important;}
+                        .ml0 {margin-left: 0px!important;} .ml1 {margin-left: 1px!important;} .ml2 {margin-left: 2px!important;} .ml3 {margin-left: 3px!important;} .ml4 {margin-left: 4px!important;} .ml5 {margin-left: 5px!important;} .ml10 {margin-left: 10px!important;} .ml15 {margin-left: 15px!important;} .ml20 {margin-left: 20px!important;}
+
+                        .pt0 {padding-top: 0px!important;} .pt1 {padding-top: 1px!important;} .pt2 {padding-top: 2px!important;} .pt3 {padding-top: 3px!important;} .pt4 {padding-top: 4px!important;} .pt5 {padding-top: 5px!important;} .pt10 {padding-top: 10px!important;} .pt15 {padding-top: 15px!important;} .pt20 {padding-top: 20px!important;}
+                        .pr0 {padding-right: 0px!important;} .pr1 {padding-right: 1px!important;} .pr2 {padding-right: 2px!important;} .pr3 {padding-right: 3px!important;} .pr4 {padding-right: 4px!important;} .pr5 {padding-right: 5px!important;} .pr10 {padding-right: 10px!important;} .pr15 {padding-right: 15px!important;} .pr20 {padding-right: 20px!important;}
+                        .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;}
+                        .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;}
+
+                        .doctorDetails { padding-left:15px; padding-right:15px; border:1px solid #000000; font-size:.9em; }
+
+                    </style>
+                    </head>
+                    <body>
+        `
+    }
+
+
+	printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+        this.busySpinner = true;
+
+        const patientName = _.compact([
+            (_.trim(_.get(this.patient, "gender", "")) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) : "" : "" ),
+            _.get(this.patient, "lastName", ""),
+            _.get(this.patient, "firstName", "")
+        ]).join(" ");
+
+        const downloadFileName = _.kebabCase(_.compact([this.localize("certificate_stop_activity",this.language),patientName,+new Date()]).join(" ")) + ".pdf"
+        const hcpAddress = _.chain(this.globalHcp.addresses).filter({"addressType":"work"}).head().value()
+
+        const subFormServiceNameAndValues = _.compact(
+            _.map(
+                (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
+                    return _.size(v) && {
+                        name: k,
+                        value: subFormDataProvider.getValue(k),
+                        valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
+                    }
+                }
+            )
+        )||[]
+
+        const incapacityStart = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"du" })), "valueObject.fuzzyDateValue", ""))+""
+        const incapacityEnd = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"au" })), "valueObject.fuzzyDateValue", ""))+""
+        let incapacityDuration = incapacityStart && incapacityEnd ? moment(incapacityEnd).diff(moment(incapacityStart), "days") : "-"
+        const incapacityPartiallyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"reprise d'activité partielle" })), "valueObject.fuzzyDateValue", ""))+""
+        const incapacityCompletelyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"totale" })), "valueObject.fuzzyDateValue", ""))+""
+        const includedExcludedLabel = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", "inclus") !== "null" ? _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", "inclus") : this.localize("included",this.language)
+        const doctorComment = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Commentaire" })), "value", "") )
+
+        if(includedExcludedLabel.toLowerCase() === "inclus" || includedExcludedLabel.toLowerCase() === "included" || includedExcludedLabel.toLowerCase() === "inbegrepen" ) incapacityDuration = parseInt(incapacityDuration) ? incapacityDuration+1 : 1;
 
         console.log(subFormObject)
         console.log(subFormTemplateObject)
+        console.log(subFormServiceNameAndValues)
 
-        console.log(this.patient)
-        console.log(this.globalHcp)
+        const pdfContent = `
+            <div class="page">
+                <p>` + this.localize("certificate_stop_activity",this.language) + `</p>
+                <p>` + this.localize("date",this.language) + `: ` + moment().format('DD/MM/YYYY') + `</p>
+                <p class="italic">` + this.localize("csa_txt001",this.language) + `:</p>
+                <p class="bold fs15em mt15 mb20">` + patientName + `</p>
+                <p>
+                    ` + this.localize("csa_txt002",this.language) + `:<br />` +
+                    _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", "-") + `
+                </p>
+                <p>
+                    ` + this.localize("csa_txt003",this.language) + `:<br />` +
+                    _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"autres" })), "value", "-")) + `
+                </p>
+                <p>
+                    ` + this.localize("csa_txt004",this.language) + `: ` + incapacityDuration + ` ` + this.localize("days",this.language) + `<br />
+                    ` +
+                        this.localize("from2",this.language) + ` ` +
+                        ( incapacityStart ? moment(incapacityStart).format("DD/MM/YYYY") : "-" ) + ` ` +
+                        this.localize("till",this.language) + ` ` +
+                        ( incapacityEnd ? moment(incapacityEnd).format("DD/MM/YYYY") : "-" ) + ` ` +
+                        includedExcludedLabel + `
+                </p>
+                <p>` + this.localize("csa_txt005",this.language) + `: ` + _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Sortie" })), "value", "-") + `</p>
+                <p>` +
+                        this.localize("csa_txt006",this.language) + `: ` +
+                        ( incapacityPartiallyFinished ? moment(incapacityPartiallyFinished).format("DD/MM/YYYY") : "-" ) + ` ` +
+                        this.localize("csa_txt007",this.language) + ` ` +
+                        _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "value", "100") +`%` + `
+                        ` + ( incapacityCompletelyFinished ? "<br />" + this.localize("csa_txt010",this.language) + ": " + moment(incapacityCompletelyFinished).format("DD/MM/YYYY") : "" ) + `
+                </p>` +
+                ( doctorComment ? "<p>" + doctorComment + "</p>"  : "" ) + `
+                <p class="mb5" style="margin-top: 20mm;">` + this.localize("csa_txt008",this.language) + `</p>
+                <div class="doctorDetails">
+                    <p class="mb3 mt5">` + this.localize("csa_txt009",this.language) + ` ` + _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase() + ` ` + _.trim( _.get(this.globalHcp, "firstName", "") ) + `</p>
+                    <p class="mb3">`+ _.trim( _.get(hcpAddress, "street", "") ) +`` + (_.trim( _.get(hcpAddress, "houseNumber", "") ) ? ", " + _.trim( _.get(hcpAddress, "houseNumber", "") ) : "" ) + `` + (_.trim( _.get(hcpAddress, "postboxNumber", "") ) ? "/" + _.trim( _.get(hcpAddress, "postboxNumber", "") ) : "" ) + `</p>
+                    <p class="mb3">`+ _.trim( _.get(hcpAddress, "postalCode", "") ) +` `+ _.trim( _.get(hcpAddress, "city", "") ) +`</p>
+                    <p class="mb5">`+ this.localize("inami",this.language) + `: ` + this.api.formatRawInamigWithHyphens(_.trim(_.get(this.globalHcp, "nihii", ""))) +`</p>
+                </div>
+            </div>
+        `
 
-        // Docteur Maxime, Patient Julien
-
-        // this.api.pdfReport(this._getPdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
-        //     this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
-        // });
+        this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter() ).then(pdfFileContent =>{
+            this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
+            this.busySpinner = false;
+            this._closeReportMenu();
+        }).catch(()=>{this.busySpinner = false;this._closeReportMenu();});
 
 	}
 
