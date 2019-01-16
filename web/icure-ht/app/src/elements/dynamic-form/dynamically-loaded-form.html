@@ -673,7 +673,6 @@
                         if (!this.currentContact) {
                             return;
                         }
-                        this.flushSave();
 
                         const id = form.id;
                         const subContacts = this.currentContact.subContacts.filter(sc => sc.formId === id);
@@ -695,8 +694,12 @@
                         if( parseInt( _.get(form, "id", 0) ) ) {
                             this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
                                 this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
+                                this.flushSave();
                             });
+                        } else {
+                            this.flushSave();
                         }
+
                     }.bind(this),
                     getId: () => form.id,
                     deleteSubForm: (key, id) => {
