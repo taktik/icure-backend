@@ -245,7 +245,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.document().getDocument(docId).then(doc => {
             this.set('document', doc)
             if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
-                this.crypto.extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
                 ).then(({extractedKeys: enckeys}) => {
                     const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
                     console.log('url is', url)
