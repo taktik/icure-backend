@@ -96,7 +96,7 @@
         <paper-dropdown-menu close-on-activate="false" label="[[title]]" horizontal-align="left">
             <paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}"
                 selected-item="{{dbServerObject}}">
-                <paper-item data-server$="[[localUrl]]">[[localize("local","Local",language)]]</paper-item>
+                <paper-item data-server$="[[localUrl]]">[[localize("default","Default",language)]]</paper-item>
                 <template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">
                     <paper-item class="server-item" data-server$="[[server.url]]">
                         <div>

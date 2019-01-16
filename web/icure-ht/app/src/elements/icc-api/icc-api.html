@@ -585,17 +585,18 @@
 
         }
 
+        //TODO check for MH
         encryptDecryptFileContentByUserHcpIdAndDocumentObject( encryptOrDecryptMethod, hcpId, documentObject, rawFileContent  ) {
             if( !_.trim(encryptOrDecryptMethod) || !_.trim(hcpId) || !documentObject || !rawFileContent || typeof this.crypto().AES[_.trim(encryptOrDecryptMethod).toLocaleLowerCase()] !== "function" ) return Promise.resolve(rawFileContent);
             return this.crypto().decryptAndImportAesHcPartyKeysInDelegations(hcpId, documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length ? documentObject.encryptionKeys : documentObject.delegations).then(decryptedAndImportedAesHcPartyKeys => {
                 let collatedAesKeys = {}; decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
-                return this.crypto().decryptDelegationsSFKs((documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length? documentObject.encryptionKeys: documentObject.delegations)[hcpId], collatedAesKeys, documentObject.id).then(enckeys => {
+                return this.crypto().decryptKeyInDelegationLikes((documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length? documentObject.encryptionKeys: documentObject.delegations)[hcpId], collatedAesKeys, documentObject.id).then(enckeys => {
                     return new Promise((resolve) => { this.crypto().AES[_.trim(encryptOrDecryptMethod).toLocaleLowerCase()](_.get( _.head(decryptedAndImportedAesHcPartyKeys), "key", undefined ), rawFileContent).then(encryptedDecryptedFileContent => resolve(encryptedDecryptedFileContent)) })
                 })
             })
 
         }
-        
+
         findJsonObjectPathByPropNameAndPropValue( inputData, propName, propValue ) {
           this.variablesPath = []; this.propName = propName; this.propValue = propValue;
           this.browseObject(inputData);
@@ -630,6 +631,11 @@
                 });
             })
             return inputContent;
+        }
+
+        formatRawInamigWithHyphens(inputContent) {
+            // Split with hyphens (1,6,2,3) unless already has some
+            return inputContent.indexOf("-")>-1 ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
         }
 
     }

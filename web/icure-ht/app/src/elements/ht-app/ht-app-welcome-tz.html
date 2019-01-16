@@ -162,10 +162,10 @@
                         <h1>Welcome</h1>
                         <h2>thank you for joining Topaz</h2>
                         <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
-                            local-url="[[host]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
-                        
+                            local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
                         <ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
-                            server-name="fhc" local-url="[[host-fhc]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+                            server-name="fhc" local-url="[[defaultFhcUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
                     </div>
                     <div>
                         <template is="dom-if" if="[[_isEmpty(allEmptyMsg)]]">
@@ -311,12 +311,12 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             return
 
-        } 
+        }
 
-        Promise.all([this.createUser(), this.replicate()]).then( values => { 
+        Promise.all([this.createUser(), this.replicate()]).then( values => {
 
             if(values[1] && !values[0]) {
-              
+
                 this.set('hidden', true)
 
             } else if (values[0]) {
@@ -333,9 +333,9 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }).catch( err => {
             console.warn(err)
         })
-        
-    } 
-    
+
+    }
+
     createUser() {
 
         const profession = this.get("professionItem")
@@ -391,14 +391,16 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let cloudKey = this.get('cloudKey')
         if (!cloudKey) return
 
-        const url = this.$["servers-list"].getSelectedServerURL()
-
-        return fetch(url + ':16042/replicate',{
+        fetch('http://localhost:16042/replicate',{
             method: "POST",
             headers: {
                 "Content-Type" : "application/json; charset=utf-8"
             },
             body: JSON.stringify( { cloudKey } )
+        }).then( response => {
+            this.set('hidden',true);
+        }).catch( error => {
+            console.error(error)
         })
 
     }
