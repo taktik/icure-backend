@@ -3075,6 +3075,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const unclosedContact = ctcs.find(c => !c.closingDate)
                         const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs
+                        const allCtcs = _.orderBy(ctcs,'openingDate','desc')
+                        const latestContact = allCtcs[0]
+                        console.log('LATEST CONTACT',latestContact)
+
+                        if(this.api.moment(latestContact.openingDate).isBefore(moment().subtract(1,'days'))) {
+                            this.api.contact().modifyContactWithUser(this.user, Object.assign(latestContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))})).then(ctc=>{
+                                console.log('latest edited',ctc)
+                            })
+                        }
 
                         const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
                             acc[s] = true
@@ -3100,16 +3109,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 this.api.contact()
                                     .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
                                     .then(c => this.api.contact().newInstance(this.user, patient, {
-                                        descr: 'Contact du jour',
-                                        userDescr: 'Contact du jour'
+                                        descr: this.api.localize('contact_of_the_day','Contact of the day',this.language),
+                                        userDescr: this.api.localize('contact_of_the_day','Contact of the day',this.language)
                                     })
                                     )
                                 : Promise.resolve(unclosedContact)) ||
                             this.api.contact().newInstance(this.user, patient, {
-                                descr: 'Contact du jour',
-                                userDescr: 'Contact du jour'
+                                descr: this.api.localize('contact_of_the_day','Contact of the day',this.language),
+                                userDescr: this.api.localize('contact_of_the_day','Contact of the day',this.language)
                             })
-                        ).then(newCtc => {
+                        )
+                        .then(newCtc => {
+                            console.log('newCtc',newCtc)
                             const thisYear = moment().year()
 
                             console.log("Before set contacts "+(+new Date() - start))
