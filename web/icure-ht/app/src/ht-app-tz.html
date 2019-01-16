@@ -516,8 +516,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #mikronoErrorDialog{
-                height: 200px;
-                width: 400px;
+                height: 300px;
+                width: 600px;
+
+            }
+
+            .errorMikrono{
                 color: var(--app-status-color-nok);
             }
 
@@ -1224,12 +1228,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-item>
 
         <paper-dialog id="mikronoErrorDialog">
-            <h6>
-                <template is="dom-if" if="[[mikronoError.addresses]]"><h5>- Adresse manquante</h5></template>
-                <template is="dom-if" if="[[mikronoError.workAddresses]]"><h5>- Adresse de type travail manquante</h5></template>
-                <template is="dom-if" if="[[mikronoError.workMobile]]"><h5>- N° de gsm manquant</h5></template>
-                <template is="dom-if" if="[[mikronoError.workEmail]]"><h5>- Email manquant</h5></template>
-                <template is="dom-if" if="[[mikronoError.token]]"><h5>- Token manquant</h5></template>
+            <h3>Erreur lors de la création de votre compte agenda</h3>
+            <div class="errorMikrono">
+                <template is="dom-if" if="[[!mikronoError.addresses]]"><h5>- Adresse manquante</h5></template>
+                <template is="dom-if" if="[[!mikronoError.workAddresses]]"><h5>- Adresse de type travail manquante</h5></template>
+                <template is="dom-if" if="[[!mikronoError.workMobile]]"><h5>- N° de gsm manquant</h5></template>
+                <template is="dom-if" if="[[!mikronoError.workEmail]]"><h5>- Email manquant</h5></template>
+                <template is="dom-if" if="[[!mikronoError.token]]"><h5>- Token manquant</h5></template>
+                <template is="dom-if" if="[[!mikronoError.error]]"><h5>- Erreur lors de la création du compte</h5></template>
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
@@ -1986,13 +1992,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
                                 this.api.bemikrono().register(this.user.id, {}).then(user => {
-
-                                    const mikronoUrl = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
-                                    const mikronoUser = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
-                                    const mikronoPassword = user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
-                                    if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                        window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                    if(user === true){
+                                        const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                                        const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                                        const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+                                        if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                        }
+                                    }else{
+                                        this.set("mikronoError", {
+                                            addresses: addresses ? true : false,
+                                            workAddresses : workAddresses ? true : false,
+                                            workMobile: workMobile ? true : false,
+                                            workEmail : workEmail ? true : false,
+                                            token: applicationTokens.MIKRONO ? true : false,
+                                            error: true
+                                        })
                                     }
+
                                 })
                             }else{
                                 this.set("mikronoError", {
@@ -2000,7 +2017,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     workAddresses : workAddresses ? true : false,
                                     workMobile: workMobile ? true : false,
                                     workEmail : workEmail ? true : false,
-                                    token: applicationTokens.MIKRONO ? true : false
+                                    token: applicationTokens.MIKRONO ? true : false,
+                                    error: false
                                 })
 
                                 this.$['mikronoErrorDialog'].open()
