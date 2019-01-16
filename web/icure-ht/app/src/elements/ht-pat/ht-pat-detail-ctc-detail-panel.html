@@ -2170,7 +2170,7 @@ import * as evaljs from "evaljs"
 
 
     _closeReportMenu() {
-        this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false
+        try{this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false}catch(e){}
     }
 
 
