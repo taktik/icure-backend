@@ -241,29 +241,26 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.documentId || !this.api || !this.user) {
 			return;
 		}
-		const docId = this.documentId;
-		this.api.document().getDocument(docId).then(doc => {
-			this.set('document', doc);
-			if (doc.delegations && Object.keys(doc.delegations).length) {
-				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-					var collatedAesKeys = {};
-					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId);
-                        console.log('url is', url);
-                        this.set('dataUrl', url);
-					});
-				}.bind(this)).catch(() => {
-					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
-					console.log('url is', url);
-					this.set('dataUrl', url);
-				});
-			} else {
-				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
-				console.log('url is', url);
-				this.set('dataUrl', url);
-			}
-		});
+		const docId = this.documentId
+        this.api.document().getDocument(docId).then(doc => {
+            this.set('document', doc)
+            if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
+                this.crypto.extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                ).then(({extractedKeys: enckeys}) => {
+                    const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
+                    console.log('url is', url)
+                    this.set('dataUrl', url)
+                }).catch(() => {
+                    const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
+                    console.log('url is', url)
+                    this.set('dataUrl', url)
+                })
+            } else {
+                const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
+                console.log('url is', url)
+                this.set('dataUrl', url)
+            }
+        })
 	}
 
     _downloadAnnex(e){

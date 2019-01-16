@@ -31,6 +31,8 @@ import org.taktik.icure.entities.Classification;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationLogic;
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -226,6 +228,25 @@ public class ClassificationFacade implements OpenApiFacade{
 		} else {
 			return Response.status(500).type("text/plain").entity("Delegation creation for classification failed.").build();
 		}
+	}
+
+	@ApiOperation(
+			value = "Update delegations in classification",
+			httpMethod = "POST",
+			notes = "Keys must be delimited by coma"
+	)
+	@POST
+	@Path("/delegations")
+	public Response setClassificationsDelegations(List<IcureStubDto> stubs) throws Exception {
+		List<Classification> classifications = classificationLogic.getClassificationByIds(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+		classifications.forEach(classification -> stubs.stream().filter(s -> s.getId().equals(classification.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> classification.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> classification.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> classification.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
+		classificationLogic.updateEntities(classifications);
+
+		return Response.ok().build();
 	}
 
 

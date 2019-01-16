@@ -440,7 +440,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
-                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
@@ -1060,10 +1060,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         (text.match(/^[0-9]+$/) ? this.api.insurance().listInsurancesByCode(text) : this.api.insurance().listInsurancesByName(text))
                             .then(res => res.map(i => ({
                                 'codeId': i.id,
+                                'id': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
                                 'codeId': i.id,
+                                'id': i.id,
                                 'name': this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
@@ -1104,7 +1106,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     localizeContent(e, lng) {
-        return this.api && this.api.contact().localize(e, lng) || "";
+        return this.api && this.api.contact().localize(e, lng) || e;
     }
 
     showAddPersonToCareTeam() {

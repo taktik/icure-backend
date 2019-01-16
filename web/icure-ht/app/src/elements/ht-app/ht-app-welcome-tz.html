@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./ht-app-server-dialog.html">
 
 <link rel="import" href="../../shared-styles.html">
 
@@ -160,6 +161,11 @@
                     <div>
                         <h1>Welcome</h1>
                         <h2>thank you for joining Topaz</h2>
+                        <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
+                            local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
+                        <ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
+                            server-name="fhc" local-url="[[defaultFhcUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
                     </div>
                     <div>
                         <template is="dom-if" if="[[_isEmpty(allEmptyMsg)]]">
@@ -305,27 +311,31 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             return
 
-        } 
+        }
 
-        Promise.all([this.createUser(), this.replicate()]).then( values => { 
+        Promise.all([this.createUser(), this.replicate()]).then( values => {
 
             if(values[1] && !values[0]) {
-              
+
                 this.set('hidden', true)
 
             } else if (values[0]) {
 
                 this.set('hidden', true)
-                return this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
+
+                const currentIcureServerUrl = this.$["icure-servers-list"].getSelectedServerURL()
+                const currentFhcServerUrl = this.$["fhc-servers-list"].getSelectedServerURL()
+
+                this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, icureurl: currentIcureServerUrl, fhcurl: currentFhcServerUrl }, bubbles: true, composed: true }))
 
             }
 
         }).catch( err => {
             console.warn(err)
         })
-        
-    } 
-    
+
+    }
+
     createUser() {
 
         const profession = this.get("professionItem")
@@ -364,7 +374,9 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.credentials.username = this.user.login;
         this.credentials.password = this.user.passwordHash;
 
-        return fetch('http://localhost:16042/create-first-user',{
+        const url = this.$["servers-list"].getSelectedServerURL()
+
+        return fetch(url + ':16042/create-first-user',{
             method: "POST",
             headers: {
                 "Content-Type" : "application/json; charset=utf-8"
@@ -379,12 +391,16 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let cloudKey = this.get('cloudKey')
         if (!cloudKey) return
 
-        return fetch('http://localhost:16042/replicate',{
+        fetch('http://localhost:16042/replicate',{
             method: "POST",
             headers: {
                 "Content-Type" : "application/json; charset=utf-8"
             },
             body: JSON.stringify( { cloudKey } )
+        }).then( response => {
+            this.set('hidden',true);
+        }).catch( error => {
+            console.error(error)
         })
 
     }

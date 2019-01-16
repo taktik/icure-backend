@@ -325,12 +325,17 @@
                                 svc: svc,
                                 plansOfAction: []
                             }
-                            this.api.code().icpcChapters([he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code)]).then(([code]) => code && code.descr && ((he.colour = cc.descr.colour)))
+                            this.api.code().icpcChapters(he.codes.filter(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code))
+								.then(([code]) => {
+								    code && code.descr && ((he.colour = code.descr.colour))
+								})
+								.finally(() => {
+                                    idLinkables.push(svc.id)
 
-							idLinkables.push(svc.id)
+                                    this.splice('healthElements', 0, 0, he)
+                                    this.splice('mainHealthElements', 0, 0, he)
+								})
 
-							this.splice('healthElements', 0, 0, he)
-                            this.splice('mainHealthElements', 0, 0, he)
                         }
                     })
 
@@ -656,7 +661,7 @@
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
                                 template: subForm.template.layout,
 								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
-									.concat(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction'))))
+									.concat(_.compact(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction' && null || null)))))
 									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
                             };
                         });

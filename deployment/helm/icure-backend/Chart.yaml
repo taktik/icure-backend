@@ -1,0 +1,4 @@
+name: icure-backend
+version: 1.0
+apiVersion: v1
+description: iCure Backend

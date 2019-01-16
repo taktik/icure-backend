@@ -516,6 +516,7 @@
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+					<!--<paper-icon-button id="graph_icn" class$="graph [[_activeIconClass(graph)]]" icon="icons:timeline" on-tap="_graphique"></paper-icon-button>-->
 					<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
 
 					<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
@@ -1000,6 +1001,9 @@ import * as evaljs from "evaljs"
 
 			addDocument() {
 				this.set('showAddFormsContainer', false);
+                const vaadinUpload = this.$['vaadin-upload'];
+                vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
+                vaadinUpload.set('i18n.dropFiles.many', this.localize('uplabel','Drop files here...',this.language))
 				this.$['upload-dialog'].open();
 			}
 
@@ -1561,32 +1565,32 @@ import * as evaljs from "evaljs"
 				}, {}));
 			}
 
-    _virtualForm(services) {
-		return {id:null, template:{name:'Other services'}}
-	}
+            _virtualForm(services) {
+                return {id: null, template: {name: 'Other services'}}
+            }
 
-	_contactsChanged() {
-		this.set('contactsFormsAndDocuments', []);
-		if (!this.contacts) {
-			return;
-		}
+            _contactsChanged() {
+                this.set('contactsFormsAndDocuments', [])
+                if (!this.contacts) {
+                    return
+                }
 
-				this.set('isLoadingDoc',true)
+                this.set('isLoadingDoc', true)
 
-		const seenForms = {}
-		const formGroups = this.contacts.map(contact => ({
-			ctc: contact,
-			forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-				const serviceIds = sc.services.map(s => s.serviceId);
-				return {
-					id: sc.formId,
-					docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
-				};
-			}), f => -f.created),
-			unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-		}));
+                const seenForms = {}
+                const formGroups = this.contacts.map(contact => ({
+                    ctc: contact,
+                    forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                        const serviceIds = sc.services.map(s => s.serviceId)
+                        return {
+                            id: sc.formId,
+                            docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
+                        }
+                    }), f => -f.created),
+                    unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+                }))
 
-				const climbFormHierarchy = function (formIds, formsCache) {
+                const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
 						forms.forEach(f => {
 							formsCache[f.id] = f;
@@ -1618,7 +1622,14 @@ import * as evaljs from "evaljs"
 						}, [])).sortBy(f=>-f.created).value()
 					});
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
-				}).finally(() => this.set('isLoadingDoc',false));
+				}).finally(() => {
+				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
+                    if (this.contactsFormsAndDocuments.length) { // auto display in list if labresult
+                        if (this.contactsFormsAndDocuments[0].unmappedServices.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes[0].type === "labResult") this._list()
+                        if (this.contactsFormsAndDocuments[0].forms.length && this.contactsFormsAndDocuments[0].forms[0].form && this.contactsFormsAndDocuments[0].forms[0].form.descr.startsWith('Lab')) this._list()
+                    }
+				    this.set('isLoadingDoc',false)
+                });
 			}
 
 			toggleDetailsFiltersPanel() {

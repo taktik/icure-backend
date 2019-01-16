@@ -492,8 +492,8 @@ export class ProseEditor extends Polymer.Element {
                 let prom : Promise<{node: Node, pos: number, ctx:{ [key: string] : any }} | undefined> = Promise.resolve(undefined)
                 node.forEach((child, pos, idx) => {
                   prom = prom.then(selected => {
-                      return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx)) //Execute template function on current ctx
-                          .then((subCtx:any) => subCtx[0] ? subCtx[idx] : subCtx)) //and select idxth element from the result
+                    return selected || detect(child, absPos+1+pos, () => lazyCtx().then(ctx => ctxFn(node.attrs.expr, undefined, ctx)) //Execute template function on current ctx
+                      .then((subCtx:any) => subCtx[0] ? subCtx[idx] : subCtx)) //and select idxth element from the result
                   })
                 })
                 return prom
