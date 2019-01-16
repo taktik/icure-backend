@@ -123,6 +123,12 @@
                 flex-grow: 1;
             }
 
+            .ctc-header paper-button {
+                background: var(--app-secondary-color);
+                height: 24px;
+                margin: 12px 36px;
+            }
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
@@ -514,12 +520,6 @@
                 width:200px;
                 height:200px;
 			}
-            
-            paper-button.closeCtc {
-                background: var(--app-secondary-color);
-                height: 24px;
-                margin: 12px 36px;
-            }
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -549,7 +549,7 @@
 				<template is="dom-if" if="[[list]]">
                     <div class="ctc-header">
                         <span class="contact-title"></span>
-                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                        <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
                     </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
@@ -557,7 +557,9 @@
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">
                         <span class="contact-title"></span>
-                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
                     </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
@@ -565,7 +567,9 @@
 				<template is="dom-if" if="[[graphique]]">
                     <div class="ctc-header">
                         <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-                        <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
                     </div>
 				</template>
 				<template is="dom-if" if="[[doc]]">
@@ -573,7 +577,9 @@
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
                             <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-                            <paper-button class="closeCtc" on-tap="_closeContact">[[localize('clo','Close',language)]]</paper-button>
+                            <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
                         </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
@@ -1505,6 +1511,13 @@ import * as evaljs from "evaljs"
 			saveCurrentContact() {
 				return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 			}
+
+			forceSaveCtc() {
+                this.api.contact().modifyContactWithUser(this.user, this.currentContact).then(modified=>{
+                    console.log('modified ?',modified)
+                    this.flushSave()
+                })
+            }
 
     _reportTemplateSelected(e, reportTemplate) {
 
