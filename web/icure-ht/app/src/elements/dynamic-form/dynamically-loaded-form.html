@@ -889,10 +889,11 @@
 
                     const scs = this.currentContact.subContacts.find(sc => sc.formId === e.detail.formId)
 
-					if(scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+					if(scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
                         scs.tags.splice(scs.tags.indexOf(scs.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
                         scs.tags.push(e.detail.type.type);
 					}else{
+                        scs.tags = scs.tags || []
                         scs && scs.tags.push(e.detail.type.type);
 					}
 
