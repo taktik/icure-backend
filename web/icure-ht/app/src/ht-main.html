@@ -874,7 +874,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             list == 'labResults' ? this.labResults :
             list == 'services' ? this.services :
             []
-        const ordered = _.orderBy(target,sort,'desc')
+        const dir = sort =='created' || sort =='startTime' || sort == 'service.valueDate' || sort == 'access.date' ?
+            'desc' : 'asc'
+        const ordered = _.orderBy(target,sort,dir)
         this.set(list,ordered)
     }
 

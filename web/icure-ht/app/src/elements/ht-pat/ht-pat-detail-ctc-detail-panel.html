@@ -548,15 +548,17 @@
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
                     <div class="ctc-header">
-                        <span class="contact-title"></span>
-                        <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
                     </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
 				</template>
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">
-                        <span class="contact-title"></span>
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                             <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
                         </template>
@@ -566,7 +568,7 @@
 				</template>
 				<template is="dom-if" if="[[graphique]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                             <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
                         </template>
@@ -576,10 +578,10 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+                            <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
-                        </template>
+                                <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            </template>
                         </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
