@@ -562,8 +562,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('last_edi','last edit',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="accessLogs" sort="access.date">[[localize('last_edi','last edit',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
@@ -592,9 +592,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell">[[localize('type','Type',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('hour','Hour',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="type">[[localize('type','Type',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="appointments" sort="startTime">[[localize('hour','Hour',language)]]</div>
 							</div>
 							<div class="consultations-list">
 								<template is="dom-repeat" items="[[appointments]]" as="appointment">
@@ -630,9 +630,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell">[[localize('pat_ident','Patient',language)]]</div>
-								<div class="card-header-cell lab-name">[[localize('boxtitle.labResult','Laboratory',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('boxtitle.labResult','Laboratory',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
@@ -660,9 +660,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date',language)]]</div>
-								<div class="card-header-cell">[[localize('des','Description',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="services" sort="service.valueDate">[[localize('due_dat','Due date',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="service.content.language.stringValue">[[localize('des','Description',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[services]]" as="service">
 								<paper-listbox>
@@ -857,6 +857,23 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		window.addEventListener('resize', this.handleResize.bind(this))
 		this.setFromSavedLayout()
 
+    }
+
+    _sortList(e) {
+	    const list = e.target.getAttribute('list')
+        const sort = e.target.getAttribute('sort')
+        const target =
+            list == 'accessLogs' ? this.accessLogs :
+            list == 'appointments' ? this.appointments :
+            list == 'labResults' ? this.labResults :
+            list == 'services' ? this.services :
+            []
+        const ordered = _.orderBy(target,sort,'desc')
+        this.set(list,ordered)
+    }
+
+    replaceAll(target,search, replacement) {
+        return target.split(search).join(replacement);
     }
 
     apiReady() {

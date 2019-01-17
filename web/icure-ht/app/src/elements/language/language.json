@@ -1,5 +1,7 @@
 {
   "en": {
+    "del" : "Delete",
+    "name": "Name",
     "Apr":"Apr",
     "Aug":"Aug",
     "Dec":"Dec",
@@ -624,6 +626,8 @@
     "revoke_tl":"Revoke therapeutic link",
     "ris": "Risks",
     "risk": "Risk",
+    "less_login_options" : "Less login options",
+    "more_login_options" : "More login options",
     "sav": "SAVED",
     "save": "Save",
     "save_filter" : "Save filter",
@@ -759,6 +763,7 @@
     "wee": "Weekly",
     "welcome_mess" : "Welcome to the Icure application",
     "widowed" : "widowed",
+    "will_refresh": "this page will refresh",
     "work":"Work",
     "xml_files": "(XML files)",
     "you_hav_bee_log_out": "You have been logged out.",
@@ -775,7 +780,15 @@
     "has_k":"Has physiotherapist subscription",
     "has_i":"Has nurse subscription",
     "invoicingExport":"Invoicing download",
-    "print":"Print"
+    "print":"Print",
+    "saved_template": "Template saved",
+    "template_description": "Template name / description",
+    "save_current_version": "Overwrite current version",
+    "save_new_version": "Save NEW version",
+    "sav_temp": "Save template",
+    "load_temp": "Load template",
+    "creation": "Creation",
+    "template": "Template"
   },
   "fr": {
     "AFF" : "N° d'affiliation",
@@ -1478,6 +1491,8 @@
     "revoke_tl":"Révoquer lien thérapeutique",
     "ris": "Facteurs de risque",
     "risk": "Facteur de risque",
+    "less_login_options" : "Moins d'options de connection",
+    "more_login_options" : "Plus d'options de connection",
     "sav": "SAUVÉ",
     "save": "Enregistrer",
     "save_filter": "Sauvegarder le filtre",
@@ -1623,6 +1638,7 @@
     "wee": "hebdomadaire",
     "welcome_mess" : "Bienvenue dans l'application Icure",
     "widowed" : "veuf.ve",
+    "will_refresh": "cette page va se recharger",
     "work":"Travail",
     "xml_files": "(fichiers XML)",
     "write_msg": "Écrivez un message",
@@ -1641,8 +1657,34 @@
     "has_k":"Abonnement kiné",
     "has_i":"Abonnement infi",
     "invoicingExport":"Télécharger la facturation",
-    "print":"Imrpimer"
- },
+    "print":"Imrpimer",
+    "saved_template": "Template enregistrée",
+    "template_description": "Nom / description de votre template",
+    "save_current_version": "Ecraser la version actuelle",
+    "save_new_version": "Enregistrer une NOUVELLE version",
+    "sav_temp": "Sauvegarder la template",
+    "load_temp": "Charger une template",
+    "creation": "Création",
+    "template": "Template",
+
+    "certificate_stop_activity": "Certificat d'interuption d'activité",
+    "csa_txt001": "Je soussigné, Docteur en médecine, certifie avoir intérrogé et examiné personnellement ce jour",
+    "csa_txt002": "et l'avoir reconnu(e) incapable de",
+    "csa_txt003": "pour cause de",
+    "csa_txt004": "pour une durée de",
+    "csa_txt005": "Sortie",
+    "csa_txt006": "Sauf complication la reprise est prévue le",
+    "csa_txt007": "à",
+    "csa_txt008": "Signature et cachet",
+    "csa_txt009": "Dr.",
+    "csa_txt010": "Reprise totale le",
+    "days": "jour(s)",
+    "abrv_male": "M.",
+    "abrv_female": "Mme.",
+    "included": "inclus"
+
+
+  },
   "nl": {
     "AFF" : "Lidnummer",
     "Apr":"apr",
@@ -2352,6 +2394,8 @@
     "risk": "Risicofactor",
     "rsb" : "RSB",
     "rsw" : "RSW",
+    "less_login_options" : "Minder login opties",
+    "more_login_options" : "Meer login opties",
     "sav": "Bewaard",
     "save": "Bewaren",
     "save_filter": "Filter bewaren",
@@ -2496,6 +2540,7 @@
     "wee": "Weekly",
     "welcome_mess" : "Welkom bij de Icure applicatie",
     "widowed" : "widowed",
+    "will_refresh": "deze pagina wordt vernieuwd",
     "work":"Work",
     "xml_files": "(XML files)",
     "yes" : "ja",
@@ -2513,6 +2558,14 @@
     "has_k":"Kine",
     "has_i":"Verpleging",
     "invoicingExport":"Facturatie downloaden",
-    "print":"Afdrukken"
+    "print":"Afdrukken",
+    "saved_template": "Template bewaard",
+    "template_description": "Naam / beschrijving van uw model",
+    "save_current_version": "Bewaard model",
+    "save_new_version": "Bewaard een NIEUWE model",
+    "sav_temp": "Bewaard model",
+    "load_temp": "Model loaden",
+    "creation": "Creatie",
+    "template": "Model"
   }
 }

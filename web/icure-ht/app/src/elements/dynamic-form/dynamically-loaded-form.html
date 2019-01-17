@@ -250,7 +250,7 @@
 				})))
 
             	Promise.all(reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
-					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
+					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls);})
 			}
 
             _prepareDataProvider() {
@@ -325,12 +325,17 @@
                                 svc: svc,
                                 plansOfAction: []
                             }
-                            this.api.code().icpcChapters([he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code)]).then(([code]) => code && code.descr && ((he.colour = cc.descr.colour)))
+                            this.api.code().icpcChapters(he.codes.filter(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code))
+								.then(([code]) => {
+								    code && code.descr && ((he.colour = code.descr.colour))
+								})
+								.finally(() => {
+                                    idLinkables.push(svc.id)
 
-							idLinkables.push(svc.id)
+                                    this.splice('healthElements', 0, 0, he)
+                                    this.splice('mainHealthElements', 0, 0, he)
+								})
 
-							this.splice('healthElements', 0, 0, he)
-                            this.splice('mainHealthElements', 0, 0, he)
                         }
                     })
 
@@ -755,10 +760,13 @@
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
 
                             return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
-                                codeId: code.id, stringValue: code.label[typeLng],
-                                codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
+                                codeId: code.id,
+                                stringValue: code.label[typeLng],
+                                codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || []),
+                                id: code.id,
+                                name: code.label[typeLng]
                             })), sorter));
-                        })).then(responses => _.flatMap(responses)) : Promise.resolve([]);
+                        })).then(responses => _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;
