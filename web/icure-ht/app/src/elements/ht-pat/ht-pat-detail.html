@@ -1822,7 +1822,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
-        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
+        <medication-plan-dialog id="medication_plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
         <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
@@ -2934,8 +2934,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             patientChanged(api, user, patient) {
-                this.$.chapterivdialog && this.$.chapterivdialog.reset()
-
                 this.set('healthTopics', [])
 
                 this.set('healthElements', [])
@@ -2958,6 +2956,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.root.querySelector('#cb_archhelb').opened = false
                 this.root.querySelector('#cb_ishelb').opened = false
                 this.root.querySelector('#cb_frhelb').opened = false
+
+                this.root.querySelector('#medication_plan').reset()
+
 
                 this.set('selectedHealthcareElements', [])
                 this.set('contacts', [])
@@ -4075,7 +4076,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation()
                 e.preventDefault()
 
-                this.$['chapterivdialog'].open()
+                //this.$['chapterivdialog'].open()
             }
 
 
