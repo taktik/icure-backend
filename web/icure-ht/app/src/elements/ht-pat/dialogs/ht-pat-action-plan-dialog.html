@@ -157,13 +157,11 @@
                         <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut*" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
-
                 <template is="dom-if" if="[[isStatusRefusal]]">
                     <div>
                         <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}" readonly="[[readonly]]"></vaadin-text-area>
                     </div>
                 </template>
-
                 <vaadin-form-layout>
                     <vaadin-form-item colspan="2">
                         <template is="dom-if" if="[[isStatusComplete]]">
@@ -171,7 +169,6 @@
                         </template>
                     </vaadin-form-item>
                 </vaadin-form-layout>
-
             </div>
             <div class="buttons">
                 <p class="errmsg">[[errMsg]]</p>
