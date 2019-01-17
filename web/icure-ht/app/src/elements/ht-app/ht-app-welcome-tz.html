@@ -374,9 +374,7 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.credentials.username = this.user.login;
         this.credentials.password = this.user.passwordHash;
 
-        const url = this.$["servers-list"].getSelectedServerURL()
-
-        return fetch(url + ':16042/create-first-user',{
+        return fetch('http://localhost:16042/create-first-user',{
             method: "POST",
             headers: {
                 "Content-Type" : "application/json; charset=utf-8"
