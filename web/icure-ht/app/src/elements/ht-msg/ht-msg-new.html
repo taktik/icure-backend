@@ -7,7 +7,6 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -28,7 +27,7 @@
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <link rel="import" href="../../vaadin-icure-theme.html">
 
@@ -541,7 +540,8 @@
             }
 
             .sendingSpinner {
-                transform: translateY(8px);
+                display: block;
+                float: right;
             }
 
             #success,
@@ -600,6 +600,11 @@
                 }
             }
 
+            ht-spinner{
+                height: 42px;
+                width: 42px;
+            }
+
         </style>
 
         <paper-dialog id="new-msg" >
@@ -622,7 +627,7 @@
                                                           allow-custom-value on-change="_AddDestinations">
                                             <template>[[item.displayName]]</template>
                                         </vaadin-combo-box>
-                                        <paper-spinner class="spinner" active="[[isLoadingDestinations]]" hidden="[[!isLoadingDestinations]]"></paper-spinner>
+                                        <ht-spinner class="spinner" active="[[isLoadingDestinations]]" hidden="[[!isLoadingDestinations]]"></ht-spinner>
                                     </div>
                                 </div>
                             </div>
@@ -632,7 +637,7 @@
                                                   allow-custom-value on-change="_AddSSIN">
                                     <template>[[item.displayName]]</template>
                                 </vaadin-combo-box>
-                                <paper-spinner class="spinner" active="[[isAddingNiss]]" hidden="[[!isAddingNiss]]"></paper-spinner>
+                                <ht-spinner class="spinner" active="[[isAddingNiss]]" hidden="[[!isAddingNiss]]"></ht-spinner>
                             </div>
                         </div>
                     </div>
@@ -698,7 +703,7 @@
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[hideSendBtn]]">[[localize('send','Send',language)]]</paper-button>
                     <template is="dom-if" if="[[isSendingMsg]]">
-                        <paper-spinner class="sendingSpinner" active="[[isSendingMsg]]"></paper-spinner>
+                        <ht-spinner class="sendingSpinner" active="[[isSendingMsg]]"></ht-spinner>
                     </template>
                 </div>
             </div>
@@ -897,7 +902,6 @@
                         this.set('isLoadingDestinations',true)
                         this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
                             .then(hcps => {
-                            console.log(hcps)
                             let setList = []
                             hcps.map(hcp=>{
                                 hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`

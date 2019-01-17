@@ -1,22 +1,22 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
-
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
 
 <link rel="import" href="../pdf-element/pdf-element.html">
-
+<link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="dynamic-doc">
 	<template>
 		<style>
-			paper-spinner.center  {
+			ht-spinner.center  {
 				position: absolute;
 				left: calc(50% - 14px);
 				top: calc(50% - 14px);
+				height: 42px;
+				width: 42px;
 			}
 
 			paper-card.subform-card {
@@ -94,13 +94,6 @@
 				align-self: center;
 			}
 
-			paper-spinner{
-				--paper-spinner-layer-1-color: var(--app-secondary-color);
-				--paper-spinner-layer-2-color: var(--app-primary-color-light);
-				--paper-spinner-layer-3-color: var(--app-secondary-color-dark);
-				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
-			}
-
             .txt-container {
                 width: 100%;
                 margin: 0;
@@ -121,7 +114,7 @@
             <paper-card class="pat-details-card">
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
-                        <paper-spinner class="center" active></paper-spinner>
+                        <ht-spinner class="center" active></ht-spinner>
                     </template>
                     <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                         <span>[[document.name]]</span>
@@ -248,29 +241,26 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.documentId || !this.api || !this.user) {
 			return;
 		}
-		const docId = this.documentId;
-		this.api.document().getDocument(docId).then(doc => {
-			this.set('document', doc);
-			if (doc.delegations && Object.keys(doc.delegations).length) {
-				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-					var collatedAesKeys = {};
-					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
-                        const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId);
-                        console.log('url is', url);
-                        this.set('dataUrl', url);
-					});
-				}.bind(this)).catch(() => {
-					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
-					console.log('url is', url);
-					this.set('dataUrl', url);
-				});
-			} else {
-				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId);
-				console.log('url is', url);
-				this.set('dataUrl', url);
-			}
-		});
+		const docId = this.documentId
+        this.api.document().getDocument(docId).then(doc => {
+            this.set('document', doc)
+            if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
+                this.crypto.extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                ).then(({extractedKeys: enckeys}) => {
+                    const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
+                    console.log('url is', url)
+                    this.set('dataUrl', url)
+                }).catch(() => {
+                    const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
+                    console.log('url is', url)
+                    this.set('dataUrl', url)
+                })
+            } else {
+                const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
+                console.log('url is', url)
+                this.set('dataUrl', url)
+            }
+        })
 	}
 
     _downloadAnnex(e){
@@ -347,20 +337,6 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _getAttachment(){
         this.showDetail = !this.showDetail
-	}
-
-	importPatient(){
-	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
-	        contacts => {
-	            contacts.forEach(contact => {
-					contact.ctcs.forEach(ctc => {
-                        this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-                            console.log(c)
-                            return c
-                        });
-					})
-				})
-			})
 	}
 
 }

@@ -20,6 +20,7 @@ package org.taktik.icure.dao.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -146,7 +147,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 			viewQuery = viewQuery.endKey(endKey);
 		}
 
-		Object passedStartKey = pagination.getStartKey();
+		Object passedStartKey = pagination != null ? pagination.getStartKey() : null;
 		ComplexKey cplxStartKey = null;
 		if (passedStartKey instanceof List) {
 			cplxStartKey = ComplexKey.of(((List) passedStartKey).toArray());
@@ -156,8 +157,10 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 			cplxStartKey = (ComplexKey) passedStartKey;
 		}
 
+		JsonNode node = (cplxStartKey != null) ? cplxStartKey.toJson() : null;
+
 		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page)
-				.nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : cplxStartKey.toJson(), startDocId)).build();
+				.nextKey(new PageRequest.KeyIdPair(node, startDocId)).build();
 
 		Page<T> ts = db.queryForPage(viewQuery, pr, type);
 

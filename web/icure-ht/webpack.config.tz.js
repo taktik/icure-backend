@@ -82,6 +82,9 @@ module.exports = {
             appShell: '/',
             externals: [
                 '/'
+            ],
+            excludes: [
+                'docs/*.pdf','app/docs/*.pdf'
             ]
         })
         ,
@@ -91,7 +94,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             inject: false,
 	        debug: true,
-            template: path.resolve(__dirname, 'app/index.tz.ejs')
+            template: path.resolve(__dirname, 'app/index.tz.ejs'),
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST
@@ -99,6 +102,9 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
+        },{
+            from : path.resolve(__dirname, 'app/docs/*.pdf'),
+            to: 'docs/[name].[ext]'
         }]),
         new Clean(['dist-tz']),
     ],

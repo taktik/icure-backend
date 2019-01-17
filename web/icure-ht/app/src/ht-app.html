@@ -59,18 +59,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
 <link rel="import" href="elements/ht-tools/ht-access-log.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
-<link rel="import" href="elements/ht-app/ht-app-welcome.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
+<link rel="import" href="elements/ht-app/ht-app-welcome.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
+<link rel="import" href="elements/ht-app/ht-app-entities-selector.html">
+<link rel="import" href="elements/ht-app/ht-app-setup-prompt.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
+
+<link rel="import" href="./dialog-style.html">
 
 <dom-module id="ht-app">
 
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles dialog-style">
             :host {
                 display: block;
             }
@@ -397,10 +401,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
+            #ht-invite-hcp .buttons {
+                border-top: 1px solid var(--app-background-color-dark);
+                color: var(--app-text-color-light);
+            }
+            #ht-invite-hcp .buttons * {
+                background: var(--app-secondary-color-dark);
+            }
+
             .formNewHcp {
                 height: 350px;
                 width: 100%;
                 box-sizing: border-box;
+            }
+
+            .formNewHcp paper-input{
+                --paper-input-container-focus-color: var(--app-secondary-color);
             }
 
             .top-gradient {
@@ -464,6 +480,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: white;
             }
 
+            #tutorialDialog{
+                height: 500px;
+                width: 600px;
+            }
+
+            .btnContainer{
+
+            }
 
         </style>
 
@@ -473,10 +497,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              <iron-icon icon="icons:warning"></iron-icon>
          </paper-item>
 
-         <ht-app-welcome id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"></ht-app-welcome>
+        <ht-app-setup-prompt id="setupPrompt"></ht-app-setup-prompt>
+
+        <ht-app-welcome-tz id="welcome" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" hidden="[[!showWelcomePage]]" on-login="login" default-icure-url="[[defaultIcureUrl]]" default-fhc-url="[[defaultFhcUrl]]"></ht-app-welcome-tz>
 
          <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
-                              on-login="login"></ht-app-login-dialog>
+                             on-login="login" default-icure-url="[[defaultIcureUrl]]" default-fhc-url="[[defaultFhcUrl]]"></ht-app-login-dialog>
+
+        <ht-app-entities-selector id="ht-app-account-selector" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" user="[[user]]" entities="[[entities]]" credentials="[[credentials]]" on-redirect-another-entity="_redirectToAnotherEntity"></ht-app-entities-selector>
+
          <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
                                     route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
          <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
@@ -520,6 +549,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <paper-button name="msg" on-tap="doRoute">
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
+                                </paper-button>
+                                <paper-button name="diary" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:calendar"></iron-icon>
+                                    [[localize('diary')]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -583,7 +616,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-tab>
-
+                            <paper-button name="diary" on-tap="doRoute">
+                                <iron-icon icon="vaadin:calendar"></iron-icon>
+                                [[localize('diary')]]
+                            </paper-button>
                             </paper-tabs>
                         </div>
                         <div class="log-info">
@@ -639,6 +675,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_logList">[[localize('acc_log','Access Log',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_tuto">[[localize('tutorial','Tutorial',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_myProfile">
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
@@ -673,14 +710,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg id="ht-msg" name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen></splash-screen>
                     </ht-msg>
+                    <ht-diary name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                        <splash-screen></splash-screen>
+                    </ht-diary>
                     <ht-view404 name="view404"></ht-view404>
                 </iron-pages>
             </app-header-layout>
         </app-drawer-layout>
 
         <paper-dialog id="ht-invite-hcp">
-            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
-            <div id="" class="formNewHcp">
+            <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <div id="" class="content formNewHcp">
                 <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
                 <paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
@@ -706,7 +746,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-button dialog-confirm autofocus class="modal-button modal-button--close" on-tap="_inviteHCP" >[[localize('clo','Close',language)]]</paper-button>
         </paper-dialog>
 
-
+        <paper-dialog id="tutorialDialog">
+            <h3>[[localize('tutorialList','Tutorial list',language)]]</h3>
+            <div id="tutorialContainer">
+                <ul>
+                    <li><a href="../docs/1_1_connexion.pdf" target="_blank">Connexion</a></li>
+                    <li><a href="../docs/1_2_Configuration_du_compte_utilisateur.pdf" target="_blank">Configuration du compte utilisateur</a></li>
+                    <li><a href="../docs/1_3_Configuration_et_importation_du_trousseau_eHealth.pdf" target="_blank">Configuration et importation du trousseau eHealth</a></li>
+                    <li><a href="../docs/1_4_dashboard_first_use.pdf" target="_blank">Tableau de bord</a></li>
+                    <li><a href="../docs/2_1_presentation_generale.pdf" target="_blank">Présentation générale</a></li>
+                    <li><a href="../docs/2_2_creation_et_configuration_patient.pdf" target="_blank">Création et configuration d'un patient</a></li>
+                    <li><a href="../docs/2_3_Partage_de_patients.pdf" target="_blank">Partager un patient</a></li>
+                    <li><a href="../docs/3_1_dossier_complet.pdf" target="_blank">Dossier complet</a></li>
+                    <li><a href="../docs/manuel.pdf" target="_blank">Manuel</a></li>
+                </ul>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
+        </paper-dialog>
 
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>
@@ -802,6 +860,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             msg() {
                                 import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
                             },
+                            diary(){
+                                import(/* webpackChunkName: "ht-diary" */ './ht-diary.html')
+                            },
                             view404() {
                                 import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
                             }
@@ -830,6 +891,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         value: ""
                     },
+                    EhboxCheckingActive: {
+                        type: Boolean,
+                        value: false
+                    },
                     worker: {
                         type: Worker,
                         noReset: true
@@ -844,6 +909,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     showWelcomePage: {
                         type: Boolean,
                         value: false
+                    },
+                    entities:{
+                        type: Array,
+                        value: () => []
+                    },
+                    isMultiUser : {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -862,8 +935,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
-                this.set('icureUrl', params.icureUrl || 'https://backend.prd.icure.cloud/rest/v1')
+                this.set('icureUrl', params.icureUrl || 'https://backend.svc.icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+
+                this.set('defaultIcureUrl', this.icureUrl)
+                this.set('defaultFhcUrl', this.fhcUrl)
+
+            }
+
+            _updateServerUrl(icureurl, fhcurl) {
+
+                if(icureurl) this.set('icureUrl',icureurl)
+                if(fhcurl) this.set('fhcUrl',fhcurl)
+
             }
 
             reset() {
@@ -872,8 +956,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
+            _checkShowWelcomePage() {
+                this.api.icure().isReady().then(ok => {
+                    if (ok === 'false') {
+                        this.set('showWelcomePage', true)
+                        this.$["loginDialog"].disable()
+                        this.$["setupPrompt"].close()
+                    } else if (ok !== 'true') {
+                        this.$["setupPrompt"].close()
+                        this.$["loginDialog"].disable()
+                        setTimeout(() => this._checkShowWelcomePage(), 10000)
+                    }else {
+                        localStorage.setItem('last_app_startup', Date.now().toString())
+                        this.$["loginDialog"].enable()
+                        this.$["setupPrompt"].close()
+                    }
+                }).catch(() => {
+                    if (!localStorage.getItem('last_app_startup')) this.$["setupPrompt"].open()
+                    this.$["loginDialog"].disable()
+                    setTimeout(() => this._checkShowWelcomePage(), 10000)
+                })
+            }
+
             ready() {
                 super.ready()
+
+                this.set("isMultiUser",true)
 
                 const url = new URL(window.location.href)
                 if (!url.hash || !url.hash.startsWith('#/')) {
@@ -887,13 +995,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
-                this.api.icure().isReady().then(ok => {
-                    this.set('showWelcomePage', !ok)
-                })
-
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
+                this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
             }
 
@@ -908,11 +1013,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
-                    if (newTimer > 0) {
-                        this.set('disconnectionTimer', newTimer)
+                    const timeBeforeDeconnection = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
+                    if (timeBeforeDeconnection > 0) {
+                        this.set('disconnectionTimer', timeBeforeDeconnection)
                     } else {
                         const creds = _.clone(this.credentials)
+                        this.set("isMultiUser",true)
                         this.set('routeData.page', 'logout')
                         this.credentials.username = creds.username
                         this.credentials.ehpassword = creds.ehpassword
@@ -920,6 +1026,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }, 10000)
 
+
+                this.sessionInterval && clearInterval(this.sessionInterval)
+                this.sessionInterval = setInterval(() => this.api.user().getCurrentSessionWithSession(this.api.sessionId).then(sessionId => this.api.set('sessionId', sessionId)), 240000)
             }
 
             _timeCheck(period = 30000) {
@@ -942,12 +1051,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
+            _inboxMessageCheck(period = 600000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
                     console.log("First launch, check msgs")
-
+                    this.checkEhboxMessage()
                 } else {
                     console.log("ehbox already active, launch the interval",period)
                     this.timeOutId = setInterval(() => {
@@ -997,7 +1106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _viewChanged(view) {
                 if (view.startsWith('auth')) {
-                    this.$.loginDialog.opened = true
+                    this.$.loginDialog.open()
                     return
                 }
                 if (this.lazyPages[view]) {
@@ -1031,6 +1140,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _myProfile() {
                 this.$['ht-my-profile'].open()
+            }
+
+            _selectEntities(){
+                this.$['ht-app-account-selector'].open()
             }
 
             _getToken() {
@@ -1074,6 +1187,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //Be careful not to use this.api here as it might not have been defined yet
                 //TODD debounce here
                 this.$.api.user().getCurrentUser().then(u => {
+                    if(this.isMultiUser) {
+                        this._selectEntities()
+                    }
+
+                    console.log("test")
+
+                    this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
+
                     this.set('user', u)
                     this.set('connectionTime', +new Date())
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -1083,7 +1204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.loginDialog.opened = false
 
                         this.set('credentials.twofa', null)
-                        this.set('credentials.userId', u.id)
+                    u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
                         this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
                         if ((this.credentials.userId && this.credentials.appToken)) {
@@ -1091,6 +1212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
                         }
                         sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                    localStorage.setItem('last_connection',this.credentials.username)
 
                         if (!this.authenticated) {
                             this.authenticated = true
@@ -1191,7 +1313,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return Promise.resolve(null);
             }
 
-            login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
+            login(event, loginObject) { /* this is called from mouseDown with 2 arguments */
+                this._updateServerUrl( loginObject.icureurl, loginObject.fhcurl )
+
                 this.set('credentials', loginObject && loginObject.credentials)
                 this.loginAndRedirect(loginObject && loginObject.page)
             }
@@ -1255,8 +1379,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad < Date.now() + (10*60000) || lastLoad==-1)
-                console.log('checkEhboxMessage', lastLoad+'<'+Date.now() + (10*60000),shouldLoad)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
                     const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
@@ -1361,10 +1485,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$['ht-invite-hcp-link'].open()
                     })
                 })
-
             }
 
+            _redirectToAnotherEntity(e){
+                if(e.detail){
+                    this.set("isMultiUser",false)
+                    this.$['ht-app-account-selector'].close()
+                    this.login(e, {credentials: e.detail})
+                }
+            }
 
+            _tuto(){
+                this.$['tutorialDialog'].open()
+            }
 
         }
 

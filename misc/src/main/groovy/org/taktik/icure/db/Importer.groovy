@@ -72,9 +72,6 @@ class Importer {
 
         Security.addProvider(new BouncyCastleProvider())
 
-        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
-            tarificationsPerCode[t.code] = t
-        }
     }
 
     void createAttachment(File file, Document d) {
@@ -140,6 +137,9 @@ class Importer {
                   Map<String, List<Contact>> contacts, Map<String, List<HealthElement>> healthElements, Map<String, List<Form>> forms,
                   Collection<Message> messages, Map<String, Collection<String>> messageDocs, Collection<Map> docs, Collection<AccessLog> accessLogs) {
 
+        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
+            tarificationsPerCode[t.code] = t
+        }
         def startImport = System.currentTimeMillis()
 
         print("Importing accessLogs... ")

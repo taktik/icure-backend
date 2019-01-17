@@ -37,7 +37,7 @@
 
         </style>
 
-        <paper-dialog id="accountSelectorDialog" opened="{{opened}}">
+        <paper-dialog id="accountSelectorDialog" opened="{{opened}}" modal>
             <div class="top-gradient">&nbsp;</div>
             <h3>[[localize('select-entities','In which entity do you want to connect',language)]]</h3>
             <vaadin-grid id="entitiesGrid" items="[[entities]]" active-item="{{activeEntity}}">
@@ -107,17 +107,20 @@
                         console.log(ent)
                         this.set("entities", ent)
                     })
-                    .finally(()=> this.entities && this.entities.length > 0 ? this.$['accountSelectorDialog'].open() : null )
+                    .finally(()=> this.entities && this.entities.length > 1 ? this.$['accountSelectorDialog'].open() : null )
             }
 
             _redirectToSelectedEntity(){
                 console.log( this.activeEntity)
                 if(this.activeEntity){
-                    this.set("credentials.username", this.activeEntity && this.activeEntity.groupId ? this.activeEntity.groupId+":"+this.activeEntity.userId : this.activeEntity.userId)
+                    this.set("credentials.username", this.activeEntity && this.activeEntity.groupId ? this.activeEntity.groupId+"/"+this.activeEntity.userId : this.activeEntity.userId)
                     this.dispatchEvent(new CustomEvent('redirect-another-entity', {detail: this.credentials}));
                 }
             }
 
+            close() {
+                this.$['accountSelectorDialog'].close()
+            }
         }
 
         customElements.define(HtAppEntitiesSelector.is, HtAppEntitiesSelector);

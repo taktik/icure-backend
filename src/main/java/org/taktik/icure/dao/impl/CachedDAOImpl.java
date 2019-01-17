@@ -27,6 +27,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.base.StoredDocument;
+import org.taktik.icure.exceptions.BulkUpdateConflictException;
 
 import javax.persistence.PersistenceException;
 import java.io.Serializable;
@@ -194,7 +195,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
         try {
             entities = super.save(newEntity, entities);
-        } catch (UpdateConflictException e) {
+        } catch (UpdateConflictException | BulkUpdateConflictException e) {
             for (T entity:entities) {
                 cache.evict(getFullId(keyManager.getKey(entity)));
             }

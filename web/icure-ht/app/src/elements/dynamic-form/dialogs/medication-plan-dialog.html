@@ -34,16 +34,8 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
-            .patient {
-                height: calc(100% - 48px - 48px);
-                overflow-y: auto;
-                margin-top: 0;
-                padding: 24px;
-                box-sizing: border-box;
-            }
-
-            .present {
-                height: calc(100% - 48px - 48px);
+            .present, .patient {
+                height: 100%;
                 overflow-y: auto;
                 margin-top: 0;
                 padding: 24px;
@@ -701,6 +693,10 @@
                 width: 28px;
             }
 
+            .content{
+                padding: 0;
+            }
+
         </style>
 
         <paper-dialog id="medication-plan" always-on-top="true" no-cancel-on-outside-click="true">
@@ -1154,8 +1150,12 @@
                                         colour: "ATC--J"
                                     }
                                 ]
-                            },
+                            }
                         ]
+                    },
+                    patient : {
+                        type : Object,
+                        value : {}
                     }
                 }
             }
