@@ -2550,10 +2550,12 @@
                         })
                     }
 
+                    const lastPatientAssurance = this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities.find(ass => !ass.endDate && ass.insuranceId != "") || null
+
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl])
-                            .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities[0].insuranceId) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  Promise.resolve([inv[0] || null, null]))
+                            .then(inv => (lastPatientAssurance && lastPatientAssurance.insuranceId ? this.api.insurance().getInsurance(lastPatientAssurance.insuranceId).then(ins => [inv[0] || null, ins || null]) :  Promise.resolve([inv[0] || null, null])))
                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : Promise.resolve([inv, null]))
                             .then(([inv, parentIns]) => {
                             let invoice = inv
@@ -3535,9 +3537,9 @@
                 if(this.activeNmclItem && this.activeNmclItem.id && this.bufferTypeCode && this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.extractedKeys.join(",")
-
+                        const lastPatientAssurance = this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities.find(ass => !ass.endDate && ass.insuranceId != "") || null
                         this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem])
-                            .then(inv => (this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities[0].insuranceId) ? this.api.insurance().getInsurance(this.patient.insurabilities[0].insuranceId).then(ins => [inv[0] || null, ins || null]) :  Promise.resolve([inv[0] || null, null]))
+                            .then(inv => (lastPatientAssurance && lastPatientAssurance.insuranceId ? this.api.insurance().getInsurance(lastPatientAssurance.insuranceId).then(ins => [inv[0] || null, ins || null]) :  Promise.resolve([inv[0] || null, null])))
                             .then(([inv, ins]) => (ins && ins != null) ? this.api.insurance().getInsurance(ins.parent).then(parentIns => [inv, parentIns]) : Promise.resolve([inv, null]))
                             .then(([inv, parentIns]) => {
                             let invoice = inv
