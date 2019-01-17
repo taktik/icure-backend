@@ -404,6 +404,8 @@
 
             _deleteForm() {
                 this.dispatchEvent(new CustomEvent('delete-form', {composed: true, bubbles: true}));
+                // const card = this.root.querySelector('.pat-details-card')
+                // if (card) {card.style.display = 'none'} // prevent user to click delete twice
             }
 
 

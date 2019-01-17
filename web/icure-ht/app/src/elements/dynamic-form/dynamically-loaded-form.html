@@ -691,13 +691,11 @@
                             }
                         });
 
-                        if( parseInt( _.get(form, "id", 0) ) ) {
+                        if( form.formTemplateId ) {
                             this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
                                 this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
-                                this.flushSave();
+                                this.flushSave()
                             });
-                        } else {
-                            this.flushSave();
                         }
 
                     }.bind(this),

@@ -549,7 +549,9 @@
 				<template is="dom-if" if="[[list]]">
                     <div class="ctc-header">
                         <span class="contact-title"></span>
-                        <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
                     </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
@@ -578,8 +580,8 @@
 						<div class="ctc-header">
                             <span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
-                        </template>
+                                <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            </template>
                         </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"

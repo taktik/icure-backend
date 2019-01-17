@@ -3075,20 +3075,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const unclosedContact = ctcs.find(c => !c.closingDate)
                         const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs
-                        const allCtcs = _.orderBy(ctcs,'openingDate','desc')
-                        const latestContact = allCtcs[0]
-                        console.log('LATEST CONTACT',latestContact)
-
-                        if (!latestContact) {
-                            this.api.contact().newInstance(this.user, patient, {
-                                descr: this.localize('contact_of_the_day','Contact of the day',this.language),
-                                userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
-                            })
-                        }else if (this.api.moment(latestContact.openingDate).isBefore(moment().subtract(1,'days'))) {
-                            this.api.contact().modifyContactWithUser(this.user, Object.assign(latestContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))})).then(ctc=>{
-                                console.log('latest edited',ctc)
-                            })
-                        }
 
                         const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
                             acc[s] = true
