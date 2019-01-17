@@ -229,11 +229,16 @@
 
 		<ul>
 		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
-			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
+			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span>
+                <template is="dom-if" if="[[!readOnly]]">
+                    <div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div>
+                </template>
+            </li>
 		</template>
 		</ul>
-
-		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
+        <template is="dom-if" if="[[!readOnly]]">
+		    <paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
+        </template>
 
 	</template>
 	<script>

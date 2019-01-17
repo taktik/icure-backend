@@ -15,7 +15,7 @@
 		<style>
 			:host {
 				position: relative;
-				flex-grow: var(--dynamic-field-width, 100);
+				flex-grow: 1;
 				min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
 				margin: 0 16px;
 			}
@@ -87,7 +87,7 @@
 			</label>
 			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]" read-only="[[readOnly]]"></dynamic-link>
 	</template>
 	<script>
 class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
