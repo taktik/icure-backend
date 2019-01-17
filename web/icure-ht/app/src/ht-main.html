@@ -969,7 +969,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 let results = []
                 cs.forEach(c=>{
                     const svc = c.services.filter(s=> s.label==='labResult')
-                    results.push({patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},created: c.created,descr: c.descr,groupId:c.groupId})
+                    results.push({patient: {name: this.api.contact().preferredContent(svc[0]).stringValue || 'no patient or test',id: this.api.contact().preferredContent(svc[0]).stringValue || '0'},created: c.created,descr: c.descr,groupId:c.groupId})
                 })
                 return _.orderBy(results,'created','desc')
             }).then(results=> {

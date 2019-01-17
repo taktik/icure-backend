@@ -1253,7 +1253,7 @@
                 const t = this.displayedParagraph
                 if (t && mpp) {
                     if (t.service) {
-                        const content = Object.values((t.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[t.paragraph])
+                        const content = Object.values(this.api.contact().preferredContact(t.service, this.language) || {}).find(c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[t.paragraph])
                         content.medicationValue.medicinalProduct = {
                             intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
                             intendedname: mpp.name
@@ -1432,8 +1432,8 @@
             }
 
             _convertedMedications() {
-                return Promise.all((this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)).flatMap(svc => {
-                    const content =  Object.values(svc.content).find(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
+                return Promise.all((this.medications || []).filter(svc => Object.values(this.api.contact().preferredContact(svc,this.language)).some(c => !!c.paragraphAgreements && Object.keys(c.paragraphAgreements).length)).flatMap(svc => {
+                    const content =  Object.values(this.api.contact().preferredContact(svc)).find(c => !!c.paragraphAgreements && Object.keys(c.paragraphAgreements).length)
                     const agreements = content.medicationValue.paragraphAgreements
                     return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { service: svc, paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
                 }).map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => Object.assign(t, {
@@ -1496,7 +1496,7 @@
 
                             if (updatedAgreements.length) {
                                 const services = _.compact(updatedAgreements.map(x => {
-                                    const c = Object.values((x.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[x.paragraph])
+                                    const c = Object.values(this.api.contact().preferredContact(x.service, this.language) || {}).find( c => c && c.paragraphAgreements && c.paragraphAgreements[x.paragraph])
                                     const pa = c && c.medicationValue.paragraphAgreements[x.paragraph]
                                     return pa && Object.assign(pa, _.pickBy(x, (v,k) => !['paragraphInfo','medications','paragraphName','service'].includes(k))) && x
                                 }))
@@ -1607,7 +1607,7 @@
                                 return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                     const svc = this.displayedParagraph.service
                                     if (svc && t.accepted && t.decisionReference && t.end) {
-                                        const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                        const content = Object.values(this.api.contact().preferredContact(svc, this.language) || {}).find( c => c && c.paragraphAgreements && c.paragraphAgreements[this.displayedParagraph.paragraph])
                                         const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                         if (paragraphAgreement) {
                                             Object.assign(paragraphAgreement, {end: res.transaction.end})
@@ -1773,7 +1773,7 @@
                             return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                 const svc = this.displayedParagraph.service
                                 if (svc && t.accepted && t.decisionReference && t.end) {
-                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const content = Object.values(this.api.contact().preferredContact(svc, this.language) || {}).find( c => c && c.paragraphAgreements && c.paragraphAgreements[this.displayedParagraph.paragraph])
                                     const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
                                         Object.assign(paragraphAgreement, {end: t.end})
@@ -1798,7 +1798,7 @@
                             return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                 const svc = this.displayedParagraph.service
                                 if (svc && t.accepted && t.decisionReference) {
-                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const content = Object.values(this.api.contact().preferredContact(svc, this.language) || {}).find( c => c && c.paragraphAgreements && c.paragraphAgreements[this.displayedParagraph.paragraph])
                                     const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
                                         Object.assign(paragraphAgreement, {canceled: true, cancelationDate: +new Date()})

@@ -251,7 +251,8 @@
             }
 
             _getName(svc){
-                return svc && svc.content['medication'] ? svc.content['medication'].medicationValue.medicinalProduct.intendedname : (svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name')
+                const content = svc && this.api.contact().preferredContact(svc, this.language)
+                return content.medicationValue.medicinalProduct.intendedname || content.stringValue
             }
             _timeFormat(date) {
                 return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';

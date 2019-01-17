@@ -240,7 +240,7 @@ class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!e) {
 			return null;
 		}
-		let content = e[lng] || e.fr || e.en || e.nl;
+		let content = this.api.contact().preferredContent(e)
 		return content && { id: id, stringValue: '' + content.stringValue };
 	}
 
