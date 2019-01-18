@@ -112,8 +112,7 @@
 
         </style>
 
-        <tk-token-field label="[[localize(label,label,language)]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="codeId"
-                        data-label-path="stringValue" data-source="[[dedupDataSource]]" always-float-label>
+		<tk-token-field label="[[localize(label,label,language)]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="codeId"  data-label-path="stringValue" data-source="[[dataSource]]" always-float-label read-only="[[readOnly]]" disabled="[[readOnly]]">
 			<span slot="label-suffix">
 				<template is="dom-if" if="[[wasModified]]">
 					<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
