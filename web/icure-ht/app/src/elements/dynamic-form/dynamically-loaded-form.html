@@ -755,20 +755,41 @@
                             }
                         });
                     },
-                    filter: (data, text) => {
-                        return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(data.types.map(ct => {
+                    filter: (data, text, uuid) => {
+						const uuids = (self.uuids || (self.uuids = {}))
+						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
+                        const words = text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+
+                        return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language);
-                            const words = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
 
-                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
-                                codeId: code.id,
-                                stringValue: code.label[typeLng],
-                                codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || []),
-                                id: code.id,
-                                name: code.label[typeLng]
-                            })), sorter));
-                        })).then(responses => _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
+							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
+                                    '$type': 'CodeByRegionTypeLabelLanguageFilter',
+                                    'region': 'be',
+                                    'type': ct.type,
+									'language': typeLng,
+									'label':w
+                                }))}})
+                            .then(results => {
+                                if (reqIdx<uuids[uuid]) {
+                                    return []
+								}
+                                return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                    codeId: code.id,
+                                    stringValue: code.label[typeLng],
+                                    codes: [code].concat(code.links && code.links.map(c => ({
+                                        id: c,
+                                        type: c.split('|')[0],
+                                        code: c.split('|')[1],
+                                        version: c.split('|')[2]
+                                    })) || []),
+                                    id: code.id,
+                                    name: code.label[typeLng]
+                                })), sorter)
+                            });
+
+                        })).then(responses => (reqIdx<uuids[uuid]) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;

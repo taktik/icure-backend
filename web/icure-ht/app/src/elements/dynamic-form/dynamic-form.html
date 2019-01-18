@@ -661,7 +661,7 @@
 			}
 
 			_tokenDataSource(d) {
-				return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }, text) || Promise.resolve([]) } || null;
+				return d && { filter: (text, uuid) => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }, text, uuid) || Promise.resolve([]) } || null;
 			}
 
 			_popupDataSource(d, options) {

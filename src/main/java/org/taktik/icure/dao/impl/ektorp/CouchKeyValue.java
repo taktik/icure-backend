@@ -22,11 +22,21 @@ import org.ektorp.ComplexKey;
 
 public class CouchKeyValue<T> {
 	ComplexKey key;
+	String id;
 	T value;
 
-	public CouchKeyValue(ComplexKey key, T value) {
+	public CouchKeyValue(String id, ComplexKey key, T value) {
+		this.id = id;
 		this.key = key;
 		this.value = value;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public ComplexKey getKey() {
