@@ -1585,7 +1585,7 @@ import * as evaljs from "evaljs"
 						
                         return {
                             id: sc.formId,
-                            docs: contact.services.filter(s => serviceIds.includes(s.id) && (this.api.contact().preferredContent(s).documentId || []).length)
+                            docs: contact.services.filter(s => serviceIds.includes(s.id) && (this.api.contact().preferredContent(s,this.language).documentId || []).length)
                         }
                     }), f => -f.created),
                     unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
