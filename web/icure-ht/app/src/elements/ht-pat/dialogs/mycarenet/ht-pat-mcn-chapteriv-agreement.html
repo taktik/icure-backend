@@ -1253,13 +1253,11 @@
                 const t = this.displayedParagraph
                 if (t && mpp) {
                     if (t.service) {
-                        const content = (this.api.contact().preferredContent(t.service, this.language) || {})
-
-                        if(content && content.medicationValue)
-                        content.medicationValue.medicinalProduct = {
-                            intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
-                            intendedname: mpp.name
-                        }
+                        const content = Object.values((t.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[t.paragraph])
+                            content.medicationValue.medicinalProduct = {
+                                intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
+                                intendedname: mpp.name
+                            }
                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [t.service]}, bubbles: true, composed: true}))
                     }
                 }
@@ -1434,18 +1432,15 @@
             }
 
             _convertedMedications() {
-                return Promise.all((this.medications || []).filter(svc => {
-                    const content = this.api.contact().preferredContent(svc, this.language)
-                    return content.medicationValue && content.medicationValue.paragraphAgreements && Object.keys(content.medicationValue.paragraphAgreements).length
-                })).flatMap(svc => {
-                    const content = this.api.contact().preferredContent(svc, this.language)
-                    const agreements = content.medicationValue && content.medicationValue.paragraphAgreements
+                return Promise.all((this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)).flatMap(svc => {
+                    const content =  Object.values(svc.content).find(c => !!c.medicationValue && !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
+                    const agreements = content.medicationValue.paragraphAgreements
                     return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { service: svc, paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
                 }).map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => Object.assign(t, {
                     paragraphName: this.localizeObjectKey(pi, 'keyString'),
                     medications: (t.medications || []).concat(vtm),
                     paragraphInfo: pi
-                }))).then(agreements => {
+                })))).then(agreements => {
                     this.set('convertedMedications', agreements)
                     return agreements
                 })
@@ -1501,8 +1496,8 @@
 
                             if (updatedAgreements.length) {
                                 const services = _.compact(updatedAgreements.map(x => {
-                                    const c = (this.api.contact().preferredContent(x.service, this.language) || {})
-                                    const pa = c && c.medicationValue && c.medicationValue.paragraphAgreement && c.medicationValue.paragraphAgreements[x.paragraph]
+                                    const c = Object.values((x.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[x.paragraph])
+                                    const pa = c && c.medicationValue.paragraphAgreements[x.paragraph]
                                     return pa && Object.assign(pa, _.pickBy(x, (v,k) => !['paragraphInfo','medications','paragraphName','service'].includes(k))) && x
                                 }))
                                 this.dispatchEvent(new CustomEvent('update-services', {detail: {services: services}, bubbles: true, composed: true}))
@@ -1612,8 +1607,8 @@
                                 return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                     const svc = this.displayedParagraph.service
                                     if (svc && t.accepted && t.decisionReference && t.end) {
-                                        const content = this.api.contact().preferredContent(svc, this.language) || {}
-                                        const paragraphAgreement = content.medicationValue && content.medicationValue.paragraphAgreements && content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                        const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                         if (paragraphAgreement) {
                                             Object.assign(paragraphAgreement, {end: res.transaction.end})
                                             this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
@@ -1778,8 +1773,8 @@
                             return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                 const svc = this.displayedParagraph.service
                                 if (svc && t.accepted && t.decisionReference && t.end) {
-                                    const content = this.api.contact().preferredContent(svc, this.language) || {}
-                                    const paragraphAgreement = content.medicationValue && content.medicationValue.paragraphAgreements && content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
                                         Object.assign(paragraphAgreement, {end: t.end})
                                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
@@ -1803,8 +1798,8 @@
                             return Promise.all(((res || {}) && res.transactions || []).map(t => {
                                 const svc = this.displayedParagraph.service
                                 if (svc && t.accepted && t.decisionReference) {
-                                    const content = this.api.contact().preferredContent(svc, this.language) || {}
-                                    const paragraphAgreement = content.medicationValue && content.medicationValue.paragraphAgreements && content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
                                         Object.assign(paragraphAgreement, {canceled: true, cancelationDate: +new Date()})
                                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
