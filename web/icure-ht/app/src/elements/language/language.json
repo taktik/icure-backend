@@ -1715,9 +1715,10 @@
     "requestForImagingExam_box5_suggestedExams":"Examen(s) proposé(s)",
     "requestForImagingExam_box6_previousExamsRelatedToRequestForImaging":"Examen(s) pertinent(s) précédent(s) relatif(s) à la demande de diagnostic",
     "requestForImagingExam_box7_doctorDetails":"Cachet du médecin prescripteur",
-    "requestForImagingExam_box7_doctorDetailsRemark":"* Cachet du prescripteur avec mention du nom, prénom, adresse et numéro INAMI",
+    "requestForImagingExam_box7_doctorDetailsRemark":"Cachet du prescripteur avec mention du nom, prénom, adresse et numéro INAMI",
     "maleGenderLong": "masculin",
-    "femaleGenderLong": "féminin"
+    "femaleGenderLong": "féminin",
+    "doctorAbreviation": "Dr."
 
   },
   "nl": {
