@@ -849,7 +849,7 @@
                     codes: m.codes,
                     medicationValue:
                     (
-                        this.api.localize(m.content, this.language)  ||
+                        this.api.contact().preferredContent(m, this.language)  ||
                         ( m.content[this.language] =
                                 {
                                     medicationValue: { regimen: [] }

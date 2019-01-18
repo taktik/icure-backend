@@ -2768,6 +2768,14 @@
                     })
                 } else {
                     //Todo manage mandatory fields
+                    let errors = []
+                    !this.patient.ssin ? errors.push({code : "999", msgFr : "Le patient n'a pas de niss"}) : null
+                    !this.api.tokenId ? errors.push({code : "999", msgFr : "Pas de connexion ehealth"}) : null
+                    !this.api.patient().isValidSsin(this.patient.ssin) ? errors.push({code : "999", msgFr : "Niss patient invalide"}) : null
+
+                    this.set("tarificationError", errors)
+                    this.set("isTarificationError", true)
+                    this.set("isNmclVerified", true)
                 }
             }
 
@@ -2907,6 +2915,12 @@
                 }
 
                 if(!this._isSelectedInvoiceEattest()) {
+
+                    if(!this.selectedInvoice.recipientId || this.selectedInvoice.recipientId === ""){
+                        const lastPatientAssurance = this.patient.insurabilities && this.patient.insurabilities.length && this.patient.insurabilities.find(ass => !ass.endDate && ass.insuranceId != "") || null
+                        lastPatientAssurance && lastPatientAssurance.insuranceId ? this.set("selectedInvoice.recipientId", lastPatientAssurance.insuranceId) : null
+                    }
+
                     this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
                 }
 

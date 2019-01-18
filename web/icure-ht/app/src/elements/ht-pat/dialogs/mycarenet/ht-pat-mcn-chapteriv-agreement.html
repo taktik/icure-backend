@@ -1254,10 +1254,10 @@
                 if (t && mpp) {
                     if (t.service) {
                         const content = Object.values((t.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[t.paragraph])
-                        content.medicationValue.medicinalProduct = {
-                            intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
-                            intendedname: mpp.name
-                        }
+                            content.medicationValue.medicinalProduct = {
+                                intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
+                                intendedname: mpp.name
+                            }
                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [t.service]}, bubbles: true, composed: true}))
                     }
                 }
@@ -1433,7 +1433,7 @@
 
             _convertedMedications() {
                 return Promise.all((this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)).flatMap(svc => {
-                    const content =  Object.values(svc.content).find(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
+                    const content =  Object.values(svc.content).find(c => !!c.medicationValue && !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
                     const agreements = content.medicationValue.paragraphAgreements
                     return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { service: svc, paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
                 }).map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => Object.assign(t, {

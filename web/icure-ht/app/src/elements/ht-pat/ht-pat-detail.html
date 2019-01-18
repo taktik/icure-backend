@@ -847,7 +847,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-fab-background: var(--app-status-color-pending);
             }
 
-            #insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus {
+            #insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus.edmgNOk {
                 --paper-fab-background: var(--app-status-color-nok);
             }
 
@@ -3100,6 +3100,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
                             }
+                            ctc.services.forEach(s => {
+                                if (!s.label) {
+                                    s.label = ((s.tags.find(t => t.type === 'SOAP') || {}).code || 'Other').replace(/ *: *$/,'')
+                                }
+                            })
                         })
 
                         //console.log("After scan ctcs "+(+new Date() - start))
@@ -3200,7 +3205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //console.log("Before filter svcs "+(+new Date() - start))
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => {
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
+                        this.set('medications', _.sortBy(medications.filter(m =>this.api.contact().preferredContent(m, this.language).medicationValue.beginMoment !== this.api.contact().preferredContent(m, this.language).medicationValue.endMoment).map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
                         //console.log("After filter svcs "+(+new Date() - start))
 
                     })
@@ -3858,7 +3863,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const medicationService = e.detail
                     this.$['medication-detail'].open(e.detail, {
                         id: medicationService.id,
-                        medicationValue: (this.api.localize(medicationService.content, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
+                        medicationValue: (this.api.contact().preferredContent(medicationService, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
                         isNew: true
                     });
                 }
@@ -3959,7 +3964,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _svcEntityContentChanged(e, value) {
                 const svc = styx.parent(e.target, el => el.tagName.toLowerCase() === 'entity-selector').entity;
-                const content = svc.content || (svc.content = {});(content[this.language] || (content[this.language] = {})).stringValue = value;
+                const content = (this.api.contact().preferredContent(svc, this.language) || {}).stringValue = value;
             }
 
             _updateFilterPanels() {
@@ -4110,6 +4115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             updateEdmgClassList( cssClassToAssign ) {
                 this.$.edmgStatus.classList.remove('edmgPending');
                 this.$.edmgStatus.classList.remove('edmgOk');
+                this.$.edmgStatus.classList.remove('edmgNOk');
                 this.$.edmgStatus.classList.add(cssClassToAssign||'');
             }
 
@@ -4137,7 +4143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         thisHcp => {
                             this.set('isLoading', false);
                             const currentTstamp = moment().valueOf();
-                            if( thisHcp.nihii !== ( edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '' ) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; } // Connected doctor !== the one that has patient's EDMG
+                            if( thisHcp.nihii !== ( edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '' ) ) { this.updateEdmgClassList('edmgNOk'); console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; } // Connected doctor !== the one that has patient's EDMG
                             if( edmgStatusResponse.from <= currentTstamp && edmgStatusResponse.to >= currentTstamp ) { this.updateEdmgClassList('edmgOk'); console.log( 'EDMG OK: last consultation less than 1 year ago' ); return; } // Valid status (last consultation between start & end of eDMG)
                             if( edmgStatusResponse.from > currentTstamp && currentTstamp >= moment(edmgStatusResponse.from).subtract(1, 'year').valueOf() ) { this.updateEdmgClassList('edmgPending');console.log( 'EDMG PENDING: last consultation less than 2 years ago (but more than one)' ); return; } // Pending status (last consultation more than a year ago but less than 2 years ago)
                             console.log( 'EDMG FAILED: last consultation more than 2 years ago' ); // Anything else

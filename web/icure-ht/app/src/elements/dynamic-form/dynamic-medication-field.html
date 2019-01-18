@@ -326,9 +326,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_valueChanged() {
 		let localizedValue = this._localizedValue(this.value);
 		const currentlyEditedMedication = this.selectedMedicationContentWithId && this.value.find(s=>s.id === this.selectedMedicationContentWithId.id)
-		if (currentlyEditedMedication && (this.api.localize(currentlyEditedMedication.content, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
+		console.log(currentlyEditedMedication.content)
+		if (currentlyEditedMedication && (this.api.contact().preferredContent(currentlyEditedMedication, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
 		    //After save, make sure that the currently edited data is connected to the loaded data
-			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
+			(this.api.contact().preferredContent(currentlyEditedMedication, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
 		}
 		if (!_.isEqual(this.value, this.previouslySavedValue)) {
 		    this.set('previouslySavedValue', _.cloneDeep(this.value))
@@ -354,8 +355,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!e) {
 			return null;
 		}
-		let content = e[lng] || e.fr || e.en || e.nl;
-		return content && { id: id, stringValue: this.api.contact().medication().medicationToString(content.medicationValue, this.language || 'fr') };
+		return { id: id, stringValue: this.api.contact().medication().medicationToString((this.api.contact().preferredContent({content: e},this.language) || {}).medicationValue || "", this.language.toLowerCase() || 'fr') };
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
@@ -363,15 +363,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue:
-            (
-                this.api.localize(m.content, this.language)  ||
-                 	( m.content[this.language] =
-                 	    {
-                 	        medicationValue: { regimen: [] }
-                 	    }
-                 	)
-            ).medicationValue,
+            medicationValue: (this.api.contact().preferredContent(m, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue,
             isNew: isNew || false };
 	}
 
