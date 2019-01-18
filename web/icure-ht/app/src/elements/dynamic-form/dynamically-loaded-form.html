@@ -201,6 +201,7 @@
                 const ctc = this.currentContact
                 if (!he.id) {
                     this.promoteServiceToHealthElement(he).then(he => {
+                        _.assign(e.detail, he) //Prevent subsequent promotions
                         if (!ctc.subContacts.some(sc => sc.formId === this.formId && sc.healthElementId === he.id)) {
                             if (this.contact === ctc) {
                                 this.push('contact.subContacts', {formId: this.formId, healthElementId: he.id, services: []})
@@ -305,7 +306,7 @@
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
-                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
+                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && (t.code === 'diagnosis' || t.code === 'healthelement'  || t.code === 'healthissue')))
 					.forEach(svc => {
                         const descr = this.shortServiceDescription(svc, this.language)
                         if (descr && descr.length && !idLinkables.includes(svc.id)) {
@@ -336,7 +337,6 @@
                                     this.splice('healthElements', 0, 0, he)
                                     this.splice('mainHealthElements', 0, 0, he)
 								})
-
                         }
                     })
 
