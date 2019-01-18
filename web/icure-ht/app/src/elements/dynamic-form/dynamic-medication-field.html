@@ -329,7 +329,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		console.log(currentlyEditedMedication.content)
 		if (currentlyEditedMedication && (this.api.contact().preferredContent(currentlyEditedMedication, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
 		    //After save, make sure that the currently edited data is connected to the loaded data
-			(this.api.contact().preferredContact(currentlyEditedMedication, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
+			(this.api.contact().preferredContent(currentlyEditedMedication, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
 		}
 		if (!_.isEqual(this.value, this.previouslySavedValue)) {
 		    this.set('previouslySavedValue', _.cloneDeep(this.value))
