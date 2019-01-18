@@ -189,25 +189,44 @@ class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			linkables: {
 				type: Array
+                    },
+                    dedupDataSource: {
+                        type: Object
+                    },
+                    uuid: {
+                        type: String,
+                        value: null
 			}
 		};
 	}
 
 	static get observers() {
-		return ['_valueChanged(value.*)'];
+                return ['_valueChanged(value.*)', '_dataSourceChanged(dataSource)']
 	}
 
 	constructor() {
-		super();
+        super()
+    }
+
+    _dataSourceChanged(dataSource) {
+        dataSource && this.set('dedupDataSource',
+            {
+                filter: (ss) => {
+                    if (!this.uuid && this.api) {
+                        this.uuid = this.api.crypto().randomUuid()
+                    }
+                    return dataSource.filter(ss, this.uuid)
+                }
+            })
 	}
 
 	_localizedValueChanged(change) {
-		const current = this.value;
-		const modified = this.localizedValue;
-		const newValue = [];
+        const current = this.value
+        const modified = this.localizedValue
+        const newValue = []
 
 		modified.forEach((m, idx) => {
-			const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id);
+                    const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id)
 			if (existing) {
 			    _.assign(existing, {content: _.fromPairs([[this.language, { stringValue: m.stringValue }]]), codes: m.codes || []})
 				newValue.push(_.assign(existing, { index: idx }));
