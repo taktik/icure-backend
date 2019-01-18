@@ -62,7 +62,7 @@
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-                          closed="[[currentContact.closingDate]]"
+                          disabled="[[currentContact.closingDate]]"
 						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
@@ -258,28 +258,37 @@
             _prepareDataProvider() {
                 if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
                     this.set('dataProvider', this.getDataProvider(this.form, ''));
-                    this.set('dataMap', _.fromPairs((this.form.template || {}).layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
-                        const sc = this.form.id && c.subContacts.find(sc => sc.formId === this.form.id);
-                        if (sc) {
-                            return c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s])
-						} else {
-                            const idsInScs = c.subContacts.flatMap(sc => sc.services.map(s => s.serviceId))
-                            return c.services.filter(s => !idsInScs.includes(s.id)).map(s => [s.label, s])
-						}
-                    }))));
-                    if (!this.form.template || !this.form.template.layout) {
+
+                    if ((this.form.template || {}).layout) {
+                        this.set('dataMap', _.fromPairs(_.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])))
+					} else if (this.form.id) {
+                        this.set('dataMap', _.fromPairs(_.flatten(this._allContacts().map(c => {
+                            const sc = c.subContacts.find(sc => sc.formId === this.form.id);
+                            return sc && c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) || []
+                        }))))
+					} else {
+                        const idsInScs = this.contact.subContacts.flatMap(sc => sc.formId ? sc.services.map(s => s.serviceId) : [])
+                        this.set('dataMap', _.fromPairs(_.compact(this.contact.services.map(s => {
+                            if (!idsInScs.includes(s.id)) {
+								return [s.label, s]
+							}
+							return null
+						}))))
+                    }
+
+					if (!this.form.template || !this.form.template.layout) {
                         this.set('form.template.layout', {
                             sections: [{
                                 formColumns: [{
                                     formDataList: _.compact(Object.values(this.dataMap).map((s, idx) => {
-                                        const c = this.localizedContent(s, this.language);
+                                        const c = this.api.contact().preferredContent(s, this.language);
                                         return c ? {
                                             name: s.label,
                                             label: s.label,
                                             editor: {
                                                 key: c.medicationValue ? 'MedicationTableEditor' : c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
                                                 left: 0,
-                                                width: 100,
+                                                width: 400,
                                                 top: idx * 20,
                                                 multiline: true
                                             }
@@ -448,7 +457,7 @@
                         }
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
-                    getOrCreateContent: (svc, lng) => svc && (svc.content && svc.content[lng] || ((svc.content || (svc.content = {}))[lng] = {})),
+                    getOrCreateContent: (svc, lng) => svc && this.api.contact().preferredContent(svc, lng),
                     //Returns an array of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs share the same svc id. If there is a choice between several series of services. Pick the one that preferably appears in the contact.
                     getServicesLineForContact: label => {
                         const sss = self.services(label);
@@ -837,7 +846,7 @@
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
             servicesInForm(formId, label) {
                 const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
-                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || ((!ss.scs || !ss.scs.length) && !formId)) //Extract all services which appear at some point in that form
+                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || (!formId && (!ss.scs || !ss.scs.some(ssc => ssc.formId) && ss.ctc && ss.ctc.id === this.contact.id))) //Extract all services which appear at some point in that form
                         .map(ss => ss.svc.id)) //Get their ids
                         .map(id => _.sortBy(svcStructs.filter(ss => ss.svc.id === id), ss => -ss.svc.modified)) //Sort them by modified for each id
                         .filter(svcHistory => svcHistory.length) //Keep the ones with a history
@@ -901,7 +910,7 @@
             }
 
             localizedContent(svc, lng) {
-                return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
+                return this.api && svc && this.api.contact().preferredContent(svc, lng) || {};
             }
 
             _subContactTypeChange(e){

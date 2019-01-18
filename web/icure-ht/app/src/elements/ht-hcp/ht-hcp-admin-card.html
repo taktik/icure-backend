@@ -221,7 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 })
             }.bind(this),
-            setValueContainers: function(key, value){setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (s.content[this.language] || {}).stringValue))}.bind(this),
+            setValueContainers: function(key, value){setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContent(s,this.language) || {}).stringValue))}.bind(this),
             filter: function(data, text, id){
                 if (data.source === 'insurances') {
                     return (text || '').length >= 2 ?
