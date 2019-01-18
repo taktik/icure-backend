@@ -964,7 +964,7 @@
                                 <template is="dom-if" if="[[assignModal]]">
                                     <div id="import-suggest">
                                         <div class="line">
-                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <paper-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></paper-spinner>
+                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
                                         </div>
                                         <div class="twocol">
                                             <div>
@@ -1495,30 +1495,25 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	getDataUrls(doc) {
 	    // console.log('getDataUrls',doc)
-        if (Object.keys(doc.encryptionKeys).length) { // if encryption keys
-            console.log(this.user.healthcarePartyId,doc.encryptionKeys)
-            return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
-                .then(decryptedAndImportedAesHcPartyKeys => {
-                    let collatedAesKeys = {};
-                    decryptedAndImportedAesHcPartyKeys.map(k => collatedAesKeys[k.delegatorId] = k.key);
-
-                    return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
-                        .then(enckeys =>
-                            this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-                                this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys, this.api.sessionId).then(att => {
-                                    let xml = XML.parseXml(att);
-                                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-                                        xml.kmehrmessage.header.standard.specialisation &&
-                                        xml.kmehrmessage.header.standard.specialisation.cd &&
-                                        xml.kmehrmessage.header.standard.specialisation.cd.S){
-                                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-                                    }else{
-                                        this.set("type","Non Valid Type")
-                                    }
-                                })
-                                : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId))
-                        );
-                })
+        if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) { // if encryption keys
+            console.log(this.user.healthcarePartyId, doc.encryptionKeys)
+            return this.api.crypto()
+                .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations)
+                .then(({extractedKeys: enckeys}) =>
+                    this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl) ?
+                        this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys, this.api.sessionId).then(att => {
+                            let xml = XML.parseXml(att)
+                            if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                                xml.kmehrmessage.header.standard.specialisation &&
+                                xml.kmehrmessage.header.standard.specialisation.cd &&
+                                xml.kmehrmessage.header.standard.specialisation.cd.S) {
+                                this.set("type", xml.kmehrmessage.header.standard.specialisation.cd.S)
+                            } else {
+                                this.set("type", "Non Valid Type")
+                            }
+                        })
+                        : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId))
+                )
         } else { // no encryption keys
             console.log('no encryption keys',this.user.healthcarePartyId)
             this.set('bodyDocument',{})

@@ -1822,7 +1822,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
-        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
+        <medication-plan-dialog id="medication_plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
         <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
@@ -2157,18 +2157,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }, {});
                     } )
                 }
-            }
-
-            _closeContact() {
-                this.selectedContactIds.forEach(cDomId => {
-                    const pm = this.root.querySelector(`#${cDomId}`)
-                    if (pm) {
-                        pm.setAttribute("aria-selected", "false")
-                        pm.classList.remove('iron-selected')
-                    }
-                })
-                this.set('selectedContactIds',[])
-                this.set('selectedContacts',[])
             }
 
             _switchTest(e){
@@ -2946,8 +2934,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             patientChanged(api, user, patient) {
-                this.$.chapterivdialog && this.$.chapterivdialog.reset()
-
                 this.set('healthTopics', [])
 
                 this.set('healthElements', [])
@@ -2971,6 +2957,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.root.querySelector('#cb_ishelb').opened = false
                 this.root.querySelector('#cb_frhelb').opened = false
 
+                this.root.querySelector('#medication_plan').reset()
+
+
                 this.set('selectedHealthcareElements', [])
                 this.set('contacts', [])
                 this.set('contactYears', [])
@@ -2991,9 +2980,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const start = +new Date()
 
                 const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id => id && id.substr(4) /* format is ctc_... see DOM */)
-                console.log("Before load "+(+new Date() - start))
+                //console.log("Before load "+(+new Date() - start))
                 Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient).then(ctcs => ctcs.map(ctc => this.api.register(ctc, 'contact'))), this.api.helement().findBy(this.user.healthcarePartyId, patient, true)]).then(([ctcs, allHes]) => {
-                    console.log("After load "+(+new Date() - start))
+                    //console.log("After load "+(+new Date() - start))
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
@@ -3058,7 +3047,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('activeHealthElements', combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
                             this.set('inactiveHealthElements', combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
-                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
+                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 3) === 3))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
                             this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
@@ -3111,7 +3100,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         )
                         .then(newCtc => {
-                            console.log('newCtc',newCtc)
                             const thisYear = moment().year()
 
                             console.log("Before set contacts "+(+new Date() - start))
@@ -3192,7 +3180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //console.log("Before filter svcs "+(+new Date() - start))
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => {
-                        this.set('medications', _.sortBy(medications.filter(m => m.content.medication.medicationValue.beginMoment !== m.content.medication.medicationValue.endMoment).map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
                         //console.log("After filter svcs "+(+new Date() - start))
 
                     })
@@ -3267,35 +3255,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.insuranceStatus.classList.remove('insuranceOk')
 
                         this.$.insuranceStatus.classList.add(genInsOk ? medicalHouse ? 'medicalHouse' : 'insuranceOk' : 'noInsurance')
-                        Polymer.updateStyles(this.$.insuranceStatus)
+                        //Polymer.updateStyles(this.$.insuranceStatus)
 
                         if (genInsOk) {
                             //TODO: expected behaviour:
                             //1. if same mut and CT1/2 -> do nothing
                             //2. if different mut or CT1/2 -> close previous insurability and create new insurability
-                            const lpi = (patient.insurabilities && patient.insurabilities.length) ? patient.insurabilities : [{}];
                             const ins = gi.insurabilities[0];
                             this.api.insurance().listInsurancesByCode(ins.mutuality).then(out => {
                                 if(out && out.length){
                                     //find all patient insurabilities where insuranceId = out[0].Id and endDate is null or > today
-                                    let lpiFound = false;
-                                    let insuId = (out.find(insu =>{
-                                         lpiFound = lpi.filter(l => l.insuranceId===insu && (!l.endDate || l.endDate===""))
-                                         return lpiFound && lpiFound.length
-                                    })|| {id:false}).id
-                                    if(lpiFound && lpiFound.length){
-                                        lpiFound.map(p => {
+                                    let insuFound = false;
+                                    insuFound = patient.insurabilities.filter(l => out.some(insu => l.insuranceId===insu.id) && (!l.endDate || l.endDate===""))
+                                    if(insuFound && insuFound.length){
+                                        insuFound.map(p => {
                                             //1 if found: check if CT1/2 is changed
                                             if (ins.ct1 && (!p.parameters || p.parameters.tc1 !== ins.ct1)) {
                                                 console.log('Insurability: CT1/2 changed');//1.2 if changed: close the found ins and create new with startdate today
-                                                p.endDate = moment().format('YYYYMMDD'); //todo: real value
                                                 const newP = {};
                                                 newP.identificationNumber = ins.regNrWithMut;
                                                 newP.insuranceId = out[0].id;
                                                 newP.startDate = moment().format('YYYYMMDD');
-                                                newP.parameters = _.assign(newP.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false'});
-                                                ins.ct2 && newP.parameters.tc2 !== ins.ct2 && (newP.parameters = _.assign(newP.parameters || {}, {tc2: ins.ct2}))
-                                                ins.paymentApproval ? newP.parameters = _.assign(newP.parameters || {}, {paymentapproval: 'true'}) : delete newP.parameters.paymentapproval
+                                                newP.parameters = {
+                                                    tc1: ins.ct1,
+                                                    preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? true : false,
+                                                    tc2:ins.ct2,
+                                                    paymentapproval: !!ins.paymentApproval};
+                                                //2.1 close all other
+                                                this.patient.insurabilities.map(p =>{
+                                                        if(!p.endDate) p.endDate = moment().format('YYYYMMDD');
+                                                    }
+                                                );
                                                 this.patient.insurabilities.push(newP);
                                                 if (patient === this.patient) {
                                                     this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
@@ -3313,9 +3303,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         newP.identificationNumber = ins.regNrWithMut;
                                         newP.insuranceId = out[0].id;
                                         newP.startDate = moment().format('YYYYMMDD');
-                                        newP.parameters = _.assign(newP.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false'});
-                                        ins.ct2 && newP.parameters.tc2 !== ins.ct2 && (newP.parameters = _.assign(newP.parameters || {}, {tc2: ins.ct2}))
-                                        ins.paymentApproval ? newP.parameters = _.assign(newP.parameters || {}, {paymentapproval: 'true'}) : delete newP.parameters.paymentapproval
+                                        newP.parameters = {
+                                            tc1: ins.ct1,
+                                            preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? true : false,
+                                            tc2:ins.ct2,
+                                            paymentapproval: !!ins.paymentApproval};
                                         //2.1 close all other
                                         this.patient.insurabilities.map(p =>{
                                                 if(!p.endDate) p.endDate = moment().format('YYYYMMDD');
@@ -4084,7 +4076,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation()
                 e.preventDefault()
 
-                this.$['chapterivdialog'].open()
+                //this.$['chapterivdialog'].open()
             }
 
 
