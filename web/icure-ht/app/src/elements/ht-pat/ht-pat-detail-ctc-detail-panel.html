@@ -110,6 +110,25 @@
 				padding-bottom: 24px;
 			}
 
+            .ctc-header {
+                position: relative;
+                background: var(--app-background-color-dark);
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 16px;
+            }
+            .ctc-header .contact-title {
+                flex-grow: 1;
+            }
+
+            .ctc-header paper-button {
+                background: var(--app-secondary-color);
+                height: 24px;
+                margin: 12px 36px;
+            }
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
@@ -528,19 +547,42 @@
 			<div class="contact-card-container">
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
 				</template>
 				<template is="dom-if" if="[[table]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
 				</template>
 				<template is="dom-if" if="[[graphique]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 				</template>
 				<template is="dom-if" if="[[doc]]">
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<div class="ctc-header">
+                            <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                            <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                                <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            </template>
+                        </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
 													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
@@ -884,8 +926,6 @@ import * as evaljs from "evaljs"
 
 			_refreshFromServices() {
 				this.set('_drugsRefresher', this._drugsRefresher + 1)
-
-
 			}
 
 			_actionIcon(showAddFormsContainer) {
@@ -1468,6 +1508,13 @@ import * as evaljs from "evaljs"
 				return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 			}
 
+			forceSaveCtc() {
+                this.api.contact().modifyContactWithUser(this.user, this.currentContact).then(modified=>{
+                    console.log('modified ?',modified)
+                    this.flushSave()
+                })
+            }
+
     _reportTemplateSelected(e, reportTemplate) {
 
         this.savedDocTemplateId = reportTemplate.id;
@@ -1646,7 +1693,6 @@ import * as evaljs from "evaljs"
         return [{ key: 'name', title: this.localize('name',this.language) }, { key: 'descr', title: this.localize('des',this.language) }, { key: 'createdHr', title: this.localize('creation',this.language) }];
     }
 
-
     reportCustomTemplatesSelectorDataProvider() {
         return {
             filter: function (filterValue, limit, offset, sortKey, descending) {
@@ -1712,16 +1758,11 @@ import * as evaljs from "evaljs"
         Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
     }
 
-
-
-
     dropVarsFromProseJsonContent(proseJsonContent, variablesPath) {
         if(!_.size(variablesPath)) return proseJsonContent;
         _.map(variablesPath,(v)=>{_.set( proseJsonContent, v + ".content", [])})
         return proseJsonContent;
     }
-
-
 
     saveTemplate(e) {
 
@@ -1776,8 +1817,6 @@ import * as evaljs from "evaljs"
 
     }
 
-
-
     _refreshContext(e,eventDetails) {
         const prose = this.root.querySelector("#prose-editor")
         prose.applyContext((expr, template, ctx, cache) => {
@@ -1813,12 +1852,9 @@ import * as evaljs from "evaljs"
         })
     }
 
-
     _openTemplateDescriptionDialog() {
         this.$['template-description-dialog'].open();
     }
-
-
 
 	newReport(e) {
 		this.editedReportDataProvider = e.detail.dataProvider
@@ -1834,11 +1870,17 @@ import * as evaljs from "evaljs"
 		const subFormid = subFormDataProvider && _.trim(subFormDataProvider.getId())
 		this.api.form().getForm(subFormid).then(subFormObject=>{
 		    this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
-		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") {
-		            this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-		        } else {
-		            // Todo: continue here and print other subforms. Assign default pdf render template ?
-		        }
+
+		        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+
+                // Prescription Kine
+                // AEFED10A-9A72-4B40-981B-1D79ADB05516
+
+                // Prescription Nurse
+                // 64DAB551-B007-4B5C-BD64-F886301F5326
+
+		        // Todo: continue here and print other subforms. Assign default pdf render template ?
+
 		    })
 		})
 	}
@@ -1846,14 +1888,17 @@ import * as evaljs from "evaljs"
 
     _getA5PdfHeader() {
 
+        // <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
         return `
             <html>
                 <head>
+
                     <style>
 
-                        @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; font-family: Arial, Helvetica, sans-serif; }
-                        body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
-                        .page { width: 148mm; height: 230mm; overflow:hidden; color:#000000; font-size:19px; margin-top:23mm; margin-left:31mm; /* border:1px solid #000; */ font-family: Arial, Helvetica, sans-serif; }
+                        @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; }
+                        body {margin: 0; padding: 0; font-family: 'Coiny', cursive; }
+                        .page { width: 148mm; height: 251mm; overflow:hidden; color:#000000; font-size:18px; margin-top:23mm; margin-left:31mm; font-family: "Arial", Helvetica, sans-serif; }
 
                         p {margin-top:0}
 
@@ -1875,105 +1920,13 @@ import * as evaljs from "evaljs"
                         .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;}
                         .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;}
 
-                        .doctorDetails { padding-left:15px; padding-right:15px; border:1px solid #000000; font-size:.9em; }
+                        .doctorDetails { padding-left:15px; padding-right:15px; border:1px solid #000000; }
 
                     </style>
                     </head>
                     <body>
         `
     }
-
-
-	printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
-
-        this.busySpinner = true;
-
-        const patientName = _.compact([
-            (_.trim(_.get(this.patient, "gender", "")) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) : "" : "" ),
-            _.get(this.patient, "lastName", ""),
-            _.get(this.patient, "firstName", "")
-        ]).join(" ");
-
-        const downloadFileName = _.kebabCase(_.compact([this.localize("certificate_stop_activity",this.language),patientName,+new Date()]).join(" ")) + ".pdf"
-        const hcpAddress = _.chain(this.globalHcp.addresses).filter({"addressType":"work"}).head().value()
-
-        const subFormServiceNameAndValues = _.compact(
-            _.map(
-                (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
-                    return _.size(v) && {
-                        name: k,
-                        value: subFormDataProvider.getValue(k),
-                        valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
-                    }
-                }
-            )
-        )||[]
-
-        const incapacityStart = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"du" })), "valueObject.fuzzyDateValue", ""))+""
-        const incapacityEnd = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"au" })), "valueObject.fuzzyDateValue", ""))+""
-        let incapacityDuration = incapacityStart && incapacityEnd ? moment(incapacityEnd).diff(moment(incapacityStart), "days") : "-"
-        const incapacityPartiallyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"reprise d'activité partielle" })), "valueObject.fuzzyDateValue", ""))+""
-        const incapacityCompletelyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"totale" })), "valueObject.fuzzyDateValue", ""))+""
-        const includedExcludedLabel = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", "inclus") !== "null" ? _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", "inclus") : this.localize("included",this.language)
-        const doctorComment = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Commentaire" })), "value", "") )
-
-        if(includedExcludedLabel.toLowerCase() === "inclus" || includedExcludedLabel.toLowerCase() === "included" || includedExcludedLabel.toLowerCase() === "inbegrepen" ) incapacityDuration = parseInt(incapacityDuration) ? incapacityDuration+1 : 1;
-
-        console.log(subFormObject)
-        console.log(subFormTemplateObject)
-        console.log(subFormServiceNameAndValues)
-
-        const pdfContent = `
-            <div class="page">
-                <p>` + this.localize("certificate_stop_activity",this.language) + `</p>
-                <p>` + this.localize("date",this.language) + `: ` + moment().format('DD/MM/YYYY') + `</p>
-                <p class="italic">` + this.localize("csa_txt001",this.language) + `:</p>
-                <p class="bold fs15em mt15 mb20">` + patientName + `</p>
-                <p>
-                    ` + this.localize("csa_txt002",this.language) + `:<br />` +
-                    _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", "-") + `
-                </p>
-                <p>
-                    ` + this.localize("csa_txt003",this.language) + `:<br />` +
-                    _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"autres" })), "value", "-")) + `
-                </p>
-                <p>
-                    ` + this.localize("csa_txt004",this.language) + `: ` + incapacityDuration + ` ` + this.localize("days",this.language) + `<br />
-                    ` +
-                        this.localize("from2",this.language) + ` ` +
-                        ( incapacityStart ? moment(incapacityStart).format("DD/MM/YYYY") : "-" ) + ` ` +
-                        this.localize("till",this.language) + ` ` +
-                        ( incapacityEnd ? moment(incapacityEnd).format("DD/MM/YYYY") : "-" ) + ` ` +
-                        includedExcludedLabel + `
-                </p>
-                <p>` + this.localize("csa_txt005",this.language) + `: ` + _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Sortie" })), "value", "-") + `</p>
-                <p>` +
-                        this.localize("csa_txt006",this.language) + `: ` +
-                        ( incapacityPartiallyFinished ? moment(incapacityPartiallyFinished).format("DD/MM/YYYY") : "-" ) + ` ` +
-                        this.localize("csa_txt007",this.language) + ` ` +
-                        _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "value", "100") +`%` + `
-                        ` + ( incapacityCompletelyFinished ? "<br />" + this.localize("csa_txt010",this.language) + ": " + moment(incapacityCompletelyFinished).format("DD/MM/YYYY") : "" ) + `
-                </p>` +
-                ( doctorComment ? "<p>" + doctorComment + "</p>"  : "" ) + `
-                <p class="mb5" style="margin-top: 20mm;">` + this.localize("csa_txt008",this.language) + `</p>
-                <div class="doctorDetails">
-                    <p class="mb3 mt5">` + this.localize("csa_txt009",this.language) + ` ` + _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase() + ` ` + _.trim( _.get(this.globalHcp, "firstName", "") ) + `</p>
-                    <p class="mb3">`+ _.trim( _.get(hcpAddress, "street", "") ) +`` + (_.trim( _.get(hcpAddress, "houseNumber", "") ) ? ", " + _.trim( _.get(hcpAddress, "houseNumber", "") ) : "" ) + `` + (_.trim( _.get(hcpAddress, "postboxNumber", "") ) ? "/" + _.trim( _.get(hcpAddress, "postboxNumber", "") ) : "" ) + `</p>
-                    <p class="mb3">`+ _.trim( _.get(hcpAddress, "postalCode", "") ) +` `+ _.trim( _.get(hcpAddress, "city", "") ) +`</p>
-                    <p class="mb5">`+ this.localize("inami",this.language) + `: ` + this.api.formatRawInamigWithHyphens(_.trim(_.get(this.globalHcp, "nihii", ""))) +`</p>
-                </div>
-            </div>
-        `
-
-        this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter() ).then(pdfFileContent =>{
-            this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
-            this.busySpinner = false;
-            this._closeReportMenu();
-        }).catch(()=>{this.busySpinner = false;this._closeReportMenu();});
-
-	}
-
-
 
 	_saveReport() {
 
@@ -2046,8 +1999,6 @@ import * as evaljs from "evaljs"
         }).catch((e)=>{console.log(e);this.busySpinner = false;})
 
     }
-
-
 
     _getPdfHeader() {
 
@@ -2180,11 +2131,9 @@ import * as evaljs from "evaljs"
         return "</body></html>";
     }
 
-
     _closeReportMenu() {
-        this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false
+        try{this.shadowRoot.querySelector('#dynamicallyLoadedForm').shadowRoot.querySelector('#dynamic-form').reportsListDisplayed=false}catch(e){}
     }
-
 
     printDocument() {
         this.busySpinner = true;
@@ -2201,6 +2150,107 @@ import * as evaljs from "evaljs"
             this._closeReportMenu();
         });
     }
+
+    printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+        this.busySpinner = true;
+
+        const patientName = _.compact([
+            (_.trim(_.get(this.patient, "gender", "")) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) ? _.trim( this.localize("abrv_" + _.trim(_.get(this.patient, "gender", ""),this.language) ) ) : "" : "" ),
+            _.get(this.patient, "lastName", ""),
+            _.get(this.patient, "firstName", "")
+        ]).join(" ");
+
+        const downloadFileName = _.kebabCase(_.compact([this.localize("certificate_stop_activity",this.language),patientName,+new Date()]).join(" ")) + ".pdf"
+        const hcpAddress = _.chain(this.globalHcp.addresses).filter({"addressType":"work"}).head().value()
+
+        const subFormServiceNameAndValues = _.compact(
+            _.map(
+                (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
+                    return _.size(v) && {
+                        name: k,
+                        value: subFormDataProvider.getValue(k),
+                        valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
+                    }
+                }
+            )
+        )||[]
+
+        const incapacityStart = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"du" })), "valueObject.fuzzyDateValue", ""))+""
+        const incapacityEnd = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"au" })), "valueObject.fuzzyDateValue", ""))+""
+        let incapacityDuration = incapacityStart && incapacityEnd ? moment(incapacityEnd).diff(moment(incapacityStart), "days") : "-"
+        const incapacityPartiallyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"reprise d'activité partielle" })), "valueObject.fuzzyDateValue", ""))+""
+        const incapacityCompletelyFinished = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"totale" })), "valueObject.fuzzyDateValue", ""))+""
+        const includedExcludedLabel = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", this.localize("included",this.language)) !== "null" ? _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"inclus/exclus" })), "value", this.localize("included",this.language)) : this.localize("included",this.language)
+        const doctorComment = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Commentaire" })), "value", "") )
+        const precentageValue = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.value", "100");
+        const precentageUnit = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) ? _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) : "%";
+        const precentageValueAndUnit = precentageValue + " " + precentageUnit
+
+        this.api.code().findCodes("be", "CD-INCAPACITY").then(incapacityCodes=>{
+            this.api.code().findCodes("be", "CD-INCAPACITYREASON").then(incapacityReasons=>{
+
+                let incapacityValue = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", "")).toLowerCase()==="ok"?"":_.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", ""));
+                let incapacityReason = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", "")).toLowerCase()==="ok"?"":_.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", ""));
+
+                if(_.trim(incapacityValue)) incapacityValue = _.trim(_.get(_.head(_.filter(incapacityCodes, {id:incapacityValue})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(incapacityCodes, {id:incapacityValue})), "label.fr", ""))
+                if(_.trim(incapacityReason)) incapacityReason = _.trim(_.get(_.head(_.filter(incapacityReasons, {id:incapacityReason})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(incapacityReasons, {id:incapacityReason})), "label.fr", "" )) || _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"autres" })), "value", ""))
+
+                if(includedExcludedLabel.toLowerCase() === "inclus" || includedExcludedLabel.toLowerCase() === "included" || includedExcludedLabel.toLowerCase() === "inbegrepen" ) incapacityDuration = parseInt(incapacityDuration) ? incapacityDuration+1 : 1;
+
+                const pdfContent = `
+                <div class="page">
+                    <p>` + this.localize("certificate_stop_activity",this.language) + `</p>
+                    <p>` + this.localize("date",this.language) + `: ` + moment().format('DD/MM/YYYY') + `</p>
+                    <p class="italic">` + this.localize("csa_txt001",this.language) + `:</p>
+                    <p class="bold fs15em mt15 mb20">` + patientName + `</p>
+                    <p><span class="italic">` + this.localize("csa_txt002",this.language) + `:</span><br />` + incapacityValue + `</p>
+                    <p><span class="italic">` + this.localize("csa_txt003",this.language) + `:</span><br />` + incapacityReason + `</p>
+                    <p>
+                        <span class="italic">` + this.localize("csa_txt004",this.language) + `:</span> ` + incapacityDuration + ` ` + this.localize("days",this.language) + `<br />
+                        ` +
+                    this.localize("from2",this.language) + ` ` +
+                    ( incapacityStart ? moment(incapacityStart).format("DD/MM/YYYY") : "-" ) + ` ` +
+                    this.localize("till",this.language) + ` ` +
+                    ( incapacityEnd ? moment(incapacityEnd).format("DD/MM/YYYY") : "-" ) + ` ` +
+                    includedExcludedLabel + `
+                    </p>
+                    <p><span class="italic">` + this.localize("csa_txt005",this.language) + `:</span> ` + _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"Sortie" })), "value", "-") + `</p>
+                    <p>` +
+                    `<span class="italic">` + this.localize("csa_txt006",this.language) + `:</span> ` +
+                    ( incapacityPartiallyFinished ? moment(incapacityPartiallyFinished).format("DD/MM/YYYY") : "-" ) + ` ` +
+                    this.localize("csa_txt007",this.language) + ` ` + precentageValueAndUnit + `
+                            ` + ( incapacityCompletelyFinished ? "<br /><span class='italic'>" + this.localize("csa_txt010",this.language) + ":</span> " + moment(incapacityCompletelyFinished).format("DD/MM/YYYY") : "" ) + `
+                    </p>` +
+                    ( doctorComment ? "<p><span class='italic'>" + doctorComment + "</span></p>"  : "" ) +
+                    `<p class="mb5" style="margin-top: 20mm;">` + this.localize("csa_txt008",this.language) + `</p>
+                    <div class="doctorDetails">
+                        <p class="mb3 mt5">` + this.localize("csa_txt009",this.language) + ` ` + _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase() + ` ` + _.trim( _.get(this.globalHcp, "firstName", "") ) + `</p>
+                        <p class="mb3">`+ _.trim( _.get(hcpAddress, "street", "") ) +`` + (_.trim( _.get(hcpAddress, "houseNumber", "") ) ? ", " + _.trim( _.get(hcpAddress, "houseNumber", "") ) : "" ) + `` + (_.trim( _.get(hcpAddress, "postboxNumber", "") ) ? "/" + _.trim( _.get(hcpAddress, "postboxNumber", "") ) : "" ) + `</p>
+                        <p class="mb3">`+ _.trim( _.get(hcpAddress, "postalCode", "") ) +` `+ _.trim( _.get(hcpAddress, "city", "") ) +`</p>
+                        <p class="mb5">`+ this.localize("inami",this.language) + `: ` + this.api.formatRawInamigWithHyphens(_.trim(_.get(this.globalHcp, "nihii", ""))) +`</p>
+                    </div>
+                </div>
+            ` +
+                    '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                // this.busySpinner = false;
+                console.log(pdfContent);
+                // return;
+
+                // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000} ).then(pdfFileContent =>{
+                this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                    this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
+                    this.busySpinner = false;
+                }).catch(()=>{this.busySpinner = false;this._closeReportMenu();});
+
+            })
+        })
+
+    }
+
+
 
 }
 

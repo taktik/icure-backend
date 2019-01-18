@@ -62,6 +62,7 @@
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
+                          closed="[[currentContact.closingDate]]"
 						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
@@ -200,6 +201,7 @@
                 const ctc = this.currentContact
                 if (!he.id) {
                     this.promoteServiceToHealthElement(he).then(he => {
+                        _.assign(e.detail, he) //Prevent subsequent promotions
                         if (!ctc.subContacts.some(sc => sc.formId === this.formId && sc.healthElementId === he.id)) {
                             if (this.contact === ctc) {
                                 this.push('contact.subContacts', {formId: this.formId, healthElementId: he.id, services: []})
@@ -313,7 +315,7 @@
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
-                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
+                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && (t.code === 'diagnosis' || t.code === 'healthelement'  || t.code === 'healthissue')))
 					.forEach(svc => {
                         const descr = this.shortServiceDescription(svc, this.language)
                         if (descr && descr.length && !idLinkables.includes(svc.id)) {
@@ -344,7 +346,6 @@
                                     this.splice('healthElements', 0, 0, he)
                                     this.splice('mainHealthElements', 0, 0, he)
 								})
-
                         }
                     })
 
@@ -682,7 +683,6 @@
                         if (!this.currentContact) {
                             return;
                         }
-                        this.flushSave();
 
                         const id = form.id;
                         const subContacts = this.currentContact.subContacts.filter(sc => sc.formId === id);
@@ -701,11 +701,13 @@
                             }
                         });
 
-                        if( parseInt( _.get(form, "id", 0) ) ) {
+                        if( form.formTemplateId ) {
                             this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
                                 this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
+                                this.flushSave()
                             });
                         }
+
                     }.bind(this),
                     getId: () => form.id,
                     deleteSubForm: (key, id) => {
@@ -762,20 +764,41 @@
                             }
                         });
                     },
-                    filter: (data, text) => {
-                        return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(data.types.map(ct => {
+                    filter: (data, text, uuid) => {
+						const uuids = (self.uuids || (self.uuids = {}))
+						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
+                        const words = text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+
+                        return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language);
-                            const words = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
 
-                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
-                                codeId: code.id,
-                                stringValue: code.label[typeLng],
-                                codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || []),
-                                id: code.id,
-                                name: code.label[typeLng]
-                            })), sorter));
-                        })).then(responses => _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
+							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
+                                    '$type': 'CodeByRegionTypeLabelLanguageFilter',
+                                    'region': 'be',
+                                    'type': ct.type,
+									'language': typeLng,
+									'label':w
+                                }))}})
+                            .then(results => {
+                                if (reqIdx<uuids[uuid]) {
+                                    return []
+								}
+                                return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                    codeId: code.id,
+                                    stringValue: code.label[typeLng],
+                                    codes: [code].concat(code.links && code.links.map(c => ({
+                                        id: c,
+                                        type: c.split('|')[0],
+                                        code: c.split('|')[1],
+                                        version: c.split('|')[2]
+                                    })) || []),
+                                    id: code.id,
+                                    name: code.label[typeLng]
+                                })), sorter)
+                            });
+
+                        })).then(responses => (reqIdx<uuids[uuid]) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;
@@ -895,10 +918,11 @@
 
                     const scs = this.currentContact.subContacts.find(sc => sc.formId === e.detail.formId)
 
-					if(scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+					if(scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
                         scs.tags.splice(scs.tags.indexOf(scs.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
                         scs.tags.push(e.detail.type.type);
 					}else{
+                        scs.tags = scs.tags || []
                         scs && scs.tags.push(e.detail.type.type);
 					}
 

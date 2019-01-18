@@ -157,6 +157,7 @@
     "counselor":"counselor",
     "contact" : "contact",
     "contacts" : "Contacts",
+    "contact_of_the_day": "Contact of the day",
     "contact_person":"Contact person",
     "country" : "Country",
     "cov_end_date" : "Coverage end date",
@@ -754,6 +755,7 @@
     "vacation":"Vacation",
     "val": "Value",
     "val_invoice" : "justificatory + create invoice",
+    "val_justificatory" : "Justificatory",
     "valid": "Validate",
     "vacc_his": "Vaccine history",
     "verified_etarif" : "This nomenclature code has been verified by eFact",
@@ -788,7 +790,22 @@
     "sav_temp": "Save template",
     "load_temp": "Load template",
     "creation": "Creation",
-    "template": "Template"
+    "template": "Template",
+    "certificate_stop_activity": "Certificat d'interuption d'activité",
+    "csa_txt001": "Je soussigné, Docteur en médecine, certifie avoir intérrogé et examiné personnellement ce jour",
+    "csa_txt002": "et l'avoir reconnu(e) incapable de",
+    "csa_txt003": "pour cause de",
+    "csa_txt004": "pour une durée de",
+    "csa_txt005": "Sortie",
+    "csa_txt006": "Sauf complication la reprise est prévue le",
+    "csa_txt007": "à",
+    "csa_txt008": "Signature et cachet",
+    "csa_txt009": "Dr.",
+    "csa_txt010": "Reprise totale le",
+    "days": "jour(s)",
+    "abrv_male": "M.",
+    "abrv_female": "Mme.",
+    "included": "inclus"
   },
   "fr": {
     "AFF" : "N° d'affiliation",
@@ -960,6 +977,7 @@
     "counselor":"conseiller",
     "contact" : "contact",
     "contacts" : "Contacts",
+    "contact_of_the_day": "Contact du jour",
     "contact_person":"Personne de contact",
     "country" : "Pays",
     "cov_end_date" : "date de fin de la couverture",
@@ -1629,6 +1647,7 @@
     "vacation":"Vacances",
     "val": "Valeur",
     "val_invoice" : "Justificatif + créer la facture",
+    "val_justificatory" : "Justificatif",
     "valid": "Valider",
     "vacc_his": "Historique des vaccins",
     "verified_etarif" : "Ce code nomenclature a été vérifié par eTar",
@@ -1666,7 +1685,6 @@
     "load_temp": "Charger une template",
     "creation": "Création",
     "template": "Template",
-
     "certificate_stop_activity": "Certificat d'interuption d'activité",
     "csa_txt001": "Je soussigné, Docteur en médecine, certifie avoir intérrogé et examiné personnellement ce jour",
     "csa_txt002": "et l'avoir reconnu(e) incapable de",
@@ -1682,8 +1700,6 @@
     "abrv_male": "M.",
     "abrv_female": "Mme.",
     "included": "inclus"
-
-
   },
   "nl": {
     "AFF" : "Lidnummer",
@@ -1860,6 +1876,7 @@
     "counselor":"counselor",
     "contact" : "contact",
     "contacts" : "Contacten",
+    "contact_of_the_day": "Contact van de dag",
     "contact_person":"Contact person",
     "country" : "Country",
     "cov_end_date" : "Coverage end date",
@@ -2530,6 +2547,7 @@
     "vacation":"Vacation",
     "val": "Value",
     "val_invoice" : "justificatory + create invoice",
+    "val_justificatory" : "Justificatory",
     "valid": "Validate",
     "vacc_his": "Vaccine history",
     "verified_etarif" : "This nomenclature code has been verified by eFact",
@@ -2566,6 +2584,21 @@
     "sav_temp": "Bewaard model",
     "load_temp": "Model loaden",
     "creation": "Creatie",
-    "template": "Model"
+    "template": "Model",
+    "certificate_stop_activity": "Attest onderbreking activiteit",
+    "csa_txt001": "Ik, ondergetekende, verklaar vandaag persoonlijk ondervraagd en/of onderzocht te hebben",
+    "csa_txt002": "en verklaar hem/haar ongeschikt om",
+    "csa_txt003": "wegens",
+    "csa_txt004": "voor een periode van",
+    "csa_txt005": "Het huis verlaten is",
+    "csa_txt006": "Tenzij bij complicaties, is het hervatten van de bezigheden voorzien op",
+    "csa_txt007": "met",
+    "csa_txt008": "Handtekening en stempel",
+    "csa_txt009": "Dr.",
+    "csa_txt010": "Totaal hervatten op",
+    "days": "dag(en)",
+    "abrv_male": "Dhr.",
+    "abrv_female": "M.",
+    "included": "inbegrepen"
   }
 }
