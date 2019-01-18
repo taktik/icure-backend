@@ -745,7 +745,7 @@
                         this.api.hcparty().getHealthcareParty(service.responsible),
                         codeProcedure ? this.api.code().getCode(codeProcedure.type+"|"+codeProcedure.code+"|"+codeProcedure.version) : Promise.resolve({}),
                         codeProfession ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve([]),
-                        codeVaccine ? this.api.bedrugs().getMppInfos(service.content.medication.medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code, this.language) : Promise.resolve([])
+                        codeVaccine ? this.api.bedrugs().getMppInfos(this.api.contact().preferredContent(service,this.language).medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code, this.language) : Promise.resolve([])
                     ]).then(([hcp,resultProced,resultProf,resultVaccine]) =>{
                         this.push("hcpListItem",{id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName});
 
@@ -764,10 +764,10 @@
                             ProfessionId : this.professionId,
                             ReasonOfRef : codeStatus.code==="refused" ? codeStatus.label.fr : "",
                             isDeadline: (date ? true : false),
-                            isSurgical: (service.content && service.content.isSurgical && service.content.isSurgical.booleanValue) ? true : false,//creer un antecedent
-                            VaccineCommercialNameId : (this.isVaccineProcedure ? service.content.medication.medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code : ""),
-                            DoseNumber : (this.isVaccineProcedure ? service.content.medication.medicationValue.options.doseNumber.stringValue : ""),
-                            BatchNumber : (this.isVaccineProcedure ? service.content.medication.medicationValue.batch : ""),
+                            isSurgical: this.api.contact().preferredContent(service,this.language).booleanValue ? true : false,//creer un antecedent
+                            VaccineCommercialNameId : (this.isVaccineProcedure ? this.api.contact().preferredContent(service, this.language).medicationValue.medicinalProduct.intendedcds.find(code=>code.type==="CD-DRUG-CNK").code : ""),
+                            DoseNumber : (this.isVaccineProcedure ? this.api.contact().preferredContent(service,this.language).medicationValue.options.doseNumber.stringValue : ""),
+                            BatchNumber : (this.isVaccineProcedure ? (service).medication.medicationValue.batch : ""),
                             ProcedureInfo: resultProced,
                             Description: service.comment,
                             ProfessionInfo : (resultProf && resultProf.rows && resultProf.rows[0])|| {},

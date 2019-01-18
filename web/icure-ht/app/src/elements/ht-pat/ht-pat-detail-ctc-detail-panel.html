@@ -1629,10 +1629,11 @@ import * as models from 'icc-api/dist/icc-api/model/models';
                 const formGroups = this.contacts.map(contact => ({
                     ctc: contact,
                     forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-                        const serviceIds = sc.services.map(s => s.serviceId)
+						const serviceIds = sc.services.map(s => s.serviceId)
+						
                         return {
                             id: sc.formId,
-                            docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
+                            docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
                     }), f => -f.created),
                     unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
