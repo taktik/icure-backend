@@ -781,12 +781,12 @@
 	<script>
 
         import _ from 'lodash/lodash';
-import JsBarcode from 'JsBarcode';
-import moment from 'moment/src/moment';
-import '../prose-editor/prose-editor/prose-editor';
-import mustache from "mustache/mustache.js";
-import * as evaljs from "evaljs";
-import * as models from 'icc-api/dist/icc-api/model/models';
+        import JsBarcode from 'JsBarcode';
+        import moment from 'moment/src/moment';
+        import '../prose-editor/prose-editor/prose-editor';
+        import mustache from "mustache/mustache.js";
+        import * as evaljs from "evaljs";
+        import * as models from 'icc-api/dist/icc-api/model/models';
 
 		class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			static get is() {
@@ -1903,7 +1903,7 @@ import * as models from 'icc-api/dist/icc-api/model/models';
                         if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if(subFormTemplateObject.guid==="B4F2B274-10FF-4018-BC48-3ED3CADCED57") this.printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Kine prescription
                         // AEFED10A-9A72-4B40-981B-1D79ADB05516
@@ -2284,6 +2284,25 @@ import * as models from 'icc-api/dist/icc-api/model/models';
             printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
                 this.busySpinner = true;
+
+                const subSubFormObjectsAndValues = _.map(
+                    _.map(
+                        _
+                            .chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}))
+                            .filter({type:"TKSubConsult"})
+                            .value(),
+                        (i) => {return {
+                            name: _.trim(_.get(i, "name")),
+                            label: _.trim(_.get(i, "label")),
+                            subSubForm: _.head(subFormDataProvider.getSubForms(i.name))
+                        }}
+                    ), (i) => { return _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k); }) })
+
+                console.log(subSubFormObjectsAndValues);
+
+                this.busySpinner = false;
+
+                return;
 
                 let pdfPrintingData = {
                     patientData : {
