@@ -447,7 +447,7 @@
                         }
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
-                    getOrCreateContent: (svc, lng) => svc && this.contact().preferredContent(svc, lng),
+                    getOrCreateContent: (svc, lng) => svc && this.api.contact().preferredContent(svc, lng),
                     //Returns an array of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs share the same svc id. If there is a choice between several series of services. Pick the one that preferably appears in the contact.
                     getServicesLineForContact: label => {
                         const sss = self.services(label);
