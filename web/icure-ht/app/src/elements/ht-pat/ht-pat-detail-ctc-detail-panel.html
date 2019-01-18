@@ -583,13 +583,6 @@
                                 <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
                             </template>
                         </div>
-						<template is="dom-if" if="[[dof.unmappedServices.length]]">
-							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
-													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
-													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
-													 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-													 resources="[[resources]]"></dynamically-loaded-form>
-						</template>
 						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 							<template is="dom-if" if="[[form.id]]">
 								<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
@@ -604,6 +597,13 @@
 											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true"></dynamic-doc>
 							</template>
 						</template>
+                        <template is="dom-if" if="[[dof.unmappedServices.length]]">
+                            <dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
+                                                     current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
+                                                     main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+                                                     services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+                                                     resources="[[resources]]"></dynamically-loaded-form>
+                        </template>
 					</template>
 					</div>
 				</template>
@@ -1619,7 +1619,7 @@ import * as evaljs from "evaljs"
 			}
 
             _virtualForm(services) {
-                return {id: null, template: {name: 'Other services'}}
+                return {id: null, template: {name: this.localize('oth_svcs','Other services',this.language)}}
             }
 
             _contactsChanged() {
