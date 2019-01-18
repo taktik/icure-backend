@@ -823,7 +823,7 @@
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
             servicesInForm(formId, label) {
                 const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
-                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || (!formId && (!ss.scs || !ss.scs.some(ssc => ssc.formId)))) //Extract all services which appear at some point in that form
+                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || (!formId && (!ss.scs || !ss.scs.some(ssc => ssc.formId) && ss.ctc && ss.ctc.id === this.contact.id))) //Extract all services which appear at some point in that form
                         .map(ss => ss.svc.id)) //Get their ids
                         .map(id => _.sortBy(svcStructs.filter(ss => ss.svc.id === id), ss => -ss.svc.modified)) //Sort them by modified for each id
                         .filter(svcHistory => svcHistory.length) //Keep the ones with a history

@@ -350,7 +350,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!e) {
 			return null;
 		}
-		return content && { id: id, stringValue: this.api.contact().medication().medicationToString(this.api.contact().preferredContact(e,this.language).medicationValue, this.language || 'fr') };
+		return { id: id, stringValue: this.api.contact().medication().medicationToString((this.api.contact().preferredContent({content: e},this.language) || {}).medicationValue || "", this.language.toLowerCase() || 'fr') };
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
