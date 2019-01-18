@@ -126,7 +126,10 @@ class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Number,
 				value: 48,
 				observer: '_widthChanged'
-			}
+			},
+            disabled: {
+                type: Boolean
+            }
 		};
 	}
 
