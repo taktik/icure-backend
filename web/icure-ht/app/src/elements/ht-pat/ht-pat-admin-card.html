@@ -866,9 +866,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     patientChanged() {
-        if (this.api && this.user && this.patient) {
+        if (!this.api || !this.user) { return }
+
+        this.set('dataProvider', this.patientDataProvider({}, '', null, []));
+        this.set('patientMap', {});
+
+
+        if (this.patient) {
             this.api.getRegistry('patient').listeners['ht-pat-admin'] = {target: this, pool: [this.patient.id], callbacks: [this.partnershipsChanged.bind(this)]}
-            this.flushSave();
 
             this.initCurrentCareTeam();
 
@@ -1011,7 +1016,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             setDateValue: setValue,
             setBooleanValue: setValue,
             getValueContainers: (key) => {
-                return getValue(key).map((l,idx)=>{
+                return (getValue(key) || []).map((l,idx)=>{
                     const code = codes.find(c => c.code === l)
                     return {
                         id:this.api.crypto().randomUuid(),
@@ -1169,7 +1174,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         //var dmgOwner = []
 
         this.api.patient().getPatientWithUser(this.user,this.patient.id).then(patient => {
-
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
 

@@ -110,6 +110,25 @@
 				padding-bottom: 24px;
 			}
 
+            .ctc-header {
+                position: relative;
+                background: var(--app-background-color-dark);
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 16px;
+            }
+            .ctc-header .contact-title {
+                flex-grow: 1;
+            }
+
+            .ctc-header paper-button {
+                background: var(--app-secondary-color);
+                height: 24px;
+                margin: 12px 36px;
+            }
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
@@ -528,19 +547,42 @@
 			<div class="contact-card-container">
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
 				</template>
 				<template is="dom-if" if="[[table]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
 										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
 				</template>
 				<template is="dom-if" if="[[graphique]]">
+                    <div class="ctc-header">
+                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                        </template>
+                    </div>
 				</template>
 				<template is="dom-if" if="[[doc]]">
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<div class="ctc-header">
+                            <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                            <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                                <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            </template>
+                        </div>
 						<template is="dom-if" if="[[dof.unmappedServices.length]]">
 							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]"
 													 current-contact="[[currentContact]]" form="[[_virtualForm(dof.unmappedServices)]]"
@@ -885,8 +927,6 @@ import * as models from 'icc-api/dist/icc-api/model/models';
 
 			_refreshFromServices() {
 				this.set('_drugsRefresher', this._drugsRefresher + 1)
-
-
 			}
 
 			_actionIcon(showAddFormsContainer) {
@@ -1469,12 +1509,19 @@ import * as models from 'icc-api/dist/icc-api/model/models';
 				return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 			}
 
+            forceSaveCtc() {
+                this.api.contact().modifyContactWithUser(this.user, this.currentContact).then(modified=>{
+                    console.log('modified ?',modified)
+                    this.flushSave()
+                })
+            }
+
             _reportTemplateSelected(e, reportTemplate) {
 
-        this.savedDocTemplateId = reportTemplate.id;
-        this.$.templateDescription.value = _.trim( _.get(reportTemplate,"descr", _.get(reportTemplate, "name", this.localize('rep',this.language) ) ) )
+                this.savedDocTemplateId = reportTemplate.id;
+                this.$.templateDescription.value = _.trim( _.get(reportTemplate,"descr", _.get(reportTemplate, "name", this.localize('rep',this.language) ) ) )
 
-	    this.api.doctemplate().getAttachmentText(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
+        	    this.api.doctemplate().getAttachmentText(reportTemplate.id, reportTemplate.attachmentId).then(attach => {
 	        const prose = this.root.querySelector("#prose-editor")
             prose.setJSONContent(this.api.crypto().utils.ua2utf8(attach))
 			prose.applyContext((expr, template, ctx, cache) => {
@@ -1510,7 +1557,7 @@ import * as models from 'icc-api/dist/icc-api/model/models';
                dataProvider: this.editedReportDataProvider
 			})
 		})
-    }
+            }
 
 	        confirmSaved(event) {
         setTimeout(() => this.$.templateSavedIndicator.classList.remove("templateSaved"), 4000);

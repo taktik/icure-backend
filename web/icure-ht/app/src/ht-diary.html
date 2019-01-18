@@ -101,28 +101,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkAndLoadMikrono(){
                	if(this.user){
-               	   const applicationTokens = this.user.applicationTokens
-					if(applicationTokens && !applicationTokens.MIKRONO){
-                        this.api.bemikrono().register(this.user.id, {}).then(user => {
-                            this.set("mikronoData",  {
-                                url : user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || "",
-                                user: user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || "",
-                                password: user && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || ""
-                            })
-                            //this.set('showAgenda', true)
-                            window.open("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-                        })
-					}else{
-                        this.set("mikronoData",  {
-                            url : this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || "",
-                            user: this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || "",
-                            password: this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || ""
-						})
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-						console.log("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id)
-                        window.open("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-                        //this.set('showAgenda', true)
-					}
+                        const applicationTokens = this.user.applicationTokens
+						const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+						const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+						const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
+
+						if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+							window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+						}else{
+							const addresses = hcp && hcp.addresses || null
+							const workAddresses = addresses.find(adr => adr.addressType === "work") || null
+							const telecoms = workAddresses && workAddresses.telecoms
+							const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+							const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
+
+							if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
+                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+
+                                    const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                                    const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                                    const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+                                    if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                                        window.open("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                    }
+                                 })
+							}
+						}
+
+					})
 			   }
 			}
         }

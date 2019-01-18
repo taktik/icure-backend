@@ -6,6 +6,9 @@ out/
 # Log file
 *.log
 
+# MAC file
+.DS_Store
+
 # BlueJ files
 *.ctxt
 

@@ -537,6 +537,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 42px;
 			}
 
+            @media (max-width: 880px) {
+                span.nomobile {
+                    display: none;
+                }
+            }
+
 		</style>
 
 		<div class="layout-buttons">
@@ -616,7 +622,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]
                                 <template is="dom-if" if="[[!_isEqual(unreadCount,0)]]">
-                                    <span class="notif">[[unreadCount]] [[localize('are_not_read','unread',language)]]</span>
+                                    <span class="notif">[[unreadCount]]<span class="nomobile"> [[localize('are_not_read','unread',language)]]</span></span>
                                 </template>
                             </h1>
                             <paper-icon-button icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
@@ -868,7 +874,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             list == 'labResults' ? this.labResults :
             list == 'services' ? this.services :
             []
-        const ordered = _.orderBy(target,sort,'desc')
+        const dir = sort =='created' || sort =='startTime' || sort == 'service.valueDate' || sort == 'access.date' ?
+            'desc' : 'asc'
+        const ordered = _.orderBy(target,sort,dir)
         this.set(list,ordered)
     }
 

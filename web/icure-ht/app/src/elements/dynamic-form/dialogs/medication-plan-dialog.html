@@ -1716,6 +1716,10 @@
             _getHeaderTitle(col){
                 return col && col.pc && !col.tod ? this.localize("ms_"+col.pc, col.pc, this.language): col && col.tod ? col.tod.toString().substr(0,2)+"h"+col.tod.toString().substr(2,2) : null
             }
+
+            reset(){
+                this.$.chapterivdialog && this.$.chapterivdialog.reset()
+            }
         }
 
         customElements.define(MedicationPlanDialog.is, MedicationPlanDialog)
