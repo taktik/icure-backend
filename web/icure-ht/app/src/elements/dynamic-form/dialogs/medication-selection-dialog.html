@@ -337,15 +337,7 @@
                 return {
                     id: m.id,
                     codes: m.codes,
-                    medicationValue:
-                    (
-                        this.api.localize(m.content, this.language)  ||
-                        ( m.content[this.language] =
-                                {
-                                    medicationValue: { regimen: [] }
-                                }
-                        )
-                    ).medicationValue,
+                    medicationValue: ( this.api.contact().preferredContent(m, this.language)  || ( m.content[this.language] = { medicationValue: { regimen: [] } }) ).medicationValue,
                     isNew: isNew || false };
             }
 

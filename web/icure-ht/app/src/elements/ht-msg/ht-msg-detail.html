@@ -964,7 +964,7 @@
                                 <template is="dom-if" if="[[assignModal]]">
                                     <div id="import-suggest">
                                         <div class="line">
-                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <paper-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></paper-spinner>
+                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
                                         </div>
                                         <div class="twocol">
                                             <div>
@@ -1497,7 +1497,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    // console.log('getDataUrls',doc)
         if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) { // if encryption keys
             console.log(this.user.healthcarePartyId, doc.encryptionKeys)
-            return this.crypto
+            return this.api.crypto()
                 .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations)
                 .then(({extractedKeys: enckeys}) =>
                     this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl) ?
@@ -1596,6 +1596,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const idForApi = msg.id
             console.log('remove',idOfMsg,thisBox,delBox)
             if (!msg.transportGuid.startsWith("BIN")) {
                 this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
@@ -1615,6 +1616,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let msg = this.messages[0]
         if (msg) {
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const idForApi = msg.id
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
             console.log('restore',idOfMsg,thisBox,restoreBox)

@@ -21,7 +21,10 @@ package org.taktik.icure.logic
 
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.dto.filter.chain.FilterChain
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import javax.security.auth.login.LoginException
 
 
 interface CodeLogic : EntityPersister<Code, String> {
@@ -45,6 +48,7 @@ interface CodeLogic : EntityPersister<Code, String> {
     fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
 
     fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
+    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String>
 
     fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
 
@@ -56,4 +60,5 @@ interface CodeLogic : EntityPersister<Code, String> {
 	fun isValid(code: Code, ofType: String? = null): Boolean
 	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
 	fun getRegions(): List<String>
+    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code>
 }

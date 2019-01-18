@@ -436,7 +436,21 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _status() {
-        return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' : 'active';
+		//possible returns
+		//entity === null --> null
+		//status & 3 === 3 -- x11 --> 'archived' !!! not 2
+		//status & 2 === 2 -- x10 --> 'active-irrelevant'
+		// && if closingdate before now -- x11 --> 'archived'
+		//status & 1 === 1 -- x01 --> 'inactive'
+		//status & 3 === 0 -- x00 --> 'active-relevant'
+		// && if closingdate before now -- x01 --> 'inactive'
+        return !this.entity ? null :
+				((this.entity.status || 0) & 3) === 3 ? 'archived' :
+						((this.entity.status || 0) & 2) === 2 && (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'archived' :
+								((this.entity.status || 0) & 2) === 2 ? 'active-irrelevant' :
+										((this.entity.status || 0) & 1) === 1 ? 'inactive' :
+												((this.entity.status || 0) & 3) === 0 && (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' :
+								'active-relevant';
     }
 
     _severity() {
@@ -464,16 +478,27 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_statusChanged(e) {
 		switch (e.detail.value) {
-			case 'active':
-				this.set('entity.closingDate', null);((this.entity.status || 0) & 1) === 1 && this.set('entity.status', (this.entity.status || 0) - 1);((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			// case 'active': //will never be hit !
+			// 	this.set('entity.closingDate', null);
+			// 	((this.entity.status || 0) & 1) === 1 && this.set('entity.status', (this.entity.status || 0) - 1);
+			// 	((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			// 	break;
+			case 'active-relevant': //set status to x00
+				this.set('entity.closingDate', null);
+				this.set('entity.status', (this.entity.status & 4 || 0));
 				break;
-			case 'inactive':
-				((this.entity.status || 0) & 1) === 0 && this.set('entity.status', (this.entity.status || 0) + 1);((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			case 'active-irrelevant': //set status to x10
+				this.set('entity.closingDate', null);
+				this.set('entity.status', (this.entity.status & 4 || 0) | 2);
 				break;
-			case 'archived':
-				((this.entity.status || 0) & 2) === 0 && this.set('entity.status', (this.entity.status || 0) + 2);
+			case 'inactive': //set status to x01
+				this.set('entity.status', (this.entity.status & 4 || 0) | 1);
+				break;
+			case 'archived': //set status to x11
+				this.set('entity.status', (this.entity.status & 4 || 0) | 3);
 				break;
 		}
+		console.log('status : ', this.entity.status)
 	}
 
     _severityChanged(e) {

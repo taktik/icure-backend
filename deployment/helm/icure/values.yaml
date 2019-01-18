@@ -1,0 +1,40 @@
+pullPolicy: "IfNotPresent"
+
+couchdbServiceName: "couchdb-svc-couchdb.couch"
+couchdbPortNumber: 5984
+
+ingressIP: "" # defined during helm install
+tls:
+    host: ""
+    refName: ""
+
+images:
+    backend:
+        repository: "docker.taktik.be/icure-backend"
+        tag:
+        replicaCount: 3
+        javaOpts: "-Xmx2056m -Dorg.ektorp.support.AutoUpdateViewOnChange=false -Dicure.sync.global.databases=false -Dicure.hazelcast.groupName=K8SICC -Dicure.mail.smtp.username=icure-cloud-mikrono-2 -Dicure.mail.smtp.password=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"
+        memoryRequest: "2300M"
+        memoryLimit: "2300M"
+        cpuRequest: 100m
+        cpuLimit: 2
+        servicePort: 16043
+        debug: true
+        env:
+            ICURE_COUCHDB_USERNAME: "fccpe7yv"
+            ICURE_COUCHDB_PASSWORD: "AdQjxNxZKY74pMYV"
+            ICURE_COUCHDB_PREFIX: "icure-__"
+            ICURE_COUCHDB_ENFORCE: "TRUE"
+            ICURE_MIKRONO_SUPERUSER: "icure"
+            ICURE_MIKRONO_SUPERTOKEN: "751fcf8b-aad1-4b14-a2b7-3345dd33727f"
+            ICURE_MIKRONO_APPLICATIONTOKEN: "L7FSRAGFROE20A66J3K2XVOZIIIKSELZZDS9D"
+    frontend:
+        repository: "docker.taktik.be/icure-frontend"
+        tag:
+        replicaCount: 0
+        memoryRequest: "64M"
+        memoryLimit: "512M"
+        cpuRequest: 50m
+        cpuLimit: 500m
+        servicePort: 80
+        env: {}

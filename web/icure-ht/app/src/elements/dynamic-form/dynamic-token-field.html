@@ -11,108 +11,108 @@
 <link rel="import" href="dynamic-link.html">
 
 <dom-module id="dynamic-token-field">
-	<template>
-		<style>
+    <template>
+        <style>
 
 
-			:host {
-				display: block;
-				position: relative;
-				flex-grow: var(--dynamic-field-width, 100);
-				min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
-				margin: 0 16px;
-			}
+            :host {
+                display: block;
+                position: relative;
+                flex-grow: var(--dynamic-field-width, 100);
+                min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
+                margin: 0 16px;
+            }
 
-			dynamic-link {
-				position: absolute;
-				right: 0;
-				bottom: 8px;
-			}
+            dynamic-link {
+                position: absolute;
+                right: 0;
+                bottom: 8px;
+            }
 
-			.modified-icon {
-				width: 18px;
-			}
+            .modified-icon {
+                width: 18px;
+            }
 
-			.modified-previous-value {
-				color: var(--app-text-color-disabled);
-				text-decoration: line-through;
-				font-style: italic;
-			}
+            .modified-previous-value {
+                color: var(--app-text-color-disabled);
+                text-decoration: line-through;
+                font-style: italic;
+            }
 
-			.modified-before-out {
-				color: var(--app-secondary-color-dark);
-				text-align: right;
-				float: right;
-				font-style: italic;
-				border-bottom: 1px dotted var(--app-secondary-color-dark);
-			}
+            .modified-before-out {
+                color: var(--app-secondary-color-dark);
+                text-align: right;
+                float: right;
+                font-style: italic;
+                border-bottom: 1px dotted var(--app-secondary-color-dark);
+            }
 
-			.modified-after-out {
-				color: var(--app-secondary-color-dark);
-				text-align: right;
-				float: right;
-				font-style: italic;
-				border-bottom: 1px dotted var(--app-secondary-color-dark);
-			}
+            .modified-after-out {
+                color: var(--app-secondary-color-dark);
+                text-align: right;
+                float: right;
+                font-style: italic;
+                border-bottom: 1px dotted var(--app-secondary-color-dark);
+            }
 
-			paper-input-container {
-				--paper-input-container-focus-color: var(--app-primary-color);
-				--paper-input-container-label: {
-					color: var(--app-text-color);
-					opacity: 1;
-				};
-				--paper-input-container-underline-disabled: {
-					border-bottom: 1px solid var(--app-text-color);
+            paper-input-container {
+                --paper-input-container-focus-color: var(--app-primary-color);
+                --paper-input-container-label: {
+                    color: var(--app-text-color);
+                    opacity: 1;
+                };
+                --paper-input-container-underline-disabled: {
+                    border-bottom: 1px solid var(--app-text-color);
 
-				};
-				--paper-input-container-color: var(--app-text-color);
-			}
+                };
+                --paper-input-container-color: var(--app-text-color);
+            }
 
-			.tokens {
-				margin-right: 6px;
-				min-height: 24px;
-			}
+            .tokens {
+                margin-right: 6px;
+                min-height: 24px;
+            }
 
-			.tokens paper-button {
-				background: var(--exm-token-input-badge-color, --default-primary-color);
-				margin: 2px 0;
-				color: var(--exm-token-input-badge-text-color, --text-primary-color);
-				height: 18px;
-				font-size: 13px;
-				min-width: initial;
-			}
+            .tokens paper-button {
+                background: var(--exm-token-input-badge-color, --default-primary-color);
+                margin: 2px 0;
+                color: var(--exm-token-input-badge-text-color, --text-primary-color);
+                height: 18px;
+                font-size: 13px;
+                min-width: initial;
+            }
 
-			.tokens paper-button iron-icon {
-				height: 16px;
-				width: 16px;
-			}
+            .tokens paper-button iron-icon {
+                height: 16px;
+                width: 16px;
+            }
 
-			input {
-				font: inherit;
-				outline: 0;
-				box-shadow: none;
-				border: none;
-				width: auto;
-				max-width: 100%;
-				min-width: 1.8em;
-				font-size: var(--form-font-size);
-			}
+            input {
+                font: inherit;
+                outline: 0;
+                box-shadow: none;
+                border: none;
+                width: auto;
+                max-width: 100%;
+                min-width: 1.8em;
+                font-size: var(--form-font-size);
+            }
 
-			.container {
-				@apply(--layout-horizontal);
-			}
+            .container {
+                @apply(--layout-horizontal);
+            }
 
-			iron-selector > * {
-				padding: 16px 16px;
-			}
+            iron-selector > * {
+                padding: 16px 16px;
+            }
 
-			label, .container {
-				cursor: text;
-			}
+            label, .container {
+                cursor: text;
+            }
 
-		</style>
+        </style>
 
-		<tk-token-field label="[[localize(label,label,language)]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="codeId"  data-label-path="stringValue" data-source="[[dataSource]]" always-float-label>
+		<tk-token-field label="[[localize(label,label,language)]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="codeId"  data-label-path="stringValue" data-source="[[dataSource]]" always-float-label read-only="[[readOnly]]" disabled="[[readOnly]]">
 			<span slot="label-suffix">
 				<template is="dom-if" if="[[wasModified]]">
 					<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
@@ -188,25 +188,44 @@ class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			linkables: {
 				type: Array
+                    },
+                    dedupDataSource: {
+                        type: Object
+                    },
+                    uuid: {
+                        type: String,
+                        value: null
 			}
 		};
 	}
 
 	static get observers() {
-		return ['_valueChanged(value.*)'];
+                return ['_valueChanged(value.*)', '_dataSourceChanged(dataSource)']
 	}
 
 	constructor() {
-		super();
+        super()
+    }
+
+    _dataSourceChanged(dataSource) {
+        dataSource && this.set('dedupDataSource',
+            {
+                filter: (ss) => {
+                    if (!this.uuid && this.api) {
+                        this.uuid = this.api.crypto().randomUuid()
+                    }
+                    return dataSource.filter(ss, this.uuid)
+                }
+            })
 	}
 
 	_localizedValueChanged(change) {
-		const current = this.value;
-		const modified = this.localizedValue;
-		const newValue = [];
+        const current = this.value
+        const modified = this.localizedValue
+        const newValue = []
 
 		modified.forEach((m, idx) => {
-			const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id);
+                    const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id)
 			if (existing) {
 			    _.assign(existing, {content: _.fromPairs([[this.language, { stringValue: m.stringValue }]]), codes: m.codes || []})
 				newValue.push(_.assign(existing, { index: idx }));
@@ -240,7 +259,7 @@ class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!e) {
 			return null;
 		}
-		let content = e[lng] || e.fr || e.en || e.nl;
+		let content = this.api.contact().preferredContent(e,this.language)
 		return content && { id: id, stringValue: '' + content.stringValue };
 	}
 

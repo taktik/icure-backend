@@ -1,0 +1,21 @@
+{{- if .Values.images.backend.replicaCount }}
+apiVersion: v1
+kind: Service
+metadata:
+    name: "{{ template "fullname" . }}-backend"
+    labels:
+        app: {{ template "name" . }}
+        chart: {{ template "chart" . }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+        component: "backend"
+spec:
+    ports:
+        -   protocol: TCP
+            port: {{ .Values.images.backend.servicePort }}
+            targetPort: http
+    selector:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+        component: "backend"
+  {{- end }}

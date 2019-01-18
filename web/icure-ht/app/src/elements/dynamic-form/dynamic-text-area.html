@@ -15,7 +15,7 @@
 		<style>
 			:host {
 				position: relative;
-				flex-grow: var(--dynamic-field-width, 100);
+				flex-grow: 1;
 				min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
 				margin: 0 16px;
 			}
@@ -73,6 +73,10 @@
 				font-size: var(--form-font-size);
 			}
 
+			iron-autogrow-textarea {
+				margin-right: 55px;
+			}
+
 		</style>
 
 		<iron-icon icon=""></iron-icon>
@@ -85,9 +89,9 @@
 					<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 				</template>
 			</label>
-			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
+			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]" disabled="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]" read-only="[[readOnly]]"></dynamic-link>
 	</template>
 	<script>
 class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -126,7 +130,10 @@ class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Number,
 				value: 48,
 				observer: '_widthChanged'
-			}
+			},
+            disabled: {
+                type: Boolean
+            }
 		};
 	}
 

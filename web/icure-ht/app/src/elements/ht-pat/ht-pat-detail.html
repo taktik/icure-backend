@@ -847,7 +847,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-fab-background: var(--app-status-color-pending);
             }
 
-            #insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus {
+            #insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus.edmgNOk {
                 --paper-fab-background: var(--app-status-color-nok);
             }
 
@@ -1482,7 +1482,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
                                                 api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" medications="[[medications]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
+                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
             </template>
 
         </div>
@@ -1822,7 +1822,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
-        <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
+        <medication-plan-dialog id="medication_plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
         <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
         <ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
         <!--<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>-->
@@ -2853,10 +2853,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
                     this.$.savedIndicator.classList.add("saved");
+                    this._refreshFromServices()
 
-                    if (ctc.services.some(s => s.tags.find(t => t.type === 'CD-LIFECYCLE' || t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
-                        this.refreshPatient();
-                    }
                     return c;
                 });
             }
@@ -2934,8 +2932,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             patientChanged(api, user, patient) {
-                this.$.chapterivdialog && this.$.chapterivdialog.reset()
-
                 this.set('healthTopics', [])
 
                 this.set('healthElements', [])
@@ -2959,6 +2955,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.root.querySelector('#cb_ishelb').opened = false
                 this.root.querySelector('#cb_frhelb').opened = false
 
+                this.root.querySelector('#medication_plan').reset()
+
+
                 this.set('selectedHealthcareElements', [])
                 this.set('contacts', [])
                 this.set('contactYears', [])
@@ -2971,6 +2970,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
 
+            }
+
+
+            _makeHeFromSvc(svc) {
+                return {
+                    created: svc.created,
+                    modified: svc.modified,
+                    endOfLife: svc.endOfLife,
+                    author: svc.author,
+                    responsible: svc.responsible,
+                    codes: svc.codes,
+                    tags: svc.tags,
+                    valueDate: svc.valueDate,
+                    openingDate: svc.openingDate,
+                    closingDate: svc.closingDate,
+                    descr: this.shortServiceDescription(svc, this.language),
+                    idService: svc.id,
+                    status: svc.status,
+                    svc: svc,
+                    plansOfAction: []
+                }
+            }
+
+            _refreshFromServices() {
+                if (this.currentContact) {
+                    const combinedHes = (this.activeHealthElements || []).concat(this.inactiveHealthElements || []).concat(this.archivedHealthElements || []).concat(this.allergies || []).concat(this.risks || []).concat(this.familyrisks || []).concat(this.surgicalHealthElements || [])
+                    const idServicesInHes = combinedHes.map(he => he.idService)
+
+                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy', 'diagnosis'].includes(c.code)) && !idServicesInHes.includes(s.id))
+                    const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
+
+                    this.set('activeHealthElements', (this.activeHealthElements || []).concat(svcHes).filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
+                    this.set('inactiveHealthElements', (this.inactiveHealthElements || []).concat(svcHes).filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
+                    this.set('archivedHealthElements', (this.archivedHealthElements || []).concat(svcHes).filter(it => (it.status & 3) === 3))
+                    this.set('allergies', (this.allergies || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
+                    this.set('risks', (this.risks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
+                    this.set('familyrisks', (this.familyrisks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
+                    this.set('surgicalHealthElements', (this.surgicalHealthElements || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'surgery')))
+                }
             }
 
             refreshPatient() {
@@ -2999,27 +3037,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         -(x.closingDate || 0)
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
-
                     //console.log("Before filter service "+(+new Date() - start))
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy', 'diagnosis'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         //console.log("After filter service"+(+new Date() - start))
-                        const svcHes = hesAsServices.map(svc => ({
-                            created: svc.created,
-                            modified: svc.modified,
-                            endOfLife: svc.endOfLife,
-                            author: svc.author,
-                            responsible: svc.responsible,
-                            codes: svc.codes,
-                            tags: svc.tags,
-                            valueDate: svc.valueDate,
-                            openingDate: svc.openingDate,
-                            closingDate: svc.closingDate,
-                            descr: this.shortServiceDescription(svc, this.language),
-                            idService: svc.id,
-                            status: svc.status,
-                            svc: svc,
-                            plansOfAction: []
-                        }))
+                        const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3046,7 +3067,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('activeHealthElements', combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
                             this.set('inactiveHealthElements', combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
-                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
+                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 3) === 3))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
                             this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
@@ -3079,6 +3100,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
                             }
+                            ctc.services.forEach(s => {
+                                if (!s.label) {
+                                    s.label = ((s.tags.find(t => t.type === 'SOAP') || {}).code || 'Other').replace(/ *: *$/,'')
+                                }
+                            })
                         })
 
                         //console.log("After scan ctcs "+(+new Date() - start))
@@ -3088,16 +3114,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 this.api.contact()
                                     .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
                                     .then(c => this.api.contact().newInstance(this.user, patient, {
-                                        descr: 'Contact du jour',
-                                        userDescr: 'Contact du jour'
+                                        descr: this.localize('contact_of_the_day','Contact of the day',this.language),
+                                        userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
                                     })
                                     )
                                 : Promise.resolve(unclosedContact)) ||
                             this.api.contact().newInstance(this.user, patient, {
-                                descr: 'Contact du jour',
-                                userDescr: 'Contact du jour'
+                                descr: this.localize('contact_of_the_day','Contact of the day',this.language),
+                                userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
                             })
-                        ).then(newCtc => {
+                        )
+                        .then(newCtc => {
                             const thisYear = moment().year()
 
                             console.log("Before set contacts "+(+new Date() - start))
@@ -3160,7 +3187,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             if (currentlySelectedContactsIds.some(cId => !ctcs.some(c => c.id === cId))) {
                                 this.set('selectedContactIds', _.compact(ctcs.filter(c => currentlySelectedContactsIds.includes(c.id)).map(c => `ctc_${c.id}`)))
+                            }  else {
+                                this.set('selectedContactIds',['ctc_'+newCtc.id])
                             }
+
                             setTimeout(() =>
                                 this.selectedContactIds.forEach(cDomId => {
                                     const pm = this.root.querySelector(`#${cDomId}`)
@@ -3175,7 +3205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //console.log("Before filter svcs "+(+new Date() - start))
 
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => {
-                        this.set('medications', _.sortBy(medications.filter(m => m.content.medication.medicationValue.beginMoment !== m.content.medication.medicationValue.endMoment).map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
+                        this.set('medications', _.sortBy(medications.filter(m =>this.api.contact().preferredContent(m, this.language).medicationValue.beginMoment !== this.api.contact().preferredContent(m, this.language).medicationValue.endMoment).map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
                         //console.log("After filter svcs "+(+new Date() - start))
 
                     })
@@ -3833,7 +3863,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const medicationService = e.detail
                     this.$['medication-detail'].open(e.detail, {
                         id: medicationService.id,
-                        medicationValue: (this.api.localize(medicationService.content, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
+                        medicationValue: (this.api.contact().preferredContent(medicationService, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
                         isNew: true
                     });
                 }
@@ -3934,7 +3964,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _svcEntityContentChanged(e, value) {
                 const svc = styx.parent(e.target, el => el.tagName.toLowerCase() === 'entity-selector').entity;
-                const content = svc.content || (svc.content = {});(content[this.language] || (content[this.language] = {})).stringValue = value;
+                const content = (this.api.contact().preferredContent(svc, this.language) || {}).stringValue = value;
             }
 
             _updateFilterPanels() {
@@ -4071,7 +4101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation()
                 e.preventDefault()
 
-                this.$['chapterivdialog'].open()
+                //this.$['chapterivdialog'].open()
             }
 
 
@@ -4085,6 +4115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             updateEdmgClassList( cssClassToAssign ) {
                 this.$.edmgStatus.classList.remove('edmgPending');
                 this.$.edmgStatus.classList.remove('edmgOk');
+                this.$.edmgStatus.classList.remove('edmgNOk');
                 this.$.edmgStatus.classList.add(cssClassToAssign||'');
             }
 
@@ -4112,7 +4143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         thisHcp => {
                             this.set('isLoading', false);
                             const currentTstamp = moment().valueOf();
-                            if( thisHcp.nihii !== ( edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '' ) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; } // Connected doctor !== the one that has patient's EDMG
+                            if( thisHcp.nihii !== ( edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '' ) ) { this.updateEdmgClassList('edmgNOk'); console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; } // Connected doctor !== the one that has patient's EDMG
                             if( edmgStatusResponse.from <= currentTstamp && edmgStatusResponse.to >= currentTstamp ) { this.updateEdmgClassList('edmgOk'); console.log( 'EDMG OK: last consultation less than 1 year ago' ); return; } // Valid status (last consultation between start & end of eDMG)
                             if( edmgStatusResponse.from > currentTstamp && currentTstamp >= moment(edmgStatusResponse.from).subtract(1, 'year').valueOf() ) { this.updateEdmgClassList('edmgPending');console.log( 'EDMG PENDING: last consultation less than 2 years ago (but more than one)' ); return; } // Pending status (last consultation more than a year ago but less than 2 years ago)
                             console.log( 'EDMG FAILED: last consultation more than 2 years ago' ); // Anything else

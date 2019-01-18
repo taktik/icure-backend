@@ -442,7 +442,11 @@
 
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
-            // Antoine IP => http://quadbeat:9222/pdf
+
+            // TEST AD: http://quadbeat.local:8083
+            // TEST AD: http://192.168.63.100:8083
+            // PROD: https://report.icure.cloud
+
             return fetch(`https://report.icure.cloud/pdf${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
@@ -585,7 +589,6 @@
 
         }
 
-        //TODO check for MH
         encryptDecryptFileContentByUserHcpIdAndDocumentObject( encryptOrDecryptMethod, hcpId, documentObject, rawFileContent  ) {
             if( !_.trim(encryptOrDecryptMethod) || !_.trim(hcpId) || !documentObject || !rawFileContent || typeof this.crypto().AES[_.trim(encryptOrDecryptMethod).toLocaleLowerCase()] !== "function" ) return Promise.resolve(rawFileContent);
             return this.crypto().decryptAndImportAesHcPartyKeysInDelegations(hcpId, documentObject.encryptionKeys && Object.keys(documentObject.encryptionKeys).length ? documentObject.encryptionKeys : documentObject.delegations).then(decryptedAndImportedAesHcPartyKeys => {
@@ -633,9 +636,14 @@
             return inputContent;
         }
 
-        formatRawInamigWithHyphens(inputContent) {
-            // Split with hyphens (1,6,2,3) unless already has some
-            return inputContent.indexOf("-")>-1 ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
+        formatInamiNumber(inputContent) {
+            // Split with hyphens (1,6,2,3) unless already has some or is empty
+            return inputContent.indexOf("-")>-1 || !_.trim(inputContent) ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
+        }
+
+        formatSsinNumber(inputContent) {
+            inputContent = _.trim(inputContent).replace(/[^0-9]+/g, '')
+            return _.trim([inputContent.slice(0,2),inputContent.slice(2,4),inputContent.slice(4,6)].join(".")) + "-" + _.trim([inputContent.slice(6,9),inputContent.slice(9,11)].join("."));
         }
 
     }
