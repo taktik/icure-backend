@@ -1026,7 +1026,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     }
                 })
             },
-            setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContact(s,this.language) || {}).stringValue)),
+            setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContent(s,this.language) || {}).stringValue)),
             getSubForms: key => {
                 return (root[key] || []).map((a, idx) => {
                     return {

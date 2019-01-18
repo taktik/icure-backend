@@ -251,7 +251,7 @@
             }
 
             _getName(svc){
-                const content = svc && this.api.contact().preferredContact(svc, this.language)
+                const content = svc && this.api.contact().preferredContent(svc, this.language)
                 return content.medicationValue.medicinalProduct.intendedname || content.stringValue
             }
             _timeFormat(date) {
