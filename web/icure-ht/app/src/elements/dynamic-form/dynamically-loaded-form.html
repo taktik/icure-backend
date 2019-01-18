@@ -177,7 +177,7 @@
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {
-                return form && contact && (!currentContact || (contact !== currentContact && !currentContact.subContacts.some(sc => sc.formId === form.id)));
+                return (form && contact && (!currentContact || (contact !== currentContact && !currentContact.subContacts.some(sc => sc.formId === form.id)))) || (currentContact.closingDate?true:false);
             }
 
             linkService(e) {

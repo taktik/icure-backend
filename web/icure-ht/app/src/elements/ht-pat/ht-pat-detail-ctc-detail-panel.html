@@ -123,10 +123,30 @@
                 flex-grow: 1;
             }
 
-            .ctc-header paper-button {
+            .ctc-header .save {
                 background: var(--app-secondary-color);
-                height: 24px;
+                border-radius: 50%;
                 margin: 12px 36px;
+                padding: 4px;
+                cursor: pointer;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                transition: .25s ease;
+                width: 24px;
+                height: 24px;
+                text-align: center;
+                line-height: 24px;
+            }
+            .ctc-header .save iron-icon {
+                width: 20px;
+                margin-top: -3px;
+            }
+            .ctc-header .save:hover {
+                transform: scale(1.05);
+            }
+            .ctc-header .save:active {
+                background: var(--app-secondary-color-dark);
+                box-shadow: none;
+                transform: scale(.9);
             }
 
 			.contact-title{
@@ -550,7 +570,9 @@
                     <div class="ctc-header">
                         <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            <div class="save">
+                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                            </div>
                         </template>
                     </div>
 					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -560,7 +582,9 @@
                     <div class="ctc-header">
                         <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            <div class="save">
+                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                            </div>
                         </template>
                     </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -570,7 +594,9 @@
                     <div class="ctc-header">
                         <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                            <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                            <div class="save">
+                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                            </div>
                         </template>
                     </div>
 				</template>
@@ -580,7 +606,9 @@
 						<div class="ctc-header">
                             <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                                <paper-button on-tap="forceSaveCtc">[[localize('save','Save',language)]]</paper-button>
+                                <div class="save">
+                                    <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                </div>
                             </template>
                         </div>
 						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
