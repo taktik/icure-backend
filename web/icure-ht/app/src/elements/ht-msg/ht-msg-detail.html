@@ -1596,15 +1596,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const idForApi = msg.id
             console.log('remove',idOfMsg,thisBox,delBox)
             if (!msg.transportGuid.startsWith("BIN")) {
-                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
+                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idForApi], thisBox, delBox)
                     .then(()=>{
                         msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                         this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
                     })
             } else {
-                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idForApi], delBox)
             }
             const target = this.parentElement.parentNode.children[1]
             target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
@@ -1615,10 +1616,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let msg = this.messages[0]
         if (msg) {
             const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            const idForApi = msg.id
             const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
             const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
             console.log('restore',idOfMsg,thisBox,restoreBox)
-            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
+            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idForApi], thisBox, restoreBox)
                 // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
                 .then(()=>{
                     msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
