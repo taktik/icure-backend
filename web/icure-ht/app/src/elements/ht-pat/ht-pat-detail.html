@@ -2853,10 +2853,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
                     this.$.savedIndicator.classList.add("saved");
+                    this._refreshFromServices()
 
-                    if (ctc.services.some(s => s.tags.find(t => t.type === 'CD-LIFECYCLE' || t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
-                        this.refreshPatient();
-                    }
                     return c;
                 });
             }
@@ -2974,6 +2972,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+
+            _makeHeFromSvc(svc) {
+                return {
+                    created: svc.created,
+                    modified: svc.modified,
+                    endOfLife: svc.endOfLife,
+                    author: svc.author,
+                    responsible: svc.responsible,
+                    codes: svc.codes,
+                    tags: svc.tags,
+                    valueDate: svc.valueDate,
+                    openingDate: svc.openingDate,
+                    closingDate: svc.closingDate,
+                    descr: this.shortServiceDescription(svc, this.language),
+                    idService: svc.id,
+                    status: svc.status,
+                    svc: svc,
+                    plansOfAction: []
+                }
+            }
+
+            _refreshFromServices() {
+                if (this.currentContact) {
+                    const combinedHes = (this.activeHealthElements || []).concat(this.inactiveHealthElements || []).concat(this.archivedHealthElements || []).concat(this.allergies || []).concat(this.risks || []).concat(this.familyrisks || []).concat(this.surgicalHealthElements || [])
+                    const idServicesInHes = combinedHes.map(he => he.idService)
+
+                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy', 'diagnosis'].includes(c.code)) && !idServicesInHes.includes(s.id))
+                    const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
+
+                    this.set('activeHealthElements', (this.activeHealthElements || []).concat(svcHes).filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
+                    this.set('inactiveHealthElements', (this.inactiveHealthElements || []).concat(svcHes).filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
+                    this.set('archivedHealthElements', (this.archivedHealthElements || []).concat(svcHes).filter(it => (it.status & 3) === 3))
+                    this.set('allergies', (this.allergies || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
+                    this.set('risks', (this.risks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
+                    this.set('familyrisks', (this.familyrisks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
+                    this.set('surgicalHealthElements', (this.surgicalHealthElements || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'surgery')))
+                }
+            }
+
             refreshPatient() {
                 const patient = this.patient
 
@@ -3000,27 +3037,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         -(x.closingDate || 0)
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
-
                     //console.log("Before filter service "+(+new Date() - start))
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy', 'diagnosis'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         //console.log("After filter service"+(+new Date() - start))
-                        const svcHes = hesAsServices.map(svc => ({
-                            created: svc.created,
-                            modified: svc.modified,
-                            endOfLife: svc.endOfLife,
-                            author: svc.author,
-                            responsible: svc.responsible,
-                            codes: svc.codes,
-                            tags: svc.tags,
-                            valueDate: svc.valueDate,
-                            openingDate: svc.openingDate,
-                            closingDate: svc.closingDate,
-                            descr: this.shortServiceDescription(svc, this.language),
-                            idService: svc.id,
-                            status: svc.status,
-                            svc: svc,
-                            plansOfAction: []
-                        }))
+                        const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3164,8 +3184,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 this.set('selectedContactIds', _.compact(ctcs.filter(c => currentlySelectedContactsIds.includes(c.id)).map(c => `ctc_${c.id}`)))
                             }  else {
                                 this.set('selectedContactIds',['ctc_'+newCtc.id])
-                                this.set('selectedContacts', [newCtc])
                             }
+
                             setTimeout(() =>
                                 this.selectedContactIds.forEach(cDomId => {
                                     const pm = this.root.querySelector(`#${cDomId}`)
