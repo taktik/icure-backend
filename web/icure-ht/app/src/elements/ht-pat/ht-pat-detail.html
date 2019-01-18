@@ -3079,6 +3079,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
                             }
+                            ctc.services.forEach(s => {
+                                if (!s.label) {
+                                    s.label = ((s.tags.find(t => t.type === 'SOAP') || {}).code || 'Other').replace(/ *: *$/,'')
+                                }
+                            })
                         })
 
                         //console.log("After scan ctcs "+(+new Date() - start))
