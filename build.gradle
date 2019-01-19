@@ -16,6 +16,7 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.1.4')
+
 		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
 		classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // version 0.18.0 is incompatible with Spring Boot (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
 	}

@@ -89,19 +89,31 @@
 				overflow: hidden;
 			}
 
-			img{
-				max-width:100%;
+            .img-container img{
+				max-height:400px;
 				align-self: center;
 			}
+            .img-container:hover img{
+                max-height: none;
+                max-width: 100%;
+            }
 
             .txt-container {
+                font-family: "Lucida Console","Lucida Sans","monospace",sans-serif;
+                font-size: small;
                 width: 100%;
                 margin: 0;
-                min-height: 64px;
+                padding: 4px;
+                height: auto;
+                min-height: 256px;
+                max-height: 640px;
                 padding: 0;
                 box-shadow: none;
-                background: 0 0;
-                overflow: auto;
+                overflow: scroll;
+                border: 1px solid var(--app-background-color-dark);
+                background: var(--app-background-color);
+                box-sizing: border-box;
+                cursor: all-scroll;
             }
 
             .hoverpointer {

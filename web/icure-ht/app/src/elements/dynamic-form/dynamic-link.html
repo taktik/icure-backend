@@ -64,7 +64,7 @@
 
 
         <template is="dom-if" if="[[_display(linkables, initialised)]]">
-
+        <template is="dom-if" if="[[!readOnly]]">
             <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" opened="{{opened}}" allow-outside-scroll>
                 <paper-icon-button id="hc_menu" class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
                 <paper-listbox slot="dropdown-content">
@@ -103,6 +103,7 @@
                 </paper-listbox>
             </paper-menu-button>
             </template>
+        </template>
         </template>
     </template>
     <script>

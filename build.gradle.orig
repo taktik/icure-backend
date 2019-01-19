@@ -1,0 +1,349 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+buildscript {
+	ext {
+		kotlinVersion = '1.3.10'
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+		maven { url = 'https://maven.taktik.be/content/groups/public' }
+		maven { url = 'http://repo.spring.io/plugins-release' }
+	}
+	dependencies {
+		classpath('io.spring.gradle:propdeps-plugin:0.0.9.RELEASE')
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.1.4')
+<<<<<<< HEAD
+        classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
+        classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // versions 0.18.0+ are bugged (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
+=======
+		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
+		classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // version 0.18.0 is incompatible with Spring Boot (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
+>>>>>>> 8e4a7052d9a3385d15acf898a9c201a4d49d6293
+	}
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'git-version'
+apply plugin: 'docker-java'
+apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
+
+configure(allprojects) {
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-eclipse'
+}
+
+
+group = 'org.taktik.icure'
+<<<<<<< HEAD
+version = gitVersion //'1.0.90'
+=======
+version = gitVersion
+>>>>>>> 8e4a7052d9a3385d15acf898a9c201a4d49d6293
+sourceCompatibility = 1.8
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+
+
+compileJava {
+    options.fork = true
+    options.forkOptions.with {
+        memoryMaximumSize = "2048m"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir 'submodules/Ektorp/org.ektorp/src/main/java'
+            srcDir 'submodules/Ektorp/org.ektorp.spring/src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+            srcDir 'submodules/Ektorp/org.ektorp.spring/src/main/resources'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://www.e-contract.be/maven2/"
+    }
+    maven {
+        url = "http://repo.ehealth.fgov.be/artifactory/maven2/"
+    }
+    maven {
+        url = "https://maven.taktik.be/content/groups/public"
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    optional "org.springframework.boot:spring-boot-configuration-processor"
+
+    compile('org.springframework.boot:spring-boot-starter-jetty')
+    compile('org.springframework.boot:spring-boot-starter-jersey')
+    compile('org.springframework.boot:spring-boot-starter-mail')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2')
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compile("org.jetbrains.kotlin:kotlin-reflect")
+
+    compile group: 'org.springframework', name: 'spring-aspects', version: '4.3.14.RELEASE'
+    compile group: 'org.springframework', name: 'spring-websocket', version: '4.3.14.RELEASE'
+    compile group: 'org.springframework', name: 'spring-orm', version: '4.3.14.RELEASE'
+
+    // Logging
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+    compile group: 'ch.qos.logback', name: 'logback-access', version: '1.1.11'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.12'
+    compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.12'
+    compile group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.12'
+
+    // Java Commons
+    compile group: 'org.taktik.commons', name: 'commons-uti', version: '1.0'
+    compile(group: 'org.taktik.commons', name: 'commons-service', version: '1.0') {
+        exclude group: 'org.taktik.commons', module: 'commons-cluster'
+        exclude group: 'org.taktik.commons', module: 'commons-utils'
+    }
+
+	//Hibernate
+	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
+	compile group:'com.h2database', name: 'h2', version: '1.4.187'
+
+	// Jersey
+	compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.8.Final'
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.2.4'
+
+	// APIs
+	compile group: 'javax.annotation', name: 'jsr250-api', version: '1.0'
+	compile group: 'org.apache.ws.commons.axiom', name: 'axiom-impl', version: '1.2.15'
+	//compile group: 'com.sendgrid', name: 'sendgrid-java', version: '3.0.9'
+
+	// Others
+	//compile group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
+	compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+	compile group: 'org.ow2.asm', name: 'asm', version: '5.0.4'
+	compile group: 'org.ow2.asm', name: 'asm-commons', version: '5.0.4'
+	compile group: 'com.google.guava', name: 'guava', version: '20.0'
+	compile group: 'joda-time', name: 'joda-time', version: '2.9.7'
+	compile group: 'org.jdom', name: 'jdom-legacy', version: '1.1.3'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.3.6'
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.6'
+	compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.3.3'
+	compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.3.6'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.12'
+	compile group: 'com.eaio.uuid', name: 'uuid', version: '3.2'
+	compile group: 'com.googlecode.jmapper-framework', name: 'jmapper-core', version: '1.2.0'
+	compile group: 'ma.glasnost.orika', name: 'orika-core', version: '1.5.2'
+	compile group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.3'
+	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.2'
+	compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+
+	compile group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.5.6'
+	compile group: 'org.apache.axis2', name: 'axis2-adb', version: '1.5.6'
+
+	compile group: 'org.apache.lucene', name: 'lucene-core', version: '4.10.4'
+	compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.10.4'
+
+
+	// Bouncy Castle
+	compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.53'
+	compile group: 'org.bouncycastle', name: 'bcmail-jdk15on', version: '1.53'
+
+	//2FA
+	compile group:'org.jboss.aerogear', name:'aerogear-otp-java', version:'1.0.0'
+
+	// Swagger
+	compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version: '1.5.16'
+
+	//Saxon
+	compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.6.0-6'
+
+
+	//Ektorp dependencies
+	compile group: 'de.undercouch', name: 'actson', version: '1.2.0'
+
+
+	//DTO check
+	compile group: 'com.github.javaparser', name: 'javaparser-core', version: '2.0.0'
+
+	//JSP stuff
+	compile group: 'org.apache.taglibs', name: 'taglibs-standard-spec', version: '1.2.5'
+	compile group: 'org.apache.taglibs', name: 'taglibs-standard-impl', version: '1.2.5'
+
+	//EH Validator
+	compile group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
+	compile name: 'probatron4j-custom-0.7.4'
+	compile name: 'ehvalidator-service-core-2.1.1'
+
+    // mustache
+    compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
+
+	// Runtime
+	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+// Adding specific windows compilation for taktik frontend
+task npmInstallWindows(type: Exec) {
+    description 'start npm on Windows systems'
+    workingDir "$projectDir/web/icure-ht"
+    executable  'npm.cmd'
+    args 'i'
+}
+task bowerInstallWindows(type: Exec) {
+    description 'start bower on Windows systems'
+    workingDir "$projectDir/web/icure-ht"
+    executable  'bower.cmd'
+    args 'install'
+}
+
+task installWebResourcesDependencies(type: Exec) {
+    group 'build'
+    description 'Package web resources'
+
+    workingDir "$projectDir/web/icure-ht"
+    commandLine "npm", "install"
+    commandLine "bower", "install"
+}
+npmInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
+bowerInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
+bowerInstallWindows.dependsOn(npmInstallWindows)
+
+installWebResourcesDependencies.onlyIf{ !Os.isFamily(Os.FAMILY_WINDOWS)}
+
+
+task packageHtWebResources(type: Exec) {
+    group 'build'
+    description 'Package web resources'
+
+    workingDir "$projectDir/web/icure-ht"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "cmd", "/c node_modules\\.bin\\webpack.cmd --config webpack.config.js --mode production --devtool none"
+    } else {
+        commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js", "--mode", "production", "--devtool", "none"
+    }
+}
+
+task packageTzWebResources(type: Exec) {
+    group 'build'
+    description 'Package web resources'
+
+    workingDir "$projectDir/web/icure-ht"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "cmd", "/c node_modules\\.bin\\webpack.cmd --config webpack.config.tz.js --mode production --devtool none"
+    } else {
+        commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js", "--mode", "production", "--devtool", "none"
+    }
+}
+
+packageHtWebResources.dependsOn(installWebResourcesDependencies)
+packageTzWebResources.dependsOn(installWebResourcesDependencies)
+packageHtWebResources.dependsOn(bowerInstallWindows)
+packageTzWebResources.dependsOn(bowerInstallWindows)
+
+task copyHtWebResources(type: Copy) {
+    from "$projectDir/web/icure-ht/dist"
+    into "${buildDir}/resources/main/static/ht"
+}
+
+task copyTzWebResources(type: Copy) {
+    from "$projectDir/web/icure-ht/dist-tz"
+    into "${buildDir}/resources/main/static/tz"
+}
+
+copyHtWebResources.dependsOn(packageHtWebResources)
+copyTzWebResources.dependsOn(packageTzWebResources)
+compileJava.dependsOn(processResources)
+
+bootRepackage.dependsOn(copyHtWebResources)
+bootRepackage.dependsOn(copyTzWebResources)
+
+// Setup resolution strategy
+configurations.all {
+    resolutionStrategy {
+        // Don't cache changing modules at all
+        cacheChangingModulesFor 0, 'seconds'
+        force 'junit:junit:4.11'
+        force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
+    }
+
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    exclude group: 'com.sun.security', module: 'pkcs11'
+    exclude group: 'javax.servlet', module: 'servlet-api'
+    exclude group: 'org.mortbay.jetty', module: 'jetty'
+    exclude group: 'commons-logging', module: 'commons-logging'
+    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    exclude group: 'log4j', module: 'log4j'
+    exclude group: 'log4j', module: 'apache-log4j-extras'
+    exclude group: 'asm', module: 'asm'
+    exclude group: 'javax', module: 'javaee-api'
+    exclude group: 'org.apache.openejb', module: 'javaee-api'
+}
+
+springBoot {
+    mainClass = "org.taktik.icure.ICureBackendApplicationKt"
+}
+
+/*
+ * Exclude Frontend Generation in order to compile only backend
+ * Usage : -P skipFrontend=0
+ */
+bowerInstallWindows.onlyIf { !project.hasProperty('skipFrontend') }
+installWebResourcesDependencies.onlyIf { !project.hasProperty('skipFrontend') }
+packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+
+task dockerizeFrontend(type: Exec) {
+    def push = project.hasProperty("dockerPush")
+    def dryRun = project.hasProperty("noDockerBuild")
+
+    def v = project.ext.gitVersion // get version from git-version plugin
+    def tag = "docker.taktik.be/icure-frontend:$v"
+
+    if (!dryRun) {
+        def buildCommand = ['docker', 'build', './web/icure-ht', '-t', "$tag"]
+        if (push && !v.contains("dirty")) {
+            buildCommand += ['&&', 'docker', 'push', "$tag"]
+        }
+        setCommandLine(["bash", "-c" , buildCommand.join(" ")])
+    }
+}
+
+bootRun {
+   if ( project.hasProperty('jvmArgs') ) {
+       jvmArgs = (project.jvmArgs.split("\\s+") as List)
+   }
+}

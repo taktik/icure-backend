@@ -1044,12 +1044,20 @@
                                         </template>
                                     </p>
                                     <div class="invoiceDateInfo">
-                                        <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate,item.*)]]">
-                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:green" on-tap="_cancelPrintedDate" data-item$="[[item.id]]"></paper-icon-button>
-                                            <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                        <template is="dom-if" if="[[!_isInvoiceEattest(item,item.*)]]">
+                                            <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate,item.*)]]">
+                                                <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon>
+                                                <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                            </template>
                                         </template>
-                                        <template is="dom-if" if="[[_ifClosedButNotPrinted(item,item.*)]]">
-                                            <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:red" on-tap="_generatePrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                        <template is="dom-if" if="[[_isInvoiceEattest(item,item.*)]]">
+                                            <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate,item.*)]]">
+                                                <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:green" on-tap="_cancelPrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                                <span>[[_formatInvoiceDate(item.printedDate)]]</span>
+                                            </template>
+                                            <template is="dom-if" if="[[_ifClosedButNotPrinted(item,item.*)]]">
+                                                <paper-icon-button icon="vaadin:print" class="he-edit-btn" style="color:red" on-tap="_generatePrintedDate" data-item$="[[item.id]]"></paper-icon-button>
+                                            </template>
                                         </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
@@ -4523,6 +4531,10 @@
 
             _ifClosedButNotPrinted(item){
                 return item && !item.printedDate && !this._ifStatusDateExist(item.printedDate) && item.sentDate && item.sentMediumType==="eattest";
+            }
+
+            _isInvoiceEattest(item){
+                return item && item.sentMediumType==="eattest"
             }
         }
 

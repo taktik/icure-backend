@@ -54,7 +54,7 @@ public class EmbeddedDocViewWithKeysResponseHandler<T>  extends
 
 		List<CouchKeyValue<T>> result = new ArrayList<CouchKeyValue<T>>();
 		for (int i=0;i<parser.getRows().size();i++) {
-			result.add(new CouchKeyValue<>(parser.getKeys().get(i), parser.getRows().get(i)));
+			result.add(new CouchKeyValue<>(parser.getIds().get(i), parser.getKeys().get(i), parser.getRows().get(i)));
 		}
 
 		return result;
