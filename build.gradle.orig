@@ -16,20 +16,22 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.1.4')
-
+<<<<<<< HEAD
+        classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
+        classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // versions 0.18.0+ are bugged (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
+=======
 		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
 		classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // version 0.18.0 is incompatible with Spring Boot (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
+>>>>>>> 8e4a7052d9a3385d15acf898a9c201a4d49d6293
 	}
 }
 
-apply plugin: 'git-version'
-group = 'org.taktik.icure'
-version = gitVersion
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'git-version'
 apply plugin: 'docker-java'
 apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
 
@@ -40,6 +42,13 @@ configure(allprojects) {
     apply plugin: 'propdeps-eclipse'
 }
 
+
+group = 'org.taktik.icure'
+<<<<<<< HEAD
+version = gitVersion //'1.0.90'
+=======
+version = gitVersion
+>>>>>>> 8e4a7052d9a3385d15acf898a9c201a4d49d6293
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {

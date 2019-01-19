@@ -62,6 +62,7 @@
                 font-size: 12px;
                 line-height: 0.8;
                 border: 0;
+                cursor: help;
             }
             .view .item.title > div:nth-child(3) > div {
                 border-left: 1px solid var(--app-background-color-dark);
@@ -251,7 +252,8 @@
             }
 
             _getName(svc){
-                return svc && svc.content['medication'] ? svc.content['medication'].medicationValue.medicinalProduct.intendedname : (svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name')
+                const content = svc && this.api.contact().preferredContent(svc, this.language)
+                return content.medicationValue.medicinalProduct.intendedname || content.stringValue
             }
             _timeFormat(date) {
                 return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';

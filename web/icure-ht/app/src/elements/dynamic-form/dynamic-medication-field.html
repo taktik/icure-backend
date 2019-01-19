@@ -229,11 +229,16 @@
 
 		<ul>
 		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
-			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
+			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span>
+                <template is="dom-if" if="[[!readOnly]]">
+                    <div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div>
+                </template>
+            </li>
 		</template>
 		</ul>
-
-		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
+        <template is="dom-if" if="[[!readOnly]]">
+		    <paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
+        </template>
 
 	</template>
 	<script>
@@ -321,9 +326,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_valueChanged() {
 		let localizedValue = this._localizedValue(this.value);
 		const currentlyEditedMedication = this.selectedMedicationContentWithId && this.value.find(s=>s.id === this.selectedMedicationContentWithId.id)
-		if (currentlyEditedMedication && (this.api.localize(currentlyEditedMedication.content, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
+		console.log(currentlyEditedMedication.content)
+		if (currentlyEditedMedication && (this.api.contact().preferredContent(currentlyEditedMedication, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
 		    //After save, make sure that the currently edited data is connected to the loaded data
-			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
+			(this.api.contact().preferredContent(currentlyEditedMedication, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
 		}
 		if (!_.isEqual(this.value, this.previouslySavedValue)) {
 		    this.set('previouslySavedValue', _.cloneDeep(this.value))
@@ -349,8 +355,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!e) {
 			return null;
 		}
-		let content = e[lng] || e.fr || e.en || e.nl;
-		return content && { id: id, stringValue: this.api.contact().medication().medicationToString(content.medicationValue, this.language || 'fr') };
+		return { id: id, stringValue: this.api.contact().medication().medicationToString((this.api.contact().preferredContent({content: e},this.language) || {}).medicationValue || "", this.language.toLowerCase() || 'fr') };
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
@@ -358,15 +363,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue:
-            (
-                this.api.localize(m.content, this.language)  ||
-                 	( m.content[this.language] =
-                 	    {
-                 	        medicationValue: { regimen: [] }
-                 	    }
-                 	)
-            ).medicationValue,
+            medicationValue: (this.api.contact().preferredContent(m, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue,
             isNew: isNew || false };
 	}
 

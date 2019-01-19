@@ -22,20 +22,27 @@ package org.taktik.icure.logic.impl
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
+import org.apache.commons.beanutils.PropertyUtilsBean
+import org.apache.commons.lang3.ObjectUtils
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.dao.CodeDAO
+import org.taktik.icure.db.PaginatedDocumentKeyIdPair
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.dto.filter.chain.FilterChain
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.logic.CodeLogic
 import java.lang.reflect.InvocationTargetException
 import java.util.*
+import java.util.stream.Collectors
+import javax.security.auth.login.LoginException
 
 @Service
-class CodeLogicImpl(val codeDAO: CodeDAO) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
+class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
     override fun getTagTypeCandidates(): List<String> {
         return Arrays.asList("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
     }
@@ -108,6 +115,10 @@ class CodeLogicImpl(val codeDAO: CodeDAO) : GenericLogicImpl<Code, CodeDAO>(), C
         return codeDAO.findCodesByLabel(region, language, type, label, paginationOffset)
     }
 
+    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
+        return codeDAO.listCodeIdsByLabel(region, language, type, label)
+    }
+
     override fun <T : Enum<*>> importCodesFromEnum(e: Class<T>) {
 		/* TODO: rewrite this */
         val version = "" + e.getAnnotation(EnumVersion::class.java).value
@@ -143,6 +154,50 @@ class CodeLogicImpl(val codeDAO: CodeDAO) : GenericLogicImpl<Code, CodeDAO>(), C
         }
 
     }
+
+    override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
+        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.filter))
+        if (filterChain.predicate != null || sort != null && sort != "id") {
+            var codes = this.get(ArrayList(ids))
+            if (filterChain.predicate != null) {
+                codes = codes.filter { it -> filterChain.predicate.apply(it) }
+            }
+            val pub = PropertyUtilsBean()
+
+            codes.sortedBy { it -> try { pub.getProperty(it, sort ?: "id") as? String } catch(e:Exception) {""} ?: "" }
+
+            var firstIndex = if (paginationOffset != null && paginationOffset.startDocumentId != null) codes.map { it -> it.id }.indexOf(paginationOffset.startDocumentId) else 0
+            if (firstIndex == -1) {
+                return PaginatedList(0, ids.size, ArrayList(), null)
+            } else {
+                firstIndex += if (paginationOffset != null && paginationOffset.offset != null) paginationOffset.offset else 0
+                val hasNextPage = paginationOffset != null && paginationOffset.limit != null && firstIndex + paginationOffset.limit!! < codes.size
+                return if (hasNextPage)
+                    PaginatedList(paginationOffset!!.limit!!, codes.size, codes.subList(firstIndex, firstIndex + paginationOffset.limit!!),
+                                  PaginatedDocumentKeyIdPair(null, codes[firstIndex + paginationOffset.limit!!].id))
+                else
+                    PaginatedList(codes.size - firstIndex, codes.size, codes.subList(firstIndex, codes.size), null)
+            }
+        } else {
+            if (desc != null && desc) {
+                ids = (ids as TreeSet<String>).descendingSet()
+            }
+            if (paginationOffset != null && paginationOffset.startDocumentId != null) {
+                ids = ids.subSet(paginationOffset.startDocumentId, (ids as TreeSet<*>).last().toString() + "\u0000")
+            }
+            var idsList: List<String> = ArrayList(ids)
+            if (paginationOffset != null && paginationOffset.offset != null) {
+                idsList = idsList.subList(paginationOffset.offset!!, idsList.size)
+            }
+            val hasNextPage = paginationOffset != null && paginationOffset.limit != null && paginationOffset.limit < idsList.size
+            if (hasNextPage) {
+                idsList = idsList.subList(0, paginationOffset!!.limit!! + 1)
+            }
+            val codes = this.get(idsList)
+            return PaginatedList(if (hasNextPage) paginationOffset!!.limit else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit!!) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
+        }
+    }
+
 
     override fun getOrCreateCode(type: String, code: String): Code {
         val codes = findCodesBy(type, code, null)
