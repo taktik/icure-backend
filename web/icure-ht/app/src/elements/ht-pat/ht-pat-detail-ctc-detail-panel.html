@@ -1900,19 +1900,20 @@
                 this.api.form().getForm(subFormid).then(subFormObject=>{
                     this.api.form().getFormTemplate(_.trim(subFormObject.formTemplateId)).then(subFormTemplateObject=>{
 
+                        // Todo: continue here and print other subforms. Assign default pdf render template ?
+                        // Todo: Make sure we have all subFormTemplateObject.guid / works for everyone
+
                         // Hard coded, work incapacity
                         if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
                         if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
-                        // Kine prescription
-                        // AEFED10A-9A72-4B40-981B-1D79ADB05516
+                        // Hard coded, Kine
+                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Nurse prescription
                         // 64DAB551-B007-4B5C-BD64-F886301F5326
-
-                        // Todo: continue here and print other subforms. Assign default pdf render template ?
 
                     })
                 })
@@ -2284,6 +2285,8 @@
 
             printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
+			    // Todo: once all fields would be available: finish serviceMap data mapping and have remaining fields to be dynamic
+
                 this.busySpinner = true;
 
                 const subSubFormObjectsAndValues = _.map(
@@ -2333,7 +2336,22 @@
                             {},
                         lastName: _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase(),
                         firstName: _.trim( _.get(this.globalHcp, "firstName", "") ),
-                        nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", "")))
+                        nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", ""))),
+                        telecoms: _.assign(
+                             {},
+                             _.filter(
+                                 _
+                                     .chain(
+                                         _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
+                                         _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
+                                         _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
+                                         {}
+                                     )
+                                     .get( "telecoms", [] )
+                                 .value(),
+                                 (telecom) => {return {type:_.get(telecom, "telecomType", ""), value:_.get(telecom, "telecomNumber", "")}}
+                             )
+                        )
                     },
                     downloadFileName: _.kebabCase([ this.localize("requestForImagingExam_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
                     subFormData: _.compact(
@@ -2370,10 +2388,10 @@
                             <h1>`+this.localize("requestForImagingExam_header1",this.language)+`</h1>
                             <h2>`+this.localize("requestForImagingExam_header2",this.language)+`</h2>
 
-                            <div class="boxLabel">`+this.localize("requestForImagingExam_box1_idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("requestForImagingExam_box1_fillInOrVignette",this.language)+`</i>)</span></div>
+                            <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
                             <div class="borderedBox">
-                                <b>`+this.localize("requestForImagingExam_box1_lastAndFirstName",this.language)+`:</b> `+pdfPrintingData.patientData.lastName+` `+pdfPrintingData.patientData.firstName+` &nbsp;&nbsp;
-                                <b>`+this.localize("requestForImagingExam_box1_adr",this.language)+`:</b> &nbsp;&nbsp; `+
+                                <b>`+this.localize("lastAndFirstName",this.language)+`:</b> `+pdfPrintingData.patientData.lastName+` `+pdfPrintingData.patientData.firstName+` &nbsp;&nbsp;
+                                <b>`+this.localize("adrAbreviation",this.language)+`:</b> &nbsp;&nbsp; `+
                                     _.trim( _.compact([
                                         _.get(pdfPrintingData.patientData.addressData, "street", "") + " ",
                                         _.get(pdfPrintingData.patientData.addressData, "houseNumber", "") + ( _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) ? "/" + _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) : "" ),
@@ -2381,12 +2399,12 @@
                                         _.get(pdfPrintingData.patientData.addressData, "city", "") + " ",
                                     ]).join(" "))
                                 +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("requestForImagingExam_box1_natNumber",this.language)+`:</b> `+ pdfPrintingData.patientData.ssin +` &nbsp;&nbsp;
-                                <b>`+this.localize("requestForImagingExam_box1_ct1ct2",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "parameters.tc1","")+_.get(pdfPrintingData.patientData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;
-                                <b>`+this.localize("requestForImagingExam_box1_insNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "code")+ " - " +_.get(pdfPrintingData.patientData.insuranceData, "name") +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("requestForImagingExam_box1_insMembershipNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;
-                                <b>`+this.localize("requestForImagingExam_box1_sex",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "gender")+` &nbsp;&nbsp;
-                                <b>`+this.localize("requestForImagingExam_box1_birthDate",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "birthDate")+`
+                                <b>`+this.localize("natNumber",this.language)+`:</b> `+ pdfPrintingData.patientData.ssin +` &nbsp;&nbsp;
+                                <b>`+this.localize("ct1ct2",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "parameters.tc1","")+_.get(pdfPrintingData.patientData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;
+                                <b>`+this.localize("insNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "code")+ " - " +_.get(pdfPrintingData.patientData.insuranceData, "name") +`<div class=".clear mb10"></div>
+                                <b>`+this.localize("insMembershipNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;
+                                <b>`+this.localize("sexLitteral",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "gender")+` &nbsp;&nbsp;
+                                <b>`+this.localize("birthDate",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "birthDate")+`
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
@@ -2420,7 +2438,7 @@
                                 }).join("") + `
                             </div>
 
-                            <div class="boxLabel">`+this.localize("requestForImagingExam_box7_doctorDetails",this.language)+` *</div>
+                            <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>
                             <div class="borderedBox">
                                 <b>`+this.localize("doctorAbreviation",this.language)+`</b> `+pdfPrintingData.hcpData.lastName+` `+pdfPrintingData.hcpData.firstName+`<div class=".clear mb10"></div>
                                 `+_.get(pdfPrintingData.hcpData.address, "street", "")+` `+_.get(pdfPrintingData.hcpData.address, "houseNumber", "")+( _.trim(_.get(pdfPrintingData.hcpData.address, "postboxNumber", ""))?"/"+_.get(pdfPrintingData.hcpData.address, "postboxNumber", "") : "" )+`<div class=".clear mb10"></div>
@@ -2428,7 +2446,184 @@
                                 <b>`+ this.localize("inami",this.language) + `</b>: ` + _.trim(pdfPrintingData.hcpData.nihii) +`<div class=".clear mb10"></div>
                                 <b>`+ this.localize("date",this.language) + `</b>: ` + moment().format('DD/MM/YYYY') +`
                             </div>
-                            <div class="boxRemark">* `+this.localize("requestForImagingExam_box7_doctorDetailsRemark",this.language)+`</div>
+                            <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
+
+                        </div>
+                    ` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                    // this.busySpinner = false;
+                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+                    // return;
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                const subSubFormObjectsAndValues = _.map(
+                    _.map( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), (i) => {
+                        return {
+                            name: _.trim(_.get(i, "name")),
+                            label: _.trim(_.get(i, "label")),
+                            subSubForm: _.head(subFormDataProvider.getSubForms(i.name))
+                        }
+                    }),
+                    (i) => {
+                        return _.assign({
+                            data: _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k) }),
+                            dataMap: i.subSubForm.dataMap
+                        }, i)
+                    })
+
+                let pdfPrintingData = {
+                    patientData : {
+                        lastName: _.get(this.patient, "lastName", ""),
+                        firstName: _.get(this.patient, "firstName", ""),
+                        addressData:
+                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"home"}).head().value() ||
+                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"work"}).head().value() ||
+                            _.chain(_.get(this.patient, "addresses", {})).head().value() ||
+                            {},
+                        ssin: this.api.formatSsinNumber(_.get(this.patient, "ssin", "")),
+                        insuranceData: _
+                            .chain(_.get(this.patient, "insurabilities",{}))
+                            .filter((i)=>{
+                                return i &&
+                                    !!moment( _.trim(_.get(i, "startDate", "0") ), "YYYYMMDD" ).isBefore(moment()) &&
+                                    (!!moment( _.trim(_.get(i, "endDate", "0") ), "YYYYMMDD" ).isAfter(moment()) || !_.trim(_.get(i, "endDate", "") ) ) &&
+                                    !!_.trim( _.get( i, "insuranceId", "" ) ) &&
+                                    !!_.trim( _.get( i, "identificationNumber", "" ) )
+                            })
+                            .head()
+                            .value(),
+                        gender: this.localize(_.trim(_.get(this.patient, "gender", "male")) + "GenderLong",this.language),
+                        birthDate: parseInt(_.get(this.patient, "dateOfBirth", 0)) ? moment(_.trim(_.get(this.patient, "dateOfBirth")),"YYYYMMDD").format("DD/MM/YYYY") : "-"
+                    },
+                    hcpData: {
+                        address:
+                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
+                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
+                            _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
+                            {},
+                        lastName: _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase(),
+                        firstName: _.trim( _.get(this.globalHcp, "firstName", "") ),
+                        nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", ""))),
+                        telecoms: _.assign(
+                            {},
+                            _.filter(
+                                _
+                                    .chain(
+                                        _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
+                                        _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
+                                        _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
+                                        {}
+                                    )
+                                    .get( "telecoms", [] )
+                                .value(),
+                                (telecom) => {return {type:_.get(telecom, "telecomType", ""), value:_.get(telecom, "telecomNumber", "")}}
+                            )
+                        )
+                    },
+                    downloadFileName: _.kebabCase([ this.localize("requestForKineCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    subFormData: _.compact(
+                        _.map(
+                            (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
+                                return _.size(v) && {
+                                    name: k,
+                                    value: subFormDataProvider.getValue(k),
+                                    valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
+                                }
+                            }
+                        )
+                    )||[],
+                    suggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "data", {}) )  ,
+                    previouslySuggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "data", {}) )
+
+                };
+
+                new Promise((resolve) => {
+                    return this.api.insurance().getInsurance(_.get(pdfPrintingData, "patientData.insuranceData.insuranceId", "")).then(singleInsuranceData => {
+                        pdfPrintingData.patientData.insuranceData = _.assign(
+                            {
+                                code:_.get(singleInsuranceData, "code", "NA"),
+                                name:_.get(singleInsuranceData, "name." + this.language, "") || _.trim( _.head( _.filter(_.get(singleInsuranceData, "name", "" ), _.trim) ) ) || "NA"
+                            },
+                            pdfPrintingData.patientData.insuranceData
+                        )
+                        return resolve({})
+                    }).catch((e)=>{ console.log(e);return resolve({}) });
+                }).then(() => {
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1 class="mb30">`+this.localize("requestForKineCare_header1",this.language)+`</h1>
+
+                            <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
+                            <div class="borderedBox">
+                                <b>`+this.localize("lastAndFirstName",this.language)+`:</b> `+pdfPrintingData.patientData.lastName+` `+pdfPrintingData.patientData.firstName+` &nbsp;&nbsp;
+                                <b>`+this.localize("adrAbreviation",this.language)+`:</b> &nbsp;&nbsp; `+
+                                    _.trim( _.compact([
+                                        _.get(pdfPrintingData.patientData.addressData, "street", "") + " ",
+                                        _.get(pdfPrintingData.patientData.addressData, "houseNumber", "") + ( _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) ? "/" + _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) : "" ),
+                                        " - " + _.get(pdfPrintingData.patientData.addressData, "postalCode", "") + " ",
+                                        _.get(pdfPrintingData.patientData.addressData, "city", "") + " ",
+                                    ]).join(" "))
+                                +`<div class=".clear mb10"></div>
+                                <b>`+this.localize("natNumber",this.language)+`:</b> `+ pdfPrintingData.patientData.ssin +` &nbsp;&nbsp;
+                                <b>`+this.localize("ct1ct2",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "parameters.tc1","")+_.get(pdfPrintingData.patientData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;
+                                <b>`+this.localize("insNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "code")+ " - " +_.get(pdfPrintingData.patientData.insuranceData, "name") +`<div class=".clear mb10"></div>
+                                <b>`+this.localize("insMembershipNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;
+                                <b>`+this.localize("sexLitteral",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "gender")+` &nbsp;&nbsp;
+                                <b>`+this.localize("birthDate",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "birthDate")+`
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("requestForKineCare_box1_title",this.language)+`</div>
+                            <div class="borderedBox">
+                                ### FILL ME ###
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("requestForKineCare_box2_title",this.language)+`</div>
+                            <div class="borderedBox">
+                                ### FILL ME ###
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("requestForKineCare_box3_title",this.language)+`</div>
+                            <div class="borderedBox">
+                                ### FILL ME ###
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("requestForKineCare_box4_title",this.language)+`</div>
+                            <div class="borderedBox">
+                                ### FILL ME ###
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("requestForKineCare_box5_title",this.language)+`</div>
+                            <div class="borderedBox">
+                                ### FILL ME ###
+                            </div>
+
+                            <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>
+                            <div class="borderedBox">
+                                <b>`+this.localize("doctorAbreviation",this.language)+`</b> `+pdfPrintingData.hcpData.lastName+` `+pdfPrintingData.hcpData.firstName+`<div class=".clear mb10"></div>
+                                `+_.get(pdfPrintingData.hcpData.address, "street", "")+` `+_.get(pdfPrintingData.hcpData.address, "houseNumber", "")+( _.trim(_.get(pdfPrintingData.hcpData.address, "postboxNumber", ""))?"/"+_.get(pdfPrintingData.hcpData.address, "postboxNumber", "") : "" )+`<div class=".clear mb10"></div>
+                                `+_.get(pdfPrintingData.hcpData.address, "postalCode", "")+` `+_.get(pdfPrintingData.hcpData.address, "city", "")+`<div class=".clear mb10"></div>
+                                <b>`+ this.localize("inami",this.language) + `</b>: ` + _.trim(pdfPrintingData.hcpData.nihii) +`<div class=".clear mb10"></div>
+                                <b>`+ this.localize("date",this.language) + `</b>: ` + moment().format('DD/MM/YYYY') +`<div class=".clear mb10"></div>
+                                <b>`+ this.localize("telAbreviation",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"phone"})), "telecomNumber", "-")) +`<div class=".clear mb10"></div>
+                                <b>`+ this.localize("mobile",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"mobile"})), "telecomNumber", "-")) +`<div class=".clear mb10"></div>
+                                <b>E-mail</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"email"})), "telecomNumber", "-")) +`
+                            </div>
+                            <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
 
                         </div>
                     ` +
@@ -2475,15 +2670,15 @@
                                 .italic { font-style: italic }
                                 .fs1em { font-size:1em; } .fs11em { font-size:1.1em; } .fs12em { font-size:1.2em; } .fs13em { font-size:1.3em; } .fs14em { font-size:1.4em; } .fs15em { font-size:1.5em; } .fs16em { font-size:1.6em; } .fs17em { font-size:1.7em; } .fs18em { font-size:1.8em; } .fs19em { font-size:1.9em; } .fs2em { font-size:2em; }
 
-                                .mt0 {margin-top: 0px!important;} .mt1 {margin-top: 1px!important;} .mt2 {margin-top: 2px!important;} .mt3 {margin-top: 3px!important;} .mt4 {margin-top: 4px!important;} .mt5 {margin-top: 5px!important;} .mt10 {margin-top: 10px!important;} .mt15 {margin-top: 15px!important;} .mt20 {margin-top: 20px!important;}
-                                .mr0 {margin-right: 0px!important;} .mr1 {margin-right: 1px!important;} .mr2 {margin-right: 2px!important;} .mr3 {margin-right: 3px!important;} .mr4 {margin-right: 4px!important;} .mr5 {margin-right: 5px!important;} .mr10 {margin-right: 10px!important;} .mr15 {margin-right: 15px!important;} .mr20 {margin-right: 20px!important;}
-                                .mb0 {margin-bottom: 0px!important;} .mb1 {margin-bottom: 1px!important;} .mb2 {margin-bottom: 2px!important;} .mb3 {margin-bottom: 3px!important;} .mb4 {margin-bottom: 4px!important;} .mb5 {margin-bottom: 5px!important;} .mb10 {margin-bottom: 10px!important;} .mb15 {margin-bottom: 15px!important;} .mb20 {margin-bottom: 20px!important;}
-                                .ml0 {margin-left: 0px!important;} .ml1 {margin-left: 1px!important;} .ml2 {margin-left: 2px!important;} .ml3 {margin-left: 3px!important;} .ml4 {margin-left: 4px!important;} .ml5 {margin-left: 5px!important;} .ml10 {margin-left: 10px!important;} .ml15 {margin-left: 15px!important;} .ml20 {margin-left: 20px!important;}
+                                .mt0 {margin-top: 0px!important;} .mt1 {margin-top: 1px!important;} .mt2 {margin-top: 2px!important;} .mt3 {margin-top: 3px!important;} .mt4 {margin-top: 4px!important;} .mt5 {margin-top: 5px!important;} .mt10 {margin-top: 10px!important;} .mt15 {margin-top: 15px!important;} .mt20 {margin-top: 20px!important;} .mt25 {margin-top: 25px!important;} .mt30 {margin-top: 30px!important;}
+                                .mr0 {margin-right: 0px!important;} .mr1 {margin-right: 1px!important;} .mr2 {margin-right: 2px!important;} .mr3 {margin-right: 3px!important;} .mr4 {margin-right: 4px!important;} .mr5 {margin-right: 5px!important;} .mr10 {margin-right: 10px!important;} .mr15 {margin-right: 15px!important;} .mr20 {margin-right: 20px!important;} .mr25 {margin-right: 25px!important;} .mr30 {margin-right: 30px!important;}
+                                .mb0 {margin-bottom: 0px!important;} .mb1 {margin-bottom: 1px!important;} .mb2 {margin-bottom: 2px!important;} .mb3 {margin-bottom: 3px!important;} .mb4 {margin-bottom: 4px!important;} .mb5 {margin-bottom: 5px!important;} .mb10 {margin-bottom: 10px!important;} .mb15 {margin-bottom: 15px!important;} .mb20 {margin-bottom: 20px!important;} .mb25 {margin-bottom: 25px!important;} .mb30 {margin-bottom: 30px!important;}
+                                .ml0 {margin-left: 0px!important;} .ml1 {margin-left: 1px!important;} .ml2 {margin-left: 2px!important;} .ml3 {margin-left: 3px!important;} .ml4 {margin-left: 4px!important;} .ml5 {margin-left: 5px!important;} .ml10 {margin-left: 10px!important;} .ml15 {margin-left: 15px!important;} .ml20 {margin-left: 20px!important;} .ml25 {margin-left: 25px!important;} .ml30 {margin-left: 30px!important;}
 
-                                .pt0 {padding-top: 0px!important;} .pt1 {padding-top: 1px!important;} .pt2 {padding-top: 2px!important;} .pt3 {padding-top: 3px!important;} .pt4 {padding-top: 4px!important;} .pt5 {padding-top: 5px!important;} .pt10 {padding-top: 10px!important;} .pt15 {padding-top: 15px!important;} .pt20 {padding-top: 20px!important;}
-                                .pr0 {padding-right: 0px!important;} .pr1 {padding-right: 1px!important;} .pr2 {padding-right: 2px!important;} .pr3 {padding-right: 3px!important;} .pr4 {padding-right: 4px!important;} .pr5 {padding-right: 5px!important;} .pr10 {padding-right: 10px!important;} .pr15 {padding-right: 15px!important;} .pr20 {padding-right: 20px!important;}
-                                .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;}
-                                .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;}
+                                .pt0 {padding-top: 0px!important;} .pt1 {padding-top: 1px!important;} .pt2 {padding-top: 2px!important;} .pt3 {padding-top: 3px!important;} .pt4 {padding-top: 4px!important;} .pt5 {padding-top: 5px!important;} .pt10 {padding-top: 10px!important;} .pt15 {padding-top: 15px!important;} .pt20 {padding-top: 20px!important;} .pt25 {padding-top: 25px!important;} .pt30 {padding-top: 30px!important;}
+                                .pr0 {padding-right: 0px!important;} .pr1 {padding-right: 1px!important;} .pr2 {padding-right: 2px!important;} .pr3 {padding-right: 3px!important;} .pr4 {padding-right: 4px!important;} .pr5 {padding-right: 5px!important;} .pr10 {padding-right: 10px!important;} .pr15 {padding-right: 15px!important;} .pr20 {padding-right: 20px!important;} .pr25 {padding-right: 25px!important;} .pr30 {padding-right: 30px!important;}
+                                .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;} .pb25 {padding-bottom: 25px!important;} .pb30 {padding-bottom: 30px!important;}
+                                .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;} .pl25 {padding-left: 25px!important;} .pl30 {padding-left: 30px!important;}
 
                                 .borderedBox { padding:10px; border:1px solid #000000; margin-bottom:20px; min-height:60px; }
                                 .boxLabel { font-weight:700; margin-bottom:5px }
