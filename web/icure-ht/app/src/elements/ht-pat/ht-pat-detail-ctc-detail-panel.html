@@ -1852,6 +1852,7 @@
                     return new Promise(function (resolve, reject) {
                         try {
                             const env = new evaljs.Environment(_.assign(ctx, {resolve, reject}));
+
                             const gen = (env.gen(expr)())
                             let status = {done: false}
                             while (!status.done) {
@@ -2286,23 +2287,19 @@
                 this.busySpinner = true;
 
                 const subSubFormObjectsAndValues = _.map(
-                    _.map(
-                        _
-                            .chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}))
-                            .filter({type:"TKSubConsult"})
-                            .value(),
-                        (i) => {return {
+                    _.map( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), (i) => {
+                        return {
                             name: _.trim(_.get(i, "name")),
                             label: _.trim(_.get(i, "label")),
                             subSubForm: _.head(subFormDataProvider.getSubForms(i.name))
-                        }}
-                    ), (i) => { return _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k); }) })
-
-                console.log(subSubFormObjectsAndValues);
-
-                this.busySpinner = false;
-
-                return;
+                        }
+                    }),
+                    (i) => {
+                        return _.assign({
+                            data: _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k) }),
+                            dataMap: i.subSubForm.dataMap
+                        }, i)
+                    })
 
                 let pdfPrintingData = {
                     patientData : {
@@ -2349,7 +2346,10 @@
                                 }
                             }
                         )
-                    )||[]
+                    )||[],
+                    suggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "data", {}) )  ,
+                    previouslySuggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "data", {}) )
+
                 };
 
                 new Promise((resolve) => {
@@ -2391,27 +2391,33 @@
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
                             <div class="borderedBox">
-                                ### Wait for new form definition - Master branch ###
+                                ### Informations cliniques pertinentes ### (Wait for new form)
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
                             <div class="borderedBox">
-                                ### Wait for new form definition - Master branch ###
+                                ### Explication de la demande de diagnostic ### (Wait for new form)
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
                             <div class="borderedBox">
-                                ### Wait for new form definition - Master branch ###
+                                ### Informations supplémentaires pertinentes ### (Wait for new form)
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
                             <div class="borderedBox">
-                               Checkboxes: Allergie, Diabète, Insuffisance rénale, Grossesse, Implant, Autres: XXX
+                                ` + _.map(pdfPrintingData.suggestedExams, (v,k)=> {
+                                    return '<div class="checkBoxContainer"><span class="singleCheckBox">' + ( v && _.trim(v) && _.trim(v)!=='-' && _.trim(v)!=='NA' ? "X" : "" ) + '</span><span class="singleCheckBoxLabel">'+k+'</span></div>' +
+                                            ( ( ( _.trim(k).toLowerCase().indexOf("autre") > -1 || _.trim(k).toLowerCase().indexOf("ander") > -1 || _.trim(k).toLowerCase().indexOf("other") > -1 ) && _.trim(v) && _.trim(v) !== '-' ) ? "<p class='otherChoiceFreeText mb0 pb0'>" + k + ": " + v + "</p>" : "" )
+                                }).join("") + `
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box6_previousExamsRelatedToRequestForImaging",this.language)+`</div>
                             <div class="borderedBox">
-                                ### Refer to dyn. form of previous requests for imaging ###
+                                ` + _.map(pdfPrintingData.previouslySuggestedExams, (v,k)=> {
+                                    return '<div class="checkBoxContainer"><span class="singleCheckBox">' + ( v && _.trim(v) && _.trim(v)!=='-' && _.trim(v)!=='NA' ? "X" : "" ) + '</span><span class="singleCheckBoxLabel">'+k+'</span></div>' +
+                                            ( ( ( _.trim(k).toLowerCase().indexOf("autre") > -1 || _.trim(k).toLowerCase().indexOf("ander") > -1 || _.trim(k).toLowerCase().indexOf("other") > -1 ) && _.trim(v) && _.trim(v) !== '-' ) ? "<p class='otherChoiceFreeText mb0 pb0'>" + k + ": " + v + "</p>" : "" )
+                                }).join("") + `
                             </div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box7_doctorDetails",this.language)+` *</div>
@@ -2429,7 +2435,7 @@
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
                     // this.busySpinner = false;
-                    // console.log(pdfContent);
+                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
                     // return;
 
                     // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
@@ -2458,6 +2464,8 @@
                                 h2 { font-size:16px; font-weight:400; font-style: italic; text-align: center; padding:0; margin:10px 0 30px 0; }
                                 p {}
 
+                                .clear { clear:both; height:0px; line-height:0px; }
+
                                 .alignCenter {text-align: center;}
                                 .alignLeft {text-align: left;}
                                 .alignRight {text-align: right;}
@@ -2477,11 +2485,14 @@
                                 .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;}
                                 .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;}
 
-                                .borderedBox { padding:10px; border:1px solid #000000; margin-bottom:20px; }
+                                .borderedBox { padding:10px; border:1px solid #000000; margin-bottom:20px; min-height:60px; }
                                 .boxLabel { font-weight:700; margin-bottom:5px }
                                 .boxRemark { margin-top:-10px;font-style:italic; }
 
-                                .clear { clear:both; height:0px; line-height:0px; }
+                                .checkBoxContainer { padding:0; display:inline-block; margin:3px 30px 3px 0; position:relative; height:25px; min-width:160px; }
+                                .checkBoxContainer:last-child { margin-right:0; min-width:380px; }
+                                .singleCheckBox { padding:0; width:10mm; height:6mm; border:1px solid #000000; display:inline-block; margin:0 2mm 0 0; position:absolute; top:0; left:0; text-align:center; line-height:22px; font-size:21px; font-weight:700; }
+                                .singleCheckBoxLabel { display: inline-block; position: absolute; top: 4px; left: 12mm; }
 
                             </style>
                             </head>
