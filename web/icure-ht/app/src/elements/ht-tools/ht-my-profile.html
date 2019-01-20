@@ -367,8 +367,8 @@
                             <vaadin-form-layout>
                                 <div class="col-lg-6">
                                     <paper-input label="Full name" value="{{user.name}}"></paper-input>
-                                    <paper-input label="Login" value="{{user.login}}"></paper-input>
-                                    <paper-input label="Email" value="{{user.email}}"></paper-input>
+                                    <paper-input label="Login" value="{{user.login}}" readonly></paper-input>
+                                    <paper-input label="Email" value="{{user.email}}" readonly></paper-input>
                                     <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
                                         <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
                                             <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
