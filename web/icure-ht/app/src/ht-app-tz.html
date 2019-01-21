@@ -533,6 +533,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-status-color-nok);
             }
 
+            #appointmentsMigrationDialog{
+                height: 400px;
+                width: 600px;
+            }
+
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -1250,6 +1255,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+        <paper-dialog id="appointmentsMigrationDialog">
+            <h4>Migration de vos rendez-vous</h4>
+            <vaadin-grid id="migrItem" class="material" items="[[migrationItems]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        Opération en cours
+                    </template>
+                    <template>
+                        <div>[[item.item]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+        </paper-dialog>
+
     </template>
 
     <script>
@@ -1401,6 +1420,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     mikronoError:{
                         type: Object,
                         value : () => {}
+                    },
+                    migrationItems:{
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1665,9 +1688,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //Be careful not to use this.api here as it might not have been defined yet
                 //TODD debounce here
                 this.$.api.user().getCurrentUser().then(u => {
-                    if(this.isMultiUser) {
-                        this._selectEntities()
-                    }
+                  //  if(this.isMultiUser) {
+                  //      this._selectEntities()
+                  //  }
 
                     console.log("test")
 
@@ -1980,6 +2003,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkAndLoadMikrono(){
+                this.migrateMikronoAppointment()
+
                 if(this.user){
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
@@ -2006,8 +2031,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
                                             const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
                                             const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
                                             if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                                window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                                this.set("migrationItems", [])
+                                                this.$["appointmentsMigrationDialog"].open()
+                                                this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous"})
+
+                                                let appointments = []
+
+                                                this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                                                    this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous"})
+                                                    //const itemTypes = _.uniq(_.compact(items.map(items => items.calendarItemTypeId)))
+
+                                                    return items.filter(item => item.startTime && item.endTime).map(item => ({
+                                                        comments: item.details || null,
+                                                        externalCustomerId: item.patientId || null,
+                                                        customerComments: item.details || null,
+                                                        title: item.title || null,
+                                                        endTime: item.startTime || null,
+                                                        startTime: item.endTime || null,
+                                                        type: null,
+                                                        street: item.addressText || null
+                                                    }))
+                                                }).then(apps => {
+                                                        this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous"})
+                                                        if(apps && apps.length !== 0){
+                                                            let prom = Promise.resolve([])
+                                                            _.chunk(apps, 100).forEach(chunkOfAppointments => {
+                                                                prom = prom.then(prevResults => this.api.bemikrono().createAppointments(apps).then(() => {
+                                                                        this.push("migrationItems", {
+                                                                            status: "",
+                                                                            item: "Migration terminée"
+                                                                        })
+                                                                    }).then(res => {
+                                                                        this.push("migrationItems", {status: "", item: "100 rendez-vous migrés"})
+                                                                        return prevResults.concat(res)
+                                                                    })
+                                                                )
+                                                            })
+                                                            prom = prom.then(results => {
+                                                                this.$["appointmentsMigrationDialog"].close()
+                                                                window.open("https://" + mikronoUser + ":" + mikronoPassword + "@" + mikronoUrl.replace("https://", "") + "/iCureShortcut.jsp?id=" + this.user.id, '_blank')
+                                                            })
+                                                        }else{
+                                                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                                        }
+                                                })
                                             }
                                         })
                                     }else{
