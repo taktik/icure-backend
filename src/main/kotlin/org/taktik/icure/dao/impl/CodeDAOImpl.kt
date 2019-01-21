@@ -238,7 +238,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
                               )
 
-        return (db as? StdCouchDbICureConnector)?.queryViewWithKeys(createQuery("by_language_type_label")
+        return db.queryViewWithKeys(createQuery("by_language_type_label")
                                 .includeDocs(false)
                                 .startKey(from)
                                 .endKey(to), String::class.java)?.mapNotNull { ckv -> ckv.id } ?: listOf()
