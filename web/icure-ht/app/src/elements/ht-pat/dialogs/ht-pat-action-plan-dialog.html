@@ -624,7 +624,7 @@
                 this.service.content= {
                     fr: {
                         stringValue: action.ProcedureInfo.label.fr,
-                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null // (A44 = vaccine) julien told me to do like that
                     },
                     nl: {
                         stringValue: action.ProcedureInfo.label.nl,
@@ -674,10 +674,6 @@
                     }
 
                     this.service.tags.push(vaccine)
-
-                    // this.service.content.medication = {
-                    //     medicationValue: medication
-                    // }
                 }
 
                 if(action.isSurgical) {

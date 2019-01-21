@@ -981,7 +981,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     const patId = this.api.contact().preferredContent(svc[0],'patientId') || this.api.contact().preferredContent(svc[0],this.language)
                     results.push({
                         patient: {
-                            name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : patName ? patName.stringValue : 'no patient or test',
+                            name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : patName ? patName.stringValue : this.localize('err','error',this.language),
                             id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : patId ? patId.stringValue : 0
                         },
                         created: c.created,descr: c.descr,groupId:c.groupId
