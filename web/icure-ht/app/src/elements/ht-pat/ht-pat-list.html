@@ -1193,7 +1193,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
                     </template>
                     <template>
-                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp" disabled="[[shareAll]]"></vaadin-checkbox>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column width="100px">
