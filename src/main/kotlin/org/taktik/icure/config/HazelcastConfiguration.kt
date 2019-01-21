@@ -41,6 +41,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.session.hazelcast.PrincipalNameExtractor
+import org.springframework.session.web.http.HttpSessionStrategy
+import org.taktik.icure.services.external.http.CustomHttpSessionStrategy
 
 @Suppress("UsePropertyAccessSyntax")
 @Configuration
@@ -103,6 +105,11 @@ class HazelcastConfiguration {
                     .addMapIndexConfig(MapIndexConfig(
                         HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false))
             }
+        }
+
+        @Bean
+        fun httpSessionStrategy(): HttpSessionStrategy {
+            return CustomHttpSessionStrategy()
         }
 
         @Bean
