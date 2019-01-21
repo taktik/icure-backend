@@ -1188,9 +1188,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
             <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
             <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
-                <vaadin-grid-column width="100px">
+                <vaadin-grid-column width="40px">
                     <template class="header">
-                        <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
+                        <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox> [[localize('all','All',language)]]
                     </template>
                     <template>
                         <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
@@ -1691,6 +1691,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     isSharingPatient: {
                         type: Boolean,
                         value: true
+                    },
+                    shareAll: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -2630,13 +2634,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _toggleBoxes(e) {
-                const checked = e.target.getAttribute('checked')
+                const checked = e.target.getAttribute('checked')!= null ? true : false
                 console.log('checked ?',checked)
                 let boxList = this.shadowRoot.querySelector('#hcp-list');
                 let allCheckBoxes = boxList ? boxList.querySelectorAll('.checkbox') : [];
                 allCheckBoxes.forEach(box=>{
                     box.checked = !box.checked;
                 })
+                this.set('shareAll',checked)
             }
 
             _checkHcp(e) {
@@ -2665,7 +2670,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _sharingHcp(item) {
-                if (item) {
+                if (this.shareAll == true ) {
+                    return true
+                } else if (item) {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
                     return mark && mark.check
                 } else {
@@ -2677,8 +2684,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
-                const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
-                this.set("hcpSelectedForSharing", tab)
+                if (this.shareAll) {
+                    this.set('hcpSelectedForSharing',this.hcp)
+                } else {
+                    const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
+                    this.set("hcpSelectedForSharing", tab)
+                }
 
                 //loading existing delegation of shared users
                 this.hcpSelectedForSharing.forEach((userShared, index) => {
