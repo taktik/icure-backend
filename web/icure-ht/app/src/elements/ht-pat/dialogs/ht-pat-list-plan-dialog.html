@@ -198,7 +198,8 @@
             }
 
             _getContent(svc){
-                return this.api.contact().preferredContent(svc, this.language).stringValue || ""
+                const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
+                return content && content.stringValue || "erreur"
             }
 
             _formatDate(date){

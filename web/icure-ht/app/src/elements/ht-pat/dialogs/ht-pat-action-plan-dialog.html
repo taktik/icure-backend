@@ -599,15 +599,40 @@
                     return
                 }
 
+                const medication = {
+                    medicinalProduct: {
+                        intendedcds: [
+                            {
+                                code: this.plannedAction.VaccineInfo.id.id,
+                                type: "CD-DRUG-CNK"
+                            }
+                        ],
+                        intendedname: this.plannedAction.VaccineInfo.name
+                    },
+                    regimen: [],
+                    batch: this.plannedAction.BatchNumber,
+                    options: {
+                        doseNumber: {
+                            stringValue: this.plannedAction.DoseNumber
+                        }
+                    }
+                }
+
                 this.service.label="Actes"
                 this.service.modified= +new Date()
                 this.service.responsible= responsible
                 this.service.content= {
                     fr: {
-                        stringValue: action.ProcedureInfo.label.fr
+                        stringValue: action.ProcedureInfo.label.fr,
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
                     },
                     nl: {
-                        stringValue: action.ProcedureInfo.label.nl
+                        stringValue: action.ProcedureInfo.label.nl,
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
+                    },
+                    en: {
+                        stringValue: action.ProcedureInfo.label.nl,
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
                     }
                 }
                 this.service.codes= [
@@ -650,29 +675,9 @@
 
                     this.service.tags.push(vaccine)
 
-
-                    const medication = {
-                        medicinalProduct: {
-                            intendedcds: [
-                                {
-                                    code: this.plannedAction.VaccineInfo.id.id,
-                                    type: "CD-DRUG-CNK"
-                                }
-                            ],
-                            intendedname: this.plannedAction.VaccineInfo.name
-                        },
-                        regimen: [],
-                        batch: this.plannedAction.BatchNumber,
-                        options: {
-                            doseNumber: {
-                                stringValue: this.plannedAction.DoseNumber
-                            }
-                        }
-                    }
-
-                    this.service.content.medication = {
-                        medicationValue: medication
-                    }
+                    // this.service.content.medication = {
+                    //     medicationValue: medication
+                    // }
                 }
 
                 if(action.isSurgical) {
