@@ -440,6 +440,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:edit"></iron-icon>[[localize('adm_post_it','Post-it',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
             </paper-tabs>
 
@@ -545,6 +546,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </vaadin-grid-column>
                                 </vaadin-grid>
                             </div>
+                    </div>
+                </page>
+                <page>
+                    <div class="page-container">
+                        <h4 class="subtitle">[[localize('adm_post_it_adm','Post-it administratif',language)]]</h4>
+                        <paper-textarea label="[[localize('adm_post_it_adm','Post-it administratif',language)]]"></paper-textarea>
                     </div>
                 </page>
                 <page>
@@ -1026,7 +1033,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     }
                 })
             },
-            setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (s.content[this.language] || {}).stringValue)),
+            setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContent(s,this.language) || {}).stringValue)),
             getSubForms: key => {
                 return (root[key] || []).map((a, idx) => {
                     return {

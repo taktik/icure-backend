@@ -284,8 +284,8 @@
                         </template>
                     </div>
                 </template>
-                <template is="dom-if" if="[[isSubForm]]">
-                    <!--<paper-fab-speed-dial-action icon="vaadin:print" on-tap="printSubForm" id="printSubForm">[[localize('print','Print',language)]]</paper-fab-speed-dial-action>-->
+                <template is="dom-if" if="[[_shouldDisplayPrintSubFormIcon(isSubForm, template)]]">
+                    <paper-fab-speed-dial-action icon="vaadin:print" on-tap="printSubForm" id="printSubForm">[[localize('print','Print',language)]]</paper-fab-speed-dial-action>
                 </template>
             </template>
 		</paper-card>
@@ -689,6 +689,13 @@
 				if(e.detail){
                     this.dispatchEvent(new CustomEvent('subcontact-type-change', {detail: { type: e.detail, formId: this.dataProvider.getId()}}));
 				}
+            }
+
+            _shouldDisplayPrintSubFormIcon(isSubForm, template) {
+			    return isSubForm &&
+                    template &&
+                    _.get(template, "sections", false) && Array.isArray(template.sections) && template.sections.length &&
+                    _.size(_.head(_.filter( _.get(template, "sections[0].formColumns[0].formDataList", {}), {type:"TKAction"})))
             }
 		}
 

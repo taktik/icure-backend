@@ -36,6 +36,7 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto;
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto;
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade;
 import org.taktik.icure.utils.ResponseUtils;
@@ -53,6 +54,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -257,6 +259,26 @@ public class MikronoFacade implements OpenApiFacade {
 			return ResponseUtils.ok(mikronoLogic.getAppointmentsByPatient(null, loggedMikronoUser, loggedMikronoPassword, loggedUser.getId(), patientId, from, to));
 		}
 		return ResponseUtils.ok();
+	}
+
+	@ApiOperation(
+			value = "Create appointments for owner",
+			response = AppointmentImportDto.class,
+			responseContainer = "Array",
+			httpMethod = "POST"
+	)
+	@Path("/appointments")
+	@POST
+	public Response createAppointments(List<AppointmentImportDto> appointments) throws IOException {
+		User loggedUser = sessionLogic.getCurrentSessionContext().getUser();
+
+		String loggedMikronoUser = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.user")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
+		String loggedMikronoPassword = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.password")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
+
+		if (loggedMikronoUser!=null&&loggedMikronoPassword!=null) {
+			return ResponseUtils.ok(mikronoLogic.createAppointments(null, loggedMikronoUser, loggedMikronoPassword, appointments));
+		}
+		return ResponseUtils.ok("Missing Mikrono username/password for user");
 	}
 
 	@Context
