@@ -2003,8 +2003,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkAndLoadMikrono(){
-                this.migrateMikronoAppointment()
-
                 if(this.user){
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
@@ -2033,50 +2031,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
 
                                             if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                                this.set("migrationItems", [])
-                                                this.$["appointmentsMigrationDialog"].open()
-                                                this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous"})
-
-                                                let appointments = []
-
-                                                this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                                                    this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous"})
-                                                    //const itemTypes = _.uniq(_.compact(items.map(items => items.calendarItemTypeId)))
-
-                                                    return items.filter(item => item.startTime && item.endTime).map(item => ({
-                                                        comments: item.details || null,
-                                                        externalCustomerId: item.patientId || null,
-                                                        customerComments: item.details || null,
-                                                        title: item.title || null,
-                                                        endTime: item.startTime || null,
-                                                        startTime: item.endTime || null,
-                                                        type: null,
-                                                        street: item.addressText || null
-                                                    }))
-                                                }).then(apps => {
-                                                        this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous"})
-                                                        if(apps && apps.length !== 0){
-                                                            let prom = Promise.resolve([])
-                                                            _.chunk(apps, 100).forEach(chunkOfAppointments => {
-                                                                prom = prom.then(prevResults => this.api.bemikrono().createAppointments(apps).then(() => {
-                                                                        this.push("migrationItems", {
-                                                                            status: "",
-                                                                            item: "Migration terminée"
-                                                                        })
-                                                                    }).then(res => {
-                                                                        this.push("migrationItems", {status: "", item: "100 rendez-vous migrés"})
-                                                                        return prevResults.concat(res)
-                                                                    })
-                                                                )
-                                                            })
-                                                            prom = prom.then(results => {
-                                                                this.$["appointmentsMigrationDialog"].close()
-                                                                window.open("https://" + mikronoUser + ":" + mikronoPassword + "@" + mikronoUrl.replace("https://", "") + "/iCureShortcut.jsp?id=" + this.user.id, '_blank')
-                                                            })
-                                                        }else{
-                                                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-                                                        }
-                                                })
+                                                this.mikronoAppointmentsMigration(mikronoUrl, mikronoUser, mikronoPassword)
                                             }
                                         })
                                     }else{
@@ -2108,6 +2063,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
                 }
             }
+
+
+            mikronoAppointmentsMigration(mikronoUrl, mikronoUser, mikronoPassword){
+                this.set("migrationItems", [])
+                this.$["appointmentsMigrationDialog"].open()
+                this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous"})
+
+                let appointments = []
+
+                this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                    this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous"})
+                    //const itemTypes = _.uniq(_.compact(items.map(items => items.calendarItemTypeId)))
+
+                    return items.filter(item => item.startTime && item.endTime).map(item => ({
+                        comments: item.details || null,
+                        externalCustomerId: item.patientId || null,
+                        customerComments: item.details || null,
+                        title: item.title || null,
+                        endTime: item.startTime || null,
+                        startTime: item.endTime || null,
+                        type: null,
+                        street: item.addressText || null
+                    }))
+                }).then(apps => {
+                    this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous"})
+                    if(apps && apps.length !== 0){
+                        let prom = Promise.resolve([])
+                        _.chunk(apps, 100).forEach(chunkOfAppointments => {
+                            prom = prom.then(prevResults => this.api.bemikrono().createAppointments(apps).then(() => {
+                                    chunkOfAppointments.isMigrate = true
+                                    this.api.calendaritem().modifyCalendarItem(chunkOfAppointments).then(() => this.push("migrationItems", { status: "", item: "Migration terminée"}))
+                                }).then(res => {
+                                    this.push("migrationItems", {status: "", item: "100 rendez-vous migrés"})
+                                    return prevResults.concat(res)
+                                })
+                            )
+                        })
+                        prom = prom.then(results => {
+                            this.$["appointmentsMigrationDialog"].close()
+                            window.open("https://" + mikronoUser + ":" + mikronoPassword + "@" + mikronoUrl.replace("https://", "") + "/iCureShortcut.jsp?id=" + this.user.id, '_blank')
+                        })
+                    }else{
+                        window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                    }
+                })
+            }
+
 
         }
 
