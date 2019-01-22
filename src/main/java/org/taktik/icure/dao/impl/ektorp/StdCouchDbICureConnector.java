@@ -76,16 +76,6 @@ public class StdCouchDbICureConnector extends StdCouchDbConnector implements Cou
 		return this;
 	}
 
-	public <T> List<CouchKeyValue<T>> queryViewWithKeys(final ViewQuery query, final Class<T> type) {
-		Assert.notNull(query, "query may not be null");
-		query.dbPath(dbURI.toString());
-
-		EmbeddedDocViewWithKeysResponseHandler<T> rhk = new EmbeddedDocViewWithKeysResponseHandler<T>(
-				type, objectMapper, query.isIgnoreNotFound());
-
-		return executeQuery(query, rhk);
-	}
-
 	@Override
 	public CouchDbICureConnector getFallbackConnector() {
 		return this;

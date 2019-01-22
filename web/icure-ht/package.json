@@ -1,6 +1,6 @@
 {
   "name": "icure-cloud",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "scripts": {
     "dev": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "dev-tz": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.tz.js",
@@ -108,6 +108,7 @@
     "mustache": "^3.0.0",
     "node-forge": "^0.7.6",
     "npm": "^6.4.1",
+    "object-keys": "^1.0.12",
     "polymer-password-strength": "^1.0.0",
     "promise.prototype.finally": "^3.1.0",
     "prosemirror-commands": "^1.0.7",
