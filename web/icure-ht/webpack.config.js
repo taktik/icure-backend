@@ -41,7 +41,7 @@ module.exports = {
 
 				        options: {
 				        	/*presets: ['es2015'],*/
-					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
 				        }
 			        },
 			        {
