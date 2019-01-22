@@ -2598,47 +2598,92 @@
 
                 this.busySpinner = true;
 
-                const subFormFieldsAndValues = _.head(
-                    _.map(
-                        _.map(
-                            _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(),
-                            (subForm => { return { name: _.trim(_.get(subForm, "name")), label: _.trim(_.get(subForm, "label")), subSubForms: subFormDataProvider.getSubForms(subForm.name) }})
-                        ),
-                        (i => _.assign(
-                            { subFormFieldsAndValues: _.map(
-                                _.get(i, "subSubForms", [] ),
-                                (singleSubSubForm => {
-                                    const subSubFormDataProvider = _.get(singleSubSubForm, "dataProvider", {});
-                                    const subSubFormDataList = _.get(singleSubSubForm, "template.sections[0].formColumns[0].formDataList", []);
+                const subSubFormFieldsAndValues = _.head(
+                      _.map(
+                          _.map(
+                              _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(),
+                              (subForm => {return {
+                                  subSubFormObjects: subFormDataProvider.getSubForms(subForm.name)
+                              }})
+                          ),
+                          (i => _.assign(
+                              { fieldsAndValues: _.map(
+                                  _.get(i, "subSubFormObjects", [] ),
+                                  (singleSubSubForm => {
+                                      const subSubFormDataProvider = _.get(singleSubSubForm, "dataProvider", {});
+                                      const subSubFormDataList = _.get(singleSubSubForm, "template.sections[0].formColumns[0].formDataList", []);
+                                      return _.size(subSubFormDataProvider) && _.size(subSubFormDataList) ?
+                                          _.map(
+                                              subSubFormDataList,
+                                              (subSubFormSingleField => {
+                                                  return {
+                                                      name: _.trim(_.get(subSubFormSingleField, "name")),
+                                                      label: _.trim(_.get(subSubFormSingleField, "label")),
+                                                      type: _.trim(_.get(subSubFormSingleField, "type")),
+                                                      value:
+                                                          subSubFormSingleField.type==="TKString" ? _.trim(subSubFormDataProvider.getStringValue( _.trim(_.get(subSubFormSingleField, "name", "")) )) :
+                                                          subSubFormSingleField.type==="TKNumber" ? subSubFormDataProvider.getNumberValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          subSubFormSingleField.type==="TKMeasure" ? _.flatMap(subSubFormDataProvider.getMeasureValue( _.trim(_.get(subSubFormSingleField, "name", "")) )).join(" ") :
+                                                          subSubFormSingleField.type==="TKBoolean" ? !!subSubFormDataProvider.getBooleanValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          subSubFormSingleField.type==="TKAction" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          subSubFormSingleField.type==="TKDate" ? subSubFormDataProvider.getDateValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          subSubFormSingleField.type==="TKHCParty" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          subSubFormSingleField.type==="TKMedicationTable" ? subSubFormDataProvider.getValueContainers( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                          ""
+                                                  }
+                                              })
+                                          ) : {}
+                                  })
+                              )},
+                              i
+                          ))
+                      )
+                  )
 
-                                    return _.size(subSubFormDataProvider) && _.size(subSubFormDataList) ?
-                                        _.map(
-                                            subSubFormDataList,
-                                            (subSubFormSingleField => {
-                                                return {
-                                                    name: _.trim(_.get(subSubFormSingleField, "name")),
-                                                    label: _.trim(_.get(subSubFormSingleField, "label")),
-                                                    type: _.trim(_.get(subSubFormSingleField, "type")),
-                                                    value:
-                                                        subSubFormSingleField.type==="TKString" ? _.trim(subSubFormDataProvider.getStringValue( _.trim(_.get(subSubFormSingleField, "name", "")) )) :
-                                                        subSubFormSingleField.type==="TKNumber" ? subSubFormDataProvider.getNumberValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
-                                                        subSubFormSingleField.type==="TKMeasure" ? _.flatMap(subSubFormDataProvider.getMeasureValue( _.trim(_.get(subSubFormSingleField, "name", "")) )).join(" ") :
-                                                        subSubFormSingleField.type==="TKBoolean" ? !!subSubFormDataProvider.getBooleanValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
-                                                        subSubFormSingleField.type==="TKAction" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
-                                                        subSubFormSingleField.type==="TKDate" ? subSubFormDataProvider.getDateValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
-                                                        subSubFormSingleField.type==="TKHCParty" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
-                                                        ""
-                                                }
-                                            })
-                                        ) : {}
-                                })
-                            )},
-                            i
-                        ))
-                    )
-                )
+                 this._getPdfPrintingCoreData({
+                      downloadFileName: _.kebabCase([ this.localize("requestForNurseCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                      subForm: {
+                          name: _.get( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), "[0].name", "" ),
+                          label: _.get( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), "[0].label", "" ),
+                          fieldsAndValues: _.compact( _.map( (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{ return _.size(v) && { name: k, value: subFormDataProvider.getValue(k) } } ) )||[]
+                      },
+                      subSubForms: subSubFormFieldsAndValues
+                  }).then(pdfPrintingData =>{
 
-                this.busySpinner = false;
+                    console.log(pdfPrintingData);
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1 class="mb40">`+this.localize("requestForNurseCare_header1",this.language)+`</h1>
+
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
+                            <div class="borderedBox">Content comes here</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">Content comes here</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
+                            <div class="borderedBox">Content comes here</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box6_previousExamsRelatedToRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.previouslySuggestedExams, 3) + `</div>
+
+                            ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div>` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
 
             }
 
