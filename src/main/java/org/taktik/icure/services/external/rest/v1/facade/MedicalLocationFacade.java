@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.MedicalLocation;
-import org.taktik.icure.entities.Place;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.MedicalLocationLogic;
 import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto;
-import org.taktik.icure.services.external.rest.v1.dto.PlaceDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
