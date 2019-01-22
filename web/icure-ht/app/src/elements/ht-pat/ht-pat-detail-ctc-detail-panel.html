@@ -1908,13 +1908,13 @@
                         if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, Kine
-                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-
-                        // Nurse prescription
-                        // 64DAB551-B007-4B5C-BD64-F886301F5326
+                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        
+                        // Hard coded, Nurse prescription
+                        if(subFormTemplateObject.guid==="64DAB551-B007-4B5C-BD64-F886301F5326") this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);                        
 
                     })
                 })
@@ -2395,7 +2395,7 @@
 
             }
 
-            printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+            printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
 			    // Todo: once all fields would be available: finish serviceMap data mapping and have remaining fields to be dynamic
 
@@ -2487,7 +2487,7 @@
 
             }
 
-            printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+            printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
                 this.busySpinner = true;
 
@@ -2591,6 +2591,54 @@
                     }).catch(()=>{this.busySpinner = false;});
 
                 }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            printNursePrescriptionForm (subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                const subFormFieldsAndValues = _.head(
+                    _.map(
+                        _.map(
+                            _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(),
+                            (subForm => { return { name: _.trim(_.get(subForm, "name")), label: _.trim(_.get(subForm, "label")), subSubForms: subFormDataProvider.getSubForms(subForm.name) }})
+                        ),
+                        (i => _.assign(
+                            { subFormFieldsAndValues: _.map(
+                                _.get(i, "subSubForms", [] ),
+                                (singleSubSubForm => {
+                                    const subSubFormDataProvider = _.get(singleSubSubForm, "dataProvider", {});
+                                    const subSubFormDataList = _.get(singleSubSubForm, "template.sections[0].formColumns[0].formDataList", []);
+
+                                    return _.size(subSubFormDataProvider) && _.size(subSubFormDataList) ?
+                                        _.map(
+                                            subSubFormDataList,
+                                            (subSubFormSingleField => {
+                                                return {
+                                                    name: _.trim(_.get(subSubFormSingleField, "name")),
+                                                    label: _.trim(_.get(subSubFormSingleField, "label")),
+                                                    type: _.trim(_.get(subSubFormSingleField, "type")),
+                                                    value:
+                                                        subSubFormSingleField.type==="TKString" ? _.trim(subSubFormDataProvider.getStringValue( _.trim(_.get(subSubFormSingleField, "name", "")) )) :
+                                                        subSubFormSingleField.type==="TKNumber" ? subSubFormDataProvider.getNumberValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKMeasure" ? _.flatMap(subSubFormDataProvider.getMeasureValue( _.trim(_.get(subSubFormSingleField, "name", "")) )).join(" ") :
+                                                        subSubFormSingleField.type==="TKBoolean" ? !!subSubFormDataProvider.getBooleanValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKAction" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKDate" ? subSubFormDataProvider.getDateValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKHCParty" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        ""
+                                                }
+                                            })
+                                        ) : {}
+                                })
+                            )},
+                            i
+                        ))
+                    )
+                )
+
+                this.busySpinner = false;
 
             }
 
