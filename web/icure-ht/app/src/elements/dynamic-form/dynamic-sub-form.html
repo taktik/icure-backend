@@ -234,6 +234,8 @@ class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_getTemplate(sc) {
+		sc.template.sections[0].formColumns[0].formDataList.map( data => console.log(data))
+		console.log(sc.dataMap.id)
 		return sc && sc.template;
 	}
 
@@ -266,7 +268,6 @@ class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_add(e) {
 		this.set('isAdding', false);
-
 		const guid = e.target.id || this._allGuids()[0];
 		if (guid) {
 			this.dispatchEvent(new CustomEvent('add-subform', { detail: { guid: guid }, composed: true }));

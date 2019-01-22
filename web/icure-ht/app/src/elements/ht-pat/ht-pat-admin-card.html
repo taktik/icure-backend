@@ -919,6 +919,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const tbc = this.patient.partnerships.filter(p=>p.partnerId && !p.partnerInfo)
             if (tbc.length) {
                 this.api.patient().getPatientsWithUser(this.user,{ids:tbc.map(ps => ps.partnerId)})
+                    .then(ppss => ppss.map(p => this.api.register(p, 'patient')))
                     .then(ppss => ppss.forEach(pps => {
                         const idx = _.findIndex(this.patient.partnerships, pp => pps.id === pp.partnerId)
                         this.set(`patient.partnerships.${idx}.partnerInfo`, pps)
@@ -941,8 +942,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                 ((this.patient.partnerships && this.patient.partnerships.length) ?
                     Promise.all(this.patient.partnerships.map((partner, index) => {
-
-                        ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
 
                         if (!partner.partnerId || !partner.partnerInfo.rev) {
                             //patient not present
@@ -1035,15 +1034,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContent(s,this.language) || {}).stringValue)),
             getSubForms: key => {
-                return (root[key] || []).map((a, idx) => {
+                return (_.get(root,key) || []).map((a, idx) => {
                     return {
                         dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
                         template:
-                            key === 'addresses' ?
-                                this.addressForm :
-                                key === 'telecoms' ?
-                                    this.telecomForm :
+                            key === 'telecoms' ?
+                                this.telecomForm :
+                                (key === 'addresses' || key === 'partnerInfo.addresses') ?
+                                    this.addressForm :
                                     key === 'partnerships' ?
                                         this.partnershipsForm :
                                         key === 'medicalHouseContracts' ?
@@ -1055,15 +1054,40 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getId: () => id,
             deleteSubForm: (key, id) => {
                 this.flushSave();
-                _.remove(root[key], a => a.id === id);
+                _.remove((_.get(root,key) || []), a => a.id === id);
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },
             addSubForm: (key, guid) => {
                 this.flushSave(); //Important
-                (root[key] || (root[key] = [])).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
+                (_.get(root, key) || _.get(_.set(root, key, []), key)).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
+
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
+                console.dir(this.$[this.root.activeElement.id])
+
+                // if (!this.currentContact) {
+                //     return;
+                // }
+                // this.flushSave();
+                // this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes && hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice')).then(formTemplates => {
+                //     if (formTemplates[0] && formTemplates[0]) {
+                //         //Create a new form and link it to the currentContact
+                //         this.api.form().newInstance(this.user, this.patient, {
+                //             contactId: this.currentContact.id,
+                //             descr: key,
+                //             formTemplateId: formTemplates[0].id,
+                //             parent: form.id
+                //         }).then(f => this.api.form().createForm(f)).then(f => {
+                //             f.template = formTemplates[0]; //Important
+                //             (form.children || (form.children = [])).push(f);
+                //             this.currentContact.subContacts.push({formId: f.id, descr: key, services: []});
+                //
+                //             this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
+                //             this.scanServicesAndScheduleSave(this.currentContact);
+                //         });
+                //     }
+                // });
 
             },
             filter: (data, text, id) => {
