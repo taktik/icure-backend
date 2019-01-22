@@ -10,11 +10,6 @@ RUN npm install bower -g --quiet
 COPY --chown=node package* ./
 COPY --chown=node bower.json ./
 COPY --chown=node .bowerrc ./
-#COPY --chown=node .babelrc ./
-
-COPY --chown=node tsconfig.json ./
-COPY --chown=node $wpc ./
-COPY --chown=node app app/
 
 USER node
 
@@ -23,6 +18,11 @@ RUN npm install --quiet
 
 # bower
 RUN bower install
+
+# copy code
+COPY --chown=node tsconfig.json ./
+COPY --chown=node $wpc ./
+COPY --chown=node app app/
 
 # webpack
 ARG wpc=webpack.config.js
