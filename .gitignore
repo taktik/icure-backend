@@ -44,7 +44,3 @@ dist-tz/
 .gradle/vcsWorkingDirs/gc.properties
 test.json
 .gradletasknamecache
-
-web/icure-ht/package-lock\.json
-
-web/icure-ht/package\.json
