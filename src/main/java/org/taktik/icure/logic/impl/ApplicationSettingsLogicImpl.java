@@ -1,19 +1,19 @@
 package org.taktik.icure.logic.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.ApplicationSettingsDAO;
 import org.taktik.icure.entities.ApplicationSettings;
 import org.taktik.icure.logic.ApplicationSettingsLogic;
 
-import java.util.List;
-
 public class ApplicationSettingsLogicImpl extends GenericLogicImpl<ApplicationSettings, ApplicationSettingsDAO> implements ApplicationSettingsLogic {
-//    @Override
-//    public List<ApplicationSettings> getApplicationSettings() {
-//        return null;
-//    }
+
+    private ApplicationSettingsDAO applicationSettingsDAO;
 
     @Override
     protected ApplicationSettingsDAO getGenericDAO() {
-        return null;
+        return this.applicationSettingsDAO;
     }
+
+    @Autowired
+    public void setApplicationSettingsDAO(ApplicationSettingsDAO dao) { this.applicationSettingsDAO = dao; }
 }
