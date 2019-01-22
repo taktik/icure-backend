@@ -1713,7 +1713,6 @@
 
 
 
-
     "maleGenderLong": "masculin",
     "femaleGenderLong": "féminin",
     "doctorAbreviation": "Dr.",
@@ -1730,6 +1729,8 @@
     "doctorDetails":"Cachet du médecin prescripteur",
     "doctorDetailsRemark":"Cachet du prescripteur avec mention du nom, prénom, adresse et numéro INAMI",
     "telAbreviation": "Tel",
+    "postalAddress": "Adresse",
+    "zipHyphenCity": "CP - ville",
 
     "requestForImagingExam_header1":"Formulaire de demande pour un examen en imagerie médicale",
     "requestForImagingExam_header2":"Par problème clinique, un formulaire de demande distinct est exigé",
@@ -1745,6 +1746,10 @@
     "requestForKineCare_box3_title":"Fréquence & intervention",
     "requestForKineCare_box4_title":"Informations médicales complémentaires",
     "requestForKineCare_box5_title":"Evolution & suivi"
+
+
+
+
 
   },
   "nl": {
