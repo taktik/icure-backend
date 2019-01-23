@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,8 +92,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		boolean isFullToken = username.matches("(.+/)[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 
-		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUserOnFallbackDb(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialIdOnFallbackDb(username) : userLogic.findUsersByLoginOnFallbackDb(username) ).stream().filter(u ->
-				u != null && this.isPasswordValid(u, auth.getCredentials().toString())
+		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUserOnFallbackDb(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialIdOnFallbackDb(username) : userLogic.findUsersByLoginOnFallbackDb(username) ).stream().filter(Objects::nonNull
 		).sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
 
 		User user = null;
@@ -106,7 +106,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 			if (gId != null || authenticationProperties.getLocal()) {
 				user = userLogic.findUserOnUserDb(userId, gId);
-				if (user != null) {
+				if (user != null && (this.isPasswordValid(user, auth.getCredentials().toString()))) {
 					if (groupId == null && gId != null) { groupId = gId; }
 					matchingUsers.add(userOnFallbackDb);
 				} else {
