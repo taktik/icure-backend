@@ -1733,6 +1733,13 @@
     "telAbreviation": "Tel",
     "postalAddress": "Adresse",
     "zipHyphenCity": "CP - ville",
+    "startingFrom": "À partir du",
+    "endingOn": "jusqu'au",
+    "renewal": "Renouvellement",
+    "everyX": "tous les",
+    "substitution": "Substitution",
+    "subtitutionAllowed": "autorisée",
+    "subtitutionForbidden": "interdite",
 
     "requestForImagingExam_header1":"Formulaire de demande pour un examen en imagerie médicale",
     "requestForImagingExam_header2":"Par problème clinique, un formulaire de demande distinct est exigé",
@@ -1749,7 +1756,22 @@
     "requestForKineCare_box4_title":"Informations médicales complémentaires",
     "requestForKineCare_box5_title":"Evolution & suivi",
 
-    "requestForNurseCare_header1":"Prescription de soins infirmiers"
+    "requestForNurseCare_header1":"Prescription de soins infirmiers",
+    "dailyPosology": "Posologie Quotidienne",
+    "weeklyPosology": "Posologie Quotidienne",
+    "monthlyPosology": "Posologie Quotidienne",
+    "momentHour": "Moment / heure",
+    "dayOfWeek": "Jour de la semaine",
+    "dayOfMonth": "Jour du mois",
+
+    "monday": "Lundi",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche"
+
 
 
 
