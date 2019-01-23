@@ -2033,6 +2033,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                                             if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
                                                 window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                            }else{
+                                                this.set("mikronoError", {
+                                                    addresses: false,
+                                                    workAddresses : false,
+                                                    workMobile: false,
+                                                    workEmail : false,
+                                                    token: applicationTokens.MIKRONO ? true : false,
+                                                    error: true
+                                                })
                                             }
                                         })
                                     }else{
