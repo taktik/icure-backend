@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Produces({"application/json"})
 public class MedicalLocationFacade implements OpenApiFacade {
 
-    private static Logger logger = LoggerFactory.getLogger(PlaceFacade.class);
+    private static Logger logger = LoggerFactory.getLogger(MedicalLocationFacade.class);
 
     private MedicalLocationLogic medicalLocationLogic;
     private MapperFacade mapper;
@@ -54,16 +54,16 @@ public class MedicalLocationFacade implements OpenApiFacade {
 
     @ApiOperation(value = "Deletes a medical location")
     @DELETE
-    @Path("/{placeIds}")
+    @Path("/{locationIds}")
     public Response deleteMedicalLocation(@PathParam("locationIds") String locationIds) throws DeletionException {
         Response response;
 
         if (locationIds == null) {
             response = ResponseUtils.badRequest("Cannot delete medical locations: supplied locationIds is null");
         } else {
-            List<String> deletedPlaceIds = medicalLocationLogic.deleteMedicalLocation(Arrays.asList(locationIds.split(",")));
-            if (deletedPlaceIds != null) {
-                response = Response.ok().entity(deletedPlaceIds).build();
+            List<String> deletedLocationIds = medicalLocationLogic.deleteMedicalLocation(Arrays.asList(locationIds.split(",")));
+            if (deletedLocationIds != null) {
+                response = Response.ok().entity(deletedLocationIds).build();
             } else {
                 return Response.status(500).type("text/plain").entity("medical location deletion failed.").build();
             }
@@ -74,7 +74,7 @@ public class MedicalLocationFacade implements OpenApiFacade {
 
     @ApiOperation(response = MedicalLocationDto.class, value = "Gets a medical location")
     @GET
-    @Path("/{placeId}")
+    @Path("/{locationId}")
     public Response getMedicalLocation(@PathParam("locationId") String locationId) {
         Response response;
 
@@ -82,9 +82,9 @@ public class MedicalLocationFacade implements OpenApiFacade {
             response = ResponseUtils.badRequest("Cannot get medical location: supplied locationId is null");
 
         } else {
-            MedicalLocation place = medicalLocationLogic.getMedicalLocation(locationId);
-            if (place != null) {
-                response = ResponseUtils.ok(mapper.map(place, MedicalLocationDto.class));
+            MedicalLocation location = medicalLocationLogic.getMedicalLocation(locationId);
+            if (location != null) {
+                response = ResponseUtils.ok(mapper.map(location, MedicalLocationDto.class));
             } else {
                 response = ResponseUtils.internalServerError("medical location fetching failed");
             }
@@ -102,9 +102,9 @@ public class MedicalLocationFacade implements OpenApiFacade {
     @GET
     public Response getMedicalLocations() {
         Response response;
-        List<MedicalLocation> places = medicalLocationLogic.getAllEntities();
-        if (places != null) {
-            response = Response.ok().entity(places.stream().map(c -> mapper.map(c, MedicalLocationDto.class)).collect(Collectors.toList())).build();
+        List<MedicalLocation> locations = medicalLocationLogic.getAllEntities();
+        if (locations != null) {
+            response = Response.ok().entity(locations.stream().map(c -> mapper.map(c, MedicalLocationDto.class)).collect(Collectors.toList())).build();
 
         } else {
             response = ResponseUtils.internalServerError("medical locations fetching failed");
@@ -112,7 +112,7 @@ public class MedicalLocationFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = MedicalLocationDto.class, value = "Modifies an place")
+    @ApiOperation(response = MedicalLocationDto.class, value = "Modifies a medical location")
     @PUT
     public Response modifyMedicalLocation(MedicalLocationDto medicalLocationDto) {
         Response response;
@@ -120,9 +120,9 @@ public class MedicalLocationFacade implements OpenApiFacade {
         if (medicalLocationDto == null) {
             response = ResponseUtils.badRequest("Cannot modify medical location: supplied medicalLocationDto is null");
         } else {
-            MedicalLocation place = medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation.class));
-            if (place != null) {
-                response = ResponseUtils.ok(mapper.map(place, MedicalLocationDto.class));
+            MedicalLocation location = medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation.class));
+            if (location != null) {
+                response = ResponseUtils.ok(mapper.map(location, MedicalLocationDto.class));
             } else {
                 response = ResponseUtils.internalServerError("medical location modification failed");
             }
