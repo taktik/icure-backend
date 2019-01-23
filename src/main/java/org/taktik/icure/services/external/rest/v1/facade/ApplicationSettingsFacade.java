@@ -31,18 +31,14 @@ public class ApplicationSettingsFacade implements OpenApiFacade {
 
     @ApiOperation(response = ApplicationSettingsDto.class, value = "Gets all application settings")
     @GET
-    public Response getMedicalLocation(@PathParam("locationId") String locationId) {
+    public Response getApplicationSettings() {
         Response response;
 
-        if (locationId == null) {
-            response = ResponseUtils.badRequest("Cannot get medical location: supplied locationId is null");
+        List<ApplicationSettings> applicationSettings = applicationSettingsLogic.getAllEntities();
+        if (applicationSettings != null) {
+            response = Response.ok().entity(applicationSettings.stream().map(c -> mapper.map(c, ApplicationSettingsDto.class)).collect(Collectors.toList())).build();
         } else {
-            List<ApplicationSettings> applicationSettings = applicationSettingsLogic.getAllEntities();
-            if (applicationSettings != null) {
-                response = Response.ok().entity(applicationSettings.stream().map(c -> mapper.map(c, ApplicationSettingsDto.class)).collect(Collectors.toList())).build();
-            } else {
-                response = ResponseUtils.internalServerError("medical location fetching failed");
-            }
+            response = ResponseUtils.internalServerError("application settings fetching failed");
         }
         return response;
     }
