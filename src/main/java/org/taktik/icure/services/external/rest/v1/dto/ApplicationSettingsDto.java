@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class ApplicationSettingsDto extends StoredDto {
 
-    protected Map<String, String> options = new HashMap<>();
+    protected Map<String, String> settings = new HashMap<>();
 
-    public Map<String, String> getOptions() {
-        return options;
+    public Map<String, String> getSettings() {
+        return settings;
     }
 
-    public void setOptions(Map<String, String> options) {
-        this.options = options;
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
     }
 }
