@@ -38,7 +38,7 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
-
+                        autoUpdate: 1000*60*30,
 				        options: {
 				        	/*presets: ['es2015'],*/
 					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']

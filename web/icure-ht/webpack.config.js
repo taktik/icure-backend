@@ -78,7 +78,7 @@ module.exports = {
         new OfflinePlugin({
             // Unless specified in webpack's configuration itself
             publicPath: '/',
-
+            autoUpdate: 1000*60*30,
             appShell: '/',
             externals: [
                 '/'
