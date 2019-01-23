@@ -29,7 +29,11 @@ public class ApplicationSettingsFacade implements OpenApiFacade {
     private ApplicationSettingsLogic applicationSettingsLogic;
     private MapperFacade mapper;
 
-    @ApiOperation(response = ApplicationSettingsDto.class, value = "Gets all application settings")
+    @ApiOperation(
+        value = "Gets all application settings",
+        response = ApplicationSettingsDto.class,
+        responseContainer = "Array"
+    )
     @GET
     public Response getApplicationSettings() {
         Response response;
