@@ -875,7 +875,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     patientChanged() {
         if (!this.api || !this.user) { return }
 
-        this.set('dataProvider', this.patientDataProvider({}, '', null, []));
+        this.set('dataProvider', this.patientDataProvider({}, '', '', null, []));
         this.set('patientMap', {});
 
 
@@ -886,12 +886,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.api.code().getCodes((this.patient.languages || []).map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
-                    (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
+                    (this.patient.partnerships.length ? this.api.patient().getPatientsWithUser(this.user,{ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([]))
+                        .then(ppss => ppss.map(p => this.api.register(p, 'patient')))
+                        .then(ppss =>
                         this.set('patient.partnerships', this.patient.partnerships.map(pp => {
                             return Object.assign({}, pp, { partnerInfo: ppss.find(ps => ps.partnerId === pp.id) || {id: pp.partnerId} })
                         }))
                     ).finally(() => {
-                        this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
+                        this.dataProvider = this.patientDataProvider(this.patient, '', '', this.patient && this.patient.id, codes);
                         this.set('patientMap', _.cloneDeep(this.patient));
 
                         if (!this.root.activeElement) {
@@ -901,7 +903,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         }
                     })
                 } else {
-                    this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
+                    this.dataProvider = this.patientDataProvider(this.patient, '', '', this.patient && this.patient.id, codes);
                     this.set('patientMap', _.cloneDeep(this.patient));
 
                     if (!this.root.activeElement) {
@@ -960,10 +962,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             //patient present
                             return this.api.patient().modifyPatientWithUser(this.user, partner.partnerInfo)
                                 .then(p => this.api.register(p, 'patient'))
-                                .then(partner => {
-                                        this.set('patient.partnerships.' + index + '.partnerInfo', partner)
-                                        return partner
-                                    })
+                                //  .then(partner => {
+                                //      this.set('patient.partnerships.' + index + '.partnerInfo', partner)
+                                //      return partner
+                                //  })
                                 .catch(e => {console.log("Cannot save "+e.message); return null})
                         }
                     }))
@@ -1000,13 +1002,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-    patientDataProvider(root, rootPath, id, codes) {
+    patientDataProvider(oroot, subPath, rootPath, id, codes) {
+        const root = () => subPath && subPath.length ? _.get(oroot, subPath) : oroot;
         const getValue = function (key) {
-            return root ? _.get(root, key) : null;
+            return root() ? _.get(root(), key) : null;
         };
         const setValue = (key, value) => {
-            if (root && !_.isEqual( _.get(root, key) , value)) {
-                root === this.patient ? this.set('patient.' + key, value) : _.set(root, key, value);
+            let resolvedRoot = root();
+
+            if (resolvedRoot && !_.isEqual( _.get(resolvedRoot, key) , value)) {
+                resolvedRoot === this.patient ? this.set('patient.' + key, value) : _.set(resolvedRoot, key, value);
                 this.scheduleSave(this.patient);
             }
         };
@@ -1015,7 +1020,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getNumberValue: getValue,
             getMeasureValue: getValue,
             getDateValue: getValue,
-            getBooleanValue: key => root ? _.get(root, key) && _.get(root, key) !== 'false' : null,
+            getBooleanValue: key => root() ? _.get(root(), key) && _.get(root(), key) !== 'false' : null,
             setStringValue: setValue,
             setNumberValue: setValue,
             setMeasureValue: setValue,
@@ -1034,10 +1039,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (this.api.contact().preferredContent(s,this.language) || {}).stringValue)),
             getSubForms: key => {
-                return (_.get(root,key) || []).map((a, idx) => {
+                return (_.get(root(),key) || []).map((a, idx) => {
                     return {
                         dataMap: a,
-                        dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
+                        dataProvider: key === 'partnerships' ?
+                            this.patientDataProvider(a, '', (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())) :
+                            this.patientDataProvider(oroot, (subPath && subPath.length ? subPath + '.' : '') + key + '[' + idx + ']', (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid()))
+                        ,
                         template:
                             key === 'telecoms' ?
                                 this.telecomForm :
@@ -1054,41 +1062,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             getId: () => id,
             deleteSubForm: (key, id) => {
                 this.flushSave();
-                _.remove((_.get(root,key) || []), a => a.id === id);
+                _.remove((_.get(root(),key) || []), a => a.id === id);
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },
             addSubForm: (key, guid) => {
                 this.flushSave(); //Important
-                (_.get(root, key) || _.get(_.set(root, key, []), key)).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
+                (_.get(root(), key) || _.get(_.set(root(), key, []), key)).push(key==='partnerships'?{partnerId: this.api.crypto().randomUuid(), partnerInfo:{}}:{});
 
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
-                console.dir(this.$[this.root.activeElement.id])
-
-                // if (!this.currentContact) {
-                //     return;
-                // }
-                // this.flushSave();
-                // this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes && hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice')).then(formTemplates => {
-                //     if (formTemplates[0] && formTemplates[0]) {
-                //         //Create a new form and link it to the currentContact
-                //         this.api.form().newInstance(this.user, this.patient, {
-                //             contactId: this.currentContact.id,
-                //             descr: key,
-                //             formTemplateId: formTemplates[0].id,
-                //             parent: form.id
-                //         }).then(f => this.api.form().createForm(f)).then(f => {
-                //             f.template = formTemplates[0]; //Important
-                //             (form.children || (form.children = [])).push(f);
-                //             this.currentContact.subContacts.push({formId: f.id, descr: key, services: []});
-                //
-                //             this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
-                //             this.scanServicesAndScheduleSave(this.currentContact);
-                //         });
-                //     }
-                // });
-
             },
             filter: (data, text, id) => {
                 if (data.source === 'insurances') {
