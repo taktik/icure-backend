@@ -1227,25 +1227,42 @@
 						.then(data => {
 							let blob = new Blob([data], {type: 'application/pdf'});
 							let url = window.URL.createObjectURL(blob)
-							let a = document.createElement("a");
-							document.body.appendChild(a);
-							a.style = "display: none;";
-							a.href = url;
-							a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-							a.click();
-							window.URL.revokeObjectURL(url);
-						}).finally(()=>{
-					drugsToBePrescribed.forEach(s => {
-						const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
-						if (tag) {
-							tag.id = 'CD-LIFECYCLE|ordered|1';
-							tag.code = 'ordered'
-						} else {
-							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
-						}
-					}) // forEach end
-					this.saveCurrentContact().then(() => this._refreshFromServices())
-				})
+
+                            // send to printer
+							let iframe = document.createElement("iframe");
+							iframe.onload = function() {
+                                this.contentWindow.focus(); // Required for IE
+                                this.contentWindow.print();
+                            }
+                            iframe.style.visibility = "hidden";
+                            iframe.src = url;
+                            this.appendChild(iframe);
+
+                            // save file
+                            let a = document.createElement("a");
+                            document.body.appendChild(a);
+                            a.style.display = "none";
+                            a.href = url;
+                            a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+                            a.click();
+
+                            // free memory
+                            this.parentElement.removeChild(a);
+                            this.parentElement.removeChild(iframe);
+                            window.URL.revokeObjectURL(url)
+						})
+                    .finally(()=>{
+                        drugsToBePrescribed.forEach(s => {
+                            const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
+                            if (tag) {
+                                tag.id = 'CD-LIFECYCLE|ordered|1';
+                                tag.code = 'ordered'
+                            } else {
+                                s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
+                            }
+                        }) // forEach end
+                        this.saveCurrentContact().then(() => this._refreshFromServices())
+                    })
 			}
 
 			_printPrescriptions(e) {
@@ -1281,13 +1298,13 @@
 			} // print end
 
 			_formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
-				console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
+				// console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
 				let prescriToPrint = [], allPages = []
 				let prescNum = 0, pageNum = 1
 
 				splitColumns.forEach((c, idx) => {
 					const colId = splitColumns.indexOf(c)
-					console.log('c',c,'idx',idx,'colId',colId)
+					// console.log('c',c,'idx',idx,'colId',colId)
 					JsBarcode(element, rid[colId] ? rid[colId] : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
 					const ridIdx = (rid[colId] ? rid[colId] : hcp.nihii).split('').join('&nbsp;')
@@ -1307,7 +1324,7 @@
 						const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
 						prescArray.push(thisMed) // add to the medications list
 					}) // flatmap end
-					console.log("prescArray",prescArray)
+					// console.log("prescArray",prescArray)
 
 					let prescriContent = ""
 					let articlePoso = []
@@ -1366,9 +1383,9 @@
             </article>` : prescriContent; // create single prescription body
 					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridIdx, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
 				}) // splitCol forEach end
-				console.log("prescriToPrint",prescriToPrint)
+				// console.log("prescriToPrint",prescriToPrint)
 
-				console.log("allPages before map",allPages)
+				// console.log("allPages before map",allPages)
 				prescriToPrint.map((prescri)=>{ // for every prescription found in list
 					let singlePage = {body:'',poso:[],rid:'',jpegUrl: ''}
 					singlePage.body += (prescri.prescriBody) // get the body
@@ -1384,7 +1401,7 @@
 						allPages[prescri.page-1].push(singlePage)
 					}
 				})
-				console.log("allPages after map",allPages)
+				// console.log("allPages after map",allPages)
 				let onePageBody = ""
 				allPages.map((onePage)=>{
 					let posoByDay = { // make the arrays that will receive sorted posologies
@@ -1525,7 +1542,7 @@
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
         </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
-				console.log("toPrint",toPrint)
+				// console.log("toPrint",toPrint)
 				return toPrint
 			}
 
