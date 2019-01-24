@@ -82,7 +82,7 @@ public class Patient extends StoredICureDocument implements Person {
     //No guarantee of unicity
     protected String externalId;
 
-    protected Set<Address> addresses = new HashSet<>();
+    protected List<Address> addresses = new ArrayList<>();
     protected List<Insurability> insurabilities = new ArrayList<>();
     protected List<String> languages = new ArrayList<>(); //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html
     protected List<Partnership> partnerships = new ArrayList<>();
@@ -280,11 +280,11 @@ public class Patient extends StoredICureDocument implements Person {
         this.externalId = externalId;
     }
 
-    public Set<Address> getAddresses() {
+    public List<Address> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(Set<Address> addresses) {
+    public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
 
@@ -523,7 +523,7 @@ public class Patient extends StoredICureDocument implements Person {
 		this.forceMergeAddresses(other.getAddresses());
 	}
 
-	public void forceMergeAddresses(Set<Address> otherAddresses) {
+	public void forceMergeAddresses(List<Address> otherAddresses) {
 		for (Address fromAddress : otherAddresses) {
 			Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
 			if (destAddress.isPresent()) {

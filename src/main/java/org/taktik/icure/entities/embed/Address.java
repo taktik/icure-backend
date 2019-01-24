@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -45,7 +47,7 @@ public class Address implements Serializable, Comparable<Address> {
     protected String city;
     protected String country;
 
-	protected Set<Telecom> telecoms = new HashSet<>();
+	protected List<Telecom> telecoms = new LinkedList<>();
 
 	public Address() {
 	}
@@ -119,11 +121,11 @@ public class Address implements Serializable, Comparable<Address> {
 		this.descr = descr;
 	}
 
-	public Set<Telecom> getTelecoms() {
+	public List<Telecom> getTelecoms() {
 		return telecoms;
 	}
 
-	public void setTelecoms(Set<Telecom> telecoms) {
+	public void setTelecoms(List<Telecom> telecoms) {
 		this.telecoms = telecoms;
 	}
 

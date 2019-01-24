@@ -1654,18 +1654,20 @@
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.contacts.map(contact => ({
-                    ctc: contact,
-                    forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-						const serviceIds = sc.services.map(s => s.serviceId)
-
+                const formGroups = this.contacts.map(contact => {
+                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                        const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
                             docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
-                    }), f => -f.created),
-                    unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-                }))
+                    })
+					const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
+					return {
+                    ctc: contact,
+                    forms: _.sortBy(forms, f => -f.created),
+                    unmappedServices: _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+                }})
 
                 const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
