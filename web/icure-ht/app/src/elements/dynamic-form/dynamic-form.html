@@ -271,9 +271,7 @@
 				</div>
 			</form>
 			<template is="dom-if" if="[[showEdit]]">
-			    <template is="dom-if" if="[[!readOnly]]">
-				    <paper-icon-button class="edit-print-pat-details-btn" icon="create" on-tap="editForm"></paper-icon-button>
-			    </template>
+                <paper-icon-button class="edit-print-pat-details-btn" icon="create" on-tap="editForm"></paper-icon-button>
 			</template>
 			<template is="dom-if" if="[[_none(showEdit,noPrint)]]">
                 <template is="dom-if" if="[[!isSubForm]]">
