@@ -371,7 +371,7 @@ public class PatientFacade implements OpenApiFacade{
 				pdto.setSsin(p.getSsin());
 				pdto.setExternalId(p.getExternalId());
 				pdto.setPatientHealthCareParties(p.getPatientHealthCareParties().stream().map(phcp->mapper.map(phcp, PatientHealthCarePartyDto.class)).collect(Collectors.toList()));
-				pdto.setAddresses(new TreeSet<>(p.getAddresses().stream().map(a->mapper.map(a, AddressDto.class)).collect(Collectors.toSet())));
+				pdto.setAddresses(p.getAddresses().stream().map(a->mapper.map(a, AddressDto.class)).collect(Collectors.toList()));
 
 				return pdto;
 			}).collect(Collectors.toList()));

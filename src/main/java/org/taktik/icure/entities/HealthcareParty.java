@@ -71,7 +71,7 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     protected String ssin;
 
-    protected Set<Address> addresses = new HashSet<>();
+    protected List<Address> addresses = new LinkedList<>();
     protected List<String> languages =  new LinkedList<>();
 
     protected List<HealthcarePartyStatus> statuses;
@@ -243,11 +243,11 @@ public class HealthcareParty extends StoredDocument implements Person {
         this.sendFormats = sendFormats;
     }
 
-    public Set<Address> getAddresses() {
+    public List<Address> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(Set<Address> addresses) {
+    public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
 
