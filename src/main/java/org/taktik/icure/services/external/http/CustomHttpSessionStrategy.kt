@@ -16,8 +16,7 @@ class CustomHttpSessionStrategy : HttpSessionStrategy {
     private fun getStrategy(request: HttpServletRequest?) : HttpSessionStrategy =
         when {
             request?.isRequestedSessionIdFromURL ?: false -> url
-            request?.isRequestedSessionIdFromCookie ?: false  -> cok
-            else -> hdr
+            else -> cok
         }
 
     override fun onInvalidateSession(request: HttpServletRequest?, response: HttpServletResponse?) =
