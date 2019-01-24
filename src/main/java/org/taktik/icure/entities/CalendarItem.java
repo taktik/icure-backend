@@ -60,6 +60,8 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String details;
 
+    protected Boolean isMigrate;
+
     @NotNull
     protected String agendaId;
 
@@ -210,4 +212,8 @@ public class CalendarItem extends StoredICureDocument {
     public void setFlowItem(FlowItem flowItem) {
         this.flowItem = flowItem;
     }
+
+    public Boolean getMigrate() { return isMigrate; }
+
+    public void setMigrate(Boolean migrate) { isMigrate = migrate; }
 }
