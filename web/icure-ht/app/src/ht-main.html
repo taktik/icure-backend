@@ -977,7 +977,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 let results = []
                 cs.forEach(c=>{
                     const svc = c.services.filter(s=> s.label==='labResult')
-                    results.push({patient: {name: this.api.contact().preferredContent(svc[0],this.language).stringValue || 'no patient or test',id: this.api.contact().preferredContent(svc[0],this.language).stringValue || '0'},created: c.created,descr: c.descr,groupId:c.groupId})
+                    const patName = this.api.contact().preferredContent(svc[0],"patientName") || this.api.contact().preferredContent(svc[0],this.language)
+                    const patId = this.api.contact().preferredContent(svc[0],'patientId') || this.api.contact().preferredContent(svc[0],this.language)
+                    results.push({
+                        patient: {
+                            name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : patName ? patName.stringValue : this.localize('err','error',this.language),
+                            id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : patId ? patId.stringValue : 0
+                        },
+                        created: c.created,descr: c.descr,groupId:c.groupId
+                    })
                 })
                 return _.orderBy(results,'created','desc')
             }).then(results=> {
