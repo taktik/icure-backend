@@ -598,7 +598,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
-                                <paper-button name="diary" on-tap="checkAndLoadMikrono">
+                                <paper-button name="diary" on-tap="doRoute">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
                                     [[localize('diary')]]
                                 </paper-button>
@@ -1182,7 +1182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
-                    <ht-diary name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                    <ht-diary id="htDiary" name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-diary>
                     <ht-view404 name="view404"></ht-view404>
@@ -1255,6 +1255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
+
 
         <paper-dialog id="appointmentsMigrationDialog">
             <h4>Migration de vos rendez-vous</h4>
@@ -2014,7 +2015,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
                         if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                            this.api.isElectronAvailable().then(electron =>{
+                                if(electron === false){
+                                    window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank')
+                                }else{
+                                    fetch('http://127.0.0.1:16042/mc', {
+                                        method: "POST",
+                                        headers: {"Content-Type": "text/html; charset=utf-8"},
+                                        body: JSON.stringify("username:"+mikronoUser+'", "password":"'+mikronoPassword)
+                                    }).then(response => response.json()).then(rep => {
+                                        if(rep.ok){
+                                            this.set('routeData.page', "diary")
+                                            this.shadowRoot.querySelector("#htDiary").loadMikornoIframe()
+                                        }
+                                    })
+
+
+                                }
+                            })
+
                         }else{
                             const addresses = hcp && hcp.addresses || null
                             const workAddresses = addresses.find(adr => adr.addressType === "work") || null
@@ -2032,7 +2051,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
 
                                             if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                                window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                                                this.api.isElectronAvailable().then(electron =>{
+                                                    if(electron === false){
+                                                        window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank')
+                                                    }else{
+                                                        fetch('http://127.0.0.1:16042/mc', {
+                                                            method: "POST",
+                                                            headers: {"Content-Type": "text/html; charset=utf-8"},
+                                                            body: JSON.stringify("username:"+mikronoUser+'", "password":"'+mikronoPassword)
+                                                        }).then(response => response.json()).then(rep => {
+                                                            if(rep.ok){
+                                                                this.set('routeData.page', "diary")
+                                                                this.shadowRoot.querySelector("#htDiary").loadMikornoIframe()
+                                                            }
+                                                        })
+
+                                                    }
+                                                })
+
                                             }else{
                                                 this.set("mikronoError", {
                                                     addresses: false,
