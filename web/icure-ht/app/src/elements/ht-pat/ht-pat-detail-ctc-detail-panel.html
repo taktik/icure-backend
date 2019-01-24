@@ -2401,9 +2401,9 @@
 
             printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
-			    // Todo: once all fields would be available: finish serviceMap data mapping and have remaining fields to be dynamic
-
                 this.busySpinner = true;
+
+                // Todo: missing fields: Informations cliniques pertinentes (InfoClinPert), Explication de la demande de diagnostic (ExplicationDemandeDiag) & Informations supplémentaires pertinentes (unknown key)
 
                 const subFormFieldsAndValues = _.map(
                     _.map( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), (i) => {
