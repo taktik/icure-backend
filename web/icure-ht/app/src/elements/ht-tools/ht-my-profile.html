@@ -395,6 +395,10 @@
                 width: 100%;
             }
 
+            paper-listbox {
+                max-height: 128px;
+            }
+
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
@@ -405,9 +409,9 @@
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonnées',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>[[localize('my_banking_details','Informations bancaires',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
-                    <!--<template is="dom-if" if="[[electronAvailable]]">-->
+                    <template is="dom-if" if="[[electronAvailable]]">
                         <paper-tab class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon>[[localize('def_printer','Default Printers',language)]]</paper-tab>
-                    <!--</template>-->
+                    </template>
 				</paper-tabs>
 
 
@@ -699,14 +703,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].color}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -718,14 +717,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[1].color}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -737,14 +731,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].color}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -760,14 +749,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[1].bw}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -779,14 +763,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[0].bw}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -798,14 +777,9 @@
                                     </div>
                                     <div class="right">
                                         <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].bw}}">
-                                                <template is="dom-if" if="[[!printers.length]]">
-                                                    <paper-item>No printer found</paper-item>
-                                                </template>
-                                                <template is="dom-if" if="[[printers.length]]">
-                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                        <paper-item>[[printer.name]]</paper-item>
-                                                    </template>
+                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
+                                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                    <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                 </template>
                                             </paper-listbox>
                                         </paper-dropdown-menu>
@@ -968,10 +942,12 @@
                     selectedPrinter: {
                         type: Object,
                         value: {
-                            'A5': {color: 0,bw: 0},
-                            'A4': {color: 0,bw: 0},
-                            'presc': {color: 0,bw: 0}
-                        }
+                            a4:{"color":'',"bw":''},
+                            a5:{"color":'',"bw":''},
+                            presc:{"color":'',"bw":''}}
+                    },
+                    numericSelectedPrinter: {
+                        type: Object
                     },
                     electronAvailable: {
                         type: Boolean,
@@ -981,21 +957,13 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)'];
+                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
             }
 
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
                 this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true)
-
-                this.set('electronAvailable',this.api.isElectronAvailable())
-                
-                // this.set('selectedPrinter',{
-                //     'A5': {color: 0,bw: 0},
-                //     'A4': {color: 0,bw: 0},
-                //     'presc': {color: 0,bw: 0}
-                // })
             }
 
             _autoMailChanged() {
@@ -1255,6 +1223,45 @@
 
                     });
 
+                    this.api.isElectronAvailable().then(isit=>this.set('electronAvailable',isit))
+                    this.api.printers().then(prt=>{
+                        this.set('printers',prt)
+
+                        if (localStorage.getItem('selectedPrinter')) {
+                            const selectedFromStorage = JSON.parse(localStorage.getItem('selectedPrinter'))
+                            let tempSelected = {}
+                            let i = 0
+                            Object.keys(selectedFromStorage).forEach(k=>{
+                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
+                                const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
+                                console.log(color,bw)
+                                if (i==0) tempSelected.a4 = {color:color,bw:bw}
+                                if (i==1) tempSelected.a5 = {color:color,bw:bw}
+                                if (i==2) tempSelected.presc = {color:color,bw:bw}
+                                i++
+                            })
+                            this.set('selectedPrinter', selectedFromStorage)
+                            this.set('numericSelectedPrinter', tempSelected)
+                        }
+                    })
+                }
+            }
+            _setPrinter(e) {
+                const target = 'selectedPrinter.'+e.target.getAttribute('target')
+                const value = e.target.dataset.item
+                if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
+                if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
+                if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
+                if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
+                if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
+                if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.numericSelectedPrinter) {
+                    localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
+                }
+            }
+            _getPrinterIdByName(source,name) {
+                for (let i = 0;i<=source.length;i++) {
+                    if (source[i].name == name) return i
                 }
             }
 
