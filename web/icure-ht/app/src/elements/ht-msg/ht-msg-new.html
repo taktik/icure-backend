@@ -979,7 +979,7 @@
                 //     return;
                 // }
                 const files = _.clone(this.files);
-                console.log('cloned files',files)
+                // console.log('cloned files',files)
                 const vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
@@ -996,13 +996,13 @@
                         fr.onload = function (se) {
                             let fileByteArray = [];
                             new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
-                            this.push('newMessage.annex',{
+                            this.set('newMessage.annex',[{
                                 "content": fileByteArray,
                                 "filename": file.name,
                                 "mimeType": file.type ? file.type : 'text/plain',
                                 "title": file.name,
                                 "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-                            });
+                            }]);
                             console.log('annexes',this.newMessage.annex)
                             this.dispatchEvent(new CustomEvent('file-received', file));
                         }.bind(this);
@@ -1195,6 +1195,8 @@
                         	if(response) {
 								this.clearField();
                                 this.set('isSendingMsg',false)
+                                this.set('newMessage.annex',[]);
+                                this.set('uploadFiles',[])
                                 this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}
