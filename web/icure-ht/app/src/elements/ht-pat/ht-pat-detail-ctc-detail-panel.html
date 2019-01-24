@@ -2461,13 +2461,13 @@
                             ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
-                            <div class="borderedBox">### Informations cliniques pertinentes ### (Wait for new form)</div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
-                            <div class="borderedBox">### Explication de la demande de diagnostic ### (Wait for new form)</div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
-                            <div class="borderedBox">### Informations supplémentaires pertinentes ### (Wait for new form)</div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
@@ -2720,7 +2720,7 @@
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.formsData.subForm.fieldsAndValues, 1) + "</div>" +
 
                             _.map(pdfPrintingData.formsData.subSubForms, (singleSubSubForm => {
-                                return '' +
+                                return"" +
                                     '<div class="boxLabel">' + singleSubSubForm.name + '</div>' +
                                     '<div class="borderedBox">' + this._getFormCheckboxesAndLabelHtmlCode(singleSubSubForm.fieldsAndValues, singleSubSubForm.columnsCount) + '</div>'
                             })).join(" ") +
@@ -2729,10 +2729,10 @@
                         </div>` +
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
-                   console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+                   // console.log(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter());
 
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1, printBackground:true} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
                         this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
                         this.busySpinner = false;
                     }).catch(()=>{this.busySpinner = false;});
@@ -2741,7 +2741,14 @@
 
             }
 
-            _getPdfHeader() {
+            _getPdfHeader( layoutAttributes = false ) {
+
+			    layoutAttributes = _.merge(
+			        {
+    			        pageOverflowHidden: true
+			        },
+			        (layoutAttributes||{})
+			    )
 
                 return `
                     <html>
@@ -2749,9 +2756,9 @@
 
                             <style>
 
-                                @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; }
+                                @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding: 0 }
                                 body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; line-height:1em; }
-                                .page { width: 210mm; height: 297mm; overflow:hidden; color:#000000; font-size:12px; padding:15mm; }
+                                .page { width: 210mm; ` + (layoutAttributes.pageOverflowHidden ? "height: 297mm; overflow:hidden;" : "") + ` color:#000000; font-size:12px; padding:15mm; }
 
                                 h1 { font-size:18px; text-align: center; margin:0; padding:0; }
                                 h2 { font-size:16px; font-weight:400; font-style: italic; text-align: center; padding:0; margin:10px 0 30px 0; }
@@ -2759,7 +2766,7 @@
 
                                 .clear { clear:both; height:0px; line-height:0px; }
 
-                                .alignCenter {text-align: center;}
+                                .alignCenter {text-align: center!important;}
                                 .alignLeft {text-align: left;}
                                 .alignRight {text-align: right;}
 
@@ -2791,23 +2798,23 @@
                                 .checkBoxContainer.columnsCount_2 { min-width:380px; margin-right:0; }
                                 .checkBoxContainer.columnsCount_3 { min-width:255px; margin-right:0; }
 
-                                .singleCheckBox { padding:0; width:10mm; height:6mm; border:1px solid #000000; display:inline-block; margin:0 2mm 0 0; position:absolute; top:0; left:0; text-align:center; line-height:22px; font-size:21px; font-weight:700; }
+                                .singleCheckBox { padding:0; width:10mm; height:6mm; border:1px solid #000000; display:inline-block; margin:0 2mm 0 0; position:absolute; top:0; left:0; text-align:center; line-height:22px; font-size:21px; font-weight:700; color:#0b8200; }
                                 .singleCheckBoxLabel { display: inline-block; position: absolute; top: 4px; left: 12mm; }
 
 								.medicationTable { margin-top:20px; }
 								.medicationTableHeader { text-transform:uppercase; font-weight:700; margin-bottom:10px; margin-top:20px; }
 
 								.medicationsContainer {}
-								.singleMedicationContainer { margin-bottom:10px;  border:1px solid #000; background-color:#f7fbf7; }
+								.singleMedicationContainer { margin-bottom:10px;  border:2px solid #2b4e8d; /* background-color:#f7fbf7; */ }
 
-								.medicationPosology { border:1px dotted #000; }
+								.medicationPosology { border:1px dashed #000; }
 								.posologyHeader { text-transform:uppercase; }
 								.posologyFrequency { text-decoration:underline }
 
 								.posologyContent {}
 								.posologyTable { width:100%; padding:0; margin:0; font-family: Arial, Helvetica, sans-serif; line-height:1em; font-size:12px; border-collapse: collapse; }
 								.posologyTable tr { padding:0; margin:0 }
-								.posologyTable tr th, .posologyTable tr td { padding:5px; margin:0; vertical-align:top; border:1px solid #000; }
+								.posologyTable tr th, .posologyTable tr td { padding:5px; margin:0; vertical-align:top; border:1px solid #007504; }
 								.posologyTable tr th { text-align:left; background-color:#e0e0e0; padding:10px 5px 10px 5px; }
 
                             </style>
@@ -2975,15 +2982,15 @@
                                                 !_.size(regimenDailyFrequencies) ?
                                                     "" :
                                                     `
-                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("dailyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</div><div class="clear"></div>
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("dailyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
                                                         <div class="posologyContent mb10">
                                                             <table class="posologyTable" cellspacing="0" cellpadding="0">
-                                                                <thead><tr><th style="width:120px">`+this.localize("qua",this.language)+`</th><th style="width:120px">`+this.localize("uni",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
                                                                 <tbody>` + _.map(
                                                                     regimenDailyFrequencies,
                                                                     (singleFrequency => {
-                                                                        return "<tr><td>" +
-                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td>" +
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
                                                                             ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td>" +
                                                                             (
                                                                                 _.trim(_.get(singleFrequency, "dayPeriod.code", "")) === "custom" ?
@@ -3000,16 +3007,16 @@
                                                 !_.size(regimenWeeklyFrequencies) ?
                                                     "" :
                                                     `
-                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("weeklyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</div><div class="clear"></div>
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("weeklyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
                                                         <div class="posologyContent mb10">
                                                             <table class="posologyTable" cellspacing="0" cellpadding="0">
-                                                                <thead><tr><th style="width:120px">`+this.localize("qua",this.language)+`</th><th style="width:120px">`+this.localize("uni",this.language)+`</th><th style="width:140px">`+this.localize("dayOfWeek",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th style="width:140px">`+this.localize("dayOfWeek",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
                                                                 <tbody>` + _.map(
                                                                     regimenWeeklyFrequencies,
                                                                     (singleFrequency => {
-                                                                        return "<tr><td>" +
-                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td>" +
-                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td>" +
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td class='alignCenter'>" +
                                                                             ( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")) && this.localize( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")), this.language ) ? this.localize( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")), this.language ) : _.trim(_.get(singleFrequency, "administratedQuantity.day", "")) ) + "</td><td>" +
                                                                             ( _.trim(_.get(singleFrequency, "dayPeriod.code", "")) ? _.trim(this.localize("ms_"+_.trim(_.get(singleFrequency, "dayPeriod.code", "")),this.language)) : _.trim(_.get(singleFrequency, "dayPeriod.code", ""))||"-" ) + "</td></tr>"
                                                                     })
@@ -3022,16 +3029,16 @@
                                                 !_.size(regimenMonthlyFrequencies) ?
                                                     "" :
                                                     `
-                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("monthlyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</div><div class="clear"></div>
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("monthlyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
                                                         <div class="posologyContent mb10">
                                                             <table class="posologyTable" cellspacing="0" cellpadding="0">
-                                                                <thead><tr><th style="width:120px">`+this.localize("qua",this.language)+`</th><th style="width:120px">`+this.localize("uni",this.language)+`</th><th style="width:140px">`+this.localize("dayOfMonth",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th style="width:140px" class="alignCenter">`+this.localize("dayOfMonth",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
                                                                 <tbody>` + _.map(
                                                                     regimenMonthlyFrequencies,
                                                                     (singleFrequency => {
-                                                                        return "<tr><td>" +
-                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td>" +
-                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td>" +
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td class='alignCenter'>" +
                                                                             ( parseInt(_.get(singleFrequency, "administratedQuantity.time", 0)) ? moment( _.trim(_.get(singleFrequency, "administratedQuantity.time"))+"" ).format("DD") : "-" ) + "</td><td>" +
                                                                             ( _.trim(_.get(singleFrequency, "dayPeriod.code", "")) ? _.trim(this.localize("ms_"+_.trim(_.get(singleFrequency, "dayPeriod.code", "")),this.language)) : _.trim(_.get(singleFrequency, "dayPeriod.code", ""))||"-" ) + "</td></tr>"
                                                                     })
@@ -3100,6 +3107,14 @@
                     </div>
                     <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
                 `
+            }
+
+            _insertPageBreak(inputConfig) {
+			    return (
+			        this._getDoctorDetailsHtmlCode(inputConfig.hcpData) +
+			        '</div><div class="page"><h1 class="mb40">' + _.trim(inputConfig.h1) + '</h1>' +
+			        this._getPatientVignetteHtmlCode(inputConfig.patientData)
+                );
             }
 
         }

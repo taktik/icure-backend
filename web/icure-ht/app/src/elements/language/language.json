@@ -1758,8 +1758,8 @@
 
     "requestForNurseCare_header1":"Prescription de soins infirmiers",
     "dailyPosology": "Posologie Quotidienne",
-    "weeklyPosology": "Posologie Quotidienne",
-    "monthlyPosology": "Posologie Quotidienne",
+    "weeklyPosology": "Posologie Hebdomadaire",
+    "monthlyPosology": "Posologie Mensuelle",
     "momentHour": "Moment / heure",
     "dayOfWeek": "Jour de la semaine",
     "dayOfMonth": "Jour du mois",
