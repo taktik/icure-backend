@@ -38,7 +38,6 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
-                        autoUpdate: 1000*60*30,
 				        options: {
 				        	/*presets: ['es2015'],*/
 					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
@@ -83,6 +82,7 @@ module.exports = {
         new OfflinePlugin({
             // Unless specified in webpack's configuration itself
             publicPath: '/',
+            autoUpdate: 1000*60*30,
 
             appShell: '/',
             externals: [
