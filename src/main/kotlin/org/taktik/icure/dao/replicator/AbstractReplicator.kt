@@ -55,7 +55,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
         val jobStatus = tryToGetJob(replicatedGroup)
         if (jobStatus == null) {
             log.info("Someone else is busy with " + replicatedGroup.id)
-            return CompletableFuture.completedFuture(true) //It is a success because someone else is taking care of this replication... We do not need to mark it as pending
+            return CompletableFuture.completedFuture(false) //Might want to retry later
         }
         synchronized(this) {
             if (httpClient == null) {

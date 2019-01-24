@@ -135,13 +135,17 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
 	public void putInCache(String key, T value) {
         String fullId = getFullId(key);
-        log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev());
+        if (value != null) { log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev()); } else {
+            log.debug("Cache SAVE = {}, null placeholder", fullId);
+        }
         cache.put(fullId, value);
     }
 
     public void putInCache(String groupId, String key, T value) {
         String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + key;
-        log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev());
+        if (value != null) { log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev()); } else {
+            log.debug("Cache SAVE = {}, null placeholder", fullId);
+        }
         cache.put(fullId, value);
     }
 
