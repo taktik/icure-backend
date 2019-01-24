@@ -2021,8 +2021,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 }else{
                                     fetch('http://127.0.0.1:16042/mc', {
                                         method: "POST",
-                                        headers: {"Content-Type": "text/html; charset=utf-8"},
-                                        body: JSON.stringify("username:"+mikronoUser+'", "password":"'+mikronoPassword)
+                                        headers: {"Content-Type": "application/json"},
+                                        body: JSON.stringify({username:mikronoUser, password:mikronoPassword})
                                     }).then(response => response.json()).then(rep => {
                                         if(rep.ok){
                                             this.set('routeData.page', "diary")
@@ -2057,8 +2057,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                     }else{
                                                         fetch('http://127.0.0.1:16042/mc', {
                                                             method: "POST",
-                                                            headers: {"Content-Type": "text/html; charset=utf-8"},
-                                                            body: JSON.stringify("username:"+mikronoUser+'", "password":"'+mikronoPassword)
+                                                            headers: {"Content-Type": "application/json"},
+                                                            body: JSON.stringify({username:mikronoUser, password:mikronoPassword})
                                                         }).then(response => response.json()).then(rep => {
                                                             if(rep.ok){
                                                                 this.set('routeData.page', "diary")
@@ -2066,9 +2066,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                             }
                                                         })
 
+
                                                     }
                                                 })
-
                                             }else{
                                                 this.set("mikronoError", {
                                                     addresses: false,
