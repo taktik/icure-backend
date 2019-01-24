@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -311,13 +312,12 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 			pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress.map(Address::getPostalCode).orElse(""), 0, 10), 10) +
 					StringUtils.rightPad(StringUtils.substring(senderAddress.map(Address::getCity).orElse(""), 0, 35), 35)).replaceAll("[\\r\\n]", "") + "\r\n");
 
-			Set<Telecom> senderTelecoms = senderAddress.map(Address::getTelecoms).orElse(new HashSet<>());
+			List<Telecom> senderTelecoms = senderAddress.map(Address::getTelecoms).orElse(new LinkedList<>());
 			Optional<Telecom> senderPhone = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.phone).findFirst();
 			if (!senderPhone.isPresent()) {
 				senderPhone = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.mobile).findFirst();
 			}
-			Optional<Telecom> senderFax = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.fax).findFirst();
-			//5
+
 			pw.print((StringUtils.rightPad(StringUtils.substring(senderPhone.map(Telecom::getTelecomNumber).orElse(""), 0, 25), 25) +
 					StringUtils.rightPad(StringUtils.substring(senderPhone.map(Telecom::getTelecomNumber).orElse(""), 0, 25), 25)).replaceAll("[\\r\\n]", "") + "\r\n");
 
