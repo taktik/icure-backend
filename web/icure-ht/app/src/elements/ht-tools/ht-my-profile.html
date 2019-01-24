@@ -409,9 +409,9 @@
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonnées',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>[[localize('my_banking_details','Informations bancaires',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
-                    <!--<template is="dom-if" if="[[electronAvailable]]">-->
+                    <template is="dom-if" if="[[electronAvailable]]">
                         <paper-tab class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon>[[localize('def_printer','Default Printers',language)]]</paper-tab>
-                    <!--</template>-->
+                    </template>
 				</paper-tabs>
 
 
