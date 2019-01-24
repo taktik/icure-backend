@@ -1227,42 +1227,25 @@
 						.then(data => {
 							let blob = new Blob([data], {type: 'application/pdf'});
 							let url = window.URL.createObjectURL(blob)
-
-                            // send to printer
-							let iframe = document.createElement("iframe");
-							iframe.onload = function() {
-                                this.contentWindow.focus(); // Required for IE
-                                this.contentWindow.print();
-                            }
-                            iframe.style.visibility = "hidden";
-                            iframe.src = url;
-                            this.appendChild(iframe);
-
-                            // save file
-                            let a = document.createElement("a");
-                            document.body.appendChild(a);
-                            a.style.display = "none";
-                            a.href = url;
-                            a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-                            a.click();
-
-                            // free memory
-                            this.parentElement.removeChild(a);
-                            this.parentElement.removeChild(iframe);
-                            window.URL.revokeObjectURL(url)
-						})
-                    .finally(()=>{
-                        drugsToBePrescribed.forEach(s => {
-                            const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
-                            if (tag) {
-                                tag.id = 'CD-LIFECYCLE|ordered|1';
-                                tag.code = 'ordered'
-                            } else {
-                                s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
-                            }
-                        }) // forEach end
-                        this.saveCurrentContact().then(() => this._refreshFromServices())
-                    })
+							let a = document.createElement("a");
+							document.body.appendChild(a);
+							a.style = "display: none;";
+							a.href = url;
+							a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+							a.click();
+							window.URL.revokeObjectURL(url);
+						}).finally(()=>{
+					drugsToBePrescribed.forEach(s => {
+						const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
+						if (tag) {
+							tag.id = 'CD-LIFECYCLE|ordered|1';
+							tag.code = 'ordered'
+						} else {
+							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
+						}
+					}) // forEach end
+					this.saveCurrentContact().then(() => this._refreshFromServices())
+				})
 			}
 
 			_printPrescriptions(e) {
