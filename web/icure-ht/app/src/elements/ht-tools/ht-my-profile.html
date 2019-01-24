@@ -1240,7 +1240,6 @@
                                 if (i==2) tempSelected.presc = {color:color,bw:bw}
                                 i++
                             })
-                            console.log('tempSelected',tempSelected)
                             this.set('selectedPrinter', selectedFromStorage)
                             this.set('numericSelectedPrinter', tempSelected)
                         }
@@ -1259,17 +1258,11 @@
                 if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.numericSelectedPrinter) {
                     localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
                 }
-                console.log(this.selectedPrinter)
             }
             _getPrinterIdByName(source,name) {
                 for (let i = 0;i<=source.length;i++) {
                     if (source[i].name == name) return i
                 }
-            }
-            _getPrinterNameById(source,value) {
-                return this.printers.find(p=>{
-                    return p[source] == value
-                })
             }
 
             qrCode(login, secret) {
