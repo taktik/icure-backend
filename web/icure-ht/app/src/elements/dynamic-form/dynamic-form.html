@@ -664,7 +664,7 @@
 			_deleteSubForm(e, detail) {
 				e.stopPropagation();
 				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
-				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id);
+				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id, detail.index);
 			}
 
 			_addSubForm(e, detail) {

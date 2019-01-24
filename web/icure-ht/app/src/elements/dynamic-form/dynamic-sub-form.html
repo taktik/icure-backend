@@ -260,8 +260,10 @@ class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_delete(e) {
-		const subContext = this.$['subforms-repeat'].itemForElement(e.target);
-		this.dispatchEvent(new CustomEvent('delete-subform', { detail: { id: subContext.dataProvider.getId() }, composed: true }));
+		const model = this.$['subforms-repeat'].modelForElement(e.target);
+		const subContext = model.subContext;
+		const index = model.index;
+		this.dispatchEvent(new CustomEvent('delete-subform', { detail: { id: subContext.dataProvider.getId(), index }, composed: true }));
 	}
 
 	_add(e) {

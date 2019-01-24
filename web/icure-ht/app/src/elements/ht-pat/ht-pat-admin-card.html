@@ -961,7 +961,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         } else {
                             //patient present
                             return this.api.patient().modifyPatientWithUser(this.user, partner.partnerInfo)
-                                .then(p => this.api.register(p, 'patient'))
+                                .then(p => {
+                                    this.api.register(p, 'patient')
+                                })
                                 //  .then(partner => {
                                 //      this.set('patient.partnerships.' + index + '.partnerInfo', partner)
                                 //      return partner
@@ -1043,7 +1045,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return {
                         dataMap: a,
                         dataProvider: key === 'partnerships' ?
-                            this.patientDataProvider(a, '', (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())) :
+                            this.patientDataProvider(a, '', (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.partnerId) :
                             this.patientDataProvider(oroot, (subPath && subPath.length ? subPath + '.' : '') + key + '[' + idx + ']', (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid()))
                         ,
                         template:
@@ -1060,9 +1062,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 });
             },
             getId: () => id,
-            deleteSubForm: (key, id) => {
+            deleteSubForm: (key, id, index) => {
                 this.flushSave();
-                _.remove((_.get(root(),key) || []), a => a.id === id);
+                _.pullAt( _.get(root(),key), [index] );
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.patient);
             },
