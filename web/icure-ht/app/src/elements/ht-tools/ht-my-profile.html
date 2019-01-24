@@ -8,6 +8,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -347,6 +350,51 @@
                 width: calc(99.9995% - 4em);
             }
 
+            .flex-horizontal, .flex-horizontal .format {
+                display: flex;
+                flex-direction: row;
+                flex-grow: 1;
+            }
+            .flex-horizontal .format {
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .flex-horizontal .format.presc {
+                border-bottom: 0;
+            }
+
+            .flex-horizontal > div {
+                flex-grow: 1;
+                box-sizing: border-box;
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+
+            .flex-horizontal h2 {
+                background: var(--app-background-color-dark);
+                padding: 8px;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+                margin: 0;
+            }
+
+            .flex-horizontal .format .left {
+                flex-grow: initial;
+                width: 128px;
+                line-height: 64px;
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .flex-horizontal .format .right {
+                flex-grow: 1;
+                padding: 0 16px;
+            }
+            .flex-horizontal .format .right paper-dropdown-menu {
+                width: 100%;
+            }
+
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
@@ -357,6 +405,9 @@
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonnées',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>[[localize('my_banking_details','Informations bancaires',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
+                    <!--<template is="dom-if" if="[[electronAvailable]]">-->
+                        <paper-tab class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon>[[localize('def_printer','Default Printers',language)]]</paper-tab>
+                    <!--</template>-->
 				</paper-tabs>
 
 
@@ -637,6 +688,133 @@
 
                     </page>
 
+                    <page>
+                        <div class="flex-horizontal">
+
+                            <div>
+                                <h2>[[localize('color','Color',language)]]</h2>
+                                <div class="format afour">
+                                    <div class="left">
+                                        <span>A4</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].color}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                                <div class="format afive">
+                                    <div class="left">
+                                        <span>A5</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[1].color}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                                <div class="format presc">
+                                    <div class="left">
+                                        <span>Prescription</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].color}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h2>BW</h2>
+                                <div class="format afour">
+                                    <div class="left">
+                                        <span>A4</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[1].bw}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                                <div class="format afive">
+                                    <div class="left">
+                                        <span>A5</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[0].bw}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                                <div class="format presc">
+                                    <div class="left">
+                                        <span>Prescription</span>
+                                    </div>
+                                    <div class="right">
+                                        <paper-dropdown-menu>
+                                            <paper-listbox slot="dropdown-content" selected="{{selectedPrinter[2].bw}}">
+                                                <template is="dom-if" if="[[!printers.length]]">
+                                                    <paper-item>No printer found</paper-item>
+                                                </template>
+                                                <template is="dom-if" if="[[printers.length]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item>[[printer.name]]</paper-item>
+                                                    </template>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </page>
+
 
                 </iron-pages>
 			</div>
@@ -782,6 +960,22 @@
                     receiveMailAuto: {
                         type: Boolean,
                         value: localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true
+                    },
+                    printers: {
+                        type: Array,
+                        value: []
+                    },
+                    selectedPrinter: {
+                        type: Object,
+                        value: {
+                            'A5': {color: 0,bw: 0},
+                            'A4': {color: 0,bw: 0},
+                            'presc': {color: 0,bw: 0}
+                        }
+                    },
+                    electronAvailable: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -794,6 +988,14 @@
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
                 this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true)
+
+                this.set('electronAvailable',this.api.isElectronAvailable())
+                
+                // this.set('selectedPrinter',{
+                //     'A5': {color: 0,bw: 0},
+                //     'A4': {color: 0,bw: 0},
+                //     'presc': {color: 0,bw: 0}
+                // })
             }
 
             _autoMailChanged() {
