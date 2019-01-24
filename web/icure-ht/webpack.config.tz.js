@@ -38,10 +38,10 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
-
+                        autoUpdate: 1000*60*30,
 				        options: {
 				        	/*presets: ['es2015'],*/
-					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
 				        }
 			        },
 			        {
@@ -52,7 +52,12 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-                use: [{loader: 'babel-loader', options: {plugins: ['syntax-dynamic-import']}}],
+                use: [{
+                        loader: 'babel-loader',
+                        options: {
+                            plugins: ['syntax-dynamic-import']
+                        }
+                    }],
                 exclude: /(node_modules|bower_components)/
             },
             {

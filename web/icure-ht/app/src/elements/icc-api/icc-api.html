@@ -457,15 +457,23 @@
             // TEST AD: http://quadbeat.local:8083
             // TEST AD: http://192.168.63.100:8083
             // PROD: https://report.icure.cloud
+            return this.isElectronAvailable().then(electron =>
+                fetch(`${electron?'http://127.0.0.1:16042/print/Brother_HL_L2375DW_series':'https://report.icure.cloud/pdf'}${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
+                    method: "POST",
+                    mode: "cors", // no-cors, cors, *same-origin
+                    credentials: "same-origin", // include, same-origin, *omit
+                    headers: {"Content-Type": "text/html; charset=utf-8",},
+                    redirect: "follow",
+                    body: html,
+                }).then(response => response.arrayBuffer())
+            )
+        }
 
-            return fetch(`https://report.icure.cloud/pdf${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
-                method: "POST",
-                mode: "cors", // no-cors, cors, *same-origin
-                credentials: "same-origin", // include, same-origin, *omit
-                headers: {"Content-Type": "text/html; charset=utf-8",},
-                redirect: "follow",
-                body: html,
-            }).then(response => response.arrayBuffer())
+        printers() {
+            return this.isElectronAvailable().then(electron =>
+                electron && fetch('http://127.0.0.1:16042/printers', { method: "GET" })
+                    .then(response => response.json()) || []
+            )
         }
 
         loadBicData() {
@@ -657,6 +665,13 @@
             return _.trim([inputContent.slice(0,2),inputContent.slice(2,4),inputContent.slice(4,6)].join(".")) + "-" + _.trim([inputContent.slice(6,9),inputContent.slice(9,11)].join("."));
         }
 
+        isElectronAvailable() {
+            return fetch(`http://127.0.0.1:16042/ok`, {
+                method: "GET"
+            })
+                .then(() => true)
+                .catch(() => false)
+        }
     }
 
     customElements.define(IccApi.is, IccApi)
