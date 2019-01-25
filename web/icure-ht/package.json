@@ -97,6 +97,7 @@
     "bower": "^1.8.4",
     "chroma-js": "^1.3.7",
     "define-properties": "^1.1.3",
+    "electron-tabs": "^0.9.5",
     "evaljs": "^2.0.1",
     "fhc-api": "^1.0.36",
     "global": "^4.3.2",
