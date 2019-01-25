@@ -1046,6 +1046,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                     this.telecomForm :
                                     key === 'partnerships' ?
                                         this.partnershipsForm :
+
                                         key === 'medicalHouseContracts' ?
                                             this.medicalHouseContractsForm :
                                             this.insuranceForm
@@ -1110,6 +1111,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             'id': i.id,
                             'name':_.upperFirst(_.lowerCase(i.name)) + ' ' +(typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +''
                         })));
+
                     }) : Promise.resolve([]);
                 }
                 return Promise.resolve(id ? null : [])
