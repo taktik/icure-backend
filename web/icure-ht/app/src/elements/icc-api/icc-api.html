@@ -454,19 +454,23 @@
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
 
-            // TEST AD: http://quadbeat.local:8083
-            // TEST AD: http://192.168.63.100:8083
-            // PROD: https://report.icure.cloud
-            return this.isElectronAvailable().then(electron =>
-                fetch(`${electron?'http://127.0.0.1:16042/print/Brother_HL_L2375DW_series':'https://report.icure.cloud/pdf'}${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
-                    method: "POST",
-                    mode: "cors", // no-cors, cors, *same-origin
-                    credentials: "same-origin", // include, same-origin, *omit
-                    headers: {"Content-Type": "text/html; charset=utf-8",},
-                    redirect: "follow",
-                    body: html,
-                }).then(response => response.arrayBuffer())
-            )
+
+            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : 'a4'
+            const printersPrefs = JSON.parse(localStorage.getItem('selectedPrinter') || '{}')
+            const printerName = printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null) || null
+
+            return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
+                return this.isElectronAvailable().then(electron =>
+                    fetch(`${electron && printerName ? 'http://127.0.0.1:16042/print/'+encodeURIComponent(printerName):'https://report.icure.cloud/pdf'}${optionsString && optionsString.length ? `?${optionsString}` : ''}`, {
+                        method: "POST",
+                        mode: "cors", // no-cors, cors, *same-origin
+                        credentials: "same-origin", // include, same-origin, *omit
+                        headers: {"Content-Type": "text/html; charset=utf-8",},
+                        redirect: "follow",
+                        body: html,
+                    }).then(response => response.arrayBuffer())
+                )
+            })
         }
 
         printers() {

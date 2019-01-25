@@ -947,7 +947,11 @@
                             presc:{"color":'',"bw":''}}
                     },
                     numericSelectedPrinter: {
-                        type: Object
+                        type: Object,
+                        value: {
+                            a4:{"color":null,"bw":null},
+                            a5:{"color":null,"bw":null},
+                            presc:{"color":null,"bw":null}}
                     },
                     electronAvailable: {
                         type: Boolean,
@@ -1230,15 +1234,11 @@
                         if (localStorage.getItem('selectedPrinter')) {
                             const selectedFromStorage = JSON.parse(localStorage.getItem('selectedPrinter'))
                             let tempSelected = {}
-                            let i = 0
-                            Object.keys(selectedFromStorage).forEach(k=>{
+
+                            Object.keys(selectedFromStorage).forEach(k => {
                                 const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
                                 const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
-                                console.log(color,bw)
-                                if (i==0) tempSelected.a4 = {color:color,bw:bw}
-                                if (i==1) tempSelected.a5 = {color:color,bw:bw}
-                                if (i==2) tempSelected.presc = {color:color,bw:bw}
-                                i++
+                                tempSelected[k] = {color:color,bw:bw}
                             })
                             this.set('selectedPrinter', selectedFromStorage)
                             this.set('numericSelectedPrinter', tempSelected)
@@ -1255,7 +1255,7 @@
                 if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
                 if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
                 if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
-                if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.numericSelectedPrinter) {
+                if ( !_.isEqual(JSON.parse(localStorage.getItem('selectedPrinter')), this.numericSelectedPrinter)) {
                     localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
                 }
             }
