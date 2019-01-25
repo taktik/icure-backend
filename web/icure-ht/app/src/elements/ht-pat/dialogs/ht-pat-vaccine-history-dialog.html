@@ -252,7 +252,7 @@
 
             _getName(svc){
                 const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
-                return (content && content.medicationValue && content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname) || this.localize('err','error',this.language)
+                return (content && content.medicationValue && content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname) || this.localize('obs_val','obsolete value',this.language)
             }
             _timeFormat(date) {
                 return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';
