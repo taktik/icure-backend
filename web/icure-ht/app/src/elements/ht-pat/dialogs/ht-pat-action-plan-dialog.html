@@ -133,7 +133,7 @@
                 <template is="dom-if" if="[[isVaccineProcedure]]">
                     <vaadin-form-layout>
                         <vaadin-form-item colspan="2">
-                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="Nom commercial*" readonly="[[readonly]]"></vaadin-combo-box>
+                            <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" selected-item="{{selectedVaccineItem}}" label="[[localize('commercial_name','Commercial name',language)]]*" readonly="[[readonly]]"></vaadin-combo-box>
                         </vaadin-form-item>
                         <vaadin-form-item>
                             <paper-input label="N° de la dose*" value="{{plannedAction.DoseNumber}}" readonly="[[readonly]]"></paper-input>
