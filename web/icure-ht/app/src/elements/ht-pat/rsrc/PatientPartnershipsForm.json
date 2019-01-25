@@ -178,7 +178,7 @@
                         "label" : "education",
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "education"
+                        "name" : "partnerInfo.education"
                       },
                       {
                         "editor" : {
@@ -229,7 +229,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "type"
+                        "name" : "partnerInfo.type"
                       },
                       {
                         "editor" : {
@@ -282,7 +282,7 @@
                         "label" : "addresses",
                         "type" : "TKSubConsult",
                         "subForm" : true,
-                        "name" : "addresses"
+                        "name" : "partnerInfo.addresses"
                       }
                     ]
 				}

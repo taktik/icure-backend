@@ -38,8 +38,8 @@ public interface Person extends Serializable, Identifiable<String> {
     String getLastName();
     void setLastName(String lastName);
 
-    Set<Address> getAddresses();
-    void setAddresses(Set<Address> addresses);
+    List<Address> getAddresses();
+    void setAddresses(List<Address> addresses);
 
     java.util.List<String> getLanguages();
     void setLanguages(List<String> languages);

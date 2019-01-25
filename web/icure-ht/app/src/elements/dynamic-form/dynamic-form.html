@@ -203,64 +203,64 @@
 							<template id="layoutitems-repeat" is="dom-repeat" items="[[_sortedGroupedFormDataList(column.formDataList)]]" as="layoutItem">
 								<template is="dom-if" if="[[_shouldDisplay(layoutItem, readOnly, compact)]]">
 									<template is="dom-if" if="[[_isTextField(layoutItem)]]">
-										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-text-field id="[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" pattern="[[layoutItem.editor.pattern]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" api="[[api]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-text-field>
 									</template>
 									<template is="dom-if" if="[[_isTextArea(layoutItem)]]">
-										<dynamic-text-area id="[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-text-area id="[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" api="[[api]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-text-area>
 									</template>
 									<template is="dom-if" if="[[_isCheckboxField(layoutItem)]]">
-										<dynamic-checkbox id="[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-checkbox id="[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" api="[[api]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-checkbox>
 									</template>
 									<template is="dom-if" if="[[_isNumberField(layoutItem)]]">
-										<dynamic-number-field id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-number-field id="[[_sanitizeId(layoutItem.name)]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-number-field>
 									</template>
 									<template is="dom-if" if="[[_isMeasureField(layoutItem)]]">
-										<dynamic-measure-field id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]"
+										<dynamic-measure-field id="[[_sanitizeId(layoutItem.name)]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]"
 										 is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 										 linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" value-with-unit="[[_value(layoutItem,dataMap.*)]]"
 										 width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-measure-field>
 									</template>
 									<template is="dom-if" if="[[_isPopupMenu(layoutItem)]]">
-										<dynamic-popup-menu id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-popup-menu id="[[_sanitizeId(layoutItem.name)]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-source="[[_popupDataSource(layoutItem, layoutItem.editor.menuOptions)]]"
 										 linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]"
 										 width="[[layoutItem.editor.flow]]" options="[[layoutItem.editor.menuOptions]]" on-field-changed="_valueChanged"
 										 read-only="[[readOnly]]"></dynamic-popup-menu>
 									</template>
 									<template is="dom-if" if="[[_isDateField(layoutItem)]]">
-										<dynamic-date-field id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-date-field id="[[_sanitizeId(layoutItem.name)]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 linkables="[[linkableHealthElements]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" last-modified="[[_lastModified(layoutItem)]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-date-field>
 									</template>
 									<template is="dom-if" if="[[_isValueDateField(layoutItem)]]">
-										<dynamic-date-field id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-date-field id="[[_sanitizeId(layoutItem.name)]]" api="[[api]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 linkables="[[linkableHealthElements]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" last-modified="[[_lastModified(layoutItem)]]"
 										 value="[[_valueDate(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueDateChangedWithBooleanSet"
 										 read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-date-field>
 									</template>
 									<template is="dom-if" if="[[_isTokenField(layoutItem)]]">
-										<dynamic-token-field id="[[layoutItem.name]]"  label="[[layoutItem.label]]" key="[[layoutItem.name]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]"
+										<dynamic-token-field id="[[_sanitizeId(layoutItem.name)]]"  label="[[layoutItem.label]]" key="[[layoutItem.name]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]"
 										 is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 										 data-source="[[_tokenDataSource(layoutItem, layoutItem.codeTypes)]]" last-modified="[[_lastModified(layoutItem)]]"
 										 linkables="[[linkableHealthElements]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]"
 										 on-field-changed="_valueContainersChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-token-field>
 									</template>
 									<template is="dom-if" if="[[_isMedicationField(layoutItem)]]">
-										<dynamic-medication-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]"
+										<dynamic-medication-field id="[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]"
 										 is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 										 linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_valueContainers(layoutItem,dataMap.*)]]"
 										 width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-medication-field>
 									</template>
 									<template is="dom-if" if="[[_isSubForm(layoutItem)]]">
-										<dynamic-sub-form id="sf_[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]"
+										<dynamic-sub-form id="sf_[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" sub-contexts="[[_subForms(layoutItem,dataMap.*)]]"
 										 on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]" disabled="[[disabled]]" no-print="[[noPrint]]"></dynamic-sub-form>
 									</template>
@@ -271,9 +271,7 @@
 				</div>
 			</form>
 			<template is="dom-if" if="[[showEdit]]">
-			    <template is="dom-if" if="[[!readOnly]]">
-				    <paper-icon-button class="edit-print-pat-details-btn" icon="create" on-tap="editForm"></paper-icon-button>
-			    </template>
+                <paper-icon-button class="edit-print-pat-details-btn" icon="create" on-tap="editForm"></paper-icon-button>
 			</template>
 			<template is="dom-if" if="[[_none(showEdit,noPrint)]]">
                 <template is="dom-if" if="[[!isSubForm]]">
@@ -386,19 +384,31 @@
 				return this.readOnly && !this.isSubForm;
 			}
 
+			_sanitizeId( id ) {
+				return id.replace(/[\.#]/gi, '-')
+			}
+
 			notify(path) {
 				if (!this.template) {
 					return;
 				}
 				let pathParts = path.split('.');
-				const firstPathElement = pathParts[0];
-				const item = Polymer.dom(this.root).querySelector('#sf_' + firstPathElement);
 
-				const layoutItem = _.flatten(_.flatten(this.template.sections.map(s => s.formColumns.map(c => c.formDataList)))).find(fdl => fdl.name === firstPathElement);
+				let composedNameLength = 1
+				const layoutItem = _.flatten(_.flatten(this.template.sections.map(s => s.formColumns.map(c => c.formDataList)))).find(fdl => {
+
+					const nameParts = fdl.name.split('.')
+					const pathPartsForName = pathParts.slice(0,nameParts.length)
+
+					return nameParts.filter( (n, idx) => n === pathPartsForName[idx] ).length === nameParts.length && (composedNameLength = nameParts.length)
+
+				});
+
+				const item = Polymer.dom(this.root).querySelector('#sf_' + pathParts.slice(0,composedNameLength).join('-'));
 
 				if (pathParts.length > 1) {
 					item.subContexts = this._subForms(layoutItem);
-					item.notify && item.notify(pathParts.slice(1).join('.'));
+					item.notify && item.notify(pathParts.slice(composedNameLength).join('.'));
 				} else {
 					item.notify && item.notify();
 				}
@@ -475,7 +485,7 @@
 					return;
 				}
 				this.layoutItemPerName = _.flatten(this.template.sections.map(s => _.flatten(s.formColumns.map(c => c.formDataList)))).reduce((acc, val) => {
-					acc[val.name] = val;
+					acc[this._sanitizeId(val.name)] = val;
 					return acc;
 				}, {});
 			}
@@ -484,6 +494,7 @@
 				if (!this.dataProvider) {
 					return;
 				}
+
 				const change = event.detail;
 				if (!this.layoutItemPerName || !event.target.id) {
 					return;
@@ -651,7 +662,7 @@
 			_deleteSubForm(e, detail) {
 				e.stopPropagation();
 				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
-				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id);
+				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id, detail.index);
 			}
 
 			_addSubForm(e, detail) {
