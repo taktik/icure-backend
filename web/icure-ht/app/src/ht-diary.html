@@ -43,10 +43,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 		</style>
 
+		<ht-spinner class="center" active="[[!showAgenda]]"></ht-spinner>
 
 		<template is="dom-if" if="[[showAgenda]]">
-			<iframe id="iframe" src$="https://[[mikronoData.user]]:[[mikronoData.password]]@[[mikronoData.url]]/iCureShortcut.jsp?id=[[user.id]]"></iframe>
-            <ht-spinner class="center" active="[[showAgenda]]"></ht-spinner>
+			<iframe id="iframe" src$="[[mikronoUrl]]"></iframe>
 		</template>
 
 	</template>
@@ -78,12 +78,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					mikronoData:{
                         type: Object,
 						value: () => {}
+					},
+                    mikronoUrl:{
+                        type: String,
+						value: ""
 					}
                 }
             }
 
             static get observers() {
-                return ['checkAndLoadMikrono(user)']
+                return []
             }
 
             constructor() {
@@ -99,41 +103,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready()
             }
 
-            checkAndLoadMikrono(){
-               	if(this.user){
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-
-                        const applicationTokens = this.user.applicationTokens
-						const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
-						const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
-						const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
-
-
-						if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-							window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-						}else{
-							const addresses = hcp && hcp.addresses || null
-							const workAddresses = addresses.find(adr => adr.addressType === "work") || null
-							const telecoms = workAddresses && workAddresses.telecoms
-							const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
-							const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
-
-							if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
-                                this.api.bemikrono().register(this.user.id, {}).then(user => {
-
-                                    const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
-                                    const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
-                                    const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
-                                    if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                        window.open("https://"+this.mikronoData.user+":"+this.mikronoData.password+"@"+this.mikronoData.url.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-                                    }
-                                 })
-							}
-						}
-
-					})
-			   }
-			}
+           loadMikornoIframe(){
+				this.set("mikronoUrl", "http://127.0.0.1:16041/iCureShortcut.jsp?id="+this.user.id)
+                this.set("showAgenda", true)
+		   }
         }
 
         customElements.define(HtMsg.is, HtMsg)
