@@ -378,7 +378,9 @@
                 box-sizing: border-box;
                 margin: 0;
             }
-
+            .flex-horizontal .format {
+                flex-direction: row;
+            }
             .flex-horizontal .format .left {
                 flex-grow: initial;
                 width: 128px;
@@ -395,8 +397,29 @@
                 width: 100%;
             }
 
-            paper-listbox {
-                max-height: 128px;
+            .flex-horizontal paper-listbox {
+                max-height: 256px;
+                max-width: 256px;
+            }
+            .flex-horizontal paper-item {
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+            .flex-horizontal paper-item:hover {
+                background: var(--app-background-color-dark);
+            }
+            .flex-horizontal paper-item:active,
+            .flex-horizontal paper-item:focus {
+                background: var(--app-background-color-darker);
+            }
+
+            @media screen and (max-width: 800px) {
+                .flex-horizontal {
+                    flex-direction: column;
+                }
+                .flex-horizontal paper-listbox {
+                    max-width: 0;
+                }
             }
 
 		</style>
@@ -1229,12 +1252,10 @@
 
                         if (localStorage.getItem('selectedPrinter')) {
                             const selectedFromStorage = JSON.parse(localStorage.getItem('selectedPrinter'))
-                            let tempSelected = {}
-                            let i = 0
+                            let tempSelected = {}, i = 0
                             Object.keys(selectedFromStorage).forEach(k=>{
-                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
-                                const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
-                                console.log(color,bw)
+                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color),
+                                      bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
                                 if (i==0) tempSelected.a4 = {color:color,bw:bw}
                                 if (i==1) tempSelected.a5 = {color:color,bw:bw}
                                 if (i==2) tempSelected.presc = {color:color,bw:bw}
@@ -1247,17 +1268,15 @@
                 }
             }
             _setPrinter(e) {
-                const target = 'selectedPrinter.'+e.target.getAttribute('target')
-                const value = e.target.dataset.item
-                if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
-                if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
-                if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
-                if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
-                if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
-                if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
-                if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.numericSelectedPrinter) {
-                    localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
-                }
+                const target = e.target.getAttribute('target'),
+                      value = e.target.dataset.item
+                if (target=='a4.color') this.set('selectedPrinter.a4.color',value)
+                if (target=='a5.color') this.set('selectedPrinter.a5.color',value)
+                if (target=='presc.color') this.set('selectedPrinter.presc.color',value)
+                if (target=='a4.bw') this.set('selectedPrinter.a4.bw',value)
+                if (target=='a5.bw') this.set('selectedPrinter.a5.bw',value)
+                if (target=='presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.selectedPrinter) localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
             }
             _getPrinterIdByName(source,name) {
                 for (let i = 0;i<=source.length;i++) {

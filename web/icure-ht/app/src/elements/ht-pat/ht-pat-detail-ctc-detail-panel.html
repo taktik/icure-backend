@@ -1228,16 +1228,6 @@
 							let blob = new Blob([data], {type: 'application/pdf'});
 							let url = window.URL.createObjectURL(blob)
 
-                            // send to printer
-							let iframe = document.createElement("iframe");
-							iframe.onload = function() {
-                                this.contentWindow.focus(); // Required for IE
-                                this.contentWindow.print();
-                            }
-                            iframe.style.visibility = "hidden";
-                            iframe.src = url;
-                            this.appendChild(iframe);
-
                             // save file
                             let a = document.createElement("a");
                             document.body.appendChild(a);
@@ -1246,10 +1236,23 @@
                             a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
                             a.click();
 
-                            // free memory
-                            this.parentElement.removeChild(a);
-                            this.parentElement.removeChild(iframe);
-                            window.URL.revokeObjectURL(url)
+                            this.api.printers().then(prt=>{
+                                if (!prt.length) { // if no printers on network
+                                    // send to printer
+                                    let iframe = document.createElement("iframe");
+                                    iframe.onload = function() {
+                                        this.contentWindow.focus(); // Required for IE
+                                        this.contentWindow.print();
+                                    }
+                                    iframe.style.visibility = "hidden";
+                                    iframe.src = url;
+                                    this.appendChild(iframe); // open print prompt
+                                }
+                                // free memory
+                                this.parentElement.removeChild(a);
+                                this.parentElement.removeChild(iframe);
+                                window.URL.revokeObjectURL(url)
+                            })
 						})
                     .finally(()=>{
                         drugsToBePrescribed.forEach(s => {
