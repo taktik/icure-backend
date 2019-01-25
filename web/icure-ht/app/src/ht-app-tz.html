@@ -1731,7 +1731,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         this.set('api.tokenIdMH', res.tokenId)
                         this.set('api.tokenMH', res.token)
-
+                        this.set('api.nihiiMH', hcpMH.nihii)
                         return res.tokenId
                     }).catch((e) => {
                         this.$.eHealthMHStatus.classList.remove('pending')
