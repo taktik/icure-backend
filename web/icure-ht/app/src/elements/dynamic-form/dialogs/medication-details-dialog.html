@@ -30,7 +30,11 @@
             }
 
             .content{
-                max-height: calc(100% - 48px - 52px - 48px);
+                flex-grow: 1
+            }
+            .buttons {
+                position: initial !important;
+                height: 74px !important;
             }
 
             #medication-detail .save-line {
@@ -456,7 +460,7 @@
                                 </div>
                         </div>
                         <iron-pages class="iron-container" selected="[[selectedTab]]" class="">
-                            <page class=>
+                            <page>
                                 <h4>[[localize('pos','Posology',language)]]</h4>
                                 <div class="add-col">
                                     <template is="dom-if" if="[[openAddColDropDown]]">
@@ -610,8 +614,8 @@
                                                         <paper-item id="thursday">[[localize('Thursday','Thursday',language)]]</paper-item>
                                                         <paper-item id="friday">[[localize('Friday','Friday',language)]]</paper-item>
                                                         <paper-item id="saturday">[[localize('Saturday','Saturday',language)]]</paper-item>
+                                                        <paper-item id="sunday">[[localize('Sunday','Sunday',language)]]</paper-item>
                                                     </paper-listbox>
-                                                    <paper-item id="sunday">[[localize('Sunday','Sunday',language)]]</paper-item>
                                                 </paper-dropdown-menu>
                                                 <template is="dom-if" if="[[!_isEqual(rg.dayPeriod.code,'custom')]]">
                                                     <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
@@ -952,6 +956,7 @@
             }
 
             _pushRegimen(e) {
+                if (e.target.dataset.item == 'weekly' || e.target.dataset.item == 'monthly') this.set('selectedTab',1)
                 const dropDownSelectedFreq = e.target.dataset.item;
                 this.push('selectedMedicationContentWithId.medicationValue.regimen', {
                     frequency: dropDownSelectedFreq ? dropDownSelectedFreq : this.bufferGeneralFrequency === 2 ? 'monthly' : this.bufferGeneralFrequency === 1 ? 'weekly' : 'daily',
