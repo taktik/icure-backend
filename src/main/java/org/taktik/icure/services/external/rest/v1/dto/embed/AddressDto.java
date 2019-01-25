@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,7 +46,7 @@ public class AddressDto implements Serializable, Location, Comparable<AddressDto
     protected String city;
     protected String country;
 
-	protected Set<TelecomDtoEmbed> telecoms = new HashSet<>();
+	protected List<TelecomDtoEmbed> telecoms = new ArrayList<>();
 
 	@Override
 	public String getObjectType() {
@@ -120,11 +122,11 @@ public class AddressDto implements Serializable, Location, Comparable<AddressDto
 		this.descr = descr;
 	}
 
-	public Set<TelecomDtoEmbed> getTelecoms() {
+	public List<TelecomDtoEmbed> getTelecoms() {
 		return telecoms;
 	}
 
-	public void setTelecoms(Set<TelecomDtoEmbed> telecoms) {
+	public void setTelecoms(List<TelecomDtoEmbed> telecoms) {
 		this.telecoms = telecoms;
 	}
 

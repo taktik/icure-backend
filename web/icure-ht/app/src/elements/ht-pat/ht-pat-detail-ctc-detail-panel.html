@@ -1281,13 +1281,13 @@
 			} // print end
 
 			_formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
-				console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
+				// console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
 				let prescriToPrint = [], allPages = []
 				let prescNum = 0, pageNum = 1
 
 				splitColumns.forEach((c, idx) => {
 					const colId = splitColumns.indexOf(c)
-					console.log('c',c,'idx',idx,'colId',colId)
+					// console.log('c',c,'idx',idx,'colId',colId)
 					JsBarcode(element, rid[colId] ? rid[colId] : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
 					const ridIdx = (rid[colId] ? rid[colId] : hcp.nihii).split('').join('&nbsp;')
@@ -1307,7 +1307,7 @@
 						const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
 						prescArray.push(thisMed) // add to the medications list
 					}) // flatmap end
-					console.log("prescArray",prescArray)
+					// console.log("prescArray",prescArray)
 
 					let prescriContent = ""
 					let articlePoso = []
@@ -1366,9 +1366,9 @@
             </article>` : prescriContent; // create single prescription body
 					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridIdx, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
 				}) // splitCol forEach end
-				console.log("prescriToPrint",prescriToPrint)
+				// console.log("prescriToPrint",prescriToPrint)
 
-				console.log("allPages before map",allPages)
+				// console.log("allPages before map",allPages)
 				prescriToPrint.map((prescri)=>{ // for every prescription found in list
 					let singlePage = {body:'',poso:[],rid:'',jpegUrl: ''}
 					singlePage.body += (prescri.prescriBody) // get the body
@@ -1384,7 +1384,7 @@
 						allPages[prescri.page-1].push(singlePage)
 					}
 				})
-				console.log("allPages after map",allPages)
+				// console.log("allPages after map",allPages)
 				let onePageBody = ""
 				allPages.map((onePage)=>{
 					let posoByDay = { // make the arrays that will receive sorted posologies
@@ -1525,7 +1525,7 @@
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
         </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
-				console.log("toPrint",toPrint)
+				// console.log("toPrint",toPrint)
 				return toPrint
 			}
 
@@ -1654,18 +1654,20 @@
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.contacts.map(contact => ({
-                    ctc: contact,
-                    forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
-						const serviceIds = sc.services.map(s => s.serviceId)
-						
+                const formGroups = this.contacts.map(contact => {
+                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                        const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
                             docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
-                    }), f => -f.created),
-                    unmappedServices: _.sortBy(contact.services.filter(svc => !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-                }))
+                    })
+					const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
+					return {
+                    ctc: contact,
+                    forms: _.sortBy(forms, f => -f.created),
+                    unmappedServices: _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
+                }})
 
                 const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
@@ -1905,15 +1907,16 @@
 
                         // Hard coded, work incapacity
                         if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        // if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, Kine
-                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-
-                        // Nurse prescription
-                        // 64DAB551-B007-4B5C-BD64-F886301F5326
+                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        
+                        // Hard coded, Nurse prescription
+                        if(subFormTemplateObject.guid==="64DAB551-B007-4B5C-BD64-F886301F5326") this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);                        
 
                     })
                 })
@@ -2283,13 +2286,126 @@
 
             }
 
-            printImagingForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
-
-			    // Todo: once all fields would be available: finish serviceMap data mapping and have remaining fields to be dynamic
+            printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
                 this.busySpinner = true;
 
-                const subSubFormObjectsAndValues = _.map(
+                const subFormFieldsAndValues = _.map( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}), (v) => {
+                    return {
+                        name: _.trim(_.get(v, "name")),
+                        label: _.trim(_.get(v, "label")),
+                        type: _.trim(_.get(v, "type")),
+                        value:
+                            v.type==="TKString" ? _.trim(subFormDataProvider.getStringValue( _.trim(_.get(v, "name", "")) )) :
+                            v.type==="TKNumber" ? subFormDataProvider.getNumberValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKMeasure" ? _.flatMap(subFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) )).join(" ") :
+                            v.type==="TKBoolean" ? !!subFormDataProvider.getBooleanValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKAction" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKDate" ? subFormDataProvider.getDateValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKHCParty" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                            "",
+                        valueTKMeasure: v.type==="TKMeasure" ? subFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) ) : {}
+                    }
+                })
+
+                this._getPdfPrintingCoreData({
+                    downloadFileName: _.kebabCase([ this.localize("certificate_stop_activity",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    todayDate: moment().format("DD/MM/YYYY"),
+                    incapacityStart: _.get(_.filter(subFormFieldsAndValues,{name:"du"}), "[0].value", false),
+                    incapacityEnd: _.get(_.filter(subFormFieldsAndValues,{name:"au"}), "[0].value", false),
+                    incapacityPartiallyFinished: _.get(_.filter(subFormFieldsAndValues,{name:"reprise d'activité partielle"}), "[0].value", false),
+                    incapacityCompletelyFinished: _.get(_.filter(subFormFieldsAndValues,{name:"totale"}), "[0].value", false),
+                    includedExcludedLabel: _.trim( _.get(_.filter(subFormFieldsAndValues,{name:"inclus/exclus"}), "[0].value", "")) ? _.trim( _.get(_.filter(subFormFieldsAndValues,{name:"inclus/exclus"}), "[0].value", "")) : this.localize("included",this.language),
+                    precentageValueAndUnits: _.get(_.filter(subFormFieldsAndValues,{name:"pourcentage"}), "[0].valueTKMeasure.value", "100") + " " + ( _.trim(_.get(_.filter(subFormFieldsAndValues,{name:"pourcentage"}), "[0].valueTKMeasure.unit", "")) || "%" ),
+                    sortie: _.trim( _.get(_.filter(subFormFieldsAndValues,{name:"Sortie"}), "[0].value", "")) || "-",
+                    comment: _.trim( _.get(_.filter(subFormFieldsAndValues, {name:"Commentaire"}), "[0].value", "") ),
+                    incapacityData: [],
+                    incapacityReasonData: [],
+                    codesToFind: ["CD-INCAPACITY","CD-INCAPACITYREASON"]
+                }).then(pdfPrintingData =>{
+
+                    const incapacityFormValue = _.get( _.filter(subFormFieldsAndValues, {name: "incapacité de"}), "[0].value", "" )
+                    _.get( _.filter(pdfPrintingData.foundCodes,{code:"CD-INCAPACITY"}), "[0].values", [] ).map( i=>{
+                        pdfPrintingData.incapacityData.push({
+                            name: _.trim(_.get(i, "label." + this.language, "" )) || _.trim(_.get(i, "label.en", "" )) || _.trim(_.get(i, "label.fr", "" )) || _.trim(_.get(i, "label.nl", "" )),
+                            label: _.trim(_.get(i, "label." + this.language, "" )) || _.trim(_.get(i, "label.en", "" )) || _.trim(_.get(i, "label.fr", "" )) || _.trim(_.get(i, "label.nl", "" )),
+                            type: "TKBoolean",
+                            value: !!(_.trim(i.id) === _.trim(incapacityFormValue))
+                        })
+                    })
+
+                    const incapacityReasonFormValue = _.get( _.filter(subFormFieldsAndValues, {name: "pour cause de"}), "[0].value", "" )
+                    _.get( _.filter(pdfPrintingData.foundCodes,{code:"CD-INCAPACITYREASON"}), "[0].values", [] ).map( i=>{
+                        pdfPrintingData.incapacityReasonData.push({
+                            name: _.trim(_.get(i, "label." + this.language, "" )) || _.trim(_.get(i, "label.en", "" )) || _.trim(_.get(i, "label.fr", "" )) || _.trim(_.get(i, "label.nl", "" )),
+                            label: _.trim(_.get(i, "label." + this.language, "" )) || _.trim(_.get(i, "label.en", "" )) || _.trim(_.get(i, "label.fr", "" )) || _.trim(_.get(i, "label.nl", "" )),
+                            type: "TKBoolean",
+                            value: !!(_.trim(i.id) === _.trim(incapacityReasonFormValue))
+                        })
+                    })
+
+                    pdfPrintingData.incapacityDuration = pdfPrintingData.incapacityStart && pdfPrintingData.incapacityEnd ? moment(pdfPrintingData.incapacityEnd+"").diff(moment(pdfPrintingData.incapacityStart+""), "days") : "X";
+                    if(pdfPrintingData.includedExcludedLabel.toLowerCase() === "inclus" || pdfPrintingData.includedExcludedLabel.toLowerCase() === "included" || pdfPrintingData.includedExcludedLabel.toLowerCase() === "inbegrepen") pdfPrintingData.incapacityDuration = parseInt(pdfPrintingData.incapacityDuration) ? pdfPrintingData.incapacityDuration+1 : 1;
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1 class="">`+this.localize("certificate_stop_activity",this.language)+`</h1>
+                            <h2 class="">`+ pdfPrintingData.todayDate +`</h2>
+
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
+
+                            <div class="borderedBox">` +
+                                `<p class="italic">` + this.localize("csa_txt001",this.language) + `:</p>` +
+                                `<p class="bold fs15em mt15 mb20">` + _.trim(_.get(pdfPrintingData, "patientData.lastName", "")) + ` ` + _.trim(_.get(pdfPrintingData, "patientData.firstName", "")) + `</p> ` +
+                            `</div>
+
+                            <div class="boxLabel">`+this.localize("csa_txt002",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.incapacityData, 2) + `</div>
+
+                            <div class="boxLabel">`+this.localize("csa_txt003",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.incapacityReasonData, 2) + `</div>
+
+                            <div class="boxLabel">`+this.localize("csa_txt004",this.language)+`</div>
+                            <div class="borderedBox">` +
+                                "<p>" +
+                                    pdfPrintingData.incapacityDuration + " " + this.localize("days",this.language) + ", " +
+                                    _.trim(this.localize("from2",this.language)).toLowerCase() + " " + ( pdfPrintingData.incapacityStart ? moment(pdfPrintingData.incapacityStart+"").format("DD/MM/YYYY") : "-" ) + " " +
+                                    this.localize("till",this.language) + " " + ( pdfPrintingData.incapacityEnd ? moment(pdfPrintingData.incapacityEnd+"").format("DD/MM/YYYY") : "-" ) + " " + pdfPrintingData.includedExcludedLabel + "<br />" +
+                                    this.localize("csa_txt005",this.language) + ": " + pdfPrintingData.sortie +
+                                "</p>" +
+                            `</div>
+
+                            <div class="boxLabel">`+this.localize("csa_txt006",this.language)+`</div>
+                            <div class="borderedBox"><p>` +
+                                ( pdfPrintingData.incapacityPartiallyFinished ? moment(pdfPrintingData.incapacityPartiallyFinished+"").format("DD/MM/YYYY") : "-" ) + " " + this.localize("csa_txt007",this.language) + ` ` + pdfPrintingData.precentageValueAndUnits +
+                                ( pdfPrintingData.incapacityCompletelyFinished ? "<br />" + this.localize("csa_txt010",this.language) + ": " + moment(pdfPrintingData.incapacityCompletelyFinished+"").format("DD/MM/YYYY") : "" ) +
+                           `</p></div>` +
+
+                           ( _.trim( pdfPrintingData.comment ) ? `<div class="boxLabel">`+this.localize("com",this.language)+`</div><div class="borderedBox"><p>` + _.trim( pdfPrintingData.comment ) + `</p></div>` : "" ) +
+
+                           this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div> ` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                // Todo: missing fields: Informations cliniques pertinentes (InfoClinPert), Explication de la demande de diagnostic (ExplicationDemandeDiag) & Informations supplémentaires pertinentes (unknown key)
+
+                const subFormFieldsAndValues = _.map(
                     _.map( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), (i) => {
                         return {
                             name: _.trim(_.get(i, "name")),
@@ -2298,61 +2414,30 @@
                         }
                     }),
                     (i) => {
-                        return _.assign({
-                            data: _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k) }),
-                            dataMap: i.subSubForm.dataMap
-                        }, i)
-                    })
-
-                let pdfPrintingData = {
-                    patientData : {
-                        lastName: _.get(this.patient, "lastName", ""),
-                        firstName: _.get(this.patient, "firstName", ""),
-                        addressData:
-                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"home"}).head().value() ||
-                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"work"}).head().value() ||
-                            _.chain(_.get(this.patient, "addresses", {})).head().value() ||
-                            {},
-                        ssin: this.api.formatSsinNumber(_.get(this.patient, "ssin", "")),
-                        insuranceData: _
-                            .chain(_.get(this.patient, "insurabilities",{}))
-                            .filter((i)=>{
-                                return i &&
-                                    !!moment( _.trim(_.get(i, "startDate", "0") ), "YYYYMMDD" ).isBefore(moment()) &&
-                                    (!!moment( _.trim(_.get(i, "endDate", "0") ), "YYYYMMDD" ).isAfter(moment()) || !_.trim(_.get(i, "endDate", "") ) ) &&
-                                    !!_.trim( _.get( i, "insuranceId", "" ) ) &&
-                                    !!_.trim( _.get( i, "identificationNumber", "" ) )
-                            })
-                            .head()
-                            .value(),
-                        gender: this.localize(_.trim(_.get(this.patient, "gender", "male")) + "GenderLong",this.language),
-                        birthDate: parseInt(_.get(this.patient, "dateOfBirth", 0)) ? moment(_.trim(_.get(this.patient, "dateOfBirth")),"YYYYMMDD").format("DD/MM/YYYY") : "-"
-                    },
-                    hcpData: {
-                        address:
-                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
-                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
-                            _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
-                            {},
-                        lastName: _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase(),
-                        firstName: _.trim( _.get(this.globalHcp, "firstName", "") ),
-                        nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", ""))),
-                        telecoms: _.assign(
-                             {},
-                             _.filter(
-                                 _
-                                     .chain(
-                                         _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
-                                         _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
-                                         _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
-                                         {}
-                                     )
-                                     .get( "telecoms", [] )
-                                 .value(),
-                                 (telecom) => {return {type:_.get(telecom, "telecomType", ""), value:_.get(telecom, "telecomNumber", "")}}
-                             )
+                        return _.assign(
+                            { subFormFieldsAndValues: _.map( _.get(i, "subSubForm.template.sections[0].formColumns[0].formDataList", {}), (v) => {
+                                const subSubFormDataProvider = _.get(i, "subSubForm.dataProvider", {});
+                                return subSubFormDataProvider && _.size(subSubFormDataProvider) ? {
+                                    name: _.trim(_.get(v, "name")),
+                                    label: _.trim(_.get(v, "label")),
+                                    type: _.trim(_.get(v, "type")),
+                                    value:
+                                        v.type==="TKString" ? _.trim(subSubFormDataProvider.getStringValue( _.trim(_.get(v, "name", "")) )) :
+                                        v.type==="TKNumber" ? subSubFormDataProvider.getNumberValue( _.trim(_.get(v, "name", "")) ) :
+                                        v.type==="TKMeasure" ? _.flatMap(subSubFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) )).join(" ") :
+                                        v.type==="TKBoolean" ? !!subSubFormDataProvider.getBooleanValue( _.trim(_.get(v, "name", "")) ) :
+                                        v.type==="TKAction" ? subSubFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                        v.type==="TKDate" ? subSubFormDataProvider.getDateValue( _.trim(_.get(v, "name", "")) ) :
+                                        v.type==="TKHCParty" ? subSubFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                    ""
+                                } : {}
+                            })}
+                            , i
                         )
-                    },
+                    }
+                )
+
+                this._getPdfPrintingCoreData({
                     downloadFileName: _.kebabCase([ this.localize("requestForImagingExam_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
                     subFormData: _.compact(
                         _.map(
@@ -2365,96 +2450,38 @@
                             }
                         )
                     )||[],
-                    suggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "data", {}) )  ,
-                    previouslySuggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "data", {}) )
+                    suggestedExams: _.get( _.head( _.filter( subFormFieldsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "subFormFieldsAndValues", {}),
+                    previouslySuggestedExams: _.get( _.head( _.filter( subFormFieldsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "subFormFieldsAndValues", {}),
 
-                };
-
-                new Promise((resolve) => {
-                    return this.api.insurance().getInsurance(_.get(pdfPrintingData, "patientData.insuranceData.insuranceId", "")).then(singleInsuranceData => {
-                        pdfPrintingData.patientData.insuranceData = _.assign(
-                            {
-                                code:_.get(singleInsuranceData, "code", "NA"),
-                                name:_.get(singleInsuranceData, "name." + this.language, "") || _.trim( _.head( _.filter(_.get(singleInsuranceData, "name", "" ), _.trim) ) ) || "NA"
-                            },
-                            pdfPrintingData.patientData.insuranceData
-                        )
-                        return resolve({})
-                    }).catch((e)=>{ console.log(e);return resolve({}) });
-                }).then(() => {
+                }).then(pdfPrintingData =>{
 
                     const pdfContent = `
                         <div class="page">
                             <h1>`+this.localize("requestForImagingExam_header1",this.language)+`</h1>
                             <h2>`+this.localize("requestForImagingExam_header2",this.language)+`</h2>
 
-                            <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
-                            <div class="borderedBox">
-                                <b>`+this.localize("lastAndFirstName",this.language)+`:</b> `+pdfPrintingData.patientData.lastName+` `+pdfPrintingData.patientData.firstName+` &nbsp;&nbsp;
-                                <b>`+this.localize("adrAbreviation",this.language)+`:</b> &nbsp;&nbsp; `+
-                                    _.trim( _.compact([
-                                        _.get(pdfPrintingData.patientData.addressData, "street", "") + " ",
-                                        _.get(pdfPrintingData.patientData.addressData, "houseNumber", "") + ( _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) ? "/" + _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) : "" ),
-                                        " - " + _.get(pdfPrintingData.patientData.addressData, "postalCode", "") + " ",
-                                        _.get(pdfPrintingData.patientData.addressData, "city", "") + " ",
-                                    ]).join(" "))
-                                +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("natNumber",this.language)+`:</b> `+ pdfPrintingData.patientData.ssin +` &nbsp;&nbsp;
-                                <b>`+this.localize("ct1ct2",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "parameters.tc1","")+_.get(pdfPrintingData.patientData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;
-                                <b>`+this.localize("insNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "code")+ " - " +_.get(pdfPrintingData.patientData.insuranceData, "name") +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("insMembershipNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;
-                                <b>`+this.localize("sexLitteral",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "gender")+` &nbsp;&nbsp;
-                                <b>`+this.localize("birthDate",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "birthDate")+`
-                            </div>
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### Informations cliniques pertinentes ### (Wait for new form)
-                            </div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### Explication de la demande de diagnostic ### (Wait for new form)
-                            </div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### Informations supplémentaires pertinentes ### (Wait for new form)
-                            </div>
+                            <div class="borderedBox"></div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
-                            <div class="borderedBox">
-                                ` + _.map(pdfPrintingData.suggestedExams, (v,k)=> {
-                                    return '<div class="checkBoxContainer"><span class="singleCheckBox">' + ( v && _.trim(v) && _.trim(v)!=='-' && _.trim(v)!=='NA' ? "X" : "" ) + '</span><span class="singleCheckBoxLabel">'+k+'</span></div>' +
-                                            ( ( ( _.trim(k).toLowerCase().indexOf("autre") > -1 || _.trim(k).toLowerCase().indexOf("ander") > -1 || _.trim(k).toLowerCase().indexOf("other") > -1 ) && _.trim(v) && _.trim(v) !== '-' ) ? "<p class='otherChoiceFreeText mb0 pb0'>" + k + ": " + v + "</p>" : "" )
-                                }).join("") + `
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box6_previousExamsRelatedToRequestForImaging",this.language)+`</div>
-                            <div class="borderedBox">
-                                ` + _.map(pdfPrintingData.previouslySuggestedExams, (v,k)=> {
-                                    return '<div class="checkBoxContainer"><span class="singleCheckBox">' + ( v && _.trim(v) && _.trim(v)!=='-' && _.trim(v)!=='NA' ? "X" : "" ) + '</span><span class="singleCheckBoxLabel">'+k+'</span></div>' +
-                                            ( ( ( _.trim(k).toLowerCase().indexOf("autre") > -1 || _.trim(k).toLowerCase().indexOf("ander") > -1 || _.trim(k).toLowerCase().indexOf("other") > -1 ) && _.trim(v) && _.trim(v) !== '-' ) ? "<p class='otherChoiceFreeText mb0 pb0'>" + k + ": " + v + "</p>" : "" )
-                                }).join("") + `
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.previouslySuggestedExams, 3) + `</div>
 
-                            <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>
-                            <div class="borderedBox">
-                                <b>`+this.localize("doctorAbreviation",this.language)+`</b> `+pdfPrintingData.hcpData.lastName+` `+pdfPrintingData.hcpData.firstName+`<div class=".clear mb10"></div>
-                                `+_.get(pdfPrintingData.hcpData.address, "street", "")+` `+_.get(pdfPrintingData.hcpData.address, "houseNumber", "")+( _.trim(_.get(pdfPrintingData.hcpData.address, "postboxNumber", ""))?"/"+_.get(pdfPrintingData.hcpData.address, "postboxNumber", "") : "" )+`<div class=".clear mb10"></div>
-                                `+_.get(pdfPrintingData.hcpData.address, "postalCode", "")+` `+_.get(pdfPrintingData.hcpData.address, "city", "")+`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("inami",this.language) + `</b>: ` + _.trim(pdfPrintingData.hcpData.nihii) +`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("date",this.language) + `</b>: ` + moment().format('DD/MM/YYYY') +`
-                            </div>
-                            <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
-
-                        </div>
-                    ` +
+                            ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div>` +
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
-                    // this.busySpinner = false;
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
-                    // return;
 
                     // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
                     this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
@@ -2466,172 +2493,102 @@
 
             }
 
-            printKineForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
+            printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject) {
 
                 this.busySpinner = true;
 
-                const subSubFormObjectsAndValues = _.map(
-                    _.map( _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {})).filter({type:"TKSubConsult"}).value(), (i) => {
-                        return {
-                            name: _.trim(_.get(i, "name")),
-                            label: _.trim(_.get(i, "label")),
-                            subSubForm: _.head(subFormDataProvider.getSubForms(i.name))
-                        }
-                    }),
-                    (i) => {
-                        return _.assign({
-                            data: _.map(i.subSubForm.dataMap, (v,k)=>{ return i.subSubForm.dataProvider.getValue(k) }),
-                            dataMap: i.subSubForm.dataMap
-                        }, i)
-                    })
+                const subFormFieldsAndValues = _.map( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}), (v) => {
+                    return {
+                        name: _.trim(_.get(v, "name")),
+                        label: _.trim(_.get(v, "label")),
+                        type: _.trim(_.get(v, "type")),
+                        value:
+                            v.type==="TKString" ? _.trim(subFormDataProvider.getStringValue( _.trim(_.get(v, "name", "")) )) :
+                            v.type==="TKNumber" ? subFormDataProvider.getNumberValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKMeasure" ? _.flatMap(subFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) )).join(" ") :
+                            v.type==="TKBoolean" ? !!subFormDataProvider.getBooleanValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKAction" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKDate" ? subFormDataProvider.getDateValue( _.trim(_.get(v, "name", "")) ) :
+                            v.type==="TKHCParty" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                            ""
+                    }
+                })
 
-                let pdfPrintingData = {
-                    patientData : {
-                        lastName: _.get(this.patient, "lastName", ""),
-                        firstName: _.get(this.patient, "firstName", ""),
-                        addressData:
-                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"home"}).head().value() ||
-                            _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"work"}).head().value() ||
-                            _.chain(_.get(this.patient, "addresses", {})).head().value() ||
-                            {},
-                        ssin: this.api.formatSsinNumber(_.get(this.patient, "ssin", "")),
-                        insuranceData: _
-                            .chain(_.get(this.patient, "insurabilities",{}))
-                            .filter((i)=>{
-                                return i &&
-                                    !!moment( _.trim(_.get(i, "startDate", "0") ), "YYYYMMDD" ).isBefore(moment()) &&
-                                    (!!moment( _.trim(_.get(i, "endDate", "0") ), "YYYYMMDD" ).isAfter(moment()) || !_.trim(_.get(i, "endDate", "") ) ) &&
-                                    !!_.trim( _.get( i, "insuranceId", "" ) ) &&
-                                    !!_.trim( _.get( i, "identificationNumber", "" ) )
-                            })
-                            .head()
-                            .value(),
-                        gender: this.localize(_.trim(_.get(this.patient, "gender", "male")) + "GenderLong",this.language),
-                        birthDate: parseInt(_.get(this.patient, "dateOfBirth", 0)) ? moment(_.trim(_.get(this.patient, "dateOfBirth")),"YYYYMMDD").format("DD/MM/YYYY") : "-"
-                    },
-                    hcpData: {
-                        address:
-                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
-                            _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
-                            _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
-                            {},
-                        lastName: _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase(),
-                        firstName: _.trim( _.get(this.globalHcp, "firstName", "") ),
-                        nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", ""))),
-                        telecoms: _.assign(
-                            {},
-                            _.filter(
-                                _
-                                    .chain(
-                                        _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
-                                        _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
-                                        _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
-                                        {}
-                                    )
-                                    .get( "telecoms", [] )
-                                .value(),
-                                (telecom) => {return {type:_.get(telecom, "telecomType", ""), value:_.get(telecom, "telecomNumber", "")}}
-                            )
-                        )
-                    },
+                this._getPdfPrintingCoreData({
                     downloadFileName: _.kebabCase([ this.localize("requestForKineCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
-                    subFormData: _.compact(
-                        _.map(
-                            (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
-                                return _.size(v) && {
-                                    name: k,
-                                    value: subFormDataProvider.getValue(k),
-                                    valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
-                                }
-                            }
-                        )
-                    )||[],
-                    suggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "F6986527-5C56-4233-8BC7-38D01659D582"}) ), "data", {}) )  ,
-                    previouslySuggestedExams: _.zipObject( Object.keys( _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "dataMap", {}) ), _.get( _.head( _.filter( subSubFormObjectsAndValues, {name: "16BD8C81-48D3-4E38-B213-B73E2A30A6F8"}) ), "data", {}) )
-
-                };
-
-                new Promise((resolve) => {
-                    return this.api.insurance().getInsurance(_.get(pdfPrintingData, "patientData.insuranceData.insuranceId", "")).then(singleInsuranceData => {
-                        pdfPrintingData.patientData.insuranceData = _.assign(
-                            {
-                                code:_.get(singleInsuranceData, "code", "NA"),
-                                name:_.get(singleInsuranceData, "name." + this.language, "") || _.trim( _.head( _.filter(_.get(singleInsuranceData, "name", "" ), _.trim) ) ) || "NA"
-                            },
-                            pdfPrintingData.patientData.insuranceData
-                        )
-                        return resolve({})
-                    }).catch((e)=>{ console.log(e);return resolve({}) });
-                }).then(() => {
+                    healthCarTypeData: [
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Prescription de kinésithérapie"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Le patient ne peut se déplacer"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Demande d'avis consultatif kiné"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Demande d'avis"}), "[0]", {})
+                    ],
+                    treatmentModalityData: [
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Massage"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Mobilisation"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Genre de séances"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Thermotherapie"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Electrotherapie"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Ultra son"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Ondes courtes"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Tapotage et gymnastique respiratoire"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Rééducation"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Localisation"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Fango"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Kiné respiratoire tapotements"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Drainage lymphatique"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Gymnastique"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Infra-rouge"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Manipulations"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Ionisations"}), "[0]", {})
+                    ],
+                    frequencyData: [
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Nombre de séances"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Fréquence"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Code d'intervention"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Diagnostic"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Date intervention"}), "[0]", {})
+                    ],
+                    complementaryMedicalInfoData: [
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Imagerie kiné"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Biologie kiné"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Avis spécialisé kiné"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Autre avis kiné"}), "[0]", {})
+                    ],
+                    feedbackData: [
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Evolution pendant tt"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Evolution fin tt"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Communication par courrier"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Communication par téléphone"}), "[0]", {}),
+                        _.get(_.filter(subFormFieldsAndValues,{name:"Communication autre"}), "[0]", {})
+                    ]
+                }).then(pdfPrintingData =>{
 
                     const pdfContent = `
                         <div class="page">
-                            <h1 class="mb30">`+this.localize("requestForKineCare_header1",this.language)+`</h1>
+                            <h1 class="mb40">`+this.localize("requestForKineCare_header1",this.language)+`</h1>
 
-                            <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
-                            <div class="borderedBox">
-                                <b>`+this.localize("lastAndFirstName",this.language)+`:</b> `+pdfPrintingData.patientData.lastName+` `+pdfPrintingData.patientData.firstName+` &nbsp;&nbsp;
-                                <b>`+this.localize("adrAbreviation",this.language)+`:</b> &nbsp;&nbsp; `+
-                                    _.trim( _.compact([
-                                        _.get(pdfPrintingData.patientData.addressData, "street", "") + " ",
-                                        _.get(pdfPrintingData.patientData.addressData, "houseNumber", "") + ( _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) ? "/" + _.trim(_.get(pdfPrintingData.patientData.addressData, "postboxNumber", "")) : "" ),
-                                        " - " + _.get(pdfPrintingData.patientData.addressData, "postalCode", "") + " ",
-                                        _.get(pdfPrintingData.patientData.addressData, "city", "") + " ",
-                                    ]).join(" "))
-                                +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("natNumber",this.language)+`:</b> `+ pdfPrintingData.patientData.ssin +` &nbsp;&nbsp;
-                                <b>`+this.localize("ct1ct2",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "parameters.tc1","")+_.get(pdfPrintingData.patientData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;
-                                <b>`+this.localize("insNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "code")+ " - " +_.get(pdfPrintingData.patientData.insuranceData, "name") +`<div class=".clear mb10"></div>
-                                <b>`+this.localize("insMembershipNumber",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;
-                                <b>`+this.localize("sexLitteral",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "gender")+` &nbsp;&nbsp;
-                                <b>`+this.localize("birthDate",this.language)+`:</b> `+ _.get(pdfPrintingData.patientData, "birthDate")+`
-                            </div>
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
 
                             <div class="boxLabel">`+this.localize("requestForKineCare_box1_title",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### FILL ME ###
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.healthCarTypeData, 3) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForKineCare_box2_title",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### FILL ME ###
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.treatmentModalityData, 3) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForKineCare_box3_title",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### FILL ME ###
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.frequencyData, 3) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForKineCare_box4_title",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### FILL ME ###
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.complementaryMedicalInfoData, 3) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForKineCare_box5_title",this.language)+`</div>
-                            <div class="borderedBox">
-                                ### FILL ME ###
-                            </div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.feedbackData, 1) + `</div>
 
-                            <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>
-                            <div class="borderedBox">
-                                <b>`+this.localize("doctorAbreviation",this.language)+`</b> `+pdfPrintingData.hcpData.lastName+` `+pdfPrintingData.hcpData.firstName+`<div class=".clear mb10"></div>
-                                `+_.get(pdfPrintingData.hcpData.address, "street", "")+` `+_.get(pdfPrintingData.hcpData.address, "houseNumber", "")+( _.trim(_.get(pdfPrintingData.hcpData.address, "postboxNumber", ""))?"/"+_.get(pdfPrintingData.hcpData.address, "postboxNumber", "") : "" )+`<div class=".clear mb10"></div>
-                                `+_.get(pdfPrintingData.hcpData.address, "postalCode", "")+` `+_.get(pdfPrintingData.hcpData.address, "city", "")+`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("inami",this.language) + `</b>: ` + _.trim(pdfPrintingData.hcpData.nihii) +`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("date",this.language) + `</b>: ` + moment().format('DD/MM/YYYY') +`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("telAbreviation",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"phone"})), "telecomNumber", "-")) +`<div class=".clear mb10"></div>
-                                <b>`+ this.localize("mobile",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"mobile"})), "telecomNumber", "-")) +`<div class=".clear mb10"></div>
-                                <b>E-mail</b>: ` + _.trim(_.get(_.head(_.filter(pdfPrintingData.hcpData.telecoms, {telecomType:"email"})), "telecomNumber", "-")) +`
-                            </div>
-                            <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
-
-                        </div>
-                    ` +
+                            ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div> ` +
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
-                    // this.busySpinner = false;
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
-                    // return;
 
                     // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
                     this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
@@ -2643,7 +2600,157 @@
 
             }
 
-            _getPdfHeader() {
+            printNursePrescriptionForm (subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                const formsData = {
+                    subForm: {
+                        id: _.get(subFormObject, "id", "" ),
+                        name: _.get(subFormTemplateObject, "layout.name", "" ),
+                        guid: _.get(subFormTemplateObject, "layout.guid", "" ),
+                        fieldsAndValues: _.map(
+                            _.filter(
+                                _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", []),
+                                (singleField=>{ return _.get(singleField, "type", "") !== "TKAction" && _.get(singleField, "type", "") !== "TKSubConsult" })
+                            ),
+                            (singleField => {
+                                return {
+                                    name: _.trim(_.get(singleField, "name")),
+                                    label: _.trim(_.get(singleField, "label")),
+                                    type: _.trim(_.get(singleField, "type")),
+                                    value:
+                                        singleField.type==="TKString" ? _.trim(subFormDataProvider.getStringValue( _.trim(_.get(singleField, "name", "")) )) :
+                                        singleField.type==="TKNumber" ? subFormDataProvider.getNumberValue( _.trim(_.get(singleField, "name", "")) ) :
+                                        singleField.type==="TKMeasure" ? _.flatMap(subFormDataProvider.getMeasureValue( _.trim(_.get(singleField, "name", "")) )).join(" ") :
+                                        singleField.type==="TKBoolean" ? !!subFormDataProvider.getBooleanValue( _.trim(_.get(singleField, "name", "")) ) :
+                                        singleField.type==="TKDate" ? subFormDataProvider.getDateValue( _.trim(_.get(singleField, "name", "")) ) :
+                                        singleField.type==="TKHCParty" ? subFormDataProvider.getValue( _.trim(_.get(singleField, "name", "")) ) :
+                                        singleField.type==="TKMedication" ? subFormDataProvider.getValueContainers( _.trim(_.get(singleField, "name", "")) ) :
+                                        singleField.type==="TKMedicationTable" ? subFormDataProvider.getValueContainers( _.trim(_.get(singleField, "name", "")) ) :
+                                        ""
+                                }
+                            })
+                        ),
+                        subSubFormsStructure: {
+                            label: _.map(
+                                _.filter( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", []), { type: "TKSubConsult" } ),
+                                (singleTKSubConsult => _.get(singleTKSubConsult, "label") )
+                            ).join(" - "),
+                            fieldsAndValues: _.head(
+                                _.map(
+                                    _.filter( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", []), { type: "TKSubConsult" } ),
+                                    (subForm => {
+                                        return _.map( subFormDataProvider.getSubForms(subForm.name), (singleSubSubForm => {
+                                            return {
+                                                name: _.get(singleSubSubForm, "template.name", ""),
+                                                label: _.get(singleSubSubForm, "template.name", ""),
+                                                type: "TKBoolean",
+                                                value: true
+                                            }
+                                        }))
+                                    })
+                                )
+                            )
+                        }
+                    },
+                    subSubForms: _.head(
+                        _.map(
+                            _.chain(_.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", [])).filter({type:"TKSubConsult"}).value(),
+                            (subForm => {
+                                return _.map( subFormDataProvider.getSubForms(subForm.name), (singleSubSubForm => {
+
+                                    const subSubFormDataProvider = _.get(singleSubSubForm, "dataProvider", {});
+                                    const subSubFormDataList = _.get(singleSubSubForm, "template.sections[0].formColumns[0].formDataList", []);
+
+                                    return {
+                                        name: _.get(singleSubSubForm, "template.name", ""),
+                                        guid: _.get(singleSubSubForm, "template.guid", ""),
+                                        columnsCount:
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "6B7E72D1-9FE4-4F05-A9AB-42191480D1E4" ? 1 :       // Constipation
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "09BBA6AB-F79C-45AA-BA1C-934D8D7A060A" ? 2 :       // Nutrition entérale
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "6A3B31CF-5350-4A30-8919-065F4382787C" ? 1 :       // Thérapie de compression
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "F25A53D3-31F1-4A51-975C-74DFD70A645B" ? 1 :       // Administration ou application de médicaments
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "6DE82F31-5D4C-41A7-B54B-DAFA00BF30CA" ? 2 :       // Soins de plaie
+                                            _.trim(_.get(singleSubSubForm, "template.guid", "")) === "244D262F-6F8C-48C3-8975-B39159AAAB94" ? 2 :       // Sondes
+                                            false,
+                                        fieldsAndValues: _.map(
+                                            subSubFormDataList,
+                                            (subSubFormSingleField => {
+                                                return {
+                                                    name: _.trim(_.get(subSubFormSingleField, "name")),
+                                                    label: _.trim(_.get(singleSubSubForm, "template.guid", "")) === "244D262F-6F8C-48C3-8975-B39159AAAB94" && _.trim(_.get(subSubFormSingleField, "name")).slice(0,4) === "Qté " ?
+                                                        _.trim(_.get(subSubFormSingleField, "name")) :
+                                                        _.trim(_.get(subSubFormSingleField, "label")),
+                                                    type: _.trim(_.get(subSubFormSingleField, "type")),
+                                                    value:
+                                                        subSubFormSingleField.type==="TKString" ? _.trim(subSubFormDataProvider.getStringValue( _.trim(_.get(subSubFormSingleField, "name", "")) )) :
+                                                        subSubFormSingleField.type==="TKNumber" ? subSubFormDataProvider.getNumberValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKMeasure" ? _.flatMap(subSubFormDataProvider.getMeasureValue( _.trim(_.get(subSubFormSingleField, "name", "")) )).join(" ") :
+                                                        subSubFormSingleField.type==="TKBoolean" ? !!subSubFormDataProvider.getBooleanValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKAction" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKDate" ? subSubFormDataProvider.getDateValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKHCParty" ? subSubFormDataProvider.getValue( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKMedication" ? subSubFormDataProvider.getValueContainers( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        subSubFormSingleField.type==="TKMedicationTable" ? subSubFormDataProvider.getValueContainers( _.trim(_.get(subSubFormSingleField, "name", "")) ) :
+                                                        ""
+                                                }
+                                            })
+                                        )
+                                    }
+                                }))
+                            })
+                        )
+                    )
+                }
+
+                this._getPdfPrintingCoreData({
+                    downloadFileName: _.kebabCase([ this.localize("requestForNurseCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    formsData: formsData
+                }).then(pdfPrintingData =>{
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1 class="mb40">`+this.localize("requestForNurseCare_header1",this.language)+`</h1>
+
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
+
+                            <div class="boxLabel">` + pdfPrintingData.formsData.subForm.subSubFormsStructure.label + `</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.formsData.subForm.subSubFormsStructure.fieldsAndValues, 2) + `</div>
+
+                            <div class="boxLabel">`+ pdfPrintingData.formsData.subForm.name +`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.formsData.subForm.fieldsAndValues, 1) + "</div>" +
+
+                            _.map(pdfPrintingData.formsData.subSubForms, (singleSubSubForm => {
+                                return"" +
+                                    '<div class="boxLabel">' + singleSubSubForm.name + '</div>' +
+                                    '<div class="borderedBox">' + this._getFormCheckboxesAndLabelHtmlCode(singleSubSubForm.fieldsAndValues, singleSubSubForm.columnsCount) + '</div>'
+                            })).join(" ") +
+
+                            this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div>` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                   // console.log(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter());
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1, printBackground:true} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            _getPdfHeader( layoutAttributes = false ) {
+
+			    layoutAttributes = _.merge(
+			        {
+    			        pageOverflowHidden: true
+			        },
+			        (layoutAttributes||{})
+			    )
 
                 return `
                     <html>
@@ -2651,9 +2758,9 @@
 
                             <style>
 
-                                @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; }
+                                @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding: 0 }
                                 body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; line-height:1em; }
-                                .page { width: 210mm; height: 297mm; overflow:hidden; color:#000000; font-size:12px; padding:15mm; }
+                                .page { width: 210mm; ` + (layoutAttributes.pageOverflowHidden ? "height: 297mm; overflow:hidden;" : "") + ` color:#000000; font-size:12px; padding:15mm; }
 
                                 h1 { font-size:18px; text-align: center; margin:0; padding:0; }
                                 h2 { font-size:16px; font-weight:400; font-style: italic; text-align: center; padding:0; margin:10px 0 30px 0; }
@@ -2661,33 +2768,56 @@
 
                                 .clear { clear:both; height:0px; line-height:0px; }
 
-                                .alignCenter {text-align: center;}
+                                .alignCenter {text-align: center!important;}
                                 .alignLeft {text-align: left;}
                                 .alignRight {text-align: right;}
+
+                                .fl {float:left} .fr {float:right} .fn {float:none}
+
+								.ttn { text-transform:none; }
 
                                 .bold { font-weight:700 }
                                 .fw400 { font-weight:400 }
                                 .italic { font-style: italic }
                                 .fs1em { font-size:1em; } .fs11em { font-size:1.1em; } .fs12em { font-size:1.2em; } .fs13em { font-size:1.3em; } .fs14em { font-size:1.4em; } .fs15em { font-size:1.5em; } .fs16em { font-size:1.6em; } .fs17em { font-size:1.7em; } .fs18em { font-size:1.8em; } .fs19em { font-size:1.9em; } .fs2em { font-size:2em; }
 
-                                .mt0 {margin-top: 0px!important;} .mt1 {margin-top: 1px!important;} .mt2 {margin-top: 2px!important;} .mt3 {margin-top: 3px!important;} .mt4 {margin-top: 4px!important;} .mt5 {margin-top: 5px!important;} .mt10 {margin-top: 10px!important;} .mt15 {margin-top: 15px!important;} .mt20 {margin-top: 20px!important;} .mt25 {margin-top: 25px!important;} .mt30 {margin-top: 30px!important;}
-                                .mr0 {margin-right: 0px!important;} .mr1 {margin-right: 1px!important;} .mr2 {margin-right: 2px!important;} .mr3 {margin-right: 3px!important;} .mr4 {margin-right: 4px!important;} .mr5 {margin-right: 5px!important;} .mr10 {margin-right: 10px!important;} .mr15 {margin-right: 15px!important;} .mr20 {margin-right: 20px!important;} .mr25 {margin-right: 25px!important;} .mr30 {margin-right: 30px!important;}
-                                .mb0 {margin-bottom: 0px!important;} .mb1 {margin-bottom: 1px!important;} .mb2 {margin-bottom: 2px!important;} .mb3 {margin-bottom: 3px!important;} .mb4 {margin-bottom: 4px!important;} .mb5 {margin-bottom: 5px!important;} .mb10 {margin-bottom: 10px!important;} .mb15 {margin-bottom: 15px!important;} .mb20 {margin-bottom: 20px!important;} .mb25 {margin-bottom: 25px!important;} .mb30 {margin-bottom: 30px!important;}
-                                .ml0 {margin-left: 0px!important;} .ml1 {margin-left: 1px!important;} .ml2 {margin-left: 2px!important;} .ml3 {margin-left: 3px!important;} .ml4 {margin-left: 4px!important;} .ml5 {margin-left: 5px!important;} .ml10 {margin-left: 10px!important;} .ml15 {margin-left: 15px!important;} .ml20 {margin-left: 20px!important;} .ml25 {margin-left: 25px!important;} .ml30 {margin-left: 30px!important;}
+                                .mt0 {margin-top: 0px!important;} .mt1 {margin-top: 1px!important;} .mt2 {margin-top: 2px!important;} .mt3 {margin-top: 3px!important;} .mt4 {margin-top: 4px!important;} .mt5 {margin-top: 5px!important;} .mt10 {margin-top: 10px!important;} .mt15 {margin-top: 15px!important;} .mt20 {margin-top: 20px!important;} .mt25 {margin-top: 25px!important;} .mt30 {margin-top: 30px!important;} .mt35 {margin-top: 35px!important;} .mt40 {margin-top: 40px!important;}
+                                .mr0 {margin-right: 0px!important;} .mr1 {margin-right: 1px!important;} .mr2 {margin-right: 2px!important;} .mr3 {margin-right: 3px!important;} .mr4 {margin-right: 4px!important;} .mr5 {margin-right: 5px!important;} .mr10 {margin-right: 10px!important;} .mr15 {margin-right: 15px!important;} .mr20 {margin-right: 20px!important;} .mr25 {margin-right: 25px!important;} .mr30 {margin-right: 30px!important;} .mr35 {margin-right: 35px!important;} .mr40 {margin-right: 40px!important;}
+                                .mb0 {margin-bottom: 0px!important;} .mb1 {margin-bottom: 1px!important;} .mb2 {margin-bottom: 2px!important;} .mb3 {margin-bottom: 3px!important;} .mb4 {margin-bottom: 4px!important;} .mb5 {margin-bottom: 5px!important;} .mb10 {margin-bottom: 10px!important;} .mb15 {margin-bottom: 15px!important;} .mb20 {margin-bottom: 20px!important;} .mb25 {margin-bottom: 25px!important;} .mb30 {margin-bottom: 30px!important;} .mb35 {margin-bottom: 35px!important;} .mb40 {margin-bottom: 40px!important;}
+                                .ml0 {margin-left: 0px!important;} .ml1 {margin-left: 1px!important;} .ml2 {margin-left: 2px!important;} .ml3 {margin-left: 3px!important;} .ml4 {margin-left: 4px!important;} .ml5 {margin-left: 5px!important;} .ml10 {margin-left: 10px!important;} .ml15 {margin-left: 15px!important;} .ml20 {margin-left: 20px!important;} .ml25 {margin-left: 25px!important;} .ml30 {margin-left: 30px!important;} .ml35 {margin-left: 35px!important;} .ml40 {margin-left: 40px!important;}
 
-                                .pt0 {padding-top: 0px!important;} .pt1 {padding-top: 1px!important;} .pt2 {padding-top: 2px!important;} .pt3 {padding-top: 3px!important;} .pt4 {padding-top: 4px!important;} .pt5 {padding-top: 5px!important;} .pt10 {padding-top: 10px!important;} .pt15 {padding-top: 15px!important;} .pt20 {padding-top: 20px!important;} .pt25 {padding-top: 25px!important;} .pt30 {padding-top: 30px!important;}
-                                .pr0 {padding-right: 0px!important;} .pr1 {padding-right: 1px!important;} .pr2 {padding-right: 2px!important;} .pr3 {padding-right: 3px!important;} .pr4 {padding-right: 4px!important;} .pr5 {padding-right: 5px!important;} .pr10 {padding-right: 10px!important;} .pr15 {padding-right: 15px!important;} .pr20 {padding-right: 20px!important;} .pr25 {padding-right: 25px!important;} .pr30 {padding-right: 30px!important;}
-                                .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;} .pb25 {padding-bottom: 25px!important;} .pb30 {padding-bottom: 30px!important;}
-                                .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;} .pl25 {padding-left: 25px!important;} .pl30 {padding-left: 30px!important;}
+                                .pt0 {padding-top: 0px!important;} .pt1 {padding-top: 1px!important;} .pt2 {padding-top: 2px!important;} .pt3 {padding-top: 3px!important;} .pt4 {padding-top: 4px!important;} .pt5 {padding-top: 5px!important;} .pt10 {padding-top: 10px!important;} .pt15 {padding-top: 15px!important;} .pt20 {padding-top: 20px!important;} .pt25 {padding-top: 25px!important;} .pt30 {padding-top: 30px!important;} .pt35 {padding-top: 35px!important;} .pt40 {padding-top: 40px!important;}
+                                .pr0 {padding-right: 0px!important;} .pr1 {padding-right: 1px!important;} .pr2 {padding-right: 2px!important;} .pr3 {padding-right: 3px!important;} .pr4 {padding-right: 4px!important;} .pr5 {padding-right: 5px!important;} .pr10 {padding-right: 10px!important;} .pr15 {padding-right: 15px!important;} .pr20 {padding-right: 20px!important;} .pr25 {padding-right: 25px!important;} .pr30 {padding-right: 30px!important;} .pr35 {padding-right: 35px!important;} .pr40 {padding-right: 40px!important;}
+                                .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;} .pb25 {padding-bottom: 25px!important;} .pb30 {padding-bottom: 30px!important;} .pb35 {padding-bottom: 35px!important;} .pb40 {padding-bottom: 40px!important;}
+                                .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;} .pl25 {padding-left: 25px!important;} .pl30 {padding-left: 30px!important;} .pl35 {padding-left: 35px!important;} .pl40 {padding-left: 40px!important;}
 
-                                .borderedBox { padding:10px; border:1px solid #000000; margin-bottom:20px; min-height:60px; }
-                                .boxLabel { font-weight:700; margin-bottom:5px }
+                                .borderedBox { padding:5px 10px; border:1px solid #000000; margin-bottom:20px; min-height:40px; }
+                                .boxLabel { font-weight:700; margin-bottom:5px; text-transform:uppercase; }
                                 .boxRemark { margin-top:-10px;font-style:italic; }
 
                                 .checkBoxContainer { padding:0; display:inline-block; margin:3px 30px 3px 0; position:relative; height:25px; min-width:160px; }
-                                .checkBoxContainer:last-child { margin-right:0; min-width:380px; }
-                                .singleCheckBox { padding:0; width:10mm; height:6mm; border:1px solid #000000; display:inline-block; margin:0 2mm 0 0; position:absolute; top:0; left:0; text-align:center; line-height:22px; font-size:21px; font-weight:700; }
+                                .checkBoxContainer.columnsCount_1 { min-width:100%; margin-right:0; }
+                                .checkBoxContainer.columnsCount_2 { min-width:380px; margin-right:0; }
+                                .checkBoxContainer.columnsCount_3 { min-width:255px; margin-right:0; }
+
+                                .singleCheckBox { padding:0; width:10mm; height:6mm; border:1px solid #000000; display:inline-block; margin:0 2mm 0 0; position:absolute; top:0; left:0; text-align:center; line-height:22px; font-size:21px; font-weight:700; color:#0b8200; }
                                 .singleCheckBoxLabel { display: inline-block; position: absolute; top: 4px; left: 12mm; }
+
+								.medicationTable { margin-top:20px; }
+								.medicationTableHeader { text-transform:uppercase; font-weight:700; margin-bottom:10px; margin-top:20px; }
+
+								.medicationsContainer {}
+								.singleMedicationContainer { margin-bottom:10px;  border:2px solid #2b4e8d; /* background-color:#f7fbf7; */ }
+
+								.medicationPosology { border:1px dashed #000; }
+								.posologyHeader { text-transform:uppercase; }
+								.posologyFrequency { text-decoration:underline }
+
+								.posologyContent {}
+								.posologyTable { width:100%; padding:0; margin:0; font-family: Arial, Helvetica, sans-serif; line-height:1em; font-size:12px; border-collapse: collapse; }
+								.posologyTable tr { padding:0; margin:0 }
+								.posologyTable tr th, .posologyTable tr td { padding:5px; margin:0; vertical-align:top; border:1px solid #007504; }
+								.posologyTable tr th { text-align:left; background-color:#e0e0e0; padding:10px 5px 10px 5px; }
 
                             </style>
                             </head>
@@ -2695,8 +2825,299 @@
                 `
             }
 
+            _getPdfPrintingCoreData( inputData ) {
 
+			    let pdfPrintingData = {
+			        patientData : {
+                       lastName: _.get(this.patient, "lastName", ""),
+                       firstName: _.get(this.patient, "firstName", ""),
+                       addressData:
+                           _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"home"}).head().value() ||
+                           _.chain(_.get(this.patient, "addresses", {})).filter({addressType:"work"}).head().value() ||
+                           _.chain(_.get(this.patient, "addresses", {})).head().value() ||
+                           {},
+                       ssin: this.api.formatSsinNumber(_.get(this.patient, "ssin", "")),
+                       insuranceData: _
+                           .chain(_.get(this.patient, "insurabilities",{}))
+                           .filter((i)=>{
+                               return i &&
+                                   !!moment( _.trim(_.get(i, "startDate", "0") ), "YYYYMMDD" ).isBefore(moment()) &&
+                                   (!!moment( _.trim(_.get(i, "endDate", "0") ), "YYYYMMDD" ).isAfter(moment()) || !_.trim(_.get(i, "endDate", "") ) ) &&
+                                   !!_.trim( _.get( i, "insuranceId", "" ) ) &&
+                                   !!_.trim( _.get( i, "identificationNumber", "" ) )
+                           })
+                           .head()
+                           .value(),
+                       gender: this.localize(_.trim(_.get(this.patient, "gender", "male")) + "GenderLong",this.language),
+                       birthDate: parseInt(_.get(this.patient, "dateOfBirth", 0)) ? moment(_.trim(_.get(this.patient, "dateOfBirth")),"YYYYMMDD").format("DD/MM/YYYY") : "-"
+                   },
+                   hcpData: {
+                       address:
+                           _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
+                           _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
+                           _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
+                           {},
+                       lastName: _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase(),
+                       firstName: _.trim( _.get(this.globalHcp, "firstName", "") ),
+                       nihii: this.api.formatInamiNumber(_.trim(_.get(this.globalHcp, "nihii", ""))),
+                       telecoms: _.assign(
+                           {},
+                           _.filter(
+                               _
+                                   .chain(
+                                       _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"work"}).head().value() ||
+                                       _.chain(_.get(this.globalHcp,"addresses",{})).filter({addressType:"home"}).head().value() ||
+                                       _.chain(_.get(this.globalHcp,"addresses",{})).head().value() ||
+                                       {}
+                                   )
+                                   .get( "telecoms", [] )
+                               .value(),
+                               (telecom) => {return {type:_.get(telecom, "telecomType", ""), value:_.get(telecom, "telecomNumber", "")}}
+                           )
+                       )
+                   }
+                }
 
+                return new Promise((resolve) => {
+
+                    return Promise.all(_.map(_.get(inputData, "codesToFind", []),(i)=>this.api.code().findCodes("be", i)))
+                        .then(codesResults => {
+                            pdfPrintingData.foundCodes = _.get(pdfPrintingData,"foundCodes",[]);
+                            _.map(codesResults, (nthPromiseResults, k) => {
+                                pdfPrintingData.foundCodes.push({ code: _.get(inputData, "codesToFind["+k+"]", false), values: nthPromiseResults })
+                            });
+                        })
+                        .catch(e => { console.log("CATCH"); console.log(e) })
+                        .finally(() => {
+                            pdfPrintingData = _.assign( inputData, pdfPrintingData )
+                            return new Promise((resolve) => {
+                                return new Promise((resolve) => {
+                                    return this.api.insurance().getInsurance(_.get(pdfPrintingData, "patientData.insuranceData.insuranceId", ""))
+                                        .then(singleInsuranceData => {
+                                            pdfPrintingData.patientData.insuranceData = _.assign(
+                                                {
+                                                    code:_.get(singleInsuranceData, "code", "<NA>"),
+                                                    name:_.get(singleInsuranceData, "name." + this.language, "") || _.trim( _.head( _.filter(_.get(singleInsuranceData, "name", "" ), _.trim) ) ) || "<NA>"
+                                                },
+                                                pdfPrintingData.patientData.insuranceData
+                                            )
+                                            return resolve({})
+                                        })
+                                        .catch((e)=>{ return resolve({}); });
+                                })
+                                .then(()=>resolve(_.assign( inputData, pdfPrintingData )))
+                                .catch(()=>resolve(_.assign( inputData, pdfPrintingData )));
+                            })
+                        }).then(()=>resolve(pdfPrintingData))
+                })
+
+            }
+
+            _getFormCheckboxesAndLabelHtmlCode( inputData, columnsCount = false ) {
+                return _.trim(
+                    _.map( (_.filter(inputData, (i)=>{ return _.trim(_.get(i, "type", "")) !== "TKString" && _.trim(_.get(i, "type", "")) !== "TKMedicationTable" && _.trim(_.get(i, "type", "")) !== "TKMedication" })||[]), (v)=> {
+                       return '<div class="checkBoxContainer columnsCount_' + parseInt(columnsCount) + '">' +
+                                '<span class="singleCheckBox">' +
+                                    (
+                                        (
+                                            (_.trim(_.get(v, "type", "" ) ) === "TKBoolean" && !!v.value) ? "X" :
+                                            ( _.trim(_.get(v, "type", "" ) ) !== "TKBoolean" && _.trim(v.value) && _.trim(v.value)!=='-' && _.trim(v.value)!=='NA' ) ? "X" :
+                                            ""
+                                        )
+                                    ) +
+                                '</span>' +
+                                '<span class="singleCheckBoxLabel">'+
+                                    v.label +
+                                    ( _.trim(v.type) === "TKNumber" ? ": " + _.trim(_.get(v, "value", "")) : "") +
+                                    ( _.trim(v.type) === "TKMeasure" ? ": " + _.trim(_.get(v, "value", "")) : "") +
+                                    ( _.trim(v.type) === "TKDate" ? ": " + moment(_.trim(_.get(v, "value", "")),"YYYYMMDD").format("DD/MM/YYYY") : "") +
+                                '</span>'+
+                            '</div>'
+                   }).join("") +
+                   _.map( (_.filter(inputData, (i)=>{return _.trim(_.get(i, "type", "")) === "TKString"})||[]), (v)=> {
+                       return ( _.trim(_.get(v, "value", "")) && _.trim(_.get(v, "value", "")) !== '-' ) ? "<p class='otherChoiceFreeText mt5 mb0 pb0'><b>" + ( _.trim(_.get(v, "label", "")) ? _.trim(_.get(v, "label", "")) : _.trim(_.get(v, "name", "")) ) + ":</b> " + _.trim(_.get(v, "value", "")) + "</p>" : ""
+                   }).join("") +
+                   _.trim( this._getMedicationTableHtmlCode( _.head((_.filter(inputData, (i)=>{return _.trim(_.get(i, "type", "")) === "TKMedicationTable" || _.trim(_.get(i, "type", "")) === "TKMedication"})||[])) ) )
+               )
+            }
+
+            _getMedicationTableHtmlCode( inputData ) {
+
+			    if( !inputData || !_.size(inputData) || !_.size(_.get(inputData, "value")) ) return;
+
+			    let contentToReturn = `
+                    <div class="medicationTable">
+                        <div class="medicationTableHeader">` + _.get(inputData,"label","") + `</div>
+                        <div class="medicationsContainer">
+			    `;
+
+			    contentToReturn += _.compact(
+			        _.map(
+                        _.get(inputData,"value",[]),
+                        (TKMedicationTable=>{
+
+                            const medicationValue = _.get(TKMedicationTable, "content."+this.language+".medicationValue", false) || _.get(TKMedicationTable, "content.en.medicationValue", false) || _.get(TKMedicationTable, "content.fr.medicationValue", false) || _.get(TKMedicationTable, "content.nl.medicationValue", false)
+                            const medictionIntendedName = _.get(medicationValue, "medicinalProduct.intendedname", "")
+                            const medictionIntendedCdsCode = _.get(medicationValue, "medicinalProduct.intendedcds[0].code", "")
+                            const beginMoment = parseInt(_.get(medicationValue, "beginMoment", 0)) ? moment( _.get(medicationValue, "beginMoment")+"" ).format("DD/MM/YYYY") : false;
+                            const endMoment = parseInt(_.get(medicationValue, "endMoment", 0)) ? moment( _.get(medicationValue, "endMoment")+"" ).format("DD/MM/YYYY") : false;
+
+                            if(!medicationValue || !medictionIntendedName) return false;
+
+                            const regimenDailyFrequencies = _.filter(_.get(medicationValue, "regimen", []), {frequency:"daily"});
+                            const regimenWeeklyFrequencies = _.filter(_.get(medicationValue, "regimen", []), {frequency:"weekly"});
+                            const regimenMonthlyFrequencies = _.filter(_.get(medicationValue, "regimen", []), {frequency:"monthly"});
+
+                            return `
+                                <div class="singleMedicationContainer pt10 pr10 pb10 pl10">
+                                    <div class="medicationHeader">
+                                        <p class="mt0 mb10"><span class="bold">- ` + medictionIntendedName + ` <em class="fw400 ml5">(code: ` + (_.trim(medictionIntendedCdsCode)||"-") + `)</em></span></p>
+                                        ` + ( ((beginMoment||beginMoment)&&beginMoment!==beginMoment) ? '<p class="mt5 mb10"><span class="bold">- '+this.localize("date",this.language)+':</span> '+this.localize("startingFrom",this.language)+' ' + (beginMoment||'-') + ( endMoment ? ', '+this.localize("endingOn",this.language)+' ' + endMoment : '') + '</p>' : '' ) + `
+                                        ` + (_.size(_.get(medicationValue, "renewal", [])) ? '<p class="mt5 mb10"><span class="bold">- '+this.localize("renewal",this.language)+':</span> ' + _.get(medicationValue, "renewal.decimal", 1) + 'x / '+ _.get(medicationValue, "renewal.duration.value", 1 ) + ' ' + _.get(medicationValue, "renewal.duration.unit.label."+this.language, _.get(medicationValue, "renewal.duration.unit.label.en", "-" ) ) + '</p>' : '' ) + `
+                                        <p class="mt5 mb10"><span class="bold">- `+ this.localize("substitution",this.language) +`:</span> ` + ( _.get(medicationValue, "substitutionAllowed", false) ? this.localize("subtitutionForbidden",this.language) : this.localize("subtitutionAllowed",this.language)) + `</p>
+                                    </div>` +
+                                    (
+                                        !_.size(regimenDailyFrequencies) && !_.size(regimenWeeklyFrequencies) && !_.size(regimenMonthlyFrequencies) ?
+                                            "" :
+                                            '<div class="medicationPosology mt10 pt10 pr10 pb10 pl10 ">' +
+                                            (
+                                                !_.size(regimenDailyFrequencies) ?
+                                                    "" :
+                                                    `
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("dailyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
+                                                        <div class="posologyContent mb10">
+                                                            <table class="posologyTable" cellspacing="0" cellpadding="0">
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <tbody>` + _.map(
+                                                                    regimenDailyFrequencies,
+                                                                    (singleFrequency => {
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td>" +
+                                                                            (
+                                                                                _.trim(_.get(singleFrequency, "dayPeriod.code", "")) === "custom" ?
+                                                                                    _.trim(_.get(singleFrequency, "timeOfDay", "")).slice(0,2)+":"+_.trim(_.get(singleFrequency, "timeOfDay", "")).slice(2,4) :
+                                                                                    _.trim(this.localize("ms_"+_.trim(_.get(singleFrequency, "dayPeriod.code", "")),this.language))||_.trim(_.get(singleFrequency, "dayPeriod.code", ""))||"-"
+                                                                            )+ "</td></tr>"
+                                                                    })
+                                                                ).join(" ") + `
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    `
+                                            ) + (
+                                                !_.size(regimenWeeklyFrequencies) ?
+                                                    "" :
+                                                    `
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("weeklyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
+                                                        <div class="posologyContent mb10">
+                                                            <table class="posologyTable" cellspacing="0" cellpadding="0">
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th style="width:140px">`+this.localize("dayOfWeek",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <tbody>` + _.map(
+                                                                    regimenWeeklyFrequencies,
+                                                                    (singleFrequency => {
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")) && this.localize( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")), this.language ) ? this.localize( _.trim(_.get(singleFrequency, "administratedQuantity.day", "")), this.language ) : _.trim(_.get(singleFrequency, "administratedQuantity.day", "")) ) + "</td><td>" +
+                                                                            ( _.trim(_.get(singleFrequency, "dayPeriod.code", "")) ? _.trim(this.localize("ms_"+_.trim(_.get(singleFrequency, "dayPeriod.code", "")),this.language)) : _.trim(_.get(singleFrequency, "dayPeriod.code", ""))||"-" ) + "</td></tr>"
+                                                                    })
+                                                                ).join(" ") + `
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    `
+                                            ) + (
+                                                !_.size(regimenMonthlyFrequencies) ?
+                                                    "" :
+                                                    `
+                                                        <div class="posologyHeader bold mt10 mb5 fl">`+this.localize("monthlyPosology",this.language)+`:</div><div class="fr mt10"><em>` + medictionIntendedName + `</em></div><div class="clear"></div>
+                                                        <div class="posologyContent mb10">
+                                                            <table class="posologyTable" cellspacing="0" cellpadding="0">
+                                                                <thead><tr><th style="width:120px" class="alignCenter">`+this.localize("qua",this.language)+`</th><th style="width:120px" class="alignCenter">`+this.localize("uni",this.language)+`</th><th style="width:140px" class="alignCenter">`+this.localize("dayOfMonth",this.language)+`</th><th>`+this.localize("momentHour",this.language)+`</th></tr></thead>
+                                                                <tbody>` + _.map(
+                                                                    regimenMonthlyFrequencies,
+                                                                    (singleFrequency => {
+                                                                        return "<tr><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.quantity", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( _.trim(_.get(singleFrequency, "administratedQuantity.unit", ""))||"-") + "</td><td class='alignCenter'>" +
+                                                                            ( parseInt(_.get(singleFrequency, "administratedQuantity.time", 0)) ? moment( _.trim(_.get(singleFrequency, "administratedQuantity.time"))+"" ).format("DD") : "-" ) + "</td><td>" +
+                                                                            ( _.trim(_.get(singleFrequency, "dayPeriod.code", "")) ? _.trim(this.localize("ms_"+_.trim(_.get(singleFrequency, "dayPeriod.code", "")),this.language)) : _.trim(_.get(singleFrequency, "dayPeriod.code", ""))||"-" ) + "</td></tr>"
+                                                                    })
+                                                                ).join(" ") + `
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    `
+                                            ) +
+                                            '</div>'
+                                    ) +
+                                "</div>"
+                        })
+			        )
+                ).join(" ")
+
+                contentToReturn += `
+                        </div>
+                    </div>
+			    `;
+
+			    return contentToReturn;
+
+            }
+            
+            _getPatientVignetteHtmlCode(inputData) {
+			    return `
+                    <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
+                    <div class="borderedBox">
+                        <b>`+this.localize("lastAndFirstName",this.language)+`:</b> `+inputData.lastName+` `+inputData.firstName+` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>`+this.localize("adrAbreviation",this.language)+`:</b> `+
+                            _.trim( _.compact([
+                                _.get(inputData.addressData, "street", "") + " ",
+                                _.get(inputData.addressData, "houseNumber", "") + ( _.trim(_.get(inputData.addressData, "postboxNumber", "")) ? "/" + _.trim(_.get(inputData.addressData, "postboxNumber", "")) : "" ),
+                                " - " + _.get(inputData.addressData, "postalCode", "") + " ",
+                                _.get(inputData.addressData, "city", "") + " ",
+                            ]).join(" "))
+                        +`<div class="clear mb10"></div>
+                        <b>`+this.localize("natNumber",this.language)+`:</b> `+ inputData.ssin +` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>`+this.localize("ct1ct2",this.language)+`:</b> `+ _.get(inputData.insuranceData, "parameters.tc1","")+_.get(inputData.insuranceData, "parameters.tc2","") +` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>`+this.localize("insNumber",this.language)+`:</b> `+ _.get(inputData.insuranceData, "code", "<NA>")+ " - " +_.get(inputData.insuranceData, "name", "<NA>") +`<div class="clear mb10"></div>
+                        <b>`+this.localize("insMembershipNumber",this.language)+`:</b> `+ _.get(inputData.insuranceData, "identificationNumber")+` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>`+this.localize("sexLitteral",this.language)+`:</b> `+ _.get(inputData, "gender")+` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>`+this.localize("birthDate",this.language)+`:</b> `+ _.get(inputData, "birthDate")+`
+                    </div>
+                `
+            }
+            
+            _getDoctorDetailsHtmlCode(inputData) {
+			    return `
+                    <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>
+                    <div class="borderedBox">
+                        <div class="fl">
+                            <b>`+this.localize("doctorAbreviation",this.language)+`</b> `+inputData.lastName+` `+inputData.firstName+`<div class="clear mb10"></div>
+                            <b>`+this.localize("postalAddress",this.language)+`</b>: `+_.get(inputData.address, "street", "")+` `+_.get(inputData.address, "houseNumber", "")+( _.trim(_.get(inputData.address, "postboxNumber", ""))?"/"+_.get(inputData.address, "postboxNumber", "") : "" )+`<div class="clear mb10"></div>
+                            <b>`+this.localize("zipHyphenCity",this.language)+`</b>: `+_.get(inputData.address, "postalCode", "")+` - `+_.get(inputData.address, "city", "")+`<div class="clear mb10"></div>
+                            <b>`+ this.localize("inami",this.language) + `</b>: ` + _.trim(inputData.nihii) +`<div class="clear mb10"></div>
+                            <b>`+ this.localize("date",this.language) + `</b>: ` + moment().format('DD/MM/YYYY') + `
+                        </div>
+                        <div class="fr">
+                            <b>`+ this.localize("telAbreviation",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(inputData.telecoms, {telecomType:"phone"})), "telecomNumber", "-")) +`<div class="clear mb10"></div>
+                            <b>`+ this.localize("mobile",this.language) + `</b>: ` + _.trim(_.get(_.head(_.filter(inputData.telecoms, {telecomType:"mobile"})), "telecomNumber", "-")) +`<div class="clear mb10"></div>
+                            <b>E-mail</b>: ` + _.trim(_.get(_.head(_.filter(inputData.telecoms, {telecomType:"email"})), "telecomNumber", "-")) +`<div class="clear mb0"></div>
+                        </div>
+                        <div class="clear mb0"></div>
+                    </div>
+                    <div class="boxRemark">* `+this.localize("doctorDetailsRemark",this.language)+`</div>
+                `
+            }
+
+            _insertPageBreak(inputConfig) {
+			    return (
+			        this._getDoctorDetailsHtmlCode(inputConfig.hcpData) +
+			        '</div><div class="page"><h1 class="mb40">' + _.trim(inputConfig.h1) + '</h1>' +
+			        this._getPatientVignetteHtmlCode(inputConfig.patientData)
+                );
+            }
 
         }
 
