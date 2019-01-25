@@ -1906,17 +1906,17 @@
                         // Todo: Make sure we have all subFormTemplateObject.guid / works for everyone
 
                         // Hard coded, work incapacity
-                        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-                        // if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"].indexOf(subFormTemplateObject.guid) >-1 ) this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        // if( ["FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"].indexOf(subFormTemplateObject.guid) >-1 ) this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["0AAC53CF-793F-45D2-ACA9-E0B79E1A1376", "B4F2B274-10FF-4018-BC48-3ED3CADCED57"].indexOf(subFormTemplateObject.guid) >-1 ) this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, Kine
-                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["AEFED10A-9A72-4B40-981B-1D79ADB05516"].indexOf(subFormTemplateObject.guid) >-1 ) this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
                         
                         // Hard coded, Nurse prescription
-                        if(subFormTemplateObject.guid==="64DAB551-B007-4B5C-BD64-F886301F5326") this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);                        
+                        if( ["64DAB551-B007-4B5C-BD64-F886301F5326"].indexOf(subFormTemplateObject.guid) >-1 ) this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                     })
                 })
