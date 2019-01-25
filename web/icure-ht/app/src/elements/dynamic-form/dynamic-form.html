@@ -703,7 +703,6 @@
             }
 
             _shouldDisplayPrintSubFormIcon(isSubForm, template) {
-			    return true;
 			    return isSubForm &&
                     template &&
                     _.get(template, "sections", false) && Array.isArray(template.sections) && template.sections.length &&
