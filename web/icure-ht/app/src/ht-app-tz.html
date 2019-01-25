@@ -2026,7 +2026,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     }).then(response => response.json()).then(rep => {
                                         if(rep.ok){
                                             this.set('routeData.page', "diary")
-                                            this.shadowRoot.querySelector("#htDiary").loadMikornoIframe()
+                                            setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
                                         }
                                     })
 
@@ -2062,7 +2062,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                         }).then(response => response.json()).then(rep => {
                                                             if(rep.ok){
                                                                 this.set('routeData.page', "diary")
-                                                                this.shadowRoot.querySelector("#htDiary").loadMikornoIframe()
+                                                                setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
                                                             }
                                                         })
 

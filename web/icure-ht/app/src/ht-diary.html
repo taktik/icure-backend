@@ -15,43 +15,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="ht-diary">
 
-	<template>
+    <template>
 
-		<style include="shared-styles">
-			:host {
-				display: block;
-				height: calc(100% - 20px);
-				/*padding: 10px;*/
-			}
+        <style include="shared-styles">
+            :host {
+                display: block;
+                height: calc(100% - 20px);
+                /*padding: 10px;*/
+            }
 
-			#iframe{
+            #iframe {
                 height: calc(100vh - 68px);
                 width: 100vw;
                 box-sizing: border-box;
                 overflow-x: auto;
                 overflow-y: auto;
                 border: 0;
-			}
+            }
 
             ht-spinner.center {
                 position: fixed;
                 top: 50vh;
                 left: 50vw;
                 height: 128px;
-                transform: translate(-50%,-50%);
+                transform: translate(-50%, -50%);
                 z-index: -1;
             }
-		</style>
+        </style>
 
-		<ht-spinner class="center" active="[[!showAgenda]]"></ht-spinner>
+        <ht-spinner class="center" active="[[!showAgenda]]"></ht-spinner>
 
-		<template is="dom-if" if="[[showAgenda]]">
-			<iframe id="iframe" src$="[[mikronoUrl]]"></iframe>
-		</template>
+        <template is="dom-if" if="[[showAgenda]]">
+            <iframe id="iframe" src$="[[mikronoUrl]]"></iframe>
+        </template>
 
-	</template>
+    </template>
 
-	<script>
+    <script>
         class HtMsg extends Polymer.Element {
             static get is() {
                 return 'ht-diary'
@@ -59,30 +59,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             static get properties() {
                 return {
-                    api:{
+                    api: {
                         type: Object,
                         noReset: true
                     },
-                    user:{
+                    user: {
                         type: Object,
                         noReset: true
                     },
-                    credentials:{
+                    credentials: {
                         type: Object,
                         noReset: true
                     },
-                    showAgenda:{
+                    showAgenda: {
                         type: Boolean,
-						value: false
-					},
-					mikronoData:{
+                        value: false
+                    },
+                    mikronoData: {
                         type: Object,
-						value: () => {}
-					},
-                    mikronoUrl:{
+                        value: () => {
+                        }
+                    },
+                    mikronoUrl: {
                         type: String,
-						value: ""
-					}
+                        value: ""
+                    }
                 }
             }
 
@@ -96,19 +97,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             reset() {
                 const props = HtMsg.properties
-                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+                Object.keys(props).forEach(k => {
+                    if (!props[k].noReset) {
+                        this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null)))
+                    }
+                })
             }
 
             ready() {
                 super.ready()
             }
 
-           loadMikornoIframe(){
-				this.set("mikronoUrl", "http://127.0.0.1:16041/iCureShortcut.jsp?id="+this.user.id)
+            loadMikornoIframe() {
                 this.set("showAgenda", true)
-		   }
+                this.set("mikronoUrl", "http://127.0.0.1:16041/iCureShortcut.jsp?id=" + this.user.id)
+            }
         }
 
         customElements.define(HtMsg.is, HtMsg)
-	</script>
+    </script>
 </dom-module>
