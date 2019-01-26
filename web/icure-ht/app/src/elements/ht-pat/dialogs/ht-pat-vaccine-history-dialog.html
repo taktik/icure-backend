@@ -144,7 +144,7 @@
             <div class="view">
                 <div class="item title">
                     <div class="time">[[localize('dat','Date',language)]]</div>
-                    <div class="name">[[localize('cdItemVaccine','Vaccine',language)]]</div>
+                    <div class="name">[[localize('commercial_name','Commercial name',language)]]</div>
                     <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
                         <div class="vacc">
                             <div><span>[[_getVaccNameFromThes(allvac)]]</span></div>
@@ -252,7 +252,7 @@
 
             _getName(svc){
                 const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
-                return (content && content.medicationValue && content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname) || this.localize('err','error',this.language)
+                return (content && content.medicationValue && content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname) || this.localize('obs_val','obsolete value',this.language)
             }
             _timeFormat(date) {
                 return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';

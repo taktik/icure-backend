@@ -155,6 +155,11 @@
                 margin-bottom: 25px;
             }
 
+            #printSubForm {
+                --paper-fab: {background: var(--app-secondary-color);};
+            }
+
+
 		</style>
 
 		<ckmeans-grouping id="ckmeans-grouping"></ckmeans-grouping>
@@ -404,13 +409,18 @@
 
 				});
 
-				const item = Polymer.dom(this.root).querySelector('#sf_' + pathParts.slice(0,composedNameLength).join('-'));
+				const joinedId = pathParts.slice(0,composedNameLength).join('-')
+                const item = Polymer.dom(this.root).querySelector('#sf_' + joinedId);
 
-				if (pathParts.length > 1) {
-					item.subContexts = this._subForms(layoutItem);
-					item.notify && item.notify(pathParts.slice(composedNameLength).join('.'));
-				} else {
-					item.notify && item.notify();
+				if (item) {
+                    if (pathParts.length > 1) {
+                        item.subContexts = this._subForms(layoutItem);
+                        item.notify && item.notify(pathParts.slice(composedNameLength).join('.'));
+                    } else {
+                        item.notify && item.notify();
+                    }
+                } else {
+				    this.notifyPath('dataMap.'+joinedId)
 				}
 			}
 

@@ -30,7 +30,11 @@
             }
 
             .content{
-                max-height: calc(100% - 48px - 52px - 48px);
+                flex-grow: 1
+            }
+            .buttons {
+                position: initial !important;
+                height: 74px !important;
             }
 
             #medication-detail .save-line {
@@ -380,21 +384,21 @@
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
             <paper-tabs selected="{{selectedTab}}">
                 <paper-tab>
-                    <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>Tableau
+                    <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>[[localize('tab_vie','Table view',language)]]
                 </paper-tab>
                 <paper-tab>
-                    <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>Lignes
+                    <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>[[localize('lis_vie','List view',language)]]
                 </paper-tab>
             </paper-tabs>
 
 
             <div class="regimen-line display-type-regimen">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
+                    <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
                                  disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
+                    <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
                                  disabled="true"></paper-input>
                 </template>
 
@@ -413,13 +417,14 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
 
+
                 <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
                 <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
                 <template is="dom-if" if="[[isRenewal]]">
                     <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
                     <div>x tous les</div>
                     <paper-input type="number" min="0" value="{{renewalDurationValue}}"></paper-input>
-                    <paper-dropdown-menu id="medicRenewalTimeUnit" label="Time unit" class="regimen--renewalTimeUnit">
+                    <paper-dropdown-menu id="medicRenewalTimeUnit" label="[[localize('time_unit','Time unit',language)]]" class="regimen--renewalTimeUnit">
                         <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
                             <template is="dom-repeat" items="[[timeUnit]]" as="tu">
                                 <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
@@ -456,7 +461,7 @@
                                 </div>
                         </div>
                         <iron-pages class="iron-container" selected="[[selectedTab]]" class="">
-                            <page class=>
+                            <page>
                                 <h4>[[localize('pos','Posology',language)]]</h4>
                                 <div class="add-col">
                                     <template is="dom-if" if="[[openAddColDropDown]]">
@@ -479,85 +484,85 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_before_0" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsBefore.0,extraColsBefore.0,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsBefore.0)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraBefore.0.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.0]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_before_1" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsBefore.1,extraColsBefore.1,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsBefore.1)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraBefore.1.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.1]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_before_2" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsBefore.2,extraColsBefore.2,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsBefore.2)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraBefore.2.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.2]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_before_3" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsBefore.3,extraColsBefore.3,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsBefore.3)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraBefore.3.administratedQuantity.quantity}}" hidden="[[!item.extraBefore.3]]" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('bef_meal','before meal',language)]]</template>
+                                        <template class="header bt">[[localize('beforemeal','before meal',language)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.beforeMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('dur_meal','during meal',language)]]</template>
+                                        <template class="header bt">[[localize('duringmeal','during meal',language)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.duringMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('aft_meal','after meal',language)]]</template>
+                                        <template class="header bt">[[localize('aftermeal','after meal',language)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.afterMeal.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                         </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_0" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.0,extraColsAfter.0,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.0)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.0.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.0]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_1" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.1,extraColsAfter.1,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.1)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.1.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.1]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_2" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.2,extraColsAfter.2,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.2)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.2.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.2]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_3" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.3,extraColsAfter.3,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.3)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.3.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.3]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_4" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.4,extraColsAfter.4,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.4)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.4.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.4]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_5" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.5,extraColsAfter.5,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.5)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.5.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.5]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column id="extracol_after_6" width="50px" hidden>
-                                        <template class="header bt">[[localize(extraColsAfter.6,extraColsAfter.6,language)]]</template>
+                                        <template class="header bt">[[_localize(extraColsAfter.6)]]</template>
                                         <template>
                                             <paper-input no-label-float value="{{item.extraAfter.6.administratedQuantity.quantity}}" type="number" hidden="[[!item.extraAfter.6]]" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
                                         </template>
@@ -565,7 +570,7 @@
                                 </vaadin-grid>
                             </page>
                             <page>
-                                <h4>Posology</h4>
+                                <h4>[[localize('pos','Posology',language)]]</h4>
                                 <div id="lineDomMap">
                                     <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg" indexAs="index">
                                         <div class="regimen-line regimen-details">
@@ -578,21 +583,21 @@
                                                 <template is="dom-if" if="{{!_isEqual(rg.dayPeriod.code,'custom')}}">
                                                     <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
                                                         <paper-listbox id="dayListbox" slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="{{rg.dayPeriod.code}}">
-                                                            <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-                                                            <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-                                                            <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-                                                            <paper-item id="morning">[[_localize("Morning")]]</paper-item>
-                                                            <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-                                                            <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
-                                                            <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-                                                            <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-                                                            <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-                                                            <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-                                                            <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-                                                            <paper-item id="evening">[[_localize("Evening")]]</paper-item>
-                                                            <paper-item id="night">[[_localize("Night")]]</paper-item>
+                                                            <paper-item id="beforebreakfast">[[localize("beforebreakfast",'Beforebreakfast',language)]]</paper-item>
+                                                            <paper-item id="duringbreakfast">[[localize("duringbreakfast",'Duringbreakfast',language)]]</paper-item>
+                                                            <paper-item id="afterbreakfast">[[localize("afterbreakfast",'Afterbreakfast',language)]]</paper-item>
+                                                            <paper-item id="morning">[[localize("morning",'Morning',language)]]</paper-item>
+                                                            <paper-item id="beforelunch">[[localize("beforelunch",'Beforelunch',language)]]</paper-item>
+                                                            <paper-item id="afternoon">[[localize("afternoon",'Afternoon',language)]]</paper-item>
+                                                            <paper-item id="duringlunch">[[localize("duringlunch",'Duringlunch',language)]]</paper-item>
+                                                            <paper-item id="afterlunch">[[localize("afterlunch",'Afterlunch',language)]]</paper-item>
+                                                            <paper-item id="beforedinner">[[localize("beforedinner",'Beforedinner',language)]]</paper-item>
+                                                            <paper-item id="duringdinner">[[localize("duringdinner",'Duringdinner',language)]]</paper-item>
+                                                            <paper-item id="afterdinner">[[localize("afterdinner",'Afterdinner',language)]]</paper-item>
+                                                            <paper-item id="evening">[[localize("evening",'Evening',language)]]</paper-item>
+                                                            <paper-item id="night">[[localize("night",'Night',language)]]</paper-item>
                                                             <hr>
-                                                            <paper-item id="custom">[[_localize('Precise hour')]]</paper-item>
+                                                            <paper-item id="custom">[[localize('precise_hour','Precise hour',language)]]</paper-item>
                                                         </paper-listbox>
                                                         <div class="hidden">[[rg.dayPeriod.code]]</div>
                                                     </paper-dropdown-menu>
@@ -604,33 +609,33 @@
                                             <template is="dom-if" if="[[_isEqual(rg.frequency,'weekly')]]">
                                                 <paper-dropdown-menu id="[[rg.administratedQuantity.day]]" label="[[localize('dow','Day of week',language)]]" class="regimen--tod">
                                                     <paper-listbox slot="dropdown-content" selected="{{rg.administratedQuantity.day}}" attr-for-selected="id" on-selected-changed="_selectWeekPeriod">
-                                                        <paper-item id="monday">Monday</paper-item>
-                                                        <paper-item id="tuesday">Tuesday</paper-item>
-                                                        <paper-item id="wednesday">Wednesday</paper-item>
-                                                        <paper-item id="thursday">Thursday</paper-item>
-                                                        <paper-item id="friday">Friday</paper-item>
-                                                        <paper-item id="saturday">Saturday</paper-item>
-                                                        <paper-item id="sunday">Sunday</paper-item>
+                                                        <paper-item id="monday">[[localize('Monday','Monday',language)]]</paper-item>
+                                                        <paper-item id="tuesday">[[localize('Tuesday','Tuesday',language)]]</paper-item>
+                                                        <paper-item id="wednesday">[[localize('Wednesday','Wednesday',language)]]</paper-item>
+                                                        <paper-item id="thursday">[[localize('Thursday','Thursday',language)]]</paper-item>
+                                                        <paper-item id="friday">[[localize('Friday','Friday',language)]]</paper-item>
+                                                        <paper-item id="saturday">[[localize('Saturday','Saturday',language)]]</paper-item>
+                                                        <paper-item id="sunday">[[localize('Sunday','Sunday',language)]]</paper-item>
                                                     </paper-listbox>
                                                 </paper-dropdown-menu>
                                                 <template is="dom-if" if="[[!_isEqual(rg.dayPeriod.code,'custom')]]">
                                                     <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
                                                         <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
-                                                            <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-                                                            <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-                                                            <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-                                                            <paper-item id="morning">[[_localize("Morning")]]</paper-item>
-                                                            <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-                                                            <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
-                                                            <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-                                                            <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-                                                            <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-                                                            <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-                                                            <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-                                                            <paper-item id="evening">[[_localize("Evening")]]</paper-item>
-                                                            <paper-item id="night">[[_localize("Night")]]</paper-item>
+                                                            <paper-item id="beforebreakfast">[[localize("beforebreakfast",'Beforebreakfast',language)]]</paper-item>
+                                                            <paper-item id="duringbreakfast">[[localize("duringbreakfast",'Duringbreakfast',language)]]</paper-item>
+                                                            <paper-item id="afterbreakfast">[[localize("afterbreakfast",'Afterbreakfast',language)]]</paper-item>
+                                                            <paper-item id="morning">[[localize("morning",'Morning',language)]]</paper-item>
+                                                            <paper-item id="beforelunch">[[localize("beforelunch",'Beforelunch',language)]]</paper-item>
+                                                            <paper-item id="afternoon">[[localize("afternoon",'Afternoon',language)]]</paper-item>
+                                                            <paper-item id="duringlunch">[[localize("duringlunch",'Duringlunch',language)]]</paper-item>
+                                                            <paper-item id="afterlunch">[[localize("afterlunch",'Afterlunch',language)]]</paper-item>
+                                                            <paper-item id="beforedinner">[[localize("beforedinner",'Beforedinner',language)]]</paper-item>
+                                                            <paper-item id="duringdinner">[[localize("duringdinner",'Duringdinner',language)]]</paper-item>
+                                                            <paper-item id="afterdinner">[[localize("afterdinner",'Afterdinner',language)]]</paper-item>
+                                                            <paper-item id="evening">[[localize("evening",'Evening',language)]]</paper-item>
+                                                            <paper-item id="night">[[localize("night",'Night',language)]]</paper-item>
                                                             <hr>
-                                                            <paper-item id="custom">[[_localize('Precise hour')]]</paper-item>
+                                                            <paper-item id="custom">[[localize('precise_hour','Precise hour',language)]]</paper-item>
                                                         </paper-listbox>
                                                         <div class="hidden">[[rg.dayPeriod.code]]</div>
                                                     </paper-dropdown-menu>
@@ -656,7 +661,7 @@
 
             <div class="buttons">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
-                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> Create medication</paper-checkbox>
+                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -952,6 +957,7 @@
             }
 
             _pushRegimen(e) {
+                if (e.target.dataset.item == 'weekly' || e.target.dataset.item == 'monthly') this.set('selectedTab',1)
                 const dropDownSelectedFreq = e.target.dataset.item;
                 this.push('selectedMedicationContentWithId.medicationValue.regimen', {
                     frequency: dropDownSelectedFreq ? dropDownSelectedFreq : this.bufferGeneralFrequency === 2 ? 'monthly' : this.bufferGeneralFrequency === 1 ? 'weekly' : 'daily',
