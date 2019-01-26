@@ -175,7 +175,7 @@ public class MikronoLogicImpl implements MikronoLogic {
 		String finalServerUrl = getMikronoServer(serverUrl);
 		return appointments.stream().map(a -> {
 			try {
-				return restTemplate.exchange(StringUtils.chomp(finalServerUrl, "/") + "/rest/icure/sendMessage", HttpMethod.PUT, new HttpEntity<>(a, getUserHttpHeaders(finalServerUrl, username, userToken)), String.class).getBody();
+				return restTemplate.exchange(StringUtils.chomp(finalServerUrl, "/") + "/rest/appointmentResource", HttpMethod.PUT, new HttpEntity<>(a, getUserHttpHeaders(finalServerUrl, username, userToken)), String.class).getBody();
 			} catch (HttpClientErrorException e) {
 				if (e.getStatusCode().equals(HttpStatus.FAILED_DEPENDENCY)) {
 					log.error("Customer with external ID" + a.getExternalCustomerId() + " is missing in db");

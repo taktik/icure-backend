@@ -70,6 +70,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/icc-api/icc-api.html">
 
 <link rel="import" href="./dialog-style.html">
+<link rel="import" href="elements/ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-app-tz">
 
@@ -536,6 +537,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             #appointmentsMigrationDialog{
                 height: 400px;
                 width: 600px;
+            }
+
+            #busySpinner {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                background: rgba(255,255,255,.6);
+                z-index:110;
+                margin-top:0;
+                top:0;
+                left:0;
+            }
+            #busySpinnerContainer {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width:200px;
+                height:200px;
             }
 
         </style>
@@ -1190,6 +1210,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </app-header-layout>
         </app-drawer-layout>
 
+        <template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
         <paper-dialog id="ht-invite-hcp">
             <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
             <div id="" class="content formNewHcp">
@@ -1426,6 +1448,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     migrationItems:{
                         type: Array,
                         value: () => []
+                    },
+                    busySpinner: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1439,7 +1465,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             constructor() {
                 super()
             }
-
 
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
@@ -2110,62 +2135,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-
             mikronoAppointmentsMigration(){
 
-                const applicationTokens = this.user.applicationTokens
+                const applicationTokens = _.get(this.user, "applicationTokens", "" )
                 const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
                 const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
                 const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
 
-
                 if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                    this.busySpinner = true;
                     this.set("migrationItems", [])
                     this.$["appointmentsMigrationDialog"].open()
-                    this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous"})
+                    this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous en cours..."})
 
                     let appointments = []
 
-                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                        this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous"})
-                        //const itemTypes = _.uniq(_.compact(items.map(items => items.calendarItemTypeId)))
+                    // TODO: Restore me
+                    // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(12, 'months').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
 
-                        return items.filter(item => item.startTime && item.endTime).map(item => ({
-                            comments: item.details || null,
-                            externalCustomerId: item.patientId || null,
-                            customerComments: item.details || null,
-                            title: item.title || null,
-                            endTime: item.startTime || null,
-                            startTime: item.endTime || null,
+                        this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
+                        return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({
+                            comments: _.trim(_.get(item, "details", ""))||null,
+                            externalCustomerId: _.trim(_.get(item, "patientId", ""))||null,
+                            customerComments: _.trim(_.get(item, "details", ""))||null,
+                            title: _.trim(_.get(item, "title", ""))||null,
+                            startTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "startTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
+                            endTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "endTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
                             type: null,
-                            street: item.addressText || null
+                            street: _.trim(_.get(item, "addressText", ""))||null,
+                            originalObject: _.merge({wasMigrated: true}, item)
                         }))
+
                     }).then(apps => {
-                        this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous"})
+
+                        console.log(apps);
+
+                        this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous en cours..."})
                         if(apps && apps.length !== 0){
                             let prom = Promise.resolve([])
                             _.chunk(apps, 100).forEach(chunkOfAppointments => {
-                                prom = prom.then(prevResults => this.api.bemikrono().createAppointments(apps).then(() => {
-                                        chunkOfAppointments.isMigrate = true
-                                        this.api.calendaritem().modifyCalendarItem(chunkOfAppointments).then(() => this.push("migrationItems", { status: "", item: "Migration terminée"}))
-                                    }).then(res => {
-                                        this.push("migrationItems", {status: "", item: "100 rendez-vous migrés"})
-                                        return prevResults.concat(res)
-                                    })
-                                )
+                                prom = prom.then(prevResults => this.api.bemikrono().createAppointments(chunkOfAppointments).then(() => {
+
+                                    // TODO: make this evolve and pass appointments by batches
+                                    _.forEach( chunkOfAppointments, (i=>{ this.api.calendaritem().modifyCalendarItem(_.get(i, "originalObject")).then(() => { /*this.push("migrationItems", { status: "", item: "Migration terminée"})*/ }) }))
+
+                                }).then(res => {
+                                    this.push("migrationItems", {status: "", item: "100 rendez-vous (de plus) migrés..."})
+                                    return prevResults.concat(res)
+                                }))
                             })
                             prom = prom.then(results => {
                                 this.$["appointmentsMigrationDialog"].close()
+                                this.busySpinner = false;
                                 window.open("https://" + mikronoUser + ":" + mikronoPassword + "@" + mikronoUrl.replace("https://", "") + "/iCureShortcut.jsp?id=" + this.user.id, '_blank')
-                            })
+                            }).catch((e)=>{this.busySpinner = false;})
                         }else{
+                            this.busySpinner = false;
                             window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
                         }
-                    })
+                    }).catch((e)=>{this.busySpinner = false;})
                 }
 
             }
-
 
         }
 
