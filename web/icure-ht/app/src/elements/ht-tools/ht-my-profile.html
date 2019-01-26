@@ -172,6 +172,12 @@
 				height: 65px;
 			}
 
+            .horizontal .tile paper-input {
+                padding-left: initial;
+                padding-right: initial;
+                padding: 0 4px;
+            }
+
 			.horizontal paper-input-container {
 				@apply --padding-right-left-16;
 				padding:0;
@@ -349,6 +355,15 @@
 
             .col-lg-12{
                 width: calc(99.9995% - 4em);
+            }
+
+            .col-lg-6.tile {
+                box-sizing: border-box;
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color-dark);
+                margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
             }
 
             .line {
@@ -584,14 +599,8 @@
                     <page>
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
-                                <div class="col-lg-6">
-                                    <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-                                        <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
-                                        <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
-                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
-                                    </template>
-                                </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-6 tile">
+                                    [[localize('gen_info','General informations',language)]]
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                         <div class="line">
                                             <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
@@ -607,26 +616,31 @@
                                     </template>
                                     <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-6 tile">
                                     [[localize('addr_pro','Work Address',language)]]
-                                    <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
                                     <div class="line">
+                                        <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
                                         <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
                                         <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
-                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
                                     </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <br/>
                                     <div class="line">
                                         <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
                                         <paper-input class="grow-3" label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
-                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
+                                        <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
                                     </div>
-                                    <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
+                                    <div class="line">
+                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
+                                        <paper-input label="[[localize('email','Email',language)]]" value="{{adr.proMail}}"></paper-input>
+                                    </div>
                                 </div>
-                                <div class="col-lg-12">
-                                </div>
+                                <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                    <div class="col-lg-6 tile">
+                                        [[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]
+                                            <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
+                                            <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
+                                            <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                                    </div>
+                                </template>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
                                 <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
 
@@ -1268,7 +1282,8 @@
                                 this.hcp = hcp;
 
                                 let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
+                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone") || -1
+                                let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="email") || -1
                                 idxAddress>=0 ? this.set('adr',{
                                     addressType:"work",
                                     street:this.hcp.addresses[idxAddress].street,
@@ -1277,7 +1292,8 @@
                                     postalCode:this.hcp.addresses[idxAddress].postalCode,
                                     city:this.hcp.addresses[idxAddress].city,
                                     country:this.hcp.addresses[idxAddress].country,
-                                    phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
+                                    phoneNumber: this.hcp.addresses[idxAddress].telecoms[idxPhone] && this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || '',
+                                    proMail: this.hcp.addresses[idxAddress].telecoms[idxMail] && this.hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
                                 }) : ""
 
                             });
@@ -1288,7 +1304,8 @@
                             this.hcp = hcp;
 
                             let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
+                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone") || -1
+                            let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="email") || -1
                             idxAddress>=0 ? this.set('adr',{
                                 addressType:"work",
                                 street:this.hcp.addresses[idxAddress].street,
@@ -1297,7 +1314,8 @@
                                 postalCode:this.hcp.addresses[idxAddress].postalCode,
                                 city:this.hcp.addresses[idxAddress].city,
                                 country:this.hcp.addresses[idxAddress].country,
-                                phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
+                                phoneNumber: this.hcp.addresses[idxAddress].telecoms[idxPhone] && this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || '',
+                                proMail: this.hcp.addresses[idxAddress].telecoms[idxMail] && this.hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
                             }) : ""
 
                         }
@@ -1557,7 +1575,6 @@
             addressProChanged(){
                 if(!this.hcp)return;
                 let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                 if(idxAddress<0){
                     this.push('hcp.addresses',{
                         addressType:"work",
@@ -1567,7 +1584,8 @@
                         postalCode:this.adr.postalCode || "",
                         city:this.adr.city || "",
                         country:this.adr.country || "",
-                        phoneNumber:this.adr.phoneNumber
+                        phoneNumber:this.adr.phoneNumber,
+                        proMail:this.adr.proMail
                     })
                 }
                 else{
@@ -1578,12 +1596,19 @@
                     this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
                     this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
                     this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
-                    if (idxPhone>=0) {
-                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone+'.telecomNumber',this.adr.phoneNumber || "")
-                    }else {
-                        this.set('hcp.addresses.'+idxAddress+'.telecoms.0.telecomNumber',this.adr.phoneNumber || "")
+
+                    let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                    if (idxPhone<0) {
+                        idxPhone = this.hcp.addresses[idxAddress].telecoms.length
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone,{telecomType: "phone",telecomNumber:''})
                     }
-                    console.log('hcp adr changed',this.hcp)
+                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone+'.telecomNumber',this.adr.phoneNumber || "")
+                    let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                    if (idxMail<0) {
+                        idxMail = this.hcp.addresses[idxAddress].telecoms.length
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxMail,{telecomType: "email",telecomNumber:''})
+                    }
+                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxMail+'.telecomNumber',this.adr.proMail || "")
                 }
             }
         }
