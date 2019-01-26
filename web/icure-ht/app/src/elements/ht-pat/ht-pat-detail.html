@@ -3174,25 +3174,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }) // icc contact then end
 
                     //console.log("Before filter svcs "+(+new Date() - start))
-
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => {
-                        this.set('medications', _.sortBy(medications.filter(m =>this.api.contact().preferredContent(m, this.language).medicationValue.beginMoment !== this.api.contact().preferredContent(m, this.language).medicationValue.endMoment).map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
-                        const meds = []
-                        medications.filter(m =>{
-                            const beginMoment = this.api.contact().preferredContent(m, this.language) ? this.api.contact().preferredContent(m, this.language).medicationValue.beginMoment : undefined
-                            const endMoment = this.api.contact().preferredContent(m, this.language) ? this.api.contact().preferredContent(m, this.language).medicationValue.endMoment : undefined
-                            // this.api.contact().preferredContent(m, this.language).medicationValue.beginMoment !== this.api.contact().preferredContent(m, this.language).medicationValue.endMoment
-                            if (beginMoment && endMoment) {
-                                if (beginMoment !== endMoment) {
-                                    meds.push(m)
-                                }
-                            }
-                        })
-                        meds.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`}))
-                        this.set('medications', meds)
-                        console.log('meds',meds)
-                        //console.log("After filter svcs "+(+new Date() - start))
-
+                    const oneWeekAgo = moment().subtract(7)
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))).then(medications => {
+                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
                     })
                     this._updateFilterPanels()
                 })
