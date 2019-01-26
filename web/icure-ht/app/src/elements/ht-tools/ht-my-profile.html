@@ -1294,8 +1294,8 @@
                                 this.hcp = hcp;
 
                                 let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone") || -1
-                                let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="email") || -1
+                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                                let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
                                 idxAddress>=0 ? this.set('adr',{
                                     addressType:"work",
                                     street:this.hcp.addresses[idxAddress].street,
@@ -1304,7 +1304,7 @@
                                     postalCode:this.hcp.addresses[idxAddress].postalCode,
                                     city:this.hcp.addresses[idxAddress].city,
                                     country:this.hcp.addresses[idxAddress].country,
-                                    phoneNumber: this.hcp.addresses[idxAddress].telecoms[idxPhone] && this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || '',
+                                    telecoms: this.hcp.addresses[idxAddress].telecoms[idxPhone] && this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || '',
                                     proMail: this.hcp.addresses[idxAddress].telecoms[idxMail] && this.hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
                                 }) : ""
 
@@ -1316,8 +1316,8 @@
                             this.hcp = hcp;
 
                             let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone") || -1
-                            let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="email") || -1
+                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                            let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
                             idxAddress>=0 ? this.set('adr',{
                                 addressType:"work",
                                 street:this.hcp.addresses[idxAddress].street,
@@ -1587,6 +1587,9 @@
             addressProChanged(){
                 if(!this.hcp)return;
                 let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                // console.log('addressProChanged',idxAddress,idxPhone,idxMail)
                 if(idxAddress<0){
                     this.push('hcp.addresses',{
                         addressType:"work",
@@ -1596,9 +1599,20 @@
                         postalCode:this.adr.postalCode || "",
                         city:this.adr.city || "",
                         country:this.adr.country || "",
-                        phoneNumber:this.adr.phoneNumber,
-                        proMail:this.adr.proMail
+                        telecoms: [
+                            {telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""},
+                            {telecomType: "email",telecomNumber:this.adr.proMail || ""}
+                        ]
                     })
+                    // console.log('add addr',this.hcp)
+                }
+                else if (idxPhone<0) {
+                    this.push('hcp.addresses.'+idxAddress+'.telecoms',{telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""})
+                    // console.log('add phone',this.hcp)
+                }
+                else if (idxMail<0) {
+                    this.push('hcp.addresses.'+idxAddress+'.telecoms',{telecomType: "email",telecomNumber:this.adr.proMail || ""})
+                    // console.log('add mail',this.hcp)
                 }
                 else{
                     this.set('hcp.addresses.'+idxAddress+'.addressType',"work")
@@ -1608,19 +1622,9 @@
                     this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
                     this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
                     this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
-
-                    let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
-                    if (idxPhone<0) {
-                        idxPhone = this.hcp.addresses[idxAddress].telecoms.length
-                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone,{telecomType: "phone",telecomNumber:''})
-                    }
-                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone+'.telecomNumber',this.adr.phoneNumber || "")
-                    let idxMail = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
-                    if (idxMail<0) {
-                        idxMail = this.hcp.addresses[idxAddress].telecoms.length
-                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxMail,{telecomType: "email",telecomNumber:''})
-                    }
-                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxMail+'.telecomNumber',this.adr.proMail || "")
+                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone,{telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""})
+                    this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxMail,{telecomType: "email",telecomNumber:this.adr.proMail || ""})
+                    // console.log('success',this.hcp)
                 }
             }
         }
