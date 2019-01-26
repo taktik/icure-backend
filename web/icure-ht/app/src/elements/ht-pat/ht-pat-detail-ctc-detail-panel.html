@@ -1119,12 +1119,26 @@
 				return this._drugsToBePrescribed().length > 0;
 			}
 
+			_hasDrugsAlreadyPrescribed(ssin) {
+				return this._drugsAlreadyPrescribed().length > 0;
+			}
+
 			_canPrescribe(tokenId, ssin) {
 				return tokenId && this._validSsin(ssin) && this._hasDrugsToBePrescribed();
 			}
 
+			_canReprint(tokenId, ssin) {
+				return this._validSsin(ssin) && this._hasDrugsAlreadyPrescribed();
+			}
+
 			_drugsToBePrescribed() {
-				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
+
+				let tbp = this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
+				return tbp.length > 0 ? tbp : this._drugsAlreadyPrescribed();
+			}
+
+			_drugsAlreadyPrescribed() {
+				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
 			}
 
 			_prescribe(e) {
@@ -1173,21 +1187,33 @@
 
 			_splitColumns() {
 				const drugs = this._drugsToBePrescribed();
-				const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
-					const id = mark.id;
-					if (this.patient.ssin && this.api.tokenId) {
-						const column = mark.column;
-						(columns[column] || (columns[column] = [])).push(id)
-					} else {
-						(columns[0]).push(id)
+				const drugs2 = this._drugsAlreadyPrescribed();
+				//create fixed set of columns: 1 for each rid already present
+				const mvWithRid = drugs2 ? drugs2.map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID): []
+				let ridList = []
+				mvWithRid ? ridList = _.uniq(mvWithRid.map(mv => mv.prescriptionRID)):{}
+				if(ridList.length > 0) {
+					let columns = [];
+					columns = ridList.map(rid=>drugs2.filter(s=>this.api.contact().medicationValue(s, this.language).prescriptionRID === rid).map(s => s.id))
+					return columns;
+				}
+				else
+				{
+					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
+						const id = mark.id;
+						if (this.patient.ssin && this.api.tokenId) {
+							const column = mark.column;
+							(columns[column] || (columns[column] = [])).push(id)
+						} else {
+							(columns[0]).push(id)
+						}
+						return columns;
+						}, [[]]);
+					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
+						columns.push([]);
 					}
 					return columns;
-				}, [[]]);
-
-				if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
-					columns.push([]);
 				}
-				return columns;
 			}
 
 			_drugOnPrescription(svc, index) {
@@ -1291,7 +1317,23 @@
 				let rid = [] //this must be an array
 				let toPrint = undefined
 				this.set('selectedFormat', (this.patient.ssin && this.api.tokenId) ? this.selectedFormat : 'presc')
-				if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
+				let printed = false;
+				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => {
+					//TODO: 1. don't get them by the columns, but group them by the rids
+					//TODO: 2. Changes in _split columns can be reverted
+					//TODO: 3. Even better: if rids are found, change the button name to 'reprint'
+					//filter drugs that already have rid
+					let mvWithRid = drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID)
+					if(mvWithRid.length > 0) {
+						mvWithRid.map(mv => rid.push(mv.prescriptionRID))
+						printed = true;
+					}
+				}))).finally(()=>{
+					// toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
+					// this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
+
+
+				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
 					console.log("with recip-e")
 					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
 						patient: this.patient,
@@ -1312,6 +1354,7 @@
 					toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
 					this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 				}
+				})
 				this.$.loadingPrescriptionDialog.close();
 			} // print end
 
