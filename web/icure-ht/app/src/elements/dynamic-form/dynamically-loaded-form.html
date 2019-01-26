@@ -63,7 +63,7 @@
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
                           disabled="[[currentContact.closingDate]]"
-						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-unlink-to-health-element="unlinkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
@@ -196,6 +196,15 @@
                     }
 				)
             }
+
+            unlinkService(e){
+                const he = e.detail.healthElement
+                if (!he) {
+                    return;
+                }
+                this.splice("currentContact.subContacts", this.currentContact.subContacts.find(subC => subC.healthElementId === he.id), 1)
+                this.scanServicesAndScheduleSave(this.currentContact)
+			}
 
             linkForm(e) {
                 const he = e.detail.healthElement
