@@ -1,6 +1,6 @@
 {
   "name": "icure-cloud",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "scripts": {
     "dev": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "dev-tz": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.tz.js",
