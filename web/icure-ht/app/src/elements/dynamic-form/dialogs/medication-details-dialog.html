@@ -405,7 +405,7 @@
             </div>
             <div class="regimen-line display-type-regimen">
 
-                <paper-dropdown-menu id="medicReimbursement" label="Reimbursement" class="regimen--reimbursement">
+                <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb', 'Reimbursement', language)]]" class="regimen--reimbursement">
                     <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
                         <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
                             <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
@@ -413,8 +413,8 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
 
-                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">Substitution</vaadin-checkbox>
-                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">Renewal</vaadin-checkbox>
+                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
+                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
                 <template is="dom-if" if="[[isRenewal]]">
                     <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
                     <div>x tous les</div>
@@ -457,13 +457,13 @@
                         </div>
                         <iron-pages class="iron-container" selected="[[selectedTab]]" class="">
                             <page class=>
-                                <h4>Posology</h4>
+                                <h4>[[localize('pos','Posology',language)]]</h4>
                                 <div class="add-col">
                                     <template is="dom-if" if="[[openAddColDropDown]]">
                                         <paper-listbox id="dayListbox" class="btn-dropdown-container" slot="dropdown-content" selected="[[tempColToAdd]]"  on-selected-changed="_addCustomDayPeriod" attr-for-selected="id">
-                                            <paper-item id="morning" on-tap="" data-item="daily">[[localize('morning','morning',language)]]</paper-item>
-                                            <paper-item id="evening" on-tap="" data-item="weekly">[[localize('evening','evening',language)]]</paper-item>
-                                            <paper-item id="night" on-tap="" data-item="monthly">[[localize('night','night',language)]]</paper-item>
+                                            <paper-item id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
+                                            <paper-item id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
+                                            <paper-item id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
                                             <paper-item id="custom" on-tap="" data-item="monthly">[[localize('custom','custom',language)]]</paper-item>
                                         </paper-listbox>
                                     </template>
