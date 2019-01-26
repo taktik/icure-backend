@@ -626,10 +626,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-tab>
-                            <paper-tab name="diary" on-tap="checkAndLoadMikrono">
-                                <iron-icon icon="vaadin:calendar"></iron-icon>
-                                [[localize('diary')]]
-                            </paper-button>
+                                <paper-tab name="diary" on-tap="checkAndLoadMikrono">
+                                    <iron-icon icon="vaadin:calendar"></iron-icon>
+                                    [[localize('diary')]]
+                                </paper-tab>
                             </paper-tabs>
                         </div>
                         <div class="log-info">
@@ -1162,6 +1162,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this._showPage404()
                 }
 
+            }
+
+            _myProfile(tab) {
+                this.$['ht-my-profile'].open(tab)
             }
 
             _showPage404() {

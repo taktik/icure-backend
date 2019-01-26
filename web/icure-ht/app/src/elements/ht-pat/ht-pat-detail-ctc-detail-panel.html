@@ -450,13 +450,21 @@
 			}
 
             .warning {
+                display: block;
                 font-size: 1.1em;
                 color: var(--app-status-color-nok);
                 text-align: left;
-                margin: 16px 32px;
+                margin: 16px auto;
                 background: rgba(252,0,0,.2);
                 border-radius: 4px;
                 padding: 8px;
+                cursor: pointer;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                width: 80%;
+            }
+            .warning.ehbox {
+                color: white;
+                background: var(--app-status-color-pending);
             }
 
 			.endline {
@@ -735,10 +743,15 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
-            <template is="dom-if" if="[[!canRecipe]]">
-                <div class="warning">
+            <template is="dom-if" if="[[!ehboxConnected]]">
+                <paper-button class="warning ehbox" on-tap="_importKeychain">
+                    <iron-icon icon="warning"></iron-icon> [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                </paper-button>
+            </template>
+            <template is="dom-if" if="[[!fullProfile]]">
+                <paper-button class="warning" on-tap="_myProfile">
                     <iron-icon icon="warning"></iron-icon> [[localize('recipe_warning','To print recip-e, you HAVE to inquire your ADRESS and PHONE NUMBER in your profile !',language)]]
-                </div>
+                </paper-button>
             </template>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
@@ -930,7 +943,11 @@
                 type: Boolean,
                 value: false
             },
-            canRecipe: {
+            ehboxConnected: {
+                type: Boolean,
+                value: false
+            },
+            fullProfile: {
                 type: Boolean,
                 value: false
             }
@@ -938,7 +955,7 @@
 	}
 
 			static get observers() {
-				return ['_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['apiReady(api,user,patient)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
 			}
 
 			constructor() {
@@ -949,25 +966,40 @@
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
                     this.set('globalHcp',tempHcp)
-                    this.set('canRecipe',this._canRecipe(tempHcp))
                 })
                     .then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
                     .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
 
-			_canRecipe(hcp) {
-			    if (hcp && hcp.addresses[0]) {
-                    Object.keys(hcp.addresses).forEach(a=>{
-                        if (hcp.addresses[a].city.length && hcp.addresses[a].country.length && hcp.addresses[a].postalCode.length && hcp.addresses[a].street.length) {
-                            if (hcp.addresses[a].telecoms[0]) {
-                                Object.keys(hcp.addresses[a].telecoms).forEach(t=>{
-                                    if (hcp.addresses[a].telecoms[t].telecomNumber.length) return true
-                                })
-                            }
+            apiReady() {
+			    this._isAuth()
+                this._canRecipe()
+            }
+
+            _isAuth() {
+                const sAuth = JSON.parse(sessionStorage.getItem('auth'))
+                // console.log('isAuth ?',sAuth.ehpassword && this.patient.ssin && this.api.keystoreId ? true : false)
+                this.set('ehboxConnected', sAuth.ehpassword && this.patient.ssin && this.api.keystoreId)
+            }
+
+			_canRecipe() {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    if (hcp.addresses[0]) {
+                        let idxAddress = hcp.addresses.findIndex(addr => addr.addressType && addr.addressType === "work")
+                        let idxPhone = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "phone") : -1
+                        let idxMail = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "email") : -1
+                        // console.log('_canRecipe ??', hcp, idxAddress, idxPhone, idxMail)
+                        if (idxAddress >= 0 && idxPhone >= 0 && idxMail >= 0) {
+                            const phone = hcp.addresses[idxAddress].telecoms[idxPhone] && hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || ''
+                            const mail = hcp.addresses[idxAddress].telecoms[idxMail] && hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
+                            // console.log('_canRecipe', phone.length && mail.length)
+                            this.set('fullProfile', (phone.length && mail.length))
                         }
-                    })
-                }
+                    } else {
+                        this.set('fullProfile', false)
+                    }
+                })
             }
 
 			_activeIconClass(selected) {
@@ -983,6 +1015,28 @@
 					this.addDocument();
 				}
 			}
+
+            _myProfile() { // open profile
+			    const nodes = document.childNodes[1].getElementsByTagName('body')[0].childNodes
+                Object.keys(nodes).forEach((n)=>{
+                    if (nodes[n].nodeName.includes('HT-APP')) {
+                        nodes[n]._myProfile(1) // 1 = open at addresses' tab
+                        this.$.prescriptionDialog.close()
+                        return
+                    }
+                })
+            }
+
+            _importKeychain() { // open keychain importation window
+                const nodes = document.childNodes[1].getElementsByTagName('body')[0].childNodes
+                Object.keys(nodes).forEach((n)=>{
+                    if (nodes[n].nodeName.includes('HT-APP')) {
+                        nodes[n]._importKeychain()
+                        this.$.prescriptionDialog.close()
+                        return
+                    }
+                })
+            }
 
 			_toggleAddActions() {
 				this.showAddFormsContainer = !this.showAddFormsContainer;

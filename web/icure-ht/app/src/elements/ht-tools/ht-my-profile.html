@@ -517,7 +517,7 @@
                                     <paper-input label="Login" value="{{user.login}}" readonly></paper-input>
                                     <div class="line">
                                         <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
-                                        <paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
+                                        <paper-input label="Confirmation" value="{{userConfirmation}}" type="password" disabled="[[!userPassword.length]]"></paper-input>
                                     </div>
                                     <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">[[localize('pass_nomatch','Passwords do not match',language)]]</div></template>
                                     <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">[[localize('pass_tooshort','Password must be at least 8 characters',language)]]</div></template>
@@ -1387,8 +1387,7 @@
                 this.set('qrCodeWidth', Math.max(Math.min(offsetWidth / 2 - 64, 280), 120));
             }
 
-            open() {
-
+            open(tab) {
                 this.showEHPreferrences(this.user);
                 const regs = this.getRegistrationStatus()
                 regs.rs.forEach(reg => {
@@ -1398,6 +1397,7 @@
                 })
 
                 this.$.dialog.open();
+                this.set('tabs',tab>0?tab:0)
             }
 
             close() {
