@@ -63,7 +63,7 @@
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
                           disabled="[[currentContact.closingDate]]"
-						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-unlink-to-health-element="unlinkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
@@ -71,7 +71,11 @@
 		</template>
 	</template>
 	<script>
-		class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
+		import {simple} from 'acorn/dist/walk'
+        import {parse} from 'acorn'
+        import * as evaljs from "evaljs"
+
+        class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'dynamically-loaded-form';
             }
@@ -193,6 +197,15 @@
 				)
             }
 
+            unlinkService(e){
+                const he = e.detail.healthElement
+                if (!he) {
+                    return;
+                }
+                this.splice("currentContact.subContacts", this.currentContact.subContacts.find(subC => subC.healthElementId === he.id), 1)
+                this.scanServicesAndScheduleSave(this.currentContact)
+			}
+
             linkForm(e) {
                 const he = e.detail.healthElement
                 if (!he) {
@@ -260,7 +273,9 @@
                     this.set('dataProvider', this.getDataProvider(this.form, ''));
 
                     if ((this.form.template || {}).layout) {
-                        this.set('dataMap', _.fromPairs(_.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])))
+                        const layoutItems = _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList))
+                        this.set('dataMap', _.fromPairs(layoutItems.map(f => [f.name, 1])))
+						this.dataProvider.computeFormulas(['OnLoad','OnChange'])
 					} else if (this.form.id) {
                         this.set('dataMap', _.fromPairs(_.flatten(this._allContacts().map(c => {
                             const sc = c.subContacts.find(sc => sc.formId === this.form.id);
@@ -312,6 +327,8 @@
                     return;
                 }
 
+                this.dataProvider.computeFormulas(['OnChange'])
+
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
@@ -355,7 +372,9 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})); //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+                    this.dataProvider.computeFormulas(['OnSave']).then(
+						() => this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+					)
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -407,7 +426,76 @@
                 };
 
                 const self = {
+                    subFormsMap: {},
                     servicesMap: {},
+                    computeFormulas: (lifecycles) => {
+                        try {
+                            const layoutItems = _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList))
+                            const lis = layoutItems.filter(li => li.subForm || (li.formulas || []).some(f => f.lifecycle && lifecycles.includes(f.lifecycle.toString())))
+
+                            const computables = lis.filter(li => !li.subForm).map(li => {
+                                const deps = []
+                                li.formulas.filter(f => lifecycles.includes(f.lifecycle.toString())).forEach(f => {
+                                    const expr = `(function(x) { ${f.value} })(x)`
+                                    simple(parse(expr), {
+                                        MemberExpression(node) {
+                                            if (node.object.name === 'x') {
+                                                deps.push(node.property.name)
+                                            }
+                                        }
+                                    })
+                                })
+                                return {name: li.name, deps: deps, li: li}
+                            })
+
+
+                            const visit = (computables, oks) => {
+                                const okNames = oks.map(k => k.name)
+                                const thisPass = computables.filter(li => !okNames.includes(li.name) && (li.deps.length === 0 || li.deps.every(d => okNames.includes(d) || !computables.some(c => c.name === d))))
+
+                                return thisPass.length > 0 ? visit(computables, oks.concat(thisPass)) : oks
+                            }
+
+                            const orderedComputables = visit(computables, [])
+
+                            if (orderedComputables.length) {
+                                const env = new evaljs.Environment({
+                                    patient: this.patient,
+                                    contact: this.contact,
+                                    contacts: this.contacts,
+                                    x: _.keys(this.servicesMap).reduce((x, label) => {
+                                        x[label] = self.getRawValue(label)
+                                        return x
+                                    }, {})
+                                });
+                                return Promise.all(orderedComputables.map(comp => {
+                                    const f = comp.li.formulas.find(f => lifecycles.includes(f.lifecycle.toString()))
+                                    const expr = `(function(x,patient,contact,contacts) { ${f.value} })(x,patient,contact,contacts)`
+                                    const gen = (env.gen(expr)())
+                                    let status = {done: false, value: null}
+
+                                    while (!status.done) {
+                                        status = gen.next() //Execute lines one by one
+                                    }
+
+                                    ['StringEditor', 'PopupMenuEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'string') && this.dataProvider.setStringValue(comp.name, status.value || null, false);
+                                    ['NumberEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'number') && this.dataProvider.setNumberValue(comp.name, status.value === 0 ? 0 : (Number(status.value.toFixed(3)) || null), false);
+                                    ['MeasureEditor'].includes(comp.li.editor.key) && (typeof status.value === 'number') && this.dataProvider.setMeasureValue(comp.name, {value: Number(status.value.toFixed(3))} || null, false);
+                                    ['MeasureEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'object') && this.dataProvider.setMeasureValue(comp.name, Number(status.value.toFixed(3)) || null, false);
+                                    //['DateTimeEditor'].includes(comp.li.editor.key) && (typeof status.value === 'number') && this.dataProvider.setDateValue(comp.name, status.value || null, false);
+                                    //['DateTimeEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'object') && this.dataProvider.setDateValue(comp.name, status.value || null, false);
+
+                                    this.root.querySelector('#dynamic-form') && this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + comp.name)
+
+                                    return Promise.resolve(status.value)
+                                })).catch(() => [])
+                            } else {
+                                return Promise.resolve([])
+                            }
+                        } catch (e) {
+                            return Promise.resolve([])
+                        }
+					},
                     //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
                     services: label => {
                         if (label && self.servicesMap[label]) {
@@ -567,13 +655,14 @@
                     getValue: (label) => {
                         const s = self.getServicesLineForContact(label)[0];
                         return s ? s.svc ? this.api.contact().shortServiceDescription(s.svc, this.language) : "<NA>" : "-";
+					},
+                    getRawValue: (label) => {
+                        const s = self.getServicesLineForContact(label)[0];
+                        const c = s && s.svc && this.api.contact().preferredContent(s.svc, this.language)
 
-                        // return this.api.contact().shortServiceDescription(
-                        //     self.getStringValue(label) || self.getNumberValue(label) || self.getMeasureValue(label) || self.getDateValue(label) || self.getBooleanValue(label) || self.getValueContainers(label).join(", "),
-                        //     this.language
-                        //   )
+                        return c && (c.measureValue && (c.measureValue.value || c.measureValue.value === 0) ? c.measureValue.value : this.api.contact().contentValue(c))
                     },
-                    setStringValue: function (label, value) {
+                    setStringValue: function (label, value, save = true) {
                         const currentValue = self.getStringValue(label)
                         if ((currentValue || null) === (value || null) || ((!currentValue || !currentValue.length) && (!value || !value.length))) {
                             return;
@@ -582,12 +671,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.stringValue !== value) {
                                 c.stringValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setNumberValue: function (label, value) {
+                    setNumberValue: function (label, value, save = true) {
                         if (self.getNumberValue(label) === parseFloat(value)) {
                             return;
                         }
@@ -595,12 +684,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.numberValue !== value) {
                                 c.numberValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setMeasureValue: function (label, value) {
+                    setMeasureValue: function (label, value, save = true) {
                         const currentValue = self.getMeasureValue(label);
                         if (((!currentValue || !currentValue.value) && !value.value) /* No valid current value and no proposed value */
                             || (currentValue && value && ((currentValue.value || 0) === (value.value || 0)) && ((currentValue.unit || null) === (value.unit || null)))) {
@@ -610,12 +699,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.measureValue !== value) {
                                 c.measureValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setDateValue: function (label, value) {
+                    setDateValue: function (label, value, save = true) {
                         if (self.getDateValue(label) === value) {
                             return;
                         }
@@ -623,12 +712,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.fuzzyDateValue !== value) {
                                 c.fuzzyDateValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setBooleanValue: function (label, value) {
+                    setBooleanValue: function (label, value, save = true) {
                         if (self.getBooleanValue(label) === value) {
                             return;
                         }
@@ -636,12 +725,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.booleanValue !== value) {
                                 c.booleanValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setValueDateOfValue: function (label, value, setBooleanValue) {
+                    setValueDateOfValue: function (label, value, setBooleanValue, save = true) {
                         if (self.getValueDateOfValue(label) === value) {
                             return;
                         }
@@ -657,7 +746,7 @@
                                         c.booleanValue = value;
                                     }
                                 }
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             } else if (setBooleanValue) {
                                 self.setBooleanValue(!!value);
                             }
@@ -665,15 +754,15 @@
                         });
                     }.bind(this),
                     getSubForms: function (key) {
-                        return (form.children || []).filter(f => f.descr === key).map((subForm, idx) => {
-                            return {
+                        return (form.children || []).filter(f => !key || f.descr === key).map((subForm, idx) => {
+                            return self.subFormsMap[[subForm.id, subForm.descr, idx]] || ((self.subFormsMap[[subForm.id, key, idx]] = {
                                 dataMap: _.fromPairs(_.flatten(_.flatten(subForm.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])),
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
                                 template: subForm.template.layout,
 								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
 									.concat(_.compact(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction' && null || null)))))
 									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
-                            };
+                            }));
                         });
                     }.bind(this),
                     editForm: function () {
@@ -741,7 +830,7 @@
                         });
                     },
                     addSubForm: (key, guid) => {
-                        if (!this.currentContact) {
+                    	if (!this.currentContact) {
                             return;
                         }
                         this.flushSave();

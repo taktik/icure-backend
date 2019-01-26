@@ -38,6 +38,8 @@ public class CalendarItemDto extends IcureDto {
 
     protected String agendaId;
 
+    protected Boolean wasMigrated;
+
     protected Set<CalendarItemTagDto> meetingTags;
 
     protected FlowItemDto flowItem;
@@ -177,4 +179,8 @@ public class CalendarItemDto extends IcureDto {
     public void setFlowItem(FlowItemDto flowItem) {
         this.flowItem = flowItem;
     }
+
+    public Boolean getWasMigrated() { return wasMigrated; }
+
+    public void setWasMigrated(Boolean wasMigrated) { this.wasMigrated = wasMigrated; }
 }

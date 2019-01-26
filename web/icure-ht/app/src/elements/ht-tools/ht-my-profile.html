@@ -1043,7 +1043,11 @@
                             presc:{"color":'',"bw":''}}
                     },
                     numericSelectedPrinter: {
-                        type: Object
+                        type: Object,
+                        value: {
+                            a4:{"color":null,"bw":null},
+                            a5:{"color":null,"bw":null},
+                            presc:{"color":null,"bw":null}}
                     },
                     electronAvailable: {
                         type: Boolean,
@@ -1337,14 +1341,12 @@
 
                         if (localStorage.getItem('selectedPrinter')) {
                             const selectedFromStorage = JSON.parse(localStorage.getItem('selectedPrinter'))
-                            let tempSelected = {}, i = 0
-                            Object.keys(selectedFromStorage).forEach(k=>{
-                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color),
-                                      bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
-                                if (i==0) tempSelected.a4 = {color:color,bw:bw}
-                                if (i==1) tempSelected.a5 = {color:color,bw:bw}
-                                if (i==2) tempSelected.presc = {color:color,bw:bw}
-                                i++
+                            let tempSelected = {}
+
+                            Object.keys(selectedFromStorage).forEach(k => {
+                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
+                                const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
+                                tempSelected[k] = {color:color,bw:bw}
                             })
                             this.set('selectedPrinter', selectedFromStorage)
                             this.set('numericSelectedPrinter', tempSelected)
@@ -1353,15 +1355,17 @@
                 }
             }
             _setPrinter(e) {
-                const target = e.target.getAttribute('target'),
-                      value = e.target.dataset.item
-                if (target=='a4.color') this.set('selectedPrinter.a4.color',value)
-                if (target=='a5.color') this.set('selectedPrinter.a5.color',value)
-                if (target=='presc.color') this.set('selectedPrinter.presc.color',value)
-                if (target=='a4.bw') this.set('selectedPrinter.a4.bw',value)
-                if (target=='a5.bw') this.set('selectedPrinter.a5.bw',value)
-                if (target=='presc.bw') this.set('selectedPrinter.presc.bw',value)
-                if ( JSON.parse(localStorage.getItem('selectedPrinter')) != this.selectedPrinter) localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
+                const target = 'selectedPrinter.'+e.target.getAttribute('target')
+                const value = e.target.dataset.item
+                if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
+                if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
+                if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
+                if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
+                if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
+                if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if ( !_.isEqual(JSON.parse(localStorage.getItem('selectedPrinter')), this.numericSelectedPrinter)) {
+                    localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
+                }
             }
             _getPrinterIdByName(source,name) {
                 for (let i = 0;i<=source.length;i++) {
