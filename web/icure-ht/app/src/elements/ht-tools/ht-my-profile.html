@@ -588,6 +588,7 @@
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                         <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
                                         <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
                                     </template>
                                 </div>
                                 <div class="col-lg-6">
@@ -610,15 +611,16 @@
                                     [[localize('addr_pro','Work Address',language)]]
                                     <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
                                     <div class="line">
-                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
-                                        <paper-input class="grow-3" label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
+                                        <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <br/>
                                     <div class="line">
-                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
-                                        <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                        <paper-input class="grow-3" label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
                                         <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
                                     </div>
                                     <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
