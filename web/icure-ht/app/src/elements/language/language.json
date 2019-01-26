@@ -867,7 +867,8 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "insurance_titulary": "Insurance titulary (only if not titulary itself - for children / spouse)"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1823,7 +1824,8 @@
     "thursday": "Jeudi",
     "friday": "Vendredi",
     "saturday": "Samedi",
-    "sunday": "Dimanche"
+    "sunday": "Dimanche",
+    "insurance_titulary": "Titulaire de l'assurance (uniquement pour enfant / épouse)"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2787,6 +2789,7 @@
     "thursday": "Donderdag",
     "friday": "Vrijdag",
     "saturday": "Zaterdag",
-    "sunday": "Zondag"
+    "sunday": "Zondag",
+    "insurance_titulary": "Verzekering gerec (alleen voor kind / vrouw)"
   }
 }
