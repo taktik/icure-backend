@@ -513,7 +513,7 @@
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
                                 <div class="col-lg-6 tile">
-                                    <h2>[[localize('login_opt','Login option',language)]]</h2>
+                                    <h2><iron-icon icon="communication:vpn-key"></iron-icon> [[localize('login_opt','Login option',language)]]</h2>
                                     <paper-input label="Login" value="{{user.login}}" readonly></paper-input>
                                     <div class="line">
                                         <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
@@ -531,7 +531,7 @@
                                 </div>
 
                                 <div class="col-lg-6 tile">
-                                    <h2>[[localize('oth_opt','Other options',language)]]</h2>
+                                    <h2><iron-icon icon="settings"></iron-icon> [[localize('oth_opt','Other options',language)]]</h2>
                                     <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
                                     <div class="line">
                                         <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
@@ -604,7 +604,7 @@
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
                                 <div class="col-lg-6 tile">
-                                    <h2>[[localize('gen_info','General informations',language)]]</h2>
+                                    <h2><iron-icon icon="social:person"></iron-icon> [[localize('gen_info','General informations',language)]]</h2>
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                         <div class="line">
                                             <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
@@ -621,7 +621,7 @@
                                     <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
                                 </div>
                                 <div class="col-lg-6 tile">
-                                    <h2>[[localize('addr_pro','Work Address',language)]]</h2>
+                                    <h2><iron-icon icon="home"></iron-icon> [[localize('addr_pro','Work Address',language)]]</h2>
                                     <div class="line">
                                         <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
                                         <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
@@ -639,7 +639,7 @@
                                 </div>
                                 <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                     <div class="col-lg-6 tile">
-                                        <h2>[[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]</h2>
+                                        <h2><iron-icon icon="assignment"></iron-icon> [[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]</h2>
                                         <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
                                         <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
                                         <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
