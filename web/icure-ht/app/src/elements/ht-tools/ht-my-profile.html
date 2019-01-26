@@ -175,7 +175,7 @@
             .horizontal .tile paper-input {
                 padding-left: initial;
                 padding-right: initial;
-                padding: 0 4px;
+                padding: 0 8px;
             }
 
 			.horizontal paper-input-container {
@@ -359,11 +359,18 @@
 
             .col-lg-6.tile {
                 box-sizing: border-box;
-                padding: 8px;
                 border-radius: 4px;
                 border: 1px solid var(--app-background-color-darker);
-                background: var(--app-background-color-dark);
+                background: var(--app-background-color);
                 margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
+            }
+            .tile h2 {
+                background: var(--app-background-color-dark);
+                width: 100%;
+                text-align: center;
+                margin: 0 0 8px 0;
+                padding: 8px;
+                box-sizing: border-box;;
             }
 
             .line {
@@ -505,21 +512,40 @@
 
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
-                                <div class="col-lg-6">
-                                    <paper-input label="Full name" value="{{user.name}}"></paper-input>
+                                <div class="col-lg-6 tile">
+                                    <h2>[[localize('login_opt','Login option',language)]]</h2>
                                     <paper-input label="Login" value="{{user.login}}" readonly></paper-input>
-                                    <paper-input label="Email" value="{{user.email}}" readonly></paper-input>
-                                    <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-                                        <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-                                            <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-                                            <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-                                            <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-                                        </paper-listbox>
-                                    </paper-dropdown-menu>
-                                    <paper-radio-group selected="{{userEHealthEnv}}">
-                                        <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-                                        <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-                                    </paper-radio-group>
+                                    <div class="line">
+                                        <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
+                                        <paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
+                                    </div>
+                                    <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">[[localize('pass_nomatch','Passwords do not match',language)]]</div></template>
+                                    <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">[[localize('pass_tooshort','Password must be at least 8 characters',language)]]</div></template>
+
+                                    <paper-input label="[[localize('auto_logout','Auto logout delay (minutes)',language)]]" type="number" min="0" value=""></paper-input>
+                                    <div id="printable">
+                                        <vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+                                        <vaadin-checkbox colspan="2" checked="{{showQr}}">[[localize('sho_qr','Show QR code',language)]]</vaadin-checkbox>
+                                        <qrcode-printer i18n="[[i18n]]"language="[[language]]" hidden="[[!showQr]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 tile">
+                                    <h2>[[localize('oth_opt','Other options',language)]]</h2>
+                                    <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+                                    <div class="line">
+                                        <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+                                            <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+                                                <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                                                <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                                                <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                        <paper-radio-group selected="{{userEHealthEnv}}">
+                                            <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+                                            <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+                                        </paper-radio-group>
+                                    </div>
                                     <div class="horizontal" style="margin-top:10px">
                                         <paper-radio-group selected="{{hcp.languages.0}}">
                                             <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
@@ -537,7 +563,7 @@
                                     </div>-->
 
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
-                                        <div class="horizontal" style="margin-top:10px">
+                                        <div class="line" style="margin-top:10px">
                                             <paper-radio-group selected="{{hcp.billingType}}">
                                                 <label class="p-l-0">[[localize('billingType','Type de facturation',language)]]: </label>
                                                 <paper-radio-button name="serviceFee">[[localize('serviceFee','A l\'acte',language)]]</paper-radio-button>
@@ -548,7 +574,6 @@
                                     </template>
 
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-
                                         <vaadin-combo-box
                                             id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
                                             item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
@@ -562,36 +587,15 @@
                                             label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
                                             value="{{hcp.supervisorId}}">
                                         </vaadin-combo-box>
-
                                     </template>
 
-                                    <div class="horizontal">
-                                        <vaadin-checkbox checked="{{receiveMailAuto}}">Receive mails automatically</vaadin-checkbox>
-                                    </div>
-
-
-                                </div>
-                                <div class="col-lg-6">
-                                    <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
-                                    <paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
-                                    <paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
-                                    <paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
-
-                                    <div id="printable">
-                                        <vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
-                                        <qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+                                    <div class="horizontal line">
+                                        <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
                                     </div>
 
                                 </div>
-
-
-
-
 
                             </vaadin-form-layout>
-
-                            <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">Passwords do not match</div></template>
-                            <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">Passwords must be at least 8 characters</div></template>
 
                         </div>
                     </page>
@@ -600,7 +604,7 @@
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
                                 <div class="col-lg-6 tile">
-                                    [[localize('gen_info','General informations',language)]]
+                                    <h2>[[localize('gen_info','General informations',language)]]</h2>
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                         <div class="line">
                                             <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
@@ -617,7 +621,7 @@
                                     <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
                                 </div>
                                 <div class="col-lg-6 tile">
-                                    [[localize('addr_pro','Work Address',language)]]
+                                    <h2>[[localize('addr_pro','Work Address',language)]]</h2>
                                     <div class="line">
                                         <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
                                         <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
@@ -635,10 +639,10 @@
                                 </div>
                                 <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                     <div class="col-lg-6 tile">
-                                        [[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]
-                                            <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
-                                            <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
-                                            <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                                        <h2>[[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]</h2>
+                                        <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
+                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
+                                        <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
                                     </div>
                                 </template>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
@@ -1044,6 +1048,10 @@
                     electronAvailable: {
                         type: Boolean,
                         value: false
+                    },
+                    showQr: {
+                        type: Boolean,
+                        value: true
                     }
                 };
             }
