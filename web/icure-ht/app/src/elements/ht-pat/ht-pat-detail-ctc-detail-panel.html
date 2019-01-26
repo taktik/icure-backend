@@ -2575,8 +2575,6 @@
 
                 this.busySpinner = true;
 
-                // Todo: missing fields: Informations cliniques pertinentes (InfoClinPert), Explication de la demande de diagnostic (ExplicationDemandeDiag) & Informations supplémentaires pertinentes (unknown key)
-
                 const subFormFieldsAndValues = _.compact(
                     _.map( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}), (v) => {
                         return v.type==="TKLabelSeparator" ? false : {
@@ -2609,8 +2607,8 @@
                             }
                         )
                     )||[],
-                    suggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "CT Scan" || i.name === "RMN" || i.name === "RX" || i.name === "Echographie" || i.name === "Scintigraphie" || i.name === "Inconnu" || i.name === "ExamProp" })),
-                    previouslySuggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "Allergy" || i.name === "Diabetes" || i.name === "RenalFailure" || i.name === "Grossesse" || i.name === "Implant" || i.name === "Autre examen" })),
+                    suggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "CT Scan" || i.name === "RMN" || i.name === "RX" || i.name === "Echographie" || i.name === "Scintigraphie" || i.name === "Inconnu" || i.name === "ExamProp" || i.name === "Autre examen" })),
+                    previouslySuggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "Allergy" || i.name === "Diabetes" || i.name === "RenalFailure" || i.name === "Grossesse" || i.name === "Implant" || i.name === "Autre_exam_bis" })),
 
                 }).then(pdfPrintingData =>{
 
