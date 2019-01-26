@@ -1988,7 +1988,7 @@
                         // if( ["FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"].indexOf(subFormTemplateObject.guid) >-1 ) this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if( ["0AAC53CF-793F-45D2-ACA9-E0B79E1A1376", "B4F2B274-10FF-4018-BC48-3ED3CADCED57"].indexOf(subFormTemplateObject.guid) >-1 ) this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["0AAC53CF-793F-45D2-ACA9-E0B79E1A1376", "B4F2B274-10FF-4018-BC48-3ED3CADCED57"].indexOf(subFormTemplateObject.guid) >-1 ) this.printImagingPrescriptionForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, Kine
                         if( ["AEFED10A-9A72-4B40-981B-1D79ADB05516"].indexOf(subFormTemplateObject.guid) >-1 ) this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
@@ -2548,6 +2548,84 @@
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
                             <div class="borderedBox"></div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box6_previousExamsRelatedToRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.previouslySuggestedExams, 3) + `</div>
+
+                            ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div>` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            printImagingPrescriptionForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                // Todo: missing fields: Informations cliniques pertinentes (InfoClinPert), Explication de la demande de diagnostic (ExplicationDemandeDiag) & Informations supplémentaires pertinentes (unknown key)
+
+                const subFormFieldsAndValues = _.compact(
+                    _.map( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}), (v) => {
+                        return v.type==="TKLabelSeparator" ? false : {
+                            name: _.trim(_.get(v, "name")),
+                            label: _.trim(_.get(v, "label")),
+                            type: _.trim(_.get(v, "type")),
+                            value:
+                                v.type==="TKString" ? _.trim(subFormDataProvider.getStringValue( _.trim(_.get(v, "name", "")) )) :
+                                v.type==="TKNumber" ? subFormDataProvider.getNumberValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKMeasure" ? _.flatMap(subFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) )).join(" ") :
+                                v.type==="TKBoolean" ? !!subFormDataProvider.getBooleanValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKAction" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKDate" ? subFormDataProvider.getDateValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKHCParty" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                ""
+                        }
+                    })
+                )
+
+                this._getPdfPrintingCoreData({
+                    downloadFileName: _.kebabCase([ this.localize("requestForImagingExam_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    subFormData: _.compact(
+                        _.map(
+                            (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
+                                return _.size(v) && {
+                                    name: k,
+                                    value: subFormDataProvider.getValue(k),
+                                    valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
+                                }
+                            }
+                        )
+                    )||[],
+                    suggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "CT Scan" || i.name === "RMN" || i.name === "RX" || i.name === "Echographie" || i.name === "Scintigraphie" || i.name === "Inconnu" || i.name === "ExamProp" })),
+                    previouslySuggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "Allergy" || i.name === "Diabetes" || i.name === "RenalFailure" || i.name === "Grossesse" || i.name === "Implant" || i.name === "Autre examen" })),
+
+                }).then(pdfPrintingData =>{
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1>`+this.localize("requestForImagingExam_header1",this.language)+`</h1>
+                            <h2>`+this.localize("requestForImagingExam_header2",this.language)+`</h2>
+
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
+                            <div class="borderedBox">` + _.trim( _.get( _.filter(subFormFieldsAndValues, {name: "InfoClinPert"}), "[0].value", "")) + `</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">` + _.trim( _.get( _.filter(subFormFieldsAndValues, {name: "ExplicationDemandeDiag"}), "[0].value", "")) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
