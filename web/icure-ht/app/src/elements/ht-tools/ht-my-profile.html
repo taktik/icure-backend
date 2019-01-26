@@ -590,10 +590,6 @@
                                             <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
                                             <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
                                         </div>
-                                        <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
-                                        <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
-                                        <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
-                                        <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
                                     </template>
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
                                         <paper-input label="[[localize('name','Nom',language)]]" value="{{hcp.name}}"></paper-input>
@@ -1260,6 +1256,7 @@
                                 this.hcp = hcp;
 
                                 let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                                 idxAddress>=0 ? this.set('adr',{
                                     addressType:"work",
                                     street:this.hcp.addresses[idxAddress].street,
@@ -1267,7 +1264,8 @@
                                     postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
                                     postalCode:this.hcp.addresses[idxAddress].postalCode,
                                     city:this.hcp.addresses[idxAddress].city,
-                                    country:this.hcp.addresses[idxAddress].country
+                                    country:this.hcp.addresses[idxAddress].country,
+                                    phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
                                 }) : ""
 
                             });
@@ -1278,6 +1276,7 @@
                             this.hcp = hcp;
 
                             let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                             idxAddress>=0 ? this.set('adr',{
                                 addressType:"work",
                                 street:this.hcp.addresses[idxAddress].street,
@@ -1285,7 +1284,8 @@
                                 postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
                                 postalCode:this.hcp.addresses[idxAddress].postalCode,
                                 city:this.hcp.addresses[idxAddress].city,
-                                country:this.hcp.addresses[idxAddress].country
+                                country:this.hcp.addresses[idxAddress].country,
+                                phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
                             }) : ""
 
                         }
@@ -1545,6 +1545,7 @@
             addressProChanged(){
                 if(!this.hcp)return;
                 let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                 if(idxAddress<0){
                     this.push('hcp.addresses',{
                         addressType:"work",
@@ -1553,7 +1554,8 @@
                         postboxNumber:this.adr.postboxNumber || "",
                         postalCode:this.adr.postalCode || "",
                         city:this.adr.city || "",
-                        country:this.adr.country || ""
+                        country:this.adr.country || "",
+                        phoneNumber:this.adr.phoneNumber
                     })
                 }
                 else{
@@ -1564,6 +1566,12 @@
                     this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
                     this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
                     this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
+                    if (idxPhone>=0) {
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone+'.telecomNumber',this.adr.phoneNumber || "")
+                    }else {
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.0.telecomNumber',this.adr.phoneNumber || "")
+                    }
+                    console.log('hcp adr changed',this.hcp)
                 }
             }
         }
