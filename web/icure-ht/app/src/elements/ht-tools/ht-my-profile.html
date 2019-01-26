@@ -11,6 +11,7 @@
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -350,6 +351,28 @@
                 width: calc(99.9995% - 4em);
             }
 
+            .line {
+                display: flex;
+            }
+            .line > * {
+                 flex-grow: 1;
+             }
+            .line > *.no-grow {
+                flex-grow: 0;
+            }
+            .line > *.w50 {
+                width: 50px;
+            }
+            .line > *.w100 {
+                width: 100px;
+            }
+            .line > *.w150 {
+                width: 150px;
+            }
+            .line > *.grow-3 {
+                flex-grow: 3;
+            }
+
             .flex-horizontal, .flex-horizontal .format {
                 display: flex;
                 flex-direction: row;
@@ -378,7 +401,9 @@
                 box-sizing: border-box;
                 margin: 0;
             }
-
+            .flex-horizontal .format {
+                flex-direction: row;
+            }
             .flex-horizontal .format .left {
                 flex-grow: initial;
                 width: 128px;
@@ -395,8 +420,47 @@
                 width: 100%;
             }
 
-            paper-listbox {
-                max-height: 128px;
+            .flex-horizontal paper-listbox {
+                max-height: 256px;
+                max-width: 256px;
+            }
+            .flex-horizontal paper-item {
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+            .flex-horizontal paper-item:hover {
+                background: var(--app-background-color-dark);
+            }
+            .flex-horizontal paper-item:active,
+            .flex-horizontal paper-item:focus {
+                background: var(--app-background-color-darker);
+            }
+
+            .onlymobile {
+                display: none;
+            }
+
+            @media screen and (max-width: 800px) {
+                paper-dialog#dialog {
+                    margin: 0;
+                }
+
+                .flex-horizontal {
+                    flex-direction: column;
+                }
+
+                .flex-horizontal paper-listbox {
+                    width: 100%;
+                    max-width: none;
+                }
+            }
+            @media screen and (max-width: 1024px) {
+                .nomobile {
+                    display: none;
+                }
+                .onlymobile {
+                    display: block;
+                }
             }
 
 		</style>
@@ -405,15 +469,21 @@
             <div class="administrative-panel">
                 <div class="top-gradient"></div>
 				<paper-tabs selected="{{tabs}}">
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:lock" class="marginRight10"></iron-icon>[[localize('my_access','Mes accès',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonnées',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>[[localize('my_banking_details','Informations bancaires',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
+                    <paper-tab id="tab-access" class="adm-tab"><iron-icon icon="icons:lock" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_access','Mes accès',language)]]</span></paper-tab>
+                    <paper-tab id="tab-details" class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_details','Mes coordonnées',language)]]</span></paper-tab>
+                    <paper-tab id="tab-banking" class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_banking_details','Informations bancaires',language)]]</span></paper-tab>
+                    <paper-tab id="tab-edmg" class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon><span class="nomobile">[[localize('edmg_subscription','EDMG',language)]]</span></paper-tab>
                     <template is="dom-if" if="[[electronAvailable]]">
-                        <paper-tab class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon>[[localize('def_printer','Default Printers',language)]]</paper-tab>
+                        <paper-tab id="tab-printer" class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon><span class="nomobile">[[localize('def_printer','Default Printers',language)]]</span></paper-tab>
                     </template>
 				</paper-tabs>
-
+                <div class="onlymobile">
+                    <paper-tooltip position="bottom" for="tab-access">[[localize('my_access','Mes accès',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-details">[[localize('my_details','Mes coordonnées',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-banking">[[localize('my_banking_details','Informations bancaires',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-edmg">[[localize('edmg_subscription','EDMG',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-printer">[[localize('def_printer','Default Printers',language)]]</paper-tooltip>
+                </div>
 
                 <iron-pages selected="[[tabs]]" class="panel-content">
                     <page>
@@ -511,10 +581,6 @@
                         </div>
                     </page>
 
-
-
-
-
                     <page>
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
@@ -527,10 +593,14 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-                                        <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
-                                        <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
-                                        <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
-                                        <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                        <div class="line">
+                                            <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
+                                            <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
+                                        </div>
+                                        <div class="line">
+                                            <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
+                                            <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                        </div>
                                     </template>
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
                                         <paper-input label="[[localize('name','Nom',language)]]" value="{{hcp.name}}"></paper-input>
@@ -540,14 +610,22 @@
                                 <div class="col-lg-6">
                                     [[localize('addr_pro','Work Address',language)]]
                                     <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
-                                    <paper-input label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
-                                    <paper-input label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                    <div class="line">
+                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
+                                        <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
+                                    </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <br/>
-                                    <paper-input label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
-                                    <paper-input label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                    <div class="line">
+                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                        <paper-input class="grow-3" label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
+                                    </div>
                                     <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
+                                </div>
+                                <div class="col-lg-12">
                                 </div>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
                                 <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
@@ -1194,6 +1272,7 @@
                                 this.hcp = hcp;
 
                                 let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                                 idxAddress>=0 ? this.set('adr',{
                                     addressType:"work",
                                     street:this.hcp.addresses[idxAddress].street,
@@ -1201,7 +1280,8 @@
                                     postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
                                     postalCode:this.hcp.addresses[idxAddress].postalCode,
                                     city:this.hcp.addresses[idxAddress].city,
-                                    country:this.hcp.addresses[idxAddress].country
+                                    country:this.hcp.addresses[idxAddress].country,
+                                    phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
                                 }) : ""
 
                             });
@@ -1212,6 +1292,7 @@
                             this.hcp = hcp;
 
                             let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                            let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                             idxAddress>=0 ? this.set('adr',{
                                 addressType:"work",
                                 street:this.hcp.addresses[idxAddress].street,
@@ -1219,7 +1300,8 @@
                                 postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
                                 postalCode:this.hcp.addresses[idxAddress].postalCode,
                                 city:this.hcp.addresses[idxAddress].city,
-                                country:this.hcp.addresses[idxAddress].country
+                                country:this.hcp.addresses[idxAddress].country,
+                                phoneNumber: idxPhone>=0 ? this.hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber : this.hcp.addresses[idxAddress].telecoms[0].telecomNumber
                             }) : ""
 
                         }
@@ -1479,6 +1561,7 @@
             addressProChanged(){
                 if(!this.hcp)return;
                 let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
+                let idxPhone = this.hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType==="phone")
                 if(idxAddress<0){
                     this.push('hcp.addresses',{
                         addressType:"work",
@@ -1487,7 +1570,8 @@
                         postboxNumber:this.adr.postboxNumber || "",
                         postalCode:this.adr.postalCode || "",
                         city:this.adr.city || "",
-                        country:this.adr.country || ""
+                        country:this.adr.country || "",
+                        phoneNumber:this.adr.phoneNumber
                     })
                 }
                 else{
@@ -1498,6 +1582,12 @@
                     this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
                     this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
                     this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
+                    if (idxPhone>=0) {
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.'+idxPhone+'.telecomNumber',this.adr.phoneNumber || "")
+                    }else {
+                        this.set('hcp.addresses.'+idxAddress+'.telecoms.0.telecomNumber',this.adr.phoneNumber || "")
+                    }
+                    console.log('hcp adr changed',this.hcp)
                 }
             }
         }

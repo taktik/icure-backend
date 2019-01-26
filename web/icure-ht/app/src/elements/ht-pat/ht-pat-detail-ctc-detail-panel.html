@@ -449,6 +449,16 @@
 				margin: 0;
 			}
 
+            .warning {
+                font-size: 1.1em;
+                color: var(--app-status-color-nok);
+                text-align: left;
+                margin: 16px 32px;
+                background: rgba(252,0,0,.2);
+                border-radius: 4px;
+                padding: 8px;
+            }
+
 			.endline {
 				display: flex;
 				flex-direction: row;
@@ -725,6 +735,11 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
+            <template is="dom-if" if="[[!canRecipe]]">
+                <div class="warning">
+                    <iron-icon icon="warning"></iron-icon> [[localize('recipe_warning','To print recip-e, you HAVE to inquire your ADRESS and PHONE NUMBER in your profile !',language)]]
+                </div>
+            </template>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
 				<template is="dom-if" if="[[patient.ssin]] && [[api.tokenId]]">
@@ -914,6 +929,10 @@
             busySpinner: {
                 type: Boolean,
                 value: false
+            },
+            canRecipe: {
+                type: Boolean,
+                value: false
             }
 		};
 	}
@@ -927,13 +946,29 @@
 			}
 
             ready() {
-	    super.ready();
-        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
-			.then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
-            .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
-
-				this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
+                super.ready();
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
+                    this.set('globalHcp',tempHcp)
+                    this.set('canRecipe',this._canRecipe(tempHcp))
+                })
+                    .then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+                    .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
+
+			_canRecipe(hcp) {
+			    if (hcp && hcp.addresses[0]) {
+                    Object.keys(hcp.addresses).forEach(a=>{
+                        if (hcp.addresses[a].city.length && hcp.addresses[a].country.length && hcp.addresses[a].postalCode.length && hcp.addresses[a].street.length) {
+                            if (hcp.addresses[a].telecoms[0]) {
+                                Object.keys(hcp.addresses[a].telecoms).forEach(t=>{
+                                    if (hcp.addresses[a].telecoms[t].telecomNumber.length) return true
+                                })
+                            }
+                        }
+                    })
+                }
+            }
 
 			_activeIconClass(selected) {
 				return selected ? 'icn-selected' : ''

@@ -199,7 +199,7 @@
 
             _getContent(svc){
                 const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
-                return content && content.stringValue || this.localize('err','error',this.language)
+                return content && content.stringValue || this.localize('obs_val','obsolete value',this.language)
             }
 
             _formatDate(date){
