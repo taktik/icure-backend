@@ -351,6 +351,13 @@
                 width: calc(99.9995% - 4em);
             }
 
+            .line {
+                display: flex;
+            }
+            .line > * {
+                flex-grow: 1;
+            }
+
             .flex-horizontal, .flex-horizontal .format {
                 display: flex;
                 flex-direction: row;
@@ -575,6 +582,14 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                        <div class="line">
+                                            <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
+                                            <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
+                                        </div>
+                                        <div class="line">
+                                            <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
+                                            <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                        </div>
                                         <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
                                         <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
                                         <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
@@ -588,14 +603,21 @@
                                 <div class="col-lg-6">
                                     [[localize('addr_pro','Work Address',language)]]
                                     <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
-                                    <paper-input label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
-                                    <paper-input label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                    <div class="line">
+                                        <paper-input label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                        <paper-input label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                    </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <br/>
-                                    <paper-input label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
-                                    <paper-input label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
+                                    <div class="line">
+                                        <paper-input label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                        <paper-input label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
+                                    </div>
                                     <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
+                                </div>
+                                <div class="col-lg-12">
+                                    <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
                                 </div>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
                                 <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
