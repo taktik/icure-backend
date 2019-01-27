@@ -931,6 +931,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     scheduleSave(patient) {
+        if (!patient) { return }
         const rev = patient.rev
 
         if (this.saveTimeout) {

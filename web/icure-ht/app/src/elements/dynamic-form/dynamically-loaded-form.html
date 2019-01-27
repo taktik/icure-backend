@@ -275,7 +275,6 @@
                     if ((this.form.template || {}).layout) {
                         const layoutItems = _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList))
                         this.set('dataMap', _.fromPairs(layoutItems.map(f => [f.name, 1])))
-						this.dataProvider.computeFormulas(['OnLoad','OnChange'])
 					} else if (this.form.id) {
                         this.set('dataMap', _.fromPairs(_.flatten(this._allContacts().map(c => {
                             const sc = c.subContacts.find(sc => sc.formId === this.form.id);
@@ -332,7 +331,7 @@
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
-                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && (t.code === 'diagnosis' || t.code === 'healthelement'  || t.code === 'healthissue')))
+                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && (t.code === 'healthelement'  || t.code === 'healthissue')))
 					.forEach(svc => {
                         const descr = this.shortServiceDescription(svc, this.language)
                         if (descr && descr.length && !idLinkables.includes(svc.id)) {
@@ -753,6 +752,9 @@
                             return svc;
                         });
                     }.bind(this),
+                    hasSubForms: function (key) {
+                        return (form.children || []).filter(f => !key || f.descr === key).length > 0
+                    },
                     getSubForms: function (key) {
                         return (form.children || []).filter(f => !key || f.descr === key).map((subForm, idx) => {
                             return self.subFormsMap[[subForm.id, subForm.descr, idx]] || ((self.subFormsMap[[subForm.id, key, idx]] = {
