@@ -236,7 +236,7 @@
                 "readOnly" : false,
                 "height" : 26,
                 "menuOptions" : [
-                  "mutation", "notInsured", "forcedByUser", "changeMedicalHouse"
+                  "notInsured","noReasonGiven","isHospitalized","outsideOfCountry","changeOfMutuality"
                 ],
                 "labelPosition" : "Left",
                 "width" : 300,
