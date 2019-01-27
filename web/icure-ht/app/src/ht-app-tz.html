@@ -294,6 +294,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-family: 'Roboto', Arial, Helvetica, sans-serif;
                 font-size: 12px;
                 color: var(--app-text-color-light);
+                margin: 0;
             }
 
             .log-info p .ehealth-connection-status {
@@ -1223,7 +1224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
-                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-hcp>
                     <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
@@ -1569,6 +1570,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('user', e.detail)
             }
 
+            _openUtility(e) {
+                if (e.detail && e.detail.panel === 'my-profile') {
+                    this._myProfile(e.detail.tab)
+                } else if (e.detail && e.detail.panel === 'import-keychain') {
+                    this._importKeychain()
+                }
+            }
+
+
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
@@ -1713,8 +1723,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['ht-invite-hcp'].open()
             }
 
-            _myProfile() {
-                this.$['ht-my-profile'].open()
+            _myProfile(tab) {
+                this.$['ht-my-profile'].open(tab)
             }
 
             _selectEntities(){
@@ -1853,7 +1863,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                     this._timeCheck()
-                    this._timeCheckMH(1000)
+                    this._timeCheckMH()
                     this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
