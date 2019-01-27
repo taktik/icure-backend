@@ -1176,9 +1176,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 margin-top: 20px;
             }
 
+            #busySpinner {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                background: rgba(255,255,255,.6);
+                z-index:110;
+                margin-top:0;
+                top:0;
+                left:0;
+            }
+            #busySpinnerContainer {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width:200px;
+                height:200px;
+            }
+
         </style>
 
         <div class="container">
+            <template is="dom-if" if="[[SpinnerActive]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
             <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
@@ -2139,6 +2159,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     currentMedicationDetailEventDetail: {
                         type: Object,
                         value: () => {}
+                    },
+                    SpinnerActive:{
+                        type:Boolean,
+                        value: false
                     }
                 };
             }
@@ -2153,6 +2177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+                this.set("SpinnerActive",true)
                 if(this.patientHealthCarePartiesById == null) {
                     Promise.all(
                         _.chunk(this.patient.patientHealthCareParties,100).map(uChunk =>
@@ -2905,6 +2930,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             patientChanged(api, user, patient) {
+                this.set("SpinnerActive",true)
                 this.set('healthTopics', [])
 
                 this.set('healthElements', [])
@@ -3954,6 +3980,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     cfp && cfp.refreshIcons();
                     const hpd = Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel");
                     hpd && hpd.refreshIcons();
+                    this.set("SpinnerActive",false)
                 }, 10);
             }
 
