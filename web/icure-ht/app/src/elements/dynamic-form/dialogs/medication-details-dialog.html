@@ -409,7 +409,7 @@
             </div>
             <div class="regimen-line display-type-regimen">
 
-                <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb','Reimbursement',language)]]" class="regimen--reimbursement">
+                <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb', 'Reimbursement', language)]]" class="regimen--reimbursement">
                     <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
                         <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
                             <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
@@ -417,8 +417,9 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
 
-                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('Substitution','Substitution',language)]]</vaadin-checkbox>
-                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('Renewal','Renewal',language)]]</vaadin-checkbox>
+
+                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
+                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
                 <template is="dom-if" if="[[isRenewal]]">
                     <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
                     <div>x tous les</div>

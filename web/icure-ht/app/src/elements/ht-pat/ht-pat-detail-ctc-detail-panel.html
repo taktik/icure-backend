@@ -1242,13 +1242,9 @@
 				{
 					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
 						const id = mark.id;
-						if (this.patient.ssin && this.api.tokenId) {
-							const column = mark.column;
-							(columns[column] || (columns[column] = [])).push(id)
-						} else {
-							(columns[0]).push(id)
-						}
-						return columns;
+                        const column = mark.column;
+                        (columns[column] || (columns[column] = [])).push(id)
+                        return columns;
 						}, [[]]);
 					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
 						columns.push([]);
