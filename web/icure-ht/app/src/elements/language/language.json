@@ -879,7 +879,11 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "insurance_titulary": "Insurance titulary (only if not titulary itself - for children / spouse)",
+    "suspension_startdate": "Suspension start date",
+    "suspension_enddate": "Suspension end date",
+    "suspension_reason": "Suspension reason"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1847,7 +1851,11 @@
     "thursday": "Jeudi",
     "friday": "Vendredi",
     "saturday": "Samedi",
-    "sunday": "Dimanche"
+    "sunday": "Dimanche",
+    "insurance_titulary": "Titulaire de l'assurance (uniquement pour enfant / épouse)",
+    "suspension_startdate": "Début de la suspension",
+    "suspension_enddate": "Fin de la suspension",
+    "suspension_reason": "Raison de la suspension"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2822,6 +2830,10 @@
     "thursday": "Donderdag",
     "friday": "Vrijdag",
     "saturday": "Zaterdag",
-    "sunday": "Zondag"
+    "sunday": "Zondag",
+    "insurance_titulary": "Verzekering gerec (alleen voor kind / vrouw)",
+    "suspension_startdate": "Suspension start date",
+    "suspension_enddate": "Suspension end date",
+    "suspension_reason": "Suspension reason"
   }
 }

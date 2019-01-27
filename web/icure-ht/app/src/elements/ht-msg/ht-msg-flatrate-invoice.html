@@ -942,6 +942,7 @@
         import mustache from "mustache/mustache.js";
 
         class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            
             static get is() {
                 return 'ht-msg-flatrate-invoice';
             }
@@ -1506,6 +1507,60 @@
                 return a === b
             }
 
+            _getInsuranceTitularyInfo() {
+                return new Promise(resolve =>{
+                    const insuranceTitularyIds = _.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId);
+                    return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
+                        _.map(this.flatRateAllPatients, (i=>{
+                            if(!_.trim(_.get(i,"titularyId", "" ))) return i
+                            let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
+                            i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
+                            return i
+                        }))
+                        resolve(null)
+                    })
+                })
+            }
+
+            _getListingJ3(e) {
+
+                this.set('_isLoading', true );
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1',this.language), icon:"arrow-forward"});
+
+                // Default values OR previous month (could be we had a rejection rate > 5%)
+                this.reportMonthGap = _.trim(e.currentTarget.id) === "getListingJ3PreviousMonth" ? 2 : 1;
+                this.reportCurrentDateMomentObject = _.trim(e.currentTarget.id) === "getListingJ3PreviousMonth" ? moment().subtract(1, 'month') : moment();
+
+                // get my hcp children
+                this._getMyHcps()
+                    .then(myHcps => {
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
+
+                        let resolvedHcpPatients = 0;
+                        let totalPatientToResolve = myHcps.length;
+                        if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
+
+                        // Get patients of child hcp
+                        _.forEach(myHcps, (singleHcp) => {
+                            this._getPatientsByHcp(singleHcp.id)
+                                .then(hcpPat => {
+                                    resolvedHcpPatients++;
+                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
+                                    if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
+                                    if(totalPatientToResolve===resolvedHcpPatients){
+                                        this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
+                                        this._getInsuranceTitularyInfo().then( data => { this._getInsurancesData(); })
+                                    }
+                                })
+                                .catch(()=>{this.set('_isLoading', false );})
+                        })
+                    })
+                    .catch(()=>{this.set('_isLoading', false );})
+                ;
+
+            }            
+
             _setLoadingMessage( messageData ) {
                 if( messageData.updateLastMessage ) { this._loadingMessages.pop(); }
                 this._loadingMessages.push( messageData );
@@ -1517,10 +1572,6 @@
             _resetLoadingMessage() {
                 this._loadingMessages = [];
             }
-
-
-
-
 
             _getExportPageHeader(data) {
 
@@ -1614,7 +1665,7 @@
                                     <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
                                     <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
                                     <td width="5%" class="">`+_.get(singleEntry, "personType", "")+`</td>
-                                    <td width="10%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
+                                    <td width="10%" class="">`+_.get(singleEntry, "titularyLabel", "")+`</td>
                                 </tr>`
 
                     })
@@ -1656,7 +1707,7 @@
                                     <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
                                     <td width="6%" class="">`+_.get(singleEntry, "MHC_listUnsubscriptions.unsubscriptionReasonId", "")+`</td>
                                     <td width="4%" class="">`+_.get(singleEntry, "personType", "")+`</td>
-                                    <td width="9%" class="">`+_.get(singleEntry, "titulary", "")+`</td>
+                                    <td width="9%" class="">`+_.get(singleEntry, "titularyLabel", "")+`</td>
                                 </tr>`
                     })
 
@@ -1818,11 +1869,6 @@
                                 <body>`
                     }
 
-
-
-
-
-
             _getMyHcps() {
 
                 return this.api.getRowsUsingPagination(
@@ -1835,8 +1881,7 @@
                                         !!i
                                         && !!i.nihii
                                         && !!i.ssin
-                                        // Todo: must be uncommented (leave as such for large data set)
-                                        // && i.parentId === this.user.healthcarePartyId
+                                        && i.parentId === this.user.healthcarePartyId
                                     )})
                                     .uniqBy( 'nihii' )
                                     .value()
@@ -1857,7 +1902,6 @@
 
                 return this.api.getRowsUsingPagination(
                     (key,docId) =>
-                        // this.api.patient().listPatientsByHcParty( hcpId, null, key && JSON.stringify(key), docId, 1000)
                         this.api.patient().listPatientsByHcPartyWithUser(this.user, hcpId, null, key && JSON.stringify(key), docId, 1000)
                             .then(pl => {
                                 pl.rows = _
@@ -1874,8 +1918,7 @@
                                             .chain(i.medicalHouseContracts)
                                             .filter((i)=>{return(
                                                 i
-                                                // Todo: must be uncommented (leave as such for large data set)
-                                                // && i.hcpId === this.user.healthcarePartyId
+                                                && i.hcpId === this.user.healthcarePartyId
                                             )})
                                             .value()
                                         .length
@@ -1885,9 +1928,22 @@
                                     .map((i) => {
                                         i.lastName = (i.lastName||"").toUpperCase()
                                         i.firstName = (i.firstName||"").toUpperCase()
-                                        i.dateOfBirth = (i.dateOfBirth?moment(i.dateOfBirth, "YYYYMMDD").format('DD/MM/YYYY'):"")
-                                        i.personType = "T"  // Todo: Eval versus personalStatus / partnerships / birthdate / parents... Values = [T=titulaire,E=enfant,C=coinjoint]
-                                        i.titulary = ""     // Todo: blank if personType = T ; LNAME + Fname (of titulaire) if personType = E ; LNAME + Fname (of titulaire) if personType = C (AND not titulaire itself) ;
+                                        i.dateOfBirth = (i.dateOfBirth?moment(i.dateOfBirth+"", "YYYYMMDD").format('DD/MM/YYYY'):"")
+                                        i.finalInsurability = _.get(
+                                            _.filter(
+                                                i.insurabilities,
+                                                (ins) => {
+                                                    return ins &&
+                                                    _.size(ins) &&
+                                                    !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
+                                                    !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
+                                                    ( moment(_.get(ins, "startDate"+"", "0"), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
+                                                    ( moment(_.get(ins, "endDate"+"", "0"), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
+                                                }
+                                            ), "[0]", {}
+                                        )
+                                        i.personType = !_.trim( _.get( i, "finalInsurability.titularyId", "" )) ? "T" : ( moment().diff(moment(_.get(i, "dateOfBirth", "0")+"", "DD/MM/YYYY"), 'years') < 18 ) ? "E" : "C"
+                                        i.titularyId = _.trim( _.get( i, "finalInsurability.titularyId", "" ))
                                         return i
                                     })
                                 ;
@@ -1900,43 +1956,6 @@
                             })
                             .catch(()=>{ return Promise.resolve(); })
                 );
-
-            }
-
-            _getListingJ3(e) {
-
-                this.set('_isLoading', true );
-                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1',this.language), icon:"arrow-forward"});
-
-                // Default values OR previous month (could be we had a rejection rate > 5%)
-                this.reportMonthGap = _.trim(e.currentTarget.id) === "getListingJ3PreviousMonth" ? 2 : 1;
-                this.reportCurrentDateMomentObject = _.trim(e.currentTarget.id) === "getListingJ3PreviousMonth" ? moment().subtract(1, 'month') : moment();
-
-                // get my hcp children
-                this._getMyHcps()
-                    .then(myHcps => {
-
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
-
-                        let resolvedHcpPatients = 0;
-                        const totalPatientToResolve = myHcps.length;
-                        if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
-
-                        // Get patients of child hcp
-                        _.forEach(myHcps, (singleHcp) => {
-                            this._getPatientsByHcp(singleHcp.id)
-                                .then(hcpPat => {
-                                    resolvedHcpPatients++;
-                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
-                                    if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value(); this._getInsurancesData(); }
-                                })
-                                .catch(()=>{this.set('_isLoading', false );})
-                        })
-                    })
-                    .catch(()=>{this.set('_isLoading', false );})
-                ;
 
             }
 
@@ -1954,17 +1973,13 @@
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
                           .sortBy((i)=>{ return i.code; })
                           .value();
-                        this._prepareExport();
+                        this._generateJ3FileAndDownload();
                     })
                     .catch(()=>{this.set('_isLoading', false );});
 
             }
 
-
-
-
-
-            _prepareExport() {
+            _generateJ3FileAndDownload() {
 
                 let pdfData = {};
 
@@ -2130,8 +2145,6 @@
 
             }
 
-
-
             _getListingArchives() {
 
                 this.archiveListingMessages = {}
@@ -2155,8 +2168,6 @@
 
             }
 
-
-
             _downloadListingArchive(e) {
                 let messageId = _.get(_.head(_.chain(e.path).filter((i)=>{return _.get(_.get(i,"classList",[]), "value","").indexOf('downloadListingArchive')!==-1}).value()),"messageid",false);
                 this.api.document().findByMessage(this.user.healthcarePartyId, _.chain(this.archiveListingMessages).filter({id:messageId}).head().value()).then(singleMessage => {
@@ -2171,14 +2182,6 @@
                     }
                 }).catch(()=>{})
             }
-
-
-
-            _sleep (time) {
-                return new Promise((resolve) => setTimeout(resolve, time));
-            }
-
-
 
             _getListingJ20() {
 
@@ -2195,9 +2198,6 @@
                 // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
 
             }
-
-            
-            
 
         }
 
