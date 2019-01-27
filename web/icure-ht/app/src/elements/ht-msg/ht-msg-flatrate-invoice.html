@@ -1509,7 +1509,7 @@
 
             _getInsuranceTitularyInfo() {
                 return new Promise(resolve =>{
-                    const insuranceTitularyIds = _.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId);
+                    const insuranceTitularyIds = _.uniqBy(_.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId), "titularyId" );
                     return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
                         _.map(this.flatRateAllPatients, (i=>{
                             if(!_.trim(_.get(i,"titularyId", "" ))) return i
@@ -1894,7 +1894,7 @@
                                 }
                             })
                             .catch(()=>{ return Promise.resolve(null); })
-                );
+                )||[];
 
             }
 
@@ -1955,7 +1955,7 @@
                                 }
                             })
                             .catch(()=>{ return Promise.resolve(); })
-                );
+                )||[];
 
             }
 
