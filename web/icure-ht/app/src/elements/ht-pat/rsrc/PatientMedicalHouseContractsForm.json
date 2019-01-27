@@ -188,6 +188,72 @@
               "subForm" : false,
               "type" : "TKNumber",
               "name" : "alias"
+            },
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 22,
+                "labelPosition" : "Left",
+                "width" : 100,
+                "multiline" : false,
+                "left" : 100,
+                "top" : 90,
+                "key" : "DateTimeEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
+
+              ],
+              "label" : "suspension_startdate",
+              "type" : "TKDate",
+              "subForm" : false,
+              "name" : "startOfSuspension",
+              "irrelevant" : true
+            },
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 22,
+                "labelPosition" : "Left",
+                "width" : 100,
+                "multiline" : false,
+                "left" : 200,
+                "top" : 90,
+                "key" : "DateTimeEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
+
+              ],
+              "label" : "suspension_enddate",
+              "type" : "TKDate",
+              "subForm" : false,
+              "name" : "endOfSuspension",
+              "irrelevant" : true
+            },
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 26,
+                "menuOptions" : [
+                  "mutation", "notInsured", "forcedByUser", "changeMedicalHouse"
+                ],
+                "labelPosition" : "Left",
+                "width" : 300,
+                "multiline" : false,
+                "left" : 500,
+                "top" : 90,
+                "key" : "PopupMenuEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
+
+              ],
+              "label" : "suspension_reason",
+              "type" : "TKString",
+              "subForm" : false,
+              "name" : "suspensionReason",
+              "irrelevant" : true
             }
           ]
         }

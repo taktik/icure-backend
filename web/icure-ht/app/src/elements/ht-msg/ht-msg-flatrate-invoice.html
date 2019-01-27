@@ -1506,7 +1506,22 @@
             _isEqual(a,b) {
                 return a === b
             }
-            
+
+            _getInsuranceTitularyInfo() {
+                return new Promise(resolve =>{
+                    const insuranceTitularyIds = _.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId);
+                    return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
+                        _.map(this.flatRateAllPatients, (i=>{
+                            if(!_.trim(_.get(i,"titularyId", "" ))) return i
+                            let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
+                            i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
+                            return i
+                        }))
+                        resolve(null)
+                    })
+                })
+            }
+
             _getListingJ3(e) {
 
                 this.set('_isLoading', true );
@@ -1519,12 +1534,11 @@
                 // get my hcp children
                 this._getMyHcps()
                     .then(myHcps => {
-
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
 
                         let resolvedHcpPatients = 0;
-                        const totalPatientToResolve = myHcps.length;
+                        let totalPatientToResolve = myHcps.length;
                         if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
 
                         // Get patients of child hcp
@@ -1534,7 +1548,10 @@
                                     resolvedHcpPatients++;
                                     this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){ this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value(); this._getInsurancesData(); }
+                                    if(totalPatientToResolve===resolvedHcpPatients){
+                                        this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
+                                        this._getInsuranceTitularyInfo().then( data => { this._getInsurancesData(); })
+                                    }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
                         })
@@ -1864,8 +1881,7 @@
                                         !!i
                                         && !!i.nihii
                                         && !!i.ssin
-                                        // Todo: must be uncommented (leave as such for large data set)
-                                        // && i.parentId === this.user.healthcarePartyId
+                                        && i.parentId === this.user.healthcarePartyId
                                     )})
                                     .uniqBy( 'nihii' )
                                     .value()
@@ -1902,8 +1918,7 @@
                                             .chain(i.medicalHouseContracts)
                                             .filter((i)=>{return(
                                                 i
-                                                // Todo: must be uncommented (leave as such for large data set)
-                                                // && i.hcpId === this.user.healthcarePartyId
+                                                && i.hcpId === this.user.healthcarePartyId
                                             )})
                                             .value()
                                         .length
@@ -1922,14 +1937,13 @@
                                                     _.size(ins) &&
                                                     !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
                                                     !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
-                                                    ( moment(_.get(ins, "startDate", 0), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
-                                                    ( moment(_.get(ins, "endDate", 0), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
+                                                    ( moment(_.get(ins, "startDate"+"", "0"), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
+                                                    ( moment(_.get(ins, "endDate"+"", "0"), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
                                                 }
                                             ), "[0]", {}
                                         )
-                                        i.personType = !_.trim( _.get( i, "finalInsurability.titularyId", "" )) ? "T" : (moment().diff(moment(_.get(i, "dateOfBirth", "0")+"", "DD/MM/YYYY"), 'years')<18 ) ? "E" : "C"
-                                        i.titularyId = _.trim(_.get(i, "personType", "T")) === "T" ? "" : "GET LNAME + FNAME of PATIENT " + _.trim( _.get( i, "finalInsurability.titularyId", "" ))
-                                        i.titularyLabel = "TIT LABEL COMES HERE"
+                                        i.personType = !_.trim( _.get( i, "finalInsurability.titularyId", "" )) ? "T" : ( moment().diff(moment(_.get(i, "dateOfBirth", "0")+"", "DD/MM/YYYY"), 'years') < 18 ) ? "E" : "C"
+                                        i.titularyId = _.trim( _.get( i, "finalInsurability.titularyId", "" ))
                                         return i
                                     })
                                 ;
