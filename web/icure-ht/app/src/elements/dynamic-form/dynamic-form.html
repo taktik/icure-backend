@@ -47,7 +47,7 @@
 			}
 
 			.pat-details-card {
-				min-height: 200px;
+				min-height: 120px;
 				width: calc(100% - 64px);
 				margin: 0 32px 32px;
 				padding: 0 8px 8px;
@@ -154,6 +154,11 @@
             #general-info {
                 margin-bottom: 25px;
             }
+
+            #printSubForm {
+                --paper-fab: {background: var(--app-secondary-color);};
+            }
+
 
 		</style>
 
@@ -404,13 +409,18 @@
 
 				});
 
-				const item = Polymer.dom(this.root).querySelector('#sf_' + pathParts.slice(0,composedNameLength).join('-'));
+				const joinedId = pathParts.slice(0,composedNameLength).join('-')
+                const item = Polymer.dom(this.root).querySelector('#sf_' + joinedId);
 
-				if (pathParts.length > 1) {
-					item.subContexts = this._subForms(layoutItem);
-					item.notify && item.notify(pathParts.slice(composedNameLength).join('.'));
-				} else {
-					item.notify && item.notify();
+				if (item) {
+                    if (pathParts.length > 1) {
+                        item.subContexts = this._subForms(layoutItem);
+                        item.notify && item.notify(pathParts.slice(composedNameLength).join('.'));
+                    } else {
+                        item.notify && item.notify();
+                    }
+                } else {
+				    this.notifyPath('dataMap.'+joinedId)
 				}
 			}
 
@@ -456,7 +466,7 @@
 			}
 
 			_shouldDisplay(layoutItem, readOnly, compact) {
-				return !readOnly && !compact || this._isSubForm(layoutItem) || this._isMedicationField(layoutItem) && this.dataProvider.getValueContainers(layoutItem.name).length || this._rawValue(layoutItem);
+				return this.dataProvider && (!readOnly && !compact || (this._isSubForm(layoutItem) && this.dataProvider.hasSubForms(layoutItem.name)) || (this._isMedicationField(layoutItem)|| this._isTokenField(layoutItem)) && this.dataProvider.getValueContainers(layoutItem.name).length || this._rawValue(layoutItem));
 			}
 
 			_valueContainers(layoutItem) {

@@ -449,6 +449,24 @@
 				margin: 0;
 			}
 
+            .warning {
+                display: block;
+                font-size: 1.1em;
+                color: var(--app-status-color-nok);
+                text-align: left;
+                margin: 16px auto;
+                background: rgba(252,0,0,.2);
+                border-radius: 4px;
+                padding: 8px;
+                cursor: pointer;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                width: 80%;
+            }
+            .warning.ehbox {
+                color: white;
+                background: var(--app-status-color-pending);
+            }
+
 			.endline {
 				display: flex;
 				flex-direction: row;
@@ -646,7 +664,7 @@
 							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 							<div class="add-forms-container">
 								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
-								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con_mso','Consultation MSOAP',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
 							</div>
@@ -708,7 +726,7 @@
 				</vaadin-grid-column>
 				<vaadin-grid-column width="200px">
 					<template class="header">
-						Posology
+						[[localize('pos','Posology',language)]]
 					</template>
 					<template>
 						<div class="cell frozen">[[_drugPosology(item)]]</div>
@@ -725,6 +743,16 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
+            <template is="dom-if" if="[[!ehboxConnected]]">
+                <paper-button class="warning ehbox" on-tap="_importKeychain">
+                    <iron-icon icon="warning"></iron-icon> [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                </paper-button>
+            </template>
+            <template is="dom-if" if="[[!fullProfile]]">
+                <paper-button class="warning" on-tap="_myProfile">
+                    <iron-icon icon="warning"></iron-icon> [[localize('recipe_warning','To print recip-e, you HAVE to inquire your ADRESS and PHONE NUMBER in your profile !',language)]]
+                </paper-button>
+            </template>
 			<div class="endline">
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
 				<template is="dom-if" if="[[patient.ssin]] && [[api.tokenId]]">
@@ -914,12 +942,20 @@
             busySpinner: {
                 type: Boolean,
                 value: false
+            },
+            ehboxConnected: {
+                type: Boolean,
+                value: false
+            },
+            fullProfile: {
+                type: Boolean,
+                value: false
             }
 		};
 	}
 
 			static get observers() {
-				return ['_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['apiReady(api,user,patient)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
 			}
 
 			constructor() {
@@ -927,13 +963,44 @@
 			}
 
             ready() {
-	    super.ready();
-        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => this.set('globalHcp',tempHcp))
-			.then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
-            .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
-
-				this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
+                super.ready();
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
+                    this.set('globalHcp',tempHcp)
+                })
+                    .then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+                    .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
+
+            apiReady() {
+			    this._isAuth()
+                this._canRecipe()
+            }
+
+            _isAuth() {
+                const sAuth = JSON.parse(sessionStorage.getItem('auth'))
+                // console.log('isAuth ?',sAuth.ehpassword && this.patient.ssin && this.api.keystoreId ? true : false)
+                this.set('ehboxConnected', sAuth.ehpassword && this.patient.ssin && this.api.keystoreId)
+            }
+
+			_canRecipe() {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    if (hcp.addresses[0]) {
+                        let idxAddress = hcp.addresses.findIndex(addr => addr.addressType && addr.addressType === "work")
+                        let idxPhone = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "phone") : -1
+                        let idxMail = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "email") : -1
+                        // console.log('_canRecipe ??', hcp, idxAddress, idxPhone, idxMail)
+                        if (idxAddress >= 0 && idxPhone >= 0 && idxMail >= 0) {
+                            const phone = hcp.addresses[idxAddress].telecoms[idxPhone] && hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || ''
+                            const mail = hcp.addresses[idxAddress].telecoms[idxMail] && hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
+                            // console.log('_canRecipe', phone.length && mail.length)
+                            this.set('fullProfile', (phone.length && mail.length))
+                        }
+                    } else {
+                        this.set('fullProfile', false)
+                    }
+                })
+            }
 
 			_activeIconClass(selected) {
 				return selected ? 'icn-selected' : ''
@@ -948,6 +1015,15 @@
 					this.addDocument();
 				}
 			}
+
+            _myProfile() { // open profile
+                this.dispatchEvent(new CustomEvent("open-utility", {composed: true, bubbles: true, detail: {panel:'my-profile', tab:1}}))
+            }
+
+            _importKeychain() { // open keychain importation window
+                this.$.prescriptionDialog.close()
+                this.dispatchEvent(new CustomEvent("open-utility", {composed: true, bubbles: true, detail: {panel:'import-keychain'}}))
+            }
 
 			_toggleAddActions() {
 				this.showAddFormsContainer = !this.showAddFormsContainer;
@@ -1084,12 +1160,26 @@
 				return this._drugsToBePrescribed().length > 0;
 			}
 
+			_hasDrugsAlreadyPrescribed(ssin) {
+				return this._drugsAlreadyPrescribed().length > 0;
+			}
+
 			_canPrescribe(tokenId, ssin) {
 				return tokenId && this._validSsin(ssin) && this._hasDrugsToBePrescribed();
 			}
 
+			_canReprint(tokenId, ssin) {
+				return this._validSsin(ssin) && this._hasDrugsAlreadyPrescribed();
+			}
+
 			_drugsToBePrescribed() {
-				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
+
+				let tbp = this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
+				return tbp.length > 0 ? tbp : this._drugsAlreadyPrescribed();
+			}
+
+			_drugsAlreadyPrescribed() {
+				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
 			}
 
 			_prescribe(e) {
@@ -1138,21 +1228,29 @@
 
 			_splitColumns() {
 				const drugs = this._drugsToBePrescribed();
-				const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
-					const id = mark.id;
-					if (this.patient.ssin && this.api.tokenId) {
-						const column = mark.column;
-						(columns[column] || (columns[column] = [])).push(id)
-					} else {
-						(columns[0]).push(id)
+				const drugs2 = this._drugsAlreadyPrescribed();
+				//create fixed set of columns: 1 for each rid already present
+				const mvWithRid = drugs2 ? drugs2.map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID): []
+				let ridList = []
+				mvWithRid ? ridList = _.uniq(mvWithRid.map(mv => mv.prescriptionRID)):{}
+				if(ridList.length > 0) {
+					let columns = [];
+					columns = ridList.map(rid=>drugs2.filter(s=>this.api.contact().medicationValue(s, this.language).prescriptionRID === rid).map(s => s.id))
+					return columns;
+				}
+				else
+				{
+					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
+						const id = mark.id;
+                        const column = mark.column;
+                        (columns[column] || (columns[column] = [])).push(id)
+                        return columns;
+						}, [[]]);
+					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
+						columns.push([]);
 					}
 					return columns;
-				}, [[]]);
-
-				if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
-					columns.push([]);
 				}
-				return columns;
 			}
 
 			_drugOnPrescription(svc, index) {
@@ -1256,7 +1354,23 @@
 				let rid = [] //this must be an array
 				let toPrint = undefined
 				this.set('selectedFormat', (this.patient.ssin && this.api.tokenId) ? this.selectedFormat : 'presc')
-				if (this.patient.ssin && this.api.tokenId) { // if ehealth connected
+				let printed = false;
+				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => {
+					//TODO: 1. don't get them by the columns, but group them by the rids
+					//TODO: 2. Changes in _split columns can be reverted
+					//TODO: 3. Even better: if rids are found, change the button name to 'reprint'
+					//filter drugs that already have rid
+					let mvWithRid = drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID)
+					if(mvWithRid.length > 0) {
+						mvWithRid.map(mv => rid.push(mv.prescriptionRID))
+						printed = true;
+					}
+				}))).finally(()=>{
+					// toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
+					// this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
+
+
+				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
 					console.log("with recip-e")
 					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
 						patient: this.patient,
@@ -1277,6 +1391,7 @@
 					toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
 					this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 				}
+				})
 				this.$.loadingPrescriptionDialog.close();
 			} // print end
 
@@ -1906,17 +2021,17 @@
                         // Todo: Make sure we have all subFormTemplateObject.guid / works for everyone
 
                         // Hard coded, work incapacity
-                        if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-                        // if(subFormTemplateObject.guid==="FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00") this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"].indexOf(subFormTemplateObject.guid) >-1 ) this.printIncapacityForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        // if( ["FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"].indexOf(subFormTemplateObject.guid) >-1 ) this.printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, imaging
-                        if(subFormTemplateObject.guid==="0AAC53CF-793F-45D2-ACA9-E0B79E1A1376") this.printImagingPrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+                        if( ["0AAC53CF-793F-45D2-ACA9-E0B79E1A1376", "B4F2B274-10FF-4018-BC48-3ED3CADCED57"].indexOf(subFormTemplateObject.guid) >-1 ) this.printImagingPrescriptionForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                         // Hard coded, Kine
-                        if(subFormTemplateObject.guid==="AEFED10A-9A72-4B40-981B-1D79ADB05516") this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
-                        
+                        if( ["AEFED10A-9A72-4B40-981B-1D79ADB05516"].indexOf(subFormTemplateObject.guid) >-1 ) this.printKinePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
+
                         // Hard coded, Nurse prescription
-                        if(subFormTemplateObject.guid==="64DAB551-B007-4B5C-BD64-F886301F5326") this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);                        
+                        if( ["64DAB551-B007-4B5C-BD64-F886301F5326"].indexOf(subFormTemplateObject.guid) >-1 ) this.printNursePrescriptionForm(subFormDataProvider, subFormObject, subFormTemplateObject);
 
                     })
                 })
@@ -2470,6 +2585,82 @@
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box4_additionalInfo",this.language)+`</div>
                             <div class="borderedBox"></div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box6_previousExamsRelatedToRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.previouslySuggestedExams, 3) + `</div>
+
+                            ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        </div>` +
+                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+
+                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+
+                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
+                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
+                        this.busySpinner = false;
+                    }).catch(()=>{this.busySpinner = false;});
+
+                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+
+            }
+
+            printImagingPrescriptionForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject) {
+
+                this.busySpinner = true;
+
+                const subFormFieldsAndValues = _.compact(
+                    _.map( _.get(subFormTemplateObject, "layout.sections[0].formColumns[0].formDataList", {}), (v) => {
+                        return v.type==="TKLabelSeparator" ? false : {
+                            name: _.trim(_.get(v, "name")),
+                            label: _.trim(_.get(v, "label")),
+                            type: _.trim(_.get(v, "type")),
+                            value:
+                                v.type==="TKString" ? _.trim(subFormDataProvider.getStringValue( _.trim(_.get(v, "name", "")) )) :
+                                v.type==="TKNumber" ? subFormDataProvider.getNumberValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKMeasure" ? _.flatMap(subFormDataProvider.getMeasureValue( _.trim(_.get(v, "name", "")) )).join(" ") :
+                                v.type==="TKBoolean" ? !!subFormDataProvider.getBooleanValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKAction" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKDate" ? subFormDataProvider.getDateValue( _.trim(_.get(v, "name", "")) ) :
+                                v.type==="TKHCParty" ? subFormDataProvider.getValue( _.trim(_.get(v, "name", "")) ) :
+                                ""
+                        }
+                    })
+                )
+
+                this._getPdfPrintingCoreData({
+                    downloadFileName: _.kebabCase([ this.localize("requestForImagingExam_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    subFormData: _.compact(
+                        _.map(
+                            (subFormDataProvider && subFormDataProvider.servicesMap ? subFormDataProvider.servicesMap : []), (v,k)=>{
+                                return _.size(v) && {
+                                    name: k,
+                                    value: subFormDataProvider.getValue(k),
+                                    valueObject: _.get(v, "[0][0].svc.content." + this.language, "") ? _.get(v, "[0][0].svc.content." + this.language, "") : _.get(v, "[0][0].svc.content." + "fr", "")
+                                }
+                            }
+                        )
+                    )||[],
+                    suggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "CT Scan" || i.name === "RMN" || i.name === "RX" || i.name === "Echographie" || i.name === "Scintigraphie" || i.name === "Inconnu" || i.name === "ExamProp" || i.name === "Autre examen" })),
+                    previouslySuggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "Allergy" || i.name === "Diabetes" || i.name === "RenalFailure" || i.name === "Grossesse" || i.name === "Implant" || i.name === "Autre_exam_bis" })),
+
+                }).then(pdfPrintingData =>{
+
+                    const pdfContent = `
+                        <div class="page">
+                            <h1>`+this.localize("requestForImagingExam_header1",this.language)+`</h1>
+                            <h2>`+this.localize("requestForImagingExam_header2",this.language)+`</h2>
+
+                            ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box2_clinicalInfo",this.language)+`</div>
+                            <div class="borderedBox">` + _.trim( _.get( _.filter(subFormFieldsAndValues, {name: "InfoClinPert"}), "[0].value", "")) + `</div>
+
+                            <div class="boxLabel">`+this.localize("requestForImagingExam_box3_explanationRequestForImaging",this.language)+`</div>
+                            <div class="borderedBox">` + _.trim( _.get( _.filter(subFormFieldsAndValues, {name: "ExplicationDemandeDiag"}), "[0].value", "")) + `</div>
 
                             <div class="boxLabel">`+this.localize("requestForImagingExam_box5_suggestedExams",this.language)+`</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.suggestedExams, 3) + `</div>
@@ -3065,7 +3256,7 @@
 			    return contentToReturn;
 
             }
-            
+
             _getPatientVignetteHtmlCode(inputData) {
 			    return `
                     <div class="boxLabel">`+this.localize("idPatient",this.language)+` <span class="fw400">(<i>`+this.localize("fillInOrVignette",this.language)+`</i>)</span></div>
@@ -3088,7 +3279,7 @@
                     </div>
                 `
             }
-            
+
             _getDoctorDetailsHtmlCode(inputData) {
 			    return `
                     <div class="boxLabel">`+this.localize("doctorDetails",this.language)+` *</div>

@@ -2691,7 +2691,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
-                if (this.shareAll ||allHcp) {
+                if (this.shareAll ||(allHcp === true)) {
                     this.set('hcpSelectedForSharing',this.hcp)
                 } else {
                     const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
