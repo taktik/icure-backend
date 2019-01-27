@@ -1488,7 +1488,7 @@
 					}
 				})
 				// console.log("allPages after map",allPages)
-				let onePageBody = ""
+				let allPagesBody = ""
 				allPages.map((onePage)=>{
 					let posoByDay = { // make the arrays that will receive sorted posologies
 								'byMoment':[],
@@ -1509,9 +1509,9 @@
 						if (this.patient.ssin && this.api.tokenId && rid && rid.length>0) {
 							const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
 							const onepageBodyBottom = `</tbody></table></footer></div>`;
-							onePageBody += onePageBodyTop+posoTable+onepageBodyBottom;
+							allPagesBody += onePageBodyTop+posoTable+onepageBodyBottom;
 						} else {
-                            onePageBody += `<div class="page">
+							allPagesBody += `<div class="page">
                         <header id="header" class="flexbox vert bt center">
                             <div class="horiz">
                                 <div class="cell br w50 p1025">
@@ -1543,15 +1543,13 @@
                                 <p class="title bold center w100">Cachet du prescripteur</p>
                                 <ul>
                                     <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
-                                    {{#hcp.addresses[0].street}}
-                                        <li>$(hcp.addresses[0].street}{{#hcp.addresses[0].houseNumber}}, $(hcp.addresses[0].houseNumber}{{/hcp.addresses[0].houseNumber}}</li>
-                                    {{/hcp.addresses[0].street}}
-                                    {{#hcp.addresses[0].city}}
-                                        <li class="uppercase">{{#hcp.addresses[0].postalCode}}$(hcp.addresses[0].postalCode} - {{/hcp.addresses[0].postalCode}} $(hcp.addresses[0].city}</li>
-                                    {{/hcp.addresses[0].city}}
-                                    {{#hcp.addresses[0].telecoms}}
-                                        <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
-                                    {{/hcp.addresses[0].telecoms}}
+                                    {{#hcp.addresses}}
+                                        <li>{{street}}, {{houseNumber}}</li>
+                                        <li class="uppercase">{{postalCode}} - {{city}}</li>
+                                        {{#telecoms}}
+                                            <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
+                                        {{/telecoms}}
+                                    {{/hcp.addresses}}
                                     <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
                                 </ul>
                             </div>
@@ -1608,7 +1606,7 @@
             body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
             body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
             body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
-        </style></head><body>${onePageBody}</body></html>`
+        </style></head><body>${allPagesBody}</body></html>`
 						: // no eHe connection =
 						`<html><head><style>
             /* body */
@@ -1627,7 +1625,7 @@
             *.br {border-right: .25px solid black;} *.bt {border-top: .25px solid black} *.bb {border-bottom: .25px solid black}
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
-        </style></head><body>${onePageBody}</body></html>`; // finalize PDF body
+        </style></head><body>${allPagesBody}</body></html>`; // finalize PDF body
 				// console.log("toPrint",toPrint)
 				return toPrint
 			}
