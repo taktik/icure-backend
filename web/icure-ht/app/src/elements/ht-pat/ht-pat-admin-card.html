@@ -725,6 +725,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	<script>
 
+        import moment from 'moment/src/moment';
+
 
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
@@ -1120,6 +1122,32 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         return _.flatten(_.chain( _.concat( results[0].rows, results[1].rows ) ).uniqBy( 'id' ).filter({ type : 'medicalHouse' }).value().map(i => ({
                             'id': i.id,
                             'name':_.upperFirst(_.lowerCase(i.name)) + ' ' +(typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + i.nihii) + ' ' +''
+                        })));
+
+                    }) : Promise.resolve([]);
+                } else if (data.source === "insuranceTitularies") {
+                    return (id||'').length >= 1 ?
+                        this.api.patient().getPatientWithUser( this.user, id ).then(results => { return { 'id': results.id, 'name':_.upperFirst(_.lowerCase(_.get(results, "firstName", "" ))) + ' ' + _.upperFirst(_.lowerCase(_.get(results, "lastName", "" ))) + ' ' + this.api.formatSsinNumber(_.get(results, "ssin", "")) }}) :
+
+                        (text || '').length >= 2 ? Promise.all([this.api.patient().filterByWithUser(this.user, null, null, null, null, null, null, {filter: { $type: "PatientByHcPartyNameContainsFuzzyFilter", healthcarePartyId: this.user.healthCarePartyId, searchString: text }})]).then(results => {
+                        return _.flatten(_.chain( results[0].rows ).uniqBy( 'ssin' ).filter((i)=>{
+                            return i &&
+                                !!_.trim(_.get(i, "ssin", "")) &&
+                                !!_.get(i, "active", false) &&
+                                parseInt(_.size(_.get(i, "insurabilities", []))) &&
+                                parseInt(_.size(_.filter(_.map(
+                                    _.get(i, "insurabilities", []),
+                                    (ins => ins &&
+                                        _.size(ins) &&
+                                        !_.trim(_.get( ins, "titularyId", "" ) ) &&
+                                        !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
+                                        !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
+                                        ( moment(_.get(ins, "startDate", 0), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
+                                        ( moment(_.get(ins, "endDate", 0), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
+                                    )))))
+                        }).value().map(i => ({
+                            'id': i.id,
+                            'name':_.upperFirst(_.lowerCase(_.get(i, "firstName", "" ))) + ' ' + _.upperFirst(_.lowerCase(_.get(i, "lastName", "" ))) + ' ' + this.api.formatSsinNumber(_.get(i, "ssin", ""))
                         })));
 
                     }) : Promise.resolve([]);
