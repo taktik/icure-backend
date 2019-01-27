@@ -886,11 +886,12 @@
                             this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
                             this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
 
-                            this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
-                            this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1)
-                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
-                            this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.renewal ? true : false)
-
+                            this.set("isRenewal", !!this.selectedMedicationContentWithId.medicationValue.renewal)
+                            if(this.isRenewal) {
+                                this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
+                                this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1)
+                                this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
+                            }
 
                             this.set('openAddDropDown',false)
 
