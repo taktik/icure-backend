@@ -1543,15 +1543,13 @@
                                 <p class="title bold center w100">Cachet du prescripteur</p>
                                 <ul>
                                     <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
-                                    {{#hcp.addresses[0]}}
+                                    {{#hcp.addresses}}
                                         <li>{{street}}, {{houseNumber}}</li>
-                                    {{/hcp.addresses[0]}}
-                                    {{#hcp.addresses[0]}}
                                         <li class="uppercase">{{postalCode}} - {{city}}</li>
-                                    {{/hcp.addresses[0]}}
-                                    {{#hcp.addresses[0].telecoms}}
-                                        <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
-                                    {{/hcp.addresses[0].telecoms}}
+                                        {{#telecoms}}
+                                            <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
+                                        {{/telecoms}}
+                                    {{/hcp.addresses}}
                                     <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
                                 </ul>
                             </div>
