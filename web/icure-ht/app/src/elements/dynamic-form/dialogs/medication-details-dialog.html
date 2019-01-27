@@ -10,6 +10,8 @@
 <link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../scrollbar-style.html">
 <link rel="import" href="../../../dialog-style.html">
+<link rel="import" href="../../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+
 
 <link rel="import" href="../../../vaadin-icure-theme.html">
 
@@ -408,7 +410,6 @@
                                         class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
             </div>
             <div class="regimen-line display-type-regimen">
-
                 <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb', 'Reimbursement', language)]]" class="regimen--reimbursement">
                     <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
                         <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
@@ -434,8 +435,12 @@
                 </template>
             </div>
 
-            <div class="content">
+            <div class="regimen-line display-type-regimen">
+                <span>{{localize('com','Comment',language)}}</span>
+                <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
+            </div>
 
+            <div class="content">
                     <div class="regimen-lines">
                         <div class="regimen-line regimen-add">
                                 <div class="add-first-regimen">
@@ -886,11 +891,12 @@
                             this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
                             this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
 
-                            this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
-                            this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1)
-                            this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
-                            this.set("isRenewal", this.selectedMedicationContentWithId.medicationValue.renewal ? true : false)
-
+                            this.set("isRenewal", !!this.selectedMedicationContentWithId.medicationValue.renewal)
+                            if(this.isRenewal) {
+                                this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
+                                this.set("renewalDurationValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1)
+                                this.set("renewalTimeUnitIdx", this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo"))
+                            }
 
                             this.set('openAddDropDown',false)
 
