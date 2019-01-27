@@ -743,7 +743,7 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
-            <template is="dom-if" if="[[!ehboxConnected]]">
+            <template is="dom-if" if="[[!ehealthSession]]">
                 <paper-button class="warning ehbox" on-tap="_importKeychain">
                     <iron-icon icon="warning"></iron-icon> [[localize('ehe_is_not_con','eHealth is not connected',language)]]
                 </paper-button>
@@ -943,7 +943,7 @@
                 type: Boolean,
                 value: false
             },
-            ehboxConnected: {
+            ehealthSession: {
                 type: Boolean,
                 value: false
             },
@@ -955,7 +955,7 @@
 	}
 
 			static get observers() {
-				return ['apiReady(api,user,patient)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
 			}
 
 			constructor() {
@@ -972,35 +972,24 @@
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
 
-            apiReady() {
-			    this._isAuth()
-                this._canRecipe()
-            }
-
-            _isAuth() {
-                const sAuth = JSON.parse(sessionStorage.getItem('auth'))
-                // console.log('isAuth ?',sAuth.ehpassword && this.patient.ssin && this.api.keystoreId ? true : false)
-                this.set('ehboxConnected', sAuth.ehpassword && this.patient.ssin && this.api.keystoreId)
-            }
-
-			_canRecipe() {
+			ifRecipeAvailable(){
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-                    if (hcp.addresses[0]) {
-                        let idxAddress = hcp.addresses.findIndex(addr => addr.addressType && addr.addressType === "work")
-                        let idxPhone = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "phone") : -1
-                        let idxMail = idxAddress >=0 && hcp.addresses[idxAddress].telecoms[0] ? hcp.addresses[idxAddress].telecoms.findIndex(tel => tel.telecomType === "email") : -1
-                        // console.log('_canRecipe ??', hcp, idxAddress, idxPhone, idxMail)
-                        if (idxAddress >= 0 && idxPhone >= 0 && idxMail >= 0) {
-                            const phone = hcp.addresses[idxAddress].telecoms[idxPhone] && hcp.addresses[idxAddress].telecoms[idxPhone].telecomNumber || ''
-                            const mail = hcp.addresses[idxAddress].telecoms[idxMail] && hcp.addresses[idxAddress].telecoms[idxMail].telecomNumber || ''
-                            // console.log('_canRecipe', phone.length && mail.length)
-                            this.set('fullProfile', (phone.length && mail.length))
-                        }
-                    } else {
-                        this.set('fullProfile', false)
+                    this.set("ehealthSession", this.api.tokenId ? true : false)
+					if(hcp.addresses && hcp.addresses.length > 0){
+
+                        const addresses = hcp && hcp.addresses || null
+                        const workAddresses = addresses.find(adr => adr.addressType === "work") || null
+                        const telecoms = workAddresses && workAddresses.telecoms
+                        const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile" || tel.telecomType === "phone") || null
+                        const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
+
+                        this.set('fullProfile', workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== "" ? true : false)
                     }
+
+
                 })
-            }
+
+			}
 
 			_activeIconClass(selected) {
 				return selected ? 'icn-selected' : ''
@@ -1371,7 +1360,6 @@
 
 
 				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
-					console.log("with recip-e")
 					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
 						patient: this.patient,
 						hcp: hcp,
