@@ -4,6 +4,7 @@
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 
 <link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -865,6 +866,17 @@
                 background: var(--app-secondary-color-dark);
             }
 
+            paper-button.search-patients{
+                background: var(--app-background-color-darker);
+            }
+            paper-input.search-patients {
+                flex-grow: 1;
+                padding: 4px;
+            }
+            iron-icon.search-patients {
+                padding-top: 16px;
+            }
+
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
                 .attached {
@@ -939,6 +951,12 @@
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
+                            <!--TODO-->
+                            <!--<template is="dom-if" if="[[hasUnassignedResults]]">-->
+                                <!--labResult-->
+                                <!--<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"-->
+                                                    <!--contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>-->
+                            <!--</template>-->
                         </template>
                     </paper-card>
                 </template>
@@ -952,7 +970,6 @@
                             <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                             <template is="dom-if" if="[[hasUnassignedResults]]">
-
                                 <template is="dom-if" if="[[unimportedPats.length]">
                                     <template is="dom-if" if="[[!assignModal]]">
                                         <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
@@ -990,10 +1007,23 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <h5>[[toImportPatsSuggestions.length]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                                <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
                                                 <div class="scrollbox patlist">
+                                                    <template is="dom-if" if="[[!manualAssign]]">
+                                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
+                                                    </template>
+                                                    <template is="dom-if" if="[[manualAssign]]">
+                                                        <div class="line">
+                                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                                        </div>
+                                                    </template>
                                                     <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
                                                         <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                                    </template>
+                                                    <template is="dom-if" if="[[toImportPatsSearch.length]]">
+                                                        <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                                                            <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                                        </template>
                                                     </template>
                                                 </div>
                                             </div>
@@ -1154,12 +1184,28 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             docInfos: {
 			    type: Object,
                 value: null
+            },
+            searchPatValue: {
+			    type: String,
+                value: ''
+            },
+            manualAssign: {
+			    type: Boolean,
+                value: false
+            },
+            toImportPatsSearch: {
+			    type: Array,
+                value: []
+            },
+            patsLng: {
+			    type: Number,
+                value: 0
             }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)','_updateSuggestions(selectedProtocol)'];
+		return ['_focusChanged(selectMessage, selectMessage.*)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
 	}
 
 	constructor() {
@@ -1191,6 +1237,39 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
+    toggleManualAssign() {
+	    this.set('searchPatValue','')
+	    this.set('manualAssign',!this.manualAssign)
+    }
+    _updatePatSearch() {
+	    if (this.searchPatValue.length >= 2) {
+            this.set('isLoadingPatsSuggest',true)
+            console.log('updatePatSearch',this.searchPatValue)
+            setTimeout(() =>{
+                this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, this.searchPatValue, null, null, 100, "asc").then(pats=>{
+                    console.log('pats',pats)
+                    this.set('toImportPatsSearch',pats.rows || [])
+                    this.set('isLoadingPatsSuggest',false)
+                })
+            },2000)
+        } else {
+            this.set('toImportPatsSearch',[])
+            this.set('isLoadingPatsSuggest',false)
+        }
+    }
+    _patsLngChanged() {
+	    this.set('patsLng',this.toImportPatsSuggestions.length + this.toImportPatsSearch.length)
+    }
+
+    hasLabResult() {
+	    const m = this.selectMessage.selection.item
+        if (m.assignedResults && m.unassignedResults) {
+            return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
+        } else {
+            return false
+        }
+    }
+
     _isDeleted() {
 	    return this.messages[0].transportGuid.startsWith("BIN")
     }
@@ -1204,8 +1283,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('selectedPats',[])
             this.set('targetPats',[])
 			this.set('isLoadingMessage',true)
+			this.set('manualAssign',false)
             this.set('selectName','')
             this.set('unimportedPats',[])
+            this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             this.set('unassignedResults',tempSelect.unassignedResults)
             this.set('assignedResults',tempSelect.assignedResults)
@@ -1241,6 +1322,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                             // console.log('is not body')
                                             this._getPatsFromDoc(doc)
                                         }
+                                        this.set('document',doc)
                                         return doc
                                 });
                             }
@@ -1278,8 +1360,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if(!this.assignModal) {
             this.set('assignModal',true)
             this.set('targetPats',[])
+            this.set('manualAssign',false)
+            this.set('searchPatValue','')
+            this.set('toImportPatsSearch',[])
             this.set('isLoadingPatsSuggest',false)
-            this.set('selectedProtocol',-1)
+            this.set('selectedProtocol',0)
         }
     }
 
@@ -1367,7 +1452,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const assigned = this.assignedResults ? this.assignedResults : []
         const unassigned = this.unassignedResults ? this.unassignedResults : []
         const document = this.thisDocument ? this.thisDocument : null
-        delete docInfo.formatedDemandDate
+        if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
         if (tempSelect && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
                 console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document,thisPat)
