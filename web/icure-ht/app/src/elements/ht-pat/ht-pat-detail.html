@@ -1484,7 +1484,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
                                                 api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" medications="[[medications]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
+                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication"
+                                                on-medication-detail="_medicationDetail" contact-type-list="[[contactTypeList]]"></ht-pat-detail-ctc-detail-panel>
             </template>
 
         </div>
@@ -2139,6 +2140,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     currentMedicationDetailEventDetail: {
                         type: Object,
                         value: () => {}
+                    },
+                    contactTypeList: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
                     }
                 };
             }
@@ -2165,6 +2172,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }, {});
                     } )
                 }
+
+                this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+                    .then(ct =>this.set("contactTypeList", _.orderBy(ct.rows, ['code'], ['asc'])))
             }
 
             _switchTest(e){
@@ -3071,6 +3081,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }, {}))
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
+                            }
+                            const contacttype = ctc.tags.find(tag => tag.type == "BE-CONTACT-TYPE")
+                            if(contacttype) {
+                                ctc.userDescr = this.contactTypeList.find(sct => sct.code == contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
                             }
                             ctc.services.forEach(s => {
                                 if (!s.label) {

@@ -18,7 +18,6 @@
 <link rel="import" href="dynamic-sub-form.html">
 <link rel="import" href="dynamic-checkbox.html">
 <link rel="import" href="dynamic-medication-field.html">
-<link rel="import" href="dynamic-subcontact-type-selector.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="ckmeans-grouping.html">
@@ -172,7 +171,6 @@
 					<slot name="titlebar"></slot>
 					<div>
                         <template is="dom-if" if="[[!readOnly]]">
-                            <dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
                             <paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
                             <paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
                                 <paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
@@ -363,10 +361,6 @@
                         type: Boolean,
                         value: false
 					},
-                    subcontactType: {
-                        type: Array,
-                        value: () => []
-                    },
                     closed: {
 					    type: Boolean
                     }
@@ -425,7 +419,7 @@
 			}
 
 			_displayedTitle() {
-				return this.title && this.dataProvider ? this.title+" "+this.dataProvider.subContactTitle() : "Loading ...";
+				return this.title ? this.title : "Loading ...";
 			}
 
 			_linkForm(e) {
@@ -705,12 +699,6 @@
             _none(a,b) {
 			    return !a && !b
 			}
-
-            _linkToSubcontactType(e){
-				if(e.detail){
-                    this.dispatchEvent(new CustomEvent('subcontact-type-change', {detail: { type: e.detail, formId: this.dataProvider.getId()}}));
-				}
-            }
 
             _shouldDisplayPrintSubFormIcon(isSubForm, template) {
 			    return isSubForm &&
