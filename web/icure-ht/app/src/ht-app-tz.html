@@ -2262,8 +2262,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
                                         }
                                     })
-
-
                                 }
                             })
 
@@ -2271,7 +2269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const addresses = hcp && hcp.addresses || null
                             const workAddresses = addresses.find(adr => adr.addressType === "work") || null
                             const telecoms = workAddresses && workAddresses.telecoms
-                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile" || tel.telecomType === "phone") || null
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
