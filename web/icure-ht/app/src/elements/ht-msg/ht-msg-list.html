@@ -22,6 +22,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <link rel="import" href="../ht-spinner/ht-spinner.html">
@@ -358,7 +361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 4px;
                 }
 
-                #mail-list .labicon {
+                .labicon {
                     content: '';
                     display: block;
                     height: 8px;
@@ -367,8 +370,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     border-radius: 50%;
                     background: var(--app-status-color-ok);
                 }
-                #mail-list .labicon.unassigned-true {
+                .labicon.unassigned-true {
                     background: var(--app-status-color-nok);
+                }
+                .actions .labicon {
+                    margin: 8px;
                 }
 
                 .get-msg-btn{
@@ -442,7 +448,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template is="dom-if" if="[[selectList]]">
             <div class="table-top">
                 <div class="checkbox">
-                    <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
+                    <template is="dom-if" if="[[!isLabresultBox]]">
+                        <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
+                    </template>
                 </div>
 
                 <div class="actions">
@@ -462,6 +470,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                         </template>
+                    </template>
+                    <template is="dom-if" if="[[isLabresultBox]]">
+                        <paper-dropdown-menu id="preferredHub" label="[[localize('filter','Filter',language)]]">
+                            <paper-listbox slot="dropdown-content">
+                                <paper-item class="link" on-tap="getLabResult" selected>[[localize('show_all','Show all',language)]]</paper-item>
+                                <paper-item class="link" on-tap="getUnassigned"><div class="labicon unassigned-true" id="show-unassigned"></div> [[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>
+                                <paper-item class="link" on-tap="getProtIn"><div class="labicon unassigned-false" id="show-assigned"></div> [[localize('assigned_labresults','assigned lab results',language)]]</paper-item>
+                            </paper-listbox >
+                        </paper-dropdown-menu>
+                        <!--<paper-tooltip for="show-all" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>-->
+                        <!--<paper-tooltip for="show-unassigned" offset="0">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-tooltip>-->
+                        <!--<paper-tooltip for="show-assigned" offset="0">[[localize('assigned_labresults','assigned lab results',language)]]</paper-tooltip>-->
+                        <!--[[localize('assigned_labresults','assigned lab results',language)]]-->
                     </template>
                 </div>
 
@@ -518,7 +539,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="48px">
+                            <template class="header">
+                                <iron-icon icon="mail" id="unread-icon"></iron-icon>
+                                <paper-tooltip position="right" for="unread-icon">[[localize('is_read','read',language)]]</paper-tooltip>
+                            </template>
                             <template>
+                                <template is="dom-if" if="[[!isUnread(item)]]">
+                                    <iron-icon icon="done" id="read-[[item.id]]"></iron-icon>
+                                    <paper-tooltip position="right" for="read-[[item.id]]">[[localize('is_read','read',language)]]</paper-tooltip>
+                                </template>
                                 <template is="dom-if" if="[[isUnread(item)]]">
                                     <iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>
                                     <paper-tooltip position="right" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>
@@ -542,7 +571,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="2">
+                        <vaadin-grid-column flex-grow="3">
                             <template class="header">
                                 <vaadin-grid-sorter path="subject">[[localize('sub','Subject',language)]]
                                 </vaadin-grid-sorter>
@@ -553,6 +582,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </div>
                             </template>
                         </vaadin-grid-column>
+
+                        <template is="dom-if" if="[[isLabresultBox]]">
+                            <vaadin-grid-column flex-grow="1">
+                                <template class="header">
+                                    [[localize('pat','Patient',language)]]
+                                </template>
+                                <template>
+                                    [[item.pats]]
+                                </template>
+                            </vaadin-grid-column>
+                        </template>
+
                         <vaadin-grid-column width="138px" flex-grow="0">
                             <template class="header">
 
@@ -689,6 +730,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     capacityPercent: {
                         type: Number,
                         value: 0
+                    },
+                    isLabresultBox: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -817,12 +862,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if ((m.assignedResults && m.unassignedResults) && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
+                            // let copy = m
+                            // m.pats = this._getPatsFromMsg(m)
                             acc.push(m)
                         }
                         return acc
                     }, [])
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
+            }
+            _getPatsFromMsg(m) {
+                this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    if(docs.length) {
+                        let unimportedPats = ''
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys).map(doc => {
+                            this.api.beresultimport().getInfos(doc.id).then(resultInfo=>{
+                                if (resultInfo.length) {
+                                    resultInfo.map(res => {
+                                        unimportedPats+= res.firstName+' '+res.lastName+', '
+                                    })
+                                    return unimportedPats+(resultInfo.length>1)?'...':''
+                                } else {
+                                    return ''
+                                }
+                            })
+                        })
+                    }
+                })
             }
 
             getReport(){
@@ -961,6 +1027,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
+                    this.set('isLabresultBox', (item === "labResult") ? true : false )
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
