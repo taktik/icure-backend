@@ -48,7 +48,7 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
             val isExecutorStarted = hazelcast.getAtomicReference<Boolean>(javaClass.canonicalName + ".isExecutorStarted")
             if (java.lang.Boolean.TRUE != isExecutorStarted.get()) {
                 val scheduledExecutor = hazelcast.getScheduledExecutorService(javaClass.canonicalName + ".scheduledExecutor")
-                scheduledExecutor.scheduleAtFixedRate(ObserverStarter(), 1, 10, TimeUnit.MINUTES)
+                scheduledExecutor.scheduleAtFixedRate(ObserverStarter(), 1, 1, TimeUnit.MINUTES)
                 isExecutorStarted.set(java.lang.Boolean.TRUE)
 
                 log.info("Captured lock and starting group observer")
@@ -184,7 +184,7 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
 
     companion object {
         private val log = LoggerFactory.getLogger(NewGroupObserver::class.java)
-        val IS_SYNC_DEAD_TIMEOUT = 10 * 60 * 1000 // ms
+        val IS_SYNC_DEAD_TIMEOUT = 2 * 60 * 1000 // ms
     }
 
 }
