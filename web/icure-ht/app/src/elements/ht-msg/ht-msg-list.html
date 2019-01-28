@@ -358,6 +358,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 4px;
                 }
 
+                #mail-list .labicon {
+                    content: '';
+                    display: block;
+                    height: 8px;
+                    width: 8px;
+                    margin: 0 auto;
+                    border-radius: 50%;
+                    background: var(--app-status-color-ok);
+                }
+                #mail-list .labicon.unassigned-true {
+                    background: var(--app-status-color-nok);
+                }
+
                 .get-msg-btn{
                     margin-bottom: 16px;
                     --paper-button: {
@@ -411,8 +424,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 div.pagination button.page-number:selected {
                     background: var(--app-secondary-color);
                 }
-
-
 
                 @media screen and (max-width:1025px) {
                     .col-right {
@@ -481,6 +492,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <vaadin-checkbox on-checked-changed="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
                             </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="44px">
+                            <template class="header">
+                                <iron-icon id="hasLab-header" icon="icons:assignment"></iron-icon>
+                                <paper-tooltip position="right" for="hasLab-header">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[hasLabResult(item)]]">
+                                    <div id="hasLab-[[item.id]]" class$="labicon unassigned-[[isUnassigned(item)]]"></div>
+                                    <template is="dom-if" if="[[isUnassigned(item)]]">
+                                        <paper-tooltip position="right" for="hasLab-[[item.id]]">[[localize('un_attachs','Unassigned Lab Results',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[!isUnassigned(item)]]">
+                                        <paper-tooltip position="right" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
+                                    </template>
+                                </template>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="104px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received" direction="asc">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
@@ -499,39 +527,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="1">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
+                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b>
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
                                 <div class="cell frozen">
                                     <template is="dom-if" if="[[!isUnread(item)]]">
-                                        [[item.fromAddress]] - [[item.subject]]
+                                        [[item.fromAddress]]
                                     </template>
                                     <template is="dom-if" if="[[isUnread(item)]]">
-                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]] - [[item.subject]]</span>
+                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]]</span>
                                         <paper-tooltip position="left" for="unread-[[item.id]]-title">[[localize('is_not_read','not read',language)]]</paper-tooltip>
                                     </template>
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="138px" flex-grow="0">
+                        <vaadin-grid-column flex-grow="2">
+                            <template class="header">
+                                <vaadin-grid-sorter path="subject">[[localize('sub','Subject',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
                             <template>
-                                <template is="dom-if" if="[[isImportant(item)]]">
-                                    <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
-                                    <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
-                                </template>
-                                <template is="dom-if" if="[[isCrypted(item)]]">
-                                    <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
-                                    <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
-                                </template>
-                                <template is="dom-if" if="[[hasAnnex(item)]]">
-                                    <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
-                                    <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
-                                </template>
-                                <template is="dom-if" if="[[hasLabResult(item)]]">
-                                    <iron-icon id="hasLab-[[item.id]]" icon="icons:assignment"></iron-icon>
-                                    <paper-tooltip position="left" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
-                                </template>
+                                <div class="cell frozen">
+                                    [[item.subject]]
+                                </div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column width="138px" flex-grow="0">
+                            <template class="header">
+
+                            </template>
+                            <template>
+                                <div style="text-align:right;">
+                                    <template is="dom-if" if="[[isImportant(item)]]">
+                                        <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
+                                        <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[isCrypted(item)]]">
+                                        <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
+                                        <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[hasAnnex(item)]]">
+                                        <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
+                                        <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
+                                    </template>
+                                </div>
                             </template>
                         </vaadin-grid-column>
                     </template>
@@ -737,6 +777,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 } else {
                     return false
                 }
+            }
+            isUnassigned(m) {
+                return (m.unassignedResults.length > 0) ? true : false
             }
 
             getUnreadEmail() {
