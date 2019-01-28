@@ -68,6 +68,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-setup-prompt.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
+<link rel="import" href="../ht-spinner/ht-spinner.html">
+
 
 <link rel="import" href="./dialog-style.html">
 
@@ -674,9 +676,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-tabs>
                         </div>
                         <div class="log-info">
-                            <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
-                                <span id="ehealthMH">[[localize('eheMM','eHealthMH',language)]]</span> <span id="eHealthMHStatus"
-                                                                                                             class="ehealth-mh-connection-status pending"></span>
+                            <p><span>[[user.login]] –</span>
+                                <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
+                                <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
+                                <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
                             </p>
                             <div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
                             <paper-tooltip for="ehealth">
@@ -1628,6 +1632,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            getMHKeystore(){
+                const healthcarePartyId =this.user.healthcarePartyId;
+                // MHPrefix ? MHPrefix + "." + this.user.healthcarePartyId :
+
+            }
+
 			getAlternateKeystores(){
 				const healthcarePartyId = this.user.healthcarePartyId;
 
@@ -1705,7 +1715,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _tuto(){
-                this.$['tutorialDialog'].open()
+                // this.$['tutorialDialog'].open()
+                window.open("http://topaz.care/fr/tutorials.html");
             }
 
             checkAndLoadMikrono(){
@@ -1746,7 +1757,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
-                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+                                this.api.onlinebemikrono().register(this.user.id, {}).then(user => {
                                     if(user === true){
                                         this.api.user().getUser(this.user.id).then(u => {
                                             this.set('user', u)
@@ -1879,7 +1890,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }
 
-        customElements.define(HtAppTz.is, HtAppTz)
+        customElements.define(HtApp.is, HtApp)
 
     </script>
 </dom-module>

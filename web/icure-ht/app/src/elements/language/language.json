@@ -879,7 +879,11 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "insurance_titulary": "Insurance titulary (only if not titulary itself - for children / spouse)",
+    "suspension_startdate": "Suspension start date",
+    "suspension_enddate": "Suspension end date",
+    "suspension_reason": "Suspension reason"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -931,7 +935,7 @@
     "add_for": "Nouv. form.",
     "add_hea_ele": "Ajouter un élément de soin",
     "add_heal_elem": "Ajouter un élément de soin",
-    "add_med": "Ajouter un traitement médicamenteux",
+    "add_med": "Ajouter une médication chronique",
     "add_med_ant": "Ajouter un antécédent médical",
     "add_hcp": "Ajouter un prestataire",
     "add_new_per_to_car_tea": "Nouveau prestataire externe",
@@ -1461,7 +1465,7 @@
     "no_dmg": " Patient n'a pas de DMG",
     "no_ehe_con": "Pas de connection à eHealth",
     "no_fam_ris": "Pas d'antécédent familial",
-    "no_med": "Pas de traitement médicamenteux",
+    "no_med": "Pas de médication chronique",
     "no_med_ant": "Pas d'antécédent médical",
     "no_sur_hea_ele": "Pas d'antécédent chirurgical",
     "no_msg_content": "Ce mail n'a pas de message",
@@ -1847,7 +1851,11 @@
     "thursday": "Jeudi",
     "friday": "Vendredi",
     "saturday": "Samedi",
-    "sunday": "Dimanche"
+    "sunday": "Dimanche",
+    "insurance_titulary": "Titulaire de l'assurance (uniquement pour enfant / épouse)",
+    "suspension_startdate": "Début de la suspension",
+    "suspension_enddate": "Fin de la suspension",
+    "suspension_reason": "Raison de la suspension"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2822,6 +2830,10 @@
     "thursday": "Donderdag",
     "friday": "Vrijdag",
     "saturday": "Zaterdag",
-    "sunday": "Zondag"
+    "sunday": "Zondag",
+    "insurance_titulary": "Verzekering gerec (alleen voor kind / vrouw)",
+    "suspension_startdate": "Suspension start date",
+    "suspension_enddate": "Suspension end date",
+    "suspension_reason": "Suspension reason"
   }
 }
