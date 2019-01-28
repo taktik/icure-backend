@@ -2275,7 +2275,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
-                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+                                this.api.onlinebemikrono().register(this.user.id, {}).then(user => {
                                     if(user === true){
                                         this.api.user().getUser(this.user.id).then(u => {
                                             this.set('user', u)
