@@ -192,13 +192,13 @@
                 if(!(this.contacts && this.contacts.length))return;
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
                     .then(services =>{
-                        console.log('services:',services)
                         this.set("services",_.orderBy(services,"valueDate",'desc'))
                     })
             }
 
             _getContent(svc){
-                return this.api.contact().preferredContent(svc, this.language).stringValue || ""
+                const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
+                return content && content.stringValue || this.localize('obs_val','obsolete value',this.language)
             }
 
             _formatDate(date){

@@ -258,9 +258,7 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     static get observers() {
-	    return [
-            '_professionChanged(professionItem)'
-        ]
+	    return ['_professionChanged(professionItem)']
     }
 
 	constructor() {
@@ -386,15 +384,12 @@ class HtAppWelcomeTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     replicate() {
 
-        let cloudKey = this.get('cloudKey')
-        if (!cloudKey) return
-
         fetch('http://localhost:16042/replicate',{
             method: "POST",
             headers: {
                 "Content-Type" : "application/json; charset=utf-8"
             },
-            body: JSON.stringify( { cloudKey } )
+            body: JSON.stringify( { cloudKey: this.get('cloudKey').trim() } )
         }).then( response => {
             this.set('hidden',true);
         }).catch( error => {

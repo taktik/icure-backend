@@ -38,7 +38,6 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
-
 				        options: {
 				        	/*presets: ['es2015'],*/
 					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
@@ -80,26 +79,25 @@ module.exports = {
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
+        new HtmlWebpackPlugin({
+            inject: false,
+	        debug: true,
+            template: path.resolve(__dirname, 'app/index.tz.ejs'),
+        }),
         new OfflinePlugin({
             // Unless specified in webpack's configuration itself
             publicPath: '/',
-
+            autoUpdate: 1000*60*30,
             appShell: '/',
             externals: [
                 '/'
             ],
             excludes: [
                 'docs/*.pdf','app/docs/*.pdf'
-            ]
-        })
-        ,
-        // This plugin will generate an index.html file for us that can be use
-        // by the Webpack dev server. We can give it a template file (written in EJS)
-        // and it will handle injecting our bundle for us.
-        new HtmlWebpackPlugin({
-            inject: false,
-	        debug: true,
-            template: path.resolve(__dirname, 'app/index.tz.ejs'),
+            ],
+            ServiceWorker: {
+                events: true
+            }
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST

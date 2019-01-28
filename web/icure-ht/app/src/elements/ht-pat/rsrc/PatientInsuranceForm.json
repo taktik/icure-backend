@@ -191,6 +191,26 @@
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "insuranceCode"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 250,
+								"multiline" : false,
+								"left" : 66,
+								"top" : 80,
+								"key" : "PopupMenuEditor",
+								"dataSource": {"source":"insuranceTitularies"}
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [],
+							"label" : "insurance_titulary",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "titularyId"
 						}
 					]
 				}
