@@ -2296,8 +2296,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                                 setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
                                                             }
                                                         })
-
-
                                                     }
                                                 })
                                             }else{
@@ -2358,7 +2356,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     // TODO: Restore me
                     // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(12, 'months').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(6, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
 
                         this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
                         return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({
