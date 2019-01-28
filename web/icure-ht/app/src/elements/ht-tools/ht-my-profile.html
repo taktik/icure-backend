@@ -1297,7 +1297,7 @@
                                 // Only affect when computed
                                 this.hcp = hcp;
 
-                                if(this.idAddress===-1){this._findAddress()}
+                                if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
                                 let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
                                 let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
                                 this.idAddress>=0 ? this.set('adr',{
@@ -1308,7 +1308,7 @@
                                     postalCode:this.hcp.addresses[this.idAddress].postalCode,
                                     city:this.hcp.addresses[this.idAddress].city,
                                     country:this.hcp.addresses[this.idAddress].country,
-                                    telecoms: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                                    phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
                                     proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
                                 }) : ""
 
@@ -1319,7 +1319,7 @@
                             // Affect directly
                             this.hcp = hcp;
 
-                            if(this.idAddress===-1){this._findAddress()}
+                            if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
                             let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
                             let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
                             this.idAddress>=0 ? this.set('adr',{
@@ -1330,7 +1330,7 @@
                                 postalCode:this.hcp.addresses[this.idAddress].postalCode,
                                 city:this.hcp.addresses[this.idAddress].city,
                                 country:this.hcp.addresses[this.idAddress].country,
-                                telecoms: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                                phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
                                 proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
                             }) : ""
                         }
