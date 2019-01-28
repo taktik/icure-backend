@@ -95,6 +95,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
 
     private fun observeChanges(replicatedGroup: Group, jobStatus: ReplicatorJobStatus, groupDbInstance: CouchDbInstance) {
         groupDbInstance.changes(if (jobStatus.seq != null) jobStatus.seq else "now", { c: Change ->
+            log.info("Detected change: ${this.entityType?.canonicalName}")
             observe(c, replicatedGroup)
         }, {
             replicatorJobsStatusesByGroupId!![replicatedGroup.id] = replicatorJobsStatusesByGroupId!![replicatedGroup.id]?.timestamp(System.currentTimeMillis()) ?: ReplicatorJobStatus(System.currentTimeMillis())
