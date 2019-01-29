@@ -1371,12 +1371,12 @@
 						drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).map(mv => mv.prescriptionRID = prescri.rid)
 					} )))) //push the presci.rid to the rid array
 							.finally(()=>{
-								toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
+								toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString+"").format("DD/MM/YYYY"),element,rid)
 								this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 							})
 				} else {
 					console.log("no recip-e")
-					toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
+					toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString+"").format("DD/MM/YYYY"),element,rid)
 					this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 				}
 				})
@@ -1438,7 +1438,7 @@
                         <small>Nom et prénom du prescripteur&nbsp;:</small>
                         <ul class="prescripteur-details">
                             <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
-                            <li><b>INAMI&nbsp;:</b> ${hcp.nihii}</li>
+                            <li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
                         </ul>
                     </div>
                     <hr>
@@ -1488,7 +1488,18 @@
 					}
 				})
 				// console.log("allPages after map",allPages)
-				let allPagesBody = ""
+
+                const hcpAddress = _.chain(_.get(hcp, "addresses", {})).filter({addressType:"home"}).head().value() ||
+                    _.chain(_.get(hcp, "addresses", {})).filter({addressType:"work"}).head().value() ||
+                    _.chain(_.get(hcp, "addresses", {})).head().value() ||
+                    {}
+                ;
+
+                const hcpTel = _.trim( _.get( _.filter(_.get(hcpAddress, "telecoms", {}), {telecomType:"phone"}), "[0].telecomNumber", "" ) ) ||
+                    _.trim( _.get( _.filter(_.get(hcpAddress, "telecoms", {}), {telecomType:"mobile"}), "[0].telecomNumber", "" ) )
+
+
+                let allPagesBody = ""
 				allPages.map((onePage)=>{
 					let posoByDay = { // make the arrays that will receive sorted posologies
 								'byMoment':[],
@@ -1542,15 +1553,13 @@
                             <div class="flex1 cell br w50">
                                 <p class="title bold center w100">Cachet du prescripteur</p>
                                 <ul>
-                                    <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>
-                                    {{#hcp.addresses}}
-                                        <li>{{street}}, {{houseNumber}}</li>
-                                        <li class="uppercase">{{postalCode}} - {{city}}</li>
-                                        {{#telecoms}}
-                                            <li>{{telecomType}}$nbsp;: {{telecomNumber}}</li>
-                                        {{/telecoms}}
-                                    {{/hcp.addresses}}
-                                    <li><span class="uppercase">INAMI</span>&nbsp;: ${hcp.nihii}</li>
+                                    <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
+
+                                    "<li>" + _.get(hcpAddress, "street", "") + ", " + _.get(hcpAddress, "houseNumber", "") + ( _.trim(_.get(hcpAddress, "postboxNumber", "")) ? " / " + _.trim(_.get(hcpAddress, "postboxNumber", "")) : "" ) + "</li>" +
+                                    "<li class='uppercase'>" + _.get(hcpAddress, "postalCode", "") + " - " + _.get(hcpAddress, "city", "") + "</li>" +
+                                    ( _.trim(hcpTel) ? "<li>Tel: " + _.trim(hcpTel) + "</li>" : "" ) + `
+
+                            <li><span class="uppercase">`+ this.localize('inami',this.language) +`</span>&nbsp;: ${hcp.nihii}</li>
                                 </ul>
                             </div>
                             <div class="w50">
