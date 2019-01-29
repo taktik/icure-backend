@@ -257,7 +257,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.document().getDocument(docId).then(doc => {
             this.set('document', doc)
             if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
-                this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                    this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
                 ).then(({extractedKeys: enckeys}) => {
                     const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
                     console.log('url is', url)
@@ -317,23 +317,12 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _dataUrlChanged(dataUrl) {
         if (dataUrl && dataUrl.length) {
-            if (this._imageMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(img => this.set('attachmentContent', img))
-            }
-            if (this._pdfMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(pdf => this.set('attachmentContent', pdf))
-            }
             if (this._xmlMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
+                fetch(dataUrl, {credentials:'include'})
                     .then(response => response.text())
                     .then(xml => this.set('attachmentContent', xml.toString()))
-            }
-            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
+            } else if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                fetch(dataUrl, {credentials:'include'})
                     .then(response => response.text())
                     .then(text => this.set('attachmentContent', text))
             }
