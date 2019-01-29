@@ -223,7 +223,7 @@
                 </paper-input-container>
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+                <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
