@@ -514,7 +514,7 @@
                             <vaadin-form-layout>
                                 <div class="col-lg-6 tile">
                                     <h2><iron-icon icon="communication:vpn-key"></iron-icon> [[localize('login_opt','Login option',language)]]</h2>
-                                    <paper-input label="Login" value="{{user.login}}" readonly></paper-input>
+                                    <paper-input label="Login*" value="{{user.login}}" readonly></paper-input>
                                     <div class="line">
                                         <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
                                         <paper-input label="Confirmation" value="{{userConfirmation}}" type="password" disabled="[[!userPassword.length]]"></paper-input>
@@ -607,8 +607,8 @@
                                     <h2><iron-icon icon="social:person"></iron-icon> [[localize('gen_info','General informations',language)]]</h2>
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
                                         <div class="line">
-                                            <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
-                                            <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
+                                            <paper-input label="[[localize('lastname','Nom',language)]] *" value="{{hcp.lastName}}"></paper-input>
+                                            <paper-input label="[[localize('firstname','Prénom',language)]] *" value="{{hcp.firstName}}"></paper-input>
                                         </div>
                                         <div class="line">
                                             <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
@@ -623,18 +623,18 @@
                                 <div class="col-lg-6 tile">
                                     <h2><iron-icon icon="home"></iron-icon> [[localize('addr_pro','Work Address',language)]]</h2>
                                     <div class="line">
-                                        <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
-                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
+                                        <paper-input label="[[localize('street','Street',language)]] *" value="{{adr.street}}"></paper-input>
+                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]] *" value="{{adr.houseNumber}}"></paper-input>
                                         <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
                                     </div>
                                     <div class="line">
-                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
-                                        <paper-input class="grow-3" label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
-                                        <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
+                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]] *" value="{{adr.postalCode}}"></paper-input>
+                                        <paper-input class="grow-3" label="[[localize('city','City',language)]] *" value="{{adr.city}}"></paper-input>
+                                        <paper-input label="[[localize('country','Country',language)]] *" value="{{adr.country}}"></paper-input>
                                     </div>
                                     <div class="line">
-                                        <paper-input label="[[localize('phone','Phone',language)]]" value="{{adr.phoneNumber}}"></paper-input>
-                                        <paper-input label="[[localize('email','Email',language)]]" value="{{adr.proMail}}"></paper-input>
+                                        <paper-input label="[[localize('phone','Phone',language)]] *" value="{{adr.phoneNumber}}"></paper-input>
+                                        <paper-input label="[[localize('email','Email',language)]] *" value="{{adr.proMail}}"></paper-input>
                                     </div>
                                 </div>
                                 <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
