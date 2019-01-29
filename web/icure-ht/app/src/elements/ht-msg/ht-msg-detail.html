@@ -145,6 +145,7 @@
 				background: transparent;
 				box-shadow: none;
                 flex-grow: 1;
+                overflow-y: auto;
 			}
 
 			.horizontal {
@@ -406,7 +407,7 @@
 
 			.annexe-card{
 				padding: 4px;
-                width: 50%;
+                width: 100%;
                 box-sizing: border-box;
 				background: var(--app-background-color)
 			}
@@ -457,7 +458,6 @@
 			}
 
 			.img-container img{
-				width: 100%;
 				max-width: 100%;
 				height: auto;
 			}
@@ -925,13 +925,15 @@
                         <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
                         <template is="dom-if" if="[[isDeleted]]">
-                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="visibility"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
                         </template>
                     </div>
                     <div class="del-button">
-                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
+
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
                         <h2 class="subject">[[msg.subject]]</h2>
@@ -951,114 +953,105 @@
                         <template is="dom-if" if="[[bodyDocument.id]]">
                             <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
                                          resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
-                            <!--TODO-->
-                            <!--<template is="dom-if" if="[[hasUnassignedResults]]">-->
-                                <!--labResult-->
-                                <!--<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"-->
-                                                    <!--contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>-->
-                            <!--</template>-->
+                        </template>
+                        <!--TODO-->
+                        <template is="dom-repeat" items="[[selectedDocuments]]">
+                            <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+                                <div class="layout-vertical annexe-card">
+                                    <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                                 resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                                    <template is="dom-if" if="[[hasUnassignedResults]]">
+                                        <template is="dom-if" if="[[unimportedPats.length]">
+                                            <template is="dom-if" if="[[!assignModal]]">
+                                                <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                                                    [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                                </paper-button>
+                                            </template>
+                                        </template>
+
+                                    </template>
+                                </div>
+                            </template>
                         </template>
                     </paper-card>
                 </template>
-            </div>
 
-            <div class="attached">
-                <h3>[[localize('attachments','Attachments',language)]] ([[attachmentQuantity]])</h3>
-                <template is="dom-repeat" items="[[selectedDocuments]]">
-                    <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                        <div class="layout-vertical annexe-card">
-                            <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                            <template is="dom-if" if="[[hasUnassignedResults]]">
-                                <template is="dom-if" if="[[unimportedPats.length]">
-                                    <template is="dom-if" if="[[!assignModal]]">
-                                        <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
-                                            [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                        </paper-button>
+                <template is="dom-if" if="[[assignModal]]">
+                <div id="import-suggest">
+                    <div class="line">
+                        <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
+                    </div>
+                    <div class="twocol">
+                        <div>
+                            <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
+                            <div class="scrollbox labolist">
+                                <paper-listbox selected="{{selectedProtocol}}">
+                                    <template is="dom-repeat" items="[[unimportedPats]]">
+                                        <paper-item class="unassigned pointer">
+                                            <div class="line">
+                                                <div>
+                                                    <iron-icon icon="assignment" width="18px"></iron-icon>
+                                                </div>
+                                                <div class="grow">
+                                                    <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
+                                                    <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
+                                                    <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
+                                                    <small class="demand-date">[[item.formatedDemandDate]]</small>
+                                                </div>
+                                            </div>
+                                        </paper-item>
                                     </template>
+                                </paper-listbox>
+                            </div>
+                        </div>
+                        <div>
+                            <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                            <div class="scrollbox patlist">
+                                <template is="dom-if" if="[[!manualAssign]]">
+                                    <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
                                 </template>
-
-                                <template is="dom-if" if="[[assignModal]]">
-                                    <div id="import-suggest">
-                                        <div class="line">
-                                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
-                                        </div>
-                                        <div class="twocol">
-                                            <div>
-                                                <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
-                                                <div class="scrollbox labolist">
-                                                    <paper-listbox selected="{{selectedProtocol}}">
-                                                        <template is="dom-repeat" items="[[unimportedPats]]">
-                                                            <paper-item class="unassigned pointer">
-                                                                <div class="line">
-                                                                    <div>
-                                                                        <iron-icon icon="assignment" width="18px"></iron-icon>
-                                                                    </div>
-                                                                    <div class="grow">
-                                                                        <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
-                                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
-                                                                        <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
-                                                                        <small class="demand-date">[[item.formatedDemandDate]]</small>
-                                                                    </div>
-                                                                </div>
-                                                            </paper-item>
-                                                        </template>
-                                                    </paper-listbox>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
-                                                <div class="scrollbox patlist">
-                                                    <template is="dom-if" if="[[!manualAssign]]">
-                                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
-                                                    </template>
-                                                    <template is="dom-if" if="[[manualAssign]]">
-                                                        <div class="line">
-                                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
-                                                        </div>
-                                                    </template>
-                                                    <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
-                                                        <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
-                                                    </template>
-                                                    <template is="dom-if" if="[[toImportPatsSearch.length]]">
-                                                        <template is="dom-repeat" items="[[toImportPatsSearch]]">
-                                                            <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
-                                                        </template>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                         <!--TODO : Get lab result -->
-                                        <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
-                                            <!--<div class="line lab-details noPortable">-->
-                                                <!--<h4>Lab result</h4>-->
-                                                <!--<div class="sheet">-->
-                                                    <!--<h5>[[docInfo.labo]]</h5>-->
-                                                    <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
-                                                    <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
-                                                    <!--<p><small>[[docInfo.engine]]</small></p>-->
-                                                    <!--<p>[[docInfo]]</p>-->
-                                                    <!--<p>[[thisDocument]]</p>-->
-                                                <!--</div>-->
-                                            <!--</div>-->
-                                        <!--</template>-->
-                                        <div class="line save-line">
-                                            <paper-button on-tap="closeSuggestions">
-                                                [[localize('can','Cancel',language)]]
-                                            </paper-button>
-                                            <template is="dom-if" if="[[canAssign]]">
-                                                <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
-                                                    [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
-                                                </paper-button>
-                                            </template>
-                                        </div>
+                                <template is="dom-if" if="[[manualAssign]]">
+                                    <div class="line">
+                                        <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
                                     </div>
                                 </template>
-
-                            </template>
+                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
+                                    <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                </template>
+                                <template is="dom-if" if="[[toImportPatsSearch.length]]">
+                                    <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                                        <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                    </template>
+                                </template>
+                            </div>
                         </div>
-                    </template>
-                </template>
+                    </div>
+                    <!--TODO : Get lab result -->
+                    <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
+                    <!--<div class="line lab-details noPortable">-->
+                    <!--<h4>Lab result</h4>-->
+                    <!--<div class="sheet">-->
+                    <!--<h5>[[docInfo.labo]]</h5>-->
+                    <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
+                    <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
+                    <!--<p><small>[[docInfo.engine]]</small></p>-->
+                    <!--<p>[[docInfo]]</p>-->
+                    <!--<p>[[thisDocument]]</p>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</template>-->
+                    <div class="line save-line">
+                        <paper-button on-tap="closeSuggestions">
+                            [[localize('can','Cancel',language)]]
+                        </paper-button>
+                        <template is="dom-if" if="[[canAssign]]">
+                            <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
+                                [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
+                            </paper-button>
+                        </template>
+                    </div>
+                </div>
+        </template>
             </div>
 
 		</template>
@@ -1200,12 +1193,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             patsLng: {
 			    type: Number,
                 value: 0
+            },
+            hasLabResult: {
+			    type: Boolean
             }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
+		return ['_focusChanged(selectMessage, selectMessage.*)','_hasLabResult(selectMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
 	}
 
 	constructor() {
@@ -1261,12 +1257,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    this.set('patsLng',this.toImportPatsSuggestions.length + this.toImportPatsSearch.length)
     }
 
-    hasLabResult() {
-	    const m = this.selectMessage.selection.item
-        if (m.assignedResults && m.unassignedResults) {
-            return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
+    _hasLabResult() {
+	    if (this.selectMessage && this.selectMessage.selection && this.selectMessage.selection) {
+            const m = this.selectMessage.selection.item
+            if (m && m.assignedResults && m.unassignedResults) {
+                this.set('hasLabResult', (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false)
+            } else {
+                this.set('hasLabResult', false)
+            }
         } else {
-            return false
+            this.set('hasLabResult', false)
         }
     }
 
@@ -1347,7 +1347,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.getChildren(tempSelect.id)
                     this.set('hasUnassignedResults', false)
                 }
+
             })
+
+
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);

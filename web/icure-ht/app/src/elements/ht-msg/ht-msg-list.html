@@ -476,9 +476,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
                         <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                            <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
+                            <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'hidden')]]">
+                                <paper-icon-button id="hide-button" icon="visibility-off" on-tap="_hideMsg"></paper-icon-button>
+                            </template>
+                            <paper-tooltip for="hide-button" offset="2">[[localize('hide_sel','Hide selected',language)]]</paper-tooltip>
                         </template>
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'hidden')]]">
+                            <paper-icon-button id="show-button" icon="visibility" on-tap="_hideMsg"></paper-icon-button>
+                            <paper-tooltip for="show-button" offset="2">[[localize('show_sel','Show selected',language)]]</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="restore-button" icon="undo" on-tap="_restoreMsgs"></paper-icon-button>
+                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                        </template>
+                        <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                        <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                     </template>
                     <template is="dom-if" if="[[isLabresultBox]]">
                         <paper-dropdown-menu id="filterLabresult" label="[[localize('filter','Filter',language)]]">
@@ -806,7 +818,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDatesAndGUID(messages.rows)
                         .filter(msg => msg.fromAddress !== 'EFACT')
                         .filter(msg => !msg.transportGuid.startsWith('BIN'))
-                        .filter(m=>!m.transportGuid.startsWith('PROSE:'));
+                        .filter(m=>!m.transportGuid.startsWith('PROSE:'))
+                        .filter(m=>!m.transportGuid.startsWith('HIDDEN'))
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -854,7 +867,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(m=>!m.transportGuid.startsWith('HIDDEN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -881,7 +894,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(msg => !msg.transportGuid.startsWith('HIDDEN'));
                 }).then(messages => this.set('messages', messages || []));
             }
             _getPatsFromMsg(m) {
@@ -960,7 +973,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (assignedResults > 0 && !unassignedResults) msgsToDisplay.push(msg)
                         }
                     })
-                    this.set('messages', msgsToDisplay || [])
+                    this.set('messages', msgsToDisplay.filter(m=>m.tags.some(t=>!t.startsWith('hidden'))) || [])
                 });
             }
             getUnassigned(){ // unassigned labresult
@@ -970,7 +983,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     messages.map(msg=>{
                         if (msg.unassignedResults && msg.unassignedResults.length > 0) msgsToDisplay.push(msg)
                     })
-                this.set('messages', msgsToDisplay || [])
+                this.set('messages', msgsToDisplay.filter(m=>m.tags.some(t=>!t.startsWith('hidden'))) || [])
             });
             }
 
@@ -1005,11 +1018,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(m=>!m.transportGuid.startsWith('HIDDEN'));
                 }).then(messages => this.set('messages', messages || []));
                 
             }
 
+            getHidden(){
+                return this.findMessagesByTransportGUIDs(['HIDDENINBOX:*','HIDDENSENTBOX:*'], null, null, 1000)
+                    .then(messages => this.set('messages', messages || []))
+            }
             getTrash(){
 				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
 					.then(messages => this.set('messages', messages || []));
@@ -1104,6 +1121,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'trash' :
                         	this.getTrash();
                         	break;
+                        case 'hidden' :
+                            this.getHidden();
+                            break;
                         case 'Refresh':
                         	// Fake selection to refresh binding
                         	break;
@@ -1182,33 +1202,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
             }
 
+            _hideMsg() {
+                let mailList = this.shadowRoot.querySelector('#mail-list'),
+                    allCheckboxes = mailList.querySelectorAll('.checkbox'),
+                    checkedMsgs = this.checkedMessages,
+                    msgsToTreat = []
+                // const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                if(checkedMsgs.length) {
+                    const thisBox = this.selectList.selection.item.toUpperCase()
+                    checkedMsgs.forEach(msg =>msgsToTreat.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
+                    let targetBox
+                    checkedMsgs.forEach(msg=>{
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1,msg.transportGuid.length)
+                        const currGuid = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+                        if (!msg.transportGuid.startsWith('HIDDEN')){
+                            msg.transportGuid = 'HIDDEN'+currGuid+':'+id
+                        } else {
+                            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                        }
+                        console.log('msg',msg)
+                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            .finally(()=>this._refresh())
+                    })
+                }
+            }
+
 			_removeMsgs(){
                 let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
                 const selectedBox = this.selectList.selection.item.toUpperCase()
-                const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : selectedBox == 'TRASH' ? 'BIN' : 'INBOX'
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+                const delBox = selectedBox == 'INBOX' ? 'BININBOX' : selectedBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
                 if(checkedMsgs.length) {
                     let msgsToDelete = []
                     checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
-                    console.log('remove',msgsToDelete,thisBox,delBox)
+                    console.log('remove',msgsToDelete,selectedBox,delBox)
                     if(msgsToDelete.length){
-                        if (thisBox == 'BIN') {
+                        if (selectedBox == 'TRASH') { // delete forever
                             console.log('will DELETE')
                             let tempBinInbox = []
                             let tempBinSentbox = []
                             checkedMsgs.forEach(msg=>{
                                 const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
                                 const thatMailBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
-                                if (thatMailBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
-                                if (thatMailBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
+                                if (thatMailBox.includes('INBOX')) {tempBinInbox.push(msgId)} // if bininbox => inbox
+                                if (thatMailBox.includes('SENTBOX')) {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
                             })
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX')
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX')
-                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                                .finally(()=>this._refresh())
-                        } else {
-                            console.log('will MOVE',msgsToDelete,thisBox,delBox)
-                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
+                            if (tempBinInbox.length) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX')
+                            if (tempBinSentbox.length) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX')
+                            this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                            this._refresh()
+                        } else if(selectedBox == "HIDDEN") { // if hidden to bin
+                            console.log('will MOVE',msgsToDelete,selectedBox,delBox)
+                            let tempBinInbox = [], tempBinInboxMsgs = []
+                            let tempBinSentbox = [], tempBinSentboxMsgs = []
+                            checkedMsgs.forEach(msg=>{
+                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                                const thatMailBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
+                                if (thatMailBox.includes('INBOX')) {tempBinInbox.push(msgId);tempBinInboxMsgs.push(msg)} // if bininbox => inbox
+                                if (thatMailBox.includes('SENTBOX')) {tempBinSentbox.push(msgId);tempBinSentboxMsgs.push(msg)} // ifbinsentbox => sentbox
+                                if (tempBinInbox.length) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'INBOX', 'BININBOX')
+                                if (tempBinSentbox.length) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'SENTBOX', 'BINSENTBOX')
+                            })
+                            tempBinInboxMsgs.forEach(msg=>{
+                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                                msg.transportGuid = 'BININBOX:'+msgId
+                                this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            })
+                            tempBinSentboxMsgs.forEach(msg=>{
+                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
+                                msg.transportGuid = 'BINSENTBOX:'+msgId
+                                this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            })
+                            this._refresh()
+                        }
+                        else { // from inbox or sentbox
+                            console.log('will MOVE',msgsToDelete,selectedBox,delBox)
+                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, selectedBox, delBox)
                             checkedMsgs.forEach(msg=>{
                                 msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
                                 this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))

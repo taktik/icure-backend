@@ -93,10 +93,6 @@
 				max-height:400px;
 				align-self: center;
 			}
-            .img-container:hover img{
-                max-height: none;
-                max-width: 100%;
-            }
 
             .txt-container {
                 font-family: "Lucida Console","Lucida Sans","monospace",sans-serif;
@@ -105,15 +101,14 @@
                 margin: 0;
                 padding: 4px;
                 height: auto;
-                min-height: 256px;
                 max-height: 640px;
                 padding: 0;
                 box-shadow: none;
-                overflow: scroll;
+                overflow-x: auto;
+                overflow-y: auto;
                 border: 1px solid var(--app-background-color-dark);
                 background: var(--app-background-color);
                 box-sizing: border-box;
-                cursor: all-scroll;
             }
 
             .hoverpointer {
@@ -176,7 +171,9 @@
                 </paper-card>
             </template>
             <template is="dom-if" if="[[mailbody]]">
-                <div class="txt-container">[[attachmentContent]]</div>
+                <template is="dom-if" if="[[attachmentContent.length]]">
+                    <div class="txt-container"><pre>[[attachmentContent]]</pre></div>
+                </template>
             </template>
         </template>
 	</template>

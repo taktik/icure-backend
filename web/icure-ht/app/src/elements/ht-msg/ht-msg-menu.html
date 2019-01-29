@@ -564,7 +564,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-item>
 				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
 					<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>
-					<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
+					<!--<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>-->
 					<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
@@ -597,7 +597,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-listbox>
             </collapse-button>
 
-			<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+			<!--<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>-->
+
+            <collapse-button id="trashboxcollapse">
+                <paper-item class="menu-trigger menu-item"  slot="sublist-collapse-item" on-tap="_hidden" elevation="">
+                    <div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hid_elems','Hidden elements',language)]]</span></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="trashboxlist" class="menu-content sublist">
+                    <paper-item class="one-line-menu menu-item" on-tap="_trash">[[localize('tra','Trash',language)]] eHealth</paper-item>
+                </paper-listbox>
+            </collapse-button>
 		</div>
 	</template>
 	<script>
@@ -695,7 +705,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)'];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)'];
 	}
 
 	constructor() {
@@ -829,11 +839,27 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _invoiceSelectionIndexChanged() {
         if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { status: this.invoiceSelectionItem.dataset.status } } }));
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
             this.set('trashSelected',null)
+            this.set('flatrateinvoiceSelectionIndex', null)
+
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        }
+    }
+
+    _trashSelectionIndexChanged() {
+        if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { status: this.trashSelectionItem.dataset.status } } }));
+
+            this.set('inboxSelectionIndex', null)
+            this.set('sentboxSelectionIndex', null)
+            this.set('trashSelected',true)
             this.set('flatrateinvoiceSelectionIndex', null)
 
             this.$.inbox.classList.remove('iron-selected')
@@ -857,6 +883,20 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.invoicebox.classList.remove('iron-selected')
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
         }
+    }
+
+    _hidden(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'hidden' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.set('flatrateinvoiceSelectionIndex', null)
+
+        this.set('hiddenSelected','selected')
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
     }
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
