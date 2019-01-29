@@ -49,7 +49,7 @@
     "commonjs": "^0.2.0",
     "paper-toolbar": "^2.0.0",
     "paper-spinner": "^2.0.0",
-    "iron-selector": "https://github.com/taktik/iron-selector.git#1f6b245bbe94c7693180ff06064e5e1b0b801a90",
+    "iron-selector": "https://github.com/taktik/iron-selector.git#1170b8640b237f3d10ae9967d3235670a7cdfd76",
     "paper-fab-speed-dial": "^2.2.1",
     "iron-label": "^2.0.0",
     "vaadin-upload": "https://github.com/taktik/vaadin-upload.git#0cce7a4827c1340d5aefc7854dd0ce94868837ea",
