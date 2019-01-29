@@ -845,7 +845,7 @@
 
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingListing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
                 <div class="centerCenter">
                     <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
                     <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
@@ -910,10 +910,11 @@
 
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingDownload()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingDownloadWarningMessage', 'Please only download invoicing at the end of the month', language)]]</div></div></template>
                 <div class="centerCenter">
-                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]] (*)</paper-button>
+                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]] (*)</paper-button>
                     <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
+                    <paper-button class="tool-btn tool-btn-previous-month p-10px m-t-50 f-s-08em bordered" id="_getInvoicingJ20PreviousMonth" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadInvoicingPreviousMonth','Download invoicing of previous month',language)]]<span class="onlyIfRejectRate">[[localize('downloadListingPreviousMonthRemark','Only when rejection rate > 5%',language)]]</span></paper-button>
                 </div>
             </template>
 
@@ -1491,8 +1492,12 @@
                 this.shadowRoot.getElementById("rightPanel").classList.toggle("opened")
             }
 
-            _showWarningMessageEarlyInvoicing() {
+            _showWarningMessageEarlyInvoicingListing() {
                 return parseInt(moment().date()) > 5;
+            }
+
+            _showWarningMessageEarlyInvoicingDownload() {
+                return parseInt(moment().date()) < 25;
             }
 
             _startOfPreviousMonth() {
@@ -1509,7 +1514,7 @@
 
             _getInsuranceTitularyInfo() {
                 return new Promise(resolve =>{
-                    const insuranceTitularyIds = _.uniqBy(_.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId), "titularyId" );
+                    const insuranceTitularyIds = _.uniq(_.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
                     return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
                         _.map(this.flatRateAllPatients, (i=>{
                             if(!_.trim(_.get(i,"titularyId", "" ))) return i
@@ -1538,17 +1543,17 @@
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_2',this.language), icon:"arrow-forward"});
 
                         let resolvedHcpPatients = 0;
-                        let totalPatientToResolve = myHcps.length;
-                        if(!totalPatientToResolve) {this.set('_isLoading', false ); return;}
+                        let totalHcpPatientToResolve = _.size(myHcps);
+                        if(!totalHcpPatientToResolve) {this.set('_isLoading', false ); return;}
 
                         // Get patients of child hcp
                         _.forEach(myHcps, (singleHcp) => {
                             this._getPatientsByHcp(singleHcp.id)
                                 .then(hcpPat => {
                                     resolvedHcpPatients++;
-                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
+                                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalHcpPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
-                                    if(totalPatientToResolve===resolvedHcpPatients){
+                                    if(totalHcpPatientToResolve===resolvedHcpPatients){
                                         this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
                                         this._getInsuranceTitularyInfo().then( data => { this._getInsurancesData(); })
                                     }
@@ -1634,7 +1639,7 @@
                 let contentToReturn = "";
 
                 // Lists 1 & 2 don't require unsubscription infos
-                if( parseInt(listIndex)===1 || parseInt(listIndex)===2 ) {
+                if( parseInt(listIndex)<3 ) {
 
                     contentToReturn += `
                         <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
@@ -1662,15 +1667,16 @@
                                     <td width="10%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
                                     <td width="10%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
                                     <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
-                                    <td width="11%" class="">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfContract,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="13%" class="colorGreen">`+(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage?moment(singleEntry["MHC_list"+parseInt(listIndex)].startOfCoverage,"YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="5%" class="">`+_.get(singleEntry, "personType", "")+`</td>
+                                    <td width="11%" class="">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].startOfContract",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].startOfContract",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="13%" class="colorGreen">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].startOfCoverage",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].startOfCoverage",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="5%" class="">`+_.get(singleEntry, "insurancePersonType", "")+`</td>
                                     <td width="10%" class="">`+_.get(singleEntry, "titularyLabel", "")+`</td>
                                 </tr>`
-
                     })
 
                 } else {
+
+                    // We don't show flatrate_column_12 (reason) anymore as already in page header
 
                     contentToReturn += `
                         <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
@@ -1685,9 +1691,9 @@
                                     <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_7",this.language) + `</td>
                                     <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_10",this.language) + `</td>
                                     <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_11",this.language) + `</td>
-                                    <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_12",this.language) + `</td>
+                                    <!--<td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_12",this.language) + `</td>-->
                                     <td class="contentBodyHeader" width="4%">` + this.localize("flatrate_column_8",this.language) + `</td>
-                                    <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_9",this.language) + `</td>
+                                    <td class="contentBodyHeader" width="15%">` + this.localize("flatrate_column_9",this.language) + `</td>
                                 </tr>
                             </thead>
                         <tbody>`
@@ -1701,13 +1707,13 @@
                                     <td width="9%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
                                     <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
                                     <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
-                                    <td width="9%" class="">`+(singleEntry.MHC_listUnsubscriptions.startOfContract?moment(singleEntry.MHC_listUnsubscriptions.startOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="9%" class="colorGreen">`+(singleEntry.MHC_listUnsubscriptions.startOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.startOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfContract?moment(singleEntry.MHC_listUnsubscriptions.endOfContract,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="8%" class="colorRed">`+(singleEntry.MHC_listUnsubscriptions.endOfCoverage?moment(singleEntry.MHC_listUnsubscriptions.endOfCoverage,'YYYYMMDD').format("DD/MM/YYYY"):"")+`</td>
-                                    <td width="6%" class="">`+_.get(singleEntry, "MHC_listUnsubscriptions.unsubscriptionReasonId", "")+`</td>
-                                    <td width="4%" class="">`+_.get(singleEntry, "personType", "")+`</td>
-                                    <td width="9%" class="">`+_.get(singleEntry, "titularyLabel", "")+`</td>
+                                    <td width="9%" class="">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].startOfContract",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].startOfContract",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="9%" class="colorGreen">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].startOfCoverage",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].startOfCoverage",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].endOfContract",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].endOfContract",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <td width="8%" class="colorRed">`+(parseInt(_.get(singleEntry, "medicalHouseContracts[0].endOfCoverage",0))?moment(_.get(singleEntry, "medicalHouseContracts[0].endOfCoverage",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                                    <!--<td width="6%" class="">`+_.get(singleEntry, "medicalHouseContracts[0].suspensionReason","")+`</td>-->
+                                    <td width="4%" class="">`+_.get(singleEntry, "insurancePersonType", "")+`</td>
+                                    <td width="15%" class="">`+_.get(singleEntry, "titularyLabel", "")+`</td>
                                 </tr>`
                     })
 
@@ -1913,15 +1919,8 @@
                                         && !!i.ssin
                                         && !!i.insurabilities.length
                                         && !!_.chain(i.insurabilities).filter((i)=>{return(i && i.identificationNumber && i.insuranceId && ( moment(i.startDate||0, 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') || !i.startDate ) && ( moment(i.endDate||0, 'YYYYMMDD').isAfter(this.reportCurrentDateMomentObject, 'date') || !i.endDate ) )}).value().length
-                                        && !!i.medicalHouseContracts.length
-                                        && !!_
-                                            .chain(i.medicalHouseContracts)
-                                            .filter((i)=>{return(
-                                                i
-                                                && i.hcpId === this.user.healthcarePartyId
-                                            )})
-                                            .value()
-                                        .length
+                                        && parseInt( _.size( _.get(i, "medicalHouseContracts", [] ) ) )
+                                        && parseInt( _.size( _.filter( _.get(i, "medicalHouseContracts", [] ), (i)=>{return i && i.hcpId === this.user.healthcarePartyId}) ) )
                                     )})
                                     .uniqBy( 'ssin' )
                                     .value()
@@ -1937,12 +1936,12 @@
                                                     _.size(ins) &&
                                                     !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
                                                     !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
-                                                    ( moment(_.get(ins, "startDate"+"", "0"), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
-                                                    ( moment(_.get(ins, "endDate"+"", "0"), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
+                                                    ( moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
+                                                    ( moment(_.get(ins, "endDate"+"", 0), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
                                                 }
                                             ), "[0]", {}
                                         )
-                                        i.personType = !_.trim( _.get( i, "finalInsurability.titularyId", "" )) ? "T" : ( moment().diff(moment(_.get(i, "dateOfBirth", "0")+"", "DD/MM/YYYY"), 'years') < 18 ) ? "E" : "C"
+                                        i.insurancePersonType = !_.trim( _.get( i, "finalInsurability.titularyId", "" )) ? "T" : ( moment().diff(moment(_.get(i, "dateOfBirth"+"", "0")+"", "DD/MM/YYYY"), 'years') < 18 ) ? "E" : "C"
                                         i.titularyId = _.trim( _.get( i, "finalInsurability.titularyId", "" ))
                                         return i
                                     })
@@ -1986,97 +1985,73 @@
                 // Loop OA
                 _.forEach( this.oaData, (oa,k)=> {
 
-                    let OaPatients = _
-                        .chain(this.flatRateAllPatients)
-                        .filter((i)=>{return ( _.chain(i.insurabilities).filter((i)=>{ return i.insuranceId === oa.id }).head().value()||false); })
-                        .map((i)=>{ i.finalInsurability = (i.insurabilities&&i.insurabilities.length?i.insurabilities[0]:false); return i; })
-                        .value();
+                    let OaPatients = _.filter(this.flatRateAllPatients, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id)))
 
                     pdfData[oa.id] = {
                         oa: {
-                            id: oa.id,
-                            finalName: oa.finalName||'',
-                            code: oa.code||'',
-                            address: _.trim([oa.address.street||'', oa.address.houseNumber||'', oa.address.postboxNumber||''].join(' ')),
-                            postalCode: oa.address.postalCode,
-                            city: oa.address.city||'',
+                            id: _.get(oa, "id", ""),
+                            finalName: _.get(oa, "finalName", ""),
+                            code: _.get(oa, "code", ""),
+                            address: _.trim(_.compact([_.get(oa, "address.street", ""), _.get(oa, "address.houseNumber", ""), _.get(oa, "address.postboxNumber", "")]).join(' ')),
+                            postalCode: _.get(oa, "address.postalCode", ""),
+                            city: _.get(oa, "address.city", "")
                         },
                         entries: {
 
-                            // 01 : Subscription without try-out period
-                            list1 :  _.chain(OaPatients)
-                                        .map((i)=>{
-                                            i.MHC_list1 = _
-                                                .chain(i.medicalHouseContracts)
-                                                .filter((i)=>{return(
-                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').startOf('month') ) &&
-                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isSame( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(this.reportMonthGap, 'month').startOf('month') )
-                                                )}).head().value()||false;
-                                            return i;
-                                        }).filter((i)=>{return !!i.MHC_list1}).value(),
+                            // 01 : Subscriptions WITHOUT try-out period
+                            list1 :  _.compact(_.map(OaPatients, pat=>{
+                                return parseInt(_.size(_.filter(_.get(pat, "medicalHouseContracts", []), mhc=>{return(
+                                    moment( _.get(mhc, "startOfContract", 0), 'YYYYMMDD').startOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').startOf('month') ) &&
+                                    ( moment( _.get(mhc, "startOfContract", 0), 'YYYYMMDD').startOf('month').isSame( moment( _.get(mhc, "startOfCoverage", 0), 'YYYYMMDD').subtract(1,"month").startOf('month') ) || !parseInt(_.get(mhc, "startOfCoverage", 0)) )
+                                )}))) ? pat : false
+                            })),
 
-                            // 02 : Subscription with try-out period
-                            list2 : _.chain(OaPatients)
-                                        .map((i)=>{
-                                            i.MHC_list2 = _
-                                                .chain(i.medicalHouseContracts)
-                                                .filter((i)=>{return(
-                                                    moment(i.startOfCoverage||0, 'YYYYMMDD').startOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').startOf('month') ) &&
-                                                    moment(i.startOfContract||0, 'YYYYMMDD').startOf('month').isBefore( moment(i.startOfCoverage||0, 'YYYYMMDD').subtract(this.reportMonthGap, 'month').startOf('month'))
-                                                )}).head().value()||false;
-                                            return i;
-                                        }).filter((i)=>{return !!i.MHC_list2}).value(),
+                            // 02 : Subscriptions WITH try-out period
+                            list2 : _.compact(_.map(OaPatients, pat=>{
+                                return parseInt(_.size(_.filter(_.get(pat, "medicalHouseContracts", []), mhc=>{return(
+                                    moment( _.get(mhc, "startOfContract", 0), 'YYYYMMDD').startOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').startOf('month') ) &&
+                                    moment( _.get(mhc, "startOfContract", 0), 'YYYYMMDD').startOf('month').isBefore( moment( _.get(mhc, "startOfCoverage", 0), 'YYYYMMDD').subtract(1,"month").startOf('month') )
+                                )}))) ? pat : false
+                            })),
 
-                            // 03 : Unsubscription / suspensions
-                            list3 : _.chain(OaPatients)
-                                        .map((i)=>{
-                                            i.MHC_listUnsubscriptions = _
-                                                .chain(i.medicalHouseContracts)
-                                                .filter((i)=>{return(
-                                                    ( i.endOfCoverage && moment(i.endOfCoverage||0, 'YYYYMMDD').endOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').endOf('month') ) ) ||
-                                                    ( i.endOfContract && moment(i.endOfContract||0, 'YYYYMMDD').endOf('month').isSame ( moment().subtract(this.reportMonthGap, 'month').endOf('month') ) )
-                                                )}).head().value()||false;
-                                            return i;
-                                        }).filter((i)=>{return !!i.MHC_listUnsubscriptions}).value(),
+                            // 03 : Unsubscriptions
+                            list3 : _.compact(_.map(OaPatients, pat=>{ return parseInt(_.size(_.filter(_.get(pat, "medicalHouseContracts", []), mhc=>{ return moment( _.get(mhc, "endOfContract", 0), 'YYYYMMDD').startOf('month').isSame( moment().subtract(this.reportMonthGap, 'month').startOf('month') ) }))) ? pat : false })),
+
+                            //  Suspensions
+                            suspensions : _.compact(_.map(OaPatients, pat=>{
+                                return parseInt(_.size(_.filter( _.get(pat, "medicalHouseContracts", []), mhc=>{return(
+                                    !!_.trim( _.get(mhc,"suspensionReason","")) &&
+                                    ( parseInt(_.get(mhc,"startOfSuspension",0)) && moment( _.get(mhc,"startOfSuspension",0)+"", "YYYYMMDD" ).isBefore( moment() ) ) &&
+                                    ( !parseInt(_.get(mhc,"endOfSuspension",0)) || moment( _.get(mhc,"endOfSuspension",0)+"", "YYYYMMDD" ).isAfter( moment() ) )
+                                )}))) ? pat : false
+                            }))
 
                         }
                     };
 
-                    // Invoicing suspended: study reasons (take from list 03 = all unsubscriptions)
+                    // 04 : Invoicing suspended: Not insured
+                    // 05 : Invoicing suspended: No reason given
+                    // 06 : Invoicing suspended: Is hospitalized
+                    // 07 : Invoicing suspended: Out of country
+                    // 08 : This one doesn't exist (legitimately omitted)
+                    // 09 : Invoicing suspended: change of mutuality
+                    pdfData[oa.id].entries['list4'] = _.filter( _.get(pdfData[oa.id], "entries.suspensions", [] ), pat=> _.uniq( _.map( _.get( pat, "medicalHouseContracts", []), mhc=>_.trim(mhc.suspensionReason) ) ).indexOf("notInsured") > -1  )||[]
+                    pdfData[oa.id].entries['list5'] = _.filter( _.get(pdfData[oa.id], "entries.suspensions", [] ), pat=> _.uniq( _.map( _.get( pat, "medicalHouseContracts", []), mhc=>_.trim(mhc.suspensionReason) ) ).indexOf("noReasonGiven") > -1  )||[]
+                    pdfData[oa.id].entries['list6'] = _.filter( _.get(pdfData[oa.id], "entries.suspensions", [] ), pat=> _.uniq( _.map( _.get( pat, "medicalHouseContracts", []), mhc=>_.trim(mhc.suspensionReason) ) ).indexOf("isHospitalized") > -1  )||[]
+                    pdfData[oa.id].entries['list7'] = _.filter( _.get(pdfData[oa.id], "entries.suspensions", [] ), pat=> _.uniq( _.map( _.get( pat, "medicalHouseContracts", []), mhc=>_.trim(mhc.suspensionReason) ) ).indexOf("outsideOfCountry") > -1  )||[]
+                    pdfData[oa.id].entries['list9'] = _.filter( _.get(pdfData[oa.id], "entries.suspensions", [] ), pat=> _.uniq( _.map( _.get( pat, "medicalHouseContracts", []), mhc=>_.trim(mhc.suspensionReason) ) ).indexOf("changeOfMutuality") > -1  )||[]
 
-                    // 04 : Invoicing suspended: no reason given
-                    // 06 : Invoicing suspended: patient is hospitalized
-                    // 07 : Invoicing suspended: patient outside of country (for longer period)
-                    // 09 : Invoicing suspended: for one month, patient changed mutuality
-                    // Todo: refine MedicalHouseContract.unsubscriptionReasonId with real codes + auto-complete combo-box in pat-admin-detail
-                    pdfData[oa.id].entries['list4'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (!i.unsubscriptionReasonId || i.unsubscriptionReasonId===0)}).length; })
-                    pdfData[oa.id].entries['list6'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===1)}).length; })
-                    pdfData[oa.id].entries['list7'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===2)}).length; })
-                    pdfData[oa.id].entries['list9'] = _.filter(pdfData[oa.id].entries['list3'],(i)=>{ return _.filter(i.medicalHouseContracts,(i)=>{return (i&&i.unsubscriptionReasonId===3)}).length; })
+                    delete pdfData[oa.id].entries.suspensions
 
                 }); // Loop OA
 
-
-
-
-
-
-
-
                 // NOT FOR PROD, just to test page breaks with large records amount
-
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-
-
-                
-
-
-
 
                 // Namely for footer
                 let totalPages = 0; let currentPage = 0;
@@ -2088,12 +2063,12 @@
                 let pdfTemplate = this._getExportPdfHeader();
 
                 // Eval total pages
-                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!listEntries.length||0) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
+                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
 
                 // Build document pages
                 _.forEach( pdfData, (oaData)=> {
                     _.forEach( oaData.entries, (listEntries, listKey)=> {
-                        if(!listEntries.length||0) return;
+                        if(!parseInt(_.size(listEntries))) return;
                         let listIndex = parseInt(listKey.replace('list',''));
                         let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
                         _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
@@ -2110,38 +2085,41 @@
                 // Close document
                 pdfTemplate += this._getExportPdfFooter();
 
-
-
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6',this.language), icon:"arrow-forward"});
-
-
 
                 this.downloadFileName = this.reportCurrentDateMomentObject.format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-listing-patients" + ".pdf";
 
                 // Generate, archive & download pdf report
-                this.api.pdfReport(mustache.render(pdfTemplate, pdfData)).then(pdfFileContent =>{
-
-                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                    this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
-
-                    // Create "internal" message, give it a document and attach file to document
-                    this.api.message().newInstance(this.user).then((newMessageInstance)=>{
-                        this.api.message().createMessage(_.merge( newMessageInstance, {transportGuid: "MH:ARCHIVES:LISTING", recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))], metas: {totalPages:totalPages, filename:this.downloadFileName}, toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))], subject: "MH: Archive listing patients download - " + this.downloadFileName })).then(createMessageResponse => {
-                            this.api.document().newInstance(this.user,createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentResponse =>
-                                this.api.document().createDocument(newDocumentResponse)).then((createDocumentResponse) => {
-                                    this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createDocumentResponse, pdfFileContent).then(encryptedFileContent =>{
-                                        this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
-                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"});
-                                            this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName );
-                                            this.set('_isLoading', false );
-                                        }).catch(()=>{this.set('_isLoading', false );})
-                                    }).catch(()=>{this.set('_isLoading', false );})
-                                }).catch(()=>{this.set('_isLoading', false );})
-                            }).catch(()=>{this.set('_isLoading', false );})
-                        }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
-                    }).catch((e)=>{console.log(e);this.set('_isLoading', false );})
+                this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
+                    .then(pdfFileContent=>{
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
+                        return { pdfFileContent: pdfFileContent }
+                    })
+                    .then(res=>this.api.message().newInstance(this.user).then(newMessageInstance=> _.assign({newMessageInstance:newMessageInstance}, res)))
+                    .then(res=>this.api.message().createMessage(
+                            _.merge(res.newMessageInstance,{
+                                transportGuid: "MH:ARCHIVES:LISTING",
+                                recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                metas: {totalPages:totalPages, filename:this.downloadFileName},
+                                toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                subject: "MH: Archive listing patients download - " + this.downloadFileName
+                            })
+                        )
+                        .then(createMessageResponse=>_.assign({createMessageResponse:createMessageResponse}, res))
+                    )
+                    .then(res=>this.api.document().newInstance(this.user,res.createMessageResponse,{documentType: 'report',mainUti: this.api.document().uti("application/pdf"), name: this.downloadFileName}).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance}, res)))
+                    .then(res=>this.api.document().createDocument(res.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse}, res)))
+                    .then(res=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, res.createDocumentResponse, res.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent}, res)))
+                    .then(res=>this.api.document().setAttachment(res.createDocumentResponse.id, null, res.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse}, res)))
+                    .then(res=>{
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true})
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
+                        this.api.triggerFileDownload( res.pdfFileContent, "application/pdf", this.downloadFileName )
+                        this.set('_isLoading', false )
+                    })
+                    .catch((e)=>{ console.log(e); this.set('_isLoading', false); })
 
             }
 
@@ -2183,7 +2161,7 @@
                 }).catch(()=>{})
             }
 
-            _getListingJ20() {
+            _getInvoicingJ20() {
 
                 // var invoicingYear: Int = 0
                 // var invoicingMonth: Int = 0
