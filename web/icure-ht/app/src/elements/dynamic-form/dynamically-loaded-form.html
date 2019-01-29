@@ -855,16 +855,19 @@
                             }
                         });
                     },
-                    filter: (data, text, uuid) => {
-						const uuids = (self.uuids || (self.uuids = {}))
+                    filter: (data, text, uuid, forceGetDataForComboBox=false) => {
+                        const uuids = (self.uuids || (self.uuids = {}))
 						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
-                        const words = text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+                        const words = (!_.trim(text)&&!_.trim(uuid)&&forceGetDataForComboBox) ? [""] : text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+
+                        console.log("--- FILTER ---");
+                        console.log(data, text, uuid, forceGetDataForComboBox);
+                        // FZ: when uuid set (first hit), uuid = inputed value -> act on it 
 
                         return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language);
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
-
-							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
+							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':(words).map(w => ({
                                     '$type': 'CodeByRegionTypeLabelLanguageFilter',
                                     'region': 'be',
                                     'type': ct.type,
@@ -872,7 +875,7 @@
 									'label':w
                                 }))}})
                             .then(results => {
-                                if (reqIdx<uuids[uuid]) {
+                                if (reqIdx<uuids[uuid] && !forceGetDataForComboBox) {
                                     return []
 								}
                                 return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
@@ -889,7 +892,7 @@
                                 })), sorter)
                             });
 
-                        })).then(responses => (reqIdx<uuids[uuid]) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
+                        })).then(responses => (reqIdx<uuids[uuid] && !forceGetDataForComboBox) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;
