@@ -395,6 +395,11 @@
                 flex-grow: 3;
             }
 
+            .line span.lang {
+                padding-top: 20px;
+                width: 80px !important;
+            }
+
             .flex-horizontal, .flex-horizontal .format {
                 display: flex;
                 flex-direction: row;
@@ -533,25 +538,16 @@
                                 <div class="col-lg-6 tile">
                                     <h2><iron-icon icon="settings"></iron-icon> [[localize('oth_opt','Other options',language)]]</h2>
                                     <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+
                                     <div class="line">
-                                        <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-                                            <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-                                                <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-                                                <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-                                                <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
-                                        <paper-radio-group selected="{{userEHealthEnv}}">
-                                            <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-                                            <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-                                        </paper-radio-group>
-                                    </div>
-                                    <div class="horizontal" style="margin-top:10px">
-                                        <paper-radio-group selected="{{hcp.languages.0}}">
-                                            <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
-                                            <paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
-                                            <paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
-                                        </paper-radio-group>
+                                        <span class="lang">[[localize('languages','Langues',language)]] : </span>
+                                        <div class="horizontal" style="margin-top:10px">
+                                            <paper-radio-group selected="{{hcp.languages.0}}">
+                                                <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+                                                <paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+                                                <paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+                                            </paper-radio-group>
+                                        </div>
                                     </div>
 
                                     <!--<div class="horizontal" style="margin-top:10px">
@@ -589,10 +585,27 @@
                                         </vaadin-combo-box>
                                     </template>
 
+                                </div>
+
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="cloud"></iron-icon> eServices</h2>
+                                    <div class="line">
+                                        <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+                                            <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+                                                <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                                                <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                                                <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                        <paper-radio-group selected="{{userEHealthEnv}}">
+                                            <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+                                            <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+                                        </paper-radio-group>
+                                    </div>
+
                                     <div class="horizontal line">
                                         <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
                                     </div>
-
                                 </div>
 
                             </vaadin-form-layout>

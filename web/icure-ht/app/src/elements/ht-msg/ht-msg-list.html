@@ -288,14 +288,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div {
                     display: flex;
                     flex-direction: row;
-                    justify-content: space-between;
                     z-index: 1;
                 }
                 .table-top > div > div {
                     text-align: center;
                 }
                 .table-top > div.indicators {
-                    flex-grow: 1;
                     justify-content: flex-end;
                     padding-right: 24px;
                 }
@@ -312,8 +310,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: inline-block;
                 }
                 .table-top > div.actions {
+                    flex-grow: 1;
                     margin: 0 16px;
                 }
+                .table-top paper-dropdown-menu#filterLabresult {
+                    min-width: 256px;
+                    margin-left: 22%;
+                }
+
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
@@ -443,14 +447,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
+                @media screen and (max-width: 800px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        min-width: 0;
+                        margin-left: initial;
+                    }
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="table-top">
                 <div class="checkbox">
-                    <template is="dom-if" if="[[!isLabresultBox]]">
-                        <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
-                    </template>
+                    <vaadin-checkbox id="checkerAll" on-tap="_toggleSelectAll" checked$="[[allSelected]]"></vaadin-checkbox>
                 </div>
 
                 <div class="actions">
@@ -472,9 +481,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </template>
                     <template is="dom-if" if="[[isLabresultBox]]">
-                        <paper-dropdown-menu id="preferredHub" label="[[localize('filter','Filter',language)]]">
-                            <paper-listbox slot="dropdown-content">
-                                <paper-item class="link" on-tap="getLabResult" selected>[[localize('show_all','Show all',language)]]</paper-item>
+                        <paper-dropdown-menu id="filterLabresult" label="[[localize('filter','Filter',language)]]">
+                            <paper-listbox selected="0" slot="dropdown-content">
+                                <paper-item class="link" on-tap="getLabResult">[[localize('show_all','Show all',language)]]</paper-item>
                                 <paper-item class="link" on-tap="getUnassigned"><div class="labicon unassigned-true" id="show-unassigned"></div> [[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>
                                 <paper-item class="link" on-tap="getProtIn"><div class="labicon unassigned-false" id="show-assigned"></div> [[localize('assigned_labresults','assigned lab results',language)]]</paper-item>
                             </paper-listbox >
@@ -734,6 +743,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     isLabresultBox: {
                         type: Boolean,
                         value: false
+                    },
+                    allSelected: {
+                        type: Boolean,
+                        value: null
                     }
                 };
             }
@@ -1027,7 +1040,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
-                    this.set('isLabresultBox', (item === "labResult") ? true : false )
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -1096,6 +1108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         	// Fake selection to refresh binding
                         	break;
                     }
+                    this.set('isLabresultBox', (item === "labResult") ? true : false )
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                 this._deselectAll();
@@ -1139,33 +1152,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _itemSelected(e) {
-                // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
                 if (e.path[0].checked) {
                     const checkedMsg = JSON.parse(e.target.dataset.item)
-                    this.push('checkedMessages',checkedMsg)
-                }
-                else {
+                    if (this.checkedMessages.length != this.messages.length) this.push('checkedMessages', checkedMsg)
+                } else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
+                    this.set('allSelected',false)
                 }
                 console.log(this.checkedMessages.length+' checked',this.checkedMessages)
             }
 
             _toggleSelectAll() {
+                this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
+                this.set('checkedMessages',this.allSelected ? this.messages : [])
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
+                const apply = this.allSelected
                 allCheckboxes.forEach(box=>{
-                    box.checked = !box.checked;
+                    box.checked = apply;
                 })
             }
 
             _deselectAll() {
-                let checkerAll = this.shadowRoot.querySelector('#checkerAll')
-                    , mailList = this.shadowRoot.querySelector('#mail-list')
+                this.set('allSelected',null)
+                let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
-                // checkerAll.checked = false;
-                // mailList.querySelector('#checkerAll').checked = false
-                allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
-                this.set('checkedMessages',[])
+                allCheckboxes.forEach(box=>{
+                    box.checked = false;
+                })
             }
 
 			_removeMsgs(){
