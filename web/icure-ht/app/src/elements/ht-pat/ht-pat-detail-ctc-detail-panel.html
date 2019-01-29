@@ -1489,8 +1489,8 @@
 				})
 				// console.log("allPages after map",allPages)
 
-                const hcpAddress = _.chain(_.get(hcp, "addresses", {})).filter({addressType:"home"}).head().value() ||
-                    _.chain(_.get(hcp, "addresses", {})).filter({addressType:"work"}).head().value() ||
+                const hcpAddress = _.chain(_.get(hcp, "addresses", {})).filter({addressType:"work"}).head().value() ||
+                    _.chain(_.get(hcp, "addresses", {})).filter({addressType:"home"}).head().value() ||
                     _.chain(_.get(hcp, "addresses", {})).head().value() ||
                     {}
                 ;
