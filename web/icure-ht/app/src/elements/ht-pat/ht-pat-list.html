@@ -2371,9 +2371,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     p => this.api.register(p, 'patient')
                 ).then(
                     p => {
+                        this.resetNewPatientDialog()
                         this.set('selectedPatient', p)
                     }
                 )
+            }
+
+            resetNewPatientDialog() {
+                this.lastName = null
+                this.firstName = null
+                this.dateAsString = null
+                this.ssin = null
+                this.valueGender = null
+                this.medicalHouseContractShadowObject = {
+                    hcpId: null,
+                    mmNihii: null,
+                    startOfContract: null,
+                    startOfCoverage: null,
+                    kine: false,
+                    gp: false,
+                    nurse: false
+                }
             }
 
             confirmFilter() {
