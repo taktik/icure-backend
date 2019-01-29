@@ -2069,6 +2069,7 @@
 
                 this.busySpinner = true;
 
+                let resourcesObject = {}
                 const prose = this.root.querySelector("#prose-editor");
                 const proseJsonContent = prose.editorView.state.doc.toJSON();
                 const proseHtmlContent = prose.$.container.innerHTML;
@@ -2084,56 +2085,50 @@
                 }
                 reportData.description = _.get(reportData, "description", _.trim(reportData.title))
 
-                this.api.message().newInstanceWithPatient(this.user, this.patient).then((newMessageInstance)=>{
-
-                    this.api.message().createMessage(_.merge(
-                         newMessageInstance,
-                         {
-                             transportGuid: "DOC:REPORT:ARCHIVE",
-                             recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
-                             metas: reportData,
-                             toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
-                             subject: reportData.title + " " + reportData.description
-                         }
-                     )).then((createMessageResponse) => {
-                        this.api.document().newInstance(
-                            this.user,createMessageResponse,
+                this.api.message().newInstanceWithPatient(this.user, this.patient)
+                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
+                    .then(resourcesObject=>this.api.message().createMessage(
+                            _.merge(
+                                resourcesObject.newMessageInstance,
+                                {
+                                    transportGuid: "DOC:REPORT:ARCHIVE",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                    metas: reportData,
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                    subject: reportData.title + " " + reportData.description
+                                }
+                            )
+                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, resourcesObject)))
+                    .then(resourcesObject=>this.api.document().newInstance(
+                            this.user,resourcesObject.createMessageResponse,
                             {
                                 documentType: 'report',
                                 mainUti: this.api.document().uti("application/pdf"),
                                 name: reportData.title + " " + reportData.description
                             }
-                        ).then((newDocumentResponse) => {
-                            this.api.document().createDocument(newDocumentResponse).then((createDocumentResponse) => {
-                                this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
-                                    this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createDocumentResponse, pdfFileContent).then(encryptedFileContent =>{
-                                        this.api.document().setAttachment(createDocumentResponse.id, null, encryptedFileContent).then((setAttachmentResponse) => {
-                                            const svc = this.api.contact().service().newInstance(
-                                                this.user,
-                                                {
-                                                    content: _.fromPairs([[this.language, { documentId: createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
-                                                    encryptedContent: encryptedFileContent,
-                                                    label: 'document',
-                                                    formId: reportData.formId
-                                                }
-                                            );
-                                            this.dispatchEvent(new CustomEvent('new-service', {
-                                                detail: {
-                                                    ctc: this.currentContact,
-                                                    svc: svc,
-                                                    scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-                                                }, composed: true
-                                            }));
-                                            this.busySpinner = false;
-                                            this._closeReportMenu();
-                                            this.confirmSaved();
-                                        }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                                    }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                                }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                            }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                        }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                    }).catch((e)=>{console.log(e);this.busySpinner = false;})
-                }).catch((e)=>{console.log(e);this.busySpinner = false;})
+                        ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},resourcesObject))
+                    )
+                    .then(resourcesObject=>this.api.document().createDocument(resourcesObject.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},resourcesObject)))
+                    .then(resourcesObject=>this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter()).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},resourcesObject)))
+                    .then(resourcesObject=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, resourcesObject.createDocumentResponse, resourcesObject.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},resourcesObject)))
+                    .then(resourcesObject=>this.api.document().setAttachment(resourcesObject.createDocumentResponse.id, null, resourcesObject.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},resourcesObject)))
+                    .then(resourcesObject=>{
+                        const svc = this.api.contact().service().newInstance(this.user,{
+                            content: _.fromPairs([[this.language, { documentId: resourcesObject.createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
+                            encryptedContent: resourcesObject.encryptedFileContent,
+                            label: 'document',
+                            formId: reportData.formId
+                        })
+                        this.dispatchEvent(new CustomEvent('new-service', {
+                            detail: {
+                                ctc: this.currentContact,
+                                svc: svc,
+                                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
+                            }, composed: true
+                        }))
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(()=>{ this.busySpinner = false; this._closeReportMenu(); this.confirmSaved(); })
 
             }
 
@@ -2324,14 +2319,17 @@
                 const precentageUnit = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) ? _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) : "%";
                 const precentageValueAndUnit = precentageValue + " " + precentageUnit
 
-                this.api.code().findCodes("be", "CD-INCAPACITY").then(incapacityCodes=>{
-                    this.api.code().findCodes("be", "CD-INCAPACITYREASON").then(incapacityReasons=>{
+                // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
+
+                this.api.code().findCodes("be", "CD-INCAPACITY").then(incapacityCodes=>{return{incapacityCodes: incapacityCodes}})
+                    .then(resourcesObject => this.api.code().findCodes("be", "CD-INCAPACITYREASON").then(incapacityReasons=>_.assign({incapacityReasons:incapacityReasons},resourcesObject)))
+                    .then(resourcesObject => {
 
                         let incapacityValue = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", "")).toLowerCase()==="ok"?"":_.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"incapacité de" })), "value", ""));
                         let incapacityReason = _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", "")).toLowerCase()==="ok"?"":_.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pour cause de" })), "value", ""));
 
-                        if(_.trim(incapacityValue)) incapacityValue = _.trim(_.get(_.head(_.filter(incapacityCodes, {id:incapacityValue})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(incapacityCodes, {id:incapacityValue})), "label.fr", ""))
-                        if(_.trim(incapacityReason)) incapacityReason = _.trim(_.get(_.head(_.filter(incapacityReasons, {id:incapacityReason})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(incapacityReasons, {id:incapacityReason})), "label.fr", "" )) || _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"autres" })), "value", ""))
+                        if(_.trim(incapacityValue)) incapacityValue = _.trim(_.get(_.head(_.filter(resourcesObject.incapacityCodes, {id:incapacityValue})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(resourcesObject.incapacityCodes, {id:incapacityValue})), "label.fr", ""))
+                        if(_.trim(incapacityReason)) incapacityReason = _.trim(_.get(_.head(_.filter(resourcesObject.incapacityReasons, {id:incapacityReason})), "label." + this.language, "")) || _.trim(_.get(_.head(_.filter(resourcesObject.incapacityReasons, {id:incapacityReason})), "label.fr", "" )) || _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"autres" })), "value", ""))
 
                         if(includedExcludedLabel.toLowerCase() === "inclus" || includedExcludedLabel.toLowerCase() === "included" || includedExcludedLabel.toLowerCase() === "inbegrepen" ) incapacityDuration = parseInt(incapacityDuration) ? incapacityDuration+1 : 1;
 
@@ -2371,20 +2369,13 @@
                     ` +
                             '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
-                        // this.busySpinner = false;
-                        // console.log(pdfContent);
-                        // return;
-
-                        // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                        // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000} ).then(pdfFileContent =>{
-                        this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                            this.api.triggerFileDownload( pdfFileContent, "application/pdf", downloadFileName );
-                            this.busySpinner = false;
-                        }).catch(()=>{this.busySpinner = false;this._closeReportMenu();});
+                        return _.assign({pdfContent:pdfContent},resourcesObject)
 
                     })
-                })
-
+                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject)))
+                    .then(resourcesObject => this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
+                    .catch(e=>{console.log(e)})
+                    .finally(()=>{ this.busySpinner=false; this._closeReportMenu(); })
             }
 
             printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject) {
@@ -2658,15 +2649,13 @@
                         </div>` +
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
-                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+                    return _.assign({pdfContent:pdfContent}, pdfPrintingData)
 
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
-
-                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+                })
+                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch((e)=>{console.log(e)})
+                .finally(()=>{ this.busySpinner = false; })
 
             }
 
@@ -2738,44 +2727,42 @@
                         _.get(_.filter(subFormFieldsAndValues,{name:"Communication par téléphone"}), "[0]", {}),
                         _.get(_.filter(subFormFieldsAndValues,{name:"Communication autre"}), "[0]", {})
                     ]
-                }).then(pdfPrintingData =>{
+                }).then(pdfPrintingData => {
 
                     const pdfContent = `
                         <div class="page">
-                            <h1 class="mb40">`+this.localize("requestForKineCare_header1",this.language)+`</h1>
+                            <h1 class="mb40">` + this.localize("requestForKineCare_header1", this.language) + `</h1>
 
                             ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
 
-                            <div class="boxLabel">`+this.localize("requestForKineCare_box1_title",this.language)+`</div>
+                            <div class="boxLabel">` + this.localize("requestForKineCare_box1_title", this.language) + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.healthCarTypeData, 3) + `</div>
 
-                            <div class="boxLabel">`+this.localize("requestForKineCare_box2_title",this.language)+`</div>
+                            <div class="boxLabel">` + this.localize("requestForKineCare_box2_title", this.language) + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.treatmentModalityData, 3) + `</div>
 
-                            <div class="boxLabel">`+this.localize("requestForKineCare_box3_title",this.language)+`</div>
+                            <div class="boxLabel">` + this.localize("requestForKineCare_box3_title", this.language) + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.frequencyData, 3) + `</div>
 
-                            <div class="boxLabel">`+this.localize("requestForKineCare_box4_title",this.language)+`</div>
+                            <div class="boxLabel">` + this.localize("requestForKineCare_box4_title", this.language) + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.complementaryMedicalInfoData, 3) + `</div>
 
-                            <div class="boxLabel">`+this.localize("requestForKineCare_box5_title",this.language)+`</div>
+                            <div class="boxLabel">` + this.localize("requestForKineCare_box5_title", this.language) + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.feedbackData, 1) + `</div>
 
                             ` + this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
                         </div> ` +
-                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+                        '<' + 'script' + '>' + 'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <' + '/script' + '>'
 
-                    // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
+                    return _.assign({pdfContent: pdfContent}, pdfPrintingData)
 
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
+                })
+                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.triggerFileDownload(pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch((e)=>{console.log(e);this.busySpinner = false;})
+                .finally(()=>{this.busySpinner = false})
 
-                }).catch((e)=>{console.log(e);this.busySpinner = false;});
-
-            }
+			}
 
             printNursePrescriptionForm (subFormDataProvider, subFormObject, subFormTemplateObject) {
 
@@ -2884,39 +2871,35 @@
                 this._getPdfPrintingCoreData({
                     downloadFileName: _.kebabCase([ this.localize("requestForNurseCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
                     formsData: formsData
-                }).then(pdfPrintingData =>{
-
+                }).then(pdfPrintingData => {
                     const pdfContent = `
                         <div class="page">
-                            <h1 class="mb40">`+this.localize("requestForNurseCare_header1",this.language)+`</h1>
+                            <h1 class="mb40">` + this.localize("requestForNurseCare_header1", this.language) + `</h1>
 
                             ` + this._getPatientVignetteHtmlCode(pdfPrintingData.patientData) + `
 
                             <div class="boxLabel">` + pdfPrintingData.formsData.subForm.subSubFormsStructure.label + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.formsData.subForm.subSubFormsStructure.fieldsAndValues, 2) + `</div>
 
-                            <div class="boxLabel">`+ pdfPrintingData.formsData.subForm.name +`</div>
+                            <div class="boxLabel">` + pdfPrintingData.formsData.subForm.name + `</div>
                             <div class="borderedBox">` + this._getFormCheckboxesAndLabelHtmlCode(pdfPrintingData.formsData.subForm.fieldsAndValues, 1) + "</div>" +
 
-                            _.map(pdfPrintingData.formsData.subSubForms, (singleSubSubForm => {
-                                return"" +
-                                    '<div class="boxLabel">' + singleSubSubForm.name + '</div>' +
-                                    '<div class="borderedBox">' + this._getFormCheckboxesAndLabelHtmlCode(singleSubSubForm.fieldsAndValues, singleSubSubForm.columnsCount) + '</div>'
-                            })).join(" ") +
+                        _.map(pdfPrintingData.formsData.subSubForms, (singleSubSubForm => {
+                            return "" +
+                                '<div class="boxLabel">' + singleSubSubForm.name + '</div>' +
+                                '<div class="borderedBox">' + this._getFormCheckboxesAndLabelHtmlCode(singleSubSubForm.fieldsAndValues, singleSubSubForm.columnsCount) + '</div>'
+                        })).join(" ") +
 
-                            this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
+                        this._getDoctorDetailsHtmlCode(pdfPrintingData.hcpData) + `
                         </div>` +
-                        '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
+                        '<' + 'script' + '>' + 'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <' + '/script' + '>'
 
-                   // console.log(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter());
-
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1, printBackground:true} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
-
-                }).catch((e)=>{console.log(e);this.busySpinner = false;});
+                    return _.assign({pdfContent:pdfContent}, pdfPrintingData)
+                })
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch((e)=>{console.log(e)})
+                .finally(()=>{this.busySpinner = false})
 
             }
 
