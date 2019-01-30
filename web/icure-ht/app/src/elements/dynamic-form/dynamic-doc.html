@@ -185,17 +185,14 @@
             <template is="dom-if" if="[[downloadable]]">
                 <paper-card class="pat-details-card">
                     <span>[[document.name]]</span>
-                    <template is="dom-if" if="[[preview]]">
-                        <pre class="txt-container">[[attachmentContent]]</pre>
-                    </template>
                     <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                         [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
                     </div>
+                    <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
+                        <div><span>[[resInfo.firstName]] [[resInfo.lastName]]</span></div>
+                        <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                    </template>
                 </paper-card>
-            </template>
-            <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
-                <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]"
-                                  contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
             </template>
         </template>
 
