@@ -699,8 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p><span>[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
-                                <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
-                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
+                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
                             </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
@@ -2358,21 +2358,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     // TODO: Restore me
                     // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(12, 'months').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-
-                        this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
-                        return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({
-                            comments: _.trim(_.get(item, "details", ""))||null,
-                            externalCustomerId: _.trim(_.get(item, "patientId", ""))||null,
-                            customerComments: _.trim(_.get(item, "details", ""))||null,
-                            title: _.trim(_.get(item, "title", ""))||null,
-                            startTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "startTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
-                            endTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "endTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
-                            type: null,
-                            street: _.trim(_.get(item, "addressText", ""))||null,
-                            originalObject: _.merge({wasMigrated: true}, item)
-                        }))
-
+                    this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+                        return Promise.all([this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(6, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId)].concat(
+                            hcp.parentId ? [this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(6, 'months').format('YYYYMMDDHHmmss'), hcp.parentId)] : []
+                        )).then(([a, b]) => {
+                            const items = a.concat(b.filter(calItem => calItem.responsible === hcp.id))
+                            this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
+                            return items.filter(item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false)).map(item => ({
+                                comments: _.trim(_.get(item, "details", "")) || null,
+                                externalCustomerId: _.trim(_.get(item, "patientId", "")) || null,
+                                customerComments: _.trim(_.get(item, "details", "")) || null,
+                                title: _.trim(_.get(item, "title", "")) || null,
+                                startTime: (parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "startTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss") + "Z" : null),
+                                endTime: (parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "endTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss") + "Z" : null),
+                                type: null,
+                                street: _.trim(_.get(item, "addressText", "")) || null,
+                                originalObject: _.merge({wasMigrated: true}, item)
+                            }))
+                        })
                     }).then(apps => {
 
                         console.log(apps);

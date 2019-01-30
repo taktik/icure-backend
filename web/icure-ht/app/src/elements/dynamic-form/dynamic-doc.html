@@ -7,6 +7,7 @@
 
 <link rel="import" href="../pdf-element/pdf-element.html">
 <link rel="import" href="../ht-spinner/ht-spinner.html">
+<link rel="import" href="ht-services-list.html">
 
 <dom-module id="dynamic-doc">
 	<template>
@@ -39,6 +40,9 @@
 				overflow: hidden;
                 width: calc(100% - 64px);
 			}
+            .pat-details-card hr {
+                border: 1px solid var(--app-background-color-darker)
+            }
 
 			.horizontal {
 				display: flex;
@@ -121,15 +125,50 @@
                 text-align: center;
             }
 
+            .resInfos {
+                display: flex;
+                flex-direction: column;
+                background: var(--app-background-color-dark);
+                border-radius: 4px;
+                padding: 4px;
+            }
+
+            .resInfos h4 {
+                margin: 0;
+                text-align: center;
+            }
+
+            .resInfos .line {
+                display: flex;
+                flex-direction: row;
+            }
+            .resInfos .line .label {
+                width: 30%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                display: block;
+                overflow: hidden;
+            }
+            .resInfos .line span {
+                box-sizing: border-box;
+                margin: 0 8px 0 4px;
+                padding: 4px;
+                background: white;
+            }
+            .resInfos .indicator {
+                font-size: .85em;
+                text-align: right;
+            }
+
 		</style>
-        <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+        <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
                         <ht-spinner class="center" active></ht-spinner>
                     </template>
                     <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <template is="dom-if" if="[[downloadable]]">
                             <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                                 [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -140,11 +179,11 @@
                         </div>
                     </template>
                     <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
                     </template>
                     <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <template is="dom-if" if="[[downloadable]]">
                             <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                                 [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -152,8 +191,18 @@
                         </template>
                     </template>
                 </template>
+                <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
+                    <span>[[_title(document.name, title)]]</span>
+                    <template is="dom-if" if="[[preview]]">
+                        <pre class="txt-container">[[attachmentContent]]</pre>
+                    </template>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]]
+                        <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                    <span>[[document.name]]</span>
+                    <span>[[_title(document.name, title)]]</span>
                     <template is="dom-if" if="[[downloadable]]">
                         <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                             [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -163,23 +212,33 @@
             </paper-card>
         </template>
 
-        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
-            <template is="dom-if" if="[[downloadable]]">
-                <paper-card class="pat-details-card">
-                    <span>[[document.name]]</span>
-                    <template is="dom-if" if="[[preview]]">
-                        <pre class="txt-container">[[attachmentContent]]</pre>
-                    </template>
+        <template is="dom-if" if="[[isLabOrProtocol]]">
+            <paper-card class="pat-details-card">
+                <span>[[_title(document.name, title)]]</span>
+                <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
+                    <div class="resInfos">
+                        <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
+                        <div class="line"><b class="label">[[localize('document','Document',language)]]</b><span>[[resInfo.protocol]] - [[resInfo.labo]]</span></div>
+                        <div class="line"><b class="label">[[localize('date','Date',language)]]</b><span>[[_formatDate(resInfo.demandDate)]]</span></div>
+                        <template is="dom-if" if="[[resInfo.complete]]">
+                            <div class="indicator"><iron-icon icon="check"></iron-icon> [[localize('com_res','Complete result',language)]]</div>
+                        </template>
+                        <template is="dom-if" if="[[!resInfo.complete]]">
+                            <div class="indicator"><iron-icon icon="info"></iron-icon> [[localize('inc_res','Incomplete result',language)]]</div>
+                        </template>
+                    </div>
+                    <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
                     <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                         [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
                     </div>
-                </paper-card>
-            </template>
-            <template is="dom-if" if="[[mailbody]]">
-                <div class="txt-container">[[attachmentContent]]</div>
-            </template>
+                </template>
+            </paper-card>
         </template>
-	</template>
+
+    </template>
 
 	<script>
         import XML from 'parse-xml/dist/parse-xml';
@@ -234,10 +293,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: String,
 				value: null
 			},
-            patient:{
-			    type: Object,
-				value: null
-			}
+            isLabOrProtocol: {
+                type: Boolean,
+                value: true
+            }
 		};
 	}
 
@@ -249,6 +308,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		super();
 	}
 
+    _title(name, fallback) {
+	    return name && name !== 'No title' ? name : fallback
+    }
+
 	_documentIdChanged() {
 		if (!this.documentId || !this.api || !this.user) {
 			return;
@@ -257,7 +320,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.document().getDocument(docId).then(doc => {
             this.set('document', doc)
             if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
-                this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                    this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
                 ).then(({extractedKeys: enckeys}) => {
                     const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
                     console.log('url is', url)
@@ -296,19 +359,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+		return dataUrl && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
 
 	_pdfMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+		return dataUrl && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
 	}
 
     _xmlMimeType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+        return (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
     }
 
-    _plainMimeType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    _plainMimeType(uti, utis, isLabOrProtocol) {
+        return !isLabOrProtocol && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
     }
 
     _unknownMimeType(uti, utis, dataUrl) {
@@ -317,30 +380,32 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _dataUrlChanged(dataUrl) {
         if (dataUrl && dataUrl.length) {
-            if (this._imageMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(img => this.set('attachmentContent', img))
-            }
-            if (this._pdfMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(pdf => this.set('attachmentContent', pdf))
-            }
             if (this._xmlMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
+                fetch(dataUrl, {credentials:'include'})
                     .then(response => response.text())
                     .then(xml => this.set('attachmentContent', xml.toString()))
-            }
-            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(text => this.set('attachmentContent', text))
+            } else if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                this.api.beresultimport().canHandle(this.document.id).then( isResult => {
+                    if (isResult) {
+                        this.set('isLabOrProtocol', true)
+                        this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr').then(res => {
+                            this.set('attachmentContent', res)
+                        })
+                    } else {
+                        this.set('isLabOrProtocol', false)
+                        fetch(dataUrl, {credentials:'include'})
+                            .then(response => response.text())
+                            .then(text => {
+                                this.set('attachmentContent', text)
+                            })
+
+                    }
+                })
             }
         }
 	}
     mimeType(u){
-	    return this.api.document().mimeType(u)
+	    return u === 'public.plainText' ? 'text/plain' : this.api.document().mimeType(u)
 	}
 
 	_base64(data) {
@@ -351,6 +416,11 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.showDetail = !this.showDetail
 	}
 
+	_formatDate(date) {
+	    return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY')
+    }
+
+	_wrap(o) { return [o] }
 }
 
 customElements.define(DynamicDoc.is, DynamicDoc);

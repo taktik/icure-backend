@@ -35,6 +35,7 @@ import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.db.Sorting;
 import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.AccessLog;
+import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
@@ -43,6 +44,7 @@ import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.exceptions.UpdateConflictException;
 import org.taktik.icure.logic.AccessLogLogic;
+import org.taktik.icure.logic.HealthcarePartyLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.PatientLogic;
 import org.taktik.icure.logic.impl.filter.Filters;
@@ -99,6 +101,7 @@ public class PatientFacade implements OpenApiFacade{
 	private MapperFacade mapper;
 	private org.taktik.icure.logic.impl.filter.Filters filters;
 	private PatientLogic patientLogic;
+	private HealthcarePartyLogic healthcarePartyLogic;
 
     @ApiOperation(
             value = "Find patients for the current user (HcParty) ",
@@ -126,10 +129,10 @@ public class PatientFacade implements OpenApiFacade{
         }
 
         String[] startKeyElements = new Gson().fromJson(startKey, String[].class);
-        @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null,
-                limit == null ? null : limit);
+        @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
 
-	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId, paginationOffset, filterValue, new Sorting(null, sortDirection));
+	    HealthcareParty hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId());
+	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcp.getParentId() != null ? hcp.getParentId() : hcp.getId(), paginationOffset, filterValue, new Sorting(null, sortDirection));
 
 	    if (patients != null) {
 		    response = buildPaginatedListResponse(patients);
@@ -817,6 +820,11 @@ public class PatientFacade implements OpenApiFacade{
 	@Context
 	public void setSessionLogic(ICureSessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
+	}
+
+	@Context
+	public void setHealthcarePartyLogic(HealthcarePartyLogic healthcarePartyLogic) {
+		this.healthcarePartyLogic = healthcarePartyLogic;
 	}
 
 	@ExceptionHandler(BulkUpdateConflictException.class)
