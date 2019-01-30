@@ -56,6 +56,9 @@
                 flex-grow: 1;
 			}
 
+            span.outofrange-true {
+                color: var(--app-status-color-nok);
+            }
 
         </style>
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
@@ -75,7 +78,7 @@
                 <template class="header">
                     Value
                 </template>
-                <template>[[_shortDescription(item)]]</template>
+                <template><span class$="outofrange-[[_isOutOfRange(item)]]">[[_shortDescription(item)]]</span></template>
             </vaadin-grid-column>
             <vaadin-grid-column flex-grow="4">
                 <template class="header">
@@ -142,6 +145,11 @@ class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _author(item) {
         return this.api.getAuthor(item.author);
+    }
+
+    _isOutOfRange(svc) {
+        const c = this.api.contact().preferredContent(svc, this.language)
+        return (c && c.measureValue && (c.measureValue.value < c.measureValue.min || c.measureValue.value > c.measureValue.max ))
     }
 
     _normalValues(svc) {
