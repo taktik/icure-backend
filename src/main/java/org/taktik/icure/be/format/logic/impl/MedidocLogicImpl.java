@@ -37,10 +37,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -114,7 +113,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
 		BufferedReader br = getBufferedReader(doc);
 		List<String> lines = IOUtils.readLines(br);
@@ -160,6 +159,12 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 
 				ri.setProtocol(code);
 				i += isStandardFormat?6:9;
+
+				if (full) {
+					Service s = new Service();
+					i = fillService(s, language, lines, i, demandDate);
+				}
+
 				l.add(ri);
 			}
 		}
@@ -230,28 +235,14 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				i += isStandardFormat?6:9;
 
 				if (protocolIds.contains(code) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
-					do {
-						i++;
-					} while (!p2.matcher(lines.get(i)).matches());
-					//Skip p2 and first empty line
-					i += 2;
+					Service s = new Service();
 
-					StringBuilder b = new StringBuilder();
-					while (!p4.matcher(lines.get(i)).matches()) {
-						b.append(lines.get(i)).append("\n");
-						i++;
-					}
+					i = fillService(s, language, lines, i, demandDate);
 
 					String labo = lines.get(1).replaceAll("  +", " ");
 
 					LaboLine ll = new LaboLine();
 					lls.add(ll);
-
-					Service s = new Service();
-					s.setId(uuidGen.newGUID().toString());
-					s.getContent().put(language, new Content(b.toString()));
-					s.setLabel("Protocol");
-					s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? Instant.ofEpochMilli(demandDate.getTime()) : Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS));
 
 					ll.setServices(Collections.singletonList(s));
 					ll.setResultReference(code);
@@ -267,6 +258,26 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		} catch (MissingRequirementsException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	private int fillService(Service s, String language, List<String> lines, int i, Date demandDate) {
+		do {
+			i++;
+		} while (!p2.matcher(lines.get(i)).matches());
+		//Skip p2 and first empty line
+		i += 2;
+
+		StringBuilder b = new StringBuilder();
+		while (!p4.matcher(lines.get(i)).matches()) {
+			b.append(lines.get(i)).append("\n");
+			i++;
+		}
+
+		s.setId(uuidGen.newGUID().toString());
+		s.getContent().put(language, new Content(b.toString()));
+		s.setLabel("Protocol");
+		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? Instant.ofEpochMilli(demandDate.getTime()) : Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS));
+		return i;
 	}
 
 	@Override
@@ -311,13 +322,12 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 			pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress.map(Address::getPostalCode).orElse(""), 0, 10), 10) +
 					StringUtils.rightPad(StringUtils.substring(senderAddress.map(Address::getCity).orElse(""), 0, 35), 35)).replaceAll("[\\r\\n]", "") + "\r\n");
 
-			Set<Telecom> senderTelecoms = senderAddress.map(Address::getTelecoms).orElse(new HashSet<>());
+			List<Telecom> senderTelecoms = senderAddress.map(Address::getTelecoms).orElse(new LinkedList<>());
 			Optional<Telecom> senderPhone = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.phone).findFirst();
 			if (!senderPhone.isPresent()) {
 				senderPhone = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.mobile).findFirst();
 			}
-			Optional<Telecom> senderFax = senderTelecoms.stream().filter(t -> t.getTelecomType() == TelecomType.fax).findFirst();
-			//5
+
 			pw.print((StringUtils.rightPad(StringUtils.substring(senderPhone.map(Telecom::getTelecomNumber).orElse(""), 0, 25), 25) +
 					StringUtils.rightPad(StringUtils.substring(senderPhone.map(Telecom::getTelecomNumber).orElse(""), 0, 25), 25)).replaceAll("[\\r\\n]", "") + "\r\n");
 

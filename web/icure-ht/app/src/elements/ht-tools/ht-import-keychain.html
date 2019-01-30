@@ -81,7 +81,7 @@
 						<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
 							<vaadin-grid-column flex-grow="15">
 								<template class="header">
-									<div>Name</div>
+									<div>[[localize('name','Name',language)]]</div>
 								</template>
 								<template>
 									<div class="cell frozen">[[item.keystore.name]]</div>
@@ -89,7 +89,7 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set the active keystore</div>
+									<div>[[localize('set_active_keystore','Set the active keystore',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveButtonIconName(item.onlyDecrypt)]]" keystore$='[[index]]'></iron-icon></paper-button>
@@ -97,7 +97,7 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set as MH keystore</div>
+									<div>[[localize('set_mh_keystore','Set as MH keystore',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveMMButtonIconName(item.personalKeystore)]]" keystore$='[[index]]'></iron-icon></paper-button>
@@ -105,7 +105,7 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set the keystore password</div>
+									<div>[[localize('set_keystore_pass','Set the keystore password',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' ><iron-icon icon="[[getPasswordButtonIconName(item.hasPassword)]]" index$='[[index]]'></iron-icon></paper-button>

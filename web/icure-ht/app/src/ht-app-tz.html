@@ -45,6 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
@@ -70,6 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/icc-api/icc-api.html">
 
 <link rel="import" href="./dialog-style.html">
+<link rel="import" href="elements/ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-app-tz">
 
@@ -133,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 480px;
                 };
                 --paper-menu-button-dropdown: {
-                    padding: 0;extra-menu
+                    padding: 0;extra-menu;
                 }
             }
 
@@ -293,6 +295,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-family: 'Roboto', Arial, Helvetica, sans-serif;
                 font-size: 12px;
                 color: var(--app-text-color-light);
+                margin: 0;
             }
 
             .log-info p .ehealth-connection-status {
@@ -302,6 +305,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 top: 50%;
                 transform: translateY(-50%);
                 right: -11px;
+                height: 7px;
+                width: 7px;
+                border-radius: 8px;
+            }
+
+            .log-info p .ehealth-mh-connection-status {
+                content: '';
+                display: block;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: -24px;
                 height: 7px;
                 width: 7px;
                 border-radius: 8px;
@@ -317,6 +332,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .disconnected {
+                background: var(--app-status-color-nok);
+            }
+
+            .notconfigured {
                 background: var(--app-status-color-nok);
             }
 
@@ -409,6 +428,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .inviteHcpInput {
                 width: 100%;
+            }
+
+            #ht-invite-hcp .buttons {
+                border-top: 1px solid var(--app-background-color-dark);
+                color: var(--app-text-color-light);
+            }
+            #ht-invite-hcp .buttons * {
+                background: var(--app-secondary-color-dark);
             }
 
             .formNewHcp {
@@ -525,11 +552,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-status-color-nok);
             }
 
+            #appointmentsMigrationDialog{
+                height: 400px;
+                width: 600px;
+            }
+
+            #busySpinner {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                background: rgba(255,255,255,.6);
+                z-index:110;
+                margin-top:0;
+                top:0;
+                left:0;
+            }
+            #busySpinnerContainer {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width:200px;
+                height:200px;
+            }
+            #update-notification {
+                z-index: 1000;
+                position: fixed;
+                right: 32px;
+                top: 32px;
+                height: 48px;
+                width: 256px;
+                font-size: 12px;
+                font-weight: 500;
+                background-color: var(--app-secondary-color);
+                opacity: 1;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-around;
+                align-items: center;
+                color: var(--app-text-color-light);
+            }
+
+
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
-        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
+        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection ',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
 
@@ -554,6 +623,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
                        on-user-saved="_userSaved"></ht-my-profile>
 
+        <template is="dom-if" if="[[updateMessage]]">
+            <paper-card id="update-notification">
+                    <span>[[updateMessage]]</span>
+                    <template is="dom-if" if="[[updateAction]]">
+                        <paper-button name="update" on-tap="doUpdate">
+                            <iron-icon class="iron-icon" icon="play-for-work"></iron-icon>
+                            <span>[[updateAction]]</span>
+                        </paper-button>
+                    </template>
+            </paper-card>
+        </template>
 
         <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
         <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
@@ -585,7 +665,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
-                                <paper-button name="diary" on-tap="checkAndLoadMikrono">
+                                <paper-button name="diary" on-tap="doRoute">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
                                     [[localize('diary')]]
                                 </paper-button>
@@ -616,13 +696,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-tab>
                         </paper-tabs>
                         <div class="log-info">
-                            <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
-                                                                                                                       class="ehealth-connection-status pending"></span></p>
+                            <p><span>[[user.login]] –</span>
+                                <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
+                                <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
+                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
+                            </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
                                     [[localize('ehe_is_con','eHealth is connected',language)]]
                                 </template>
                                 <template is="dom-if" if="[[!api.tokenId]]">
+                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                                </template>
+                            </paper-tooltip>
+                            <paper-tooltip for="ehealthMH">
+                                <template is="dom-if" if="[[api.tokenIdMH]]">
+                                    [[localize('ehe_is_con','eHealth is connected',language)]]
+                                </template>
+                                <template is="dom-if" if="[[!api.tokenIdMH]]">
                                     [[localize('ehe_is_not_con','eHealth is not connected',language)]]
                                 </template>
                             </paper-tooltip>
@@ -1136,6 +1228,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_logList">[[localize('acc_log','Access Log',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_tuto">[[localize('tutorial','Tutorial',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="mikronoAppointmentsMigration">[[localize('imp_ep_app','Import Epicure appointments',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_myProfile">
                                         <iron-icon icon="icons:account-circle"></iron-icon>
                                         [[localize('my_pro','My profile',language)]]
@@ -1162,19 +1255,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
-                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-hcp>
                     <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
-                    <ht-diary name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                    <ht-diary id="htDiary" name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-diary>
                     <ht-view404 name="view404"></ht-view404>
                 </iron-pages>
             </app-header-layout>
         </app-drawer-layout>
+
+        <template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
 
         <paper-dialog id="ht-invite-hcp">
             <h3 class="modal-title">[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
@@ -1242,11 +1337,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+
+        <paper-dialog id="appointmentsMigrationDialog">
+            <h4>Migration de vos rendez-vous</h4>
+            <vaadin-grid id="migrItem" class="material" items="[[migrationItems]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        Opération en cours
+                    </template>
+                    <template>
+                        <div>[[item.item]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+        </paper-dialog>
+
     </template>
 
     <script>
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
+        const runtime = require('offline-plugin/runtime');
+
 
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1393,6 +1505,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     mikronoError:{
                         type: Object,
                         value : () => {}
+                    },
+                    migrationItems:{
+                        type: Array,
+                        value: () => []
+                    },
+                    busySpinner: {
+                        type: Boolean,
+                        value: false
+                    },
+                    updateMessage: {
+                        type: String,
+                        value: null
+                    },
+                    updateAction: {
+                        type: String,
+                        value: null
                     }
                 }
             }
@@ -1407,7 +1535,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super()
             }
 
-
             setUrls() {
                 const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
@@ -1416,7 +1543,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('defaultIcureUrl', this.icureUrl)
                 this.set('defaultFhcUrl', this.fhcUrl)
-
             }
 
             _updateServerUrl(icureurl, fhcurl) {
@@ -1472,8 +1598,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
+                runtime.install({
+                    onUpdating: () => {
+                        console.log('SW Event: ', 'onUpdating');
+                        this.set('updateMessage', this.localize('new_upd_det','New update detected.',this.language))
+                        this.set('updateAction', null)
+                    },
+                    onUpdateReady: () => {
+                        console.log('SW Event: ', 'onUpdateReady');
+                        this.set('updateMessage', this.localize('new_upd_rea','New update ready',this.language))
+                        this.set('updateAction', this.localize('upd','Update'))
+                    },
+                    onUpdated: () => {
+                        console.log('SW Event: ', 'onUpdated');
+                        window.location.reload();
+                    },
+
+                    onUpdateFailed: () => {
+                        console.log('SW Event: ', 'onUpdateFailed');
+                        this.set('updateMessage', this.localize('upd_fail','Update failed, please refresh.'))
+                    }
+                });
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
+            }
+
+            doUpdate() {
+                this.set('updateMessage', this.localize('upd_ing','Updating...'))
+                this.set('updateAction', null)
+                runtime.applyUpdate();
             }
 
             resetTimer() {
@@ -1483,6 +1636,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _userSaved(e) {
                 this.set('user', e.detail)
             }
+
+            _openUtility(e) {
+                if (e.detail && e.detail.panel === 'my-profile') {
+                    this._myProfile(e.detail.tab)
+                } else if (e.detail && e.detail.panel === 'import-keychain') {
+                    this._importKeychain()
+                }
+            }
+
 
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
@@ -1521,6 +1683,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.uploadKeystoreAndCheckToken().then(() => {
                             this._timeCheck()
                         }).catch(() => this._timeCheck(10000))
+                    }
+                }, period)
+            }
+
+            _timeCheckMH(period = 30000){
+                setTimeout(() => {
+                    if (this.api.tokenIdMH) {
+                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenIdMH).then(isTokenValid => {
+                            if (!isTokenValid) {
+                                this.uploadMHKeystoreAndCheckToken().then(() => {
+                                    this._timeCheckMH()
+                                }).catch(() => this._timeCheckMH(10000))
+                            } else {
+                                this._timeCheckMH()
+                            }
+                        }).catch(() => this._timeCheckMH(10000))
+                    } else {
+                        this.uploadMHKeystoreAndCheckToken().then(() => {
+                            this._timeCheckMH()
+                        }).catch(() => this._timeCheckMH(10000))
                     }
                 }, period)
             }
@@ -1608,8 +1790,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['ht-invite-hcp'].open()
             }
 
-            _myProfile() {
-                this.$['ht-my-profile'].open()
+            _myProfile(tab) {
+                this.$['ht-my-profile'].open(tab)
             }
 
             _selectEntities(){
@@ -1631,6 +1813,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('connected')
                         this.$.eHealthStatus.classList.add('disconnected')
+                        throw(e)
+                    })
+                )
+            }
+
+
+            _getMHToken() {
+                //TODO: change the request for MH
+                //this.api.fhc().Stscontroller().requestTokenUsingGET(k.passPhrase, this.getNihii8(MHNihii), k.uuid, true )
+                //get the password from local storage
+                //let mhPassword= "";
+                const MHNihii = "84450178101";
+                return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    this.$.api.hcparty().getHealthcareParty(hcp.parentId).then(hcpMH =>
+                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpasswordMH, hcpMH.nihii.substr(0,8), this.api.keystoreIdMH, true).then(res => {
+                        this.$.eHealthMHStatus.classList.remove('pending')
+                        this.$.eHealthMHStatus.classList.remove('disconnected')
+                        this.$.eHealthMHStatus.classList.add('connected')
+
+                        this.set('api.tokenIdMH', res.tokenId)
+                        this.set('api.tokenMH', res.token)
+                        this.set('api.nihiiMH', hcpMH.nihii)
+                        return res.tokenId
+                    }).catch((e) => {
+                        this.$.eHealthMHStatus.classList.remove('pending')
+                        this.$.eHealthMHStatus.classList.remove('connected')
+                        this.$.eHealthMHStatus.classList.add('disconnected')
+                        throw(e)
+                    })).catch((e) => {
+                        this.$.eHealthMHStatus.classList.remove('pending')
+                        this.$.eHealthMHStatus.classList.remove('connected')
+                        this.$.eHealthMHStatus.classList.add('disconnected')
                         throw(e)
                     })
                 )
@@ -1716,6 +1930,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                     this._timeCheck()
+                    this._timeCheckMH()
                     this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
@@ -1781,6 +1996,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.eHealthStatus.classList.remove('connected')
                     this.$.eHealthStatus.classList.add('disconnected')
                 }
+                return Promise.resolve(null);
+            }
+
+
+            uploadMHKeystoreAndCheckToken() {
+
+                const ksKey  = "org.taktik.icure.ehealth.keychain.MMH."+ this.user.healthcarePartyId;
+                Object.keys(localStorage).filter(k => k === ksKey).map(kM => {
+                    const val = localStorage.getItem(kM);
+                    Object.keys(localStorage).map(kA => {
+                        if(localStorage.getItem(kA) === val){
+                            this.getDecryptedValueFromLocalstorage(this.user.healthcarePartyId, kA.replace("keychain.","keychain.password."))
+                                .then( password => {
+                                    this.credentials.ehpasswordMH = password
+                                    if (this.credentials.ehpasswordMH) {
+                                        const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage("MMH."+ this.user.healthcarePartyId)
+                                        if (ehKeychain) {
+                                            return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                                                this.$.api.keystoreIdMH = res.uuid
+                                                return this._getMHToken()
+                                            }).catch((e) => {
+                                                this.$.eHealthMHStatus.classList.remove('pending')
+                                                this.$.eHealthMHStatus.classList.remove('connected')
+                                                this.$.eHealthMHStatus.classList.add('disconnected')
+                                                throw(e)
+                                            })
+                                        } else {
+                                            //TODO: notif for no MH session
+                                            //this.$.noehealth.classList.add("notification")
+
+                                            this.$.eHealthMHStatus.classList.remove('pending')
+                                            this.$.eHealthMHStatus.classList.remove('connected')
+                                            this.$.eHealthMHStatus.classList.add('disconnected')
+                                        }
+                                    } else {
+                                        this.$.eHealthMHStatus.classList.remove('pending')
+                                        this.$.eHealthMHStatus.classList.remove('connected')
+                                        this.$.eHealthMHStatus.classList.add('disconnected')
+                                    }
+                                    return Promise.resolve(null);
+                                });
+                        }
+                    })
+                })
                 return Promise.resolve(null);
             }
 
@@ -1891,8 +2150,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            getMHKeystore(){
+                const healthcarePartyId =this.user.healthcarePartyId;
+                // MHPrefix ? MHPrefix + "." + this.user.healthcarePartyId :
+
+            }
+
 			getAlternateKeystores(){
-				const healthcarePartyId = this.user.healthcarePartyId;
+				const healthcarePartyId =this.user.healthcarePartyId;
 
                 return Promise.all(
 				Object.keys(localStorage).filter(k => k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".") === true)
@@ -1968,7 +2233,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _tuto(){
-                this.$['tutorialDialog'].open()
+                // this.$['tutorialDialog'].open()
+                window.open("http://topaz.care/fr/tutorials.html");
             }
 
             checkAndLoadMikrono(){
@@ -1982,23 +2248,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
                         if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                            this.api.isElectronAvailable().then(electron =>{
+                                if(electron === false){
+                                    window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank')
+                                }else{
+                                    fetch('http://127.0.0.1:16042/mc', {
+                                        method: "POST",
+                                        headers: {"Content-Type": "application/json"},
+                                        body: JSON.stringify({username:mikronoUser, password:mikronoPassword})
+                                    }).then(response => response.json()).then(rep => {
+                                        if(rep.ok){
+                                            this.set('routeData.page', "diary")
+                                            setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
+                                        }
+                                    })
+                                }
+                            })
+
                         }else{
                             const addresses = hcp && hcp.addresses || null
                             const workAddresses = addresses.find(adr => adr.addressType === "work") || null
                             const telecoms = workAddresses && workAddresses.telecoms
-                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile" || tel.telecomType === "phone") || null
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
-                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+                                this.api.onlinebemikrono().register(this.user.id, {}).then(user => {
                                     if(user === true){
-                                        const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
-                                        const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
-                                        const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
-                                        if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
-                                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
-                                        }
+                                        this.api.user().getUser(this.user.id).then(u => {
+                                            this.set('user', u)
+                                            const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                                            const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                                            const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
+                                            if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                                                this.api.isElectronAvailable().then(electron =>{
+                                                    if(electron === false){
+                                                        window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank')
+                                                    }else{
+                                                        fetch('http://127.0.0.1:16042/mc', {
+                                                            method: "POST",
+                                                            headers: {"Content-Type": "application/json"},
+                                                            body: JSON.stringify({username:mikronoUser, password:mikronoPassword})
+                                                        }).then(response => response.json()).then(rep => {
+                                                            if(rep.ok){
+                                                                this.set('routeData.page', "diary")
+                                                                setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
+                                                            }
+                                                        })
+
+
+                                                    }
+                                                })
+                                            }else{
+                                                this.set("mikronoError", {
+                                                    addresses: false,
+                                                    workAddresses : false,
+                                                    workMobile: false,
+                                                    workEmail : false,
+                                                    token: applicationTokens.MIKRONO ? true : false,
+                                                    error: true
+                                                })
+                                            }
+                                        })
                                     }else{
                                         this.set("mikronoError", {
                                             addresses: addresses ? true : false,
@@ -2027,6 +2339,70 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     })
                 }
+            }
+
+            mikronoAppointmentsMigration(){
+
+                const applicationTokens = _.get(this.user, "applicationTokens", "" )
+                const mikronoUrl = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                const mikronoUser = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                const mikronoPassword = this.user && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.user.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
+                if(mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO){
+                    this.busySpinner = true;
+                    this.set("migrationItems", [])
+                    this.$["appointmentsMigrationDialog"].open()
+                    this.push("migrationItems", {status: "", item: "Récupération de vos rendez-vous en cours..."})
+
+                    let appointments = []
+
+                    // TODO: Restore me
+                    // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+
+                        this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
+                        return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({
+                            comments: _.trim(_.get(item, "details", ""))||null,
+                            externalCustomerId: _.trim(_.get(item, "patientId", ""))||null,
+                            customerComments: _.trim(_.get(item, "details", ""))||null,
+                            title: _.trim(_.get(item, "title", ""))||null,
+                            startTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "startTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
+                            endTime: ( parseInt(_.get(item, "startTime", 0)) ? moment(_.trim(_.get(item, "endTime", "")), "YYYYMMDDHHmmss").format("YYYY-MM-DDTHH:mm:ss")+"Z":null),
+                            type: null,
+                            street: _.trim(_.get(item, "addressText", ""))||null,
+                            originalObject: _.merge({wasMigrated: true}, item)
+                        }))
+
+                    }).then(apps => {
+
+                        console.log(apps);
+
+                        this.push("migrationItems", {status: "", item: "Migration de vos rendez-vous en cours..."})
+                        if(apps && apps.length !== 0){
+                            let prom = Promise.resolve([])
+                            _.chunk(apps, 100).forEach(chunkOfAppointments => {
+                                prom = prom.then(prevResults => this.api.bemikrono().createAppointments(chunkOfAppointments).then(() => {
+
+                                    // TODO: make this evolve and pass appointments by batches
+                                    _.forEach( chunkOfAppointments, (i=>{ this.api.calendaritem().modifyCalendarItem(_.get(i, "originalObject")).then(() => { /*this.push("migrationItems", { status: "", item: "Migration terminée"})*/ }) }))
+
+                                }).then(res => {
+                                    this.push("migrationItems", {status: "", item: "100 rendez-vous (de plus) migrés..."})
+                                    return prevResults.concat(res)
+                                }))
+                            })
+                            prom = prom.then(results => {
+                                this.$["appointmentsMigrationDialog"].close()
+                                this.busySpinner = false;
+                                window.open("https://" + mikronoUser + ":" + mikronoPassword + "@" + mikronoUrl.replace("https://", "") + "/iCureShortcut.jsp?id=" + this.user.id, '_blank')
+                            }).catch((e)=>{this.busySpinner = false;})
+                        }else{
+                            this.busySpinner = false;
+                            window.open("https://"+mikronoUser+":"+mikronoPassword+"@"+mikronoUrl.replace("https://", "")+"/iCureShortcut.jsp?id="+this.user.id, '_blank');
+                        }
+                    }).catch((e)=>{this.busySpinner = false;})
+                }
+
             }
 
         }

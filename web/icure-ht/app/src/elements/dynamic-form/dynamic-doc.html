@@ -7,6 +7,7 @@
 
 <link rel="import" href="../pdf-element/pdf-element.html">
 <link rel="import" href="../ht-spinner/ht-spinner.html">
+<link rel="import" href="ht-services-list.html">
 
 <dom-module id="dynamic-doc">
 	<template>
@@ -89,19 +90,31 @@
 				overflow: hidden;
 			}
 
-			img{
-				max-width:100%;
+            .img-container img{
+				max-height:400px;
 				align-self: center;
 			}
+            .img-container:hover img{
+                max-height: none;
+                max-width: 100%;
+            }
 
             .txt-container {
+                font-family: "Lucida Console","Lucida Sans","monospace",sans-serif;
+                font-size: small;
                 width: 100%;
                 margin: 0;
-                min-height: 64px;
+                padding: 4px;
+                height: auto;
+                min-height: 256px;
+                max-height: 640px;
                 padding: 0;
                 box-shadow: none;
-                background: 0 0;
-                overflow: auto;
+                overflow: scroll;
+                border: 1px solid var(--app-background-color-dark);
+                background: var(--app-background-color);
+                box-sizing: border-box;
+                cursor: all-scroll;
             }
 
             .hoverpointer {
@@ -151,7 +164,7 @@
             </paper-card>
         </template>
 
-        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
+        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, isLabOrProtocol)]]">
             <template is="dom-if" if="[[downloadable]]">
                 <paper-card class="pat-details-card">
                     <span>[[document.name]]</span>
@@ -167,7 +180,23 @@
                 <div class="txt-container">[[attachmentContent]]</div>
             </template>
         </template>
-	</template>
+
+        <template is="dom-if" if="[[isLabOrProtocol]]">
+            <template is="dom-if" if="[[downloadable]]">
+                <paper-card class="pat-details-card">
+                    <span>[[document.name]]</span>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                    <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
+                        <div><span>[[resInfo.firstName]] [[resInfo.lastName]]</span></div>
+                        <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                    </template>
+                </paper-card>
+            </template>
+        </template>
+
+    </template>
 
 	<script>
         import XML from 'parse-xml/dist/parse-xml';
@@ -222,10 +251,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: String,
 				value: null
 			},
-            patient:{
-			    type: Object,
-				value: null
-			}
+            isLabOrProtocol: {
+                type: Boolean,
+                value: true
+            }
 		};
 	}
 
@@ -245,7 +274,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.document().getDocument(docId).then(doc => {
             this.set('document', doc)
             if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
-                this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+                    this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
                 ).then(({extractedKeys: enckeys}) => {
                     const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
                     console.log('url is', url)
@@ -284,19 +313,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+		return dataUrl && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
 
 	_pdfMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+		return dataUrl && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
 	}
 
     _xmlMimeType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+        return (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
     }
 
-    _plainMimeType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
+    _plainMimeType(uti, utis, isLabOrProtocol) {
+        return !isLabOrProtocol && (uti && [uti] || []).concat(utis || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
     }
 
     _unknownMimeType(uti, utis, dataUrl) {
@@ -305,30 +334,32 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _dataUrlChanged(dataUrl) {
         if (dataUrl && dataUrl.length) {
-            if (this._imageMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(img => this.set('attachmentContent', img))
-            }
-            if (this._pdfMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(pdf => this.set('attachmentContent', pdf))
-            }
             if (this._xmlMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
+                fetch(dataUrl, {credentials:'include'})
                     .then(response => response.text())
                     .then(xml => this.set('attachmentContent', xml.toString()))
-            }
-            if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                fetch(dataUrl,{credentials:'include'})
-                    .then(response => response.text())
-                    .then(text => this.set('attachmentContent', text))
+            } else if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+                this.api.beresultimport().canHandle(this.document.id).then( isResult => {
+                    if (isResult) {
+                        this.set('isLabOrProtocol', true)
+                        this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr').then(res => {
+                            this.set('attachmentContent', res)
+                        })
+                    } else {
+                        this.set('isLabOrProtocol', false)
+                        fetch(dataUrl, {credentials:'include'})
+                            .then(response => response.text())
+                            .then(text => {
+                                this.set('attachmentContent', text)
+                            })
+
+                    }
+                })
             }
         }
 	}
     mimeType(u){
-	    return this.api.document().mimeType(u)
+	    return u === 'public.plainText' ? 'text/plain' : this.api.document().mimeType(u)
 	}
 
 	_base64(data) {
@@ -339,6 +370,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.showDetail = !this.showDetail
 	}
 
+	_wrap(o) { return [o] }
 }
 
 customElements.define(DynamicDoc.is, DynamicDoc);

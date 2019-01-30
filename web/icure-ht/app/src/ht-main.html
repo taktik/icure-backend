@@ -324,11 +324,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-column-gap: 12px;
 					grid-row-gap: 12px;
 				}
-				
+
 				.card {
 					overflow:hidden;
 				}
-			
+
 				.card-body {
 					overflow-x: hidden;
 					overflow-y: scroll;
@@ -977,7 +977,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 let results = []
                 cs.forEach(c=>{
                     const svc = c.services.filter(s=> s.label==='labResult')
-                    results.push({patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},created: c.created,descr: c.descr,groupId:c.groupId})
+                    const patName = this.api.contact().preferredContent(svc[0],"patientName") || this.api.contact().preferredContent(svc[0],this.language)
+                    const patId = this.api.contact().preferredContent(svc[0],'patientId') || this.api.contact().preferredContent(svc[0],this.language)
+                    results.push({
+                        patient: {
+                            name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : patName ? patName.stringValue : this.localize('obs_val','obsolete value',this.language),
+                            id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : patId ? patId.stringValue : 0
+                        },
+                        created: c.created,descr: c.descr,groupId:c.groupId
+                    })
                 })
                 return _.orderBy(results,'created','desc')
             }).then(results=> {
@@ -1040,7 +1048,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_dragWidgetOver(e){
-		e.preventDefault()	
+		e.preventDefault()
 		return false
 	}
 
@@ -1187,9 +1195,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const currentWidget = this.widgets[index];
 
 			if(
-				currentWidget.nrCols != newWidget.nrCols || 
+				currentWidget.nrCols != newWidget.nrCols ||
 				currentWidget.nrRows != newWidget.nrRows ||
-				currentWidget.posCol != newWidget.posCol || 
+				currentWidget.posCol != newWidget.posCol ||
 				currentWidget.posRow != newWidget.posRow
 			) {
 
@@ -1245,7 +1253,7 @@ class GridLayout {
 
 					for( let colIndex = 0; colIndex < widget.nrCols; colIndex++ ) {
 
-							this.grid[widget.posRow + rowIndex][widget.posCol + colIndex] = widget.id
+                        this.grid[widget.posRow + rowIndex] && (this.grid[widget.posRow + rowIndex][widget.posCol + colIndex] = widget.id)
 
 					}
 
@@ -1352,7 +1360,7 @@ class GridLayout {
 			widget.posCol -= widget.nrCols - (minRightSpace + 1)
 
 			return widget
-				
+
 
 		}
 
@@ -1390,7 +1398,7 @@ class GridLayout {
 
 	}
 
-	setFromStorage(user, widgets) { 
+	setFromStorage(user, widgets) {
 
 		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
 
@@ -1440,7 +1448,7 @@ class GridLayout {
 	}
 
 	setGridSize(layout = this.layout) {
-		
+
 		switch (layout) {
 			case 'layoutA':
 				this.cols = 2;
@@ -1471,14 +1479,14 @@ class GridLayout {
 		this.layout = layout
 
 		return this;
-	} 
+	}
 
 	setLayoutFromSize(size) {
 
 		if( size >= 950 ){
-			
+
 			if( this.layout == 'layoutTab' || this.layout == 'layoutMobile') {
-			
+
 				this.setGridSize('layoutA')
 				return true
 

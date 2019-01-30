@@ -1188,12 +1188,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
             <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
             <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
-                <vaadin-grid-column width="100px">
+                <vaadin-grid-column width="40px">
                     <template class="header">
                         <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
                     </template>
                     <template>
-                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp" disabled="[[shareAll]]"></vaadin-checkbox>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column width="100px">
@@ -1237,6 +1237,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
                     patients',language)]]
+                </paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingAllNextStep">[[localize('share_to_all','Share
+                    to everyone',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
@@ -1691,6 +1694,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     isSharingPatient: {
                         type: Boolean,
                         value: true
+                    },
+                    shareAll: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -2630,13 +2637,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _toggleBoxes(e) {
-                const checked = e.target.getAttribute('checked')
+                const checked = e.target.getAttribute('checked')!= null ? true : false
                 console.log('checked ?',checked)
                 let boxList = this.shadowRoot.querySelector('#hcp-list');
                 let allCheckBoxes = boxList ? boxList.querySelectorAll('.checkbox') : [];
                 allCheckBoxes.forEach(box=>{
                     box.checked = !box.checked;
                 })
+                this.set('shareAll',checked)
             }
 
             _checkHcp(e) {
@@ -2665,7 +2673,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _sharingHcp(item) {
-                if (item) {
+                if (this.shareAll == true ) {
+                    return true
+                } else if (item) {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
                     return mark && mark.check
                 } else {
@@ -2673,12 +2683,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            confirmSharingNextStep() {
+            confirmSharingAllNextStep() {
+                this.confirmSharingNextStep(true)
+            }
+
+            confirmSharingNextStep(allHcp) {
                 this.$['sharePatientDialog'].close()
 
                 //erase uncheck user
-                const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
-                this.set("hcpSelectedForSharing", tab)
+                if (this.shareAll ||(allHcp === true)) {
+                    this.set('hcpSelectedForSharing',this.hcp)
+                } else {
+                    const tab = _.differenceBy(this.hcpSelectedForSharing, [{'check': false}], 'check')
+                    this.set("hcpSelectedForSharing", tab)
+                }
 
                 //loading existing delegation of shared users
                 this.hcpSelectedForSharing.forEach((userShared, index) => {
