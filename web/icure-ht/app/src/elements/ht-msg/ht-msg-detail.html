@@ -1011,10 +1011,23 @@
                                 </div>
                             </div>
                             <div>
-                                <h5>[[toImportPatsSuggestions.length]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
                                 <div class="scrollbox patlist">
+                                    <template is="dom-if" if="[[!manualAssign]]">
+                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
+                                    </template>
+                                    <template is="dom-if" if="[[manualAssign]]">
+                                        <div class="line">
+                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                        </div>
+                                    </template>
                                     <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
                                         <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                    </template>
+                                    <template is="dom-if" if="[[toImportPatsSearch.length]]">
+                                        <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                                            <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                        </template>
                                     </template>
                                 </div>
                             </div>
