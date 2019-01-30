@@ -66,7 +66,7 @@
                 <template class="header">
                     <vaadin-grid-sorter path="label">[[localize('lab','Label',language)]]</vaadin-grid-sorter>
                 </template>
-                <template>[[item.label]]</template>
+                <template><span class$="outofrange-[[_isOutOfRange(item)]]">[[item.label]]</span></template>
             </vaadin-grid-column>
             <vaadin-grid-column flex-grow="1">
                 <template class="header">
@@ -140,7 +140,7 @@ class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _date(item) {
-        return (item && item.modified) ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+        return (item && item.modified) ? this.api.moment(item.modified).format(item.modified > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
     }
 
     _author(item) {
