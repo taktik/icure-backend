@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.embed.Service;
 
 public class ResultInfo implements Serializable {
 	private String ssin;
@@ -39,6 +40,7 @@ public class ResultInfo implements Serializable {
 	private String engine;
 
 	private List<Code> codes = new ArrayList<>();
+	private List<Service> services;
 
 	public String getSsin() {
 		return ssin;
@@ -134,5 +136,13 @@ public class ResultInfo implements Serializable {
 
 	public void setCodes(List<Code> codes) {
 		this.codes = codes;
+	}
+
+	public List<Service> getServices() {
+		return services;
+	}
+
+	public void setServices(List<Service> services) {
+		this.services = services;
 	}
 }
