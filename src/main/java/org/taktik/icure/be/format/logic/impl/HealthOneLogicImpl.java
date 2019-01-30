@@ -372,17 +372,17 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
 		BufferedReader br = getBufferedReader(doc);
-		String line;
 		int position = 0;
 
-		while ((line = br.readLine()) != null) {
+		String line = br.readLine();
+		while (line != null) {
 			if (isLaboLine(line)) {
 				LaboLine ll = getLaboLine(line);
 
 				ResultInfo ri = new ResultInfo();
-				ri.setLabo(ll.getLabo());
 
-				while ((line = br.readLine()) != null) {
+				ri.setLabo(ll.getLabo());
+				while (true) {
 					if (isPatientLine(line)) {
 						PatientLine p = getPatientLine(line);
 
@@ -417,14 +417,12 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1"));
 						if (full) {
 							createServices(ll, language, position++);
-							ri.setServices(ll.getServices());
 						}
 						break;
 					} else if (isLaboResultLine(line)) {
 						ri.getCodes().add(new Code("CD-TRANSACTION", "labresult", "1"));
 						if (full) {
 							createServices(ll, language, position++);
-							ri.setServices(ll.getServices());
 						}
 						break;
 					}
@@ -434,6 +432,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				}
 				l.add(ri);
 			}
+			line = br.readLine();
 		}
 		br.close();
 

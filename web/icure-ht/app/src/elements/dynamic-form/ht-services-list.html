@@ -12,7 +12,7 @@
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
 
-<dom-module id="ht-pat-detail-list">
+<dom-module id="ht-services-list">
     <template>
         <style>
             .form-title-bar-btn {
@@ -67,12 +67,6 @@
             </vaadin-grid-column>
             <vaadin-grid-column flex-grow="1">
                 <template class="header">
-                    <vaadin-grid-sorter path="function{[[_name()]]}">Name</vaadin-grid-sorter>
-                </template>
-                <template>[[_name()]]</template>
-            </vaadin-grid-column>
-            <vaadin-grid-column flex-grow="1">
-                <template class="header">
                     <vaadin-grid-sorter path="modified">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
@@ -82,6 +76,12 @@
                     Value
                 </template>
                 <template>[[_shortDescription(item)]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column flex-grow="4">
+                <template class="header">
+                    [[localize('nor_val','Normal values',language)]]
+                </template>
+                <template>[[_normalValues(item)]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column  flex-grow="2" width="80px">
                 <template class="header">
@@ -93,9 +93,9 @@
     </template>
     <script>
 
-class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
+class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
-        return 'ht-pat-detail-list';
+        return 'ht-services-list';
     }
 
     static get properties() {
@@ -105,10 +105,6 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             user: {
                 type: Object
-            },
-            patient: {
-                type: Object,
-                value: null
             },
             contact: {
                 type: Object,
@@ -120,12 +116,6 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             activeItem: {
                 type: Object
-            },
-            healthElements: {
-                type: Array,
-                value: function () {
-                    return [];
-                }
             },
             currentContact: {
                 type: Object,
@@ -142,10 +132,6 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         super();
     }
 
-    _isNotInCurrentContact(currentContact, contact) {
-        return currentContact === null || contact !== currentContact;
-    }
-
     _services(contacts) {
         return _.sortBy(_.flatMap(contacts, c => c.services), ['modified']);
     }
@@ -158,12 +144,17 @@ class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return this.api.getAuthor(item.author);
     }
 
+    _normalValues(svc) {
+        const c = this.api.contact().preferredContent(svc, this.language)
+        return c && c.measureValue && `${c.measureValue.ref ? c.measureValue.ref.toFixed(3) : ''} ${c.measureValue.min || c.measureValue.max ? `${c.measureValue.min ? c.measureValue.min.toFixed(3) : '*'} - ${c.measureValue.max ? c.measureValue.max.toFixed(3) : '*'}` : ''}` || '';
+    }
+
     _shortDescription(svc) {
         return this.api.contact().shortServiceDescription(svc, this.language);
     }
 
 }
 
-customElements.define(HtPatDetailList.is, HtPatDetailList);
+customElements.define(HtServicesList.is, HtServicesList);
 </script>
 </dom-module>

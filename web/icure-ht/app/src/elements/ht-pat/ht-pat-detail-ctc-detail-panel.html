@@ -36,7 +36,7 @@
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
-<link rel="import" href="ht-pat-detail-list.html">
+<link rel="import" href="../dynamic-form/ht-services-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../ht-spinner/ht-spinner.html">
@@ -593,8 +593,8 @@
                             </div>
                         </template>
                     </div>
-					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
-										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
+					<ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
+										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
 				</template>
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">

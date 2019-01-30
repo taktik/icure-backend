@@ -24,7 +24,7 @@ class TarificationCodeUpdater {
 
         new File(args[0]).withReader { it.eachLine {
             def fields = it.split("\\s")
-            def importer = fields.length==3?new TarificationCodeImporter("https", args[1],"443","icure-"+fields[0],fields[0],fields[1],fields[2]):new TarificationCodeImporter("https", args[1],"443",fields[0], null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f",fields[0].replaceAll(".+-",""))
+            def importer = fields.length==3?new TarificationCodeImporter("https", args[1],"444","icure-"+fields[0],fields[0],fields[1],fields[2]):new TarificationCodeImporter("https", args[1],"444",fields[0], null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f",fields[0].replaceAll(".+-",""))
             def type = 'INAMI-RIZIV'
             println "Importing ${fields[0]}"
 
