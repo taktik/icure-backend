@@ -137,11 +137,7 @@
 			.msg-detail-card {
 				width: 100%;
                 padding: 0 0 0 12px;
-                height: calc(80vh - 20%);
-				display: flex;
-				flex-flow: column nowrap;
-				justify-content: flex-start;
-				align-items: stretch;
+				display: block;
 				background: transparent;
 				box-shadow: none;
                 flex-grow: 1;
@@ -961,113 +957,94 @@
                         <template is="dom-if" if="[[msg.patientInss]]">
                             <div class="patient">[[localize('inv_pat','Patient',language)]] : [[_getPatientDataByInss(msg.patientInss)]]</div>
                         </template>
-                        <template is="dom-if" if="[[bodyDocument.id]]">
-                            <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[bodyDocument.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
-                        </template>
-                        <!--TODO-->
-                        <template is="dom-repeat" items="[[selectedDocuments]]">
-                            <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-                                <div class="layout-vertical annexe-card">
-                                    <template is="dom-if" if="[[!hasLabResult]]">
-                                        <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                                     resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                                    </template>
-                                    <template is="dom-if" if="[[hasLabResult]]">
-                                        <!--<h4>This is a labResult</h4>-->
-                                        <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                                     resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                                        <template is="dom-if" if="[[unimportedPats.length]">
-                                            <template is="dom-if" if="[[!assignModal]]">
-                                                <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
-                                                    [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                                </paper-button>
-                                            </template>
-                                        </template>
-
-                                    </template>
-                                </div>
-                            </template>
-                        </template>
                     </paper-card>
+                </template>
+            <!--</div>-->
+
+            <!--<div class="attached">-->
+                <template is="dom-repeat" items="[[selectedDocuments]]">
+                    <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
+                        <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                     resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
+                    </template>
+                    <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+                        <div class="layout-vertical annexe-card">
+                            <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                            <template is="dom-if" if="[[item.unassignedResults.length]">
+                                <template is="dom-if" if="[[!assignModal]]">
+                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                                    </paper-button>
+                                </template>
+                            </template>
+                        </div>
+                    </template>
                 </template>
 
                 <template is="dom-if" if="[[assignModal]]">
-                <div id="import-suggest">
-                    <div class="line">
-                        <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
-                    </div>
-                    <div class="twocol">
-                        <div>
-                            <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
-                            <div class="scrollbox labolist">
-                                <paper-listbox selected="{{selectedProtocol}}">
-                                    <template is="dom-repeat" items="[[unimportedPats]]">
-                                        <paper-item class="unassigned pointer">
-                                            <div class="line">
-                                                <div>
-                                                    <iron-icon icon="assignment" width="18px"></iron-icon>
-                                                </div>
-                                                <div class="grow">
-                                                    <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
-                                                    <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
-                                                    <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
-                                                    <small class="demand-date">[[item.formatedDemandDate]]</small>
-                                                </div>
-                                            </div>
-                                        </paper-item>
-                                    </template>
-                                </paper-listbox>
-                            </div>
+                    <div id="import-suggest">
+                        <div class="line">
+                            <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
                         </div>
-                        <div>
-                            <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
-                            <div class="scrollbox patlist">
-                                <template is="dom-if" if="[[!manualAssign]]">
-                                    <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
-                                </template>
-                                <template is="dom-if" if="[[manualAssign]]">
-                                    <div class="line">
-                                        <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
-                                    </div>
-                                </template>
-                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
-                                    <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
-                                </template>
-                                <template is="dom-if" if="[[toImportPatsSearch.length]]">
-                                    <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                        <div class="twocol">
+                            <div>
+                                <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
+                                <div class="scrollbox labolist">
+                                    <paper-listbox selected="{{selectedProtocol}}">
+                                        <template is="dom-repeat" items="[[unimportedPats]]">
+                                            <paper-item class="unassigned pointer">
+                                                <div class="line">
+                                                    <div>
+                                                        <iron-icon icon="assignment" width="18px"></iron-icon>
+                                                    </div>
+                                                    <div class="grow">
+                                                        <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
+                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
+                                                        <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
+                                                        <small class="demand-date">[[item.formatedDemandDate]]</small>
+                                                    </div>
+                                                </div>
+                                            </paper-item>
+                                        </template>
+                                    </paper-listbox>
+                                </div>
+                            </div>
+                            <div>
+                                <h5>[[toImportPatsSuggestions.length]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                <div class="scrollbox patlist">
+                                    <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
                                         <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
                                     </template>
-                                </template>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!--TODO : Get lab result -->
-                    <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
-                    <!--<div class="line lab-details noPortable">-->
-                    <!--<h4>Lab result</h4>-->
-                    <!--<div class="sheet">-->
-                    <!--<h5>[[docInfo.labo]]</h5>-->
-                    <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
-                    <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
-                    <!--<p><small>[[docInfo.engine]]</small></p>-->
-                    <!--<p>[[docInfo]]</p>-->
-                    <!--<p>[[thisDocument]]</p>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</template>-->
-                    <div class="line save-line">
-                        <paper-button on-tap="closeSuggestions">
-                            [[localize('can','Cancel',language)]]
-                        </paper-button>
-                        <template is="dom-if" if="[[canAssign]]">
-                            <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
-                                [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
+                        <!--TODO : Get lab result -->
+                        <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
+                        <!--<div class="line lab-details noPortable">-->
+                        <!--<h4>Lab result</h4>-->
+                        <!--<div class="sheet">-->
+                        <!--<h5>[[docInfo.labo]]</h5>-->
+                        <!--<p><b>[[docInfo.lastName]] [[docInfo.firstName]] [[docInfo.sex]]</b></p>-->
+                        <!--<p>[[docInfo.documentId]] - [[docInfo.formatedDemandDate]] - [[docInfo.protocol]]</p>-->
+                        <!--<p><small>[[docInfo.engine]]</small></p>-->
+                        <!--<p>[[docInfo]]</p>-->
+                        <!--<p>[[thisDocument]]</p>-->
+                        <!--</div>-->
+                        <!--</div>-->
+                        <!--</template>-->
+                        <div class="line save-line">
+                            <paper-button on-tap="closeSuggestions">
+                                [[localize('can','Cancel',language)]]
                             </paper-button>
-                        </template>
+                            <template is="dom-if" if="[[canAssign]]">
+                                <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
+                                    [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
+                                </paper-button>
+                            </template>
+                        </div>
                     </div>
-                </div>
-        </template>
+                </template>
             </div>
 
 		</template>

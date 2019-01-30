@@ -45,6 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
@@ -134,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 480px;
                 };
                 --paper-menu-button-dropdown: {
-                    padding: 0;extra-menu
+                    padding: 0;extra-menu;
                 }
             }
 
@@ -574,12 +575,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width:200px;
                 height:200px;
             }
+            #update-notification {
+                z-index: 1000;
+                position: fixed;
+                right: 32px;
+                top: 32px;
+                height: 48px;
+                width: 256px;
+                font-size: 12px;
+                font-weight: 500;
+                background-color: var(--app-secondary-color);
+                opacity: 1;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-around;
+                align-items: center;
+                color: var(--app-text-color-light);
+            }
+
 
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
-        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
+        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection ',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
         </paper-item>
 
@@ -604,6 +623,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
                        on-user-saved="_userSaved"></ht-my-profile>
 
+        <template is="dom-if" if="[[updateMessage]]">
+            <paper-card id="update-notification">
+                    <span>[[updateMessage]]</span>
+                    <template is="dom-if" if="[[updateAction]]">
+                        <paper-button name="update" on-tap="doUpdate">
+                            <iron-icon class="iron-icon" icon="play-for-work"></iron-icon>
+                            <span>[[updateAction]]</span>
+                        </paper-button>
+                    </template>
+            </paper-card>
+        </template>
 
         <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
         <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
@@ -669,8 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p><span>[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
-                                <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
-                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
+                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
                             </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
@@ -1327,6 +1357,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script>
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
+        const runtime = require('offline-plugin/runtime');
+
 
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1481,6 +1513,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     busySpinner: {
                         type: Boolean,
                         value: false
+                    },
+                    updateMessage: {
+                        type: String,
+                        value: null
+                    },
+                    updateAction: {
+                        type: String,
+                        value: null
                     }
                 }
             }
@@ -1503,7 +1543,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('defaultIcureUrl', this.icureUrl)
                 this.set('defaultFhcUrl', this.fhcUrl)
-
             }
 
             _updateServerUrl(icureurl, fhcurl) {
@@ -1559,8 +1598,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
+                runtime.install({
+                    onUpdating: () => {
+                        console.log('SW Event: ', 'onUpdating');
+                        this.set('updateMessage', this.localize('new_upd_det','New update detected.',this.language))
+                        this.set('updateAction', null)
+                    },
+                    onUpdateReady: () => {
+                        console.log('SW Event: ', 'onUpdateReady');
+                        this.set('updateMessage', this.localize('new_upd_rea','New update ready',this.language))
+                        this.set('updateAction', this.localize('upd','Update'))
+                    },
+                    onUpdated: () => {
+                        console.log('SW Event: ', 'onUpdated');
+                        window.location.reload();
+                    },
+
+                    onUpdateFailed: () => {
+                        console.log('SW Event: ', 'onUpdateFailed');
+                        this.set('updateMessage', this.localize('upd_fail','Update failed, please refresh.'))
+                    }
+                });
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
+            }
+
+            doUpdate() {
+                this.set('updateMessage', this.localize('upd_ing','Updating...'))
+                this.set('updateAction', null)
+                runtime.applyUpdate();
             }
 
             resetTimer() {
@@ -2196,8 +2262,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             setTimeout(() => this.shadowRoot.querySelector("#htDiary").loadMikornoIframe(), 100)
                                         }
                                     })
-
-
                                 }
                             })
 
@@ -2205,7 +2269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const addresses = hcp && hcp.addresses || null
                             const workAddresses = addresses.find(adr => adr.addressType === "work") || null
                             const telecoms = workAddresses && workAddresses.telecoms
-                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile" || tel.telecomType === "phone") || null
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
@@ -2294,7 +2358,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     // TODO: Restore me
                     // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(12, 'months').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
+                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
 
                         this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
                         return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({

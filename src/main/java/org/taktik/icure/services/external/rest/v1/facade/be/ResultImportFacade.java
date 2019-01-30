@@ -95,8 +95,8 @@ public class ResultImportFacade implements OpenApiFacade {
     )
     @Path("/infos/{id}")
     @GET
-    public List<ResultInfoDto> getInfos(@PathParam("id") String id) throws IOException {
-        return multiFormatLogic.getInfos(documentLogic.get(id)).stream().map(i->mapper.map(i,ResultInfoDto.class)).collect(Collectors.toList());
+    public List<ResultInfoDto> getInfos(@PathParam("id") String id, @QueryParam("full") Boolean full, @QueryParam("language") String language) throws IOException {
+        return multiFormatLogic.getInfos(documentLogic.get(id), full == null ? false : full, language).stream().map(i->mapper.map(i,ResultInfoDto.class)).collect(Collectors.toList());
     }
 
     @ApiOperation(
