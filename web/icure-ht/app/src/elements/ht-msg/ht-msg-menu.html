@@ -560,13 +560,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<collapse-button id="sentboxcollapse">
 				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
                     <div class="one-line-menu list-title"><div><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span></div><template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+					<!--<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>-->
 				</paper-item>
-				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
-					<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>
-					<!--<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>-->
-					<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
-				</paper-listbox>
+				<!--<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">-->
+					<!--<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>-->
+					<!--&lt;!&ndash;<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>&ndash;&gt;-->
+					<!--&lt;!&ndash;<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>&ndash;&gt;-->
+				<!--</paper-listbox>-->
 			</collapse-button>
             <collapse-button  id="invoiceboxcollapse">
                 <paper-item id="invoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_invoicebox" elevation="">
@@ -601,11 +601,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <collapse-button id="trashboxcollapse">
                 <paper-item id="hidden" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_hidden" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hid_elems','Hidden elements',language)]]</span></div>
+                    <div class="one-line-menu list-title"><iron-icon icon="icons:visibility-off"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hid_elems','Hidden elements',language)]]</span></div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="trashboxlist" class="menu-content sublist" selected="{{trashSelectionIndex}}" selected-item="{{trashSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item" on-tap="_trash" id="trash" data-status="trash">[[localize('tra','Trash',language)]] eHealth</paper-item>
+                    <paper-item style="display:block;" class="one-line-menu menu-item" on-tap="_trash" id="trash" data-status="trash"><iron-icon icon="icons:delete"></iron-icon> [[localize('tra','Trash',language)]] eHealth</paper-item>
                 </paper-listbox>
             </collapse-button>
 		</div>

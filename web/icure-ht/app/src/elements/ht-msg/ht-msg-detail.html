@@ -924,13 +924,24 @@
                     <div class="buttons">
                         <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <template is="dom-if" if="[[isDeleted]]">
+                        <template is="dom-if" if="[[isHidden]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="visibility"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        </template>
+                        <template is="dom-if" if="[[!isHidden]]">
+                            <template is="dom-if" if="[[!isDeleted]]">
+                                <paper-button class="msg-detail-btn" on-tap="_hideMsg"><iron-icon icon="visibility-off"></iron-icon>[[localize('hide_msg','Hide message',language)]]</paper-button>
+                            </template>
                         </template>
                     </div>
                     <div class="del-button">
-                        <paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <template is="dom-if" if="[[isDeleted]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_deleteMsgForever"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        </template>
+                        <template is="dom-if" if="[[!isDeleted]]">
+                                <!--<paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
+                                <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        </template>
                     </div>
                 </div>
 
@@ -958,9 +969,14 @@
                         <template is="dom-repeat" items="[[selectedDocuments]]">
                             <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                                 <div class="layout-vertical annexe-card">
-                                    <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                                 resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                                    <template is="dom-if" if="[[hasUnassignedResults]]">
+                                    <template is="dom-if" if="[[!hasLabResult]]">
+                                        <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                                     resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
+                                    </template>
+                                    <template is="dom-if" if="[[hasLabResult]]">
+                                        <!--<h4>This is a labResult</h4>-->
+                                        <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                                     resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
                                         <template is="dom-if" if="[[unimportedPats.length]">
                                             <template is="dom-if" if="[[!assignModal]]">
                                                 <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
@@ -1111,6 +1127,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: false
 			},
             isDeleted: {
+			    type: Boolean,
+                value: false
+            },
+            isHidden: {
 			    type: Boolean,
                 value: false
             },
@@ -1273,6 +1293,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _isDeleted() {
 	    return this.messages[0].transportGuid.startsWith("BIN")
     }
+    _isHidden() {
+        return this.messages[0].transportGuid.startsWith("HIDDEN")
+    }
 
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
@@ -1288,6 +1311,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('unimportedPats',[])
             this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
+            this.set('isHidden',this.selectMessage.selection.item.transportGuid.startsWith("HIDDEN"))
             this.set('unassignedResults',tempSelect.unassignedResults)
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
@@ -1319,8 +1343,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
                                         } else {
-                                            // console.log('is not body')
                                             this._getPatsFromDoc(doc)
+                                            if (this._isEqualTo(doc.documentLocation, 'annex')) {
+                                                this.api.beresultimport().getInfos(doc.id,true,this.language).then(docInfos=>{
+                                                    console.log('docInfos',docInfos.lines)
+                                                    this.set('svcToDisplay',docInfos.lines)
+                                                    // TODO : créer un component servicesList
+                                                })
+                                            }
                                         }
                                         this.set('document',doc)
                                         return doc
@@ -1389,7 +1419,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
             if (resultInfo.length && unassigned.length) {
                 this.set('docInfos',resultInfo)
-                console.log('docInfos',resultInfo)
                 resultInfo.map(res=>{
                     Object.keys(unassigned).forEach(k => {
                         if (unassigned[k] == res.protocol) {
@@ -1678,55 +1707,53 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
 
+    _hideMsg() {
+        let msg = this.messages[0]
+        if (msg) {
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'HIDDENINBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'HIDDENSENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+        }
+    }
+
     _removeMsg(){
         let msg = this.messages[0]
         if (msg) {
-            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
-            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            const idForApi = msg.id
-            console.log('remove',idOfMsg,thisBox,delBox)
-            if (!msg.transportGuid.startsWith("BIN")) {
-                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
-                    .then(()=>{
-                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                    })
-            } else {
-                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
-            }
-            const target = this.parentElement.parentNode.children[1]
-            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
+
     }
 
     _restoreMsgs(){
         let msg = this.messages[0]
         if (msg) {
-            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            const idForApi = msg.id
-            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
-            console.log('restore',idOfMsg,thisBox,restoreBox)
-            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
-                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
-                .then(()=>{
-                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                })
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
-        const target = this.parentElement.parentNode.children[1]
-        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
-    _restoreMsgs(){
+    _deleteMsgForever() {
         let msg = this.messages[0]
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                msg.transportGuid = msg.transportGuid.substring(3);
-                this.api.message().modifyMessage(msg)
-                    .then(()=> this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-            }
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(msg=>{
+                if (msg.transportGuid.includes('INBOX')) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
+                if (msg.transportGuid.includes('SENTBOX')) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
+                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+            })
+
         }
     }
 
