@@ -40,6 +40,9 @@
 				overflow: hidden;
                 width: calc(100% - 64px);
 			}
+            .pat-details-card hr {
+                border: 1px solid var(--app-background-color-darker)
+            }
 
 			.horizontal {
 				display: flex;
@@ -122,6 +125,41 @@
                 text-align: center;
             }
 
+            .resInfos {
+                display: flex;
+                flex-direction: column;
+                background: var(--app-background-color-dark);
+                border-radius: 4px;
+                padding: 4px;
+            }
+
+            .resInfos h4 {
+                margin: 0;
+                text-align: center;
+            }
+
+            .resInfos .line {
+                display: flex;
+                flex-direction: row;
+            }
+            .resInfos .line .label {
+                width: 30%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                display: block;
+                overflow: hidden;
+            }
+            .resInfos .line span {
+                box-sizing: border-box;
+                margin: 0 8px 0 4px;
+                padding: 4px;
+                background: white;
+            }
+            .resInfos .indicator {
+                font-size: .85em;
+                text-align: right;
+            }
+
 		</style>
         <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
             <paper-card class="pat-details-card">
@@ -164,36 +202,30 @@
             </paper-card>
         </template>
 
-        <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*, isLabOrProtocol)]]">
-            <template is="dom-if" if="[[downloadable]]">
-                <paper-card class="pat-details-card">
-                    <span>[[document.name]]</span>
-                    <template is="dom-if" if="[[preview]]">
-                        <pre class="txt-container">[[attachmentContent]]</pre>
-                    </template>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
-                </paper-card>
-            </template>
-            <template is="dom-if" if="[[mailbody]]">
-                <div class="txt-container">[[attachmentContent]]</div>
-            </template>
-        </template>
-
         <template is="dom-if" if="[[isLabOrProtocol]]">
-            <template is="dom-if" if="[[downloadable]]">
-                <paper-card class="pat-details-card">
-                    <span>[[document.name]]</span>
+            <paper-card class="pat-details-card">
+                <span>[[document.name]]</span>
+                <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
+                    <div class="resInfos">
+                        <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
+                        <div class="line"><b class="label">[[localize('document','Document',language)]]</b><span>[[resInfo.protocol]] - [[resInfo.labo]]</span></div>
+                        <div class="line"><b class="label">[[localize('date','Date',language)]]</b><span>[[_formatDate(resInfo.demandDate)]]</span></div>
+                        <template is="dom-if" if="[[resInfo.complete]]">
+                            <div class="indicator"><iron-icon icon="check"></iron-icon> [[localize('com_res','Complete result',language)]]</div>
+                        </template>
+                        <template is="dom-if" if="[[!resInfo.complete]]">
+                            <div class="indicator"><iron-icon icon="info"></iron-icon> [[localize('inc_res','Incomplete result',language)]]</div>
+                        </template>
+                    </div>
+                    <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
                     <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                         [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
                     </div>
-                    <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
-                        <div><span>[[resInfo.firstName]] [[resInfo.lastName]]</span></div>
-                        <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
-                    </template>
-                </paper-card>
-            </template>
+                </template>
+            </paper-card>
         </template>
 
     </template>
@@ -369,6 +401,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _getAttachment(){
         this.showDetail = !this.showDetail
 	}
+
+	_formatDate(date) {
+	    return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY')
+    }
 
 	_wrap(o) { return [o] }
 }
