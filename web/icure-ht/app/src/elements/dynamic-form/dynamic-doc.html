@@ -161,14 +161,14 @@
             }
 
 		</style>
-        <template is="dom-if" if="[[!_plainMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+        <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
                         <ht-spinner class="center" active></ht-spinner>
                     </template>
                     <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <template is="dom-if" if="[[downloadable]]">
                             <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                                 [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -179,11 +179,11 @@
                         </div>
                     </template>
                     <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
                     </template>
                     <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[document.name]]</span>
+                        <span>[[_title(document.name, title)]]</span>
                         <template is="dom-if" if="[[downloadable]]">
                             <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                                 [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -191,8 +191,18 @@
                         </template>
                     </template>
                 </template>
+                <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
+                    <span>[[_title(document.name, title)]]</span>
+                    <template is="dom-if" if="[[preview]]">
+                        <pre class="txt-container">[[attachmentContent]]</pre>
+                    </template>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]]
+                        <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                    <span>[[document.name]]</span>
+                    <span>[[_title(document.name, title)]]</span>
                     <template is="dom-if" if="[[downloadable]]">
                         <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
                             [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
@@ -204,7 +214,7 @@
 
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
-                <span>[[document.name]]</span>
+                <span>[[_title(document.name, title)]]</span>
                 <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -297,6 +307,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     constructor() {
 		super();
 	}
+
+    _title(name, fallback) {
+	    return name && name !== 'No title' ? name : fallback
+    }
 
 	_documentIdChanged() {
 		if (!this.documentId || !this.api || !this.user) {

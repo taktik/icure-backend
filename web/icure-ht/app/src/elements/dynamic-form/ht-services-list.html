@@ -155,7 +155,7 @@ class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _normalValues(svc) {
         const c = this.api.contact().preferredContent(svc, this.language)
-        return c && c.measureValue && `${c.measureValue.ref ? c.measureValue.ref.toFixed(3) : ''} ${c.measureValue.min || c.measureValue.max ? `${c.measureValue.min ? c.measureValue.min.toFixed(3) : '*'} - ${c.measureValue.max ? c.measureValue.max.toFixed(3) : '*'}` : ''}` || '';
+        return c && c.measureValue && `${c.measureValue.ref ? c.measureValue.ref.toFixed(2) : ''} ${c.measureValue.min || c.measureValue.max ? `${c.measureValue.min ? c.measureValue.min.toFixed(1) : '*'} - ${c.measureValue.max ? c.measureValue.max.toFixed(1) : '*'}` : ''}` || '';
     }
 
     _shortDescription(svc) {
