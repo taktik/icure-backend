@@ -665,14 +665,10 @@
 
 
             <div class="buttons">
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
-                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
-                    <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
-                </template>
+                <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
+                <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
-                    <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
-                </template>
+                <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
