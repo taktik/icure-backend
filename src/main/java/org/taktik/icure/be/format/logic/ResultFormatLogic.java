@@ -32,7 +32,7 @@ import org.taktik.icure.entities.Patient;
 
 public interface ResultFormatLogic {
 	boolean canHandle(Document doc) throws IOException;
-	List<ResultInfo> getInfos(Document doc) throws IOException;
+	List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException;
 	Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException;
 	void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output);
 }

@@ -50,10 +50,10 @@ MultiFormatLogicImpl implements MultiFormatLogic {
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
 		for (ResultFormatLogic e:engines) {
 			if (e.canHandle(doc)) {
-				List<ResultInfo> infos = e.getInfos(doc);
+				List<ResultInfo> infos = e.getInfos(doc, full, language);
 				infos.forEach(i->i.setEngine(e.getClass().getName()));
 				return infos;
 			}
