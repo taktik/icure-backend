@@ -890,7 +890,10 @@
     "insurance_titulary": "Insurance titulary (only if not titulary itself - for children / spouse)",
     "suspension_startdate": "Suspension start date",
     "suspension_enddate": "Suspension end date",
-    "suspension_reason": "Suspension reason"
+    "suspension_reason": "Suspension reason",
+    "linkingLetter": "Lettre de liaison",
+    "senderHcp": "Médecin émeteur",
+    "recipientHcp": "Médecin receveur"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1869,7 +1872,10 @@
     "insurance_titulary": "Titulaire de l'assurance (uniquement pour enfant / épouse)",
     "suspension_startdate": "Début de la suspension",
     "suspension_enddate": "Fin de la suspension",
-    "suspension_reason": "Raison de la suspension"
+    "suspension_reason": "Raison de la suspension",
+    "linkingLetter": "Lettre de liaison",
+    "senderHcp": "Médecin émeteur",
+    "recipientHcp": "Médecin receveur"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2855,6 +2861,9 @@
     "insurance_titulary": "Verzekering gerec (alleen voor kind / vrouw)",
     "suspension_startdate": "Suspension start date",
     "suspension_enddate": "Suspension end date",
-    "suspension_reason": "Suspension reason"
+    "suspension_reason": "Suspension reason",
+    "linkingLetter": "Lettre de liaison",
+    "senderHcp": "Médecin émeteur",
+    "recipientHcp": "Médecin receveur"
   }
 }
