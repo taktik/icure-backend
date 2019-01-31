@@ -2784,8 +2784,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             return [newStatuses, newTreatedIds]
                         })
-                    ).then(()=>this.set('isSharingPatient',false))
-                })
+                    )
+                });
+                this.patientSharePromise.then(()=>this.set('isSharingPatient',false))
             }
 
             _openPopupMenu() {
