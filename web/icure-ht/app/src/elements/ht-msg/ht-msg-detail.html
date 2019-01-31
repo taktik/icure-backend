@@ -1701,9 +1701,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let msg = this.messages[0]
         if (msg) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-
-            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'HIDDENINBOX:'+id
-            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'HIDDENSENTBOX:'+id
+            if (!msg.transportGuid.startsWith('HIDDEN')){
+                msg.transportGuid = 'HIDDEN'+msg.transportGuid
+            } else {
+                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+            }
             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
     }
@@ -1711,20 +1714,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _removeMsg(){
         let msg = this.messages[0]
         if (msg) {
-            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
-
     }
 
     _restoreMsgs(){
         let msg = this.messages[0]
         if (msg) {
-            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
             this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
@@ -1736,12 +1736,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (msg) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
 
-            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
-            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
-            this.api.message().modifyMessage(msg).then(msg=>{
-                if (msg.transportGuid.includes('INBOX')) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
-                if (msg.transportGuid.includes('SENTBOX')) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
-                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+            if (msg.transportGuid.includes('INBOX')) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'INBOX', 'BININBOX').then(()=>{
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
+                    .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            })
+            if (msg.transportGuid.includes('SENTBOX')) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'SENTBOX', 'BINSENTBOX').then(()=>{
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
+                    .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
             })
 
         }
