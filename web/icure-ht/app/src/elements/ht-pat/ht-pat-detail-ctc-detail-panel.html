@@ -1840,7 +1840,7 @@
 
                 const seenForms = {}
                 const formGroups = this.contacts.map(contact => {
-                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,

@@ -58,7 +58,7 @@
 
 		</style>
 
-		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate)]]">
+		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate, contact)]]">
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
@@ -69,6 +69,10 @@
 				</div>
 			</dynamic-form>
 		</template>
+		<template is="dom-if" if="[[_shouldDisplaySummary(form, form.deletionDate, contact)]]">
+			<div>[[form.template.name]] [[localize('from','from',language)]] [[_contactDescr(form.contactId, contacts)]] [[localize('mod_in_contact','has been modified in this contact')]]</div>
+		</template>
+
 	</template>
 	<script>
 		import {simple} from 'acorn/dist/walk'
@@ -177,7 +181,11 @@
             }
 
             _shouldDisplay(form) {
-                return form && !form.deletionDate
+                return form && !form.deletionDate && this.contact && this.contact.id === form.contactId
+            }
+
+            _shouldDisplaySummary(form) {
+                return form && !form.deletionDate && this.contact && this.contact.id !== form.contactId
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {
@@ -255,6 +263,11 @@
             _allContacts() {
                 return this.contacts.includes(this.contact) ? this.contacts : _.concat([this.contact], this.contacts)
             }
+
+            _contactDescr(contactId) {
+                const ctc = (this.contact && this.contact.id === contactId ? this.contact : this.contacts && this.contacts.find(c => c.id === contactId))
+                return ctc && ctc.descr || contactId
+			}
 
             _loadReports() {
                 const reports = this.form && this.form.template && this.form.template.reports || []
@@ -503,21 +516,10 @@
                         return label ? self.servicesMap[label] = this.servicesInForm(form.id, label) : this.servicesInForm(form.id);
                     },
 					subContactTitle: () => {
-                        const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
+                        const scs = this.contact && this.contact.subContacts.find(sc => sc.formId === form.id)
 						const contactType = scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
 						const type = this.subcontactType && this.subcontactType.length && this.subcontactType.find(c => c.id === contactType.id)
 						return type && "("+type.label[this.language]+")" || ""
-
-
-                        const ctcs = _.sortBy(this.contacts.filter(c => c.subContacts.some(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))).filter(c => c.subContacts.some(tags)), 'created')
-						const sc =_.last(ctcs).subContacts.find(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))
-						return sc.tags.find(t => t.type === 'BE-CONTACT-TYPE').code
-
-						/*
-                        const ctType = this.contact.tags.filter(t => t.type === "BE-CONTACT-TYPE") || []
-						const currentType =  ctType && this.subcontactType.find(c => c.id === ctType[0].id)
-						return currentType && currentType.label[this.language]
-						*/
 					},
                     servicesInHierarchy: label => {
                         return _.concat(self.services(label), _.flatMap(form.children, sf => this.getDataProvider(sf, (rootPath.length ? rootPath + '.' : '') + sf.descr + '.' + form.children.filter(sff => sff.descr === sf.descr).indexOf(sf)).servicesInHierarchy(label)));
