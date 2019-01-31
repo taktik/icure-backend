@@ -1086,7 +1086,7 @@
 
             _valueChanged() {
                 console.log("_valueChanged()",this.medicationDetail)
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
             }
 
             _regimenTableDataProvider(frequency) {
