@@ -472,7 +472,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
                             <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
                             <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
-                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_msgToBin"></paper-icon-button>-->
                             <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
                         <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
@@ -486,11 +486,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-tooltip for="show-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                            <paper-icon-button id="del-button" icon="delete" on-tap="_msgToBin"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="restore-button" icon="undo" on-tap="_restoreMsgs"></paper-icon-button>
+                            <paper-icon-button id="restore-button" icon="undo" on-tap="_outOfBin"></paper-icon-button>
                             <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
                             <paper-icon-button id="del-for-button" icon="delete-forever" on-tap="_deleteMsgsForever"></paper-icon-button>
                             <paper-tooltip for="del-for-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>
@@ -850,11 +850,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return (m.status & (1 << 4)) !== 0 ? true : false
             }
             hasLabResult(m) {
-                if (m.assignedResults && m.unassignedResults) {
-                    return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
-                } else {
-                    return false
-                }
+                return (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length || m.unassignedResults.length)) ? true : false
             }
             isUnassigned(m) {
                 return (m.unassignedResults.length > 0) ? true : false
@@ -863,7 +859,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getUnreadEmail() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status & 1 << 1 == 0)) {//status unread
+                        if (this.isUnread(m)) {//status unread
                             acc.push(m)
                         }
                         return acc
@@ -894,9 +890,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if ((m.assignedResults && m.unassignedResults) && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
-                            // let copy = m
-                            // m.pats = this._getPatsFromMsg(m)
+                        if (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
                             acc.push(m)
                         }
                         return acc
@@ -1064,7 +1058,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
-                console.log('refresh',this.selectList.selection)
+                console.log('refresh')
                 if (this.selectList && this.selectList.selection) {
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
@@ -1172,8 +1166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
-                const selected = this.activeItem;
-                this.set('selectedMessages', selected);
+                this.set('selectedMessages', this.activeItem);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
                 // this._deselectAll();
             }
@@ -1199,9 +1192,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('checkedMessages',this.allSelected ? this.messages : [])
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
-                const apply = this.allSelected
+                const selectedState = this.allSelected
                 allCheckboxes.forEach(box=>{
-                    box.checked = apply;
+                    box.checked = selectedState;
                 })
             }
 
@@ -1215,112 +1208,102 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('checkedMessages',[])
             }
 
-            _hideMsg() {
-                let mailList = this.shadowRoot.querySelector('#mail-list'),
-                    allCheckboxes = mailList.querySelectorAll('.checkbox'),
-                    checkedMsgs = this.checkedMessages,
-                    msgsToTreat = []
-                // const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            _restoreMsgs(){
+                const checkedMsgs = this.checkedMessages
                 if(checkedMsgs.length) {
-                    const thisBox = this.selectList.selection.item.toUpperCase()
-                    checkedMsgs.forEach(msg =>msgsToTreat.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
-                    let targetBox
+                    checkedMsgs.forEach(msg =>{
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                        if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                        this.api.message().modifyMessage(msg).then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
+                            .finally(() => this._refresh())
+                    }) // foreach end
+                }
+            }
+
+            _hideMsg() {
+                let checkedMsgs = this.checkedMessages
+                if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg=>{
-                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1,msg.transportGuid.length)
-                        const currGuid = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                         if (!msg.transportGuid.startsWith('HIDDEN')){
-                            msg.transportGuid = 'HIDDEN'+currGuid+':'+id
+                            msg.transportGuid = 'HIDDEN'+msg.transportGuid
                         } else {
                             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
                             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
                         }
-                        console.log('msg',msg)
                         this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                            .finally(()=>{
-                                this._refresh()
-                                this._deselectAll()
-                            })
+                            .finally(()=>this._refresh())
+                    }) // foreach end
+                }
+            }
+
+			_msgToBin() {
+                let checkedMsgs = this.checkedMessages
+                if (checkedMsgs.length) {
+
+                    checkedMsgs.forEach(msg => {
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+                        if (msg.transportGuid.includes('INBOX')) {
+                            msg.transportGuid = 'BININBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
+                        }
+                        if (msg.transportGuid.includes('SENTBOX')) {
+                            msg.transportGuid = 'BINSENTBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
+                        }
                     })
                 }
             }
 
-			_removeMsgs(){
-                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
-                const selectedBox = this.selectList.selection.item.toUpperCase()
-                const delBox = selectedBox == 'INBOX' ? 'BININBOX' : selectedBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
+            _outOfBin() {
+                let checkedMsgs = this.checkedMessages
                 if(checkedMsgs.length) {
-                    checkedMsgs.forEach(msg =>{
-                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
 
-                        if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
-                        if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
-                        this.api.message().modifyMessage(msg).then(()=>{
-                            this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                            this._refresh()
-                            this._deselectAll();
-                        })
-                    }) // forEach end
+                    checkedMsgs.forEach(msg => {
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+                        if (msg.transportGuid.includes('INBOX')) {
+                            msg.transportGuid = 'INBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            .finally(()=>this._refresh())
+                        }
+                        if (msg.transportGuid.includes('SENTBOX')) {
+                            msg.transportGuid = 'SENTBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                            .finally(()=>this._refresh())
+                        }
+                    })
                 }
-            } // if checked length end
+            }
 
             _deleteMsgsForever() {
                 const checkedMsgs = this.checkedMessages
-                if(checkedMsgs.length) {
+                if (checkedMsgs.length) {
+                    let inboxIds = []
+                    let sentboxIds = []
+
                     checkedMsgs.forEach(msg=>{
                         const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                        if (msg.transportGuid.includes('INBOX')) {
-                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msg], 'INBOX', 'BININBOX').then(()=>{
-                                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX').then(()=>{
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                    this._refresh()
-                                    this._deselectAll();
-                                })
-                            })
-                        }
-                        if (msg.transportGuid.includes('SENTBOX')) {
-                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [msg], 'SENTBOX', 'BINSENTBOX').then(()=>{
-                                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX').then(()=>{
-                                    this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
-                                    this._refresh()
-                                    this._deselectAll();
-                                })
-                            })
-                        }
-                        // this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msg, dest).then(()=> {
-                        // })
-                        if (msg.transportGuid.includes('INBOX'))
-                        if (msg.transportGuid.includes('SENTBOX')) this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
-                        this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                        if (msg.transportGuid.includes('INBOX')) inboxIds.push(id)
+                        if (msg.transportGuid.includes('SENTBOX')) sentboxIds.push(id)
+                    })
+
+                    if (inboxIds.length) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [inboxIds], 'INBOX', 'BININBOX').then(()=>{
+                        this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [inboxIds], 'BININBOX')
+                            .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
+                    })
+                    if (sentboxIds.length) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [sentboxIds], 'SENTBOX', 'BINSENTBOX').then(()=>{
+                        this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [sentboxIds], 'BINSENTBOX')
+                            .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                .finally(()=>this._refresh())
                     })
                 }
             }
-
 
             _isEqual(a,b) {return (a === b)}
-
-            _restoreMsgs(){
-                const checkedMsgs = this.checkedMessages
-                if(checkedMsgs.length) {
-                    let tempBinInbox = []
-                    let tempBinSentbox = []
-                    checkedMsgs.forEach(msg =>{
-                        if (msg) {
-                            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-
-                            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
-                            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
-                            this.api.message().modifyMessage(msg).then(()=>{
-                                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
-                                this._refresh()
-                                this._deselectAll();
-                            })
-                        }
-                    })
-                } // if checked length end
-                else {
-                    console.log('no length or not trash')
-                }
-            }
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
