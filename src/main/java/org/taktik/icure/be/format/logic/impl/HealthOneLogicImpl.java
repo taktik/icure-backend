@@ -173,7 +173,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private void createServices(LaboLine ll, String language, int position) {
+	private void createServices(LaboLine ll, String language, long position) {
 		if (ll.labosList.size() > 0) {
 			ll.services.addAll(importLaboResult(language, ll.labosList, position, ll.ril));
 			ll.labosList.clear();
@@ -185,7 +185,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 
-	private Service importProtocol(String language, List protoList, int position, ResultsInfosLine ril) {
+	private Service importProtocol(String language, List protoList, long position, ResultsInfosLine ril) {
 		String text = ((ProtocolLine) protoList.get(0)).text;
 		for (int i = 1; i < protoList.size(); i++) {
 			text += "\n" + ((ProtocolLine) protoList.get(i)).text;
@@ -201,7 +201,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private List<Service> importLaboResult(String language, List labResults, int position, ResultsInfosLine ril) {
+	private List<Service> importLaboResult(String language, List labResults, long position, ResultsInfosLine ril) {
 		List<Service> result = new ArrayList<>();
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
@@ -247,7 +247,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private List<Service> addLaboResult(LaboResultLine lrl, String language, int position, ResultsInfosLine ril, String comment) {
+	private List<Service> addLaboResult(LaboResultLine lrl, String language, long position, ResultsInfosLine ril, String comment) {
 		List<Service> result = new ArrayList<>();
 		Double d = tryToGetValueAsNumber(lrl.value);
 		if (d != null) {
@@ -259,7 +259,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, int position, ResultsInfosLine ril) {
+	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, long position, ResultsInfosLine ril) {
 		String value = lrl.value + " " + lrl.unit;
 		if (lrl.referenceValues.trim().length() > 0) {
 			value += " (" + lrl.referenceValues + " )";
@@ -276,7 +276,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, int position, ResultsInfosLine ril, String comment) {
+	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
 		Measure m = new Measure();
 
 		m.setValue(d);
