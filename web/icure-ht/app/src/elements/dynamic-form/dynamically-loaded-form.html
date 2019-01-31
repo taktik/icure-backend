@@ -857,15 +857,28 @@
                             }
                         });
                     },
-                    filter: (data, text, uuid) => {
-						const uuids = (self.uuids || (self.uuids = {}))
+                    filter: (data, text, uuid, comboBoxFirstHit=false) => {
+
+                        const uuids = (self.uuids || (self.uuids = {}))
 						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
-                        const words = text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+                        const words = ( comboBoxFirstHit || (!comboBoxFirstHit && data.source === "codes" && _.trim(uuid) && !_.trim(text)) ) ? [""] : text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+
+                        // if(!comboBoxFirstHit) {
+                        //     console.log("--- FILTER ---");
+                        //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                        //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                        //     console.log("UUID:" +_.trim(uuid));
+                        //     console.log("TEXT:" +_.trim(text));
+                        //     console.log("WORDS:" +words);
+                        //     console.log( "reqIdx: " + reqIdx );
+                        //     console.log( uuids );
+                        //     console.log( uuid );
+                        //     console.log( reqIdx<uuids[uuid] )
+                        // }
 
                         return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language);
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
-
 							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
                                     '$type': 'CodeByRegionTypeLabelLanguageFilter',
                                     'region': 'be',
@@ -874,9 +887,38 @@
 									'label':w
                                 }))}})
                             .then(results => {
-                                if (reqIdx<uuids[uuid]) {
-                                    return []
-								}
+
+                                // if( ["CD-INCAPACITY", "CD-INCAPACITYREASON"].indexOf(_.get(data, "types[0].type", "" )) > -1 ) {
+                                //     console.log("--- FILTER ---");
+                                //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                                //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                                //     console.log("UUID:" +_.trim(uuid));
+                                //     console.log("TEXT:" +_.trim(text));
+                                //     console.log("WORDS:" +words);
+                                //     console.log(results);
+                                //     console.log( "reqIdx: " + reqIdx );
+                                //     console.log( uuids );
+                                //     console.log( uuid );
+                                //     console.log( reqIdx<uuids[uuid] );
+                                //     console.log("--- RETURN ---")
+                                //     console.log(
+                                //         _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                //             codeId: code.id,
+                                //             stringValue: code.label[typeLng],
+                                //             codes: [code].concat(code.links && code.links.map(c => ({
+                                //                 id: c,
+                                //                 type: c.split('|')[0],
+                                //                 code: c.split('|')[1],
+                                //                 version: c.split('|')[2]
+                                //             })) || []),
+                                //             id: code.id,
+                                //             name: code.label[typeLng]
+                                //         })), sorter)
+                                //     );
+                                // }
+
+                                if (reqIdx<uuids[uuid] && !comboBoxFirstHit) { return [] }
+
                                 return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
                                     codeId: code.id,
                                     stringValue: code.label[typeLng],
@@ -891,7 +933,7 @@
                                 })), sorter)
                             });
 
-                        })).then(responses => (reqIdx<uuids[uuid]) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
+                        })).then(responses => (reqIdx<uuids[uuid] && !comboBoxFirstHit) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;
