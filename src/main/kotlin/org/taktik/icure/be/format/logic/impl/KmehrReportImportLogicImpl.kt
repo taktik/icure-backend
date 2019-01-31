@@ -69,7 +69,7 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
     }
 
 	@Throws(IOException::class)
-	override fun getInfos(doc: Document): List<ResultInfo> {
+	override fun getInfos(doc: Document, full: Boolean, language: String): List<ResultInfo>? {
 		val msg: Kmehrmessage? = extractMessage(doc)
 
 		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } }.map { t -> ResultInfo().apply {

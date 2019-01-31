@@ -230,7 +230,8 @@
 								"multiline" : false,
 								"left" : 57,
 								"top" : 90,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor",
+                              "dataSource": {"source":"supervisors"}
 							},
 							"sortOrder" : 1465341751,
 							"codeTypes" : [
@@ -242,7 +243,7 @@
 							"name" : "supervisorId",
 							"irrelevant" : true
 						},
-						{
+                      {
 							"editor" : {
 								"readOnly" : false,
 								"height" : 22,
@@ -251,7 +252,8 @@
 								"multiline" : false,
 								"left" : 597,
 								"top" : 90,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor",
+                                "dataSource": {"source":"mh"}
 							},
 							"sortOrder" : 1465341751,
 							"codeTypes" : [

@@ -14,7 +14,7 @@
                 font-style: italic;
                 --paper-item-min-height: 32px;
                 height:32px;
-                padding: 0; 
+                padding: 0;
             }
 
             .list-title {
@@ -412,8 +412,10 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation();
         e.preventDefault();
 
-        if (e.detail.sourceEvent.metaKey) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: this.selected?'unselect':'select', items: [this.getHeId(this.he)] }] } }));
+        if (navigator.platform.startsWith('Win') ? e.detail.sourceEvent.ctrlKey : e.detail.sourceEvent.metaKey) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: this.selected ? 'unselect' : 'select', items: [this.getHeId(this.he)] }] } }));
+        } else if (e.detail.sourceEvent.shiftKey) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: 'extend', items: [this.getHeId(this.he)] }] } }));
         } else {
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: 'unselect' }, { action: 'select', items: [this.getHeId(this.he)] }] } }));
         }

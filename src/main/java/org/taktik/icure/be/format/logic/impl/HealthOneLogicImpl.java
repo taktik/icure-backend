@@ -205,7 +205,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		List<Service> result = new ArrayList<>();
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
-			String comment = null;
+			String comment;
 			if (tryToGetValueAsNumber(lrl.value) != null) {
 				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
 				comment = lrl2.value;
@@ -369,19 +369,23 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
 		BufferedReader br = getBufferedReader(doc);
-		String line;
+		int position = 0;
 
-		while ((line = br.readLine()) != null) {
+		String line = br.readLine();
+		while (line != null) {
 			if (isLaboLine(line)) {
+				position++;
 				LaboLine ll = getLaboLine(line);
 
 				ResultInfo ri = new ResultInfo();
+
 				ri.setLabo(ll.getLabo());
 
-				while ((line = br.readLine()) != null) {
+				line = br.readLine();
+				while (true) {
 					if (isPatientLine(line)) {
 						PatientLine p = getPatientLine(line);
 
@@ -403,6 +407,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						}
 					} else if (isResultsInfosLine(line)) {
 						ResultsInfosLine r = getResultsInfosLine(line);
+						ll.ril = r;
 						if (r != null) {
 							ri.setComplete(r.complete);
 							ri.setDemandDate(r.demandDate.toEpochMilli());
@@ -413,17 +418,43 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 							ri.setSsin(p.ssin);
 						}
 					} else if (isProtocolLine(line)) {
-						ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1"));
-						break;
+						if (ri.getCodes().size() == 0) { ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1")); }
+						if (full) {
+							ProtocolLine lrl = getProtocolLine(line);
+							if (lrl != null) {
+								if (ll.protoList.size() > 20 && !lrl.code.equals((ll.protoList.get(ll.protoList.size() - 1)).code)) {
+									createServices(ll, language, position);
+								}
+								ll.protoList.add(lrl);
+							}
+						}
 					} else if (isLaboResultLine(line)) {
-						ri.getCodes().add(new Code("CD-TRANSACTION", "labresult", "1"));
+						if (ri.getCodes().size() == 0) { ri.getCodes().add(new Code("CD-TRANSACTION", "labresult", "1")); }
+						if (full) {
+							LaboResultLine lrl = getLaboResultLine(line, ll);
+							if (lrl != null) {
+								if (ll.labosList.size() > 0 && !lrl.analysisCode.equals(ll.labosList.get(0).analysisCode)) {
+									createServices(ll, language, position);
+								}
+								ll.labosList.add(lrl);
+							}
+						}
+					} else if (isLaboLine(line)) {
 						break;
 					}
+					line = br.readLine();
+					if (line == null) { break; }
+				}
+				if (full) {
+					createServices(ll, language, position);
+					ri.setServices(ll.getServices());
 				}
 				if (ri.getProtocol()==null ||ri.getProtocol().length()==0) {
 					ri.setProtocol("***"+ri.getDemandDate());
 				}
 				l.add(ri);
+			} else {
+				line = br.readLine();
 			}
 		}
 		br.close();

@@ -2993,6 +2993,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refreshFromServices() {
+                const firstJanuary2018 = moment("2018-01-01")
                 if (this.currentContact) {
                     const combinedHes = (this.activeHealthElements || []).concat(this.inactiveHealthElements || []).concat(this.archivedHealthElements || []).concat(this.allergies || []).concat(this.risks || []).concat(this.familyrisks || []).concat(this.surgicalHealthElements || [])
                     const idServicesInHes = combinedHes.map(he => he.idService)
@@ -3000,11 +3001,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id))
                     const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
 
-                    const today = this.api.moment(+new Date()).startOf('day')
+                    const now = moment()
 
-                    this.set('activeHealthElements', (this.activeHealthElements || []).concat(svcHes).filter(it => ( !it.closingDate || ( it.closingDate && this.api.moment(it.closingDate).isSameOrAfter(today) ) ) && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
-                    this.set('inactiveHealthElements', (this.inactiveHealthElements || []).concat(svcHes).filter(it => ( ( it.closingDate && this.api.moment(it.closingDate).isBefore(today) ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
-                    this.set('archivedHealthElements', (this.archivedHealthElements || []).concat(svcHes).filter(it => (it.status & 3) === 3))
+                    this.set('activeHealthElements', (this.activeHealthElements || []).concat(svcHes).filter(it => ( !it.closingDate || ( it.closingDate && this.api.moment(it.closingDate).isSameOrAfter(now) ) ) && (it.status & 1) === 0 && (( it.status & 2 ) === 0 || (it.openingDate && this.api.moment( it.openingDate ).isSameOrAfter( firstJanuary2018 ))) && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
+                    this.set('inactiveHealthElements', (this.inactiveHealthElements || []).concat(svcHes).filter(it => ( ( it.closingDate && this.api.moment(it.closingDate).isBefore(now) ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))))
+                    this.set('archivedHealthElements', (this.archivedHealthElements || []).concat(svcHes).filter(it => (it.status & 2) === 2))
                     this.set('allergies', (this.allergies || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')))
                     this.set('risks', (this.risks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                     this.set('familyrisks', (this.familyrisks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
@@ -3015,8 +3016,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             refreshPatient() {
                 const patient = this.patient
 
-                const start = +new Date()
-                const today = this.api.moment(start).startOf('day')
+                const now = moment()
 
                 const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id => id && id.substr(4) /* format is ctc_... see DOM */)
                 //console.log("Before load "+(+new Date() - start))
@@ -3051,6 +3051,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             e.selectedItems = []
                         })
 
+                        const firstJanuary2018 = moment("2018-01-01")
                         this.api.code().icpcChapters(_.compact(combinedHesWithHistory.map(he => he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2'))).map(x => x.code)).then(codes => {
                             codes.forEach(cc => {
                                 cc.healthElements = _.sortBy(combinedHesWithHistory.filter(he => {
@@ -3063,9 +3064,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('healthElements', combinedHesWithHistory)
 
-                            this.set('activeHealthElements', combinedHes.filter(it => ( !it.closingDate || ( it.closingDate && this.api.moment( it.closingDate ).isSameOrAfter( today ) ) ) && ( it.status & 1 ) === 0 && it.tags.find( c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis') )))
-                            this.set('inactiveHealthElements', combinedHes.filter(it => ( it.closingDate && this.api.moment(it.closingDate).isBefore( today ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
-                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 3) === 3))
+                            this.set('activeHealthElements', combinedHes.filter(it => ( !it.closingDate || ( it.closingDate && this.api.moment( it.closingDate ).isSameOrAfter( now ) ) ) && ( it.status & 1 ) === 0 && (( it.status & 2 ) === 0 || (it.openingDate && this.api.moment( it.openingDate ).isSameOrAfter( firstJanuary2018 ))) && it.tags.find( c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis') )))
+                            this.set('inactiveHealthElements', combinedHes.filter(it => ( it.closingDate && this.api.moment(it.closingDate).isBefore( now ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
+                            this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION') && (c.code === 'allergy' || c.code === 'adr'))))
                             this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
@@ -3147,7 +3148,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('currentContact', newCtc)
                             const formIds = {}
-                            this.hiddenSubContactsId = _.reduce(ctcs, (acc, ctc) => {
+                            this.hiddenSubContactsId = _.reduce(this.contacts, (acc, ctc) => {
                                 ctc.subContacts.forEach(sc => {
                                     if (sc.formId && formIds[sc.formId]) {
                                         if (!sc.id) {
@@ -3161,12 +3162,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return acc
                             }, {})
 
-
                             console.log("Before ctcs years"+(+new Date() - start))
 
                             this.set('contactYears', _.sortBy(_.values(_.reduce(this.contacts, (acc, ctc) => {
-                                if (ctc.subContacts && ctc.subContacts.filter(sc => !this.hiddenSubContactsId[sc.id]).length ||
-                                    ctc.services.some(s => !ctc.subContacts.some(sc => sc.services.some(scs => scs.idService === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
+                                if (ctc.subContacts && ctc.subContacts.some(sc => !sc.id || !this.hiddenSubContactsId[sc.id]) ||
+                                    ctc.services.some(s => !ctc.subContacts.some(sc => sc.services.some(scs => scs.serviceId === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
                                     let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4))
                                     const contacts = (acc[year] || (acc[year] = {year: year, contacts: []})).contacts
                                     if (!contacts.includes(ctc)) {
@@ -3661,6 +3661,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleSelectionChange(e) {
+                e.preventDefault()
+                e.stopPropagation()
+                document.getSelection().removeAllRanges();
+
                 const selections = e.detail.selections;
                 const selChanges = {}; // Map with new selected indexes for each listbox id
 
@@ -3676,6 +3680,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 const selChangesEntry = selChanges[listBox.id] || (selChanges[listBox.id] = { el: listBox, selectedValues: listBox.selectedValues });
                                 if (s.action === 'select') {
                                     selChangesEntry.selectedValues = _.uniq(selChangesEntry.selectedValues.concat([listBox.items.indexOf(item)]));
+                                } else if (s.action === 'extend') {
+                                    if (selChangesEntry.selectedValues && selChangesEntry.selectedValues.length) {
+                                        const min = Math.min(...selChangesEntry.selectedValues)
+                                        const max = Math.max(...selChangesEntry.selectedValues)
+                                        const idx = listBox.items.indexOf(item)
+                                        selChangesEntry.selectedValues = _.uniq(selChangesEntry.selectedValues.concat(idx < min ? _.range(idx, min) : _.range(max + 1, idx + 1)));
+                                    }
                                 } else if (s.action === 'unselect') {
                                     const delValue = listBox.items.indexOf(item);
                                     selChangesEntry.selectedValues = selChangesEntry.selectedValues.filter(it => it !== delValue);

@@ -68,10 +68,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-setup-prompt.html">
 
 <link rel="import" href="elements/icc-api/icc-api.html">
-<link rel="import" href="../ht-spinner/ht-spinner.html">
-
 
 <link rel="import" href="./dialog-style.html">
+<link rel="import" href="elements/ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-app">
 
@@ -541,6 +540,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width:200px;
                 height:200px;
             }
+            #update-notification {
+                z-index: 1000;
+                position: fixed;
+                right: 32px;
+                top: 32px;
+                height: 48px;
+                width: 256px;
+                font-size: 12px;
+                font-weight: 500;
+                background-color: var(--app-secondary-color);
+                opacity: 1;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-around;
+                align-items: center;
+                color: var(--app-text-color-light);
+            }
+
 
         </style>
 
@@ -571,6 +588,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
                         on-user-saved="_userSaved"></ht-my-profile>
 
+        <template is="dom-if" if="[[updateMessage]]">
+            <paper-card id="update-notification">
+                    <span>[[updateMessage]]</span>
+                    <template is="dom-if" if="[[updateAction]]">
+                        <paper-button name="update" on-tap="doUpdate">
+                            <iron-icon class="iron-icon" icon="play-for-work"></iron-icon>
+                            <span>[[updateAction]]</span>
+                        </paper-button>
+                    </template>
+            </paper-card>
+        </template>
 
          <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
          <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
@@ -1106,8 +1134,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
+                runtime.install({
+                    onUpdating: () => {
+                        console.log('SW Event: ', 'onUpdating');
+                        this.set('updateMessage', this.localize('new_upd_det','New update detected.',this.language))
+                        this.set('updateAction', null)
+                    },
+                    onUpdateReady: () => {
+                        console.log('SW Event: ', 'onUpdateReady');
+                        this.set('updateMessage', this.localize('new_upd_rea','New update ready',this.language))
+                        this.set('updateAction', this.localize('upd','Update'))
+                    },
+                    onUpdated: () => {
+                        console.log('SW Event: ', 'onUpdated');
+                        window.location.reload();
+                    },
+
+                    onUpdateFailed: () => {
+                        console.log('SW Event: ', 'onUpdateFailed');
+                        this.set('updateMessage', this.localize('upd_fail','Update failed, please refresh.'))
+                    }
+                });
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
+            }
+
+            doUpdate() {
+                this.set('updateMessage', this.localize('upd_ing','Updating...'))
+                this.set('updateAction', null)
+                runtime.applyUpdate();
             }
 
             resetTimer() {
@@ -1757,7 +1812,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
-                                this.api.bemikrono().register(this.user.id, {}).then(user => {
+                                this.api.onlinebemikrono().register(this.user.id, {}).then(user => {
                                     if(user === true){
                                         this.api.user().getUser(this.user.id).then(u => {
                                             this.set('user', u)
