@@ -935,7 +935,7 @@
                     <div class="del-button">
                         <template is="dom-if" if="[[isDeleted]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
-                            <paper-button class="msg-detail-btn" on-tap="_deleteMsgForever"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                            <!--<paper-button class="msg-detail-btn" on-tap="_deleteMsgForever"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
                         </template>
                         <template is="dom-if" if="[[!isDeleted]]">
                                 <!--<paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
