@@ -705,23 +705,23 @@
                 border-radius: 4px;
                 font-size: .8em;
                 text-align: center;
-                width: 80%;
-                max-width: 164px;
+                width: 50%;
                 box-shadow: var(--app-shadow-elevation-1);
                 cursor: pointer;
                 transition: .25s ease-in-out;
+                padding: 16px;
             }
             .assignToPat {
-                margin: 0 auto;
+                margin: 0 auto 16px 0;
                 left: 50%;
-                transform: translate(-50%,-16px) scale(1);
+                transform: translateX(-50%) scale(1);
             }
             .assignToPat:hover {
-                transform: translate(-50%,-16px) scale(1.05);
+                transform: translateX(-50%) scale(1.05);
             }
             .assignToPat:active {
                 box-shadow: none;
-                transform: translate(-50%,-16px) scale(.95);
+                transform: translateX(-50%) scale(.95);
             }
             .confirmPats:hover {
                 transform: scale(1.05);
@@ -804,6 +804,12 @@
                 justify-content: flex-start;
                 width: 100%;
             }
+            #import-suggest .line > div.icon {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                width: 32px;
+            }
             #import-suggest .line > div.grow {
                 flex-grow: 1;
             }
@@ -827,7 +833,7 @@
                 flex-direction: column;
                 border-top: 1px solid var(--app-background-color-darker);
                 text-align: left;
-                padding: 8px 4px 4px 0;
+                padding: 8px;
             }
             .labolist .unassigned:first-child {
                 border: none;
@@ -973,14 +979,7 @@
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
                             <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                            <template is="dom-if" if="[[item.unassignedResults.length]">
-                                <template is="dom-if" if="[[!assignModal]]">
-                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
-                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                    </paper-button>
-                                </template>
-                            </template>
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true" on-open-suggestions="openSuggestions" unassigned="[[unimportedPats]]"></dynamic-doc>
                         </div>
                     </template>
                 </template>
@@ -998,14 +997,14 @@
                                         <template is="dom-repeat" items="[[unimportedPats]]">
                                             <paper-item class="unassigned pointer">
                                                 <div class="line">
-                                                    <div>
+                                                    <div class="icon">
                                                         <iron-icon icon="assignment" width="18px"></iron-icon>
                                                     </div>
                                                     <div class="grow">
                                                         <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
-                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
                                                         <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
-                                                        <small class="demand-date">[[item.formatedDemandDate]]</small>
+                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
+                                                        <small>[[localize('date','Date',language)]] : [[item.formatedDemandDate]]</small>
                                                     </div>
                                                 </div>
                                             </paper-item>

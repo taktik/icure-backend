@@ -2,6 +2,7 @@
 
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
 
@@ -155,6 +156,21 @@
                 text-align: right;
             }
 
+            .assignToPat {
+                margin: 8px 0;
+                width: 100%;
+                transform: scale(1);
+                transition: .25s ease-in-out;
+                background: var(--app-secondary-color);
+            }
+            .assignToPat:hover {
+                transform: scale(1.05);
+            }
+            .assignToPat:active {
+                box-shadow: none;
+                transform: scale(.95);
+            }
+
 		</style>
         <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
@@ -210,6 +226,11 @@
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
                 <span>[[_title(document.name, title)]]</span>
+                <template is="dom-if" if="[[unassigned.length]]">
+                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                    </paper-button>
+                </template>
                 <template is="dom-repeat" items="[[attachmentContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -291,6 +312,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLabOrProtocol: {
                 type: Boolean,
                 value: true
+            },
+            unassigned: {
+			    type: Object,
+                value: []
             }
 		};
 	}
@@ -305,6 +330,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _title(name, fallback) {
 	    return name && name !== 'No title' ? name : fallback
+    }
+
+    openSuggestions() {
+	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {bubbles: true, composed: true}}))
     }
 
 	_documentIdChanged() {
