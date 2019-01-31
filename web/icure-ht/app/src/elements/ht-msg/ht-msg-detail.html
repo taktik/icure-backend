@@ -1206,6 +1206,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             hasLabResult: {
 			    type: Boolean
+            },
+            docTxt: {
+			    type: Object
             }
 		};
 	}
@@ -1306,6 +1309,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
+            this.set('bodyDocument',{})
+            this.set('svcToDisplay',[])
             if (tempSelect.status) { // mark as read
                 const tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
                 const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
@@ -1334,13 +1339,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                                 .then(res=>this.set('docTxt',res))
                                         } else {
                                             this._getPatsFromDoc(doc)
-                                            if (this._isEqualTo(doc.documentLocation, 'annex')) {
-                                                this.api.beresultimport().getInfos(doc.id,true,this.language).then(docInfos=>{
-                                                    console.log('docInfos',docInfos.lines)
-                                                    this.set('svcToDisplay',docInfos.lines)
-                                                    // TODO : créer un component servicesList
-                                                })
-                                            }
                                         }
                                         this.set('document',doc)
                                         return doc
