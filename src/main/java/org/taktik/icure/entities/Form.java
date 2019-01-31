@@ -37,7 +37,6 @@ public class Form extends StoredICureDocument {
 
     protected String formTemplateId;
 
-    //Where in the hierarchy is the form attached
     protected String contactId;
     protected String healthElementId;
     protected String planOfActionId;

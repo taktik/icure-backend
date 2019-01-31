@@ -136,12 +136,11 @@
 
 			.msg-detail-card {
 				width: 100%;
-                padding: 0 0 0 12px;
+                padding: 0 0 12px 12px;
 				display: block;
 				background: transparent;
 				box-shadow: none;
-                flex-grow: 1;
-                overflow-y: auto;
+                flex-grow: 0;
 			}
 
 			.horizontal {
@@ -818,6 +817,10 @@
                 padding: 0;
             }
 
+            dynamic-doc {
+                width: 100%;
+            }
+
             .labolist .unassigned {
                 line-height: 100%;
                 display: flex;
@@ -962,10 +965,10 @@
             <!--</div>-->
 
             <!--<div class="attached">-->
-                <template is="dom-repeat" items="[[selectedDocuments]]">
+                <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
                         <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                     resources="[[resources]]" title="[[item.label]]" mailbody="true"></dynamic-doc>
+                                     resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true"></dynamic-doc>
                     </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
@@ -1288,6 +1291,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
     _isHidden() {
         return this.messages[0].transportGuid.startsWith("HIDDEN")
+    }
+
+    _sorted(docs) {
+	    return _.sortBy(docs, (d) => d.documentLocation === 'body' ? '' : d.id)
     }
 
     _focusChanged(){

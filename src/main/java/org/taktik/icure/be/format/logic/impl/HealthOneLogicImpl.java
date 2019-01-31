@@ -453,6 +453,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 					ri.setProtocol("***"+ri.getDemandDate());
 				}
 				l.add(ri);
+			} else {
+				line = br.readLine();
 			}
 		}
 		br.close();
