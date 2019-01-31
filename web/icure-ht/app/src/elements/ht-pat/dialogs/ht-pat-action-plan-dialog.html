@@ -743,7 +743,7 @@
                     const codeStatus = (service.tags || []).find( code => code.type==="CD-LIFECYCLE")
                     Promise.all([
                         this.api.hcparty().getHealthcareParty(service.responsible),
-                        codeProcedure ? this.api.code().getCode(codeProcedure.id) : Promise.resolve({}),
+                        codeProcedure ? this.api.code().getCode(codeProcedure.type + '|' + codeProcedure.code + '|' + codeProcedure.version) : Promise.resolve({}),
                         codeProfession ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve({}),
                         codeVaccine ? this.api.bedrugs().getMppInfos(this.api.contact().preferredContent(service, this.language).medicationValue.medicinalProduct.intendedcds.find(code => code.type === "CD-DRUG-CNK").code, this.language) : Promise.resolve({})
                     ]).then(([hcp, resultProced, resultProf, resultVaccine]) => {
