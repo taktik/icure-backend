@@ -436,6 +436,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
+                @media screen and (max-width:1696px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        margin-left: 0;
+                    }
+                }
+                @media screen and (max-width:1025px) {
+                    .col-right {
+                        width: 100vw;
+                        transition: all .5s ease;
+                        box-shadow: none;
+                    }
+
+                    ht-spinner.center {
+                        left: 50vw;
+                    }
+                }
+
+                @media screen and (max-width: 800px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        min-width: 0;
+                        margin-left: initial;
+                    }
+                    .mb4 span {
+                        display: none;
+                    }
+                    #capacity-indicator paper-progress {
+                        width: 64px;
+                    }
+                }
                 @media screen and (max-width:1025px) {
                     .col-right {
                         width: 100vw;
