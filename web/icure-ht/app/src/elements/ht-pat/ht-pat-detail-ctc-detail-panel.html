@@ -24,9 +24,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
-
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
-
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 
 <link rel="import" href="../filter-panel/filter-panel.html">
@@ -954,6 +952,10 @@
 			    type: Object,
                 value: null
             },
+            documentMetas: {
+			    type: Object,
+                value: null
+            },
             selectedFormat: {
 			    type: String,
                 value: 'A4'
@@ -1328,6 +1330,20 @@
 			}
 
 			_pdfReport(drugsToBePrescribed,toPrint,size) {
+
+			    this.busySpinner=true;
+
+			    const pdfPrintingData = {
+			        downloadFileName: _.kebabCase([ "prescription", _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
+                    documentMetas : {
+                        title : "Prescription",
+                        contactId : _.get(this.currentContact, "id", ""),
+                        created: ""+ +new Date(),
+                        patientId : _.trim(_.get(this.patient, "id", "")),
+                        patientName : _.compact([ _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", "") ]).join(" ")
+                    }
+                }
+
 				this.api.pdfReport(mustache.render(toPrint, null),{
 					paperWidth: this.patient.ssin && this.api.tokenId && size == 'A4' ? 210 : 105,
 					paperHeight: this.patient.ssin && this.api.tokenId && size == 'A4' ? 297 : 210,
@@ -1336,17 +1352,45 @@
 					marginTop: 5,
 					marginBottom: 5
 				})
-						.then(data => {
-							let blob = new Blob([data], {type: 'application/pdf'});
-							let url = window.URL.createObjectURL(blob)
-							let a = document.createElement("a");
-							document.body.appendChild(a);
-							a.style = "display: none;";
-							a.href = url;
-							a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
-							a.click();
-							window.URL.revokeObjectURL(url);
-						}).finally(()=>{
+				.then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData))
+                .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
+                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
+                    .then(pdfPrintingData=>this.api.message().createMessage(
+                            _.merge(
+                                pdfPrintingData.newMessageInstance,
+                                {
+                                    transportGuid: "PRESCRIPTION:PHARMACEUTICALS:ARCHIVE",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                    metas: pdfPrintingData.documentMetas,
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                    subject: pdfPrintingData.documentMetas.title
+                                }
+                            )
+                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, pdfPrintingData)))
+                )
+                .then(pdfPrintingData=>this.api.document().newInstance(
+                        this.user,pdfPrintingData.createMessageResponse,
+                        {
+                            documentType: 'report',
+                            mainUti: this.api.document().uti("application/pdf"),
+                            name: pdfPrintingData.documentMetas.title + " - " + pdfPrintingData.documentMetas.patientName
+                        }
+                    ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},pdfPrintingData))
+                )
+                .then(pdfPrintingData=>this.api.document().createDocument(pdfPrintingData.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, pdfPrintingData.createDocumentResponse, pdfPrintingData.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.document().setAttachment(pdfPrintingData.createDocumentResponse.id, null, pdfPrintingData.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>{
+                    this._saveDocumentAsService({
+                        documentId: _.trim(_.get(pdfPrintingData, "createDocumentResponse.id", "")),
+                        stringValue: pdfPrintingData.documentMetas.title,
+                        contactId: pdfPrintingData.documentMetas.contactId,
+                    })
+                    return pdfPrintingData
+                })
+                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch(e=>{console.log(e)})
+                .finally(()=>{
 					drugsToBePrescribed.forEach(s => {
 						const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
 						if (tag) {
@@ -1355,8 +1399,11 @@
 						} else {
 							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
 						}
-					}) // forEach end
-					this.saveCurrentContact().then(() => this._refreshFromServices())
+					})
+					this.saveCurrentContact().then(() => {
+					    this._refreshFromServices()
+					    this.busySpinner=false;
+					})
 				})
 			}
 
@@ -1817,7 +1864,7 @@
 
                 const seenForms = {}
                 const formGroups = this.contacts.map(contact => {
-                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
+                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
@@ -2175,23 +2222,49 @@
                     .then(resourcesObject=>this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter()).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},resourcesObject)))
                     .then(resourcesObject=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, resourcesObject.createDocumentResponse, resourcesObject.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},resourcesObject)))
                     .then(resourcesObject=>this.api.document().setAttachment(resourcesObject.createDocumentResponse.id, null, resourcesObject.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},resourcesObject)))
-                    .then(resourcesObject=>{
-                        const svc = this.api.contact().service().newInstance(this.user,{
-                            content: _.fromPairs([[this.language, { documentId: resourcesObject.createDocumentResponse.id, stringValue: reportData.title + " " + reportData.description }]]),
-                            encryptedContent: resourcesObject.encryptedFileContent,
-                            label: 'document',
-                            formId: reportData.formId
-                        })
-                        this.dispatchEvent(new CustomEvent('new-service', {
-                            detail: {
-                                ctc: this.currentContact,
-                                svc: svc,
-                                scs: this.currentContact.subContacts.filter(sc => sc.formId === this.editedReportDataProvider.getId())
-                            }, composed: true
-                        }))
-                    })
+                    .then(resourcesObject=>this._saveDocumentAsService({
+                        documentId: _.trim(_.get(resourcesObject, "createDocumentResponse.id", "")),
+                        stringValue: _.trim(reportData.title) + " " + _.trim(reportData.description),
+                        formId: reportData.formId,
+                        contactId: _.trim(this.currentContact.id)
+                    }))
                     .catch((e)=>{console.log(e)})
                     .finally(()=>{ this.busySpinner = false; this._closeReportMenu(); this.confirmSaved(); })
+
+            }
+
+            _saveDocumentAsService(inputConfig) {
+
+                const svc = this.api.contact().service().newInstance(
+                    this.user,
+                    {
+                        content: _.fromPairs([[this.language, { documentId: inputConfig.documentId, stringValue: inputConfig.stringValue }]]),
+                        label: 'document',
+                        formId: inputConfig.formId,
+                        contactId: inputConfig.contactId
+                    }
+                )
+
+                let newServiceData = {
+                    ctc: this.currentContact,
+                    svc: svc,
+                    scs: this.currentContact.subContacts.filter(sc => sc.formId === inputConfig.formId)
+                }
+
+                if( Array.isArray(_.get(newServiceData, "scs.services", false)) ) {
+                    newServiceData.scs.services.push({ serviceId: svc.id });
+                } else {
+                    newServiceData.scs["services"] = [{ serviceId: svc.id }];
+                }
+
+                console.log(svc);
+                console.log(newServiceData);
+
+                this._newService({},newServiceData)
+
+                this.currentContact.services.push(svc);
+
+                this.saveCurrentContact().then(() => this._contactsChanged());
 
             }
 
@@ -2384,6 +2457,15 @@
 
                 // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
 
+                this.documentMetas = {
+                    title : _.trim(this.localize("certificate_stop_activity",this.language)),
+                    formId : _.trim(_.get(subFormObject, "id", "")),
+                    created: ""+ +new Date(),
+                    patientId : _.trim(_.get(this.patient, "id", "")),
+                    patientName : _.trim(patientName),
+                }
+
+
                 this.api.code().findCodes("be", "CD-INCAPACITY").then(incapacityCodes=>{return{incapacityCodes: incapacityCodes}})
                     .then(resourcesObject => this.api.code().findCodes("be", "CD-INCAPACITYREASON").then(incapacityReasons=>_.assign({incapacityReasons:incapacityReasons},resourcesObject)))
                     .then(resourcesObject => {
@@ -2436,9 +2518,47 @@
 
                     })
                     .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject)))
+                    .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
+                        .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
+                        .then(resourcesObject=>this.api.message().createMessage(
+                                _.merge(
+                                    resourcesObject.newMessageInstance,
+                                    {
+                                        transportGuid: "PRESCRIPTION:ITT:ARCHIVE",
+                                        recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                        metas: this.documentMetas,
+                                        toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                        subject: this.documentMetas.title
+                                    }
+                                )
+                            ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, resourcesObject))
+                        )
+                    )
+                    .then(resourcesObject=>this.api.document().newInstance(
+                            this.user,resourcesObject.createMessageResponse,
+                            {
+                                documentType: 'report',
+                                mainUti: this.api.document().uti("application/pdf"),
+                                name: this.documentMetas.title + " - " + this.documentMetas.patientName
+                            }
+                        ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},resourcesObject))
+                    )
+                    .then(resourcesObject=>this.api.document().createDocument(resourcesObject.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},resourcesObject)))
+                    .then(resourcesObject=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, resourcesObject.createDocumentResponse, resourcesObject.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},resourcesObject)))
+                    .then(resourcesObject=>this.api.document().setAttachment(resourcesObject.createDocumentResponse.id, null, resourcesObject.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},resourcesObject)))
+                    .then(resourcesObject=>{
+                        this._saveDocumentAsService({
+                            documentId: _.trim(_.get(resourcesObject, "createDocumentResponse.id", "")),
+                            stringValue: this.documentMetas.title,
+                            formId: this.documentMetas.formId,
+                            contactId: _.trim(this.currentContact.id)
+                        })
+                        return resourcesObject
+                    })
                     .then(resourcesObject => this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
                     .catch(e=>{console.log(e)})
                     .finally(()=>{ this.busySpinner=false; this._closeReportMenu(); })
+
             }
 
             printIncapacityForm_v2(subFormDataProvider, subFormObject, subFormTemplateObject) {
@@ -2686,7 +2806,13 @@
                     )||[],
                     suggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "CT Scan" || i.name === "RMN" || i.name === "RX" || i.name === "Echographie" || i.name === "Scintigraphie" || i.name === "Inconnu" || i.name === "ExamProp" || i.name === "Autre examen" })),
                     previouslySuggestedExams: _.filter(subFormFieldsAndValues, (i=>{ return i.name === "Allergy" || i.name === "Diabetes" || i.name === "RenalFailure" || i.name === "Grossesse" || i.name === "Implant" || i.name === "Autre_exam_bis" })),
-
+                    documentMetas : {
+                        title : _.trim(this.localize("requestForImagingExam_header1",this.language)),
+                        formId : _.trim(_.get(subFormObject, "id", "")),
+                        created: ""+ +new Date(),
+                        patientId : _.trim(_.get(this.patient, "id", "")),
+                        patientName : _.compact([ _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", "") ]).join(" "),
+                    }
                 }).then(pdfPrintingData =>{
 
                     const pdfContent = `
@@ -2715,10 +2841,47 @@
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
 
                 })
-                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData)))
-                .then(pdfPrintingData=>this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
-                .catch((e)=>{console.log(e)})
-                .finally(()=>{ this.busySpinner = false; })
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData)))
+			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
+                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
+                    .then(pdfPrintingData=>this.api.message().createMessage(
+                            _.merge(
+                                pdfPrintingData.newMessageInstance,
+                                {
+                                    transportGuid: "PRESCRIPTION:IMAGING:ARCHIVE",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                    metas: pdfPrintingData.documentMetas,
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                    subject: pdfPrintingData.documentMetas.title
+                                }
+                            )
+                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, pdfPrintingData))
+                    )
+                )
+                .then(pdfPrintingData=>this.api.document().newInstance(
+                        this.user,pdfPrintingData.createMessageResponse,
+                        {
+                            documentType: 'report',
+                            mainUti: this.api.document().uti("application/pdf"),
+                            name: pdfPrintingData.documentMetas.title + " - " + pdfPrintingData.documentMetas.patientName
+                        }
+                    ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},pdfPrintingData))
+                )
+                .then(pdfPrintingData=>this.api.document().createDocument(pdfPrintingData.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, pdfPrintingData.createDocumentResponse, pdfPrintingData.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.document().setAttachment(pdfPrintingData.createDocumentResponse.id, null, pdfPrintingData.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>{
+                    this._saveDocumentAsService({
+                        documentId: _.trim(_.get(pdfPrintingData, "createDocumentResponse.id", "")),
+                        stringValue: pdfPrintingData.documentMetas.title,
+                        formId: pdfPrintingData.documentMetas.formId,
+                        contactId: _.trim(this.currentContact.id)
+                    })
+                    return pdfPrintingData
+                })
+                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch(e=>{console.log(e)})
+                .finally(()=>{ this.busySpinner=false; })
 
             }
 
@@ -2789,7 +2952,14 @@
                         _.get(_.filter(subFormFieldsAndValues,{name:"Communication par courrier"}), "[0]", {}),
                         _.get(_.filter(subFormFieldsAndValues,{name:"Communication par téléphone"}), "[0]", {}),
                         _.get(_.filter(subFormFieldsAndValues,{name:"Communication autre"}), "[0]", {})
-                    ]
+                    ],
+                    documentMetas : {
+                        title : _.trim(this.localize("requestForKineCare_header1",this.language)),
+                        formId : _.trim(_.get(subFormObject, "id", "")),
+                        created: ""+ +new Date(),
+                        patientId : _.trim(_.get(this.patient, "id", "")),
+                        patientName : _.compact([ _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", "") ]).join(" ")
+                    }
                 }).then(pdfPrintingData => {
 
                     const pdfContent = `
@@ -2821,9 +2991,46 @@
 
                 })
                 .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
-                .then(pdfPrintingData=>this.api.triggerFileDownload(pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
-                .catch((e)=>{console.log(e);this.busySpinner = false;})
-                .finally(()=>{this.busySpinner = false})
+			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
+                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
+                    .then(pdfPrintingData=>this.api.message().createMessage(
+                            _.merge(
+                                pdfPrintingData.newMessageInstance,
+                                {
+                                    transportGuid: "PRESCRIPTION:KINE:ARCHIVE",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                    metas: pdfPrintingData.documentMetas,
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                    subject: pdfPrintingData.documentMetas.title
+                                }
+                            )
+                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, pdfPrintingData))
+                    )
+                )
+                .then(pdfPrintingData=>this.api.document().newInstance(
+                        this.user,pdfPrintingData.createMessageResponse,
+                        {
+                            documentType: 'report',
+                            mainUti: this.api.document().uti("application/pdf"),
+                            name: pdfPrintingData.documentMetas.title + " - " + pdfPrintingData.documentMetas.patientName
+                        }
+                    ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},pdfPrintingData))
+                )
+                .then(pdfPrintingData=>this.api.document().createDocument(pdfPrintingData.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, pdfPrintingData.createDocumentResponse, pdfPrintingData.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.document().setAttachment(pdfPrintingData.createDocumentResponse.id, null, pdfPrintingData.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>{
+                    this._saveDocumentAsService({
+                        documentId: _.trim(_.get(pdfPrintingData, "createDocumentResponse.id", "")),
+                        stringValue: pdfPrintingData.documentMetas.title,
+                        formId: pdfPrintingData.documentMetas.formId,
+                        contactId: _.trim(this.currentContact.id)
+                    })
+                    return pdfPrintingData
+                })
+                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .catch(e=>{console.log(e)})
+                .finally(()=>{ this.busySpinner=false; })
 
 			}
 
@@ -2933,7 +3140,14 @@
 
                 this._getPdfPrintingCoreData({
                     downloadFileName: _.kebabCase([ this.localize("requestForNurseCare_header1",this.language), _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
-                    formsData: formsData
+                    formsData: formsData,
+                    documentMetas : {
+                        title : _.trim(this.localize("requestForNurseCare_header1",this.language)),
+                        formId : _.trim(_.get(subFormObject, "id", "")),
+                        created: ""+ +new Date(),
+                        patientId : _.trim(_.get(this.patient, "id", "")),
+                        patientName : _.compact([ _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", "") ]).join(" ")
+                    }
                 }).then(pdfPrintingData => {
                     const pdfContent = `
                         <div class="page">
@@ -2960,9 +3174,46 @@
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
                 })
                 .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
+                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
+                    .then(pdfPrintingData=>this.api.message().createMessage(
+                            _.merge(
+                                pdfPrintingData.newMessageInstance,
+                                {
+                                    transportGuid: "PRESCRIPTION:NURSE:ARCHIVE",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
+                                    metas: pdfPrintingData.documentMetas,
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
+                                    subject: pdfPrintingData.documentMetas.title
+                                }
+                            )
+                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, pdfPrintingData)))
+                )
+                .then(pdfPrintingData=>this.api.document().newInstance(
+                        this.user,pdfPrintingData.createMessageResponse,
+                        {
+                            documentType: 'report',
+                            mainUti: this.api.document().uti("application/pdf"),
+                            name: pdfPrintingData.documentMetas.title + " - " + pdfPrintingData.documentMetas.patientName
+                        }
+                    ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},pdfPrintingData))
+                )
+                .then(pdfPrintingData=>this.api.document().createDocument(pdfPrintingData.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, pdfPrintingData.createDocumentResponse, pdfPrintingData.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.document().setAttachment(pdfPrintingData.createDocumentResponse.id, null, pdfPrintingData.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},pdfPrintingData)))
+                .then(pdfPrintingData=>{
+                    this._saveDocumentAsService({
+                        documentId: _.trim(_.get(pdfPrintingData, "createDocumentResponse.id", "")),
+                        stringValue: pdfPrintingData.documentMetas.title,
+                        formId: pdfPrintingData.documentMetas.formId,
+                        contactId: _.trim(this.currentContact.id)
+                    })
+                    return pdfPrintingData
+                })
                 .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
-                .catch((e)=>{console.log(e)})
-                .finally(()=>{this.busySpinner = false})
+                .catch(e=>{console.log(e)})
+                .finally(()=>{ this.busySpinner=false; })
+
 
             }
 

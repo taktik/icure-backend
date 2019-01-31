@@ -872,7 +872,7 @@
                     this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
                         .then(reimb => this.set("reimbursementCodeRecipe", _.orderBy(reimb.rows, ['label.fr'], ['asc'])))
                         .then(() => this.api.code().findPaginatedCodes('be', 'CD-TIMEUNIT', ''))
-                        .then(timeunit => this.set("timeUnit", _.orderBy(timeunit.rows, ['label.fr'], ['asc'])))
+                        .then(timeunit => this.set("timeUnit", _.orderBy(_.filter(_.get(timeunit, "rows", []),i=>["ns","us","ms", "s","min"].indexOf(_.trim(_.get(i, "code")))==-1), ['label.fr'], 'asc')))
                         .finally(() =>  {
 
                             this.set('medicationDetail', medicationDetail)

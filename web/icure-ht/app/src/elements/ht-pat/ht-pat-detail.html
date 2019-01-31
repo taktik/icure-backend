@@ -3162,7 +3162,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             this.set('currentContact', newCtc)
                             const formIds = {}
-                            this.hiddenSubContactsId = _.reduce(ctcs, (acc, ctc) => {
+                            this.hiddenSubContactsId = _.reduce(this.contacts, (acc, ctc) => {
                                 ctc.subContacts.forEach(sc => {
                                     if (sc.formId && formIds[sc.formId]) {
                                         if (!sc.id) {
@@ -3176,12 +3176,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return acc
                             }, {})
 
-
                             console.log("Before ctcs years"+(+new Date() - start))
 
                             this.set('contactYears', _.sortBy(_.values(_.reduce(this.contacts, (acc, ctc) => {
-                                if (ctc.subContacts && ctc.subContacts.filter(sc => !this.hiddenSubContactsId[sc.id]).length ||
-                                    ctc.services.some(s => !ctc.subContacts.some(sc => sc.services.some(scs => scs.idService === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
+                                if (ctc.subContacts && ctc.subContacts.some(sc => !sc.id || !this.hiddenSubContactsId[sc.id]) ||
+                                    ctc.services.some(s => !ctc.subContacts.some(sc => sc.services.some(scs => scs.serviceId === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
                                     let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4))
                                     const contacts = (acc[year] || (acc[year] = {year: year, contacts: []})).contacts
                                     if (!contacts.includes(ctc)) {
