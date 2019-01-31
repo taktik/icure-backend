@@ -126,7 +126,7 @@
                 flex-direction: column;
                 background: var(--app-background-color-dark);
                 border-radius: 4px;
-                padding: 4px;
+                padding: 8px;
             }
 
             .resInfos h4 {
@@ -139,15 +139,15 @@
                 flex-direction: row;
             }
             .resInfos .line .label {
-                width: 30%;
+                width: 96px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 display: block;
+                padding-top: 4px;
                 overflow: hidden;
             }
             .resInfos .line span {
                 box-sizing: border-box;
-                margin: 0 8px 0 4px;
                 padding: 4px;
                 background: white;
             }
@@ -157,18 +157,11 @@
             }
 
             .assignToPat {
-                margin: 8px 0;
+                margin: 0 0 8px 0;
                 width: 100%;
                 transform: scale(1);
                 transition: .25s ease-in-out;
                 background: var(--app-secondary-color);
-            }
-            .assignToPat:hover {
-                transform: scale(1.05);
-            }
-            .assignToPat:active {
-                box-shadow: none;
-                transform: scale(.95);
             }
 
 		</style>

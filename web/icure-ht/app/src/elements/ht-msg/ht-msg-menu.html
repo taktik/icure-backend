@@ -599,7 +599,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <collapse-button id="trashboxcollapse">
                 <paper-item id="hidden" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_hidden" elevation="">
-                    <div class="one-line-menu list-title"><iron-icon icon="icons:visibility-off"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hid_elems','Hidden elements',language)]]</span></div>
+                    <div class="one-line-menu list-title"><iron-icon icon="icons:visibility-off"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hidden_msgs','Hidden messages',language)]]</span></div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="trashboxlist" class="menu-content sublist" selected="{{trashSelectionIndex}}" selected-item="{{trashSelectionItem}}" selectable="paper-item">

@@ -694,7 +694,6 @@
                 max-width: 50%;
             }
 
-            .assignToPat,
             .confirmPats {
                 background: var(--app-secondary-color);
                 position: relative;
@@ -705,38 +704,16 @@
                 border-radius: 4px;
                 font-size: .8em;
                 text-align: center;
-                width: 50%;
+                width: auto;
                 box-shadow: var(--app-shadow-elevation-1);
                 cursor: pointer;
-                transition: .25s ease-in-out;
-                padding: 16px;
-            }
-            .assignToPat {
-                margin: 0 auto 16px 0;
-                left: 50%;
-                transform: translateX(-50%) scale(1);
-            }
-            .assignToPat:hover {
-                transform: translateX(-50%) scale(1.05);
-            }
-            .assignToPat:active {
-                box-shadow: none;
-                transform: translateX(-50%) scale(.95);
-            }
-            .confirmPats:hover {
-                transform: scale(1.05);
-            }
-            .confirmPats:active {
-                box-shadow: none;
-                transform: scale(.95);
             }
 
             #import-suggest {
                 position: fixed;
                 display: flex;
                 top: calc(50vh + 97px);
-                right: 7px;
-                left: initial;
+                left: calc(16% + 20px);
                 width: 81vw;
                 height: auto;
                 max-height: calc(100vh - 97px);
@@ -873,10 +850,10 @@
 
             paper-button.search-patients{
                 background: var(--app-background-color-darker);
+                margin: 4px;
             }
             paper-input.search-patients {
                 flex-grow: 1;
-                padding: 4px;
             }
             iron-icon.search-patients {
                 padding-top: 16px;
@@ -945,7 +922,7 @@
                         </template>
                         <template is="dom-if" if="[[!isDeleted]]">
                                 <!--<paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
-                                <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                                <paper-button class="msg-detail-btn" on-tap="_msgToBin"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                         </template>
                     </div>
                 </div>
@@ -1016,7 +993,7 @@
                                 <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
                                 <div class="scrollbox patlist">
                                     <template is="dom-if" if="[[!manualAssign]]">
-                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('assign_manually','Assign manually',language)]]</paper-button>
+                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
                                     </template>
                                     <template is="dom-if" if="[[manualAssign]]">
                                         <div class="line">
@@ -1251,6 +1228,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     toggleManualAssign() {
 	    this.set('searchPatValue','')
 	    this.set('manualAssign',!this.manualAssign)
+        if(!this.manualAssign) this.set('toImportPatsSearch',[])
     }
     _updatePatSearch() {
 	    if (this.searchPatValue.length >= 2) {
@@ -1538,7 +1516,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return this.api.message().modifyMessage(tempSelect).then(msg => {
                         if (msg.unassignedResults.length == 0) {
                             this.closeSuggestions()
-                            return this._removeMsg(msg)
+                            this._msgToBin(msg)
                         } else {
                             this._focusChanged()
                         }
@@ -1715,8 +1693,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-    _removeMsg(){
-        let msg = this.messages[0]
+    _msgToBin(param){
+        let msg = param ? param : this.messages[0]
         if (msg) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id

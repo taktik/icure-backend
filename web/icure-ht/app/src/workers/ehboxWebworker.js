@@ -54,49 +54,42 @@ onmessage = e => {
 
         const removeMsg = (msg) => {
             if (msg) {
-                const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
-                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                // console.log('remove',idOfMsg,thisBox,delBox)
-                if (msg.transportGuid && !msg.transportGuid.startsWith("BIN")) {
-                    // console.log('move to bin',idOfMsg,thisBox,delBox)
-                    return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
-                        .then(()=>{
-                            // console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
-                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                            msgApi.modifyMessage(msg).then(()=> {
-                                // console.log('modify done',idOfMsg,thisBox,delBox)
-
-                            } )
-                        })
-                        .catch(err => {
-                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
-                        })
-                } else {
-                    // console.log('delete',idOfMsg,thisBox,delBox)
-                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], delBox)
-                }
+                console.log('removeMsg')
+                const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
+                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
+                msgApi.modifyMessage(msg).then(()=>{console.log('msg removed')})
             }
         }
 
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
-                const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : null
-                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                // console.log('remove from server',idOfMsg,thisBox,delBox)
-                if (thisBox.transportGuid && !thisBox.transportGuid.startsWith("BIN")) { // if it was not in bin
-                    // console.log('move to bin',idOfMsg,thisBox,delBox)
-                    return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
-                        .then(()=>{
-                            // console.log('move to bin done',idOfMsg,thisBox,delBox)
+                const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
+                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
+
+                if (msg.transportGuid.includes('INBOX')) {
+                    if (!msg.transportGuid.startsWith('BIN')) { // move in bin first
+                        msgApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], 'INBOX', 'BININBOX').then(msg => {
+                            ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
+                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
                         })
-                        .catch(err => {
-                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
+                    } else {
+                        ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
+                            .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
+                    }
+                }
+
+                if (msg.transportGuid.includes('SENTBOX')) {
+                    if (!msg.transportGuid.startsWith('BIN')) { // move in bin first
+                        msgApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], 'SENTBOX', 'BINSENTBOX').then(msg => {
+                            ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
+                                .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
                         })
-                } else { // if already in bin, del forever
-                    // console.log('delete',idOfMsg,thisBox)
-                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox)
+                    } else {
+                        ehboxApi.deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
+                            .then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})))
+                    }
                 }
             }
         }
@@ -229,8 +222,8 @@ onmessage = e => {
                         createdMessage.assignedResults = assignedMap
                         // console.log('treatAnnex, createdMessage', createdMessage)
                         return msgApi.modifyMessage(createdMessage).then(msg => {
-                            // console.log('msg',msg)
-                            if(createdMessage.unassignedResults.length == 0 && createdMessage.assignedResults.length >= 1 ) {
+                            console.log('msg',msg)
+                            if(msg.unassignedResults.length == 0 && Object.keys(msg.assignedResults).length >= 1 ) {
                                 return removeMsg(msg)
                             }
                             return Promise.resolve()
