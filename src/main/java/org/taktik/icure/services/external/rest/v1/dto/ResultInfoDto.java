@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
+
 import java.util.List;
 
 public class ResultInfoDto {
@@ -35,6 +37,7 @@ public class ResultInfoDto {
 	private String engine;
 
 	private List<CodeDto> codes;
+	private List<ServiceDto> services;
 
 	public String getSsin() {
 		return ssin;
@@ -130,5 +133,13 @@ public class ResultInfoDto {
 
 	public void setCodes(List<CodeDto> codes) {
 		this.codes = codes;
+	}
+
+	public List<ServiceDto> getServices() {
+		return services;
+	}
+
+	public void setServices(List<ServiceDto> services) {
+		this.services = services;
 	}
 }
