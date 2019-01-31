@@ -723,6 +723,7 @@ class TarificationCodeImporter extends Importer {
             }
         }
 
+        println "Importing ${updatedCodes.size()} codes"
         updatedCodes.collate(1000).each {
             try {
                 couchdbBase.executeBulk(it)
