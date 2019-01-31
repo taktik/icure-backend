@@ -181,11 +181,11 @@
             }
 
             _shouldDisplay(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id === form.contactId
+                return form && !form.deletionDate && this.contact && (!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _shouldDisplaySummary(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id !== form.contactId
+                return form && !form.deletionDate && this.contact && !(!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {
