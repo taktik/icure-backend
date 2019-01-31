@@ -2227,6 +2227,14 @@
                     favcodesScrollX: {
                         type: Number,
                         value: 0
+                    },
+                    defaultTicketMod:{
+                        type: Number,
+                        value: 0
+                    },
+                    needDefaultTicketMod:{
+                        type: Boolean,
+                        value: true
                     }
                 }
 
@@ -2238,6 +2246,23 @@
 
             ready() {
                 super.ready()
+                if(this.hcp){
+                    if(this.hcp.parentId && this.hcp.parentId!==""){
+                        this.api.hcparty().getHealthcareParty(this.hcp.parentId).then(hcp =>{
+                            if(hcp.type==="medicalHouse" && hcp.billingType==="flatRate"){
+                                this.set("needDefaultTicketMod",true)
+                                /** @ToDo
+                                 * Set the value of defaultTicket
+                                 * */
+                            }
+                        })
+                    }else if(this.hcp.type==="medicalHouse" && this.hcp.billingType==="flatRate"){
+                        this.set("needDefaultTicketMod",true)
+                        /** @ToDo
+                         * Set the value of defaultTicket
+                         * */
+                    }
+                }
             }
 
             dragHoriz(event) {
@@ -2290,6 +2315,12 @@
                         }
                     })
                     ).finally(() => {
+                    if(!selected.sentDate && this.needDefaultTicketMod) {
+                        selected.invoicingCodes.map(code => {
+                            code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                            code.patientIntervention = this.defaultTicketMod
+                        })
+                    }
 
                     this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
@@ -2586,6 +2617,13 @@
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
                                 const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
 
+                                if(!invoice.sentDate && this.needDefaultTicketMod) {
+                                    invoice.invoicingCodes.map(code => {
+                                        code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                                        code.patientIntervention = this.defaultTicketMod
+                                    })
+                                }
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
@@ -2614,6 +2652,12 @@
                                         }
                                     })
                                 ).then(x =>{
+                                    if(!invoice.sentDate && this.needDefaultTicketMod) {
+                                        invoice.invoicingCodes.map(code => {
+                                            code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                                            code.patientIntervention = this.defaultTicketMod
+                                        })
+                                    }
                                     const registered = this.api.register(invoice, 'invoice')
                                     this.$['nmclGrid'].clearCache()
                                     this.updateGui(registered)
@@ -2746,8 +2790,8 @@
                                     }
 
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.reimbursement`, c.reimbursement.amount)
-                                    this.set(`selectedInvoice.invoicingCodes.${idx}.patientIntervention`, c.patientFee.amount)
-                                    this.set(`selectedInvoice.invoicingCodes.${idx}.totalAmount`, c.fee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.patientIntervention`, this.needDefaultTicketMod ? this.defaultTicketMod :c.patientFee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.totalAmount`,this.needDefaultTicketMod ? c.fee.amount-c.patientFee.amount+this.defaultTicketMod : c.fee.amount)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.contract`, c.contract)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.valid`, true)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.override3rdPayerCode`, c.justification)
