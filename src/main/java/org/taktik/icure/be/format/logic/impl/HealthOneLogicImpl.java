@@ -128,8 +128,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		String line;
 		BufferedReader reader = new BufferedReader(r);
 		LaboLine ll = null;
-		int position = 0;
-		while ((line = reader.readLine()) != null) {
+		long position = 0;
+		while ((line = reader.readLine()) != null && position < 10_000_000L /* ultimate safeguard */) {
 			position++;
 			if (isLaboLine(line)) {
 				if (ll != null) {
@@ -372,12 +372,12 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
 		BufferedReader br = getBufferedReader(doc);
-		int position = 0;
+		long position = 0;
 
 		String line = br.readLine();
-		while (line != null) {
+		while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+			position++;
 			if (isLaboLine(line)) {
-				position++;
 				LaboLine ll = getLaboLine(line);
 
 				ResultInfo ri = new ResultInfo();
@@ -385,7 +385,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				ri.setLabo(ll.getLabo());
 
 				line = br.readLine();
-				while (true) {
+				while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+					position++;
 					if (isPatientLine(line)) {
 						PatientLine p = getPatientLine(line);
 
@@ -443,7 +444,6 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						break;
 					}
 					line = br.readLine();
-					if (line == null) { break; }
 				}
 				if (full) {
 					createServices(ll, language, position);
