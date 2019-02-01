@@ -384,7 +384,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 fetch(dataUrl, {credentials:'include'})
                     .then(response => response.text())
                     .then(xml => this.set('attachmentContent', xml.toString()))
-            } else if (this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
+            } else if ((!this.document.mainUti && (!this.document.otherUtis || this.document.otherUtis.length == 0)) || this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
                 this.api.beresultimport().canHandle(this.document.id).then( isResult => {
                     if (isResult) {
                         this.set('isLabOrProtocol', true)

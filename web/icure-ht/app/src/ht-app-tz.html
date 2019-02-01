@@ -1707,7 +1707,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 600000) {
+            _inboxMessageCheck(period = 60000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
@@ -2114,12 +2114,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
-                    const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+
+                    const getParents = (id, keyPairs) => this.api.hcparty().getHealthcareParty(id).then(hcp => {
+                        keyPairs[hcp.id] = this.api.crypto().RSA.loadKeyPairNotImported(id)
+                        if (hcp.parentId) {
+                            return getParents(hcp.parentId, keyPairs)
+                        }
+                        return keyPairs
+                    })
+
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
                     this.worker = new Worker()
 
-                    this.getAlternateKeystores().then(alternateKeystores => {
+                    getParents(this.user.healthcarePartyId, {}).then(kp => this.getAlternateKeystores().then(alternateKeystores => {
                         this.worker.postMessage({
                             action: "loadEhboxMessage",
                             hcpartyBaseApi: this.api.hcpartyLight(),
@@ -2133,9 +2141,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             ehpassword: this.credentials.ehpassword,
                             boxId: ["INBOX","SENTBOX"],
                             alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
-                            keyPair: keyPair
+                            keyPairs: kp
                         })
-				    })
+				    }))
 
                     this.worker.onmessage = e => {
                         this.set('ehboxWebWorkerMessage', e.data.message)
