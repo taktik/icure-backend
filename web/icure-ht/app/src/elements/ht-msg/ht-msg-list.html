@@ -797,6 +797,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     selectedLabFilter: {
                         type: Number,
                             value: 0
+                    },
+                    actualCapacity: {
+                        type: Number,
+                        value: 0
                     }
                 };
             }
@@ -1190,6 +1194,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('isLabresultBox', (item === "labResult") ? true : false )
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                this._getBoxCapacity()
                 this._deselectAll();
             }
 
