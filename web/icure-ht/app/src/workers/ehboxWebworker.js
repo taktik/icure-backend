@@ -41,7 +41,7 @@ onmessage = e => {
         const iccUtils          = new UtilsClass()
 
         //Avoid the hit to the local storage to load the key pair
-        iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
+        Object.keys(e.data.keyPairs).forEach( k => iccCryptoXApi.cacheKeyPair(e.data.keyPairs[k], k) )
 
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
@@ -184,7 +184,7 @@ onmessage = e => {
                             //console.log("Message already known in DB",existingMess.rows)
                             const existingMessage = existingMess.rows[0]
                             // remove messages older than 24h
-                            if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) {
+                            if(existingMessage.created !== null && existingMessage.created < (Date.now() - (7 * 24 * 3600000))) {
                                 return removeMsgFromEhboxServer(existingMessage)
                             }
                             return Promise.resolve()
@@ -193,7 +193,10 @@ onmessage = e => {
                             console.log('boxId',boxId)
                             registerNewMessage(fullMessage, boxId)
                                 .then(([createdMessage, annexDocs]) => {
-                                    return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId)
+                                    return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId).catch(e => {
+                                        console.log("Message annexes creation failed for ", e)
+                                        this.api.message().deleteMessages(createdMessage.id).then(() => { throw e })
+                                    })
                                 })
                         }
                     })
