@@ -766,6 +766,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
             this.$.trash.classList.remove('iron-selected')
             this.$.hidden.classList.remove('iron-selected')
+
+            this._updateUnreadCount()
         }
     }
 
