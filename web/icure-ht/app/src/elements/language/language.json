@@ -897,7 +897,8 @@
     "suspension_reason": "Suspension reason",
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
-    "recipientHcp": "Médecin receveur"
+    "recipientHcp": "Médecin receveur",
+    "saveToPatFile" : "Save to patient file"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1883,7 +1884,8 @@
     "suspension_reason": "Raison de la suspension",
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
-    "recipientHcp": "Médecin receveur"
+    "recipientHcp": "Médecin receveur",
+    "saveToPatFile" : "Enregistrer et ajouter au dossier"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2876,6 +2878,7 @@
     "suspension_reason": "Suspension reason",
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
-    "recipientHcp": "Médecin receveur"
+    "recipientHcp": "Médecin receveur",
+    "saveToPatFile" : "Save to patient file"
   }
 }
