@@ -1427,7 +1427,7 @@
                 <div class="buttons">
                     <ht-spinner class="validAndTarif" active="[[isLoadingValidation]]"></ht-spinner>
                     <ht-spinner class="validAndTarif" active="[[isLoadingJustif]]"></ht-spinner>
-                    <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_closeDialog">[[localize('clo','close',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
                         <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">[[localize('can_eattest','Cancel eattest',language)]]</paper-button>
@@ -2234,7 +2234,7 @@
                     },
                     needDefaultTicketMod:{
                         type: Boolean,
-                        value: true
+                        value: false
                     }
                 }
 
@@ -2540,6 +2540,7 @@
                     const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
+
 
                     const env = new evaljs.Environment({
                         patient: {
@@ -4583,6 +4584,24 @@
 
             _isInvoiceEattest(item){
                 return item && item.sentMediumType==="eattest"
+            }
+
+            getDMG(invoice){
+                if (!this.api.tokenId || this.isLoading) return;
+                this.set('isLoading', true);
+                this.api.getUpdatedEdmgStatus(
+                    this.user,
+                    this.patient,
+                    Date.parse(invoice),
+                    null,
+                    null,
+                    this.patient.insurabilities.find(),
+                    this.genInsAFF                    ,
+                    true    // Bypass cache, force hit on fhc().Dmgcontroller().consultDmgUsingGET()
+                ).then(edmgResp => {
+                    this.set('isLoading',false)
+                    this.set('consultDmgResp', edmgResp);
+                });
             }
         }
 
