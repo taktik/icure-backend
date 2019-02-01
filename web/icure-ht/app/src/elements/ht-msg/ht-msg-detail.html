@@ -952,7 +952,7 @@
                 <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
                         <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" preview="true" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                     resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true"></dynamic-doc>
+                                     resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true" downloadable="false"></dynamic-doc>
                     </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
