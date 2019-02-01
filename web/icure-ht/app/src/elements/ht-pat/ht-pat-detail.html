@@ -3888,11 +3888,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
                     this.currentSelectMedicationEventDetail.onShowDetails(e)
                 } else {
-                    const medicationService = e.detail
-                    this.$['medication-detail'].open(e.detail, {
+                    const medicationService = e.detail.medication
+                    this.$['medication-detail'].open(e.detail.medication, {
                         id: medicationService.id,
                         medicationValue: (this.api.contact().preferredContent(medicationService, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
-                        isNew: true
+                        isNew: true,
+                        isPrescription: e.detail.isPrescription
                     });
                 }
             }

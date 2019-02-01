@@ -665,7 +665,7 @@
 
 
             <div class="buttons">
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
+                <template is="dom-if" if="[[showCreateMedication]]">
                     <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
@@ -800,6 +800,10 @@
                     medicationMustBeCreated:{
                         type: Boolean,
                         value: false
+                    },
+                    showCreateMedication: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -825,6 +829,7 @@
             }
 
             _regimenChanged() {
+                this.set('showCreateMedication',this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.isPrescription && this.selectedMedicationContentWithId.medicationValue.regimen.length)
                 this.updateGridIfNeeded()
             }
 
@@ -866,7 +871,9 @@
                                 }
                         )
                     ).medicationValue,
-                    isNew: isNew || false };
+                    isNew: isNew || false,
+                    isPrescription: m.isPrescription || false
+                };
             }
 
 
