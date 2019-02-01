@@ -519,6 +519,15 @@
                 margin: 0;
             }
 
+            paper-button.close {
+                border: 1px solid var(--app-background-color-darker);
+                transition: .5s ease;
+                box-sizing: border-box;
+            }
+            paper-button.close:hover {
+                border: 1px solid var(--app-secondary-color);
+            }
+
 			.attached h3{
 				width: 100%;
 				margin: 0;
@@ -561,6 +570,9 @@
 				flex-flow: row nowrap;
 			}
 
+            .justify-content {
+                justify-content: space-between;
+            }
 			.space-between{
 				justify-content: space-between;
                 height: 80px;
@@ -679,7 +691,7 @@
             }
 
             h2.subject {
-                margin-bottom: 0;
+                margin: 24px 0;
             }
 
             .message-box {
@@ -930,7 +942,16 @@
 
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
-                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal justify-content">
+                            <div>
+                                <h2 class="subject">[[msg.subject]]</h2>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <paper-button class="close pointer" on-tap="close">
+                                    <iron-icon icon="clear"></iron-icon> [[localize('clo','Close',language)]]
+                                </paper-button>
+                            </div>
+                        </div>
                         <div class="layout-horizontal space-between">
                             <div class="msg-header-grid">
                                 <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
@@ -1213,6 +1234,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	close() {
 	    this.set('selectMessage.selection.item',null)
         this._focusChanged()
+        this.classList.remove('selected')
+        this.parentElement.children[0].classList.remove('selected')
     }
 
 	_getInitials(fromAddress){
