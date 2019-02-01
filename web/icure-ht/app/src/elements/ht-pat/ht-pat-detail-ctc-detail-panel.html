@@ -553,8 +553,8 @@
                 left: 50%;
                 top: 50%;
                 transform: translateX(-50%) translateY(-50%);
-                width:200px;
-                height:200px;
+                width:100px;
+                height:100px;
 			}
 		</style>
 
@@ -596,7 +596,7 @@
 				</template>
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                             <div class="save">
                                 <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
@@ -608,7 +608,7 @@
 				</template>
 				<template is="dom-if" if="[[graphique]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
                         <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                             <div class="save">
                                 <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
@@ -620,7 +620,7 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
+                            <span class="contact-title">[[dof.ctc.descr]] ([[_dateFormat(dof.ctc.openingDate)]])</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                 <div class="save">
                                     <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
@@ -1037,6 +1037,10 @@
 				const dynamicallyLoadedForm = this.shadowRoot.querySelector('#dynamicallyLoadedForm');
 				dynamicallyLoadedForm && dynamicallyLoadedForm.flushSave();
 			}
+
+            _dateFormat(date) {
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
+            }
 
 			_documentId(svc) {
 				const content = this.api.contact().preferredContent(svc, this.language)

@@ -59,6 +59,7 @@
 			.fancy {
 				line-height: 0.5;
 				text-align: center;
+				height: 18px;
 			}
 			.fancy span {
 				display: inline-block;
@@ -71,11 +72,10 @@
 				content: "";
 				position: absolute;
 				height: 5px;
-				border-bottom: 1px solid white;
-				border-top: 1px solid white;
+				border-bottom: 1px solid var(--app-secondary-color);
+				border-top: 1px solid var(--app-secondary-color-light);
 				top: 0;
-				width: 600px;
-				color: var(--app-secondary-color)
+				width: 600px
 			}
 			.fancy span:before {
 				right: 100%;
@@ -99,7 +99,7 @@
 			</dynamic-form>
 		</template>
 		<template is="dom-if" if="[[_shouldDisplaySummary(form, form.deletionDate, contact)]]">
-			<div class="fancy"><span>localize('modification_of','Modification of') [[form.template.name]] [[localize('from','from',language)]] [[_dateFormat(contact.openingDate)]]</span></div>
+			<div class="fancy"><span>[[localize('modification_of','Modification of',language)]] [[form.template.name]] [[localize('of','of',language)]] [[_dateFormat(contact.openingDate)]]</span></div>
 		</template>
 
 	</template>
