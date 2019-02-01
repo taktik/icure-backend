@@ -272,6 +272,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             context: {
                 type: String
             },
+			createTreatment: {
+                type: Boolean,
+				value: true
+			},
             value: {
                 type: Array,
                 notify: true,
@@ -391,7 +395,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			]])
 		};
         console.log("add medic",newMedication)
-		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true, this.createTreatment), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
 	editMedication(el) {
@@ -399,7 +403,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const item = this.value.find(s => s.id === id);
         this.set('previouslySavedValue', _.cloneDeep(this.value))
 		if (item) {
-            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false, true), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false, this.createTreatment), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
 	}
 
