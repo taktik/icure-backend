@@ -110,7 +110,7 @@
 			}
 			#printable {
 				width: fit-content;
-                padding: 0 16px;
+                padding: 0 8px;
 			}
 
 			@media screen and (max-width:650px) {
@@ -376,6 +376,14 @@
             .line {
                 display: flex;
             }
+            .line.p8 {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+            .line.p16 {
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
             .line > * {
                  flex-grow: 1;
              }
@@ -539,7 +547,7 @@
                                     <h2><iron-icon icon="settings"></iron-icon> [[localize('oth_opt','Other options',language)]]</h2>
                                     <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
 
-                                    <div class="line">
+                                    <div class="line p16">
                                         <span class="lang">[[localize('languages','Langues',language)]] : </span>
                                         <div class="horizontal" style="margin-top:10px">
                                             <paper-radio-group selected="{{hcp.languages.0}}">
@@ -589,7 +597,7 @@
 
                                 <div class="col-lg-6 tile">
                                     <h2><iron-icon icon="cloud"></iron-icon> eServices</h2>
-                                    <div class="line">
+                                    <div class="line p8">
                                         <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
                                             <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
                                                 <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
@@ -603,7 +611,7 @@
                                         </paper-radio-group>
                                     </div>
 
-                                    <div class="horizontal line">
+                                    <div class="horizontal line p8">
                                         <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
                                     </div>
                                 </div>
