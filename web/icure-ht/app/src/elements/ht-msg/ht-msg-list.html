@@ -638,13 +638,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
 
-                        <template is="dom-if" if="[[isLabresultBox]]">
+                        <template is="dom-if" if="[[hasLabResult(item)]]">
                             <vaadin-grid-column flex-grow="1">
                                 <template class="header">
                                     [[localize('pat','Patient',language)]]
                                 </template>
                                 <template>
-                                    [[item.pats]]
+                                    <template is="dom-repeat" items="[[_getResInfos(msg)]]" as="resInfo">[[resInfo.firstName]] [[resInfo.lastName]], </template>
                                 </template>
                             </vaadin-grid-column>
                         </template>
@@ -826,6 +826,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('capacityPercent', this.actualCapacity <= 100 ? this.actualCapacity : '+100')
                         })
                 }
+            }
+
+            _getResInfos(msg) {
+                this.api.document().findByMessage(this.user.healthcarePartyId, msg)
+                    .then(docs => {
+                        if (docs.length) {
+                            let resInfos = []
+                            return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                                .map(doc => {
+                                    this.api.beresultimport().canHandle(doc.id).then(isResult => {
+                                        if (isResult) {
+                                            this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
+                                                resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
+                                            })
+                                        }
+                                    })
+                                }) || resInfos
+                        } else return ['N/A']
+                    })
             }
 
             _isPage(page,item) {return page === item -1}
