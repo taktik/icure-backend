@@ -56,6 +56,35 @@
 				min-height: 30px;
 			}
 
+			.fancy {
+				line-height: 0.5;
+				text-align: center;
+				height: 18px;
+			}
+			.fancy span {
+				display: inline-block;
+				position: relative;
+				font-size: 11px;
+				color: var(--app-text-color-disabled);
+			}
+			.fancy span:before,
+			.fancy span:after {
+				content: "";
+				position: absolute;
+				height: 5px;
+				border-bottom: 1px solid var(--app-secondary-color);
+				border-top: 1px solid var(--app-secondary-color-light);
+				top: 0;
+				width: 600px
+			}
+			.fancy span:before {
+				right: 100%;
+				margin-right: 15px;
+			}
+			.fancy span:after {
+				left: 100%;
+				margin-left: 15px;
+			}
 		</style>
 
 		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate, contact)]]">
@@ -70,7 +99,7 @@
 			</dynamic-form>
 		</template>
 		<template is="dom-if" if="[[_shouldDisplaySummary(form, form.deletionDate, contact)]]">
-			<div>[[form.template.name]] [[localize('from','from',language)]] [[_contactDescr(form.contactId, contacts)]] [[localize('mod_in_contact','has been modified in this contact')]]</div>
+			<div class="fancy"><span>[[localize('modification_of','Modification of',language)]] [[form.template.name]] [[localize('of','of',language)]] [[_dateFormat(contact.openingDate)]]</span></div>
 		</template>
 
 	</template>
@@ -180,12 +209,16 @@
                 this.flushSave();
             }
 
+            _dateFormat(date) {
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
+            }
+
             _shouldDisplay(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id === form.contactId
+                return form && !form.deletionDate && this.contact && (!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _shouldDisplaySummary(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id !== form.contactId
+                return form && !form.deletionDate && this.contact && !(!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {

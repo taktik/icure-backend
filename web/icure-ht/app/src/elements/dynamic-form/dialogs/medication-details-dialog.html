@@ -91,8 +91,6 @@
                     padding: 0;
                 }
             }
-
-
             .regimen-line.block paper-dropdown-menu {
                 margin-right: 8px;
                 --paper-dropdown-menu-input: {
@@ -133,6 +131,7 @@
             .regimen-grid-quantity {
                 margin-left: auto;
                 margin-right: auto;
+                width: 48px;
                 text-align: center;
                 position: relative;
                 --paper-input-container-underline: {
@@ -234,6 +233,24 @@
                 padding-right: 4px;
             }
 
+            paper-input-container {
+                --paper-input-container-focus-color: var(--app-primary-color);
+                --paper-input-container-label: {
+                    color: var(--app-text-color);
+                    opacity: 1;
+                };
+                --paper-input-container-underline-disabled: {
+                    border-bottom: 1px solid var(--app-text-color);
+
+                };
+                --paper-input-container-color: var(--app-text-color);
+            }
+
+
+            .comment {
+                width: 100%;
+            }
+
             .add-box {
                 position: absolute;
                 display: flex;
@@ -316,6 +333,7 @@
 
             #selectedMedicationTable {
                 border: none;
+                height: 240px;
             }
 
             *.capitalize {
@@ -377,8 +395,6 @@
                     flex: 1;
                 }
             }
-
-
         </style>
 
         <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
@@ -436,8 +452,10 @@
             </div>
 
             <div class="regimen-line display-type-regimen">
-                <span>{{localize('com','Comment',language)}}</span>
-                <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
+                <paper-input-container always-float-label="true" class="comment">
+                    <label slot="label" class="color-status">[[localize('com','Comment',language)]]</label>
+                    <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
+                </paper-input-container>
             </div>
 
             <div class="content">
@@ -661,18 +679,13 @@
                         </iron-pages>
                     </div>
             </div>
-
-
-
             <div class="buttons">
                 <template is="dom-if" if="[[showCreateMedication]]">
                     <paper-checkbox id="createMedication" on-checked-changed="_createMedication"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.regimen.length]]">
-                    <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
-                </template>
+                <paper-button dialog-confirm autofocus on-tap="saveAndClose" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
