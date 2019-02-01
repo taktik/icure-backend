@@ -121,21 +121,26 @@
                 cursor: pointer;
             }
 
-            .he-edit-btn-container.open{
-                width: 90px;
+            paper-item:hover .he-edit-btn-container.open,
+            paper-item:hover .he-edit-btn-container:hover {
+                width: auto !important;
                 display:inline-flex;
                 flex-flow: row-reverse nowrap;
             }
 
-
             .he-edit-btn{
                 height: 24px;
                 width: 24px;
-                padding: 4px;
+                padding: 0;
                 color: var(--app-text-color-light);
-                margin-right: 2px;
-                margin-left: 2px;
+                margin-right: 4px;
+                margin-left: 4px;
                 --paper-ink-color:var(--app-text-color-light);
+            }
+
+            paper-item:hover .he-edit-btn-container.open .he-edit-btn,
+            paper-item:hover .he-edit-btn-container:hover .he-edit-btn {
+                margin-left: 8px;
             }
 
             .he-edit-btn-dark{
@@ -252,23 +257,23 @@
                 <div>
                     <div class="he-edit-btn-container">
                         <paper-icon-button id="he-edit-btn-edit_[[getHeId(he)]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
+                        <paper-tooltip position="left" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
 
                         <template is="dom-if" if="[[isNotArchived(he)]]">
                             <paper-icon-button id="he-edit-btn-archive_[[getHeId(he)]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive',language)]]</paper-tooltip>
+                            <paper-tooltip offset="48" position="left" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotActive(he)]]">
                             <paper-icon-button id="he-edit-btn-active_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                            <paper-tooltip offset="48" position="left" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotHistory(he)]]">
                             <paper-icon-button id="he-edit-btn-history_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History',language)]]</paper-tooltip>
+                            <paper-tooltip offset="24" position="left" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History',language)]]</paper-tooltip>
                         </template>
 
                         <paper-icon-button id="he-edit-btn-evlink_[[getHeId(he)]]" class="he-edit-btn" on-tap="_linkToEvidenceLinker" icon="vaadin:open-book"></paper-icon-button>
-                        <paper-tooltip position="top" for="he-edit-btn-evlink_[[getHeId(he)]]">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
+                        <paper-tooltip position="left" for="he-edit-btn-evlink_[[getHeId(he)]]">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
 
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
