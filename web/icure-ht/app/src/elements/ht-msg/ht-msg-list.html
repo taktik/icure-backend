@@ -528,7 +528,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                     <template is="dom-if" if="[[isLabresultBox]]">
                         <paper-dropdown-menu id="filterLabresult" label="[[localize('filter','Filter',language)]]">
-                            <paper-listbox selected="0" slot="dropdown-content">
+                            <paper-listbox selected="{{selectedLabFilter}}" slot="dropdown-content">
                                 <paper-item class="link" on-tap="getLabResult">[[localize('show_all','Show all',language)]]</paper-item>
                                 <paper-item class="link" on-tap="getUnassigned"><div class="labicon unassigned-true" id="show-unassigned"></div> [[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>
                                 <paper-item class="link" on-tap="getAssigned"><div class="labicon unassigned-false" id="show-assigned"></div> [[localize('assigned_labresults','assigned lab results',language)]]</paper-item>
@@ -793,6 +793,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     allSelected: {
                         type: Boolean,
                         value: null
+                    },
+                    selectedLabFilter: {
+                        type: Number,
+                            value: 0
                     }
                 };
             }
@@ -1269,6 +1273,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this._refresh()
                         })
                     }) // foreach end
+                    this.set('selectedLabFilter',0)
                 }
             }
 
@@ -1292,6 +1297,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         }
                     }) // foreach end
+                    this.set('selectedLabFilter',0)
                 }
             }
 
