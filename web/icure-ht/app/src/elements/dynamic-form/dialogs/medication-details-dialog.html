@@ -1111,11 +1111,11 @@
                     const scores = this.api.contact().medication().regimenScores()
 
                     this.regimenTable = [
-                        {moment:this.localize('breakfast','breakfast'), regimens: morningRegimens, beforeMeal: getMeal(morningRegimens,'beforebreakfast', frequency)
+                        {moment:this.localize('meal_morning','Morning meal'), regimens: morningRegimens, beforeMeal: getMeal(morningRegimens,'beforebreakfast', frequency)
                             , duringMeal: getMeal(morningRegimens,'duringbreakfast', frequency), afterMeal: getMeal(morningRegimens,'afterbreakfast', frequency)},
-                        {moment:this.localize('lunch','lunch'), regimens: middayRegimens, beforeMeal: getMeal(middayRegimens,'beforelunch', frequency)
+                        {moment:this.localize('meal_midday','Noon meal'), regimens: middayRegimens, beforeMeal: getMeal(middayRegimens,'beforelunch', frequency)
                             , duringMeal: getMeal(middayRegimens,'duringlunch', frequency), afterMeal: getMeal(middayRegimens,'afterlunch', frequency)},
-                        {moment:this.localize('dinner','dinner'), regimens: eveningRegimens, beforeMeal: getMeal(eveningRegimens,'beforedinner', frequency)
+                        {moment:this.localize('meal_evening','Evening meal'), regimens: eveningRegimens, beforeMeal: getMeal(eveningRegimens,'beforedinner', frequency)
                             , duringMeal: getMeal(eveningRegimens, 'duringdinner', frequency), afterMeal: getMeal(eveningRegimens,'afterdinner', frequency)}
                         ]
 
