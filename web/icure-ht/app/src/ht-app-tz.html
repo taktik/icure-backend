@@ -1724,10 +1724,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.authenticated = false
 
-                    this.reset()
-
                     this.worker && this.worker.terminate()
-                    this.set('view', 'auth')
+
+                    this.reset()
+                    this.set('routeData.page', '/')
+                    setTimeout(() => window.location.reload(), 100)
                 } else {
                     console.log("page is -> " + page)
 
@@ -2131,6 +2132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             hcpartyBaseApi: this.api.hcpartyLight(),
                             fhcHost: this.api.fhc().host,
                             fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                            language: this.language,
                             iccHost: this.api.host,
                             iccHeaders: JSON.stringify(this.api.headers),
                             tokenId: this.api.tokenId,
