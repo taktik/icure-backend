@@ -39,6 +39,7 @@
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../ht-spinner/ht-spinner.html">
 
+<link rel="import" href="../dynamic-form/dynamic-subcontact-type-selector.html">
 
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
@@ -588,8 +589,12 @@
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
                                 <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
@@ -600,8 +605,12 @@
 				</template>
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
                                 <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
@@ -612,8 +621,12 @@
 				</template>
 				<template is="dom-if" if="[[graphique]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
                                 <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
@@ -624,7 +637,11 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[dof.ctc.descr]] ([[_dateFormat(dof.ctc.openingDate)]])</span>
+                            <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                                    <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+								</template>
+							</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                 <div class="save">
                                     <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
@@ -885,6 +902,16 @@
 						type: Object,
 						value: null
 					},
+                    currentContactTypeLabel: {
+                        type: String,
+                        value: "Y",
+                    },
+                    contactTypeList: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
 					contactsFormsAndDocuments: {
 						type: Array,
 						value: function () {
@@ -997,8 +1024,6 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
                     this.set('globalHcp',tempHcp)
                 })
-                    .then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
-                    .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
 
@@ -1791,6 +1816,33 @@
 				}
 			}
 
+            _refreshCurrentContactTypeLabel() {
+                console.log("ctcs", this.contacts)
+                if(this.contacts) {
+                    let label = _.flatten(this.contacts.map( ctc =>{
+                        return ctc.tags && ctc.tags.filter(tag=> tag.type == "BE-CONTACT-TYPE").map(tag=> {
+                            return this.contactTypeList.find(sct => sct.code == tag.code).label[this.language || "fr"]
+                        })
+                    })).join("/")
+                    if(label != "") {
+                        label = label + " : "
+                    }
+                    this.set('currentContactTypeLabel', label)
+                }
+            }
+
+            _contactTypeChange(e){
+                if(e.detail){
+                    const idx = this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE"))
+                    if(idx != -1){
+                        this.currentContact.tags.splice(idx, 1);
+                    }
+                    this.currentContact.tags.push(e.detail.type);
+                    this._refreshCurrentContactTypeLabel()
+                    this.saveCurrentContact()
+                }
+            }
+
 			formDeleted(e, form) {
 				this.saveCurrentContact().then(c => this._contactsChanged());
 			}
@@ -1898,6 +1950,8 @@
                     }
 				    this.set('isLoadingDoc',false)
                 });
+
+                this._refreshCurrentContactTypeLabel()
 			}
 
 			toggleDetailsFiltersPanel() {
