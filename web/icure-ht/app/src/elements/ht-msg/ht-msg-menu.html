@@ -965,7 +965,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _checkForMedicalHouse() {
         if( this.user && this.user.healthcarePartyId ) {
-            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{ if(hcp && hcp.type && hcp.type==='medicalHouse') { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.remove("doNotDisplay") } else { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay") } })
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{ if(hcp && hcp.type && hcp.type.toLowerCase()==='medicalhouse') { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.remove("doNotDisplay") } else { this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay") } })
         } else {
             this.shadowRoot.getElementById("flatrateinvoiceboxcollapse").classList.add("doNotDisplay");
         }

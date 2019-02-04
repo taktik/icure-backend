@@ -2377,9 +2377,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     p => this.api.register(p, 'patient')
                 ).then(
                     p => {
+                        this.resetNewPatientDialog()
                         this.set('selectedPatient', p)
                     }
                 )
+            }
+
+            resetNewPatientDialog() {
+                this.lastName = null
+                this.firstName = null
+                this.dateAsString = null
+                this.ssin = null
+                this.valueGender = null
+                this.medicalHouseContractShadowObject = {
+                    hcpId: null,
+                    mmNihii: null,
+                    startOfContract: null,
+                    startOfCoverage: null,
+                    kine: false,
+                    gp: false,
+                    nurse: false
+                }
             }
 
             confirmFilter() {
@@ -3062,7 +3080,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                         if (hcp && hcp.parentId) {
                             this.api.hcparty().getHealthcareParty(hcp.parentId).then(parentHcp => {
-                                if (parentHcp && parentHcp.type && parentHcp.type === 'medicalHouse') {
+                                if (parentHcp && parentHcp.type && parentHcp.type.toLowerCase() === 'medicalhouse') {
                                     this.shadowRoot.getElementById("medicalHouseTabView").classList.remove("doNotDisplay")
                                     this.hcpParentMedicalHouseData = parentHcp
                                 } else {
@@ -3109,7 +3127,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         _
                                             .chain(_.concat(results[0].rows, results[1].rows))
                                             .uniqBy('id')
-                                            .filter({type: 'medicalHouse'})
+                                            .filter({type: 'medicalhouse'})
                                             .value()
                                             .map(
                                                 i => ({
