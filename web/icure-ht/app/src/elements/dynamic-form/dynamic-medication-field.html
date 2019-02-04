@@ -272,6 +272,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             context: {
                 type: String
             },
+			createTreatment: {
+                type: Boolean,
+				value: true
+			},
             value: {
                 type: Array,
                 notify: true,
@@ -340,14 +344,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     _medicationCreated(e) {
-    	this.push('value',e.detail)
-        this.set('selectedMedicationContentWithId',this.extractContentWithIdFromMedicationService(e.detail,true))
+    	this.push('value',e.detail.medication)
+        this.set('selectedMedicationContentWithId',this.extractContentWithIdFromMedicationService(e.detail.medication,true,e.detail.isPrescription))
         this._displayMedicationDetails(e)
 	}
 
 	_displayMedicationDetails(e) {
         this.set('previouslySavedValue', _.cloneDeep(this.value))
-        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.selectedMedicationContentWithId, onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail.medication, content: this.selectedMedicationContentWithId, onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -357,13 +361,15 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return { id: id, stringValue: this.api.contact().medication().medicationToString((this.api.contact().preferredContent({content: e},this.language) || {}).medicationValue || "", this.language.toLowerCase() || 'fr') };
 	}
 
-	extractContentWithIdFromMedicationService(m, isNew) {
+	extractContentWithIdFromMedicationService(m, isNew, isPrescription) {
         console.log('extractContentWithIdFromMedicationService',m,isNew)
 		return {
 		    id: m.id,
             codes: m.codes,
             medicationValue: (this.api.contact().preferredContent(m, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue,
-            isNew: isNew || false };
+            isNew: isNew || false,
+			isPrescription: isPrescription || m.isPrescription || false
+        };
 	}
 
 	addMedication() {
@@ -389,7 +395,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			]])
 		};
         console.log("add medic",newMedication)
-		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+		this.dispatchEvent(new CustomEvent('medication-selection', { detail: {service: newMedication, content: this.extractContentWithIdFromMedicationService(newMedication, true, this.createTreatment), onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
 	editMedication(el) {
@@ -397,7 +403,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const item = this.value.find(s => s.id === id);
         this.set('previouslySavedValue', _.cloneDeep(this.value))
 		if (item) {
-            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false, this.createTreatment), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
 	}
 
