@@ -116,7 +116,7 @@ onmessage = e => {
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
-                            return iccContactApi.createContact(c)
+                            return iccContactApi.createContactWithUser(this.user, c)
                         }).then(c => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {

@@ -1524,7 +1524,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         content: _.fromPairs([[this.language, {stringValue:docInfo.labo}]]),
                         tags:[{type:'CD-TRANSACTION', code:'labresult'}]
                     })
-                    return this.api.contact().createContactWithUser(c, this.user)
+                    return this.api.contact().createContactWithUser(this.user, c)
                 }).then(c => {
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
