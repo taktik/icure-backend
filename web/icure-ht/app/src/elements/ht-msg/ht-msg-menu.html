@@ -168,12 +168,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				};
 			}
 
-			paper-item.iron-selected {
-				color:var(--app-text-color-light);
-				background:var(--app-primary-color);
-				@apply --text-shadow;
-			}
-
 			collapse-button {
 				outline:0;
 				width: 100%;
@@ -241,8 +235,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-
-
 			.sublist{
 				background:var(--app-light-color);
 				margin:0 0 8px -30px;
@@ -272,6 +264,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				min-height:32px;
 				height:32px;
 			}
+			.sublist .menu-item.flex-start {
+                justify-content: flex-start;
+            }
 
 			.menu-item:hover{
 				/*background: var(--app-dark-color-faded);*/
@@ -421,6 +416,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
 			}
 
+            paper-icon-button {
+                transition: .5s ease;
+            }
+
 			.trash{
 				align-self: flex-start;
 				width:100%;
@@ -549,25 +548,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
 					<!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>-->
-                    <paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>
-					<paper-item class="one-line-menu menu-item" id="labResult">[[localize('lab_res','Lab Results',language)]] ([[localize('any','any',language)]])</paper-item>
-                    <paper-item class="one-line-menu menu-item" id="unsettedProtIn">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>
-                    <paper-item class="one-line-menu menu-item" id="protIn">[[localize('assigned_labresults','assigned lab results',language)]]</paper-item>
+                    <!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('boxtitle.eheIn','eHealth inbox',language)]]</paper-item>-->
+                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> [[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</paper-item>
+                    <!--<paper-item class="one-line-menu menu-item" id="unsettedProtIn">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>-->
+                    <!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('assigned_labresults','assigned lab results',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>-->
-					<paper-item class="one-line-menu menu-item" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item flex-start" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button id="sentboxcollapse">
 				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
                     <div class="one-line-menu list-title"><div><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span></div><template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+					<!--<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>-->
 				</paper-item>
-				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
-					<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>
-					<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
-					<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
-				</paper-listbox>
+				<!--<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">-->
+					<!--<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>-->
+					<!--&lt;!&ndash;<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>&ndash;&gt;-->
+					<!--&lt;!&ndash;<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>&ndash;&gt;-->
+				<!--</paper-listbox>-->
 			</collapse-button>
+            <collapse-button id="trashboxcollapse">
+                <paper-item id="hidden" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_hidden" elevation="">
+                    <div class="one-line-menu list-title"><iron-icon icon="icons:visibility-off"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hidden_msgs','Hidden messages',language)]]</span></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="trashboxlist" class="menu-content sublist" selected="{{trashSelectionIndex}}" selected-item="{{trashSelectionItem}}" selectable="paper-item">
+                    <paper-item style="display:block;" class="one-line-menu menu-item flex-start" on-tap="_trash" id="trash" data-status="trash"><iron-icon icon="icons:delete"></iron-icon> [[localize('tra','Trash',language)]] eHealth</paper-item>
+                </paper-listbox>
+            </collapse-button>
             <collapse-button  id="invoiceboxcollapse">
                 <paper-item id="invoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_invoicebox" elevation="">
                     <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('serviceFeeInvoicing','Service fee invoicing',language)]]</span> <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
@@ -595,7 +603,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-listbox>
             </collapse-button>
 
-			<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+			<!--<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>-->
 		</div>
 	</template>
 	<script>
@@ -693,7 +701,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)'];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)'];
 	}
 
 	constructor() {
@@ -703,12 +711,17 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     ready() {
         super.ready();
         this.set('unreadNumber',0)
-        this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {messages.rows.forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadNumber',this.unreadNumber+1)}})})
+        this._updateUnreadCount()
     }
 
 	_newMsg(params){
 		this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
 	}
+
+	_updateUnreadCount() {
+        this.set('unreadNumber',0)
+        this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {messages.rows.forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadNumber',this.unreadNumber+1)}})})
+    }
 
     toggleMenu(e) {
         e.stopPropagation();
@@ -735,6 +748,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
         this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        this.$.trash.classList.remove('iron-selected')
+        this.$.hidden.classList.remove('iron-selected')
+
+        this._updateUnreadCount()
 	}
 
     _inboxSelectionIndexChanged() {
@@ -750,6 +767,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
+            this.$.trash.classList.remove('iron-selected')
+            this.$.hidden.classList.remove('iron-selected')
+
+            this._updateUnreadCount()
         }
     }
 
@@ -769,6 +790,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.sentbox.classList.add('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
         this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        this.$.trash.classList.remove('iron-selected')
+        this.$.hidden.classList.remove('iron-selected')
+
+        this._updateUnreadCount()
     }
 
     _sentboxSelectionIndexChanged() {
@@ -784,6 +809,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
+            this.$.trash.classList.remove('iron-selected')
+            this.$.hidden.classList.remove('iron-selected')
         }
     }
 
@@ -807,6 +834,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.add('iron-selected')
         this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        this.$.trash.classList.remove('iron-selected')
+        this.$.hidden.classList.remove('iron-selected')
+
+        this._updateUnreadCount()
     }
 
     _flatrateinvoicebox(e){
@@ -823,11 +854,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
         this.$.flatrateinvoicebox.classList.add('iron-selected')
+        this.$.trash.classList.remove('iron-selected')
+        this.$.hidden.classList.remove('iron-selected')
     }
 
     _invoiceSelectionIndexChanged() {
         if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { status: this.invoiceSelectionItem.dataset.status } } }));
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
@@ -838,6 +871,27 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
+            this.$.trash.classList.remove('iron-selected')
+            this.$.hidden.classList.remove('iron-selected')
+        }
+    }
+
+    _trashSelectionIndexChanged() {
+        console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
+        if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.trashSelectionItem.id, status: this.trashSelectionItem.dataset.status } } }));
+
+            this.set('inboxSelectionIndex', null)
+            this.set('sentboxSelectionIndex', null)
+            this.set('trashSelected',null)
+            this.set('flatrateinvoiceSelectionIndex', null)
+
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+            this.$.flatrateinvoicebox.classList.remove('iron-selected')
+            this.$.trash.classList.add('iron-selected')
+            this.$.hidden.classList.remove('iron-selected')
         }
     }
 
@@ -854,7 +908,31 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
             this.$.flatrateinvoicebox.classList.remove('iron-selected')
+            this.$.trash.classList.remove('iron-selected')
+            this.$.hidden.classList.remove('iron-selected')
         }
+    }
+
+    _hidden(e){
+        e.stopPropagation()
+        e.preventDefault()
+
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'hidden' } } }));
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+        this.set('flatrateinvoiceSelectionIndex', null)
+
+        // this.set('hiddenSelected','selected')
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
+        this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        this.$.trash.classList.remove('iron-selected')
+        this.$.hidden.classList.add('iron-selected')
+
+        this._updateUnreadCount()
     }
     _trash(){
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
@@ -863,11 +941,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('invoiceSelectionIndex', null)
         this.set('flatrateinvoiceSelectionIndex', null)
 
-        this.set('trashSelected','selected')
+        // this.set('trashSelected','selected')
 
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
+        this.$.flatrateinvoicebox.classList.remove('iron-selected')
+        this.$.trash.classList.add('iron-selected')
+        this.$.hidden.classList.remove('iron-selected')
+
+        this._updateUnreadCount()
 	}
 
 	selectedContactItemsChanged() {

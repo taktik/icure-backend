@@ -582,7 +582,7 @@
 					<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
 					<paper-tooltip for="table_icn" position="bottom" animation-delay="0">[[localize('tab_vie','Table view',language)]]</paper-tooltip>
 					<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph view',language)]]</paper-tooltip>
-					<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('forms','Forms view',language)]]</paper-tooltip>
+					<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('form_view','Forms view',language)]]</paper-tooltip>
 				</div>
 			</div>
 			<div class="contact-card-container">
@@ -596,8 +596,9 @@
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-lines" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-lines">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 					<ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -612,8 +613,9 @@
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-table" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-table">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -628,8 +630,9 @@
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-graph" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-graph">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 				</template>
@@ -644,8 +647,9 @@
 							</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                 <div class="save">
-                                    <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                    <iron-icon id="force-save-ctc-forms" icon="save" on-tap="forceSaveCtc"></iron-icon>
                                 </div>
+                                <paper-tooltip position="left" for="force-save-ctc-forms">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                             </template>
                         </div>
 						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
