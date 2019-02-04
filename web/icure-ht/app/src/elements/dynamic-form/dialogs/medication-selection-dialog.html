@@ -40,12 +40,6 @@
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
-            .modal-title {
-                background: var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
-            }
-
             #entities-list, #selected-entities-list {
                 margin-bottom: 55px;
             }
@@ -130,12 +124,6 @@
                 };
             }
 
-            .modal-title{
-                background:  var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
-            }
-
             .buttons{
                 position: absolute;
                 bottom: 0;
@@ -163,8 +151,8 @@
 
             ht-spinner {
                 position: fixed;
-                top: 50%;
-                left: 50%;
+                top: calc(50% + 62px);
+                left: 25%;
                 z-index: 150;
                 transform: translate(-50%,-50%);
                 height: 42px;
@@ -179,12 +167,12 @@
             }
 
             .left-pane {
-                width: calc(60% - 12px);
+                width: calc(50% - 12px);
                 margin-right: 12px;
             }
 
             .right-pane {
-                width: calc(40% - 12px);
+                width: calc(50% - 12px);
                 margin-left: 12px;
                 align-self: flex-end;
             }
