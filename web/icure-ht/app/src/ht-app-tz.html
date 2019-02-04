@@ -1707,18 +1707,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
-                clearInterval(this.timeOutId)
-                if (this.EhboxCheckingActive == false) {
-                    this.set('EhboxCheckingActive', true)
-                    console.log("First launch, check msgs")
-                    this.checkEhboxMessage()
-                } else {
-                    console.log("ehbox already active, launch the interval",period)
-                    this.timeOutId = setInterval(() => {
-                        (this.api.tokenId) ? this.checkEhboxMessage() : this._inboxMessageCheck()
-                    }, period)
-                }
+            _inboxMessageCheck(period = 20000) {
+                this.timeOutId && clearInterval(this.timeOutId)
+                this.timeOutId = setInterval(() => {
+                    this.api.tokenId && this.checkEhboxMessage()
+                }, period)
             }
 
             _routePageChanged(page) {
@@ -2130,10 +2123,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
+                if (!this.user) { return }
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad === -1)
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
-                if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
+                if (localStorage.getItem('receiveMailAuto') === 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
 
                     const getParents = (id, keyPairs) => this.api.hcparty().getHealthcareParty(id).then(hcp => {
@@ -2146,7 +2140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
-                    this.worker = new Worker()
+                    if (!this.worker) { this.worker = new Worker() }
 
                     getParents(this.user.healthcarePartyId, {}).then(kp => this.getAlternateKeystores().then(alternateKeystores => {
                         this.worker.postMessage({

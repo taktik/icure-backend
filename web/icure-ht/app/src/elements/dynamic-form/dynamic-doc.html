@@ -405,22 +405,31 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     .then(response => response.text()))
                     .then(xml => this.set('attachmentContent', xml.toString()))
             } else if ((!this.document.mainUti && (!this.document.otherUtis || this.document.otherUtis.length === 0)) || this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                this.api.beresultimport().canHandle(this.document.id).then( isResult => {
-                    if (isResult) {
-                        this.set('isLabOrProtocol', true)
-                        this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr').then(res => {
-                            this.set('labOrProtocolContent', res)
-                        })
-                    } else {
-                        this.set('isLabOrProtocol', false)
-                        this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials:'include'})
-                            .then(response => response.text()))
-                            .then(text => {
-                                this.set('attachmentContent', text)
-                            })
+                this.api.crypto()
+                    .extractKeysFromDelegationsForHcpHierarchy(
+                        this.user.healthcarePartyId,
+                        this.document.id,
+                        _.size(this.document.encryptionKeys) ? this.document.encryptionKeys : this.document.delegations
+                    )
+                    .then(({extractedKeys: enckeys}) => {
+                        this.api.beresultimport().canHandle(this.document.id, enckeys.join(',')).then(isResult => {
+                            if (isResult) {
+                                this.set('isLabOrProtocol', true)
+                                this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr', enckeys.join(','))
+                                    .then(res => {
+                                        this.set('labOrProtocolContent', res)
+                                    })
+                            } else {
+                                this.set('isLabOrProtocol', false)
+                                this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials: 'include'})
+                                    .then(response => response.text()))
+                                    .then(text => {
+                                        this.set('attachmentContent', text)
+                                    })
 
-                    }
-                })
+                            }
+                        })
+                    })
             } else {
                 this.set('isLabOrProtocol', false)
             }

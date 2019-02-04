@@ -1948,7 +1948,7 @@
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 				}).finally(() => {
 				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.formTemplateId))) {
+                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.form.formTemplateId)) && (!this.contactsFormsAndDocuments.some(f => f.ctc === this.currentContact)) && (this.contactsFormsAndDocuments.some(f => f.ctc && f.ctc.services && f.ctc.services.length) || this.contactsFormsAndDocuments.some(f => f.unmappedServices && f.unmappedServices.length))) {
                         this._list()
                     } else {
                         this._default()
