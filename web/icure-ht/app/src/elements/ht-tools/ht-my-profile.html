@@ -285,7 +285,7 @@
 
 			.marginRight10 { margin-right:10px; }
 
-			#supervisor-search, #mh-search {
+			#supervisor-search, #mh-search, #hcp-search {
 				flex: 1;
 			}
 
@@ -570,7 +570,14 @@
                                                 <paper-radio-button name="flatRate">[[localize('medicalHouse','Au forfait',language)]]</paper-radio-button>
                                             </paper-radio-group>
                                         </div>
-                                        <paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>
+                                        <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>-->
+                                        <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPersonHcpId}}"></paper-input>-->
+                                        <vaadin-combo-box
+                                                id="hcp-search" filtered-items="[[contactListItem]]" item-label-path="hrLabel"
+                                                item-value-path="id" on-filter-changed="_hcpSearch" on-keydown="isEnterPressed"
+                                                label="[[localize('mhContactPerson','Personne de contact pour la facturation forfait',language)]]"
+                                                value="{{hcp.contactPersonHcpId}}">
+                                        </vaadin-combo-box>
                                     </template>
 
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
@@ -1022,6 +1029,12 @@
                             return [];
                         }
                     },
+                    hcpListItem: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
                     adr:{
                         type: Object,
                         value:{},
@@ -1267,12 +1280,13 @@
 
 
                         // Resolve for dataprovider / combobox
-                        if( hcp.supervisorId || hcp.parentId ) {
+                        if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
 
-                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId].join(',') )]).then(results => {
+                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId].join(',') )]).then(results => {
 
                                 const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
                                 const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();
+                                const contactPerson = _.chain(results[0]).filter({id:hcp.contactPersonHcpId}).head().value();
 
                                 this.supervisorListItem = supervisor ? [{
                                     id: supervisor.id,
@@ -1291,6 +1305,15 @@
                                     hrLabel:
                                         _.upperFirst(_.lowerCase(parent.name)) + ' ' +
                                         (typeof parent.nihii === 'undefined' || !parent.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + parent.nihii) + ' ' +
+                                        ''
+                                }] : [];
+
+                                this.contactListItem = contactPerson ? [{
+                                    id: contactPerson.id,
+                                    name: _.upperFirst(_.lowerCase(contactPerson.name)),
+                                    hrLabel:
+                                        _.upperFirst(_.lowerCase(contactPerson.name)) + ' ' +
+                                        (typeof contactPerson.nihii === 'undefined' || !contactPerson.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + contactPerson.nihii) + ' ' +
                                         ''
                                 }] : [];
 
@@ -1487,6 +1510,56 @@
                     if (latestSearchValue !== this.latestSearchValue) return;
                     this.set('supervisorListItem', res.rows)
                 })
+            }
+
+            _hcpSearch(e) {
+                let hcpLatestSearchValue = e && e.detail.value
+                this.hcpLatestSearchValue = hcpLatestSearchValue
+
+                if (!hcpLatestSearchValue || hcpLatestSearchValue.length < 2) { this.set('contactListItem', []); return; }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(hcpLatestSearchValue).then(res => {
+                    if (hcpLatestSearchValue !== this.hcpLatestSearchValue) return;
+                    this.set('contactListItem', res.rows)
+                })
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (supervisorFilterValue) {
+                        return Promise.all(
+                            [
+                                this.api.hcparty().findBySsinOrNihii( supervisorFilterValue ),
+                                this.api.hcparty().findByName( supervisorFilterValue )
+                            ]
+                        ).then(
+                            results => {
+                                const dataProviderResults =
+                                    _.flatten(
+                                        _
+                                            .chain( _.concat( results[0].rows, results[1].rows ) )
+                                            .uniqBy( 'id' )
+                                            .filter((i)=>{ return i.type !== 'medicalHouse' })
+                                            .value()
+                                            .map(
+                                                i => ({
+                                                    id: i.id,
+                                                    lastName: _.upperFirst(_.lowerCase(i.lastName)),
+                                                    hrLabel:
+                                                        _.upperFirst(_.lowerCase(i.lastName)) + ' ' +
+                                                        _.upperFirst(_.lowerCase(i.firstName)) + ' ' +
+                                                        ( typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii','INAMI',language) + ': '+i.nihii ) + ' ' +
+                                                        ( typeof i.ssin === 'undefined' || !i.ssin ? '' : ' - ' + this.localize('ssin','Registre national',language) + ': ' + i.ssin.substr(0,6) + '-' + i.ssin.substr(6,3) + '-' + i.ssin.substr(8,2) ) + ' ' +
+                                                        ''
+                                                })
+                                            )
+                                    )
+                                ;
+                                return {totalSize: dataProviderResults.length, rows: _.sortBy( dataProviderResults, 'lastName')}
+                            }
+                        )
+
+                    }.bind(this)
+                }
             }
 
             _mhSearch(e) {
