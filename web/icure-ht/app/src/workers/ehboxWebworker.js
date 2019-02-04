@@ -19,15 +19,15 @@ onmessage = e => {
         const keystoreId        = e.data.keystoreId
         const user              = e.data.user
         const ehpassword        = e.data.ehpassword
-        const boxIds             = e.data.boxId
+        const boxIds            = e.data.boxId
         const alternateKeystores= e.data.alternateKeystores
+        const language          = e.data.language
 
         const ehboxApi          = new fhcApi.fhcEhboxcontrollerApi(fhcHost, fhcHeaders)
 
         const docApi            = new iccApi.iccDocumentApi(iccHost, iccHeaders)
         const msgApi            = new iccApi.iccMessageApi(iccHost, iccHeaders)
         const beResultApi       = new iccApi.iccBeresultimportApi(iccHost, iccHeaders)
-
 
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
@@ -51,33 +51,6 @@ onmessage = e => {
             // NOTE: mime type and extension from ehbox are not reliable, the ResultImport API can detect if it's the correct type
 			return true
 		}
-
-        const removeMsg = (msg) => {
-            if (msg) {
-                const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : null
-                const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-                // console.log('remove',idOfMsg,thisBox,delBox)
-                if (msg.transportGuid && !msg.transportGuid.startsWith("BIN")) {
-                    // console.log('move to bin',idOfMsg,thisBox,delBox)
-                    return ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], thisBox, delBox)
-                        .then(()=>{
-                            // console.log('move to bin done, then modify',idOfMsg,thisBox,delBox)
-                            msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                            msgApi.modifyMessage(msg).then(()=> {
-                                // console.log('modify done',idOfMsg,thisBox,delBox)
-
-                            } )
-                        })
-                        .catch(err => {
-                            // console.log('ERROR: move to bin',idOfMsg,thisBox,delBox, err)
-                        })
-                } else {
-                    // console.log('delete',idOfMsg,thisBox,delBox)
-                    return ehboxApi.deleteMessagesUsingPOST(keystoreId, tokenId, ehpassword, [idOfMsg], delBox)
-                }
-            }
-        }
 
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
@@ -106,6 +79,7 @@ onmessage = e => {
             // assign to patient/contact the result matching docInfo from all the results of the document
             // return {id: contactId, protocolId: protocolIdString} if success else null (in promise)
             if (textType(document.mainUti, document.otherUtis)) {
+                //TODO Better search based on merge
                 return iccPatientApi.findByNameBirthSsinAuto(user.healthcarePartyId, docInfo.lastName + " " + docInfo.firstName, null, null, 100, "asc").then(patients => {
                     if (patients && patients.rows[0]) {
                         let thisPat = patients.rows[0]
@@ -134,18 +108,15 @@ onmessage = e => {
                                 version: docInfo.codes.version,
                                 code: docInfo.codes.code
                             },
-                            // cryptedForeignKeys: thisPat.cryptedForeignKeys,
                             descr: docInfo.labo,
+                            tags:[{type:'CD-TRANSACTION',code:'labresult'}],
                             subContacts: []
                         }).then(c => {
                             c.services.push({
                                 id: iccCryptoXApi.randomUuid(),
-                                codes: [{type:'labResult',code:c.id}],
                                 label: 'labResult',
-                                content:{
-                                    'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
-                                    'patientId': {stringValue: thisPat.id}
-                                }
+                                content: _.fromPairs([[language, {stringValue:docInfo.labo}]]),
+                                tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
                             return iccContactApi.createContact(c)
@@ -155,11 +126,14 @@ onmessage = e => {
                                 contactId: c.id,
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
-                                // console.log('should do Import',f)
                                 return iccFormXApi.createForm(f).then(f =>
-                                    iccHcpartyApi.getHealthcareParty(user.healthcarePartyId).then(hcp =>
-                                        beResultApi.doImport(document.id, user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
-                                    )
+                                    this.crypto
+                                        .extractKeysFromDelegationsForHcpHierarchy(
+                                            user.healtcarePartyId,
+                                            createdDocument.id,
+                                            _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                                        )
+                                        .then(({extractedKeys: enckeys}) => beResultApi.doImport(document.id, user.healthcarePartyId, language, docInfo.protocol, f.id, null, enckeys.join(','), c))
                                 )
                             })
                         }).then(c => {
@@ -179,42 +153,36 @@ onmessage = e => {
             }
         } // assignResult end
 
-        const treatMessage =  (message,boxId) => {
-            // console.log('treatMessage',message,boxId)
-            // if (localStorage.getItem('receiveMailAuto') && localStorage.getItem('receiveMailAuto') === 'false') {
-            //     console.log('Automatic ehbox treatMessage disabled by user param')
-            // } else {
-                return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
-                    .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
-                    .then(([fullMessage, existingMess]) => {
-                        if (existingMess.rows.length > 0) {
-                            //console.log("Message already known in DB",existingMess.rows)
-                            const existingMessage = existingMess.rows[0]
-                            // remove messages older than 24h
-                            if(existingMessage.created !== null && existingMessage.created < (Date.now() - (7 * 24 * 3600000))) {
-                                return removeMsgFromEhboxServer(existingMessage)
-                            }
-                            return Promise.resolve()
-                        } else {
-                            console.log('fullMessage',fullMessage)
-                            console.log('boxId',boxId)
-                            registerNewMessage(fullMessage, boxId)
-                                .then(([createdMessage, annexDocs]) => {
-                                    return treatAnnexes(createdMessage, fullMessage, annexDocs, boxId).catch(e => {
-                                        console.log("Message annexes creation failed for ", e)
-                                        this.api.message().deleteMessages(createdMessage.id).then(() => { throw e })
-                                    })
-                                })
+        const createDbMessageWithAppendicesAndTryToAssign =  (message,boxId) => {
+            return ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+                .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
+                .then(([fullMessage, existingMess]) => {
+                    if (existingMess.rows.length > 0) {
+                        //console.log("Message already known in DB",existingMess.rows)
+                        const existingMessage = existingMess.rows[0]
+                        // remove messages older than 7d
+                        if(existingMessage.created !== null && existingMessage.created < (Date.now() - (7 * 24 * 3600000))) {
+                            return removeMsgFromEhboxServer(existingMessage)
                         }
-                    })
-            // }
+                        return Promise.resolve()
+                    } else {
+                        console.log('fullMessage',fullMessage)
+                        console.log('boxId',boxId)
+                        registerNewMessage(fullMessage, boxId)
+                            .then(([createdMessage, annexDocs]) => {
+                                return tryToAssignAppendices(createdMessage, fullMessage, annexDocs, boxId).catch(e => {
+                                    console.log("Message annexes creation failed for ", e)
+                                    this.api.message().deleteMessages(createdMessage.id).then(() => { throw e })
+                                })
+                            })
+                    }
+                })
         }
 
-        const treatAnnexes = (createdMessage, fullMessage, annexDocs, boxId) => {
-            // console.log('treatAnnex',createdMessage, fullMessage, annexDocs, boxId)
-            if (boxId == "INBOX" && annexDocs) { // only import annexes in inbox
+        const tryToAssignAppendices = (createdMessage, fullMessage, annexDocs, boxId) => {
+            if (boxId === "INBOX" && annexDocs) { // only import annexes in inbox
                 let results = annexDocs.filter(doc => doc.documentLocation !== "body").map(doc => {
-                    return treatAnnex(fullMessage, doc)
+                    return tryToAssignAppendix(fullMessage, doc)
                 }).flat()
 
                 return Promise.all(results)
@@ -230,25 +198,25 @@ onmessage = e => {
                         })
                         createdMessage.unassignedResults = unassignedList
                         createdMessage.assignedResults = assignedMap
-                        // console.log('treatAnnex, createdMessage', createdMessage)
-                        return msgApi.modifyMessage(createdMessage).then(msg => {
-                            // console.log('msg',msg)
-                            if(createdMessage.unassignedResults.length == 0 && createdMessage.assignedResults.length >= 1 ) {
-                                return removeMsg(msg)
-                            }
-                            return Promise.resolve()
-                        });
+
+                        return msgApi.modifyMessage(createdMessage)
                     })
             } else {
                 return Promise.resolve()
             }
         }
 
-        const treatAnnex = (fullMessage, createdDocument) => {
-            // console.log('treatAnnex',fullMessage,createdDocument)
-            return beResultApi.getInfos(createdDocument.id)
+        const tryToAssignAppendix = (fullMessage, createdDocument) => {
+            // console.log('tryToAssignAppendix',fullMessage,createdDocument)
+            return this.crypto
+                .extractKeysFromDelegationsForHcpHierarchy(
+                    user.healtcarePartyId,
+                    createdDocument.id,
+                    _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                )
+                .then(({extractedKeys: enckeys}) => beResultApi.getInfos(createdDocument.id, enckeys.join(',')))
                 .then(docInfos => {
-                    console.log('treatAnnex',fullMessage,createdDocument,docInfos)
+                    console.log('tryToAssignAppendix',fullMessage,createdDocument,docInfos)
                     return Promise.all(
                         docInfos.map(docInfo => {
                            return assignResult(fullMessage, docInfo, createdDocument).then(result => {
@@ -263,7 +231,6 @@ onmessage = e => {
                     )
                 })
                 .catch(err => {
-                    // console.log("document can not be parsed", createdDocument)
                     return []
                 })
         }
@@ -321,22 +288,28 @@ onmessage = e => {
             let a = document
             // console.log('registerNewDocument',a)
             return docxApi.newInstance(user, createdMessage, {
-                documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
-                documentType:       'result', //Todo identify message and set type accordingly
-                mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
-                name:               a.filename
+                documentLocation: (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
+                documentType: 'result', //Todo identify message and set type accordingly
+                mainUti: docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/, '$1')),
+                name: a.filename
             })
                 .then(d => docApi.createDocument(d))
                 .then(createdDocument => {
                     //console.log('createdDocument',createdDocument)
-                    let byteContent = iccUtils.base64toArrayBuffer(a.content);
+                    let byteContent = iccUtils.base64toArrayBuffer(a.content)
                     return [createdDocument, byteContent]
                 })
                 .then(([createdDocument, byteContent]) => {
-                    return docApi.setAttachment(createdDocument.id, null, byteContent).then(() =>{
-                        return createdDocument
-                    })
+                    this.crypto
+                        .extractKeysFromDelegationsForHcpHierarchy(
+                            user.healtcarePartyId,
+                            createdDocument.id,
+                            _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                        )
+                        .then(({extractedKeys: enckeys}) => docApi.setAttachment(createdDocument.id, enckeys.join(','), byteContent))
+                        .then(() => createdDocument)
                 })
+
         }
 
 
@@ -348,7 +321,7 @@ onmessage = e => {
                     messages.forEach(m => {
                         // console.log(m,'its status', isUnread(m), isImportant(m), isCrypted(m))
                         p = p.then(() => {
-                            return treatMessage(m, boxId)
+                            return createDbMessageWithAppendicesAndTryToAssign(m, boxId)
                                 .catch(e => {console.log("Error processing message "+m.id,e); return Promise.resolve()})
                         })
                     })
