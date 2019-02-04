@@ -2093,7 +2093,7 @@
 
                 // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
-                    .then(pdfFileContent=>{
+                    .then(({pdf:pdfFileContent, printed:printed}) =>{
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
 
@@ -2115,7 +2115,7 @@
                             .then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
                             .then(createdDocument => this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent })))
                             .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
-                            .then(() => this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName ))
+                            .then(() => !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName ))
                     })
                     .then(() => {
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true})
