@@ -1384,7 +1384,7 @@
 					marginTop: 5,
 					marginBottom: 5
 				})
-				.then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData))
+				.then(({pdf:pdfFileContent, printed:wasPrinted}) => _.assign({pdfFileContent:pdfFileContent, printed:wasPrinted}, pdfPrintingData))
                 .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -1420,7 +1420,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{
 					drugsToBePrescribed.forEach(s => {
@@ -2480,12 +2480,9 @@
                 this.busySpinner = true;
                 const prose = this.root.querySelector("#prose-editor");
                 const proseHtmlContent = prose.$.container.innerHTML;
-                this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
-                    this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
-                    this.busySpinner = false;
-                    this.$['prose-editor-dialog'].close()
-                    this._closeReportMenu();
-                }).catch(() =>{
+                this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(({pdf:pdfFileContent, printed:printed}) =>
+                    !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date())
+                ).finally(() =>{
                     this.busySpinner = false
                     this.$['prose-editor-dialog'].close()
                     this._closeReportMenu();
@@ -2527,8 +2524,6 @@
                 const precentageValue = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.value", "100");
                 const precentageUnit = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) ? _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) : "%";
                 const precentageValueAndUnit = precentageValue + " " + precentageUnit
-
-                // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
 
                 this.documentMetas = {
                     title : _.trim(this.localize("certificate_stop_activity",this.language)),
@@ -2590,7 +2585,7 @@
                         return _.assign({pdfContent:pdfContent},resourcesObject)
 
                     })
-                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject)))
+                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) => _.assign({pdfFileContent:pdfFileContent, printed: printed}, resourcesObject)))
                     .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
                         .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
                         .then(resourcesObject=>this.api.message().createMessage(
@@ -2628,7 +2623,7 @@
                         })
                         return resourcesObject
                     })
-                    .then(resourcesObject => this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
+                    .then(resourcesObject => !resourcesObject.printed && this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
                     .catch(e=>{console.log(e)})
                     .finally(()=>{ this.busySpinner=false; this._closeReportMenu(); })
 
@@ -2737,11 +2732,9 @@
 
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
 
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) =>
+                        !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName )
+                    ).finally(()=>{this.busySpinner = false;});
 
                 }).catch((e)=>{console.log(e);this.busySpinner = false;});
 
@@ -2830,12 +2823,9 @@
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
-
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
+					this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) =>
+                        !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName )
+                    ).finally(()=>{this.busySpinner = false;});
 
                 }).catch((e)=>{console.log(e);this.busySpinner = false;});
 
@@ -2914,7 +2904,7 @@
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
 
                 })
-                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData)))
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed: printed}, pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -2952,7 +2942,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3063,7 +3053,7 @@
                     return _.assign({pdfContent: pdfContent}, pdfPrintingData)
 
                 })
-                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed:printed},pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -3101,7 +3091,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3246,7 +3236,7 @@
 
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
                 })
-                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed:printed},pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -3283,7 +3273,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3703,7 +3693,7 @@
                 const proseHtmlContent = proseEditor.$.container.innerHTML;
 
                 this.api.pdfReport(this._getProsePdfHeader(this._getLinkingLetterCssStyles()) + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() )
-                    .then(pdfFileContent => this.api.triggerFileDownload(
+                    .then(({pdf:pdfFileContent, printed:printed}) => !printed && this.api.triggerFileDownload(
                         pdfFileContent,
                         "application/pdf",
                         _.kebabCase(_.compact([
@@ -3742,7 +3732,7 @@
                 }
 
                 this.api.pdfReport(this._getProsePdfHeader(this._getLinkingLetterCssStyles()) + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() )
-                    .then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject) )
+                    .then(({pdf:pdfFileContent, printed:printed}) => !printed && _.assign({pdfFileContent:pdfFileContent},resourcesObject) )
                     .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
                         .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
                         .then(resourcesObject=>this.api.message().createMessage(
