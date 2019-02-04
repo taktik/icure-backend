@@ -1486,7 +1486,7 @@
 						const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
 						const medR = medicationApi.medicationNameToString(med, this.language)
 						const medS = medicationApi.posologyToString(med, this.language)
-						const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
+						const thisMed = {'S': medS, 'R': medR, 'poso':medPoso, comment};
 						prescArray.push(thisMed) // add to the medications list
 					}) // flatmap end
 					// console.log("prescArray",prescArray)
@@ -1497,55 +1497,56 @@
 					let medicName = ""
 					prescArray.map(onePrescri => { // create prescription content
 						prescriContent += `<article>
-                    <p class="bigtxt"><span class="bold bigtxt">R/</span> ${onePrescri.R}</p>
-                    <p class="bigtxt"><span class="bold bigtxt">S/</span> ${onePrescri.S}</p>
-                </article>`;
+							<p class="bigtxt"><span class="bold bigtxt">R/</span> ${onePrescri.R}</p>
+							<p class="bigtxt"><span class="bold bigtxt">S/</span> ${onePrescri.S}</p>
+                		</article>`;
 						articlePoso.push(onePrescri.poso) // add posology to the list
 						articleMedWithPoso.push({medR: onePrescri.R, poso: onePrescri.poso})//add medication with posology to the list
 						medicName = onePrescri.R
 					}) // map end
-					const prescri = (this.patient.ssin && this.api.tokenId && rid[colId]) ? `<article class="prescription">
-                <header>
-                    <img src="${jpegUrl}" alt="code-bar">
-                    <div class="barcode-num">${ridIdx}</div>
-                    <hr>
-                    <h2>Preuve de prescription électronique</h2>
-                    <hr>
-                    <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
-                    <hr>
-                    <div class="profile">
-                        <small>Nom et prénom du prescripteur&nbsp;:</small>
-                        <ul class="prescripteur-details">
-                            <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
-                            <li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
-                        </ul>
-                    </div>
-                    <hr>
-                    <div class="profile">
-                        <small>Nom et prénom du patient&nbsp;:</small>
-                        <ul class="patient-details">
-                            <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
-                            <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
-                        </ul>
-                    </div>
-                    <hr>
-                </header>
-                <h2>Contenu de la prescription électronique</h2>
-                <hr>
-                <div class="prescription-content">
-                    ${prescriContent}
-                </div>
-                <footer>
-                    <hr>
-                    <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
-                    <hr>
-                    <small class="center">Date&nbsp;:</small>
-                    <p class="center">${deliveryDate}</p>
-                    <hr>
-                    <small class="center">Délivrable à partir du&nbsp;:</small>
-                    <p class="center">${deliveryDate}</p>
-                </footer>
-            </article>` : prescriContent; // create single prescription body
+					const prescri = (this.patient.ssin && this.api.tokenId && rid[colId]) ?
+					`<article class="prescription">
+						<header>
+							<img src="${jpegUrl}" alt="code-bar">
+							<div class="barcode-num">${ridIdx}</div>
+							<hr>
+							<h2>Preuve de prescription électronique</h2>
+							<hr>
+							<p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+							<hr>
+							<div class="profile">
+								<small>Nom et prénom du prescripteur&nbsp;:</small>
+								<ul class="prescripteur-details">
+									<li><b>${hcp.firstName} ${hcp.lastName}</b></li>
+									<li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
+								</ul>
+							</div>
+							<hr>
+							<div class="profile">
+								<small>Nom et prénom du patient&nbsp;:</small>
+								<ul class="patient-details">
+									<li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
+									<li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
+								</ul>
+							</div>
+							<hr>
+						</header>
+						<h2>Contenu de la prescription électronique</h2>
+						<hr>
+						<div class="prescription-content">
+							${prescriContent}
+						</div>
+						<footer>
+							<hr>
+							<p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+							<hr>
+							<small class="center">Date&nbsp;:</small>
+							<p class="center">${deliveryDate}</p>
+							<hr>
+							<small class="center">Délivrable à partir du&nbsp;:</small>
+							<p class="center">${deliveryDate}</p>
+						</footer>
+					</article>` : prescriContent; // create single prescription body
 					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridIdx, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
 				}) // splitCol forEach end
 				// console.log("prescriToPrint",prescriToPrint)
