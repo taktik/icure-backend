@@ -1520,17 +1520,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 }).then(c => {
                     c.services.push({
                         id: this.api.crypto().randomUuid(),
-                        codes: [{type:'labResult',code:c.id}],
                         label: 'labResult',
-                        content:{
-                            'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
-                            'patientId': {stringValue: thisPat.id}
-                        }
+                        content: _.fromPairs([[this.language, {stringValue:docInfo.labo}]]),
+                        tags:[{type:'CD-TRANSACTION', code:'labresult'}]
                     })
-                    console.log('c services',c.services)
-                    return this.api.contact().createContactWithUser(this.user,c)
+                    return this.api.contact().createContactWithUser(c, this.user)
                 }).then(c => {
-                    console.log('createContactWithUser',c)
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
                         // cryptedForeignKeys: thisPat.cryptedForeignKeys,
@@ -1539,7 +1534,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         console.log('should do Import',f)
                         return this.api.form().createForm(f).then(f =>
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                                this.crypto
+                                this.api.crypto()
                                     .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
                                     .then(({extractedKeys: enckeys}) => this.api.beresultimport().doImport(document.id, hcp.id, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, enckeys.join(','), c))
                             )
@@ -1920,7 +1915,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							descr: "Lab" + new Date().getTime(),
 						}).then(f => this.api.form().createForm(f)).then(f => {
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                                this.crypto
+                                this.api.crypto()
                                     .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
                                     .then(({extractedKeys: enckeys}) => this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c))
                             )
