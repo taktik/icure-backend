@@ -25,10 +25,20 @@ import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.DocumentLocation;
 import org.taktik.icure.entities.embed.DocumentStatus;
 import org.taktik.icure.entities.embed.DocumentType;
+import org.taktik.icure.security.CryptoUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -83,7 +93,24 @@ public class Document extends StoredICureDocument implements Serializable {
         return attachment;
     }
 
-    @JsonIgnore
+	public byte[] decryptAttachment(List<String> enckeys) {
+		if (enckeys != null && enckeys.size()>0) {
+			for (String sfk : enckeys) {
+				ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+				UUID uuid = UUID.fromString(sfk);
+				bb.putLong(uuid.getMostSignificantBits());
+				bb.putLong(uuid.getLeastSignificantBits());
+				try {
+					return CryptoUtils.decryptAES(attachment, bb.array());
+				} catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalArgumentException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
+				}
+			}
+		}
+
+		return attachment;
+	}
+
+	@JsonIgnore
     public void setAttachment(byte[] attachment) {
         this.attachment = attachment;
     }

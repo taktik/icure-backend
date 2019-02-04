@@ -81,6 +81,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
     protected String type;                              // "persphysician" or "medicalHouse"
     protected String contactPerson;
+    protected String contactPersonHcpId;
 
 
 	public String getName() {
@@ -342,5 +343,13 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setContactPerson(String contactPerson) {
         this.contactPerson = contactPerson;
+    }
+
+    public String getContactPersonHcpId() {
+        return contactPersonHcpId;
+    }
+
+    public void setContactPersonHcpId(String contactPersonHcpId) {
+        this.contactPersonHcpId = contactPersonHcpId;
     }
 }

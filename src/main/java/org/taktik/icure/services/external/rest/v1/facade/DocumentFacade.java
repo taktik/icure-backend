@@ -83,6 +83,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Component
 @Path("/document")
 @Api(tags = { "document" })
@@ -153,21 +155,8 @@ public class DocumentFacade implements OpenApiFacade{
 		if (document == null) {
 			response = ResponseUtils.notFound("Document not found");
 		} else {
-			byte[] attachment = document.getAttachment();
+			byte[] attachment = document.decryptAttachment(isBlank(enckeys) ? null : Arrays.asList(enckeys.split(",")));
 			if (attachment != null) {
-				if (enckeys != null && enckeys.length()>0) {
-					for (String sfk : enckeys.split(",")) {
-						ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-						UUID uuid = UUID.fromString(sfk);
-						bb.putLong(uuid.getMostSignificantBits());
-						bb.putLong(uuid.getLeastSignificantBits());
-						try {
-							attachment = CryptoUtils.decryptAES(attachment, bb.array());
-							break;
-						} catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalArgumentException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
-						}
-					}
-				}
 				byte[] finalAttachment = attachment;
 				response = ResponseUtils.ok((StreamingOutput) output -> {
 					if (StringUtils.equals(document.getMainUti(),"org.taktik.icure.report")) {

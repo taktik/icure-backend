@@ -959,6 +959,10 @@
                     hcp: {
                         type : Object
                     },
+                    contactPerson: {
+                        type : String,
+                        value: ""
+                    },
                     i18n: {
                         type: Object,
                         value: function () {
@@ -1055,6 +1059,10 @@
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
+                    if(response.contactPersonHcpId){
+                    this.api.hcparty().getHealthcareParty(response.contactPersonHcpId).then(hcpCt => {
+                        this.set("contactPerson", hcpCt.lastName + " " + hcpCt.firstName);
+                    })}
                 })
             }
 
@@ -1602,7 +1610,7 @@
                                         ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
                                         ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
                                         ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
-                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "contactPerson", "")} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
+                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.contactPerson} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
                                     </td>
                                     <td width="45%">
                                         <table class="borderOa"><tbody><tr><td class="fs11">
@@ -2093,7 +2101,7 @@
 
                 // Generate, archive & download pdf report
                 this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
-                    .then(pdfFileContent=>{
+                    .then(({pdf:pdfFileContent, printed:printed}) =>{
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7',this.language), icon:"arrow-forward"});
 
@@ -2115,7 +2123,7 @@
                             .then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
                             .then(createdDocument => this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent })))
                             .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
-                            .then(() => this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName ))
+                            .then(() => !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.downloadFileName ))
                     })
                     .then(() => {
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true})

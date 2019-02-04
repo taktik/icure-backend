@@ -453,7 +453,7 @@
 
             <div class="regimen-line display-type-regimen">
                 <paper-input-container always-float-label="true" class="comment">
-                    <label slot="label" class="color-status">[[localize('com','Comment',language)]]</label>
+                    <label slot="label" class="color-status">[[localize('com-rec-for-phar','Comment recip-e for pharmacist',language)]]</label>
                     <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
                 </paper-input-container>
             </div>
@@ -677,8 +677,16 @@
                                 </div>
                             </page>
                         </iron-pages>
+
+                        <div class="regimen-line display-type-regimen">
+                            <paper-input-container always-float-label="true" class="comment">
+                                <label slot="label" class="color-status">[[localize('posology','Posology',language)]]</label>
+                                <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{posologyString}}" max-rows="32"></iron-autogrow-textarea>
+                            </paper-input-container>
+                        </div>
                     </div>
             </div>
+
             <div class="buttons">
                 <template is="dom-if" if="[[_all(selectedMedicationContentWithId ,selectedMedicationContentWithId.isPrescription)]]">
                     <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="[[medicationMustBeCreated]]"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
@@ -813,6 +821,11 @@
                     medicationMustBeCreated:{
                         type: Boolean,
                         value: false
+                    },
+                    posologyString: {
+                        type: String,
+                        value: '',
+                        observer: '_posologyChanged'
                     }
                 }
             }
@@ -838,7 +851,18 @@
             }
 
             _regimenChanged() {
+                this.set('posologyString',this.api.contact().medication().posologyToString(this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue || {}, this.language))
                 this.updateGridIfNeeded()
+            }
+
+            _posologyChanged(newValue, oldValue) {
+                if(!this.selectedMedicationContentWithId || !this.selectedMedicationContentWithId.medicationValue) {
+                    return;
+                }
+                const fetchedValue = this.api.contact().medication().posologyToString(this.selectedMedicationContentWithId.medicationValue, this.language)
+                if(newValue !== fetchedValue) {
+                    this.set('selectedMedicationContentWithId.medicationValue.instructionForPatient', newValue)
+                }
             }
 
             _all(a,b) { return a && b }
@@ -1192,6 +1216,7 @@
             _substitutionAllowedChanged(e){
                 this.set('selectedMedicationContentWithId.medicationValue.substitutionAllowed', e.target.checked)
             }
+            
             _renewalValueChanged(e){
                 this.set('isRenewal', e.target.checked)
                 if(e.target.checked === false){

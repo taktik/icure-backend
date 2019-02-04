@@ -1394,7 +1394,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-listbox>
                         </collapse-button>
                     </div>
-                    <div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
+                    <!--<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>-->
                 </paper-material>
             </div>
             <template is="dom-if" if="[[!isAdminSelected(selectedAdminOrCompleteFileIndex)]]" restamp>
@@ -1438,7 +1438,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
                                     <paper-material id="ctc_[[contact.id]]"
                                                     elevation="0"
-                                                    class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
+                                                    class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate, contact.author, contact.responsible)]]"
                                                     on-click="openToast">
                                         <paper-item class="contact-text">
                                             <div class="contact-text-row contact-text-date">
@@ -1505,7 +1505,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
                                                 api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" medications="[[medications]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
+                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication"
+                                                on-medication-detail="_medicationDetail" contact-type-list="[[contactTypeList]]"></ht-pat-detail-ctc-detail-panel>
             </template>
 
         </div>
@@ -1854,7 +1855,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
     </template>
     <script>
-
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
         import styx from '../../../scripts/styx';
@@ -2161,6 +2161,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Object,
                         value: () => {}
                     },
+                    contactTypeList: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
                     SpinnerActive:{
                         type:Boolean,
                         value: false
@@ -2191,6 +2197,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }, {});
                     } )
                 }
+
+                this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
+                    .then(ct =>this.set("contactTypeList", _.orderBy(ct.rows, ['code'], ['asc'])))
             }
 
             _switchTest(e){
@@ -2242,8 +2251,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return CT && CT.substring(2) !== '0' ? this._yesOrNo(true) : this._yesOrNo(false);
             }
 
-            _contactClasses(contact) {
-                return contact.closingDate ? '' : 'current-contact';
+            _contactClasses(contact, closingDate, author, responsible) {
+                return (closingDate || (author !== this.user.id && responsible !== this.user.healthcarePartyId)) ? '' : 'current-contact';
             }
 
             _openGenInsDialog(e){
@@ -2364,7 +2373,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     return this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
                                         this.genInsNiss ? this.genInsNiss.trim() : this.patient.ssin,
                                         asMMH ? this.api.tokenIdMH : this.api.tokenId, asMMH ? this.api.keystoreIdMH : this.api.keystoreId, asMMH ? this.api.credentials.ehpasswordMH : this.api.credentials.ehpassword,
-                                        asMMH ? this.api.nihiiMH.substr(0,8) : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
+                                        asMMH ? this.api.nihiiMH : hcp.nihii, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
                                 }
                             ).then(genInsResp => {
                                     if (genInsResp) {
@@ -2388,7 +2397,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
                                             (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
                                             asMMH ? this.api.tokenIdMH : this.api.tokenId, asMMH ? this.api.keystoreIdMH : this.api.keystoreId, asMMH ? this.api.credentials.ehpasswordMH : this.api.credentials.ehpassword,
-                                            asMMH ? this.api.nihiiMH.substr(0,8) : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
+                                            asMMH ? this.api.nihiiMH : hcp.nihii, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
                                     }
                                 ).then(genInsResp => {
                                         if (genInsResp) {
@@ -3088,16 +3097,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).concat(this.surgicalHealthElements).includes(he)))
                         })
 
-                        const unclosedContact = ctcs.find(c => !c.closingDate)
-                        const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs
-
-                        const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
-                            acc[s] = true
-                            return acc
-                        }, {})
+                        const unclosedContacts = ctcs.filter(c => !c.closingDate && (c.author === this.user.id || c.responsible === this.user.healthcarePartyId))
+                        const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1))
+                            .reduce((acc, s) => {
+                                acc[s] = true
+                                return acc
+                            }, {})
 
                         //console.log("Before scan ctcs "+(+new Date() - start))
-                        allContacts.forEach(ctc => {
+                        ctcs.forEach(ctc => {
                             ctc.healthElements = _.uniq(ctc.subContacts.map(sc => sc.planOfActionId && combinedHesWithHistory.find(he => he.plansOfAction.find(poa => poa.id === sc.planOfActionId)) || sc.healthElementId && combinedHesWithHistory.find(he => he.id === sc.healthElementId)).map(he => he && he.healthElementId)).filter(id => !!id).map(id => hesByHeId[id][0])
                             ctc.userDescr = this.api.template(descrPattern, ctc.services.filter(s => templateKeys[s.label] && !s.endOfLife).reduce((acc, v) => {
                                 acc[v.label] = !acc[v.label] ? this.shortServiceDescription(v, this.language) : acc[v.label] + "," + this.shortServiceDescription(v, this.language)
@@ -3105,6 +3113,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }, {}))
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
+                            }
+                            const contacttype = ctc.tags.find(tag => tag.type == "BE-CONTACT-TYPE")
+                            if(contacttype) {
+                                ctc.userDescr = this.contactTypeList.find(sct => sct.code == contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
                             }
                             ctc.services.forEach(s => {
                                 if (!s.label) {
@@ -3114,20 +3126,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
 
                         //console.log("After scan ctcs "+(+new Date() - start))
-
-                        ;(unclosedContact && (
-                            this.api.moment(unclosedContact.openingDate).isBefore(moment().subtract(1,'days')) ?
-                                this.api.contact()
-                                    .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
-                                    .then(c => this.api.contact().newInstance(this.user, patient, {
-                                        descr: this.localize('contact_of_the_day','Contact of the day',this.language),
-                                        userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
-                                    })
-                                    )
-                                : Promise.resolve(unclosedContact)) ||
-                            this.api.contact().newInstance(this.user, patient, {
-                                descr: this.localize('contact_of_the_day','Contact of the day',this.language),
-                                userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
+                        const youngest = unclosedContacts.map(c => c.openingDate && this.api.moment(c.openingDate)).reduce((y, mc) => (mc && mc.isAfter(y)) ? mc : y, moment().subtract(1, 'days'))
+                        Promise.all(unclosedContacts.map(unclosedContact => {
+                            return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
+                                this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
+                                    .then(() => null)
+                                : Promise.resolve(unclosedContact)})
+                        )
+                        .then(ctcs =>
+                            _.compact(ctcs)[0] || this.api.contact().newInstance(this.user, patient, {
+                                descr: this.localize('contact_of_the_day', 'Contact of the day', this.language),
+                                userDescr: this.localize('contact_of_the_day', 'Contact of the day', this.language)
                             })
                         )
                         .then(newCtc => {
@@ -3261,11 +3270,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     let dlg = this.root.querySelector('#genInsDialog')
                     if (!dlg.opened) this.set('curGenInsResp', null)
-
+                    //api.MHContactPersonName
+                    //api.MHContactPersonSsin
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
                         patient.ssin,
                         this.api.tokenId ? this.api.tokenId : this.api.tokenIdMH, this.api.tokenId ? this.api.keystoreId : this.api.keystoreIdMH, this.api.tokenId ? this.api.credentials.ehpassword : this.api.credentials.ehpasswordMH,
-                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH.substr(0,8), hcp.ssin, hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null).then(gi => {
+                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null).then(gi => {
                         const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length)
                         const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()))
 

@@ -978,7 +978,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </template>
                     </div>
-
                 </div>
 
                 <div class="line">
@@ -1811,6 +1810,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return acc
                                         }, {})
                                         const importedAESHcPartyKeys = {}
+
+                                        return Promise.all(services.map(s => this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(hcpId, document.id, s.cryptedForeignKeys).then(({extractedKeys:cfks}) => cfks)))
+                                            .then(cfksLists => this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                                filter: {
+                                                    '$type': 'PatientByIdsFilter',
+                                                    'ids': _.uniqBy(_.compact(_.flatMap(cfksLists)))
+                                                }
+                                            }))
+                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+/*
                                         return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys =>
                                             Promise.all(Object.keys(ownersOfDelegations)
                                                 .map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId])
@@ -1825,7 +1834,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 }
                                             })
                                         })
-                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter}) */
                             ).then(res => {
                                 if (grid.lastParams !== thisParams) {
                                     console.log("Cancelling obsolete search")
@@ -1963,6 +1972,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _addPatient() {
                 this.checkForParentMedicalHouse()
+
+                this.set('firstName', null)
+                this.set('lastName', null)
+                this.set('dateAsString', null)
+                this.set('ssin', null)
+                this.set('valueGender', null)
+
                 this.$['add-patient-dialog'].open()
             }
 
@@ -2371,9 +2387,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     p => this.api.register(p, 'patient')
                 ).then(
                     p => {
+                        this.resetNewPatientDialog()
                         this.set('selectedPatient', p)
                     }
                 )
+            }
+
+            resetNewPatientDialog() {
+                this.lastName = null
+                this.firstName = null
+                this.dateAsString = null
+                this.ssin = null
+                this.valueGender = null
+                this.medicalHouseContractShadowObject = {
+                    hcpId: null,
+                    mmNihii: null,
+                    startOfContract: null,
+                    startOfCoverage: null,
+                    kine: false,
+                    gp: false,
+                    nurse: false
+                }
             }
 
             confirmFilter() {
@@ -3056,7 +3090,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                         if (hcp && hcp.parentId) {
                             this.api.hcparty().getHealthcareParty(hcp.parentId).then(parentHcp => {
-                                if (parentHcp && parentHcp.type && parentHcp.type === 'medicalHouse') {
+                                if (parentHcp && parentHcp.type && parentHcp.type.toLowerCase() === 'medicalhouse') {
                                     this.shadowRoot.getElementById("medicalHouseTabView").classList.remove("doNotDisplay")
                                     this.hcpParentMedicalHouseData = parentHcp
                                 } else {
@@ -3103,7 +3137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         _
                                             .chain(_.concat(results[0].rows, results[1].rows))
                                             .uniqBy('id')
-                                            .filter({type: 'medicalHouse'})
+                                            .filter({type: 'medicalhouse'})
                                             .value()
                                             .map(
                                                 i => ({

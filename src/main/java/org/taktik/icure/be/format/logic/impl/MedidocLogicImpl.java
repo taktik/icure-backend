@@ -84,10 +84,10 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	}
 
 	@Override
-	public boolean canHandle(Document doc) throws IOException {
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
 		boolean hasAHash = false, hasAHashSlash = false, hasRHash = false, hasRHashSlash = false, hasFinalTag = false;
 
-		String text = decodeRawData(doc.getAttachment());
+		String text = decodeRawData(doc.decryptAttachment(enckeys));
 		if (text != null) {
 			BufferedReader reader = new BufferedReader(new StringReader(text));
 			String line;
@@ -113,9 +113,9 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
-		BufferedReader br = getBufferedReader(doc);
+		BufferedReader br = getBufferedReader(doc, enckeys);
 		List<String> lines = IOUtils.readLines(br);
 		String labo = lines.get(1).replaceAll("  +", " ");
 
@@ -218,8 +218,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	}
 
 	@Override
-	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException {
-		BufferedReader br = getBufferedReader(doc);
+	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException {
+		BufferedReader br = getBufferedReader(doc, enckeys);
 		List<String> lines = IOUtils.readLines(br);
 		List<LaboLine> lls = new ArrayList<>();
 		for (int i = 0; i < lines.size(); i++) {

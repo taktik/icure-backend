@@ -338,7 +338,7 @@
             if (epochOrLongCalendar >= 18000101 && epochOrLongCalendar < 25400000) {
                 return moment('' + epochOrLongCalendar, 'YYYYMMDD');
             } else if (epochOrLongCalendar >= 18000101000000) {
-                return moment('' + epochOrLongCalendar, 'YYYYMMDDhhmmss');
+                return moment('' + epochOrLongCalendar, 'YYYYMMDDHHmmss');
             } else {
                 return moment(epochOrLongCalendar);
             }
@@ -486,10 +486,10 @@
                         method: "POST",
                         mode: "cors", // no-cors, cors, *same-origin
                         credentials: "same-origin", // include, same-origin, *omit
-                        headers: {"Content-Type": "text/html; charset=utf-8",},
+                        headers: {"Content-Type": "text/html; charset=utf-8"},
                         redirect: "follow",
                         body: html,
-                    }).then(response => response.arrayBuffer())
+                    }).then(response => response.arrayBuffer()).then(data => ({pdf: data, printed: electron && printerName}))
                 )
             })
         }
