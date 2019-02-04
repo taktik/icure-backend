@@ -53,9 +53,9 @@ import java.util.stream.StreamSupport;
 @org.springframework.stereotype.Service
 public class KetLogicImpl extends GenericResultFormatLogicImpl implements KetLogic {
 	@Override
-	public boolean canHandle(Document doc) throws IOException {
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
 		try {
-			org.w3c.dom.Document xml = getXmlDocument(doc);
+			org.w3c.dom.Document xml = getXmlDocument(doc, enckeys);
 
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
@@ -68,9 +68,9 @@ public class KetLogicImpl extends GenericResultFormatLogicImpl implements KetLog
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		try {
-			org.w3c.dom.Document xml = getXmlDocument(doc);
+			org.w3c.dom.Document xml = getXmlDocument(doc, enckeys);
 
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
@@ -103,7 +103,7 @@ public class KetLogicImpl extends GenericResultFormatLogicImpl implements KetLog
 	}
 
 	@Override
-	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException {
+	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException {
 		return null;
 	}
 

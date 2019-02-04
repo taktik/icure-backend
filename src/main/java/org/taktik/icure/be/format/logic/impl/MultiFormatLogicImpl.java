@@ -42,18 +42,18 @@ MultiFormatLogicImpl implements MultiFormatLogic {
 	}
 
 	@Override
-	public boolean canHandle(Document doc) throws IOException {
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
 		for (ResultFormatLogic e:engines) {
-			if (e.canHandle(doc)) { return true; }
+			if (e.canHandle(doc, enckeys)) { return true; }
 		}
 		return false;
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		for (ResultFormatLogic e:engines) {
-			if (e.canHandle(doc)) {
-				List<ResultInfo> infos = e.getInfos(doc, full, language);
+			if (e.canHandle(doc, enckeys)) {
+				List<ResultInfo> infos = e.getInfos(doc, full, language, enckeys);
 				infos.forEach(i->i.setEngine(e.getClass().getName()));
 				return infos;
 			}
@@ -62,9 +62,9 @@ MultiFormatLogicImpl implements MultiFormatLogic {
 	}
 
 	@Override
-	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException {
+	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException {
 		for (ResultFormatLogic e:engines) {
-			if (e.canHandle(doc)) { return e.doImport(language, doc, hcpId, protocolIds, formIds, planOfActionId, ctc); }
+			if (e.canHandle(doc, enckeys)) { return e.doImport(language, doc, hcpId, protocolIds, formIds, planOfActionId, ctc, enckeys); }
 		}
 		throw new IllegalArgumentException("Invalid format");
 	}
