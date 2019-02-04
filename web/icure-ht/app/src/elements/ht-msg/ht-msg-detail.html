@@ -1376,8 +1376,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     modified: new Date().getTime() ,
                     author: this.user.id,
                     responsible: this.user.healthcarePartyId,
-                    openingDate: moment().format('YYYYMMDDhhmmss') || '',
-                    closingDate: moment().format('YYYYMMDDhhmmss') || '',
+                    openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                    closingDate: moment().format('YYYYMMDDHHmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
                     // cryptedForeignKeys: document.encryptionKeys,
@@ -1404,7 +1404,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         console.log('should do Import',f)
                         return this.api.form().createForm(f).then(f =>
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                                this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
+                                this.crypto
+                                    .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
+                                    .then(({extractedKeys: enckeys}) => this.api.beresultimport().doImport(document.id, hcp.id, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, enckeys.join(','), c))
                             )
                         )
                     })
@@ -1783,12 +1785,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							contactId: c.id,
 							descr: "Lab" + new Date().getTime(),
 						}).then(f => this.api.form().createForm(f)).then(f => {
-							this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-								this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c)
-									.then(c => console.log("Contact id" + c.id))
-							})
-						})
-
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                                this.crypto
+                                    .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
+                                    .then(({extractedKeys: enckeys}) => this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c))
+                            )
+                        })
 					});
 				})
 			});

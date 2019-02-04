@@ -965,37 +965,42 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		});
 	}
 
-	_updateLabResults() {
-	    console.log('update Lab Results')
-        this.set('isLoadingLabResults',true)
-        this.api.contact().getServiceCodesOccurences('labResult',0).then(occurences=>{
-            let occurList = []
-            occurences.map(occurence=>occurList.push(occurence.label))
-            return occurList
-        }).then((occurList)=>{
-            return this.api.contact().getContactsWithUser(this.user,{ids:occurList}).then(cs=>{
-                let results = []
-                cs.forEach(c=>{
-                    const svc = c.services.filter(s=> s.label==='labResult')
-                    const patName = this.api.contact().preferredContent(svc[0],"patientName") || this.api.contact().preferredContent(svc[0],this.language)
-                    const patId = this.api.contact().preferredContent(svc[0],'patientId') || this.api.contact().preferredContent(svc[0],this.language)
-                    results.push({
-                        patient: {
-                            name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : patName ? patName.stringValue : this.localize('obs_val','obsolete value',this.language),
-                            id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : patId ? patId.stringValue : 0
-                        },
-                        created: c.created,descr: c.descr,groupId:c.groupId
-                    })
-                })
-                return _.orderBy(results,'created','desc')
-            }).then(results=> {
-                this.set('unreadCount',0)
-                this.set('labResults',results || [])
-                this.set('isLoadingLabResults',false);
-                let msgs = [], docs = []
-                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {_.filter(messages.rows,m=>m.assignedResults).forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadCount',this.unreadCount+1)}})})
+    _updateLabResults() {
+        console.log('update Lab Results')
+        this.set('isLoadingLabResults', true)
+        const start = Number(moment().subtract(15).format('YYYYMMDDHHmmss'))
+        const labsFilter = {
+            '$type': 'UnionFilter',
+            'filters': [{
+                '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                healthcarePartyId: this.user.healthcarePartyId,
+                tagCode: 'labresult',
+                tagType: 'CD-TRANSACTION',
+                startValueDate: start
+            }]
+        }
+        this.api.contact().filterServicesBy(null, null, 50, new models.FilterChain({filter: labsFilter}))
+            .then(services => {
+                return Promise.all(services.map(s => this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, document.id, s.cryptedForeignKeys).then(({extractedKeys: cfks}) => [s, cfks])))
+                    .then(cfksLists => this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                        filter: {
+                            '$type': 'PatientByIdsFilter',
+                            'ids': _.uniqBy(_.compact(_.flatMap(cfksLists.map(x => x[1]))))
+                        }
+                    }).then(pats =>
+                        cfksLists.map(x => ({
+                            patient: pats.find(p => p.id === x[1]),
+                            created: x[0].created,
+                            descr: (this.api.contact().preferredContent(x[0], this.language) || {}).descr
+                        }))
+                    ))
             })
-        })
+            .then(results => {
+                this.set('labResults', _.orderBy(results, 'created', 'desc') || [])
+                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000)
+                    .then(messages => this.set('unreadCount', _.filter(messages.rows, m => m.assignedResults && ((m.status & 1 << 1) !== 0)).length))
+            })
+            .finally(() => this.set('isLoadingLabResults', false))
     }
 
     _isUnreadResult(res) {
