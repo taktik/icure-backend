@@ -1538,7 +1538,7 @@
                                         _
                                             .chain( _.concat( results[0].rows, results[1].rows ) )
                                             .uniqBy( 'id' )
-                                            .filter((i)=>{ return i.type.toLower() !== 'medicalhouse' })
+                                            .filter((i)=>{ return i.type.toLowerCase() !== 'medicalhouse' })
                                             .value()
                                             .map(
                                                 i => ({
@@ -1625,7 +1625,7 @@
                                         _
                                             .chain( _.concat( results[0].rows, results[1].rows ) )
                                             .uniqBy( 'id' )
-                                            .filter((i)=>{ return i.type.toLower() !== 'medicalhouse' })
+                                            .filter((i)=>{ return i.type.toLowerCase() !== 'medicalhouse' })
                                             .value()
                                         .map(
                                             i => ({

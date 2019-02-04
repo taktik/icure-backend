@@ -3080,7 +3080,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                         if (hcp && hcp.parentId) {
                             this.api.hcparty().getHealthcareParty(hcp.parentId).then(parentHcp => {
-                                if (parentHcp && parentHcp.type && parentHcp.type.toLower() === 'medicalhouse') {
+                                if (parentHcp && parentHcp.type && parentHcp.type.toLowerCase() === 'medicalhouse') {
                                     this.shadowRoot.getElementById("medicalHouseTabView").classList.remove("doNotDisplay")
                                     this.hcpParentMedicalHouseData = parentHcp
                                 } else {
