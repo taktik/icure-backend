@@ -159,6 +159,15 @@
                 --paper-fab: {background: var(--app-secondary-color);};
             }
 
+			.tKLabelSeparator{
+				width: 100%;
+				font-size: 12px;
+				margin-top: 1%;
+				margin-left: 1%;
+				background-color: rgb(236, 238, 240);
+				padding: 4px;
+			}
+
 
 		</style>
 
@@ -268,6 +277,9 @@
 										<dynamic-sub-form id="sf_[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" sub-contexts="[[_subForms(layoutItem,dataMap.*)]]"
 										 on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]" disabled="[[disabled]]" no-print="[[noPrint]]"></dynamic-sub-form>
+									</template>
+									<template is="dom-if" if="[[_isLabel(layoutItem)]]">
+										<div class="tKLabelSeparator">[[layoutItem.label]]</div>
 									</template>
 								</template>
 							</template>
@@ -649,6 +661,10 @@
 
 			_isMedicationField(layoutItem) {
 				return layoutItem.editor.key === 'MedicationTableEditor';
+			}
+
+            _isLabel(layoutItem){
+			    return layoutItem.editor.key === 'Label';
 			}
 
 			_isSubForm(layoutItem) {
