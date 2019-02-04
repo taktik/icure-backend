@@ -549,7 +549,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
 			<paper-icon-button id="changeLayoutButton" icon="dashboard" on-tap="_layoutDialog"></paper-icon-button>
 			<!-- <paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip> -->
-			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
+			<paper-tooltip  offset="4" for="changeLayoutButton">[[localize('edit_layout','Edit layout',language)]]</paper-tooltip>
 		</div>
 		<div id="gridContainer" class="grid-container ">
 			<template is="dom-repeat" items="{{widgets}}" as="widget">
@@ -558,13 +558,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-latestpat">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
@@ -588,13 +589,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-todayconsult" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-todayconsult">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
@@ -625,14 +627,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <span class="notif">[[unreadCount]]<span class="nomobile"> [[localize('are_not_read','unread',language)]]</span></span>
                                 </template>
                             </h1>
-                            <paper-icon-button icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
+                            <paper-icon-button id="refresh-latestlabs" icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-latestlabs" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="refresh-latestlabs">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                            <paper-tooltip for="settings-latestlabs">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
@@ -656,13 +660,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-todo" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
 									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-todo">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
@@ -696,7 +701,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</div>
 
 		<paper-dialog id="layoutDialog">
-			<h2 class="modal-title">Edit layout</h2>
+			<h2 class="modal-title">[[localize('edit_layout','Edit layout',language)]]</h2>
 			<div class="content">
 				<div id="layoutA" class$="layout-button layout-a [[_isSelected(selectedLayout, 'layoutA')]]" on-tap="setSelectedLayout">
 					<span style="--area:latestPatientsWidget;"></span>
