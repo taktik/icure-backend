@@ -560,8 +560,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]"  value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
@@ -591,8 +591,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-todayconsult" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
@@ -631,8 +631,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-latestlabs" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 								</div>
 							</paper-menu-button>
                             <paper-tooltip for="refresh-latestlabs">[[localize('refresh','Refresh',language)]]</paper-tooltip>
@@ -662,8 +662,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-todo" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
@@ -730,7 +730,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" on-tap="setFromSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('apply','Apply',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 

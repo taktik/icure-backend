@@ -1065,14 +1065,14 @@
                                         <template is="dom-if" if="[[_ifEattestSaved(item,item.printedDate)]]">
                                             <div class="he-edit-btn-container">
                                                 <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="downloadKmehr" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]-khmer" class="he-edit-btn" icon="vaadin:file-code" on-tap="downloadKmehr" data-item$="[[item.id]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]-xades" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
                                                 <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
+                                            <paper-tooltip position="left" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                         </template>
                                     </div>
                                 </div>

@@ -572,6 +572,7 @@
 
             .justify-content {
                 justify-content: space-between;
+                flex-flow: initial;
             }
 			.space-between{
 				justify-content: space-between;
@@ -690,8 +691,17 @@
                 width: 100%;
             }
 
+            div.subject {
+                flex-grow: 1;
+                overflow: hidden;
+                max-height: 88px;
+            }
+
             h2.subject {
                 margin: 24px 0;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
             }
 
             .message-box {
@@ -727,7 +737,7 @@
                 display: flex;
                 top: calc(50vh + 97px);
                 left: calc(16% + 20px);
-                width: 81vw;
+                width: calc(80vw - 12px);
                 height: auto;
                 max-height: calc(100vh - 97px);
                 transform: translateY(calc(-50% - 64px));
@@ -943,7 +953,7 @@
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
                         <div class="layout-horizontal justify-content">
-                            <div>
+                            <div class="subject">
                                 <h2 class="subject">[[msg.subject]]</h2>
                             </div>
                             <div class="layout-horizontal layout-horizontal--flex-end">
@@ -1403,6 +1413,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('selectName','')
         this.set('thisDocument',null)
         this.set('selectedProtocol',-1)
+    }
+
+    _getAssignedPats(m) {
+        if(m.assignedResults && m.assignedResults.length) {
+            Promise.all(Object.keys(m.assignedResults).forEach(key=>this.api.patient().getPatient(key)))
+                .then(pats=>{
+                    return pats
+                })
+        } else {
+            return []
+        }
     }
 
     _getPatsFromDoc(document) {
