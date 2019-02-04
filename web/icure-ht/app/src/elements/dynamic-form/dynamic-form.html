@@ -260,7 +260,7 @@
 										<dynamic-medication-field id="[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]"
 										 is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 										 linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_valueContainers(layoutItem,dataMap.*)]]"
-										 width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]" disabled="[[disabled]]"></dynamic-medication-field>
+										 width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]" disabled="[[disabled]]" create-treatment="[[_hasTreatmentCdItem(layoutItem.tags)]]"></dynamic-medication-field>
 									</template>
 									<template is="dom-if" if="[[_isSubForm(layoutItem)]]">
 										<dynamic-sub-form id="sf_[[_sanitizeId(layoutItem.name)]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]"
@@ -416,6 +416,10 @@
                 } else {
 				    this.notifyPath('dataMap.'+joinedId)
 				}
+			}
+
+            _hasTreatmentCdItem(tags) {
+			    return tags && tags.some(t => t.type === 'CD-ITEM' && t.code ==='treatment')
 			}
 
 			_displayedTitle() {

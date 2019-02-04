@@ -1191,8 +1191,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 50%;
                 top: 50%;
                 transform: translateX(-50%) translateY(-50%);
-                width:200px;
-                height:200px;
+                width:100px;
+                height:100px;
             }
 
         </style>
@@ -3050,9 +3050,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
                     //console.log("Before filter service "+(+new Date() - start))
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
-                        //console.log("After filter service"+(+new Date() - start))
-                        const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+                        const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
+
+                        const oneWeekAgo = moment().subtract(7)
+                        this.set('medications', _.sortBy(hesAsServices.filter(s =>
+                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
+                        ).map(m =>
+                            Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter)
+                        )
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3214,11 +3220,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }) // icc contact then end
 
-                    //console.log("Before filter svcs "+(+new Date() - start))
-                    const oneWeekAgo = moment().subtract(7)
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))).then(medications => {
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
-                    })
                     this._updateFilterPanels()
                 })
 
@@ -3868,11 +3869,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _medicationDetailValueChanged(e) {
+                //In case we get here coming from the prescription dialog by checking the checkbox
                 if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
                     this.currentMedicationDetailEventDetail.onValueChanged(e)
+                    if(e.detail.create) {
+                        const newMedication = _.cloneDeep(e.detail.medication)
+                        const medicationTag = 'CD-ITEM|medication|1.0'
+                        newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
+                        newMedication.label = this.localize('medication','medication',this.language)
+                        newMedication.id = this.api.crypto().randomUuid()
+
+                        this.saveNewService(this.api.contact().service().newInstance(this.api.user, newMedication)).then(() => this.refreshPatient())
+                    }
                 } else {
-                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+                    //Standard behaviour: create from medication button in left panel
+                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail.medication)).then(() => this.refreshPatient())
                 }
+
             }
 
 
@@ -3880,11 +3893,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
                     this.currentSelectMedicationEventDetail.onShowDetails(e)
                 } else {
-                    const medicationService = e.detail
-                    this.$['medication-detail'].open(e.detail, {
+                    const medicationService = e.detail.medication
+                    this.$['medication-detail'].open(e.detail.medication, {
                         id: medicationService.id,
                         medicationValue: (this.api.contact().preferredContent(medicationService, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
-                        isNew: true
+                        isNew: true,
+                        isPrescription: e.detail.isPrescription
                     });
                 }
             }

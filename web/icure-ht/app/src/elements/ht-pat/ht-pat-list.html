@@ -978,7 +978,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </template>
                     </div>
-
                 </div>
 
                 <div class="line">
@@ -1963,6 +1962,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _addPatient() {
                 this.checkForParentMedicalHouse()
+
+                this.set('firstName', null)
+                this.set('lastName', null)
+                this.set('dateAsString', null)
+                this.set('ssin', null)
+                this.set('valueGender', null)
+
                 this.$['add-patient-dialog'].open()
             }
 
