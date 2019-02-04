@@ -1538,7 +1538,7 @@
                                         _
                                             .chain( _.concat( results[0].rows, results[1].rows ) )
                                             .uniqBy( 'id' )
-                                            .filter((i)=>{ return i.type !== 'medicalHouse' })
+                                            .filter((i)=>{ return i.type.toLower() !== 'medicalhouse' })
                                             .value()
                                             .map(
                                                 i => ({
@@ -1656,7 +1656,7 @@
             }
 
 
-            _isMedicalHouse(hcpType) {return hcpType==="medicalHouse";}
+            _isMedicalHouse(hcpType) {return hcpType==="medicalhouse";}
 
             addressProChanged(){
                 if(!this.hcp)return;
