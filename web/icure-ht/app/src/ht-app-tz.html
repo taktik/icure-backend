@@ -572,8 +572,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 50%;
                 top: 50%;
                 transform: translateX(-50%) translateY(-50%);
-                width:100px;
-                height:100px;
+                width:200px;
+                height:200px;
             }
             #update-notification {
                 z-index: 1000;
@@ -699,6 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p><span>[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
+                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
                             </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
@@ -1667,8 +1669,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeCheck(period = 30000) {
                 setTimeout(() => {
-                    if (this.api.tokenId) {
-                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
+                    if (this.api.isMH ? this.api.tokenIdMH : this.api.tokenId) {
+                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.isMH ? this.api.tokenIdMH : this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
                                 this.uploadKeystoreAndCheckToken().then(() => {
                                     this._timeCheck()
@@ -1705,7 +1707,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 60000) {
+            _inboxMessageCheck(period = 600000) {
                 clearInterval(this.timeOutId)
                 if (this.EhboxCheckingActive == false) {
                     this.set('EhboxCheckingActive', true)
@@ -1724,11 +1726,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.authenticated = false
 
-                    this.worker && this.worker.terminate()
-
                     this.reset()
-                    this.set('routeData.page', '/')
-                    setTimeout(() => window.location.reload(), 100)
+
+                    this.worker && this.worker.terminate()
+                    this.set('view', 'auth')
                 } else {
                     console.log("page is -> " + page)
 
@@ -1799,14 +1800,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                {
+                    const isMH = hcp.type.toLowerCase() === 'medicalhouse';
+                    return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, isMH ? hcp.nihii.substr(0,8): hcp.ssin, this.api.keystoreId, isMH).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
                         this.$.eHealthStatus.classList.add('connected')
 
-                        this.set('api.tokenId', res.tokenId)
-                        this.set('api.token', res.token)
+                        this.set('api.isMH', isMH)
+                        if(isMH){
+                            this.credentials.ehpasswordMH = this.credentials.ehpassword
 
+                            this.set('api.keystoreIdMH', this.api.keystoreId)
+                            this.set('api.tokenIdMH', res.tokenId)
+                            this.set('api.tokenMH', res.token)
+                            this.set('api.nihiiMH', hcp.nihii)
+
+                            if(hcp.contactPersonHcpId){
+                                this.$.api.hcparty().getHealthcareParty(hcp.contactPersonHcpId).then(hcpCt =>{
+                                    this.set('api.MHContactPersonName', hcpCt.lastName + ' ' + hcpCt.firstName)
+                                    this.set('api.MHContactPersonSsin', hcpCt.ssin)
+                                });
+                            }
+
+                        }else {
+                            this.set('api.tokenId', res.tokenId)
+                            this.set('api.token', res.token)
+                        }
                         return res.tokenId
                     }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
@@ -1814,6 +1834,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.eHealthStatus.classList.add('disconnected')
                         throw(e)
                     })
+                }
                 )
             }
 
@@ -1929,7 +1950,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                     this._timeCheck()
-                    this._timeCheckMH()
+                    this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
                     this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
@@ -2008,8 +2029,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if(localStorage.getItem(kA) === val){
                             this.getDecryptedValueFromLocalstorage(this.user.healthcarePartyId, kA.replace("keychain.","keychain.password."))
                                 .then( password => {
-                                    this.credentials.ehpasswordMH = password
-                                    if (this.credentials.ehpasswordMH) {
+                                    if (password) {
+                                        this.credentials.ehpasswordMH = password
                                         const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage("MMH."+ this.user.healthcarePartyId)
                                         if (ehKeychain) {
                                             return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
@@ -2113,26 +2134,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
                 if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
-
-                    const getParents = (id, keyPairs) => this.api.hcparty().getHealthcareParty(id).then(hcp => {
-                        keyPairs[hcp.id] = this.api.crypto().RSA.loadKeyPairNotImported(id)
-                        if (hcp.parentId) {
-                            return getParents(hcp.parentId, keyPairs)
-                        }
-                        return keyPairs
-                    })
-
+                    const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
                     this.worker = new Worker()
 
-                    getParents(this.user.healthcarePartyId, {}).then(kp => this.getAlternateKeystores().then(alternateKeystores => {
+                    this.getAlternateKeystores().then(alternateKeystores => {
                         this.worker.postMessage({
                             action: "loadEhboxMessage",
                             hcpartyBaseApi: this.api.hcpartyLight(),
                             fhcHost: this.api.fhc().host,
                             fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                            language: this.language,
                             iccHost: this.api.host,
                             iccHeaders: JSON.stringify(this.api.headers),
                             tokenId: this.api.tokenId,
@@ -2141,9 +2153,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             ehpassword: this.credentials.ehpassword,
                             boxId: ["INBOX","SENTBOX"],
                             alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
-                            keyPairs: kp
+                            keyPair: keyPair
                         })
-				    }))
+				    })
 
                     this.worker.onmessage = e => {
                         this.set('ehboxWebWorkerMessage', e.data.message)
