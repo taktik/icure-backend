@@ -1191,8 +1191,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 50%;
                 top: 50%;
                 transform: translateX(-50%) translateY(-50%);
-                width:200px;
-                height:200px;
+                width:100px;
+                height:100px;
             }
 
         </style>
@@ -1437,7 +1437,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
                                     <paper-material id="ctc_[[contact.id]]"
                                                     elevation="0"
-                                                    class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
+                                                    class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate, contact.author, contact.responsible)]]"
                                                     on-click="openToast">
                                         <paper-item class="contact-text">
                                             <div class="contact-text-row contact-text-date">
@@ -1854,7 +1854,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
     </template>
     <script>
-
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
         import styx from '../../../scripts/styx';
@@ -2251,8 +2250,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return CT && CT.substring(2) !== '0' ? this._yesOrNo(true) : this._yesOrNo(false);
             }
 
-            _contactClasses(contact) {
-                return contact.closingDate ? '' : 'current-contact';
+            _contactClasses(contact, closingDate, author, responsible) {
+                return (closingDate || (author !== this.user.id && responsible !== this.user.healthcarePartyId)) ? '' : 'current-contact';
             }
 
             _openGenInsDialog(e){
@@ -3050,9 +3049,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
                     //console.log("Before filter service "+(+new Date() - start))
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
-                        //console.log("After filter service"+(+new Date() - start))
-                        const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+                        const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
+
+                        const oneWeekAgo = moment().subtract(7)
+                        this.set('medications', _.sortBy(hesAsServices.filter(s =>
+                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
+                        ).map(m =>
+                            Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter)
+                        )
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3091,16 +3096,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).concat(this.surgicalHealthElements).includes(he)))
                         })
 
-                        const unclosedContact = ctcs.find(c => !c.closingDate)
-                        const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs
-
-                        const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
-                            acc[s] = true
-                            return acc
-                        }, {})
+                        const unclosedContacts = ctcs.filter(c => !c.closingDate && (c.author === this.user.id || c.responsible === this.user.healthcarePartyId))
+                        const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1))
+                            .reduce((acc, s) => {
+                                acc[s] = true
+                                return acc
+                            }, {})
 
                         //console.log("Before scan ctcs "+(+new Date() - start))
-                        allContacts.forEach(ctc => {
+                        ctcs.forEach(ctc => {
                             ctc.healthElements = _.uniq(ctc.subContacts.map(sc => sc.planOfActionId && combinedHesWithHistory.find(he => he.plansOfAction.find(poa => poa.id === sc.planOfActionId)) || sc.healthElementId && combinedHesWithHistory.find(he => he.id === sc.healthElementId)).map(he => he && he.healthElementId)).filter(id => !!id).map(id => hesByHeId[id][0])
                             ctc.userDescr = this.api.template(descrPattern, ctc.services.filter(s => templateKeys[s.label] && !s.endOfLife).reduce((acc, v) => {
                                 acc[v.label] = !acc[v.label] ? this.shortServiceDescription(v, this.language) : acc[v.label] + "," + this.shortServiceDescription(v, this.language)
@@ -3121,20 +3125,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
 
                         //console.log("After scan ctcs "+(+new Date() - start))
-
-                        ;(unclosedContact && (
-                            this.api.moment(unclosedContact.openingDate).isBefore(moment().subtract(1,'days')) ?
-                                this.api.contact()
-                                    .modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate : parseInt(moment().format('YYYYMMDDHHmmss'))}))
-                                    .then(c => this.api.contact().newInstance(this.user, patient, {
-                                        descr: this.localize('contact_of_the_day','Contact of the day',this.language),
-                                        userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
-                                    })
-                                    )
-                                : Promise.resolve(unclosedContact)) ||
-                            this.api.contact().newInstance(this.user, patient, {
-                                descr: this.localize('contact_of_the_day','Contact of the day',this.language),
-                                userDescr: this.localize('contact_of_the_day','Contact of the day',this.language)
+                        const youngest = unclosedContacts.map(c => c.openingDate && this.api.moment(c.openingDate)).reduce((y, mc) => (mc && mc.isAfter(y)) ? mc : y, moment().subtract(1, 'days'))
+                        Promise.all(unclosedContacts.map(unclosedContact => {
+                            return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
+                                this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
+                                    .then(() => null)
+                                : Promise.resolve(unclosedContact)})
+                        )
+                        .then(ctcs =>
+                            _.compact(ctcs)[0] || this.api.contact().newInstance(this.user, patient, {
+                                descr: this.localize('contact_of_the_day', 'Contact of the day', this.language),
+                                userDescr: this.localize('contact_of_the_day', 'Contact of the day', this.language)
                             })
                         )
                         .then(newCtc => {
@@ -3214,11 +3215,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }) // icc contact then end
 
-                    //console.log("Before filter svcs "+(+new Date() - start))
-                    const oneWeekAgo = moment().subtract(7)
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))).then(medications => {
-                        this.set('medications', _.sortBy(medications.map(m => Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter))
-                    })
                     this._updateFilterPanels()
                 })
 
@@ -3867,11 +3863,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _medicationDetailValueChanged(e) {
+                //In case we get here coming from the prescription dialog by checking the checkbox
                 if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
                     this.currentMedicationDetailEventDetail.onValueChanged(e)
+                    if(e.detail.create) {
+                        const newMedication = _.cloneDeep(e.detail.medication)
+                        const medicationTag = 'CD-ITEM|medication|1.0'
+                        newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
+                        newMedication.label = this.localize('medication','medication',this.language)
+                        newMedication.id = this.api.crypto().randomUuid()
+
+                        this.saveNewService(this.api.contact().service().newInstance(this.api.user, newMedication)).then(() => this.refreshPatient())
+                    }
                 } else {
-                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+                    //Standard behaviour: create from medication button in left panel
+                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail.medication)).then(() => this.refreshPatient())
                 }
+
             }
 
 
@@ -3879,11 +3887,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
                     this.currentSelectMedicationEventDetail.onShowDetails(e)
                 } else {
-                    const medicationService = e.detail
-                    this.$['medication-detail'].open(e.detail, {
+                    const medicationService = e.detail.medication
+                    this.$['medication-detail'].open(e.detail.medication, {
                         id: medicationService.id,
                         medicationValue: (this.api.contact().preferredContent(medicationService, this.language) || (medicationService.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
-                        isNew: true
+                        isNew: true,
+                        isPrescription: e.detail.isPrescription
                     });
                 }
             }
