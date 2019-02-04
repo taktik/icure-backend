@@ -434,6 +434,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-bottom:32px;
             }
 
+            .save {
+                background: var(--app-secondary-color);
+                border-radius: 50%;
+                margin: 7px 36px;
+                padding: 4px;
+                cursor: pointer;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                transition: .25s ease;
+                width: 24px;
+                height: 24px;
+                text-align: center;
+                line-height: 24px;
+            }
+            .save iron-icon {
+                width: 20px;
+                margin-top: -3px;
+            }
+            .save:hover {
+                transform: scale(1.05);
+            }
+            .save:active {
+                background: var(--app-secondary-color-dark);
+                box-shadow: none;
+                transform: scale(.9);
+            }
         </style>
         <div class="administrative-panel">
             <paper-tabs selected="{{tabs}}">
@@ -442,6 +467,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:edit"></iron-icon>[[localize('adm_post_it','Post-it',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
+                <div class="save">
+                    <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                </div>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
@@ -1005,6 +1033,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.saveTimeout = undefined
             return this.saveAction()
         }
+    }
+
+    forceSaveAdmin() {
+        this.saveAction()
     }
 
     patientDataProvider(oroot, subPath, rootPath, id, codes) {
