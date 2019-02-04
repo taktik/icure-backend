@@ -699,8 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p><span>[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
-                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
-                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
+                                <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
                             </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
@@ -1669,8 +1669,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeCheck(period = 30000) {
                 setTimeout(() => {
-                    if (this.api.tokenId) {
-                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
+                    if (this.api.isMH ? this.api.tokenIdMH : this.api.tokenId) {
+                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.isMH ? this.api.tokenIdMH : this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
                                 this.uploadKeystoreAndCheckToken().then(() => {
                                     this._timeCheck()
@@ -1800,14 +1800,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                {
+                    const isMH = hcp.type.toLowerCase() === 'medicalhouse';
+                    return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, isMH ? hcp.nihii.substr(0,8): hcp.ssin, this.api.keystoreId, isMH).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
                         this.$.eHealthStatus.classList.add('connected')
 
-                        this.set('api.tokenId', res.tokenId)
-                        this.set('api.token', res.token)
+                        this.set('api.isMH', isMH)
+                        if(isMH){
+                            this.credentials.ehpasswordMH = this.credentials.ehpassword
 
+                            this.set('api.keystoreIdMH', this.api.keystoreId)
+                            this.set('api.tokenIdMH', res.tokenId)
+                            this.set('api.tokenMH', res.token)
+                            this.set('api.nihiiMH', hcp.nihii)
+
+                            if(hcp.contactPersonHcpId){
+                                this.$.api.hcparty().getHealthcareParty(hcp.contactPersonHcpId).then(hcpCt =>{
+                                    this.set('api.MHContactPersonName', hcpCt.lastName + ' ' + hcpCt.firstName)
+                                    this.set('api.MHContactPersonSsin', hcpCt.ssin)
+                                });
+                            }
+
+                        }else {
+                            this.set('api.tokenId', res.tokenId)
+                            this.set('api.token', res.token)
+                        }
                         return res.tokenId
                     }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
@@ -1815,6 +1834,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.eHealthStatus.classList.add('disconnected')
                         throw(e)
                     })
+                }
                 )
             }
 
@@ -1930,7 +1950,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                     this._timeCheck()
-                    this._timeCheckMH()
+                    this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
                     this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
@@ -2009,8 +2029,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if(localStorage.getItem(kA) === val){
                             this.getDecryptedValueFromLocalstorage(this.user.healthcarePartyId, kA.replace("keychain.","keychain.password."))
                                 .then( password => {
-                                    this.credentials.ehpasswordMH = password
-                                    if (this.credentials.ehpasswordMH) {
+                                    if (password) {
+                                        this.credentials.ehpasswordMH = password
                                         const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage("MMH."+ this.user.healthcarePartyId)
                                         if (ehKeychain) {
                                             return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
