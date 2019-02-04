@@ -2241,7 +2241,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _contactClasses(contact, closingDate, author, responsible) {
-                return (closingDate && (author === this.user.id || responsible === this.user.healthcarePartyId)) ? '' : 'current-contact';
+                return (closingDate || (author !== this.user.id && responsible !== this.user.healthcarePartyId)) ? '' : 'current-contact';
             }
 
             _openGenInsDialog(e){
@@ -3113,7 +3113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         //console.log("After scan ctcs "+(+new Date() - start))
                         const youngest = unclosedContacts.map(c => c.openingDate && this.api.moment(c.openingDate)).reduce((y, mc) => (mc && mc.isAfter(y)) ? mc : y, moment().subtract(1, 'days'))
                         Promise.all(unclosedContacts.map(unclosedContact => {
-                            (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
+                            return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
                                 this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
                                     .then(() => null)
                                 : Promise.resolve(unclosedContact)})
