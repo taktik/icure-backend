@@ -341,13 +341,19 @@
             }
 
             paper-tabs {
-                background: var(--app-secondary-color);
-                --paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+                /* background: var(--app-secondary-color);
+                --paper-tabs-selection-bar-color: var(--app-text-color-disabled); */
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 --paper-tabs_-_color: var(--app-text-color);
                 margin-top: 0;
                 flex-shrink: 0;
                 padding: 0;
             }
+
+            paper-tab{
+                --paper-tab-ink: var(--app-secondary-color);
+            }
+            
             .add-col {
                 display: flex;
                 position: absolute;
@@ -400,65 +406,66 @@
         <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
-            <paper-tabs selected="{{selectedTab}}">
-                <paper-tab>
-                    <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>[[localize('tab_vie','Table view',language)]]
-                </paper-tab>
-                <paper-tab>
-                    <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>[[localize('lis_vie','List view',language)]]
-                </paper-tab>
-            </paper-tabs>
-
-
-            <div class="regimen-line display-type-regimen">
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                    <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
-                                 disabled="true"></paper-input>
-                </template>
-                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                    <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
-                                 disabled="true"></paper-input>
-                </template>
-
-                    <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
-                                        class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
-                    <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
-                                        class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
-            </div>
-            <div class="regimen-line display-type-regimen">
-                <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb', 'Reimbursement', language)]]" class="regimen--reimbursement">
-                    <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
-                        <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
-                            <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
-                        </template>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-
-
-                <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
-                <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
-                <template is="dom-if" if="[[isRenewal]]">
-                    <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
-                    <div>x tous les</div>
-                    <paper-input type="number" min="0" value="{{renewalDurationValue}}"></paper-input>
-                    <paper-dropdown-menu id="medicRenewalTimeUnit" label="[[localize('time_unit','Time unit',language)]]" class="regimen--renewalTimeUnit">
-                        <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
-                            <template is="dom-repeat" items="[[timeUnit]]" as="tu">
-                                <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
+           
+            <div class="content">
+                <paper-tabs selected="{{selectedTab}}">
+                    <paper-tab>
+                        <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>[[localize('tab_vie','Table view',language)]]
+                    </paper-tab>
+                    <paper-tab>
+                        <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>[[localize('lis_vie','List view',language)]]
+                    </paper-tab>
+                </paper-tabs>
+        
+        
+                <div class="regimen-line display-type-regimen">
+                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+                        <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
+                                        disabled="true"></paper-input>
+                    </template>
+                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+                        <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
+                                        disabled="true"></paper-input>
+                    </template>
+    
+                        <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
+                                            class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
+                        <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
+                                            class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
+                </div>
+                <div class="regimen-line display-type-regimen">
+                    <paper-dropdown-menu id="medicReimbursement" label="[[localize('presc_reimb', 'Reimbursement', language)]]" class="regimen--reimbursement">
+                        <paper-listbox slot="dropdown-content" class="dropdown-reimbursement" selected={{reimbursementItemIdx}} selected-item="{{reimbursementItem}}">
+                            <template is="dom-repeat" items="[[reimbursementCodeRecipe]]" as="code">
+                                <paper-item id="[[code.id]]">[[_getCodeLabel(code.label)]]</paper-item>
                             </template>
                         </paper-listbox>
                     </paper-dropdown-menu>
-                </template>
-            </div>
-
-            <div class="regimen-line display-type-regimen">
-                <paper-input-container always-float-label="true" class="comment">
-                    <label slot="label" class="color-status">[[localize('com-rec-for-phar','Comment recip-e for pharmacist',language)]]</label>
-                    <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
-                </paper-input-container>
-            </div>
-
-            <div class="content">
+    
+    
+                    <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
+                    <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
+                    <template is="dom-if" if="[[isRenewal]]">
+                        <paper-input type="number" min="0" value="{{renewalDecimalValue}}"></paper-input>
+                        <div>x tous les</div>
+                        <paper-input type="number" min="0" value="{{renewalDurationValue}}"></paper-input>
+                        <paper-dropdown-menu id="medicRenewalTimeUnit" label="[[localize('time_unit','Time unit',language)]]" class="regimen--renewalTimeUnit">
+                            <paper-listbox slot="dropdown-content" class="dropdown-renewalTimeUnit" selected={{renewalTimeUnitIdx}} selected-item="{{renewalDurationUnitItem}}">
+                                <template is="dom-repeat" items="[[timeUnit]]" as="tu">
+                                    <paper-item id="[[tu.id]]">[[_getCodeLabel(tu.label)]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </template>
+                </div>
+    
+                <div class="regimen-line display-type-regimen">
+                    <paper-input-container always-float-label="true" class="comment">
+                        <label slot="label" class="color-status">[[localize('com','Comment',language)]]</label>
+                        <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
+                    </paper-input-container>
+                </div>
+            
                     <div class="regimen-lines">
                         <div class="regimen-line regimen-add">
                                 <div class="add-first-regimen">
@@ -1216,7 +1223,7 @@
             _substitutionAllowedChanged(e){
                 this.set('selectedMedicationContentWithId.medicationValue.substitutionAllowed', e.target.checked)
             }
-            
+
             _renewalValueChanged(e){
                 this.set('isRenewal', e.target.checked)
                 if(e.target.checked === false){
