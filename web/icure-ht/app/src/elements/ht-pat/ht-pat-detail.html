@@ -2998,7 +2998,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const combinedHes = (this.activeHealthElements || []).concat(this.inactiveHealthElements || []).concat(this.archivedHealthElements || []).concat(this.allergies || []).concat(this.risks || []).concat(this.familyrisks || []).concat(this.surgicalHealthElements || [])
                     const idServicesInHes = combinedHes.map(he => he.idService)
 
-                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id))
+                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id))
                     const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
 
                     const now = moment()
@@ -3040,7 +3040,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
                     //console.log("Before filter service "+(+new Date() - start))
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication', 'surgery', 'professionalrisk'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
 
                         const oneWeekAgo = moment().subtract(7)
@@ -3074,7 +3074,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('inactiveHealthElements', combinedHes.filter(it => ( it.closingDate && this.api.moment(it.closingDate).isBefore( now ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
                             this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION') && (c.code === 'allergy' || c.code === 'adr'))))
-                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
+                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk' || c.code === 'professionalrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
                             this.set('surgicalHealthElements', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'surgery')))
 
