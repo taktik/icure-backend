@@ -973,8 +973,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.api.queue(patient, 'patient').then(([pat, defer]) => {
                 if (pat.rev !== rev) { defer.resolve(patient); return }
 
-                ((this.patient.partnerships && this.patient.partnerships.length) ?
-                    Promise.all(this.patient.partnerships.map((partner, index) => {
+                ((patient.partnerships && patient.partnerships.length) ?
+                    Promise.all(patient.partnerships.map((partner, index) => {
 
                         if (!partner.partnerId || !partner.partnerInfo.rev) {
                             //patient not present
@@ -1024,7 +1024,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             })
         }
 
-        this.saveTimeout = setTimeout(this.saveAction, 10000);
+        this.saveTimeout = setTimeout(this.saveAction, 5000);
     }
 
     flushSave() {

@@ -2283,7 +2283,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
                         this.set('patient.gender', this.curGenInsResp.sex);
 
-                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
+                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
                             this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
                             this.patient && (this.set('patient.rev', p.rev))
                         })
@@ -3275,7 +3275,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
                         patient.ssin,
                         this.api.tokenId ? this.api.tokenId : this.api.tokenIdMH, this.api.tokenId ? this.api.keystoreId : this.api.keystoreIdMH, this.api.tokenId ? this.api.credentials.ehpassword : this.api.credentials.ehpasswordMH,
-                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null).then(gi => {
+                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null
+                    ).then(gi => {
                         const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length)
                         const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()))
 
