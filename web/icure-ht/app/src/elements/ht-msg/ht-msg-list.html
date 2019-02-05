@@ -494,17 +494,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <div class="actions">
                     <template is="dom-if" if="[[!checkedMessages.length]]">
-                        <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh"></paper-icon-button>
-                        <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                        <template is="dom-if" if="[[refreshAllowed]]">
+                            <paper-icon-button id="refresh-button" icon="icons:refresh" on-tap="_refresh" disabled="[[!refreshAllowed]]"></paper-icon-button>
+                            <paper-tooltip for="refresh-button" offset="2">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                        </template>
+                        <!--<template is="dom-if" if="[[!refreshAllowed]]">[[localize('refresh_delay','Refresh delay',language)]]: 10min</template>-->
                     </template>
                     <template is="dom-if" if="[[checkedMessages.length]]">
-                        <!--&lt;!&ndash; TODO: multiple restore or delete in trash &ndash;&gt;-->
-                        <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
-                            <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
-                            <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
-                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_msgToBin"></paper-icon-button>-->
-                            <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
-                        <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
                             <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'hidden')]]">
                                 <paper-icon-button id="hide-button" icon="visibility-off" on-tap="_hideMsg"></paper-icon-button>
@@ -801,6 +797,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     actualCapacity: {
                         type: Number,
                         value: 0
+                    },
+                    refreshAllowed: {
+                        type: Boolean
                     }
                 };
             }
@@ -816,6 +815,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready();
                 this._getBoxCapacity()
+                this._isRefreshAllowed()
             }
 
             _getBoxCapacity() {
@@ -868,6 +868,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 let end = (page + 1) * grid.pageSize;
                 grid.items = messages.slice(start, end);
                 grid.clearCache()
+            }
+
+            _isRefreshAllowed() {
+                const lastLoad = localStorage.getItem('lastEhboxRefresh') ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
+                const allowed = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1) ? true : false
+                this.set('refreshAllowed',allowed)
             }
 			_newMsg(){
 				this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
@@ -1034,6 +1040,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => {
                     this.set('messages', messages || [])
                     this._deselectAll()
+                    this._isRefreshAllowed()
                 });
             }
             getUnassigned(){ // unassigned labresult
@@ -1047,6 +1054,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => {
                     this.set('messages', messages || [])
                     this._deselectAll()
+                    this._isRefreshAllowed()
                 });
             }
 
@@ -1195,6 +1203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                 this._getBoxCapacity()
+                this._isRefreshAllowed()
                 this._deselectAll();
             }
 
