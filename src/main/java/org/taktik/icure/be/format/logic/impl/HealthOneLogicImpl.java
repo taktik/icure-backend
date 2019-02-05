@@ -105,8 +105,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
 	*/
 	@Override
-	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException {
-		String text = decodeRawData(doc.getAttachment());
+	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException {
+		String text = decodeRawData(doc.decryptAttachment(enckeys));
 		if (text != null) {
 			Reader r = new StringReader(text);
 
@@ -369,9 +369,9 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc, boolean full, String language) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
-		BufferedReader br = getBufferedReader(doc);
+		BufferedReader br = getBufferedReader(doc, enckeys);
 		long position = 0;
 
 		String line = br.readLine();
@@ -762,8 +762,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	@Override
-	public boolean canHandle(Document doc) throws IOException {
-		BufferedReader br = getBufferedReader(doc);
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
+		BufferedReader br = getBufferedReader(doc, enckeys);
 
 		String firstLine = br.readLine();
 		br.close();

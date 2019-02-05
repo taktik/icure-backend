@@ -270,7 +270,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             let list =[];
 
 
-            ;(this.hcp.type==="medicalHouse" ? this.api.hcparty().listHealthcareParties( null,null, 1000,"asc").then(hcps =>{
+            ;(this.hcp.type.toLowerCase()==="medicalhouse" ? this.api.hcparty().listHealthcareParties( null,null, 1000,"asc").then(hcps =>{
                 hcpList = hcps && hcps.rows
             }) : Promise.resolve(this.hcp.type)).then(x=>{
                 return hcpList.map(hcp =>{

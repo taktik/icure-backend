@@ -56,6 +56,35 @@
 				min-height: 30px;
 			}
 
+			.fancy {
+				line-height: 0.5;
+				text-align: center;
+				height: 18px;
+			}
+			.fancy span {
+				display: inline-block;
+				position: relative;
+				font-size: 11px;
+				color: var(--app-text-color-disabled);
+			}
+			.fancy span:before,
+			.fancy span:after {
+				content: "";
+				position: absolute;
+				height: 5px;
+				border-bottom: 1px solid var(--app-secondary-color);
+				border-top: 1px solid var(--app-secondary-color-light);
+				top: 0;
+				width: 600px
+			}
+			.fancy span:before {
+				right: 100%;
+				margin-right: 15px;
+			}
+			.fancy span:after {
+				left: 100%;
+				margin-left: 15px;
+			}
 		</style>
 
 		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate, contact)]]">
@@ -70,7 +99,7 @@
 			</dynamic-form>
 		</template>
 		<template is="dom-if" if="[[_shouldDisplaySummary(form, form.deletionDate, contact)]]">
-			<div>[[form.template.name]] [[localize('from','from',language)]] [[_contactDescr(form.contactId, contacts)]] [[localize('mod_in_contact','has been modified in this contact')]]</div>
+			<div class="fancy"><span>[[localize('modification_of','Modification of',language)]] [[form.template.name]] [[localize('of','of',language)]] [[_dateFormat(contact.openingDate)]]</span></div>
 		</template>
 
 	</template>
@@ -180,12 +209,16 @@
                 this.flushSave();
             }
 
+            _dateFormat(date) {
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
+            }
+
             _shouldDisplay(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id === form.contactId
+                return form && !form.deletionDate && this.contact && (!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _shouldDisplaySummary(form) {
-                return form && !form.deletionDate && this.contact && this.contact.id !== form.contactId
+                return form && !form.deletionDate && this.contact && !(!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {
@@ -857,15 +890,27 @@
                             }
                         });
                     },
-                    filter: (data, text, uuid) => {
-						const uuids = (self.uuids || (self.uuids = {}))
+                    filter: (data, text, uuid, comboBoxFirstHit=false) => {
+                        const uuids = (self.uuids || (self.uuids = {}))
 						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
-                        const words = text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+                        const words = ( comboBoxFirstHit || (!comboBoxFirstHit && data.source === "codes" && _.trim(uuid) && !_.trim(text)) ) ? [""] : text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+
+                        // if(!comboBoxFirstHit) {
+                        //     console.log("--- FILTER ---");
+                        //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                        //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                        //     console.log("UUID:" +_.trim(uuid));
+                        //     console.log("TEXT:" +_.trim(text));
+                        //     console.log("WORDS:" +words);
+                        //     console.log( "reqIdx: " + reqIdx );
+                        //     console.log( uuids );
+                        //     console.log( uuid );
+                        //     console.log( reqIdx<uuids[uuid] )
+                        // }
 
                         return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
                             const typeLng = this.api.code().languageForType(ct.type, this.language);
                             const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
-
 							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
                                     '$type': 'CodeByRegionTypeLabelLanguageFilter',
                                     'region': 'be',
@@ -874,9 +919,38 @@
 									'label':w
                                 }))}})
                             .then(results => {
-                                if (reqIdx<uuids[uuid]) {
-                                    return []
-								}
+
+                                // if( ["CD-INCAPACITY", "CD-INCAPACITYREASON"].indexOf(_.get(data, "types[0].type", "" )) > -1 ) {
+                                //     console.log("--- FILTER ---");
+                                //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                                //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                                //     console.log("UUID:" +_.trim(uuid));
+                                //     console.log("TEXT:" +_.trim(text));
+                                //     console.log("WORDS:" +words);
+                                //     console.log(results);
+                                //     console.log( "reqIdx: " + reqIdx );
+                                //     console.log( uuids );
+                                //     console.log( uuid );
+                                //     console.log( reqIdx<uuids[uuid] );
+                                //     console.log("--- RETURN ---")
+                                //     console.log(
+                                //         _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                //             codeId: code.id,
+                                //             stringValue: code.label[typeLng],
+                                //             codes: [code].concat(code.links && code.links.map(c => ({
+                                //                 id: c,
+                                //                 type: c.split('|')[0],
+                                //                 code: c.split('|')[1],
+                                //                 version: c.split('|')[2]
+                                //             })) || []),
+                                //             id: code.id,
+                                //             name: code.label[typeLng]
+                                //         })), sorter)
+                                //     );
+                                // }
+
+                                if (reqIdx<uuids[uuid] && !comboBoxFirstHit) { return [] }
+
                                 return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
                                     codeId: code.id,
                                     stringValue: code.label[typeLng],
@@ -891,7 +965,7 @@
                                 })), sorter)
                             });
 
-                        })).then(responses => (reqIdx<uuids[uuid]) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
+                        })).then(responses => (reqIdx<uuids[uuid] && !comboBoxFirstHit) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;

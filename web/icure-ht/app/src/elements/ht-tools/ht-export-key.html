@@ -36,7 +36,7 @@
                 padding: 10px 1.2em;
                 text-transform: capitalize;
 			}
-			
+
 			.content{
 				min-height: 400px;
 				position: relative;
@@ -227,7 +227,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
             marginTop: 5,
             marginBottom: 5
         })
-            .then(data => {
+            .then(({pdf:data, printed:printed}) => {
                 let blob = new Blob([data], {type: 'application/pdf'});
                 let url = window.URL.createObjectURL(blob)
                 let a = document.createElement("a");

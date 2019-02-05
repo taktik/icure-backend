@@ -474,9 +474,9 @@
                         mppInfos.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = mppInfos.atcCode)
 
                         if (this.selectedMedicationContentWithId.isNew) {
-                            this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                            this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
                         } else {
-                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:this.newMedication, bubbles: true, composed: true}))
+                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
                         }
                     })
                 } else {
@@ -510,9 +510,9 @@
                     this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 
                     if (this.selectedMedicationContentWithId.isNew) {
-                        this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                        this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                     } else {
-                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                     }
                 }
             }
@@ -522,7 +522,7 @@
                     const selected = this.selectedChronicalMedicationFromList
                     console.log('selected ',selected);
                     this.$['medication-selection'].close();
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:selected, bubbles: true, composed: true}))
+                    this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:_.cloneDeep(_.omit(selected, ['id'])), isPrescription:this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                 }
             }
 

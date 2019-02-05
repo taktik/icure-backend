@@ -338,7 +338,7 @@
             if (epochOrLongCalendar >= 18000101 && epochOrLongCalendar < 25400000) {
                 return moment('' + epochOrLongCalendar, 'YYYYMMDD');
             } else if (epochOrLongCalendar >= 18000101000000) {
-                return moment('' + epochOrLongCalendar, 'YYYYMMDDhhmmss');
+                return moment('' + epochOrLongCalendar, 'YYYYMMDDHHmmss');
             } else {
                 return moment(epochOrLongCalendar);
             }
@@ -375,6 +375,22 @@
             if (promise) { return promise }
 
             return (cache[key] = this.getRowsUsingPagination(paginator))
+        }
+
+        shortLivedCache(key, loader) {
+            const cache = this.slCache || ((this.slCache = {}))
+            const clean = () => { const now = +new Date(); Object.keys(cache).filter(k =>  cache[k].ttl < now ).forEach(k => delete cache[k]); console.log(`slc: ${cache.length} items`) }
+            const wrapper = cache[key]
+            if (wrapper) {
+                this.cleaner && clearTimeout(this.cleaner)
+                this.cleaner = setTimeout(() => clean(), 35000)
+                wrapper.ttl = +new Date() + 30000
+                return wrapper.promise
+            }
+
+            this.cleaner && clearTimeout(this.cleaner)
+            this.cleaner = setTimeout(() => clean(), 35000)
+            return (cache[key] = {ttl:+new Date() + 30000, promise:loader()}).promise
         }
 
         getRowsUsingPagination(paginator) {
@@ -470,10 +486,10 @@
                         method: "POST",
                         mode: "cors", // no-cors, cors, *same-origin
                         credentials: "same-origin", // include, same-origin, *omit
-                        headers: {"Content-Type": "text/html; charset=utf-8",},
+                        headers: {"Content-Type": "text/html; charset=utf-8"},
                         redirect: "follow",
                         body: html,
-                    }).then(response => response.arrayBuffer())
+                    }).then(response => response.arrayBuffer()).then(data => ({pdf: data, printed: electron && printerName}))
                 )
             })
         }

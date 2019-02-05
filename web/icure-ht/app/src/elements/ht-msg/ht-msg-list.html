@@ -22,6 +22,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <link rel="import" href="../ht-spinner/ht-spinner.html">
@@ -285,14 +288,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .table-top > div {
                     display: flex;
                     flex-direction: row;
-                    justify-content: space-between;
                     z-index: 1;
                 }
                 .table-top > div > div {
                     text-align: center;
                 }
                 .table-top > div.indicators {
-                    flex-grow: 1;
                     justify-content: flex-end;
                     padding-right: 24px;
                 }
@@ -309,8 +310,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: inline-block;
                 }
                 .table-top > div.actions {
+                    flex-grow: 1;
                     margin: 0 16px;
                 }
+                .table-top paper-dropdown-menu#filterLabresult {
+                    min-width: 256px;
+                    margin-left: 22%;
+                }
+
                 .table-top > div.actions paper-icon-button {
                     margin: 8px 0;
                 }
@@ -348,7 +355,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
-                    height: 100%;
+                    flex-grow: 1;
+                    margin-bottom: 16px;
                 }
 
                 #mail-list iron-icon{
@@ -356,6 +364,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 18px;
                     width: 18px;
                     padding: 4px;
+                }
+
+                .labicon {
+                    content: '';
+                    display: block;
+                    height: 8px;
+                    width: 8px;
+                    margin: 0 auto;
+                    border-radius: 50%;
+                    background: var(--app-status-color-ok);
+                }
+                .labicon.unassigned-true {
+                    background: var(--app-status-color-nok);
+                }
+                .actions .labicon {
+                    margin: 8px;
                 }
 
                 .get-msg-btn{
@@ -412,8 +436,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
-
-
+                @media screen and (max-width:1696px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        margin-left: 0;
+                    }
+                }
                 @media screen and (max-width:1025px) {
                     .col-right {
                         width: 100vw;
@@ -426,12 +453,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
+                @media screen and (max-width: 800px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        min-width: 0;
+                        margin-left: initial;
+                    }
+                    .mb4 span {
+                        display: none;
+                    }
+                    #capacity-indicator paper-progress {
+                        width: 64px;
+                    }
+                }
+                @media screen and (max-width:1025px) {
+                    .col-right {
+                        width: 100vw;
+                        transition: all .5s ease;
+                        box-shadow: none;
+                    }
+
+                    ht-spinner.center {
+                        left: 50vw;
+                    }
+                }
+
+                @media screen and (max-width: 800px) {
+                    .table-top paper-dropdown-menu#filterLabresult {
+                        min-width: 0;
+                        margin-left: initial;
+                    }
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="table-top">
                 <div class="checkbox">
-                    <vaadin-checkbox id="checkerAll" on-checked-changed="_toggleSelectAll"></vaadin-checkbox>
+                    <vaadin-checkbox id="checkerAll" on-tap="_toggleSelectAll" checked$="[[allSelected]]"></vaadin-checkbox>
                 </div>
 
                 <div class="actions">
@@ -444,13 +502,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <!--<template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">-->
                             <!--<paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs"></paper-icon-button>-->
                             <!--<paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>-->
-                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>-->
+                            <!--<paper-icon-button id="del-button" icon="delete" on-tap="_msgToBin"></paper-icon-button>-->
                             <!--<paper-tooltip for="del-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>-->
                         <!--</template>-->
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
-                            <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                            <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'hidden')]]">
+                                <paper-icon-button id="hide-button" icon="visibility-off" on-tap="_hideMsg"></paper-icon-button>
+                            </template>
+                            <paper-tooltip for="hide-button" offset="2">[[localize('hide_sel','Hide selected',language)]]</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'hidden')]]">
+                            <paper-icon-button id="show-button" icon="undo" on-tap="_hideMsg"></paper-icon-button>
+                            <paper-tooltip for="show-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="del-button" icon="delete" on-tap="_msgToBin"></paper-icon-button>
                             <paper-tooltip for="del-button" offset="2">[[localize('del_sel','Delete selected',language)]]</paper-tooltip>
                         </template>
+                        <template is="dom-if" if="[[_isEqual(selectList.selection.item,'trash')]]">
+                            <paper-icon-button id="restore-button" icon="undo" on-tap="_outOfBin"></paper-icon-button>
+                            <paper-tooltip for="restore-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
+                            <!--<paper-icon-button id="del-for-button" icon="delete-forever" on-tap="_deleteMsgsForever"></paper-icon-button>-->
+                            <paper-tooltip for="del-for-button" offset="2">[[localize('del_forever','Delete forever',language)]]</paper-tooltip>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[isLabresultBox]]">
+                        <paper-dropdown-menu id="filterLabresult" label="[[localize('filter','Filter',language)]]">
+                            <paper-listbox selected="{{selectedLabFilter}}" slot="dropdown-content">
+                                <paper-item class="link" on-tap="getLabResult">[[localize('show_all','Show all',language)]]</paper-item>
+                                <paper-item class="link" on-tap="getUnassigned"><div class="labicon unassigned-true" id="show-unassigned"></div> [[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>
+                                <paper-item class="link" on-tap="getAssigned"><div class="labicon unassigned-false" id="show-assigned"></div> [[localize('assigned_labresults','assigned lab results',language)]]</paper-item>
+                            </paper-listbox >
+                        </paper-dropdown-menu>
+                        <!--<paper-tooltip for="show-all" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>-->
+                        <!--<paper-tooltip for="show-unassigned" offset="0">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-tooltip>-->
+                        <!--<paper-tooltip for="show-assigned" offset="0">[[localize('assigned_labresults','assigned lab results',language)]]</paper-tooltip>-->
+                        <!--[[localize('assigned_labresults','assigned lab results',language)]]-->
                     </template>
                 </div>
 
@@ -481,6 +568,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <vaadin-checkbox on-checked-changed="_itemSelected" data-item$="[[item]]" class="checkbox"></vaadin-checkbox>
                             </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="44px">
+                            <template class="header">
+                                <iron-icon id="hasLab-header" icon="icons:assignment"></iron-icon>
+                                <paper-tooltip position="right" for="hasLab-header">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[hasLabResult(item)]]">
+                                    <div id="hasLab-[[item.id]]" class$="labicon unassigned-[[isUnassigned(item)]]"></div>
+                                    <template is="dom-if" if="[[isUnassigned(item)]]">
+                                        <paper-tooltip position="right" for="hasLab-[[item.id]]">[[localize('un_attachs','Unassigned Lab Results',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[!isUnassigned(item)]]">
+                                        <paper-tooltip position="right" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
+                                    </template>
+                                </template>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="104px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received" direction="asc">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
@@ -490,7 +594,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="0" width="48px">
+                            <template class="header">
+                                <iron-icon icon="mail" id="unread-icon"></iron-icon>
+                                <paper-tooltip position="right" for="unread-icon">[[localize('is_read','read',language)]]</paper-tooltip>
+                            </template>
                             <template>
+                                <template is="dom-if" if="[[!isUnread(item)]]">
+                                    <iron-icon icon="done" id="read-[[item.id]]"></iron-icon>
+                                    <paper-tooltip position="right" for="read-[[item.id]]">[[localize('is_read','read',language)]]</paper-tooltip>
+                                </template>
                                 <template is="dom-if" if="[[isUnread(item)]]">
                                     <iron-icon icon="mail" id="unread-[[item.id]]"></iron-icon>
                                     <paper-tooltip position="right" for="unread-[[item.id]]">[[localize('is_not_read','not read',language)]]</paper-tooltip>
@@ -499,39 +611,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-column>
                         <vaadin-grid-column flex-grow="1">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
+                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b>
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
                                 <div class="cell frozen">
                                     <template is="dom-if" if="[[!isUnread(item)]]">
-                                        [[item.fromAddress]] - [[item.subject]]
+                                        [[item.fromAddress]]
                                     </template>
                                     <template is="dom-if" if="[[isUnread(item)]]">
-                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]] - [[item.subject]]</span>
+                                        <span class="unread-msg" id="unread-[[item.id]]-title">[[item.fromAddress]]</span>
                                         <paper-tooltip position="left" for="unread-[[item.id]]-title">[[localize('is_not_read','not read',language)]]</paper-tooltip>
                                     </template>
                                 </div>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="138px" flex-grow="0">
+                        <vaadin-grid-column flex-grow="3">
+                            <template class="header">
+                                <vaadin-grid-sorter path="subject">[[localize('sub','Subject',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
                             <template>
-                                <template is="dom-if" if="[[isImportant(item)]]">
-                                    <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
-                                    <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
+                                <div class="cell frozen">
+                                    [[item.subject]]
+                                </div>
+                            </template>
+                        </vaadin-grid-column>
+
+                        <template is="dom-if" if="[[hasLabResult(item)]]">
+                            <vaadin-grid-column flex-grow="1">
+                                <template class="header">
+                                    [[localize('pat','Patient',language)]]
                                 </template>
-                                <template is="dom-if" if="[[isCrypted(item)]]">
-                                    <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
-                                    <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
+                                <template>
+                                    <template is="dom-repeat" items="[[_getResInfos(msg)]]" as="resInfo">[[resInfo.firstName]] [[resInfo.lastName]], </template>
                                 </template>
-                                <template is="dom-if" if="[[hasAnnex(item)]]">
-                                    <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
-                                    <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
-                                </template>
-                                <template is="dom-if" if="[[hasLabResult(item)]]">
-                                    <iron-icon id="hasLab-[[item.id]]" icon="icons:assignment"></iron-icon>
-                                    <paper-tooltip position="left" for="hasLab-[[item.id]]">[[localize('boxtitle.labResult','Lab results',language)]]</paper-tooltip>
-                                </template>
+                            </vaadin-grid-column>
+                        </template>
+
+                        <vaadin-grid-column width="138px" flex-grow="0">
+                            <template class="header">
+
+                            </template>
+                            <template>
+                                <div style="text-align:right;">
+                                    <template is="dom-if" if="[[isImportant(item)]]">
+                                        <iron-icon id="important-[[item.id]]" icon="warning"></iron-icon>
+                                        <paper-tooltip position="left" for="important-[[item.id]]">[[localize('significant','important',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[isCrypted(item)]]">
+                                        <iron-icon id="crypted-[[item.id]]" icon="lock"></iron-icon>
+                                        <paper-tooltip position="left" for="crypted-[[item.id]]">[[localize('encrypted','encrypted',language)]]</paper-tooltip>
+                                    </template>
+                                    <template is="dom-if" if="[[hasAnnex(item)]]">
+                                        <iron-icon id="hasAnnex-[[item.id]]" icon="editor:attach-file"></iron-icon>
+                                        <paper-tooltip position="left" for="hasAnnex-[[item.id]]">[[localize('attachments','attachments',language)]]</paper-tooltip>
+                                    </template>
+                                </div>
                             </template>
                         </vaadin-grid-column>
                     </template>
@@ -649,6 +785,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     capacityPercent: {
                         type: Number,
                         value: 0
+                    },
+                    isLabresultBox: {
+                        type: Boolean,
+                        value: false
+                    },
+                    allSelected: {
+                        type: Boolean,
+                        value: null
+                    },
+                    selectedLabFilter: {
+                        type: Number,
+                            value: 0
+                    },
+                    actualCapacity: {
+                        type: Number,
+                        value: 0
                     }
                 };
             }
@@ -680,6 +832,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            _getResInfos(msg) {
+                this.api.document().findByMessage(this.user.healthcarePartyId, msg)
+                    .then(docs => {
+                        if (docs.length) {
+                            let resInfos = []
+                            return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+                                .map(doc => {
+                                    this.api.beresultimport().canHandle(doc.id).then(isResult => {
+                                        if (isResult) {
+                                            this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
+                                                resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
+                                            })
+                                        }
+                                    })
+                                }) || resInfos
+                        } else return ['N/A']
+                    })
+            }
+
             _isPage(page,item) {return page === item -1}
             _selectPage(e) {this.set('page',e.model.item -1)}
             _prevPage(e) {this.set('page',Math.max(0, this.page - 1))}
@@ -708,8 +879,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDatesAndGUID(messages.rows)
                         .filter(msg => msg.fromAddress !== 'EFACT')
                         .filter(msg => !msg.transportGuid.startsWith('BIN'))
-                        .filter(m=>!m.transportGuid.startsWith('PROSE:'));
-                }).then(messages => this.set('messages', messages || []));
+                        .filter(m=>!m.transportGuid.startsWith('PROSE:'))
+                        .filter(m=>!m.transportGuid.startsWith('HIDDEN'))
+                }).then(messages => {
+                    this.set('messages', messages || [])
+                    this._deselectAll()
+                });
             }
 
             getEheIn(){
@@ -732,17 +907,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return (m.status & (1 << 4)) !== 0 ? true : false
             }
             hasLabResult(m) {
-                if (m.assignedResults && m.unassignedResults) {
-                    return (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false
-                } else {
-                    return false
-                }
+                return (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length || m.unassignedResults.length)) ? true : false
+            }
+            isUnassigned(m) {
+                return (m.unassignedResults.length > 0) ? true : false
             }
 
             getUnreadEmail() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if (!(m.status & 1 << 1 == 0)) {//status unread
+                        if (this.isUnread(m)) {//status unread
                             acc.push(m)
                         }
                         return acc
@@ -753,7 +927,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
+                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(m=>!m.transportGuid.startsWith('HIDDEN'));
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -773,13 +947,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
-                        if ((m.assignedResults && m.unassignedResults) && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
+                        if (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
                             acc.push(m)
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN'));
-                }).then(messages => this.set('messages', messages || []));
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(msg => !msg.transportGuid.startsWith('HIDDEN'));
+                }).then(messages => {
+                    this.set('messages', messages || [])
+                    this._deselectAll()
+                });
+            }
+            _getPatsFromMsg(m) {
+                this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    if(docs.length) {
+                        let unimportedPats = ''
+                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys).map(doc => {
+                            this.api.beresultimport().getInfos(doc.id).then(resultInfo=>{
+                                if (resultInfo.length) {
+                                    resultInfo.map(res => {
+                                        unimportedPats+= res.firstName+' '+res.lastName+', '
+                                    })
+                                    return unimportedPats+(resultInfo.length>1)?'...':''
+                                } else {
+                                    return ''
+                                }
+                            })
+                        })
+                    }
+                })
             }
 
             getReport(){
@@ -827,29 +1023,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
 			}
 
-            getProtIn(){ // assigned labresult
+            getAssigned(){ // assigned labresult
                 console.log('Assigned')
-                this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
-                    let msgsToDisplay = []
-                    messages.map(msg=>{
-                        if (msg.assignedResults) {
-                            let assignedResults = Object.keys(msg.assignedResults).length
-                            let unassignedResults = Object.keys(msg.unassignedResults).length
-                            if (assignedResults > 0 && !unassignedResults) msgsToDisplay.push(msg)
-                        }
-                    })
-                    this.set('messages', msgsToDisplay || [])
+                this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        if (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length >= 1 && m.unassignedResults.length == 0)) acc.push(m)
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('HIDDEN'));
+                }).then(messages => {
+                    this.set('messages', messages || [])
+                    this._deselectAll()
                 });
             }
             getUnassigned(){ // unassigned labresult
                 console.log('Unassigned')
-                this.findMessagesByTransportGUID('INBOX:*','BININBOX:*').then(messages => {
-                    let msgsToDisplay = []
-                    messages.map(msg=>{
-                        if (msg.unassignedResults && msg.unassignedResults.length > 0) msgsToDisplay.push(msg)
-                    })
-                this.set('messages', msgsToDisplay || [])
-            });
+                this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        if (m.unassignedResults &&  m.unassignedResults.length >= 1) acc.push(m)
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(msg => !msg.transportGuid.startsWith('HIDDEN'));
+                }).then(messages => {
+                    this.set('messages', messages || [])
+                    this._deselectAll()
+                });
             }
 
             getEheOut(){
@@ -876,18 +1074,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				// return this.findMessagesByTransportGUID('SENTBOX:*', null, null, 1000)
                 //     .then(messages => this.set('messages', messages || []));
 
-				this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
+				this.api.message().findMessagesByTransportGUIDs('SENTBOX:*', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
                             acc.push(m)
                         }
                         return acc
                     }, [])
-                    return this.sortByDates(msg);
+                    return this.sortByDates(msg).filter(m=>!m.transportGuid.startsWith('HIDDEN'));
                 }).then(messages => this.set('messages', messages || []));
-                
+
             }
 
+            getHidden(){
+                return this.findMessagesByTransportGUIDs(['HIDDENINBOX:*','HIDDENSENTBOX:*'], null, null, 1000)
+                    .then(messages => this.set('messages', messages || []))
+            }
             getTrash(){
 				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
 					.then(messages => this.set('messages', messages || []));
@@ -913,7 +1115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
-                console.log('refresh',this.selectList.selection)
+                console.log('refresh')
                 if (this.selectList && this.selectList.selection) {
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
@@ -962,7 +1164,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         	this.getChap4In();
                         	break;
                         case 'protIn' :
-                            this.getProtIn();
+                            this.getAssigned();
                             break;
                         case 'unsettedProtIn' :
                             this.getUnassigned();
@@ -982,12 +1184,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'trash' :
                         	this.getTrash();
                         	break;
+                        case 'hidden' :
+                            this.getHidden();
+                            break;
                         case 'Refresh':
                         	// Fake selection to refresh binding
                         	break;
                     }
+                    this.set('isLabresultBox', (item === "labResult") ? true : false )
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+                this._getBoxCapacity()
                 this._deselectAll();
             }
 
@@ -1017,8 +1224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
-                const selected = this.activeItem;
-                this.set('selectedMessages', selected);
+                this.set('selectedMessages', this.activeItem);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
                 // this._deselectAll();
             }
@@ -1029,121 +1235,149 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _itemSelected(e) {
-                // console.log('e',e,'target',e.target,'item',e.target.dataset.item)
                 if (e.path[0].checked) {
                     const checkedMsg = JSON.parse(e.target.dataset.item)
-                    this.push('checkedMessages',checkedMsg)
-                }
-                else {
+                    if (this.checkedMessages.length != this.messages.length) this.push('checkedMessages', checkedMsg)
+                } else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
+                    this.set('allSelected',false)
                 }
                 console.log(this.checkedMessages.length+' checked',this.checkedMessages)
             }
 
             _toggleSelectAll() {
+                this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
+                this.set('checkedMessages',this.allSelected ? this.messages : [])
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
+                const selectedState = this.allSelected
                 allCheckboxes.forEach(box=>{
-                    box.checked = !box.checked;
+                    box.checked = selectedState;
                 })
             }
 
             _deselectAll() {
-                let checkerAll = this.shadowRoot.querySelector('#checkerAll')
-                    , mailList = this.shadowRoot.querySelector('#mail-list')
+                this.set('allSelected',null)
+                let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
-                // checkerAll.checked = false;
-                // mailList.querySelector('#checkerAll').checked = false
-                allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
+                allCheckboxes.forEach(box=>{
+                    box.checked = false;
+                })
                 this.set('checkedMessages',[])
             }
 
-			_removeMsgs(){
-                let mailList = this.shadowRoot.querySelector('#mail-list'), allCheckboxes = mailList.querySelectorAll('.checkbox'), checkedMsgs = this.checkedMessages, msgsToDelete = []
-                const selectedBox = this.selectList.selection.item.toUpperCase()
-                const thisBox = selectedBox == 'EHEALTHMESSAGES' || selectedBox == 'REPORTOUT' || selectedBox == 'SENTBOX' ? 'SENTBOX' : selectedBox == 'TRASH' ? 'BIN' : 'INBOX'
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
-                if(checkedMsgs.length) {
-                    let msgsToDelete = []
-                    checkedMsgs.forEach(msg =>msgsToDelete.push(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) // forEach end
-                    console.log('remove',msgsToDelete,thisBox,delBox)
-                    if(msgsToDelete.length){
-                        if (thisBox == 'BIN') {
-                            console.log('will DELETE')
-                            let tempBinInbox = []
-                            let tempBinSentbox = []
-                            checkedMsgs.forEach(msg=>{
-                                const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
-                                const thatMailBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
-                                if (thatMailBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
-                                if (thatMailBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
-                            })
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX')
-                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX')
-                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                                .finally(()=>this._refresh())
-                        } else {
-                            console.log('will MOVE',msgsToDelete,thisBox,delBox)
-                            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, msgsToDelete, thisBox, delBox)
-                            checkedMsgs.forEach(msg=>{
-                                msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                                this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                                    .finally(()=>this._refresh())
-                            })
-                        }
-                    }
-                    // mailList.querySelector('#checkerAll').checked = false
-                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
-                    this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
-                    this._deselectAll();
-                } // if checked length end
-            }
-
-
-            _isEqual(a,b) {return (a === b)}
-
             _restoreMsgs(){
                 const checkedMsgs = this.checkedMessages
-                if(checkedMsgs.length && this.selectList.selection.item.toUpperCase() === "TRASH") {
-                    let mailList = this.shadowRoot.querySelector('#mail-list')
-                        , allCheckboxes = mailList.querySelectorAll('.checkbox')
-                        , tempBinInbox = [] // msgs to recover to inbox
-                        , tempBinSentbox = [] // msgs to recover to sentbox
-                        , msgsToRestore = [] // all msgs to restore
+                if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg =>{
-                        const msgId = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1) // get everything after ":"
-                        const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':')) // get everything before ":"
-                        if (thisBox == 'BININBOX') {tempBinInbox.push(msgId)} // if bininbox => inbox
-                        if (thisBox == 'BINSENTBOX') {tempBinSentbox.push(msgId)} // ifbinsentbox => sentbox
-                        msgsToRestore.push(msg) // in any case, add to restore selection
-                        console.log('restore '+msgId+' to',thisBox)
-                    }) // forEach end
-                    console.log('all msgs to restore',msgsToRestore)
-                    if(tempBinInbox.length){ // for all msgs to send to inbox
-                        console.log('to inbox',tempBinInbox)
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinInbox, 'BININBOX', 'INBOX')
-                    }
-                    if(tempBinSentbox.length){ // for all msgs to send to sentbox
-                        console.log('to sentbox',tempBinSentbox)
-                        this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, tempBinSentbox, 'BINSENTBOX', 'SENTBOX')
-                    }
-                    msgsToRestore.forEach(msg=>{ // for all msgs
-                        if (tempBinInbox.indexOf(msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1))) { // if present in tempBinbox
-                            msg.transportGuid = 'INBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                        } else {
-                            msg.transportGuid = 'SENTBOX' + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                        }
-                        this.api.message().modifyMessage(msg.id)
-                    })
-                    this.dispatchEvent(new CustomEvent('item-restore', { detail: { selection: { item: "Refresh" } } }))
-                    // mailList.querySelector('#checkerAll').checked = false
-                    allCheckboxes.forEach(box=>{if (box.checked) box.checked = false})
-                    this._refresh()
-                } // if checked length end
-                else {
-                    console.log('no length or not trash')
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                        if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                        this.api.message().modifyMessage(msg).then(() => {
+                            this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+                            this._refresh()
+                        })
+                    }) // foreach end
                 }
             }
+
+            _hideMsg() {
+                let checkedMsgs = this.checkedMessages
+                if(checkedMsgs.length) {
+                    checkedMsgs.forEach(msg=>{
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        if (!msg.transportGuid.startsWith('HIDDEN')){
+                            msg.transportGuid = 'HIDDEN'+msg.transportGuid
+                        } else {
+                            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                        }
+                        this.api.message().modifyMessage(msg).then(()=>{
+                            this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                            this._refresh()
+                        })
+                    }) // foreach end
+                    this.set('selectedLabFilter',0)
+                }
+            }
+
+			_msgToBin() {
+                let checkedMsgs = this.checkedMessages
+                if (checkedMsgs.length) {
+                    checkedMsgs.forEach(msg => {
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+                        if (msg.transportGuid.includes('INBOX')) {
+                            msg.transportGuid = 'BININBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>{
+                                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                                this._refresh()
+                            })
+                        }
+                        if (msg.transportGuid.includes('SENTBOX')) {
+                            msg.transportGuid = 'BINSENTBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>{
+                                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                                this._refresh()
+                            })
+                        }
+                    }) // foreach end
+                    this.set('selectedLabFilter',0)
+                }
+            }
+
+            _outOfBin() {
+                let checkedMsgs = this.checkedMessages
+                if(checkedMsgs.length) {
+                    checkedMsgs.forEach(msg => {
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+                        if (msg.transportGuid.includes('INBOX')) {
+                            msg.transportGuid = 'INBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>{
+                                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                                this._refresh()
+                            })
+                        }
+                        if (msg.transportGuid.includes('SENTBOX')) {
+                            msg.transportGuid = 'SENTBOX:' + id
+                            this.api.message().modifyMessage(msg).then(()=>{
+                                this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+                                this._refresh()
+                            })
+                        }
+                    }) // foreach end
+                }
+            }
+
+            _deleteMsgsForever() {
+                const checkedMsgs = this.checkedMessages
+                if (checkedMsgs.length) {
+                    let inboxIds = []
+                    let sentboxIds = []
+
+                    checkedMsgs.forEach(msg=>{
+                        const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+                        if (msg.transportGuid.includes('INBOX')) inboxIds.push(id)
+                        if (msg.transportGuid.includes('SENTBOX')) sentboxIds.push(id)
+                    })
+
+                    if (inboxIds.length){
+                        // this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [inboxIds], 'INBOX', 'BININBOX').then(()=>{
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [inboxIds], 'INBOX')
+                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                    .finally(()=>this._refresh())
+                        // })
+                    }
+                    if (sentboxIds.length) {
+                        // this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [sentboxIds], 'SENTBOX', 'BINSENTBOX').then(()=>{
+                            this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [sentboxIds], 'SENTBOX')
+                                .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+                                    .finally(()=>this._refresh())
+                        // })
+                    }
+                }
+            }
+
+            _isEqual(a,b) {return (a === b)}
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
