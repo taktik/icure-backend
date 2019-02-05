@@ -977,9 +977,7 @@
                         </template>
                     </paper-card>
                 </template>
-            <!--</div>-->
 
-            <!--<div class="attached">-->
                 <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
                         <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" preview="true" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
@@ -1340,59 +1338,31 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             // treatment
 	        console.log('this message',tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => {
-                    // console.log('docs',docs)
-				    if(docs.length) {
-                        return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
-                            .map(doc => {
-                                return this.api.document().getAttachment(doc.id, doc.attachmentId, null)
-                                    .then(a => {
-                                        doc.dataUrl = this.getDataUrls(doc)
-                                        if (this._isEqualTo(doc.documentLocation, 'body')) {
-                                            // console.log('this is body',doc)
-                                            this.set('bodyDocument',doc)
-                                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, undefined, this.api.sessionId)
-                                            fetch(url,{credentials:'include'})
-                                                .then(res=>res.text())
-                                                .then(res=>this.set('docTxt',res))
-                                        } else {
-                                            this._getPatsFromDoc(doc)
-                                        }
-                                        this.set('document',doc)
-                                        return doc
-                                });
-                            }
-                        )
-                    }
-
-	    	}).then(docs =>{
-	    		if(docs && docs.length){
-                    Promise.all(docs).then(docs=>{
-						this.set('isLoadingMessage',false)
-                        this.set('messages', [tempSelect]);
-                        this.set("selectedDocuments", docs);
-                        this.set('attachmentQuantity',this.selectedDocuments.length-1)
+				.then(docs => docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys))
+                .then(docs =>{
+                    if (docs && docs.length) {
+                        Promise.all(docs).then(docs => {
+                            this.set('isLoadingMessage', false)
+                            this.set('messages', [tempSelect])
+                            this.set("selectedDocuments", docs)
+                            this.set('attachmentQuantity', this.selectedDocuments.length - 1)
+                            this.getChildren(tempSelect.id)
+                        })
+                    } else {
+                        this.set('isLoadingMessage', false)
+                        this.set('messages', [tempSelect])
+                        this.set("selectedDocuments", [])
+                        this.set('attachmentQuantity', 0)
                         this.getChildren(tempSelect.id)
-                    })
-				}
-				else{
-					this.set('isLoadingMessage',false)
-					this.set('messages', [tempSelect]);
-					this.set("selectedDocuments", []);
-                    this.set('attachmentQuantity',0)
-					this.getChildren(tempSelect.id)
-                    this.set('hasUnassignedResults', false)
-                }
-
-            })
-
-
-	    }else{
-			this.set('isLoadingMessage',false)
-			this.set('messages', null);
+                        this.set('hasUnassignedResults', false)
+                    }
+                })
+        } else {
+            this.set('isLoadingMessage', false)
+            this.set('messages', null)
             this.set('hasUnassignedResults', false)
-            this.set('thisDocument',null)
-		}
+            this.set('thisDocument', null)
+        }
 	}
 
     openSuggestions() {
@@ -1579,8 +1549,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 m.map(r => r.body = []);
                 this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
                     // console.log('findByMessage',docs)
+                    //TODO Axel WTF ?
                     docs.length?
-                        docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
+                        docs.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a); this.messages.push(r)});}))
                         :m.map(r => this.push('messages',r));
                     m.map(r => this.getChildren(r));
                 })
@@ -1622,50 +1593,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         else{
             this.set("patientList", [])
         }
-    }
-
-	getDataUrls(doc) {
-	    // console.log('getDataUrls',doc)
-        if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) { // if encryption keys
-            console.log(this.user.healthcarePartyId, doc.encryptionKeys)
-            return this.api.crypto()
-                .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations)
-                .then(({extractedKeys: enckeys}) =>
-                    this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl) ?
-                        this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys, this.api.sessionId).then(att => {
-                            let xml = XML.parseXml(att)
-                            if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-                                xml.kmehrmessage.header.standard.specialisation &&
-                                xml.kmehrmessage.header.standard.specialisation.cd &&
-                                xml.kmehrmessage.header.standard.specialisation.cd.S) {
-                                this.set("type", xml.kmehrmessage.header.standard.specialisation.cd.S)
-                            } else {
-                                this.set("type", "Non Valid Type")
-                            }
-                        })
-                        : (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId))
-                )
-        } else { // no encryption keys
-            console.log('no encryption keys',this.user.healthcarePartyId)
-            this.set('bodyDocument',{})
-            this.set("type","");
-            if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-                return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
-                    let xml = XML.parseXml(att);
-                    if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-                        xml.kmehrmessage.header.standard.specialisation &&
-                        xml.kmehrmessage.header.standard.specialisation.cd &&
-                        xml.kmehrmessage.header.standard.specialisation.cd.S){
-                        this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
-                    }else{
-                        this.set("type","Non Valid Type")
-                    }
-                    return att
-                })
-            }else {
-                return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
-            }
-        } // encrypt? end
     }
 
 	_forwardMsgs(e) {
@@ -1772,170 +1699,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-	_imageMimeType(uti, utis, dataUrl) {
-		console.log(uti + " " + utis + " " + dataUrl);
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
-	}
-
-	_pdfMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
-	}
-
-	_xmlMimeType(uti, utis) {
-		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
-	}
-
-	_textType(uti, utis){
-		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
-	}
-
-    _plainMimeType(uti, utis) {
-        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
-    }
-
 	_isEqualTo(title, string) {
 		return title == string;
-	}
-
-	mimeType(u){
-		return this.api.document().mimeType(u)
 	}
 
 	_timeFormat(date) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
 	}
 
-    // _download(item) {
-    //     let file = new Blob([this.api.crypto().utils.ua2hex(item)] ,{type: "text/plain"})
-    //     let a = document.createElement("a");
-    //     document.body.appendChild(a);
-    //     a.style = "display: none";
-    //
-    //     let url = window.URL.createObjectURL(file);
-    //     a.href = url;
-    //     a.download = this.user.healthcarePartyId+".2048.key";
-    //     a.click();
-    //     window.URL.revokeObjectURL(url);
-    //
-    //     // const origin = window.location.origin
-    //     // window.location.href = origin
-    // }
-
     _base64(data) {
         return base64js.fromByteArray(data);
-    }
-
-	_downloadAnnex(e){
-        const parent = this.parentNode
-        parent.dispatchEvent(new CustomEvent('file-dl', {detail: {bubbles: true, composed: true, url:this.dataUrl}}))
-	}
-
-	_getAttachment(e){
-		let id = e.target.getAttribute('id');
-		let attachmentId = e.target.getAttribute('attachmentId');
-		this.api.document().getAttachment(id, attachmentId, null).then(att => this.set("documentAttachment",att));
-		this.showDetail = !this.showDetail
-	}
-
-	importAnnexe(e){
-		let id = e.target.getAttribute('docId');
-		let mainUti = e.target.getAttribute('mainUti');
-		let otherUtis = e.target.getAttribute('otherUtis');
-		let dataUrl = e.target.getAttribute('dataUrl');
-		// this.api.document().getAttachment(document.id, document.attachmentId, null)
-		// 	.then(att => {
-		//
-		// 	});
-
-		// IMG
-		if(this._imageMimeType(mainUti, otherUtis, dataUrl)){
-
-		}
-		// PDF
-		else if (this._pdfMimeType(mainUti, otherUtis, dataUrl)) {
-
-		}
-		// XML
-		else if(this._xmlMimeType(mainUti, otherUtis)){
-			let xml = XML.parseXml(this.documentAttachment);
-			if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-				xml.kmehrmessage.header.standard.specialisation &&
-				xml.kmehrmessage.header.standard.specialisation.cd){
-				// SMF
-				if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gpsoftwaremigration"){
-					this.api.bekmehr().importSmf(doc.id, "", this.patient.id, this.user.language,xml).then(
-						contacts => {
-							contacts.forEach(contact => {
-								contact.ctcs.forEach(ctc => {
-									this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-										console.log(c);
-										return c
-									});
-								})
-							})
-						})
-
-				}
-				//	PMF
-				else if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gppatientmigration"){
-					// this.api.bekmehr().importSmf(doc.id, "123245", this.patient.id, this.user.language,xml).then(
-					// 	contacts => {
-					// 		contacts.forEach(contact => {
-					// 			contact.ctcs.forEach(ctc => {
-					// 				this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-					// 					console.log(c);
-					// 					return c
-					// 				});
-					// 			})
-					// 		})
-					// 	})
-				}
-			}
-
-
-		}
-		// TEXT
-		else if(this._textType(mainUti, otherUtis)){
-			// if(this._checkHealthone(mainUti)){
-			this.api.patient().getPatientWithUser(this.user,"1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
-				this.api.contact().newInstance(this.user, patient, {
-					created: new Date().getTime() ,
-					modified: new Date().getTime() ,
-					author: this.user.id,
-					responsible: this.user.healthcarePartyId,
-					openingDate: moment().format('YYYYMMDD') || '',
-					closingDate: moment().format('YYYYMMDD') || '',
-					encounterType: {type: "CD-TRANSACTION", version: "1.13", code: "labresult"},
-					descr: "Lab" + new Date().getTime(),
-					subContacts: []
-				}).then(c=>{
-					this.api.contact().createContactWithUser(this.user, c).then(c => {
-						this.api.form().newInstance(this.user, patient, {
-							contactId: c.id,
-							descr: "Lab" + new Date().getTime(),
-						}).then(f => this.api.form().createForm(f)).then(f => {
-                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                                this.api.crypto()
-                                    .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
-                                    .then(({extractedKeys: enckeys}) => this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c))
-                            )
-                        })
-					});
-				})
-			});
-			// }
-		}
-
-	}
-
-    _checkHealthone(file) {
-        const rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, true);
-        rawFile.onreadystatechange = () => {
-            if (rawFile.readyState === 4) {
-                return rawFile.responseText.startsWith('A1/')
-            }
-        }
     }
 
     isUnread(m) {
