@@ -1154,8 +1154,6 @@
                                               on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                         </template>
 
-
-
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
                                               label="[[localize('location','Location',language)]]"
@@ -4592,11 +4590,11 @@
                 this.api.getUpdatedEdmgStatus(
                     this.user,
                     this.patient,
-                    Date.parse(invoice),
+                    Date.parse(invoice.invoiceDate),
                     null,
                     null,
-                    this.patient.insurabilities.find(),
-                    this.genInsAFF                    ,
+                    this.patient.insurabilities.find(ins => moment(ins.startDate).isSameOrBefore(moment())),//OA
+                    this.genInsAFF,//AFF
                     true    // Bypass cache, force hit on fhc().Dmgcontroller().consultDmgUsingGET()
                 ).then(edmgResp => {
                     this.set('isLoading',false)
