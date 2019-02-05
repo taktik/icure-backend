@@ -172,10 +172,13 @@
 					<slot name="titlebar"></slot>
 					<div>
                         <template is="dom-if" if="[[!readOnly]]">
-                            <dynamic-subcontact-type-selector subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
-                            <paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
+                            <dynamic-subcontact-type-selector id="linktosub" subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
+                            <paper-tooltip position="bottom" for="linktosub">[[localize('link_sub','Link to sub',language)]]</paper-tooltip>
+                            <paper-icon-button id="delform" class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
+                            <paper-tooltip position="bottom" for="delform">[[localize('del_form','Delete form',language)]]</paper-tooltip>
+                            <paper-tooltip position="bottom" for="linkhe">[[localize('link_he','Link Health Element',language)]]</paper-tooltip>
                             <paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
-                                <paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+                                <paper-icon-button id="linkhe" class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
                                 <paper-listbox slot="dropdown-content">
                                     <template is="dom-repeat" items="[[linkableHealthElements]]" as="he">
                                         <template is="dom-if" if="[[he.id]]">

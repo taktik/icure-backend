@@ -379,7 +379,7 @@
 
         shortLivedCache(key, loader) {
             const cache = this.slCache || ((this.slCache = {}))
-            const clean = () => { const now = +new Date(); Object.keys(cache).filter(k =>  cache[k].ttl < now ).forEach(k => delete cache[k]); console.log(`slc: ${cache.length()} items`) }
+            const clean = () => { const now = +new Date(); Object.keys(cache).filter(k =>  cache[k].ttl < now ).forEach(k => delete cache[k]); console.log(`slc: ${cache.length} items`) }
             const wrapper = cache[key]
             if (wrapper) {
                 this.cleaner && clearTimeout(this.cleaner)
@@ -486,10 +486,10 @@
                         method: "POST",
                         mode: "cors", // no-cors, cors, *same-origin
                         credentials: "same-origin", // include, same-origin, *omit
-                        headers: {"Content-Type": "text/html; charset=utf-8",},
+                        headers: {"Content-Type": "text/html; charset=utf-8"},
                         redirect: "follow",
                         body: html,
-                    }).then(response => response.arrayBuffer())
+                    }).then(response => response.arrayBuffer()).then(data => ({pdf: data, printed: electron && printerName}))
                 )
             })
         }

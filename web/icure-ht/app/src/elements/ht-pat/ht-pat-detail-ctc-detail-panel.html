@@ -39,6 +39,7 @@
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../ht-spinner/ht-spinner.html">
 
+<link rel="import" href="../dynamic-form/dynamic-subcontact-type-selector.html">
 
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
@@ -581,18 +582,23 @@
 					<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
 					<paper-tooltip for="table_icn" position="bottom" animation-delay="0">[[localize('tab_vie','Table view',language)]]</paper-tooltip>
 					<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph view',language)]]</paper-tooltip>
-					<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('forms','Forms view',language)]]</paper-tooltip>
+					<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('form_view','Forms view',language)]]</paper-tooltip>
 				</div>
 			</div>
 			<div class="contact-card-container">
 				<ht-spinner class="center" active="[[isLoadingDoc]]"></ht-spinner>
 				<template is="dom-if" if="[[list]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[currentContact.openingDate]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-lines" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-lines">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 					<ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -600,11 +606,16 @@
 				</template>
 				<template is="dom-if" if="[[table]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-table" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-table">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
@@ -612,11 +623,16 @@
 				</template>
 				<template is="dom-if" if="[[graphique]]">
                     <div class="ctc-header">
-                        <span class="contact-title">[[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])</span>
-                        <template is="dom-if" if="[[!dof.ctc.closingDate]]">
+						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <template is="dom-if" if="[[_hasCurrentContact()]]">
+                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                            </template>
+                        </span>
+                        <template is="dom-if" if="[[_hasCurrentContact()]]">
                             <div class="save">
-                                <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                <iron-icon id="force-save-ctc-graph" icon="save" on-tap="forceSaveCtc"></iron-icon>
                             </div>
+                            <paper-tooltip position="left" for="force-save-ctc-graph">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                         </template>
                     </div>
 				</template>
@@ -624,11 +640,16 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[dof.ctc.descr]] ([[_dateFormat(dof.ctc.openingDate)]])</span>
+                            <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
+                                    <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+								</template>
+							</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                 <div class="save">
-                                    <iron-icon icon="save" on-tap="forceSaveCtc"></iron-icon>
+                                    <iron-icon id="force-save-ctc-forms" icon="save" on-tap="forceSaveCtc"></iron-icon>
                                 </div>
+                                <paper-tooltip position="left" for="force-save-ctc-forms">[[localize('save_ctc','Save contact',language)]]</paper-tooltip>
                             </template>
                         </div>
 						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
@@ -885,6 +906,16 @@
 						type: Object,
 						value: null
 					},
+                    currentContactTypeLabel: {
+                        type: String,
+                        value: "Y",
+                    },
+                    contactTypeList: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
 					contactsFormsAndDocuments: {
 						type: Array,
 						value: function () {
@@ -997,8 +1028,6 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
                     this.set('globalHcp',tempHcp)
                 })
-                    .then(() => this.api.code().findPaginatedCodes('be', 'BE-CONTACT-TYPE', '')
-                    .then(ct =>this.set("subcontactType", _.orderBy(ct.rows, ['code'], ['asc']))))
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
 			}
 
@@ -1359,7 +1388,7 @@
 					marginTop: 5,
 					marginBottom: 5
 				})
-				.then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData))
+				.then(({pdf:pdfFileContent, printed:wasPrinted}) => _.assign({pdfFileContent:pdfFileContent, printed:wasPrinted}, pdfPrintingData))
                 .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -1395,7 +1424,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{
 					drugsToBePrescribed.forEach(s => {
@@ -1791,6 +1820,33 @@
 				}
 			}
 
+            _refreshCurrentContactTypeLabel() {
+                console.log("ctcs", this.contacts)
+                if(this.contacts) {
+                    let label = _.flatten(this.contacts.map( ctc =>{
+                        return ctc.tags && ctc.tags.filter(tag=> tag.type == "BE-CONTACT-TYPE").map(tag=> {
+                            return this.contactTypeList.find(sct => sct.code == tag.code).label[this.language || "fr"]
+                        })
+                    })).join("/")
+                    if(label != "") {
+                        label = label + " : "
+                    }
+                    this.set('currentContactTypeLabel', label)
+                }
+            }
+
+            _contactTypeChange(e){
+                if(e.detail){
+                    const idx = this.currentContact.tags.indexOf(this.currentContact.tags.find(t => t.type === "BE-CONTACT-TYPE"))
+                    if(idx != -1){
+                        this.currentContact.tags.splice(idx, 1);
+                    }
+                    this.currentContact.tags.push(e.detail.type);
+                    this._refreshCurrentContactTypeLabel()
+                    this.saveCurrentContact()
+                }
+            }
+
 			formDeleted(e, form) {
 				this.saveCurrentContact().then(c => this._contactsChanged());
 			}
@@ -1892,12 +1948,15 @@
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 				}).finally(() => {
 				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-                    if (this.contactsFormsAndDocuments.length) { // auto display in list if labresult
-                        if (this.contactsFormsAndDocuments[0].unmappedServices.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes[0].type === "labResult") this._list()
-                        if (this.contactsFormsAndDocuments[0].forms.length && this.contactsFormsAndDocuments[0].forms[0].form && this.contactsFormsAndDocuments[0].forms[0].form.descr.startsWith('Lab')) this._list()
-                    }
+                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.form.formTemplateId)) && (!this.contactsFormsAndDocuments.some(f => f.ctc === this.currentContact)) && (this.contactsFormsAndDocuments.some(f => f.ctc && f.ctc.services && f.ctc.services.length) || this.contactsFormsAndDocuments.some(f => f.unmappedServices && f.unmappedServices.length))) {
+                        this._list()
+                    } else {
+                        this._default()
+					}
 				    this.set('isLoadingDoc',false)
                 });
+
+                this._refreshCurrentContactTypeLabel()
 			}
 
 			toggleDetailsFiltersPanel() {
@@ -2426,12 +2485,9 @@
                 this.busySpinner = true;
                 const prose = this.root.querySelector("#prose-editor");
                 const proseHtmlContent = prose.$.container.innerHTML;
-                this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(pdfFileContent =>{
-                    this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date() );
-                    this.busySpinner = false;
-                    this.$['prose-editor-dialog'].close()
-                    this._closeReportMenu();
-                }).catch(() =>{
+                this.api.pdfReport(this._getProsePdfHeader() + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() ).then(({pdf:pdfFileContent, printed:printed}) =>
+                    !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", this.localize('rep',this.language) + '-' + this.user.healthcarePartyId + "-" + +new Date())
+                ).finally(() =>{
                     this.busySpinner = false
                     this.$['prose-editor-dialog'].close()
                     this._closeReportMenu();
@@ -2473,8 +2529,6 @@
                 const precentageValue = _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.value", "100");
                 const precentageUnit = _.trim( _.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) ? _.trim(_.get(_.head(_.filter(subFormServiceNameAndValues, { name:"pourcentage" })), "valueObject.measureValue.unit", "%")) : "%";
                 const precentageValueAndUnit = precentageValue + " " + precentageUnit
-
-                // this.api.pdfReport(this._getA5PdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
 
                 this.documentMetas = {
                     title : _.trim(this.localize("certificate_stop_activity",this.language)),
@@ -2536,7 +2590,7 @@
                         return _.assign({pdfContent:pdfContent},resourcesObject)
 
                     })
-                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject)))
+                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) => _.assign({pdfFileContent:pdfFileContent, printed: printed}, resourcesObject)))
                     .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
                         .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
                         .then(resourcesObject=>this.api.message().createMessage(
@@ -2574,7 +2628,7 @@
                         })
                         return resourcesObject
                     })
-                    .then(resourcesObject => this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
+                    .then(resourcesObject => !resourcesObject.printed && this.api.triggerFileDownload( resourcesObject.pdfFileContent, "application/pdf", downloadFileName ))
                     .catch(e=>{console.log(e)})
                     .finally(()=>{ this.busySpinner=false; this._closeReportMenu(); })
 
@@ -2683,11 +2737,9 @@
 
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
 
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
+                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) =>
+                        !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName )
+                    ).finally(()=>{this.busySpinner = false;});
 
                 }).catch((e)=>{console.log(e);this.busySpinner = false;});
 
@@ -2776,12 +2828,9 @@
                         '<'+'script'+'>'+'document.fonts.ready.then(() => { setInterval(() => {document.body.dispatchEvent(new CustomEvent("pdfDoneRenderingEvent"))}, 500); }); <'+'/script'+'>'
 
                     // console.log(this._getPdfHeader() + pdfContent + this._getPdfFooter());
-
-                    // this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {timeout:5000, landscape:false, paperWidth:210, paperHeight:297, scale:1} ).then(pdfFileContent =>{
-                    this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent =>{
-                        this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName );
-                        this.busySpinner = false;
-                    }).catch(()=>{this.busySpinner = false;});
+					this.api.pdfReport(this._getPdfHeader() + pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) =>
+                        !printed && this.api.triggerFileDownload( pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName )
+                    ).finally(()=>{this.busySpinner = false;});
 
                 }).catch((e)=>{console.log(e);this.busySpinner = false;});
 
@@ -2860,7 +2909,7 @@
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
 
                 })
-                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent}, pdfPrintingData)))
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"}).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed: printed}, pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -2898,7 +2947,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3009,7 +3058,7 @@
                     return _.assign({pdfContent: pdfContent}, pdfPrintingData)
 
                 })
-                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData=>this.api.pdfReport(this._getPdfHeader() + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed:printed},pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -3047,7 +3096,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3192,7 +3241,7 @@
 
                     return _.assign({pdfContent:pdfContent}, pdfPrintingData)
                 })
-                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(pdfFileContent=>_.assign({pdfFileContent:pdfFileContent},pdfPrintingData)))
+                .then(pdfPrintingData => this.api.pdfReport(this._getPdfHeader({ pageOverflowHidden: false }) + pdfPrintingData.pdfContent + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed})=>_.assign({pdfFileContent:pdfFileContent, printed:printed},pdfPrintingData)))
 			    .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
                     .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
                     .then(pdfPrintingData=>this.api.message().createMessage(
@@ -3229,7 +3278,7 @@
                     })
                     return pdfPrintingData
                 })
-                .then(pdfPrintingData => this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
+                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
                 .catch(e=>{console.log(e)})
                 .finally(()=>{ this.busySpinner=false; })
 
@@ -3649,7 +3698,7 @@
                 const proseHtmlContent = proseEditor.$.container.innerHTML;
 
                 this.api.pdfReport(this._getProsePdfHeader(this._getLinkingLetterCssStyles()) + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() )
-                    .then(pdfFileContent => this.api.triggerFileDownload(
+                    .then(({pdf:pdfFileContent, printed:printed}) => !printed && this.api.triggerFileDownload(
                         pdfFileContent,
                         "application/pdf",
                         _.kebabCase(_.compact([
@@ -3688,7 +3737,7 @@
                 }
 
                 this.api.pdfReport(this._getProsePdfHeader(this._getLinkingLetterCssStyles()) + this.api.rewriteTableColumnsWidth(proseHtmlContent) + this._getPdfFooter() )
-                    .then(pdfFileContent => _.assign({pdfFileContent:pdfFileContent},resourcesObject) )
+                    .then(({pdf:pdfFileContent, printed:printed}) => !printed && _.assign({pdfFileContent:pdfFileContent},resourcesObject) )
                     .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
                         .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
                         .then(resourcesObject=>this.api.message().createMessage(

@@ -12,8 +12,6 @@ onmessage = e => {
 
         const fhcHost           = e.data.fhcHost
         const fhcHeaders        = JSON.parse(e.data.fhcHeaders)
-        const hcpartyBaseApi    = e.data.hcpartyBaseApi
-        const fhcCrypto			= e.data.fhcCrypto
 
         const tokenId           = e.data.tokenId
         const keystoreId        = e.data.keystoreId
@@ -32,21 +30,20 @@ onmessage = e => {
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccContactApi		= new iccApi.iccContactApi(iccHost, iccHeaders)
-        const iccFormApi		= new iccApi.iccFormApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
-        const iccDocumentXApi   = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccHcpartyApi)
-        const iccContactXApi	= new iccXApi.IccContactXApi(iccHost, iccHeaders,iccCryptoXApi)
-        const iccFormXApi		= new iccXApi.IccFormXApi(iccHost, iccHeaders,iccCryptoXApi)
 
         const iccUtils          = new UtilsClass()
 
         //Avoid the hit to the local storage to load the key pair
         Object.keys(e.data.keyPairs).forEach( k => iccCryptoXApi.cacheKeyPair(e.data.keyPairs[k], k) )
 
-        const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
+        const iccDocumentXApi   = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
+        const iccContactXApi	= new iccXApi.IccContactXApi(iccHost, iccHeaders,iccCryptoXApi)
+        const iccFormXApi		= new iccXApi.IccFormXApi(iccHost, iccHeaders,iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
 
-		const textType = (uti, utis) =>{
+
+        const textType = (uti, utis) =>{
 			//return (uti && [uti] || []).concat(utis && utis.value || []).map(u => iccDocumentXApi.mimeType(u)).find(m => m === 'text/plain');
             // NOTE: mime type and extension from ehbox are not reliable, the ResultImport API can detect if it's the correct type
 			return true
@@ -55,7 +52,7 @@ onmessage = e => {
         const removeMsgFromEhboxServer = (msg) => {
             if (msg) {
                 const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-                const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox == 'SENTBOX' ? 'BINSENTBOX' : null
+                const delBox = thisBox === 'INBOX' ? 'BININBOX' : thisBox === 'SENTBOX' ? 'BINSENTBOX' : null
                 const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
                 // console.log('remove from server',idOfMsg,thisBox,delBox)
                 if (thisBox.transportGuid && !thisBox.transportGuid.startsWith("BIN")) { // if it was not in bin
@@ -101,8 +98,8 @@ onmessage = e => {
                             modified: new Date().getTime(),
                             author: user.id,
                             responsible: user.healthcarePartyId,
-                            openingDate: moment().format('YYYYMMDDhhmmss') || '',
-                            closingDate: moment().format('YYYYMMDDhhmmss') || '',
+                            openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                            closingDate: moment().format('YYYYMMDDHHmmss') || '',
                             encounterType: {
                                 type: docInfo.codes.type,
                                 version: docInfo.codes.version,
@@ -119,7 +116,7 @@ onmessage = e => {
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
-                            return iccContactApi.createContact(c)
+                            return iccContactApi.createContactWithUser(this.user, c)
                         }).then(c => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
@@ -127,9 +124,9 @@ onmessage = e => {
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
                                 return iccFormXApi.createForm(f).then(f =>
-                                    this.crypto
+                                    iccCryptoXApi
                                         .extractKeysFromDelegationsForHcpHierarchy(
-                                            user.healtcarePartyId,
+                                            user.healthcarePartyId,
                                             createdDocument.id,
                                             _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                                         )
@@ -208,9 +205,9 @@ onmessage = e => {
 
         const tryToAssignAppendix = (fullMessage, createdDocument) => {
             // console.log('tryToAssignAppendix',fullMessage,createdDocument)
-            return this.crypto
+            return iccCryptoXApi
                 .extractKeysFromDelegationsForHcpHierarchy(
-                    user.healtcarePartyId,
+                    user.healthcarePartyId,
                     createdDocument.id,
                     _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                 )
@@ -269,7 +266,7 @@ onmessage = e => {
                 .then(messageInstance => msgApi.createMessage(messageInstance))
                 .then(createdMessage => {
                     // register body and annexes as documents
-                    let annexPromises = (fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => {
+                    const annexPromises = (fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => {
                         if (a == null) {
                             console.log("annex is null")
                             return null
@@ -277,6 +274,7 @@ onmessage = e => {
                             return registerNewDocument(a, createdMessage, fullMessage)
                         }
                     }).filter(a => a != null)
+
                     return Promise.all(annexPromises)
                         .then(annexDocs => {
                             return [createdMessage, annexDocs]
@@ -287,10 +285,10 @@ onmessage = e => {
         const registerNewDocument = (document, createdMessage, fullMessage) => {
             let a = document
             // console.log('registerNewDocument',a)
-            return docxApi.newInstance(user, createdMessage, {
+            return iccDocumentXApi.newInstance(user, createdMessage, {
                 documentLocation: (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
                 documentType: 'result', //Todo identify message and set type accordingly
-                mainUti: docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/, '$1')),
+                mainUti: iccDocumentXApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/, '$1')),
                 name: a.filename
             })
                 .then(d => docApi.createDocument(d))
@@ -300,9 +298,9 @@ onmessage = e => {
                     return [createdDocument, byteContent]
                 })
                 .then(([createdDocument, byteContent]) => {
-                    this.crypto
+                    return iccCryptoXApi
                         .extractKeysFromDelegationsForHcpHierarchy(
-                            user.healtcarePartyId,
+                            user.healthcarePartyId,
                             createdDocument.id,
                             _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                         )
