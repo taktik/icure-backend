@@ -1159,7 +1159,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     }) : Promise.resolve([]);
                 } else if (data.source === "insuranceTitularies") {
                     return (id||'').length >= 1 ?
-                        this.api.patient().getPatientWithUser( this.user, id ).then(results => { return { 'id': results.id, 'name':_.upperFirst(_.lowerCase(_.get(results, "firstName", "" ))) + ' ' + _.upperFirst(_.lowerCase(_.get(results, "lastName", "" ))) + ' ' + this.api.formatSsinNumber(_.get(results, "ssin", "")) }}) :
+                        this.api.patient().getPatientWithUser( this.user, id ).then(p => this.api.register(p, 'patient')).then(results => { return { 'id': results.id, 'name':_.upperFirst(_.lowerCase(_.get(results, "firstName", "" ))) + ' ' + _.upperFirst(_.lowerCase(_.get(results, "lastName", "" ))) + ' ' + this.api.formatSsinNumber(_.get(results, "ssin", "")) }}) :
 
                         (text || '').length >= 2 ? Promise.all([this.api.patient().filterByWithUser(this.user, null, null, null, null, null, null, {filter: { $type: "PatientByHcPartyNameContainsFuzzyFilter", healthcarePartyId: this.user.healthCarePartyId, searchString: text }})]).then(results => {
                         return _.flatten(_.chain( results[0].rows ).uniqBy( 'ssin' ).filter((i)=>{
@@ -1252,7 +1252,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         var externalPatientHcpTeam = []
         //var dmgOwner = []
 
-        this.api.patient().getPatientWithUser(this.user,this.patient.id).then(patient => {
+        this.api.patient().getPatientWithUser(this.user,this.patient.id).then(p => this.api.register(p, 'patient')).then(patient => {
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
 
