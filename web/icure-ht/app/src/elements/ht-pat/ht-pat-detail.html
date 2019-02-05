@@ -1402,13 +1402,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
                     <div class="contacts-container" on-scroll="openToast">
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
+                            <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
+                                <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
+                                <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
+                                <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
+                                <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
+                            </span>
                             <template is="dom-if" if="[[events.length]]">
-                                <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                    <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
-                                    <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                    <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
-                                    <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
-                                </span>
                                 <paper-listbox id="_events_listbox" class="todo-list">
                                     <template is="dom-repeat" items="[[events]]" as="e">
                                         <paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
@@ -1424,12 +1424,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         </paper-item>
                                     </template>
                                 </paper-listbox>
-                            </template>
-                            <template is="dom-if" if="[[!events.length]]">
-                                <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                    <paper-icon-button id="button_list_plan_of_action" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
-                                    <paper-tooltip position="bottom" for="button_list_plan_of_action">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                </span>
                             </template>
                             <template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">
