@@ -502,9 +502,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 overflow: hidden;
             }
-            /* .box-txt.force-ellipsis {
-                max-width: 60%;
-            } */
+
+            .box-txt.force-ellipsis {
+                max-width: 80%;
+            }
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;
@@ -549,11 +550,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('boxtitle.eheIn','eHealth inbox',language)]]</paper-item>-->
-                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> [[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</span></paper-item>
                     <!--<paper-item class="one-line-menu menu-item" id="unsettedProtIn">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('assigned_labresults','assigned lab results',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>-->
-					<paper-item class="one-line-menu menu-item flex-start" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="mycarenet"><iron-icon icon="maps:local-hospital"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('mycarenet','My Carenet',language)]]</span></paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button id="sentboxcollapse">
@@ -877,7 +878,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _trashSelectionIndexChanged() {
-        console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
+        // console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
         if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.trashSelectionItem.id, status: this.trashSelectionItem.dataset.status } } }));
 
