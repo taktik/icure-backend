@@ -285,6 +285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',false)
                     this.set('invoicesStatus', e.detail.selection.status)
+                    this.shadowRoot.querySelector("#msg-invoice").reset()
                     setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
 
                 } else if (e.detail && e.detail.selection.item === 'e_flatrateinvOut') {
