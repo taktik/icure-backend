@@ -1103,7 +1103,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Object,
 				value: null
 			},
-            selectMessage: {
+            selectedMessage: {
 			    type: Object
 			},
 			messages: {
@@ -1219,7 +1219,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)','_hasLabResult(selectMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
+		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
 	}
 
 	constructor() {
@@ -1236,7 +1236,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	close() {
-	    this.set('selectMessage.selection.item',null)
+	    this.set('selectedMessage',null)
         this._focusChanged()
         this.classList.remove('selected')
         this.parentElement.children[0].classList.remove('selected')
@@ -1279,8 +1279,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _hasLabResult() {
-	    if (this.selectMessage && this.selectMessage.selection && this.selectMessage.selection) {
-            const m = this.selectMessage.selection.item
+	    if (this.selectedMessage) {
+            const m = this.selectedMessage
             if (m && m.assignedResults && m.unassignedResults) {
                 this.set('hasLabResult', (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false)
             } else {
@@ -1303,8 +1303,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _focusChanged(){
-	    if(this.selectMessage.selection.item){
-	        let tempSelect = this.selectMessage.selection.item;
+	    if(this.selectedMessage){
+	        let selMsg = this.selectedMessage;
 	        // needed vars
             this.set('toImportPatsSuggestions', [])
             this.set('selectedProtocol',-1)
@@ -1314,42 +1314,40 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('manualAssign',false)
             this.set('selectName','')
             this.set('toImportPatsSearch',[])
-            this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
-            this.set('isHidden',this.selectMessage.selection.item.transportGuid.startsWith("HIDDEN"))
-            this.set('unassignedResults',tempSelect.unassignedResults)
-            this.set('assignedResults',tempSelect.assignedResults)
-			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
-            this.set('thisDocument',tempSelect)
+            this.set('isDeleted',this.selectedMessage && this.selectedMessage.transportGuid.startsWith("BIN"))
+            this.set('isHidden',this.selectedMessage && this.selectedMessage.transportGuid.startsWith("HIDDEN"))
+            this.set('unassignedResults',selMsg.unassignedResults)
+            this.set('assignedResults',selMsg.assignedResults)
+			this.set('hasUnassignedResults',selMsg.unassignedResults ? selMsg.unassignedResults.length ? true : false : false)
+            this.set('thisDocument',selMsg)
             this.set('bodyDocument',{})
             this.set('svcToDisplay',[])
-            if (tempSelect.status) { // mark as read
-                const tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
+            if (selMsg.status) { // mark as read
+                const tempBytes = selMsg.status.toString(2), len = selMsg.status.toString(2).length
                 const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
-                if (this.isUnread(tempSelect)) { // if message was not read, else do nothing
-                    tempSelect.status = parseInt(a+'0'+b,2)
-                    this.api.message().modifyMessage(tempSelect).then(msg=>console.log('store :',msg))
+                if (this.isUnread(selMsg)) { // if message was not read, else do nothing
+                    selMsg.status = parseInt(a+'0'+b,2)
+                    this.api.message().modifyMessage(selMsg).then(msg=>console.log('store :',msg))
                 }
             }
             // treatment
-	        console.log('this message',tempSelect)
-        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
+	        console.log('this message',selMsg)
+        	this.api.document().findByMessage(this.user.healthcarePartyId, selMsg)
 				.then(docs => docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys))
                 .then(docs => Promise.all(docs.map(d => this._getPatsFromDoc(d))))
                 .then(docs =>{
                     if (docs && docs.length) {
                         Promise.all(docs).then(docs => {
                             this.set('isLoadingMessage', false)
-                            this.set('messages', [tempSelect])
+                            this.set('messages', [selMsg])
                             this.set("selectedDocuments", docs)
                             this.set('attachmentQuantity', this.selectedDocuments.length - 1)
-                            this.getChildren(tempSelect.id)
                         })
                     } else {
                         this.set('isLoadingMessage', false)
-                        this.set('messages', [tempSelect])
+                        this.set('messages', [selMsg])
                         this.set("selectedDocuments", [])
                         this.set('attachmentQuantity', 0)
-                        this.getChildren(tempSelect.id)
                         this.set('hasUnassignedResults', false)
                     }
                 })
@@ -1379,7 +1377,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('toImportPatsSuggestions', [])
         this.set('assignModal',false)
         this.set('selectName','')
-        this.set('thisDocument',null)
         this.set('selectedProtocol',-1)
     }
 
@@ -1398,7 +1395,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         console.log('_getPatsFromDoc')
         const unassigned = this.unassignedResults || []
         this.set('toImportPatsSuggestions', [])
-        this.set('thisDocument',document)
         return this.api.crypto()
             .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
             .then(({extractedKeys: enckeys}) => this.api.beresultimport().getInfos(document.id, false, null, enckeys.join(',')))
@@ -1460,18 +1456,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _assignResultToSelected() {
-        const tempSelect = this.selectMessage.selection.item
+        const selMsg = this.selectedMessage
         const targets = this.targetPats || []
-        const docInfo = this.docInfo || null
+        const docInfo = this.documentBeingAssigned.docInfo || null
         const assigned = this.assignedResults || []
         const unassigned = this.unassignedResults || []
-        const document = this.thisDocument || null
+        const document = this.documentBeingAssigned
         if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
-        if (tempSelect && targets && docInfo && assigned && unassigned && document) {
+        if (selMsg && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
-                console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document,thisPat)
+                console.log('_assignResultToSelected',selMsg, targets, docInfo, assigned, unassigned, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
-                    groupId : document.id,
                     created: new Date().getTime() ,
                     modified: new Date().getTime() ,
                     author: this.user.id,
@@ -1480,7 +1475,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     closingDate: moment().format('YYYYMMDDHHmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
-                    // cryptedForeignKeys: document.encryptionKeys,
                     subContacts: []
                 }).then(c => {
                     c.services.push({
@@ -1516,14 +1510,13 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     let tempAssign = _.clone(this.assignedResults)
                     tempAssign[c.id] = docInfo.protocol
                     this.set('assignedResults',tempAssign)
-                    tempSelect.unassignedResults = tempUnassign
-                    tempSelect.assignedResults = tempAssign
-                    return tempSelect
-                }).then(tempSelect=>{
-                    return this.api.message().modifyMessage(tempSelect).then(msg => {
-                        if (msg.unassignedResults.length == 0) {
+                    selMsg.unassignedResults = tempUnassign
+                    selMsg.assignedResults = tempAssign
+                    return selMsg
+                }).then(selMsg=>{
+                    return this.api.message().modifyMessage(selMsg).then(msg => {
+                        if (msg.unassignedResults.length === 0) {
                             this.closeSuggestions()
-                            this._msgToBin(msg)
                         } else {
                             this._focusChanged()
                         }
@@ -1537,24 +1530,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-    getChildren(item){
-        // console.log('getChildren',item)
-        this.api.message().getChildren(item).then(m=> { //TODO: check if api.message.getChildren actually returns m
-            if(m.length){
-                m.map(r => r.body = []);
-                this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
-                    // console.log('findByMessage',docs)
-                    //TODO Axel WTF ?
-                    docs.length?
-                        docs.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a); this.messages.push(r)});}))
-                        :m.map(r => this.push('messages',r));
-                    m.map(r => this.getChildren(r));
-                })
-            }
-        })
-        // }.bind(this))
-    }
-
     textType(uti, utis) {
         return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'text/plain');
     }
@@ -1566,23 +1541,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     console.log(patients);
                     const newPat = patients.rows[0]
                     return `${newPat.firstName} ${newPat.lastName} (INSS:${newPat.ssin})`;
-                    // let filtredpatients = patients.rows.filter(pat => pat.ssin)
-                    //     .map(pat => {
-                    //         let newPat = {};
-                    //         newPat.firstName = pat.firstName ? pat.firstName : "";
-                    //         newPat.lastName = pat.lastName ? pat.lastName : "";
-                    //         newPat.fullName = pat.firstName + " " + newPat.lastName;
-                    //         newPat.ssin = pat.ssin ? pat.ssin : "";
-                    //         newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
-                    //         const res =
-                    //             wantedValue == 'firstName' ? newPat.firstName :
-                    //             wantedValue == 'lastName' ? newPat.lastName :
-                    //             wantedValue == 'fullName' ? newPat.fullName :
-                    //             wantedValue == 'ssin' ? newPat.ssin :
-                    //             wantedValue == 'displayName' ? newPat.displayName :
-                    //             newPat
-                    //         return res
-                    //     })
                 })
         }
         else{
