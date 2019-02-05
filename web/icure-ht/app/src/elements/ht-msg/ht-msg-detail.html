@@ -882,6 +882,22 @@
                 padding-top: 16px;
             }
 
+            .wide-only {
+                display: none;
+            }
+            
+            @media screen and (max-width: 1296px) {
+                .nomobile-wide {
+                    display: none;
+                }
+                .wide-only {
+                    display: block;
+                }
+                .msg-detail-btn {
+                    min-width: 0;
+                }
+            }
+
             @media screen and (max-width: 1025px) {
                 .mobileOnly {display: block;}
                 .attached {
@@ -927,25 +943,43 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
+                            <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
+                            <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
+                        </paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
+                            <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
+                            <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
+                        </paper-button>
                         <template is="dom-if" if="[[isHidden]]">
-                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="visibility"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="visibility-msg" icon="visibility"></iron-icon>
+                                <span class="nomobile-wide">[[localize('restore','Restore',language)]]</span>
+                                <paper-tooltip class="wide-only" for="visibility-msg">[[localize('restore','Restore',language)]]</paper-tooltip>
+                            </paper-button>
                         </template>
                         <template is="dom-if" if="[[!isHidden]]">
                             <template is="dom-if" if="[[!isDeleted]]">
-                                <paper-button class="msg-detail-btn" on-tap="_hideMsg"><iron-icon icon="visibility-off"></iron-icon>[[localize('hide_msg','Hide message',language)]]</paper-button>
+                                <paper-button class="msg-detail-btn" on-tap="_hideMsg"><iron-icon id="visibility-off-msg" icon="visibility-off"></iron-icon>
+                                    <span class="nomobile-wide">[[localize('hid_msg','Hide message',language)]]</span>
+                                    <paper-tooltip class="wide-only" for="visibility-off-msg">[[localize('hid_msg','Hide message',language)]]</paper-tooltip>
+                                </paper-button>
                             </template>
                         </template>
                     </div>
                     <div class="del-button">
                         <template is="dom-if" if="[[isDeleted]]">
-                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="undo-msg" icon="undo"></iron-icon>
+                                <span class="nomobile-wide">[[localize('restore','Restore',language)]]</span>
+                                <paper-tooltip class="wide-only" for="undo-msg">[[localize('restore','Restore',language)]]</paper-tooltip>
+                            </paper-button>
                             <!--<paper-button class="msg-detail-btn" on-tap="_deleteMsgForever"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
                         </template>
                         <template is="dom-if" if="[[!isDeleted]]">
                                 <!--<paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
-                                <paper-button class="msg-detail-btn" on-tap="_msgToBin"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_msgToBin"  msgId$='[[msg.id]]' ><iron-icon id="delete-msg" icon="delete"></iron-icon>
+                                <span class="nomobile-wide">[[localize('del','Delete',language)]]</span>
+                                <paper-tooltip class="wide-only" for="delete-msg">[[localize('del','Delete',language)]]</paper-tooltip>
+                            </paper-button>
                         </template>
                     </div>
                 </div>
