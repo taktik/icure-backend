@@ -689,6 +689,7 @@
 							<div class="add-forms-container">
 								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con_mso','Consultation MSOAP',language)]]</paper-fab-speed-dial-action>
+								<!--<paper-fab-speed-dial-action icon="vaadin:stethoscope" on-tap="addFirstContact">[[localize('first_ctc','First contact',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
 								<paper-fab-speed-dial-action icon="vaadin:clipboard-text" on-tap="writeLinkingLetter">[[localize('linkingLetter','Lettre de liaison',language)]]</paper-fab-speed-dial-action>
@@ -1181,6 +1182,11 @@
 				} else {
                     this.addForm("FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION");
 				}
+			}
+
+			addFirstContact(){
+                this.set('showAddFormsContainer', false);
+				this.addForm("FFFFFFFF-FFFF-FFFF-FFFF-DOSSMED00000");
 			}
 
 			addMedicalHistory() {

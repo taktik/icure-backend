@@ -1327,7 +1327,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
                 if (this.isUnread(selMsg)) { // if message was not read, else do nothing
                     selMsg.status = parseInt(a+'0'+b,2)
-                    this.api.message().modifyMessage(selMsg).then(msg=>console.log('store :',msg))
+                    this.api.message().modifyMessage(selMsg).then(msg=>_.assign(selMsg, msg))
                 }
             }
             // treatment
@@ -1500,21 +1500,20 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         )
                     })
                 }).then(c => {
-                    let tempUnassign = this.unassignedResults
-                    Object.keys(unassigned).forEach(res => {
-                        if (unassigned[res] === docInfo.protocol) {
-                            tempUnassign.splice(tempUnassign.indexOf(docInfo.protocol))
-                            this.set('unassignedResults',tempUnassign)
-                        }
-                    })
+                    const idx = (this.unassignedResults || []).indexOf(docInfo.protocol)
+                    this.splice('unassignedResults', idx)
+
                     let tempAssign = _.clone(this.assignedResults)
                     tempAssign[c.id] = docInfo.protocol
                     this.set('assignedResults',tempAssign)
-                    selMsg.unassignedResults = tempUnassign
+
+                    selMsg.unassignedResults = this.unassignedResults
                     selMsg.assignedResults = tempAssign
+
                     return selMsg
                 }).then(selMsg=>{
                     return this.api.message().modifyMessage(selMsg).then(msg => {
+                        _.assign(this.selectedMessage, msg)
                         if (msg.unassignedResults.length === 0) {
                             this.closeSuggestions()
                         } else {
@@ -1611,7 +1610,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
                 if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
             }
-            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
 
@@ -1621,7 +1620,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
-            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
 
@@ -1631,7 +1630,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
-            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
 

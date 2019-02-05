@@ -98,7 +98,7 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     // Medical houses
     protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
-    protected String type;                              // "persphysician" or "medicalHouse"
+    protected String type;                              // "persphysician" or "medicalHouse" or "perstechnician"
     protected String contactPerson;
     protected String contactPersonHcpId;
 
