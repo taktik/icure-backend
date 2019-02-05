@@ -191,10 +191,10 @@
 
             contactsChanged(){
                 if(!(this.contacts && this.contacts.length))return;
-                this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
-                    .then(services =>{
-                        this.set("services",_.orderBy(services,"valueDate",'desc'))
-                    })
+                this.api.contact().filterServices(this.contacts,s => s.label==='Actes' || (s.tags.some(t => t.type == "SOAP" && t.code == "Plan") && s.tags.some(t => t.type == 'CD-ITEM-TASK')))
+                .then(services =>{
+                    this.set("services",_.orderBy(services,"valueDate",'desc'))
+                })
             }
 
             _getContent(svc){
