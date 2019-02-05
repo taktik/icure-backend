@@ -248,7 +248,6 @@ public class PatientFacade implements OpenApiFacade{
 		return listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection);
 	}
 
-	@Path("/hcParty/{hcPartyId}/count")
 	@ApiOperation(
 			value = "Get count of patients for a specific HcParty or for the current HcParty ",
 			response = ContentDto.class,
@@ -256,6 +255,7 @@ public class PatientFacade implements OpenApiFacade{
 			notes = "Returns the count of patients"
 	)
 	@GET
+	@Path("/hcParty/{hcPartyId}/count")
 	public Response countOfPatients(@ApiParam(value = "Healthcare party id") @PathParam("hcPartyId") String hcPartyId) {
 		return ResponseUtils.ok(ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId)));
 	}
@@ -284,7 +284,8 @@ public class PatientFacade implements OpenApiFacade{
 		@SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null,
 			limit);
 
-		PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, new Sorting(sortField, sortDirection));
+		HealthcareParty hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId());
+		PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcp.getParentId() != null ? hcp.getParentId() : hcp.getId(), paginationOffset, null, new Sorting(sortField, sortDirection));
 
 		if (patients != null) {
 			response = buildPaginatedListResponse(patients);

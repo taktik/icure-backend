@@ -71,6 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-direction: column;
                 border-left: 1px solid var(--app-background-color-dark);
                 background-color: var(--app-background-color-light);
+                padding: 0;
             }
 
             .display-left-menu{
@@ -266,10 +267,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+                this._inbox()
             }
 
             _selectedElem(e) {
                 return (e) ? 'selected' : ''
+            }
+
+            _inbox() {
+                this.$['msg-menu'].dispatchEvent(new CustomEvent('selection-change',{detail:{selection:{item:'inbox'}}})) // select inbox
             }
 
             handleMenuChange(e) {

@@ -1065,14 +1065,14 @@
                                         <template is="dom-if" if="[[_ifEattestSaved(item,item.printedDate)]]">
                                             <div class="he-edit-btn-container">
                                                 <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="downloadKmehr" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]-khmer" class="he-edit-btn" icon="vaadin:file-code" on-tap="downloadKmehr" data-item$="[[item.id]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]-xades" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
                                                 <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item.id]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
+                                            <paper-tooltip position="left" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                            <paper-tooltip position="left" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                         </template>
                                     </div>
                                 </div>
@@ -3571,21 +3571,22 @@
                 </html>`;
 
                 this.api.pdfReport(mustache.render(html, template))
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
+                    .then(({pdf:data, printed:printed}) =>{
+                        if (!printed) {
+                            let blob = new Blob([data],{type :'application/pdf'});
 
-                        let url = window.URL.createObjectURL(blob)
+                            let url = window.URL.createObjectURL(blob)
 
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
+                            let a = document.createElement("a");
+                            document.body.appendChild(a);
+                            a.style = "display: none";
 
-                        a.href = url;
-                        a.download = this.selectedInvoice.id+moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        this.set('isLoadingJustif',false)
-                    })
+                            a.href = url;
+                            a.download = this.selectedInvoice.id+moment()+".pdf";
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                        }
+                    }).finally(() => this.set('isLoadingJustif',false))
             }
 
             _ifStatusDateExist(date){
@@ -4393,21 +4394,22 @@
                 </html>`;
 
                 this.api.pdfReport(mustache.render(html, template))
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
+                    .then(({pdf:data, printed:printed}) =>{
+                        if (!printed) {
+                            let blob = new Blob([data],{type :'application/pdf'});
 
-                        let url = window.URL.createObjectURL(blob)
+                            let url = window.URL.createObjectURL(blob)
 
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
+                            let a = document.createElement("a");
+                            document.body.appendChild(a);
+                            a.style = "display: none";
 
-                        a.href = url;
-                        a.download = invoice.id+moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url)
-                    })
-                    .then( rep =>{
+                            a.href = url;
+                            a.download = this.selectedInvoice.id+moment()+".pdf";
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                        }
+                    }).then( () =>{
                         if(this.selectedInvoice)
                             this.set("selectedInvoice.printedDate",moment().format("YYYYMMDD"))
 
@@ -4427,7 +4429,7 @@
                                 ).finally(() => this.updateGui(invoice))
                                 console.log("saved:",invoice)
                             })
-                    })
+                    }).finally(() => this.set('isLoadingJustif',false))
             }
 
             varIsEattestClosedChanged(){
