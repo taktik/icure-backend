@@ -328,7 +328,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     openSuggestions() {
-	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {bubbles: true, composed: true}}))
+	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {documentId: this.documentId}, bubbles: true, composed: true}))
     }
 
 	_documentIdChanged() {
@@ -399,42 +399,36 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _dataUrlChanged(dataUrl) {
         if (dataUrl && dataUrl.length) {
-            if (this._xmlMimeType(this.document.mainUti, this.document.otherUtis)) {
-                this.set('isLabOrProtocol', false)
-                this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials:'include'})
-                    .then(response => response.text()))
-                    .then(xml => this.set('attachmentContent', xml.toString()))
-            } else if ((!this.document.mainUti && (!this.document.otherUtis || this.document.otherUtis.length === 0)) || this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                this.api.crypto()
-                    .extractKeysFromDelegationsForHcpHierarchy(
-                        this.user.healthcarePartyId,
-                        this.document.id,
-                        _.size(this.document.encryptionKeys) ? this.document.encryptionKeys : this.document.delegations
-                    )
-                    .then(({extractedKeys: enckeys}) => {
-                        this.api.beresultimport().canHandle(this.document.id, enckeys.join(',')).then(isResult => {
-                            if (isResult) {
-                                this.set('isLabOrProtocol', true)
-                                this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr', enckeys.join(','))
-                                    .then(res => {
-                                        this.set('labOrProtocolContent', res)
-                                    })
-                            } else {
-                                this.set('isLabOrProtocol', false)
-                                this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials: 'include'})
-                                    .then(response => response.text()))
-                                    .then(text => {
-                                        this.set('attachmentContent', text)
-                                    })
+            this.api.crypto()
+                .extractKeysFromDelegationsForHcpHierarchy(
+                    this.user.healthcarePartyId,
+                    this.document.id,
+                    _.size(this.document.encryptionKeys) ? this.document.encryptionKeys : this.document.delegations
+                )
+                .then(({extractedKeys: enckeys}) => {
+                    this.api.beresultimport().canHandle(this.document.id, enckeys.join(',')).then(isResult => {
+                        if (isResult) {
+                            this.set('isLabOrProtocol', true)
+                            this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr', enckeys.join(','))
+                                .then(res => {
+                                    this.set('labOrProtocolContent', res)
+                                })
+                        } else {
+                            this.set('isLabOrProtocol', false)
+                            this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials: 'include'})
+                                .then(response => response.text()))
+                                .then(text => {
+                                    this.set('attachmentContent', text)
+                                })
 
-                            }
-                        })
+                        }
                     })
-            } else {
-                this.set('isLabOrProtocol', false)
-            }
+                })
+        } else {
+            this.set('isLabOrProtocol', false)
         }
-	}
+    }
+
     mimeType(u){
 	    return u === 'public.plainText' ? 'text/plain' : this.api.document().mimeType(u)
 	}

@@ -116,7 +116,7 @@ onmessage = e => {
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
-                            return iccContactApi.createContactWithUser(this.user, c)
+                            return iccContactApi.createContactWithUser(user, c)
                         }).then(c => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
@@ -167,10 +167,7 @@ onmessage = e => {
                         console.log('boxId',boxId)
                         registerNewMessage(fullMessage, boxId)
                             .then(([createdMessage, annexDocs]) => {
-                                return tryToAssignAppendices(createdMessage, fullMessage, annexDocs, boxId).catch(e => {
-                                    console.log("Message annexes creation failed for ", e)
-                                    this.api.message().deleteMessages(createdMessage.id).then(() => { throw e })
-                                })
+                                return tryToAssignAppendices(createdMessage, fullMessage, annexDocs, boxId)
                             })
                     }
                 })
@@ -211,7 +208,7 @@ onmessage = e => {
                     createdDocument.id,
                     _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                 )
-                .then(({extractedKeys: enckeys}) => beResultApi.getInfos(createdDocument.id, enckeys.join(',')))
+                .then(({extractedKeys: enckeys}) => beResultApi.getInfos(createdDocument.id, false, null, enckeys.join(',')))
                 .then(docInfos => {
                     console.log('tryToAssignAppendix',fullMessage,createdDocument,docInfos)
                     return Promise.all(
@@ -259,8 +256,6 @@ onmessage = e => {
                 received: receivedDate,
                 status: tempStatus
             }
-            // console.log('new message : ', newMessage)
-            // console.log('its status', isUnread(fullMessage), isImportant(fullMessage), isCrypted(fullMessage))
 
             return iccMessageXApi.newInstance(user, newMessage)
                 .then(messageInstance => msgApi.createMessage(messageInstance))
@@ -278,6 +273,9 @@ onmessage = e => {
                     return Promise.all(annexPromises)
                         .then(annexDocs => {
                             return [createdMessage, annexDocs]
+                        }).catch(e => {
+                            console.log("Message annexes creation failed for ", e)
+                            iccMessageXApi.message().deleteMessages(createdMessage.id).then(() => { throw e })
                         })
                 })
         }
@@ -312,12 +310,10 @@ onmessage = e => {
 
 
         boxIds && boxIds.forEach(boxId =>{
-            // console.log('boxids foreach',keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
             ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
                 .then(messages => {
                     let p = Promise.resolve([])
                     messages.forEach(m => {
-                        // console.log(m,'its status', isUnread(m), isImportant(m), isCrypted(m))
                         p = p.then(() => {
                             return createDbMessageWithAppendicesAndTryToAssign(m, boxId)
                                 .catch(e => {console.log("Error processing message "+m.id,e); return Promise.resolve()})
@@ -329,19 +325,6 @@ onmessage = e => {
         })
     }
 };
-
-function isUnread(m) {
-    return (m.status & (1 << 1))
-}
-function isImportant(m) {
-    return (m.status & (1 << 2))
-}
-function isCrypted(m) {
-    return (m.status & (1 << 3))
-}
-function hasAnnex(m) {
-    return (m.status & (1 << 4))
-}
 
 function getFromAddress(sender){
     if (!sender) { return "" }
