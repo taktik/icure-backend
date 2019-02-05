@@ -211,7 +211,7 @@ onmessage = e => {
                     createdDocument.id,
                     _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                 )
-                .then(({extractedKeys: enckeys}) => beResultApi.getInfos(createdDocument.id, enckeys.join(',')))
+                .then(({extractedKeys: enckeys}) => beResultApi.getInfos(createdDocument.id, false, null, enckeys.join(',')))
                 .then(docInfos => {
                     console.log('tryToAssignAppendix',fullMessage,createdDocument,docInfos)
                     return Promise.all(

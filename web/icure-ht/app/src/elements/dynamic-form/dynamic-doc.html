@@ -328,7 +328,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     openSuggestions() {
-	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {bubbles: true, composed: true}}))
+	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {documentId: this.documentId}, bubbles: true, composed: true}))
     }
 
 	_documentIdChanged() {

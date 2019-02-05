@@ -986,7 +986,7 @@
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
                             <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]" downloadable="true" on-open-suggestions="openSuggestions" unassigned="[[unimportedPats]]"></dynamic-doc>
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true" on-open-suggestions="openSuggestions" unassigned="[[item.unimportedPats]]"></dynamic-doc>
                         </div>
                     </template>
                 </template>
@@ -1001,7 +1001,7 @@
                                 <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
                                 <div class="scrollbox labolist">
                                     <paper-listbox selected="{{selectedProtocol}}">
-                                        <template is="dom-repeat" items="[[unimportedPats]]">
+                                        <template is="dom-repeat" items="[[documentBeingAssigned.unimportedPats]]">
                                             <paper-item class="unassigned pointer">
                                                 <div class="line">
                                                     <div class="icon">
@@ -1193,10 +1193,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Boolean,
                 value: false
             },
-            docInfos: {
-			    type: Object,
-                value: null
-            },
             searchPatValue: {
 			    type: String,
                 value: ''
@@ -1317,7 +1313,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('isLoadingMessage',true)
 			this.set('manualAssign',false)
             this.set('selectName','')
-            this.set('unimportedPats',[])
             this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
             this.set('isHidden',this.selectMessage.selection.item.transportGuid.startsWith("HIDDEN"))
@@ -1339,6 +1334,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	        console.log('this message',tempSelect)
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
 				.then(docs => docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys))
+                .then(docs => Promise.all(docs.map(d => this._getPatsFromDoc(d))))
                 .then(docs =>{
                     if (docs && docs.length) {
                         Promise.all(docs).then(docs => {
@@ -1365,8 +1361,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
 	}
 
-    openSuggestions() {
+    openSuggestions(e) {
         if(!this.assignModal) {
+            this.set('documentBeingAssigned', this.selectedDocuments.find(d => d.id === e.detail.documentId))
             this.set('assignModal',true)
             this.set('targetPats',[])
             this.set('manualAssign',false)
@@ -1378,6 +1375,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	closeSuggestions() {
+        this.set('documentBeingAssigned', null)
         this.set('toImportPatsSuggestions', [])
         this.set('assignModal',false)
         this.set('selectName','')
@@ -1398,41 +1396,38 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _getPatsFromDoc(document) {
         console.log('_getPatsFromDoc')
-        const tempSelect = this.selectMessage.selection.item
-        const assigned = this.assignedResults ? this.assignedResults : []
-        const unassigned = this.unassignedResults ? this.unassignedResults : []
+        const unassigned = this.unassignedResults || []
         this.set('toImportPatsSuggestions', [])
         this.set('thisDocument',document)
-        this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
-            if (resultInfo.length && unassigned.length) {
-                this.set('docInfos',resultInfo)
-                resultInfo.map(res=>{
-                    Object.keys(unassigned).forEach(k => {
-                        if (unassigned[k] == res.protocol) {
-                            res.formatedDemandDate = this.api.moment(res.demandDate).format('DD/MM/YYYY')
-                            this.push('unimportedPats',res)
-                        }
+        return this.api.crypto()
+            .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
+            .then(({extractedKeys: enckeys}) => this.api.beresultimport().getInfos(document.id, false, null, enckeys.join(',')))
+            .then(resultInfo => {
+                if (resultInfo.length && unassigned.length) {
+                    resultInfo.forEach(res => {
+                        document.docInfo = res
+                        unassigned.forEach(u => {
+                            if (u === res.protocol) {
+                                //res.formatedDemandDate = this.api.moment(res.demandDate).format('DD/MM/YYYY')
+                                (document.unimportedPats || (document.unimportedPats = [])).push(res)
+                            }
+                        })
                     })
-                })
-                const sorted = _.orderBy(this.unimportedPats, 'demandDate', "desc")
-                const sortedDocs = _.orderBy(this.docInfos, 'demandDate', "desc")
-                this.set('unimportedPats',sorted)
-                this.set('docInfos',sortedDocs)
-            }
-        }).catch((err) => {
-            console.warn(err);
-        })
+                    document.unimportedPats = _.orderBy(document.unimportedPats || [], 'demandDate', "desc")
+                }
+            })
+            .then(() => document)
+            .catch(() => document)
     }
 
     _updateSuggestions() {
         console.log('_updateSuggestions')
         if (this.selectedProtocol >= 0) {
             this.set('isLoadingPatsSuggest',true)
-            const unimportedPats = this.unimportedPats ? this.unimportedPats : []
+            const unimportedPats = this.documentBeingAssigned && this.documentBeingAssigned.unimportedPats || []
             const index = this.selectedProtocol
             this.set('selectName', unimportedPats[index] ? `(${unimportedPats[index].lastName})` : '')
-            this.set('docInfo',this.docInfos[index])
-            console.log('docInfo',this.docInfo)
+            this.set('docInfo', this.documentBeingAssigned && this.documentBeingAssigned.docInfo)
             this.set('toImportPatsSuggestions',[])
             this.set('selectedPats',[])
             this.set('targetPats',[])
@@ -1466,11 +1461,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _assignResultToSelected() {
         const tempSelect = this.selectMessage.selection.item
-        const targets = this.targetPats ? this.targetPats : []
-        const docInfo = this.docInfo ? this.docInfo : null
-        const assigned = this.assignedResults ? this.assignedResults : []
-        const unassigned = this.unassignedResults ? this.unassignedResults : []
-        const document = this.thisDocument ? this.thisDocument : null
+        const targets = this.targetPats || []
+        const docInfo = this.docInfo || null
+        const assigned = this.assignedResults || []
+        const unassigned = this.unassignedResults || []
+        const document = this.thisDocument || null
         if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
         if (tempSelect && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
