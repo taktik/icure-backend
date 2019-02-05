@@ -112,7 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('selectedPatient', null);
                 }
             } else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
-                this.api.patient().getPatientWithUser(this.api.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
+                this.api.patient().getPatientWithUser(this.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
             }
         }
 

@@ -834,12 +834,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 value: null
             },
             administrativePostit: {
-                type: String,
-                value: ''
+                type: String
             },
             medicalPostit: {
-                type: String,
-                value: ''
+                type: String
             },
             newHcpCareTeam: {
                 type: Object,
@@ -905,7 +903,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     static get observers() {
-        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)', 'postitChanged(medicalPostit, administrativePostit)'];
+        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)', 'medicalPostitChanged(medicalPostit)', 'administrativePostitChanged(administrativePostit)'];
     }
 
     constructor() {
@@ -920,9 +918,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         super.ready();
     }
 
-    postitChanged(medical, administrative) {
-        this.patient.administrativeNote = administrative
+    medicalPostitChanged(medical) {
         this.patient.note = medical
+
+        this.scheduleSave(this.patient)
+    }
+
+    administrativePostitChanged(administrative) {
+        this.patient.administrativeNote = administrative
 
         this.scheduleSave(this.patient)
     }

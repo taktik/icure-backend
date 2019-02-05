@@ -2733,7 +2733,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatientWithUser(this.api.user,this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user, this.patient.id)
                             .then(patientDto =>{
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
