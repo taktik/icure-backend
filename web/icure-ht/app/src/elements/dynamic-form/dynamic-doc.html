@@ -2,6 +2,7 @@
 
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
 
@@ -97,27 +98,21 @@
 				max-height:400px;
 				align-self: center;
 			}
-            .img-container:hover img{
-                max-height: none;
-                max-width: 100%;
-            }
 
             .txt-container {
                 font-family: "Lucida Console","Lucida Sans","monospace",sans-serif;
                 font-size: small;
                 width: 100%;
                 margin: 0;
-                padding: 4px;
                 height: auto;
-                min-height: 256px;
-                max-height: 640px;
-                padding: 0;
+                max-height: 160px;
+                padding: 8px;
                 box-shadow: none;
-                overflow: scroll;
+                overflow-x: auto;
+                overflow-y: auto;
                 border: 1px solid var(--app-background-color-dark);
-                background: var(--app-background-color);
+                background: var(--app-dark-color-faded);
                 box-sizing: border-box;
-                cursor: all-scroll;
             }
 
             .hoverpointer {
@@ -130,7 +125,7 @@
                 flex-direction: column;
                 background: var(--app-background-color-dark);
                 border-radius: 4px;
-                padding: 4px;
+                padding: 8px;
             }
 
             .resInfos h4 {
@@ -143,21 +138,29 @@
                 flex-direction: row;
             }
             .resInfos .line .label {
-                width: 30%;
+                width: 96px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 display: block;
+                padding-top: 4px;
                 overflow: hidden;
             }
             .resInfos .line span {
                 box-sizing: border-box;
-                margin: 0 8px 0 4px;
                 padding: 4px;
                 background: white;
             }
             .resInfos .indicator {
                 font-size: .85em;
                 text-align: right;
+            }
+
+            .assignToPat {
+                margin: 0 0 8px 0;
+                width: 100%;
+                transform: scale(1);
+                transition: .25s ease-in-out;
+                background: var(--app-secondary-color);
             }
 
 		</style>
@@ -193,13 +196,17 @@
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
                     <span>[[_title(document.name, title)]]</span>
-                    <template is="dom-if" if="[[preview]]">
-                        <pre class="txt-container">[[attachmentContent]]</pre>
+                    <template is="dom-if" if="[[attachmentContent.length]]">
+                        <template is="dom-if" if="[[preview]]">
+                            <pre class="txt-container">[[attachmentContent]]</pre>
+                        </template>
                     </template>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]]
-                        <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
+                    <template is="dom-if" if="[[downloadable]]">
+                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                            [[localize('dl','Download',language)]]
+                            <paper-icon-button icon="file-download"></paper-icon-button>
+                        </div>
+                    </template>
                 </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <span>[[_title(document.name, title)]]</span>
@@ -215,6 +222,11 @@
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
                 <span>[[_title(document.name, title)]]</span>
+                <template is="dom-if" if="[[unassigned.length]]">
+                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
+                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
+                    </paper-button>
+                </template>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -266,8 +278,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Boolean
             },
             preview:{
-                type: Boolean,
-                value: false,
+                type: Boolean
             },
 			document: {
 				type: Object,
@@ -296,6 +307,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLabOrProtocol: {
                 type: Boolean,
                 value: true
+            },
+            unassigned: {
+			    type: Object,
+                value: []
             }
 		};
 	}
@@ -310,6 +325,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _title(name, fallback) {
 	    return name && name !== 'No title' ? name : fallback
+    }
+
+    openSuggestions() {
+	    this.dispatchEvent(new CustomEvent('open-suggestions', {detail: {bubbles: true, composed: true}}))
     }
 
 	_documentIdChanged() {
@@ -386,22 +405,31 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     .then(response => response.text()))
                     .then(xml => this.set('attachmentContent', xml.toString()))
             } else if ((!this.document.mainUti && (!this.document.otherUtis || this.document.otherUtis.length === 0)) || this._plainMimeType(this.document.mainUti, this.document.otherUtis)) {
-                this.api.beresultimport().canHandle(this.document.id).then( isResult => {
-                    if (isResult) {
-                        this.set('isLabOrProtocol', true)
-                        this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr').then(res => {
-                            this.set('labOrProtocolContent', res)
-                        })
-                    } else {
-                        this.set('isLabOrProtocol', false)
-                        this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials:'include'})
-                            .then(response => response.text()))
-                            .then(text => {
-                                this.set('attachmentContent', text)
-                            })
+                this.api.crypto()
+                    .extractKeysFromDelegationsForHcpHierarchy(
+                        this.user.healthcarePartyId,
+                        this.document.id,
+                        _.size(this.document.encryptionKeys) ? this.document.encryptionKeys : this.document.delegations
+                    )
+                    .then(({extractedKeys: enckeys}) => {
+                        this.api.beresultimport().canHandle(this.document.id, enckeys.join(',')).then(isResult => {
+                            if (isResult) {
+                                this.set('isLabOrProtocol', true)
+                                this.api.beresultimport().getInfos(this.document.id, true, this.language || 'fr', enckeys.join(','))
+                                    .then(res => {
+                                        this.set('labOrProtocolContent', res)
+                                    })
+                            } else {
+                                this.set('isLabOrProtocol', false)
+                                this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials: 'include'})
+                                    .then(response => response.text()))
+                                    .then(text => {
+                                        this.set('attachmentContent', text)
+                                    })
 
-                    }
-                })
+                            }
+                        })
+                    })
             } else {
                 this.set('isLabOrProtocol', false)
             }

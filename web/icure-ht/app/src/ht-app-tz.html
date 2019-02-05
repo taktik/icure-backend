@@ -1707,18 +1707,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 600000) {
-                clearInterval(this.timeOutId)
-                if (this.EhboxCheckingActive == false) {
-                    this.set('EhboxCheckingActive', true)
-                    console.log("First launch, check msgs")
-                    this.checkEhboxMessage()
-                } else {
-                    console.log("ehbox already active, launch the interval",period)
-                    this.timeOutId = setInterval(() => {
-                        (this.api.tokenId) ? this.checkEhboxMessage() : this._inboxMessageCheck()
-                    }, period)
-                }
+            _inboxMessageCheck(period = 20000) {
+                this.timeOutId && clearInterval(this.timeOutId)
+                this.timeOutId = setInterval(() => {
+                    this.api.tokenId && this.checkEhboxMessage()
+                }, period)
             }
 
             _routePageChanged(page) {
@@ -1726,10 +1719,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.authenticated = false
 
-                    this.reset()
-
                     this.worker && this.worker.terminate()
-                    this.set('view', 'auth')
+
+                    this.reset()
+                    this.set('routeData.page', '/')
+                    setTimeout(() => window.location.reload(), 100)
                 } else {
                     console.log("page is -> " + page)
 
@@ -2129,22 +2123,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
+                if (!this.user) { return }
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad === -1)
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
-                if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
+                if (localStorage.getItem('receiveMailAuto') === 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
-                    const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+
+                    const getParents = (id, keyPairs) => this.api.hcparty().getHealthcareParty(id).then(hcp => {
+                        keyPairs[hcp.id] = this.api.crypto().RSA.loadKeyPairNotImported(id)
+                        if (hcp.parentId) {
+                            return getParents(hcp.parentId, keyPairs)
+                        }
+                        return keyPairs
+                    })
+
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
-                    this.worker = new Worker()
+                    if (!this.worker) { this.worker = new Worker() }
 
-                    this.getAlternateKeystores().then(alternateKeystores => {
+                    getParents(this.user.healthcarePartyId, {}).then(kp => this.getAlternateKeystores().then(alternateKeystores => {
                         this.worker.postMessage({
                             action: "loadEhboxMessage",
                             hcpartyBaseApi: this.api.hcpartyLight(),
                             fhcHost: this.api.fhc().host,
                             fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                            language: this.language,
                             iccHost: this.api.host,
                             iccHeaders: JSON.stringify(this.api.headers),
                             tokenId: this.api.tokenId,
@@ -2153,9 +2157,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             ehpassword: this.credentials.ehpassword,
                             boxId: ["INBOX","SENTBOX"],
                             alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
-                            keyPair: keyPair
+                            keyPairs: kp
                         })
-				    })
+				    }))
 
                     this.worker.onmessage = e => {
                         this.set('ehboxWebWorkerMessage', e.data.message)

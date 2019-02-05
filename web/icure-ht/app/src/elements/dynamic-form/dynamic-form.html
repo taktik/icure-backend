@@ -18,6 +18,7 @@
 <link rel="import" href="dynamic-sub-form.html">
 <link rel="import" href="dynamic-checkbox.html">
 <link rel="import" href="dynamic-medication-field.html">
+<link rel="import" href="dynamic-subcontact-type-selector.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="ckmeans-grouping.html">
@@ -171,9 +172,13 @@
 					<slot name="titlebar"></slot>
 					<div>
                         <template is="dom-if" if="[[!readOnly]]">
-                            <paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
+                            <dynamic-subcontact-type-selector id="linktosub" subcontact-type="[[subcontactType]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_linkToSubcontactType"></dynamic-subcontact-type-selector>
+                            <paper-tooltip position="bottom" for="linktosub">[[localize('link_sub','Link to sub',language)]]</paper-tooltip>
+                            <paper-icon-button id="delform" class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
+                            <paper-tooltip position="bottom" for="delform">[[localize('del_form','Delete form',language)]]</paper-tooltip>
+                            <paper-tooltip position="bottom" for="linkhe">[[localize('link_he','Link Health Element',language)]]</paper-tooltip>
                             <paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
-                                <paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+                                <paper-icon-button id="linkhe" class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
                                 <paper-listbox slot="dropdown-content">
                                     <template is="dom-repeat" items="[[linkableHealthElements]]" as="he">
                                         <template is="dom-if" if="[[he.id]]">
@@ -361,6 +366,10 @@
                         type: Boolean,
                         value: false
 					},
+                    subcontactType: {
+                        type: Array,
+                        value: () => []
+                    },
                     closed: {
 					    type: Boolean
                     }
@@ -423,7 +432,7 @@
 			}
 
 			_displayedTitle() {
-				return this.title ? this.title : "Loading ...";
+				return this.title && this.dataProvider ? this.title+" "+this.dataProvider.subContactTitle() : "Loading ...";
 			}
 
 			_linkForm(e) {
@@ -705,6 +714,12 @@
             _none(a,b) {
 			    return !a && !b
 			}
+
+            _linkToSubcontactType(e){
+				if(e.detail){
+                    this.dispatchEvent(new CustomEvent('subcontact-type-change', {detail: { type: e.detail, formId: this.dataProvider.getId()}}));
+				}
+            }
 
             _shouldDisplayPrintSubFormIcon(isSubForm, template) {
 			    return isSubForm &&

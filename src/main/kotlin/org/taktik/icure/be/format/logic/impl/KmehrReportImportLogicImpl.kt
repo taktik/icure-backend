@@ -62,15 +62,15 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 	}
 
 	@Throws(IOException::class)
-	override fun canHandle(doc: Document): Boolean {
-		val msg: Kmehrmessage? = extractMessage(doc)
+	override fun canHandle(doc: Document, enckeys: MutableList<String>): Boolean {
+		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } } } ?: false
     }
 
 	@Throws(IOException::class)
-	override fun getInfos(doc: Document, full: Boolean, language: String): List<ResultInfo>? {
-		val msg: Kmehrmessage? = extractMessage(doc)
+	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>): List<ResultInfo>? {
+		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } }.map { t -> ResultInfo().apply {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
@@ -88,8 +88,15 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 	}
 
 	@Throws(IOException::class)
-	override fun doImport(language: String, doc: Document, hcpId: String, protocolIds: List<String>, formIds: List<String>, planOfActionId: String, ctc: Contact): Contact {
-		val msg: Kmehrmessage? = extractMessage(doc)
+	override fun doImport(language: String,
+		doc: Document,
+		hcpId: String,
+		protocolIds: MutableList<String>,
+		formIds: MutableList<String>,
+		planOfActionId: String,
+		ctc: Contact,
+		enckeys: MutableList<String>): Contact? {
+		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		msg?.folders?.forEach { f ->
 			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) } }.forEach { t ->
@@ -144,8 +151,8 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 		return contactLogic!!.modifyContact(ctc)
 	}
 
-	private fun extractMessage(doc: Document) =
-		try { JAXBContext.newInstance(Kmehrmessage::class.java).createUnmarshaller().unmarshal(getBufferedReader(doc)) as Kmehrmessage
+	private fun extractMessage(doc: Document, enckeys: List<String>) =
+		try { JAXBContext.newInstance(Kmehrmessage::class.java).createUnmarshaller().unmarshal(getBufferedReader(doc, enckeys)) as Kmehrmessage
 		} catch(e:Exception) { null }
 
 	private fun demandEpochMillis(t: TransactionType) =

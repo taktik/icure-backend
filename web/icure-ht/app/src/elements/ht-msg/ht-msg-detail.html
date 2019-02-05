@@ -4,6 +4,7 @@
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 
 <link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -135,7 +136,7 @@
 
 			.msg-detail-card {
 				width: 100%;
-                padding: 0 0 12px 12px;
+                padding: 0 16px;
 				display: block;
 				background: transparent;
 				box-shadow: none;
@@ -400,7 +401,6 @@
             }
 
 			.annexe-card{
-				padding: 4px;
                 width: 100%;
                 box-sizing: border-box;
 				background: var(--app-background-color)
@@ -452,7 +452,6 @@
 			}
 
 			.img-container img{
-				width: 100%;
 				max-width: 100%;
 				height: auto;
 			}
@@ -461,8 +460,10 @@
                 width: 100%;
                 padding: 0;
 				border-bottom: 1px solid var(--app-background-color-dark);
-				height: 40px;
+				height: 56px;
                 z-index: 10;
+                padding: 8px;
+                box-sizing: border-box;
             }
             .action-buttons > .buttons {
                 float: left;
@@ -518,6 +519,15 @@
                 margin: 0;
             }
 
+            paper-button.close {
+                border: 1px solid var(--app-background-color-darker);
+                transition: .5s ease;
+                box-sizing: border-box;
+            }
+            paper-button.close:hover {
+                border: 1px solid var(--app-secondary-color);
+            }
+
 			.attached h3{
 				width: 100%;
 				margin: 0;
@@ -560,6 +570,10 @@
 				flex-flow: row nowrap;
 			}
 
+            .justify-content {
+                justify-content: space-between;
+                flex-flow: initial;
+            }
 			.space-between{
 				justify-content: space-between;
                 height: 80px;
@@ -677,8 +691,17 @@
                 width: 100%;
             }
 
+            div.subject {
+                flex-grow: 1;
+                overflow: hidden;
+                max-height: 88px;
+            }
+
             h2.subject {
-                margin-bottom: 0;
+                margin: 24px 0;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
             }
 
             .message-box {
@@ -694,7 +717,6 @@
                 max-width: 50%;
             }
 
-            .assignToPat,
             .confirmPats {
                 background: var(--app-secondary-color);
                 position: relative;
@@ -705,39 +727,17 @@
                 border-radius: 4px;
                 font-size: .8em;
                 text-align: center;
-                width: 80%;
-                max-width: 164px;
+                width: auto;
                 box-shadow: var(--app-shadow-elevation-1);
                 cursor: pointer;
-                transition: .25s ease-in-out;
-            }
-            .assignToPat {
-                margin: 0 auto;
-                left: 50%;
-                transform: translate(-50%,-16px) scale(1);
-            }
-            .assignToPat:hover {
-                transform: translate(-50%,-16px) scale(1.05);
-            }
-            .assignToPat:active {
-                box-shadow: none;
-                transform: translate(-50%,-16px) scale(.95);
-            }
-            .confirmPats:hover {
-                transform: scale(1.05);
-            }
-            .confirmPats:active {
-                box-shadow: none;
-                transform: scale(.95);
             }
 
             #import-suggest {
                 position: fixed;
                 display: flex;
                 top: calc(50vh + 97px);
-                right: 7px;
-                left: initial;
-                width: 81vw;
+                left: calc(16% + 20px);
+                width: calc(80vw - 12px);
                 height: auto;
                 max-height: calc(100vh - 97px);
                 transform: translateY(calc(-50% - 64px));
@@ -804,6 +804,12 @@
                 justify-content: flex-start;
                 width: 100%;
             }
+            #import-suggest .line > div.icon {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                width: 32px;
+            }
             #import-suggest .line > div.grow {
                 flex-grow: 1;
             }
@@ -827,7 +833,7 @@
                 flex-direction: column;
                 border-top: 1px solid var(--app-background-color-darker);
                 text-align: left;
-                padding: 8px 4px 4px 0;
+                padding: 8px;
             }
             .labolist .unassigned:first-child {
                 border: none;
@@ -863,6 +869,17 @@
             }
             .pointer.iron-selected {
                 background: var(--app-secondary-color-dark);
+            }
+
+            paper-button.search-patients{
+                background: var(--app-background-color-darker);
+                margin: 4px;
+            }
+            paper-input.search-patients {
+                flex-grow: 1;
+            }
+            iron-icon.search-patients {
+                padding-top: 16px;
             }
 
             @media screen and (max-width: 1025px) {
@@ -910,19 +927,41 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
                         <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon icon="reply"></iron-icon>[[localize('reply','Reply',language)]]</paper-button>
-                        <template is="dom-if" if="[[isDeleted]]">
-                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="icons:undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <template is="dom-if" if="[[isHidden]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="visibility"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                        </template>
+                        <template is="dom-if" if="[[!isHidden]]">
+                            <template is="dom-if" if="[[!isDeleted]]">
+                                <paper-button class="msg-detail-btn" on-tap="_hideMsg"><iron-icon icon="visibility-off"></iron-icon>[[localize('hide_msg','Hide message',language)]]</paper-button>
+                            </template>
                         </template>
                     </div>
                     <div class="del-button">
-                        <paper-button class="msg-detail-btn" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <template is="dom-if" if="[[isDeleted]]">
+                            <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon icon="undo"></iron-icon>[[localize('restore','Restore',language)]]</paper-button>
+                            <!--<paper-button class="msg-detail-btn" on-tap="_deleteMsgForever"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
+                        </template>
+                        <template is="dom-if" if="[[!isDeleted]]">
+                                <!--<paper-button class="msg-detail-btn" on-tap="_hideMsg"  msgId$='[[msg.id]]' ><iron-icon icon="visibility-off"></iron-icon>[[localize('del','Delete',language)]]</paper-button>-->
+                                <paper-button class="msg-detail-btn" on-tap="_msgToBin"  msgId$='[[msg.id]]' ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        </template>
                     </div>
                 </div>
+
                 <template is="dom-repeat" items="[[messages]]" as="msg">
                     <paper-card class="msg-detail-card" >
-                        <h2 class="subject">[[msg.subject]]</h2>
+                        <div class="layout-horizontal justify-content">
+                            <div class="subject">
+                                <h2 class="subject">[[msg.subject]]</h2>
+                            </div>
+                            <div class="layout-horizontal layout-horizontal--flex-end">
+                                <paper-button class="close pointer" on-tap="close">
+                                    <iron-icon icon="clear"></iron-icon> [[localize('clo','Close',language)]]
+                                </paper-button>
+                            </div>
+                        </div>
                         <div class="layout-horizontal space-between">
                             <div class="msg-header-grid">
                                 <div class="initials-avatar"><span>[[_getInitials(msg.fromAddress)]]</span></div>
@@ -943,20 +982,13 @@
             <!--<div class="attached">-->
                 <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
-                        <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                     resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true"></dynamic-doc>
+                        <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" preview="true" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
+                                     resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true" downloadable="false"></dynamic-doc>
                     </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
                             <dynamic-doc id="[[item.id]]" api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
-                                         resources="[[resources]]" title="[[item.label]]" downloadable="true"></dynamic-doc>
-                            <template is="dom-if" if="[[item.unassignedResults.length]">
-                                <template is="dom-if" if="[[!assignModal]]">
-                                    <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
-                                        [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
-                                    </paper-button>
-                                </template>
-                            </template>
+                                         resources="[[resources]]" title="[[item.label]]" downloadable="true" on-open-suggestions="openSuggestions" unassigned="[[unimportedPats]]"></dynamic-doc>
                         </div>
                     </template>
                 </template>
@@ -974,14 +1006,14 @@
                                         <template is="dom-repeat" items="[[unimportedPats]]">
                                             <paper-item class="unassigned pointer">
                                                 <div class="line">
-                                                    <div>
+                                                    <div class="icon">
                                                         <iron-icon icon="assignment" width="18px"></iron-icon>
                                                     </div>
                                                     <div class="grow">
                                                         <div class="pat-name">[[item.lastName]] [[item.firstName]] [[item.dateOfBirtth]]</div>
-                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
                                                         <small class="labo-info labo-name"><b>[[item.labo]]</b></small>
-                                                        <small class="demand-date">[[item.formatedDemandDate]]</small>
+                                                        <small>[[localize('prot','Protocol',language)]]: [[item.protocol]]</small>
+                                                        <small>[[localize('date','Date',language)]] : [[item.formatedDemandDate]]</small>
                                                     </div>
                                                 </div>
                                             </paper-item>
@@ -990,10 +1022,23 @@
                                 </div>
                             </div>
                             <div>
-                                <h5>[[toImportPatsSuggestions.length]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
                                 <div class="scrollbox patlist">
+                                    <template is="dom-if" if="[[!manualAssign]]">
+                                        <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
+                                    </template>
+                                    <template is="dom-if" if="[[manualAssign]]">
+                                        <div class="line">
+                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                        </div>
+                                    </template>
                                     <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
                                         <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                    </template>
+                                    <template is="dom-if" if="[[toImportPatsSearch.length]]">
+                                        <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                                            <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                        </template>
                                     </template>
                                 </div>
                             </div>
@@ -1086,6 +1131,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Boolean,
                 value: false
             },
+            isHidden: {
+			    type: Boolean,
+                value: false
+            },
             attachmentQuantity: {
 			    type: Number,
                 value: 0
@@ -1149,12 +1198,34 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             docInfos: {
 			    type: Object,
                 value: null
+            },
+            searchPatValue: {
+			    type: String,
+                value: ''
+            },
+            manualAssign: {
+			    type: Boolean,
+                value: false
+            },
+            toImportPatsSearch: {
+			    type: Array,
+                value: []
+            },
+            patsLng: {
+			    type: Number,
+                value: 0
+            },
+            hasLabResult: {
+			    type: Boolean
+            },
+            docTxt: {
+			    type: Object
             }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)','_updateSuggestions(selectedProtocol)'];
+		return ['_focusChanged(selectMessage, selectMessage.*)','_hasLabResult(selectMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
 	}
 
 	constructor() {
@@ -1173,6 +1244,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	close() {
 	    this.set('selectMessage.selection.item',null)
         this._focusChanged()
+        this.classList.remove('selected')
+        this.parentElement.children[0].classList.remove('selected')
     }
 
 	_getInitials(fromAddress){
@@ -1186,8 +1259,49 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
+    toggleManualAssign() {
+	    this.set('searchPatValue','')
+	    this.set('manualAssign',!this.manualAssign)
+        if(!this.manualAssign) this.set('toImportPatsSearch',[])
+    }
+    _updatePatSearch() {
+	    if (this.searchPatValue.length >= 2) {
+            this.set('isLoadingPatsSuggest',true)
+            console.log('updatePatSearch',this.searchPatValue)
+            setTimeout(() =>{
+                this.api.patient().findByNameBirthSsinAutoWithUser(this.user, this.user.healthcarePartyId, this.searchPatValue, null, null, 100, "asc").then(pats=>{
+                    console.log('pats',pats)
+                    this.set('toImportPatsSearch',pats.rows || [])
+                    this.set('isLoadingPatsSuggest',false)
+                })
+            },2000)
+        } else {
+            this.set('toImportPatsSearch',[])
+            this.set('isLoadingPatsSuggest',false)
+        }
+    }
+    _patsLngChanged() {
+	    this.set('patsLng',this.toImportPatsSuggestions.length + this.toImportPatsSearch.length)
+    }
+
+    _hasLabResult() {
+	    if (this.selectMessage && this.selectMessage.selection && this.selectMessage.selection) {
+            const m = this.selectMessage.selection.item
+            if (m && m.assignedResults && m.unassignedResults) {
+                this.set('hasLabResult', (Object.keys(m.assignedResults).length || m.unassignedResults.length) ? true : false)
+            } else {
+                this.set('hasLabResult', false)
+            }
+        } else {
+            this.set('hasLabResult', false)
+        }
+    }
+
     _isDeleted() {
 	    return this.messages[0].transportGuid.startsWith("BIN")
+    }
+    _isHidden() {
+        return this.messages[0].transportGuid.startsWith("HIDDEN")
     }
 
     _sorted(docs) {
@@ -1203,13 +1317,18 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('selectedPats',[])
             this.set('targetPats',[])
 			this.set('isLoadingMessage',true)
+			this.set('manualAssign',false)
             this.set('selectName','')
             this.set('unimportedPats',[])
+            this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectMessage.selection.item.transportGuid.startsWith("BIN"))
+            this.set('isHidden',this.selectMessage.selection.item.transportGuid.startsWith("HIDDEN"))
             this.set('unassignedResults',tempSelect.unassignedResults)
             this.set('assignedResults',tempSelect.assignedResults)
 			this.set('hasUnassignedResults',tempSelect.unassignedResults ? tempSelect.unassignedResults.length ? true : false : false)
             this.set('thisDocument',tempSelect)
+            this.set('bodyDocument',{})
+            this.set('svcToDisplay',[])
             if (tempSelect.status) { // mark as read
                 const tempBytes = tempSelect.status.toString(2), len = tempSelect.status.toString(2).length
                 const a = tempBytes.substring(0,len-2), b = tempBytes.substring(len-1,len)
@@ -1237,9 +1356,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                                 .then(res=>res.text())
                                                 .then(res=>this.set('docTxt',res))
                                         } else {
-                                            // console.log('is not body')
                                             this._getPatsFromDoc(doc)
                                         }
+                                        this.set('document',doc)
                                         return doc
                                 });
                             }
@@ -1264,7 +1383,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					this.getChildren(tempSelect.id)
                     this.set('hasUnassignedResults', false)
                 }
+
             })
+
+
 	    }else{
 			this.set('isLoadingMessage',false)
 			this.set('messages', null);
@@ -1277,8 +1399,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if(!this.assignModal) {
             this.set('assignModal',true)
             this.set('targetPats',[])
+            this.set('manualAssign',false)
+            this.set('searchPatValue','')
+            this.set('toImportPatsSearch',[])
             this.set('isLoadingPatsSuggest',false)
-            this.set('selectedProtocol',-1)
+            this.set('selectedProtocol',0)
         }
     }
 
@@ -1288,6 +1413,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('selectName','')
         this.set('thisDocument',null)
         this.set('selectedProtocol',-1)
+    }
+
+    _getAssignedPats(m) {
+        if(m.assignedResults && m.assignedResults.length) {
+            Promise.all(Object.keys(m.assignedResults).forEach(key=>this.api.patient().getPatient(key)))
+                .then(pats=>{
+                    return pats
+                })
+        } else {
+            return []
+        }
     }
 
     _getPatsFromDoc(document) {
@@ -1300,7 +1436,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.api.beresultimport().getInfos(document.id).then(resultInfo=>{
             if (resultInfo.length && unassigned.length) {
                 this.set('docInfos',resultInfo)
-                console.log('docInfos',resultInfo)
                 resultInfo.map(res=>{
                     Object.keys(unassigned).forEach(k => {
                         if (unassigned[k] == res.protocol) {
@@ -1366,7 +1501,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const assigned = this.assignedResults ? this.assignedResults : []
         const unassigned = this.unassignedResults ? this.unassignedResults : []
         const document = this.thisDocument ? this.thisDocument : null
-        delete docInfo.formatedDemandDate
+        if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
         if (tempSelect && targets && docInfo && assigned && unassigned && document) {
             targets.map(thisPat=>{
                 console.log('_assignResultToSelected',tempSelect, targets, docInfo, assigned, unassigned, document,thisPat)
@@ -1376,8 +1511,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     modified: new Date().getTime() ,
                     author: this.user.id,
                     responsible: this.user.healthcarePartyId,
-                    openingDate: moment().format('YYYYMMDDhhmmss') || '',
-                    closingDate: moment().format('YYYYMMDDhhmmss') || '',
+                    openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                    closingDate: moment().format('YYYYMMDDHHmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
                     // cryptedForeignKeys: document.encryptionKeys,
@@ -1385,17 +1520,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 }).then(c => {
                     c.services.push({
                         id: this.api.crypto().randomUuid(),
-                        codes: [{type:'labResult',code:c.id}],
                         label: 'labResult',
-                        content:{
-                            'patientName': {stringValue: thisPat.lastName.toUpperCase()+' '+thisPat.firstName+' ('+thisPat.ssin+')'},
-                            'patientId': {stringValue: thisPat.id}
-                        }
+                        content: _.fromPairs([[this.language, {stringValue:docInfo.labo}]]),
+                        tags:[{type:'CD-TRANSACTION', code:'labresult'}]
                     })
-                    console.log('c services',c.services)
-                    return this.api.contact().createContactWithUser(this.user,c)
+                    return this.api.contact().createContactWithUser(this.user, c)
                 }).then(c => {
-                    console.log('createContactWithUser',c)
                     return this.api.form().newInstance(this.user, thisPat, {
                         contactId: c.id,
                         // cryptedForeignKeys: thisPat.cryptedForeignKeys,
@@ -1404,7 +1534,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         console.log('should do Import',f)
                         return this.api.form().createForm(f).then(f =>
                             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                                this.api.beresultimport().doImport(document.id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, c)
+                                this.api.crypto()
+                                    .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
+                                    .then(({extractedKeys: enckeys}) => this.api.beresultimport().doImport(document.id, hcp.id, hcp.languages.find(e => !!e) || "en", docInfo.protocol, f.id, null, enckeys.join(','), c))
                             )
                         )
                     })
@@ -1426,7 +1558,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return this.api.message().modifyMessage(tempSelect).then(msg => {
                         if (msg.unassignedResults.length == 0) {
                             this.closeSuggestions()
-                            return this._removeMsg(msg)
+                            this._msgToBin(msg)
                         } else {
                             this._focusChanged()
                         }
@@ -1589,55 +1721,54 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
 
-    _removeMsg(){
+    _hideMsg() {
         let msg = this.messages[0]
         if (msg) {
-            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-            const delBox = thisBox == 'INBOX' ? 'BININBOX' : thisBox =='SENTBOX' ? 'BINSENTBOX' : 'BININBOX'
-            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            const idForApi = msg.id
-            console.log('remove',idOfMsg,thisBox,delBox)
-            if (!msg.transportGuid.startsWith("BIN")) {
-                this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, delBox)
-                    .then(()=>{
-                        msg.transportGuid = delBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                        this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                    })
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+            if (!msg.transportGuid.startsWith('HIDDEN')){
+                msg.transportGuid = 'HIDDEN'+msg.transportGuid
             } else {
-                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], delBox)
+                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
             }
-            const target = this.parentElement.parentNode.children[1]
-            target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+        }
+    }
+
+    _msgToBin(param){
+        let msg = param ? param : this.messages[0]
+        if (msg) {
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'BINSENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
     }
 
     _restoreMsgs(){
         let msg = this.messages[0]
         if (msg) {
-            const idOfMsg = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            const idForApi = msg.id
-            const thisBox = msg.transportGuid.substring(0,msg.transportGuid.indexOf(':'))
-            const restoreBox = thisBox == 'BININBOX' ? 'INBOX' : thisBox == 'BINSENTBOX' ? 'SENTBOX' : 'INBOX'
-            console.log('restore',idOfMsg,thisBox,restoreBox)
-            this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], thisBox, restoreBox)
-                // .then(this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [idOfMsg], restoreBox))
-                .then(()=>{
-                    msg.transportGuid = restoreBox + msg.transportGuid.substring(msg.transportGuid.indexOf(':'))
-                    this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
-                })
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+            this.api.message().modifyMessage(msg).then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
         }
-        const target = this.parentElement.parentNode.children[1]
-        target.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
     }
 
-    _restoreMsgs(){
+    _deleteMsgForever() {
         let msg = this.messages[0]
         if (msg) {
-            if(msg.transportGuid.startsWith("BIN")){
-                msg.transportGuid = msg.transportGuid.substring(3);
-                this.api.message().modifyMessage(msg)
-                    .then(()=> this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
-            }
+            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
+
+            if (msg.transportGuid.includes('INBOX')) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'INBOX', 'BININBOX').then(()=>{
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BININBOX')
+                    .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            })
+            if (msg.transportGuid.includes('SENTBOX')) this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'SENTBOX', 'BINSENTBOX').then(()=>{
+                this.api.fhc().Ehboxcontroller().deleteMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, [id], 'BINSENTBOX')
+                    .then(()=>this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })))
+            })
+
         }
     }
 
@@ -1783,12 +1914,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							contactId: c.id,
 							descr: "Lab" + new Date().getTime(),
 						}).then(f => this.api.form().createForm(f)).then(f => {
-							this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-								this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c)
-									.then(c => console.log("Contact id" + c.id))
-							})
-						})
-
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                                this.api.crypto()
+                                    .extractKeysFromDelegationsForHcpHierarchy(hcp.id, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
+                                    .then(({extractedKeys: enckeys}) => this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c))
+                            )
+                        })
 					});
 				})
 			});
