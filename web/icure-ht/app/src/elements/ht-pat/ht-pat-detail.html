@@ -1577,8 +1577,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="genInsDialog">
             <h2 class="modal-title">[[localize('gen_ins','General insurability',language)]]</h2>
-            <!-- TODO: add switch to get Genins as MMH  -->
-            <!-- TODO: Show switch only when MMH token is present  -->
             <div class="genIns-info">
                 <div>
                     <p><b>[[localize('ssin','SSIN',language)]]:</b> [[curGenInsResp.inss]]</p>
@@ -2269,7 +2267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('genInsHospitalized', false);
                 //TODO: init MMH if possible
                 this.$.genInsDialog.open();
-                if(!this.curGenInsResp || this.curGenInsResp.inss !== this.patient.ssin){
+                if(!this.curGenInsResp || this.curGenInsResp.inss !== this.cleanNiss(this.patient.ssin)){
                     this.set('curGenInsResp', null);
                     this._requestGenins();
                 }
@@ -2364,14 +2362,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const dStart = Date.parse(this.genInsDateFrom);
 
                 if (this.api.tokenId || (this.api.tokenIdMH && asMMH)) {
-                    console.log("(this.api.tokenId) {")
                     this.set('isLoading', true)
 
                     if(((this.genInsNiss && this.genInsNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.genInsOA && this.genInsOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp => {
                                     return this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
-                                        this.genInsNiss ? this.genInsNiss.trim() : this.patient.ssin,
+                                        this.genInsNiss ? this.genInsNiss.trim() : this.cleanNiss(this.patient.ssin),
                                         asMMH ? this.api.tokenIdMH : this.api.tokenId, asMMH ? this.api.keystoreIdMH : this.api.keystoreId, asMMH ? this.api.credentials.ehpasswordMH : this.api.credentials.ehpassword,
                                         asMMH ? this.api.nihiiMH : hcp.nihii, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
                                 }
@@ -2384,7 +2381,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         return null;
                                     }
                                 }
-                            )
+                            ).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null})
                     } else {
                         //there is no niss
                         let oa = this.genInsOA;
@@ -2408,7 +2405,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return null;
                                         }
                                     }
-                                )
+                                ).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null})
                         });
                     }
                 } else {
@@ -2586,7 +2583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .then(hcp =>
                             this.api.fhc().Therlinkcontroller().getAllTherapeuticLinksUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber,
+                                this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber,
                                 null, null,null,null ) //returns Array of therapeuticLink
                         ).then(therLinkResp => {
                                 if (therLinkResp) {
@@ -2612,7 +2609,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                            this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
+                            this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
                     ).then(therLinkResp => {
                             if(therLinkResp.therapeuticLink) {
                                 this.showPatientTherLinkState()
@@ -2700,7 +2697,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                            this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
+                            this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                     ).then(consentResp => {
                             if(consentResp.consent) {
                                 return(consentResp.consent)
@@ -3273,7 +3270,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //api.MHContactPersonName
                     //api.MHContactPersonSsin
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
-                        patient.ssin,
+                        this.cleanNiss(patient.ssin),
                         this.api.tokenId ? this.api.tokenId : this.api.tokenIdMH, this.api.tokenId ? this.api.keystoreId : this.api.keystoreIdMH, this.api.tokenId ? this.api.credentials.ehpassword : this.api.credentials.ehpasswordMH,
                         this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null
                     ).then(gi => {
@@ -3355,13 +3352,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 }
                             })
                         }
-                        this.selectedTherLink = null
-                        this.showPatientConsentState()
-                        this.showPatientTherLinkState()
-                        this.showHubState()
-                        this.updateEdmgStatus()
-                    }))
 
+                    }).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null}))
+                    this.selectedTherLink = null
+                    this.showPatientConsentState()
+                    this.showPatientTherLinkState()
+                    this.showHubState()
+                    this.updateEdmgStatus()
                 }
             }
 
@@ -3371,13 +3368,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.tlStatus.classList.remove('noTl');
                         this.$.tlStatus.classList.remove('tlOk');
 
-                        if(therLinks[0]) {
+                        if(therLinks && therLinks[0]) {
                             tlOk = true;
                         }
                         this.$.tlStatus.classList.add(tlOk ? 'tlOk' : 'noTl');
                         Polymer.updateStyles(this.$.tlStatus)
                     }
                 )
+            }
+
+            cleanNiss(niss){
+                return niss.replace(/ /g, "").replace(/-/g,"").replace(/\./g,"").replace(/_/g,"").replace(/\//g,"")
             }
 
             showPatientConsentState(){
