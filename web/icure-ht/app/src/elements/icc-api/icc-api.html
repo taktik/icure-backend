@@ -379,7 +379,7 @@
 
         shortLivedCache(key, loader) {
             const cache = this.slCache || ((this.slCache = {}))
-            const clean = () => { const now = +new Date(); Object.keys(cache).filter(k =>  cache[k].ttl < now ).forEach(k => delete cache[k]); console.log(`slc: ${cache.length()} items`) }
+            const clean = () => { const now = +new Date(); Object.keys(cache).filter(k =>  cache[k].ttl < now ).forEach(k => delete cache[k]); console.log(`slc: ${cache.length} items`) }
             const wrapper = cache[key]
             if (wrapper) {
                 this.cleaner && clearTimeout(this.cleaner)

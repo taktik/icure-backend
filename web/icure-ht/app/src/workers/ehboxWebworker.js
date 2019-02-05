@@ -37,7 +37,7 @@ onmessage = e => {
         //Avoid the hit to the local storage to load the key pair
         Object.keys(e.data.keyPairs).forEach( k => iccCryptoXApi.cacheKeyPair(e.data.keyPairs[k], k) )
 
-        const iccDocumentXApi   = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccHcpartyApi)
+        const iccDocumentXApi   = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
         const iccContactXApi	= new iccXApi.IccContactXApi(iccHost, iccHeaders,iccCryptoXApi)
         const iccFormXApi		= new iccXApi.IccFormXApi(iccHost, iccHeaders,iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
@@ -116,7 +116,7 @@ onmessage = e => {
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
-                            return iccContactApi.createContact(c)
+                            return iccContactApi.createContactWithUser(this.user, c)
                         }).then(c => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
@@ -124,9 +124,9 @@ onmessage = e => {
                                 descr: "Lab " + new Date().getTime(),
                             }).then(f => {
                                 return iccFormXApi.createForm(f).then(f =>
-                                    this.crypto
+                                    iccCryptoXApi
                                         .extractKeysFromDelegationsForHcpHierarchy(
-                                            user.healtcarePartyId,
+                                            user.healthcarePartyId,
                                             createdDocument.id,
                                             _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                                         )
@@ -205,9 +205,9 @@ onmessage = e => {
 
         const tryToAssignAppendix = (fullMessage, createdDocument) => {
             // console.log('tryToAssignAppendix',fullMessage,createdDocument)
-            return this.crypto
+            return iccCryptoXApi
                 .extractKeysFromDelegationsForHcpHierarchy(
-                    user.healtcarePartyId,
+                    user.healthcarePartyId,
                     createdDocument.id,
                     _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                 )
@@ -266,7 +266,7 @@ onmessage = e => {
                 .then(messageInstance => msgApi.createMessage(messageInstance))
                 .then(createdMessage => {
                     // register body and annexes as documents
-                    let annexPromises = (fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => {
+                    const annexPromises = (fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => {
                         if (a == null) {
                             console.log("annex is null")
                             return null
@@ -274,6 +274,7 @@ onmessage = e => {
                             return registerNewDocument(a, createdMessage, fullMessage)
                         }
                     }).filter(a => a != null)
+
                     return Promise.all(annexPromises)
                         .then(annexDocs => {
                             return [createdMessage, annexDocs]
@@ -297,9 +298,9 @@ onmessage = e => {
                     return [createdDocument, byteContent]
                 })
                 .then(([createdDocument, byteContent]) => {
-                    this.crypto
+                    return iccCryptoXApi
                         .extractKeysFromDelegationsForHcpHierarchy(
-                            user.healtcarePartyId,
+                            user.healthcarePartyId,
                             createdDocument.id,
                             _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
                         )

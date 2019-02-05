@@ -891,7 +891,6 @@
                         });
                     },
                     filter: (data, text, uuid, comboBoxFirstHit=false) => {
-
                         const uuids = (self.uuids || (self.uuids = {}))
 						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
                         const words = ( comboBoxFirstHit || (!comboBoxFirstHit && data.source === "codes" && _.trim(uuid) && !_.trim(text)) ) ? [""] : text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);

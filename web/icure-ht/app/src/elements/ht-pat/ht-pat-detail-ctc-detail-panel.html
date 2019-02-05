@@ -1948,11 +1948,11 @@
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 				}).finally(() => {
 				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-                    this._default()
-                    if (this.contactsFormsAndDocuments.length) { // auto display in list if labresult
-                        if (this.contactsFormsAndDocuments[0].unmappedServices.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes.length && this.contactsFormsAndDocuments[0].unmappedServices[0].codes[0].type === "labResult") this._list()
-                        if (this.contactsFormsAndDocuments[0].forms.length && this.contactsFormsAndDocuments[0].forms[0].form && this.contactsFormsAndDocuments[0].forms[0].form.descr.startsWith('Lab')) this._list()
-                    }
+                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.form.formTemplateId)) && (!this.contactsFormsAndDocuments.some(f => f.ctc === this.currentContact)) && (this.contactsFormsAndDocuments.some(f => f.ctc && f.ctc.services && f.ctc.services.length) || this.contactsFormsAndDocuments.some(f => f.unmappedServices && f.unmappedServices.length))) {
+                        this._list()
+                    } else {
+                        this._default()
+					}
 				    this.set('isLoadingDoc',false)
                 });
 
