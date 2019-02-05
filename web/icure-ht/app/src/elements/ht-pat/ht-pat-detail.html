@@ -2816,7 +2816,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return;
                 }
                 const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
-                ;(e.detail.services || []).forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
+                const services = (e.detail.services || (e.detail.service && [e.detail.service]) || [] )
+                services.forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
                 this.saveContact(this.currentContact)
             }
 
@@ -2876,7 +2877,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             filterEvents() {
-                this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending'))), it => -this.api.moment(it.valueDate)));
+                const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
+                this.set('events', _.sortBy(filteredEvents, it => -this.api.moment(it.valueDate)));
             }
 
             _lateEventCssClass(e) {
@@ -3796,7 +3798,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             shortServiceDescription(svc, lng) {
-                let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng);
+                let rawDesc
+                console.log(svc)
+                if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
+                    rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
+                }else {
+                    rawDesc = this.api.contact().shortServiceDescription(svc, lng) || "";
+                }
                 return rawDesc && '' + rawDesc || '';
             }
 
@@ -4217,7 +4225,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             openActionDialog(e){
                 console.log("svcs",e.detail.service)
-                this.$["planActionForm"].open(e.detail.service,e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="cancelled" || e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="completed")
+                const lifecycle = e.detail.service.tags.find(tag => tag.type === "CD-LIFECYCLE") || {}
+                this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
             }
 
         }

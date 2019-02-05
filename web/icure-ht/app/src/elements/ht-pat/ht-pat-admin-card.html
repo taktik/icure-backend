@@ -136,10 +136,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border: 0;
                 font-family: Roboto, sans-serif;
                 --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
-                margin: 0 32px 32px;
-
-
-
+                margin: 0 0 32px 0;
 
                 --vaadin-grid-cell: {
                     padding: 8px;
@@ -403,7 +400,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 10px 1.2em;
             }
 
+            paper-card {
+                width: 100%;
+                margin-bottom: 32px;
+                padding: 16px;
+            }
 
+            .not-form-page {
+                padding: 32px
+            }
 
             iron-icon.smaller {
                 padding-right: 8px;
@@ -414,8 +419,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .subtitle{
                 display:block;
 				@apply --paper-font-body2;
-				@apply --padding-32;
-                padding-top: 0;
 				padding-bottom: 8px;
                 margin: 0;
             }
@@ -490,7 +493,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <div class="page-container">
-                            <div>
+                            <div class="not-form-page">
                                 <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
                                 <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]]
                                              active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
@@ -527,8 +530,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid>
-                            </div>
-                            <div>
+
                                 <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
                                 <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalPatientCareTeam]]"
                                              active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
@@ -578,8 +580,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <div class="page-container">
-                        <h4 class="subtitle">[[localize('adm_post_it_adm','Post-it administratif',language)]]</h4>
-                        <paper-textarea label="[[localize('adm_post_it_adm','Post-it administratif',language)]]"></paper-textarea>
+                        <div class="not-form-page">
+                            <h4 class="subtitle">[[localize('adm_post_it_adm','Post-it administratif',language)]]</h4>
+                            <paper-card>
+                                <paper-textarea no-label-float value="{{administrativePostit}}"></paper-textarea>
+                            </paper-card>
+
+                            <h4 class="subtitle">[[localize('adm_post_it_adm','Post-it médical',language)]]</h4>
+                            <paper-card>
+                                <paper-textarea no-label-float value="{{medicalPostit}}"></paper-textarea>
+                            </paper-card>
+                        </div>
                     </div>
                 </page>
                 <page>
@@ -822,7 +833,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Object,
                 value: null
             },
-
+            administrativePostit: {
+                type: String,
+                value: ''
+            },
+            medicalPostit: {
+                type: String,
+                value: ''
+            },
             newHcpCareTeam: {
                 type: Object,
                 value: {
@@ -887,7 +905,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     static get observers() {
-        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)'];
+        return ['patientChanged(api,user,patient)', 'partnershipsChanged(patient.partnerships.*)', 'postitChanged(medicalPostit, administrativePostit)'];
     }
 
     constructor() {
@@ -902,6 +920,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         super.ready();
     }
 
+    postitChanged(medical, administrative) {
+        this.patient.administrativeNote = administrative
+        this.patient.note = medical
+
+        this.scheduleSave(this.patient)
+    }
+
     patientChanged() {
         if (!this.api || !this.user) { return }
 
@@ -910,6 +935,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 
         if (this.patient) {
+
+            this.set('administrativePostit', this.patient.administrativeNote || "")
+            this.set('medicalPostit', this.patient.note || '')
+
             this.api.getRegistry('patient').listeners['ht-pat-admin'] = {target: this, pool: [this.patient.id], callbacks: [this.partnershipsChanged.bind(this)]}
 
             this.initCurrentCareTeam();
