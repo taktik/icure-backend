@@ -602,7 +602,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color-light);
             }
 
-
+            span.warn {
+                color: var(--app-error-color);
+                background: transparent !important;
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -1291,8 +1294,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
 
             <div class="buttons">
+                <span class="warn">[[warn]]</span>
                 <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
+                <template is="dom-if" if="[[validInvite]]">
+                    <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
+                </template>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">
@@ -1530,18 +1536,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     updateAction: {
                         type: String,
                         value: null
+                    },
+                    validInvite: {
+                        type: Boolean,
+                        value: false
+                    },
+                    warn: {
+                        type: String
                     }
                 }
             }
 
             static get observers() {
                 return [
-                    '_routePageChanged(routeData.page)'
+                    '_routePageChanged(routeData.page)',
+                    '_isValidInvite(lastName,firstName,email)'
                 ]
             }
 
             constructor() {
                 super()
+            }
+
+            _isValidInvite() {
+                this.set('validInvite', this.lastName.length && this.firstName.length && this.isMailValid(this.email))
+            }
+
+            isMailValid(str) {
+                setTimeout(()=>{
+                    const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                    if (filter.test(str)) {
+                        this.set('warn','')
+                        return true
+                    } else {
+                        this.set('warn',this.localize('please_valid_mail','Please enter valid email',this.language))
+                        return false
+                    }
+                },2000)
             }
 
             setUrls() {
@@ -2117,18 +2148,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirmUserInvitation() {
-
-                // See if user exists first, based on email address
-                this.api.user().getUserByEmail(this.email).then(existingUserDto => {
-                    if (existingUserDto && existingUserDto.id) {
-                        this.$['ht-invite-hcp-user-already-exists'].open()
-                    } else {
+                if (this.validInvite) {
+                    // See if user exists first, based on email address
+                    this.api.user().getUserByEmail(this.email).then(existingUserDto => {
+                        if (existingUserDto && existingUserDto.id) {
+                            this.$['ht-invite-hcp-user-already-exists'].open()
+                        } else {
+                            this.createAndInviteUser();
+                        }
+                    }).catch( error=> {
                         this.createAndInviteUser();
-                    }
-                }).catch( error=> {
-                    this.createAndInviteUser();
-                })
-
+                    })
+                }
             }
 
             checkEhboxMessage() {
