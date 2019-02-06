@@ -606,6 +606,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-error-color);
                 background: transparent !important;
             }
+            paper-tooltip.big {
+                transform: translateY(8px) scale(1.5);
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
