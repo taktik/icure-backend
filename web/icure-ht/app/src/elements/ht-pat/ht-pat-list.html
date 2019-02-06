@@ -2441,11 +2441,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     filtersProperty.typedValue.stringValue = '{}'
                 }
 
+                const key = this.filterName.length ? this.filterName : this.filterValue.substring(0,5)+'...'
+
                 const filters = JSON.parse(filtersProperty.typedValue.stringValue)
                 try {
-                    filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+                    filters[key] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
                 } catch (e) {
-                    filters[this.filterName] = {
+                    filters[key] = {
                         '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
                         'healthcarePartyId': this.user.healthcarePartyId,
                         'searchString': this.filterValue
