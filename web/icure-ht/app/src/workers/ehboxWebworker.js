@@ -257,7 +257,7 @@ onmessage = e => {
                 status: tempStatus
             }
 
-            return iccMessageXApi.newInstance(user, newMessage)
+            return iccMessageXApi.newInstance(_.omit(user, ['autoDelegations']), newMessage)
                 .then(messageInstance => msgApi.createMessage(messageInstance))
                 .then(createdMessage => {
                     // register body and annexes as documents
