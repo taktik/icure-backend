@@ -2876,7 +2876,147 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             filterEvents() {
-                this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending'))), it => -this.api.moment(it.valueDate)));
+                this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending'))), it => this.api.moment(it.valueDate)));
+
+                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                if(age>=25 && age<=65 && this.patient.gender==="female" &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
+                    this.api.code().getCode("BE-THESAURUS-PROCEDURES|X37.002|3.1.0").then(procedure =>{
+                        const service = {
+                            label : "Actes",
+                            modified : +new Date(),
+                            responsible : this.hcp.id,
+                            content : {
+                                fr: {
+                                    stringValue: procedure.label.fr,
+                                    medicationValue: null
+                                },
+                                nl: {
+                                    stringValue: procedure.label.nl,
+                                    medicationValue: null
+                                },
+                                en: {
+                                    stringValue: procedure.label.en,
+                                    medicationValue: null
+                                }
+                            },
+                            codes : [
+                                procedure
+                            ],
+                            valueDate : +new Date(),
+                            tags : [
+                                {
+                                    type: "CD-LIFECYCLE",
+                                    code: "pending",
+                                    version: "1.0",
+                                }
+                            ]
+                        }
+
+                        if (this.currentContact) {
+                            this._createService(new CustomEvent("create-service", {
+                                detail: {service: service, hes: []},
+                                bubbles: true,
+                                composed: true
+                            }))
+                            this.events.push(service)
+                            this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
+                        }
+                    })
+
+                }
+                if(age>=50 && age<=69 && this.patient.gender==="female" &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="X41.005")).length){//mammotest
+                    this.api.code().getCode("BE-THESAURUS-PROCEDURES|X41.005|3.1.0").then(procedure =>{
+                        const service = {
+                            label : "Actes",
+                            modified : +new Date(),
+                            responsible : this.hcp.id,
+                            content : {
+                                fr: {
+                                    stringValue: procedure.label.fr,
+                                    medicationValue: null
+                                },
+                                nl: {
+                                    stringValue: procedure.label.nl,
+                                    medicationValue: null
+                                },
+                                en: {
+                                    stringValue: procedure.label.en,
+                                    medicationValue: null
+                                }
+                            },
+                            codes : [
+                                procedure
+                            ],
+                            valueDate : +new Date(),
+                            tags : [
+                                {
+                                    type: "CD-LIFECYCLE",
+                                    code: "pending",
+                                    version: "1.0",
+                                }
+                            ]
+                        }
+
+                        if (this.currentContact) {
+                            this._createService(new CustomEvent("create-service", {
+                                detail: {service: service, hes: []},
+                                bubbles: true,
+                                composed: true
+                            }))
+                            this.events.push(service)
+                            this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
+                        }
+                    })
+
+                }
+                if(age>=50 && age<=74 &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
+                    this.api.code().getCode("BE-THESAURUS-PROCEDURES|D36.002|3.1.0").then(procedure =>{
+                        const service = {
+                            label : "Actes",
+                            modified : +new Date(),
+                            responsible : this.hcp.id,
+                            content : {
+                                fr: {
+                                    stringValue: procedure.label.fr,
+                                    medicationValue: null
+                                },
+                                nl: {
+                                    stringValue: procedure.label.nl,
+                                    medicationValue: null
+                                },
+                                en: {
+                                    stringValue: procedure.label.en,
+                                    medicationValue: null
+                                }
+                            },
+                            codes : [
+                                procedure
+                            ],
+                            valueDate : +new Date(),
+                            tags : [
+                                {
+                                    type: "CD-LIFECYCLE",
+                                    code: "pending",
+                                    version: "1.0",
+                                }
+                            ]
+                        }
+
+                        if (this.currentContact) {
+                            this._createService(new CustomEvent("create-service", {
+                                detail: {service: service, hes: []},
+                                bubbles: true,
+                                composed: true
+                            }))
+                            this.events.push(service)
+                            this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
+                        }
+                    })
+
+                }
             }
 
             _lateEventCssClass(e) {
