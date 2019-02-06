@@ -162,7 +162,11 @@
                 padding: 10px 1.2em;
                 text-transform: capitalize;
             }
-
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
             .modal-button--save{
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
@@ -1325,8 +1329,10 @@
                                                       item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
                                                       label="[[localize('code_type','Code type',language)]]"
                                                       value="{{selectedMediumCodeType}}"></vaadin-combo-box>
-                                    <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
-                                    <paper-icon-button icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
+                                    <paper-icon-button id="add-nmcl" icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
+                                    <paper-tooltip position="left" for="add-nmcl">[[localize('add_nmcl','Add nomenclature',language)]]</paper-tooltip>
+                                    <paper-icon-button id="add-fav" icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
+                                    <paper-tooltip position="left" for="add-fav">[[localize('add_to_fav','Add to favorites',language)]]</paper-tooltip>
                                 </div>
                             </template>
                         </div>
@@ -1427,7 +1433,7 @@
                 <div class="buttons">
                     <ht-spinner class="validAndTarif" active="[[isLoadingValidation]]"></ht-spinner>
                     <ht-spinner class="validAndTarif" active="[[isLoadingJustif]]"></ht-spinner>
-                    <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
                         <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">[[localize('can_eattest','Cancel eattest',language)]]</paper-button>

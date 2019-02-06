@@ -407,6 +407,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateX(50%);
                 margin: 0;
                 height: 40%;
+                display: flex;
+                flex-direction: column;
+            }
+            #ht-invite-hcp h3.modal-title {
+                margin: 0 !important;
             }
             paper-dialog#ht-invite-hcp-user-already-exists{
                 width: 60%;
@@ -425,6 +430,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             #ht-invite-hcp .buttons * {
                 background: var(--app-secondary-color-dark);
+            }
+            #ht-invite-hcp .buttons .modal-button--cancel {
+                background: transparent;
+                border: 1px solid var(--app-background-color-dark);
             }
 
             .formNewHcp {

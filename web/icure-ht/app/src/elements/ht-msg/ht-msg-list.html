@@ -505,7 +505,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'hidden')]]">
                                 <paper-icon-button id="hide-button" icon="visibility-off" on-tap="_hideMsg"></paper-icon-button>
                             </template>
-                            <paper-tooltip for="hide-button" offset="2">[[localize('hide_sel','Hide selected',language)]]</paper-tooltip>
+                                <paper-tooltip for="hide-button" offset="2">[[localize('hide_sel','Hide selected',language)]]</paper-tooltip>
+                            </template>
                         </template>
                         <template is="dom-if" if="[[_isEqual(selectList.selection.item,'hidden')]]">
                             <paper-icon-button id="show-button" icon="undo" on-tap="_hideMsg"></paper-icon-button>

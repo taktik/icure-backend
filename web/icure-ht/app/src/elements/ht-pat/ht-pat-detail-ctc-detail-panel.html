@@ -279,6 +279,11 @@
 				text-transform: capitalize;
 			}
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
@@ -592,7 +597,8 @@
                     <div class="ctc-header">
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
-                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <dynamic-subcontact-type-selector id="subctc-type-a" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <paper-tooltip position="right" for="subctc-type-a">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -609,7 +615,8 @@
                     <div class="ctc-header">
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
-                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <dynamic-subcontact-type-selector id="subctc-type-b" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <paper-tooltip position="right" for="subctc-type-b">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -626,7 +633,8 @@
                     <div class="ctc-header">
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
-                                <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <dynamic-subcontact-type-selector id="subctc-type-c" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                <paper-tooltip position="right" for="subctc-type-c">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -643,7 +651,8 @@
 						<div class="ctc-header">
                             <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
 								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
-                                    <dynamic-subcontact-type-selector subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                    <dynamic-subcontact-type-selector id="subctc-type-d" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
+                                    <paper-tooltip position="right" for="subctc-type-d">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
 								</template>
 							</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
@@ -788,7 +797,7 @@
 					</paper-radio-group>
 				</template>
 				<div class="buttons">
-					<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+					<paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 					<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
 				</div>
 			</div>
@@ -937,7 +946,7 @@
 					detailPanelItems: {
 						type: Array,
 						value: function () {
-							return [{ icon: "icure-svg-icons:laboratory",filter:[{type:'CD-ITEM',code:['parameter']}], title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" },
+							return [{ icon: "icure-svg-icons:laboratory",filter:[{type:'CD-ITEM',code:['parameter']}], title: {en: "Lab Results", fr:"Résultats de laboratoire", nl:"Lab Results"}, id: "LabResults" },
 								{ icon: "icure-svg-icons:prescription", filter:[{type:'CD-ITEM',code:['treatment']}],  title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" },
 								{ icon: "icure-svg-icons:blood-sugar", filter:[{type:'CD-PARAMETER',code:['bloodsugar']}],  title: {en: "BloodSugar", fr:"Analyse de sang", nl:"BloodSugar"}, id: "BloodSugar" },
 								{ icon: "icure-svg-icons:blood-pressure", filter:[{type:'CD-PARAMETER',code:['sbp','dbp']}],  title: {en: "BloodPressure", fr:"Pression sanguine", nl:"BloodPressure"}, id: "BloodPressure" },
