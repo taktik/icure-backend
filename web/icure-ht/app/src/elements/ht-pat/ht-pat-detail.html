@@ -1577,8 +1577,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="genInsDialog">
             <h2 class="modal-title">[[localize('gen_ins','General insurability',language)]]</h2>
-            <!-- TODO: add switch to get Genins as MMH  -->
-            <!-- TODO: Show switch only when MMH token is present  -->
             <div class="genIns-info">
                 <div>
                     <p><b>[[localize('ssin','SSIN',language)]]:</b> [[curGenInsResp.inss]]</p>
@@ -2269,7 +2267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('genInsHospitalized', false);
                 //TODO: init MMH if possible
                 this.$.genInsDialog.open();
-                if(!this.curGenInsResp || this.curGenInsResp.inss !== this.patient.ssin){
+                if(!this.curGenInsResp || this.curGenInsResp.inss !== this.cleanNiss(this.patient.ssin)){
                     this.set('curGenInsResp', null);
                     this._requestGenins();
                 }
@@ -2283,7 +2281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
                         this.set('patient.gender', this.curGenInsResp.sex);
 
-                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
+                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
                             this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
                             this.patient && (this.set('patient.rev', p.rev))
                         })
@@ -2364,14 +2362,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const dStart = Date.parse(this.genInsDateFrom);
 
                 if (this.api.tokenId || (this.api.tokenIdMH && asMMH)) {
-                    console.log("(this.api.tokenId) {")
                     this.set('isLoading', true)
 
                     if(((this.genInsNiss && this.genInsNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.genInsOA && this.genInsOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp => {
                                     return this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
-                                        this.genInsNiss ? this.genInsNiss.trim() : this.patient.ssin,
+                                        this.genInsNiss ? this.genInsNiss.trim() : this.cleanNiss(this.patient.ssin),
                                         asMMH ? this.api.tokenIdMH : this.api.tokenId, asMMH ? this.api.keystoreIdMH : this.api.keystoreId, asMMH ? this.api.credentials.ehpasswordMH : this.api.credentials.ehpassword,
                                         asMMH ? this.api.nihiiMH : hcp.nihii, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
                                 }
@@ -2384,7 +2381,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         return null;
                                     }
                                 }
-                            )
+                            ).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null})
                     } else {
                         //there is no niss
                         let oa = this.genInsOA;
@@ -2408,7 +2405,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return null;
                                         }
                                     }
-                                )
+                                ).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null})
                         });
                     }
                 } else {
@@ -2586,7 +2583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .then(hcp =>
                             this.api.fhc().Therlinkcontroller().getAllTherapeuticLinksUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber,
+                                this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber,
                                 null, null,null,null ) //returns Array of therapeuticLink
                         ).then(therLinkResp => {
                                 if (therLinkResp) {
@@ -2612,7 +2609,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                            this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
+                            this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
                     ).then(therLinkResp => {
                             if(therLinkResp.therapeuticLink) {
                                 this.showPatientTherLinkState()
@@ -2700,7 +2697,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                            this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
+                            this.cleanNiss(this.patient.ssin), this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                     ).then(consentResp => {
                             if(consentResp.consent) {
                                 return(consentResp.consent)
@@ -2736,7 +2733,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                        this.api.patient().getPatientWithUser(this.api.user,this.patient.id)
+                        this.api.patient().getPatientWithUser(this.user, this.patient.id)
                             .then(patientDto =>{
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
@@ -2816,7 +2813,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return;
                 }
                 const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
-                ;(e.detail.services || []).forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
+                const services = (e.detail.services || (e.detail.service && [e.detail.service]) || [] )
+                services.forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
                 this.saveContact(this.currentContact)
             }
 
@@ -2876,8 +2874,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             filterEvents() {
-                this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending'))), it => this.api.moment(it.valueDate)));
-
+                const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
+                this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
                 const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
                 if(age>=25 && age<=65 && this.patient.gender==="female" &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
@@ -3148,7 +3146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const combinedHes = (this.activeHealthElements || []).concat(this.inactiveHealthElements || []).concat(this.archivedHealthElements || []).concat(this.allergies || []).concat(this.risks || []).concat(this.familyrisks || []).concat(this.surgicalHealthElements || [])
                     const idServicesInHes = combinedHes.map(he => he.idService)
 
-                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id))
+                    const hesAsServices = this.currentContact.services.filter(s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id))
                     const svcHes = hesAsServices.map(svc => this._makeHeFromSvc(svc))
 
                     const now = moment()
@@ -3190,7 +3188,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
                     const idServicesInHes = _.compact(hes.map(he => he.idService))
                     //console.log("Before filter service "+(+new Date() - start))
-                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+                    this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication', 'surgery', 'professionalrisk'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
 
                         const oneWeekAgo = moment().subtract(7)
@@ -3224,7 +3222,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('inactiveHealthElements', combinedHes.filter(it => ( it.closingDate && this.api.moment(it.closingDate).isBefore( now ) || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement' || c.code === 'diagnosis'))))
                             this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2))
                             this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION') && (c.code === 'allergy' || c.code === 'adr'))))
-                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
+                            this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk' || c.code === 'professionalrisk'))))
                             this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
                             this.set('surgicalHealthElements', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'surgery')))
 
@@ -3413,9 +3411,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //api.MHContactPersonName
                     //api.MHContactPersonSsin
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
-                        patient.ssin,
+                        this.cleanNiss(patient.ssin),
                         this.api.tokenId ? this.api.tokenId : this.api.tokenIdMH, this.api.tokenId ? this.api.keystoreId : this.api.keystoreIdMH, this.api.tokenId ? this.api.credentials.ehpassword : this.api.credentials.ehpasswordMH,
-                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null).then(gi => {
+                        this.api.tokenId ? hcp.nihii : this.api.nihiiMH, this.api.isMH ? this.api.MHContactPersonSsin : hcp.ssin, this.api.isMH ? this.api.MHContactPersonName : hcp.lastName + ' ' + hcp.firstName, this.api.tokenId ? "doctor" : "medicalhouse", null, null
+                    ).then(gi => {
                         const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length)
                         const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()))
 
@@ -3494,13 +3493,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 }
                             })
                         }
-                        this.selectedTherLink = null
-                        this.showPatientConsentState()
-                        this.showPatientTherLinkState()
-                        this.showHubState()
-                        this.updateEdmgStatus()
-                    }))
 
+                    }).catch(e => {console.log("genins failed "+e.message); this.set('isLoading', false); return null}))
+                    this.selectedTherLink = null
+                    this.showPatientConsentState()
+                    this.showPatientTherLinkState()
+                    this.showHubState()
+                    this.updateEdmgStatus()
                 }
             }
 
@@ -3510,13 +3509,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.tlStatus.classList.remove('noTl');
                         this.$.tlStatus.classList.remove('tlOk');
 
-                        if(therLinks[0]) {
+                        if(therLinks && therLinks[0]) {
                             tlOk = true;
                         }
                         this.$.tlStatus.classList.add(tlOk ? 'tlOk' : 'noTl');
                         Polymer.updateStyles(this.$.tlStatus)
                     }
                 )
+            }
+
+            cleanNiss(niss){
+                return niss.replace(/ /g, "").replace(/-/g,"").replace(/\./g,"").replace(/_/g,"").replace(/\//g,"")
             }
 
             showPatientConsentState(){
@@ -3936,7 +3939,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             shortServiceDescription(svc, lng) {
-                let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng);
+                let rawDesc
+                console.log(svc)
+                if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
+                    rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
+                }else {
+                    rawDesc = this.api.contact().shortServiceDescription(svc, lng) || "";
+                }
                 return rawDesc && '' + rawDesc || '';
             }
 
@@ -4357,7 +4366,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             openActionDialog(e){
                 console.log("svcs",e.detail.service)
-                this.$["planActionForm"].open(e.detail.service,e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="cancelled" || e.detail.service.tags.find(tag => tag.type==="CD-LIFECYCLE").code==="completed")
+                const lifecycle = e.detail.service.tags.find(tag => tag.type === "CD-LIFECYCLE") || {}
+                this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
             }
 
         }

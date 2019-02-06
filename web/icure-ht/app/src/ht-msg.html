@@ -170,11 +170,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  on-selection-messages-change="handleMessageChange"
-                                 class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-list>
+                                 class$="[[_selectedElem(selectedMessage)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
-                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" selected-message="[[selectedMessage]]" on-item-delete="handleRefreshlist"
+                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -311,7 +311,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleMessageChange(e) {
-                this.set('selectMessage', e.detail)
+                this.set('selectedMessage', e.detail && e.detail.selection && e.detail.selection.item)
             }
 
 			handleRefreshlist(e) {

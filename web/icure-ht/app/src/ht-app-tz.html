@@ -665,7 +665,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="communication:email"></iron-icon>
                                     [[localize('msg')]]
                                 </paper-button>
-                                <paper-button name="diary" on-tap="doRoute">
+                                <paper-button name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
                                     [[localize('diary')]]
                                 </paper-button>
@@ -699,8 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p><span>[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
-                                <!--span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
-                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip-->
+                                <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
+                                <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
                             </p>
                             <paper-tooltip for="ehealth">
                                 <template is="dom-if" if="[[api.tokenId]]">
@@ -1795,7 +1795,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                 {
-                    const isMH = hcp.type.toLowerCase() === 'medicalhouse';
+                    const isMH = hcp.type && hcp.type.toLowerCase() === 'medicalhouse';
                     return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, isMH ? hcp.nihii.substr(0,8): hcp.ssin, this.api.keystoreId, isMH).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
