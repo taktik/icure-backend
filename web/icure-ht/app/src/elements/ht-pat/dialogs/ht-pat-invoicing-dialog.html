@@ -2638,11 +2638,16 @@
                     const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
 
                     if (preferedCode && preferedCode.typedValue) {
-                        const code = JSON.parse(preferedCode.typedValue.stringValue)
+                        let code = JSON.parse(preferedCode.typedValue.stringValue)
 
-                        let existingCode = code.cs.find(c => c === newCode.id)
+                        let existingCode = code && code.cs && code.cs.find(c => c === newCode.id) || null
 
                         if (!existingCode) {
+
+                            if(!code.cs){
+                                code = {cs : []}
+                            }
+
                             code.cs.push(newCode.id)
 
                             preferedCode.typedValue.stringValue = JSON.stringify(code)
