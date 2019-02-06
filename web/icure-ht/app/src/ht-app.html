@@ -768,7 +768,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </svg>
 
 
-                            <paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+                            <paper-tooltip class="big" position="left" for="tools-and-parameters">[[localize('tools_and_parameters','Tools and parameters',language)]]</paper-tooltip>
+                            <paper-menu-button id="tools-and-parameters" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
                                 <paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
                                 <paper-listbox class="extra-menu" slot="dropdown-content" stop-keyboard-event-propagation>
                                     <div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
