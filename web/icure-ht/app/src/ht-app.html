@@ -1075,6 +1075,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     warn: {
                         type: String
+                    },
+                    validMail: {
+                        type: Boolean,
+                        value: null
                     }
                 }
             }
@@ -1082,7 +1086,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             static get observers() {
                 return [
                     '_routePageChanged(routeData.page)',
-                    '_isValidInvite(lastName,firstName,email)'
+                    '_isValidInvite(lastName,firstName,validMail)',
+                    'isMailValid(email)'
                 ]
             }
 
@@ -1091,18 +1096,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _isValidInvite() {
-                this.set('validInvite', this.lastName.length && this.firstName.length && this.isMailValid(this.email))
+                this.set('validInvite', this.lastName && this.firstName && this.lastName.length && this.firstName.length && this.validMail)
             }
 
             isMailValid(str) {
                 setTimeout(()=>{
-                    const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-                    if (filter.test(str)) {
-                        this.set('warn','')
-                        return true
-                    } else {
-                        this.set('warn',this.localize('please_valid_mail','Please enter valid email',this.language))
-                        return false
+                    if (str.length) {
+                        const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+                        if (filter.test(str)) {
+                            this.set('warn','')
+                            this.set('validMail',true)
+                        } else {
+                            this.set('warn',this.localize('please_valid_mail','Please enter valid email',this.language))
+                            this.set('validMail',false)
+                        }
                     }
                 },2000)
             }
