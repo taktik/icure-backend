@@ -598,7 +598,6 @@
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
                                 <dynamic-subcontact-type-selector id="subctc-type-a" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
-                                <paper-tooltip position="right" for="subctc-type-a">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -616,7 +615,6 @@
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
                                 <dynamic-subcontact-type-selector id="subctc-type-b" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
-                                <paper-tooltip position="right" for="subctc-type-b">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -634,7 +632,6 @@
 						<span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
                             <template is="dom-if" if="[[_hasCurrentContact()]]">
                                 <dynamic-subcontact-type-selector id="subctc-type-c" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
-                                <paper-tooltip position="right" for="subctc-type-c">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                             </template>
                         </span>
                         <template is="dom-if" if="[[_hasCurrentContact()]]">
@@ -652,7 +649,6 @@
                             <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
 								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                     <dynamic-subcontact-type-selector id="subctc-type-d" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
-                                    <paper-tooltip position="right" for="subctc-type-d">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
 								</template>
 							</span>
                             <template is="dom-if" if="[[!dof.ctc.closingDate]]">
