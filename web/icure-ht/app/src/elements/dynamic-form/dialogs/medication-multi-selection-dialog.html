@@ -40,7 +40,7 @@
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
-            #entities-list {
+            #entities-list, #accumulated-medications {
                 margin-bottom: 55px;
             }
 
@@ -124,12 +124,6 @@
                 };
             }
 
-            .modal-title{
-                background:  var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
-            }
-
             .buttons{
                 position: absolute;
                 bottom: 0;
@@ -157,18 +151,53 @@
 
             ht-spinner {
                 position: fixed;
-                top: 50%;
-                left: 50%;
+                top: calc(50% + 62px);
+                left: 25%;
                 z-index: 150;
                 transform: translate(-50%,-50%);
                 height: 42px;
 				width: 42px;
+            }
+
+            .container {
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-around;
+                align-items: flex-start;
+            }
+
+            .left-pane {
+                width: calc(75% - 12px);
+                margin-right: 12px;
+                flex-grow: 3;
+            }
+
+            .right-pane {
+                width: calc(25% - 12px);
+                margin-left: 12px;
+                align-self: flex-end;
+                flex-grow: 1;
+            }
+
+            .add-btn{
+                height: 20px;
+                width: 20px;
+                background: var(--app-secondary-color);
+                border-radius: 50%;
+                padding: 2px;
+                margin-right: 4px;
+            }
+            .helper{
+                display:block;
+                width:100%;
+                height:62px;
             }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
             <ht-spinner class="center" active="[[isLoadingEntities]]"></ht-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
+            <div class="container">
                 <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                     <paper-tab name="chronical" on-tap="setMedicationType">
                         [[localize('medication-chronical','Chronical medication',language)]]
@@ -183,14 +212,16 @@
                         [[localize('medication-compound','Compound prescription',language)]]
                     </paper-tab>
                 </paper-tabs>
+                <div class="left-pane">
                     <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
+                        <div class="helper"></div>
                         <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
                             <vaadin-grid-column>
                                 <template class="header">
                                     <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                            <div>[[atcCat(item.atcCat)]]</div>
+                                    <div><paper-icon-button id="[[item.id]]" class="add-btn" icon="icons:add" on-tap="_addChron"></paper-icon-button>&nbsp;[[atcCat(item.atcCat)]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
@@ -212,11 +243,13 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+                        <div style="height:100%">
                             <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
                             <paper-input-container always-float-label="true">
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                             </paper-input-container>
+                        </div>
                     </template>
                     <div class$="grid-container [[_noGridClass(medicationType)]]">
                         <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
@@ -227,7 +260,12 @@
                                         <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
                                     </template>
                                     <template>
-                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
+                                        <div class$="cell frozen [[item.cheap]]">
+                                            <template is="dom-if" if="[[_isEqual(column.title, 'Name')]]">
+                                                <paper-icon-button id="[[_id(item)]]" class="add-btn" icon="icons:add" on-tap="_addCnkDci"></paper-icon-button>
+                                            </template>
+                                            [[_cellContent(item, column)]]
+                                        </div>
                                     </template>
                                 </vaadin-grid-column>
                             </template>
@@ -241,10 +279,33 @@
                             </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
+                </div>
+                <div class="right-pane">
+                    <h5>Selected Medication(s)</h5>
+                    <vaadin-grid id="accumulated-medications" active-item="{{selectedMedicationFromAccumulator}}" on-tap="click">
+                        <vaadin-grid-column>
+                            <template class="header">
+                                <div></div>
+                            </template>
+                            <template>
+                                <paper-icon-button id="remove-[[item.id]]" class="add-btn" icon="icons:remove" on-tap="removeFromAcc"></paper-icon-button>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">
+                                <div>Description</div>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[_serviceDescription(item)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </div>
+            </div>
             <div class="buttons">
                 <paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[!_isChronicalView(medicationType)]]">
-                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('valid','Validate',language)]]</paper-button>
                 </template>
                 <!--<paper-button class="modal-button modal-button--save" on-tap="getAlternatives">[[localize('get-alt','Alternatives',language)]]</paper-button>-->
             </div>
@@ -450,12 +511,28 @@
                         _.get(item, column.key));
             }
 
+            _addCnkDci(e) {
+                const grid = this.$['entities-list'];
+                const med = grid.drugsCache.find(d => d.id && d.id.id === e.target.id)
+                this.selectMedicationFromList(med)
+            }
+
+            _addChron(e) {
+                const med = this.medications.find(d => d.id === e.target.id)
+                this.selectMedicationFromList(med)
+            }
+
+            _id(item) {
+                return item && item.id && (item.id.id || item.id)
+            }
+
             _columnWidth(column) {
                 return column.size || "100px";
             }
 
             selectMedicationFromList(med) {
                 console.log("selectMedicationFromList",med)
+                this.set('selectedMedicationContentWithId', {})
                 if (med.id) {
                     //by productName
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
@@ -469,11 +546,6 @@
                         med.id.id && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-DRUG-CNK') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-DRUG-CNK', version:'1'})).code = med.id.id)
                         mppInfos.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = mppInfos.atcCode)
 
-                        if (this.selectedMedicationContentWithId.isNew) {
-                            this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                        } else {
-                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                        }
                     })
                 } else {
                     //by molecule
@@ -510,6 +582,14 @@
                     } else {
                         this.dispatchEvent(new CustomEvent('display-medication-details',{detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                     }
+                }
+            }
+
+            validateMedications() {
+                if (this.selectedMedicationContentWithId.isNew) {
+                    this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
+                } else {
+                    this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
                 }
             }
 
@@ -623,6 +703,10 @@
                     this.$['entities-list'].clearCache();
                     this.$['medication-selection'].close();
                 }
+            }
+
+            _isEqual(a, b){
+                return a === b
             }
 
             _selectedMedicationFromListChanged(item) {

@@ -554,8 +554,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="second-panel col-right">
                 <ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner>
-                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" 
-                             active-item="{{activeItem}}" items="[[messages]]" 
+                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]"
+                             active-item="{{activeItem}}" items="[[messages]]"
                              on-tap="click" on-removed-opened="_deselectMessages"
                              selection-mode="multi" width="100%" pageSize="30">
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
@@ -915,10 +915,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return (m.status & (1 << 4)) !== 0 ? true : false
             }
             hasLabResult(m) {
-                return (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length || m.unassignedResults.length)) ? true : false
+                return Object.keys(m.assignedResults || {}).length || (m.unassignedResults || []).length ? true : false
             }
             isUnassigned(m) {
-                return (m.unassignedResults.length > 0) ? true : false
+                return (m.unassignedResults && (m.unassignedResults.length > 0)) ? true : false
             }
 
             getUnreadEmail() {
