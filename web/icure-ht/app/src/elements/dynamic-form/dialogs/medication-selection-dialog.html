@@ -212,8 +212,9 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                            <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
-                            <paper-input-container always-float-label="true">
+                            <!--<vaadin-combo-box-dropdown value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></vaadin-combo-box-dropdown>-->
+                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" value="{{compoundId}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <paper-input-container>
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                             </paper-input-container>
@@ -315,7 +316,15 @@
                     },
                     compoundName:{
                         type: String,
-                        value: ""
+                        value: ''
+                    },
+                    compoundListItems: {
+                        type: Array,
+                        value: () => []
+                    },
+                    compoundCache: {
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -486,24 +495,13 @@
 
                         med.inncluster && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-INNCLUSTER', version:'1'})).code = med.inncluster)
                         med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
+
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
                     } else {
-                        //Compound prescription
-                        this.set('selectedMedicationContentWithId.medicationValue', {
-                            medicinalProduct: {
-                                intendedname: this.compoundName,
-                                beginMoment: 0,
-                                endMoment: 0,
-                                priority: "low",
-                                intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
-                            },
-                            compoundPrescription: med.name
-                        })
-
+                        //compound
+                        this.set('newMedication.content.'+this.language+ '.compoundPrescription',this.compoundPrescriptionText)
                         this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
-
-
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 
                     if (this.selectedMedicationContentWithId.isNew) {
                         this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
@@ -591,8 +589,8 @@
             }
 
             confirm() {
-                if (this.medicationType === 'compoundPrescription' && this.compoundPrescriptionText) {
-                    this.select({name: this.compoundPrescriptionText})
+                if (this.medicationType === 'compoundPrescription') {
+                    this.select('placeholder')
                 } else if (this.selectedMedicationFromList) {
                     this.select(this.selectedMedicationFromList);
                 }
@@ -717,6 +715,36 @@
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
+
+            _compoundFilterChanged(e) {
+                const searchString = e.detail.value || ''
+
+                this.compoundSearchString = searchString;
+                if (!searchString || searchString.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('compoundListItems', []);
+                    return;
+                }
+
+                this.api.entitytemplate().findAllEntityTemplates('org.taktik.icure.entities.embed.Medication',searchString,true).then(res => {
+                    if (searchString !== this.compoundSearchString) {
+                        console.log("Cancelling obsolete search");
+                        this.set('compoundListItems', []);
+                    }
+                    this.set('compoundListItems', res);
+                })
+            }
+
+            _compoundChanged(e) {
+                const compound = this.compoundListItems.find(c => c.id === e.detail.value)
+                if(compound) {
+                    this.set('selectedMedicationContentWithId.medicationValue', compound.entity[0] )
+                    this.set('selectedMedicationContentWithId.isNew', true)
+                    this.set('compoundPrescriptionText', compound.entity[0].compoundPrescription)
+                }
+            }
+
+
         }
 
         customElements.define(MedicationSelectionDialog.is, MedicationSelectionDialog)
