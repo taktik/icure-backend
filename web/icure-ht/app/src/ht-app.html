@@ -1373,6 +1373,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _inviteHCP() {
+                this.set('firstName','')
+                this.set('lastName','')
+                this.set('email','')
+                this.set('warn','')
                 this.$['ht-invite-hcp'].open()
             }
 
