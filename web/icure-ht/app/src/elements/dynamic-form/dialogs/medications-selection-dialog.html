@@ -167,13 +167,13 @@
             }
 
             .left-pane {
-                width: calc(75% - 12px);
+                width: calc(67% - 12px);
                 margin-right: 12px;
                 flex-grow: 3;
             }
 
             .right-pane {
-                width: calc(25% - 12px);
+                width: calc(33% - 12px);
                 margin-left: 12px;
                 align-self: flex-end;
                 flex-grow: 1;
@@ -191,6 +191,11 @@
                 display:block;
                 width:100%;
                 height:62px;
+            }
+
+            .boxes-qty {
+                display: inline-block;
+                width:18px;
             }
         </style>
 
@@ -283,15 +288,15 @@
                 <div class="right-pane">
                     <h5>Selected Medication(s)</h5>
                     <vaadin-grid id="accumulated-medications" items="[[medicationAccumulator]]" active-item="{{selectedMedicationFromAccumulator}}">
-                        <vaadin-grid-column size="40">
+                        <vaadin-grid-column width="72px">
                             <template class="header">
                                 <div>Boxes</div>
                             </template>
                             <template>
-                                <span>[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item.newMedication)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
+                                <span class="boxes-qty">[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item.newMedication)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column>
+                        <vaadin-grid-column width="calc(100% - 72px)">
                             <template class="header">
                                 <div>Description</div>
                             </template>
@@ -371,7 +376,7 @@
                         value: ""
                     },
                     medicationAccumulator: {
-                        type: String,
+                        type: Array,
                         value: []
                     }
                 }
@@ -388,6 +393,7 @@
 
             open(medication) {
                 this.set('newMedication', medication || { content: {}});
+                this.set('medicationAccumulator', []);
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {

@@ -975,9 +975,9 @@
             }
 
             openList(list) {
-                this.set('medications', list)
+                this.set('medications', _.clone(list))
                 if (this.medications.length) {
-                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(medicationDetail.newMedication, true), this.medications[0].boxes)
+                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true), this.medications[0].boxes)
                     this.set('selectedMedication',0)
                 }
             }
