@@ -256,7 +256,11 @@
                 width: 100%;
                 display: flex;
                 flex-direction: row;
-                justify-content: flex-start;
+                justify-content: space-between;
+            }
+
+            .custom-time > div {
+                display: flex;
             }
 
             .custom-time-add {
@@ -526,13 +530,19 @@
                                             <paper-item id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
                                             <paper-item id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
                                             <paper-item id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
-                                            <paper-item id="custom" data-item="monthly" on-tap="_ignoreEvent"><div class="custom-time"><span>[[localize('T:','T:',language)]]</span>
-                                                <paper-input-container  no-label-float>
-                                                    <iron-input slot="input" bind-value="{{customTime}}">
-                                                        <input type="text" value="{{value::input}}">
-                                                    </iron-input>
-                                                </paper-input-container>
-                                                <paper-icon-button id="[[item.id]]" class="custom-time-add" icon="icons:add" on-tap="_addChron"></paper-icon-button></div></paper-item>
+                                            <paper-item id="custom" data-item="monthly" on-tap="_ignoreEvent">
+                                                <div class="custom-time">
+                                                    <div>
+                                                        <span>[[localize('T:','T:',language)]]</span>
+                                                        <paper-input-container  no-label-float>
+                                                            <iron-input slot="input" bind-value="{{customTime}}">
+                                                                <input type="text" value="{{value::input}}">
+                                                            </iron-input>
+                                                        </paper-input-container>
+                                                    </div>
+                                                    <paper-icon-button id="[[item.id]]" class="custom-time-add" icon="icons:add" on-tap="_addChron"></paper-icon-button>
+                                                </div>
+                                            </paper-item>
                                         </paper-listbox>
                                     </template>
                                     <paper-icon-button icon="add" on-tap="_toggleColDropDown"></paper-icon-button>
