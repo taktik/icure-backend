@@ -264,7 +264,7 @@
                 width: 20px;
                 background: var(--app-secondary-color);
                 border-radius: 50%;
-                padding: 2px;
+                padding: 1px;
                 margin-right: 4px;
             }
 
@@ -379,6 +379,22 @@
             }
             .add-col .btn-dropdown-container {
                 position: initial;
+            }
+
+            #custom paper-input-container{
+                padding: 0;
+                margin: 0 8px;
+                --paper-input-container-input: {
+                    border: none;
+                    outline: 0;
+                }
+            }
+
+            #custom paper-input-container input{
+                border: none;
+            }
+            #custom paper-input-container input:focus{
+                outline: 0;
             }
 
             @media screen and (max-width: 768px) {
@@ -507,9 +523,9 @@
                                             <paper-item id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
                                             <paper-item id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
                                             <paper-item id="custom" data-item="monthly"><div class="custom-time"><span>[[localize('T:','T:',language)]]</span>
-                                                <paper-input-container>
+                                                <paper-input-container  no-label-float>
                                                     <iron-input slot="input" bind-value="{{customTime}}">
-                                                        <input readonly type="text" value="{{value::input}}">
+                                                        <input type="text" value="{{value::input}}">
                                                     </iron-input>
                                                 </paper-input-container>
                                                 <paper-icon-button id="[[item.id]]" class="custom-time-add" icon="icons:add" on-tap="_addChron"></paper-icon-button></div></paper-item>
