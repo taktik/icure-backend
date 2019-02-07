@@ -40,6 +40,11 @@
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
+            paper-input-container {
+                margin-top: 24px;
+                margin-left: 40px;
+            }
+
             #entities-list, #accumulated-medications {
                 margin-bottom: 55px;
             }
@@ -192,6 +197,13 @@
                 padding: 2px;
                 margin-right: 4px;
             }
+
+            .add-btn--compound {
+                position: absolute;
+                left: 0;
+                margin-top: 55px;
+            }
+
             .helper{
                 display:block;
                 width:100%;
@@ -248,13 +260,13 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                        <div style="height:100%">
+                        <div style="margin-top: 12px; position: relative;">
                             <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <paper-icon-button id="[[_id(item)]]" class="add-btn add-btn--compound" icon="icons:add" on-tap="_addCompound"></paper-icon-button>
                             <paper-input-container>
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                             </paper-input-container>
-                            <paper-icon-button id="[[_id(item)]]" class="add-btn" icon="icons:add" on-tap="_addCompound"></paper-icon-button>
                         </div>
                     </template>
                     <div class$="grid-container [[_noGridClass(medicationType)]]">
@@ -294,7 +306,7 @@
                                 <div>Boxes</div>
                             </template>
                             <template>
-                                <span>[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item.newMedication)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
+                                <span>[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column>
@@ -532,7 +544,7 @@
             }
 
             _removeFromAcc(e) {
-                const idx = _.findIndex(this.medicationAccumulator, d => `remove-${this._id(d.newMedication)}` === e.target.id)
+                const idx = _.findIndex(this.medicationAccumulator, d => `remove-${this._id(d)}` === e.target.id)
 
                 if (idx>=0) {
                     this.set(`medicationAccumulator.${idx}.boxes`, (this.medicationAccumulator[idx].boxes || 1) - 1)
@@ -559,7 +571,7 @@
 
                 const id = this._id(med)
 
-                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.id === id)
+                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => this._id(m) === id)
                 if (currentMedIdx >= 0) {
                     this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
                 } else {
@@ -584,7 +596,7 @@
                                 version: '1'
                             })).code = mppInfos.atcCode)
 
-                            this.push('medicationAccumulator', {id,boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication),id})
                         })
                     } else {
                         //by molecule
@@ -607,7 +619,7 @@
                             newMedicationContent.medicationValue = this.selectedCompound.medicationValue
                             newMedicationContent.medicationValue.compoundPrescription = this.compoundPrescriptionText
                         }
-                        this.push('medicationAccumulator', {id ,boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication), id})
                     }
                 }
             }
@@ -728,11 +740,12 @@
 
             selectChron(med) {
                 if (med) {
-                    const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.newMedication && m.newMedication.id === med.id)
+                    const id = this._id(med)
+                    const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.id === id)
                     if (currentMedIdx >= 0) {
                         this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
                     } else {
-                        this.push('medicationAccumulator', {boxes:1, newMedication:_.cloneDeep(med)})
+                        this.push('medicationAccumulator', {id, boxes:1, newMedication:_.cloneDeep(med)})
                     }
                 }
             }
