@@ -2281,9 +2281,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
                         this.set('patient.gender', this.curGenInsResp.sex);
 
-                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
+                        this.api.patient().modifyPatientWithUser(this.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
                             this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                            this.patient && (this.set('patient.rev', p.rev))
+                            Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                            //this.patient && (this.set('patient.rev', p.rev))
                         })
                     })
                 }
@@ -3320,7 +3321,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 this.patient.insurabilities.push(newP);
                                                 if (patient === this.patient) {
                                                     this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                                        return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer))
+                                                        return this.api.patient().modifyPatientWithUser(this.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => {
+                                                            this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}));
+                                                            Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                                                        })
                                                     })
                                                 }
                                             }else{
@@ -3347,7 +3351,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         this.push("patient.insurabilities",newP);
                                         if (patient === this.patient) {
                                             this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                                return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => this.set("patient",p))
+                                                return this.api.patient().modifyPatientWithUser(this.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => {
+                                                     this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                                                    Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                                                })
                                             })
                                         }
                                     }
@@ -3885,11 +3892,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         newMedication.label = this.localize('medication','medication',this.language)
                         newMedication.id = this.api.crypto().randomUuid()
 
-                        this.saveNewService(this.api.contact().service().newInstance(this.api.user, newMedication)).then(() => this.refreshPatient())
+                        this.saveNewService(this.api.contact().service().newInstance(this.user, newMedication)).then(() => this.refreshPatient())
                     }
                 } else {
                     //Standard behaviour: create from medication button in left panel
-                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail.medication)).then(() => this.refreshPatient())
+                    this.saveNewService(this.api.contact().service().newInstance(this.user, e.detail.medication)).then(() => this.refreshPatient())
                 }
 
             }
