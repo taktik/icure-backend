@@ -878,6 +878,8 @@
 
             _selectedMedicationChanged(idx) {
                 this.set('selectedMedicationContentWithId', this.api.contact().preferredContent(this.medications[idx].newMedication))
+                this.set('medicationDetail', this.medications[idx])
+
             }
 
             _posologyChanged(newValue, oldValue) {
@@ -936,24 +938,27 @@
             }
 
 
-            open(medicationDetail, selectedMedicationContentWithId) {
+            open(medicationDetail, selectedMedicationContentWithId, boxes) {
                 (!this.reimbursementCodeRecipe || this.reimbursementCodeRecipe.length === 0 || !this.timeUnit || this.timeUnit.length === 0 ? this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
                     .then(reimb => this.set("reimbursementCodeRecipe", _.orderBy(reimb.rows, ['label.fr'], ['asc'])))
                     .then(() => this.api.code().findPaginatedCodes('be', 'CD-TIMEUNIT', ''))
                     .then(timeunit => this.set("timeUnit", _.orderBy(_.filter(_.get(timeunit, "rows", []), i => ["ns", "us", "ms", "s", "min"].indexOf(_.trim(_.get(i, "code"))) == -1), ['label.fr'], 'asc'))) : Promise.resolve())
                     .finally(() => {
                         if (medicationDetail) {
-                            this.set('medicationDetail', medicationDetail)
-                            this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(medicationDetail, false))
+                            this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(medicationDetail.newMedication, false))
                             this.set('previousMedication', this.selectedMedicationContentWithId)
+                            this.set('medicationDetail', {
+                                boxes:boxes||1,
+                                bufferUnit: this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit', 'unit', this.language),
+                                newMedication:medicationDetail
+                            })
 
-                            this.set('bufferUnit', this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit', 'unit', this.language))
-                            this.set('medicPriority', this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0)
+                            this.set('medicationDetail.medicPriority', this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0)
 
                             this.set('reimbursementItemIdx', this.selectedMedicationContentWithId.medicationValue.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"))
 
-                            this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || medicationDetail.valueDate || medicationDetail.openingDate || Date.now()).format('YYYY-MM-DD'))
-                            this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || medicationDetail.closingDate))
+                            this.set("beginMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || medicationDetail.newMedication.valueDate || medicationDetail.newMedication.openingDate || Date.now()).format('YYYY-MM-DD'))
+                            this.set("endMomentAsString", this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || medicationDetail.newMedication.closingDate))
                             this.set("isRenewal", !!this.selectedMedicationContentWithId.medicationValue.renewal)
                             if (this.isRenewal) {
                                 this.set("renewalDecimalValue", this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1)
@@ -972,7 +977,7 @@
             openList(list) {
                 this.set('medications', list)
                 if (this.medications.length) {
-                    this.open(this.medications[0].newMedication)
+                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(medicationDetail.newMedication, true), this.medications[0].boxes)
                     this.set('selectedMedication',0)
                 }
             }
@@ -1161,7 +1166,7 @@
 
             _valueChanged() {
                 console.log("_valueChanged()",this.medicationDetail)
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail.newMedication, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
             }
 
             _regimenTableDataProvider(frequency) {
