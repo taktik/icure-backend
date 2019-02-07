@@ -36,7 +36,16 @@
                 };
             }
 
+            vaadin-combo-box {
+                display: block;
+                width: auto;
+            }
+
             paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            paper-input-container {
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
@@ -72,7 +81,6 @@
 
             paper-tabs {
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
-                width: 100%;
             }
 
             paper-tab {
@@ -213,7 +221,7 @@
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
                             <!--<vaadin-combo-box-dropdown value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></vaadin-combo-box-dropdown>-->
-                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" value="{{compoundId}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
                             <paper-input-container>
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
@@ -351,6 +359,11 @@
                     this.set('newMedication', medication);
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(m, false))
                 }
+
+                this.set('compoundFilterString', '')
+                this.set('compound','')
+                this.set('compoundPrescriptionText', '')
+
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -499,7 +512,7 @@
                         this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
                     } else {
                         //compound
-                        this.set('newMedication.content.'+this.language+ '.compoundPrescription',this.compoundPrescriptionText)
+                        this.set('newMedication.content.'+ this.language + '.compoundPrescription',this.compoundPrescriptionText)
                         this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
                     }
 
@@ -738,9 +751,11 @@
             _compoundChanged(e) {
                 const compound = this.compoundListItems.find(c => c.id === e.detail.value)
                 if(compound) {
-                    this.set('selectedMedicationContentWithId.medicationValue', compound.entity[0] )
-                    this.set('selectedMedicationContentWithId.isNew', true)
-                    this.set('compoundPrescriptionText', compound.entity[0].compoundPrescription)
+                    const medication = compound.entity.find(e => e.compoundPrescription)
+                    this.set('selectedMedicationContentWithId.medicationValue', medication )
+                    this.set('compoundPrescriptionText', medication.compoundPrescription )
+                }else {
+                    this.set('compoundPrescriptionText','')
                 }
             }
 
