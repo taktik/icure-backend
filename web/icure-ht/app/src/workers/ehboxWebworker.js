@@ -112,6 +112,7 @@ onmessage = e => {
                             c.services.push({
                                 id: iccCryptoXApi.randomUuid(),
                                 label: 'labResult',
+                                valueDate: parseInt(moment().format('YYYYMMDDHHmmss')),
                                 content: _.fromPairs([[language, {stringValue:docInfo.labo}]]),
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
