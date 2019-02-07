@@ -18,7 +18,7 @@
 <link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../ht-spinner/ht-spinner.html">
 
-<dom-module id="medication-multi-selection-dialog">
+<dom-module id="medications-selection-dialog">
     <template>
         <style include="dialog-style atc-styles">
             paper-dialog {
@@ -215,7 +215,7 @@
                 <div class="left-pane">
                     <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
                         <div class="helper"></div>
-                        <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
+                        <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="clickChron">
                             <vaadin-grid-column>
                                 <template class="header">
                                     <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
@@ -312,9 +312,9 @@
         import _ from 'lodash/lodash'
         import accounting from '../../../../scripts/accounting';
 
-        class MedicationMultiSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class MedicationsSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
-                return 'medication-multi-selection-dialog'
+                return 'medications-selection-dialog'
             }
 
             static get properties() {
@@ -387,9 +387,7 @@
             }
 
             open(medication) {
-                if (medication) {
-                    this.set('newMedication', medication);
-                }
+                this.set('newMedication', medication || { content: {}});
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -503,18 +501,13 @@
 
             _addCnkDci(e) {
                 const grid = this.$['entities-list'];
-                const med = grid.drugsCache.find(d => d.id && d.id.id === e.target.id)
+                const med = grid.drugsCache.find(d => this._id(d) === e.target.id)
                 this.selectMedicationFromList(med)
             }
 
             _addChron(e) {
                 const med = this.medications.find(d => d.id === e.target.id)
-                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.newMedication && m.newMedication.id === med.id)
-                if (currentMedIdx >= 0) {
-                    this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
-                } else {
-                    this.push('medicationAccumulator', {boxes:1, newMedication:_.cloneDeep(med)})
-                }
+                this.selectChron(med)
             }
 
             _removeFromAcc(e) {
@@ -529,7 +522,7 @@
             }
 
             _id(item) {
-                return item && item.inncluster || item.id && (item.id.id || item.id) || item.name
+                return item && (item.inncluster || item.id && (item.id.id || item.id) || item.name)
             }
 
             _columnWidth(column) {
@@ -607,11 +600,7 @@
             }
 
             validateMedications() {
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                } else {
-                    this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                }
+                this.dispatchEvent(new CustomEvent('new-medications', {detail: { medications: this.medicationAccumulator, isPrescription: true }, bubbles: true, composed: true}))
             }
 
             click(e) {
@@ -634,6 +623,23 @@
                         delete this.inDoubleClick;
                     }, 500);
                 }
+            }
+
+            clickChron(e) {
+                const selected = this.selectedChronicalMedicationFromList;
+
+                console.log('selected ',selected,' - ',this.latestSelected);
+                if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
+                    this.selectChron(this.latestSelected);
+                } else {
+                    if (selected) this.latestSelected = selected;
+                    this.inDoubleClick = true;
+
+                    setTimeout(() => {
+                        delete this.inDoubleClick;
+                    }, 500);
+                }
+
             }
 
             loadCheapAlternativesIfNeeded(searchSeed) {
@@ -704,6 +710,17 @@
                     this.set('filterValue','')
                     this.set('medicationType','medicinalProduct')
                     this.$['entities-list'].clearCache();
+                }
+            }
+
+            selectChron(med) {
+                if (med) {
+                    const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.newMedication && m.newMedication.id === med.id)
+                    if (currentMedIdx >= 0) {
+                        this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
+                    } else {
+                        this.push('medicationAccumulator', {boxes:1, newMedication:_.cloneDeep(med)})
+                    }
                 }
             }
 
@@ -805,6 +822,6 @@
             }
         }
 
-        customElements.define(MedicationMultiSelectionDialog.is, MedicationMultiSelectionDialog)
+        customElements.define(MedicationsSelectionDialog.is, MedicationsSelectionDialog)
     </script>
 </dom-module>
