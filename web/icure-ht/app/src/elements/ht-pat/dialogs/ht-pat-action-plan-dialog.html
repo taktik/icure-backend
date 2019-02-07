@@ -840,9 +840,10 @@
                         this.set('errMsg', err)
                     })
                 } else { // new action-plan, set default values
-                    this.set("selectedHcpItem",this.user)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                         if(hcp.type) {
+                            this.set("selectedHcpItem", hcp)
+                            this.set("plannedAction.HcpId",this.selectedHcpItem.id)
                             this.set("plannedAction.ProfessionId","CD-HCPARTY|"+hcp.type+"|1")
                             this.set("selectedProfessionItem", this.hcpartyTypeList.find(type => type.id === this.plannedAction.ProfessionId))
                         }
