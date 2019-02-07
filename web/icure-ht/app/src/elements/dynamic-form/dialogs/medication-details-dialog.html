@@ -387,12 +387,16 @@
                 --paper-input-container-input: {
                     border: none;
                     outline: 0;
-                }
+                };
+                max-width: 64px;
             }
 
             #custom paper-input-container input{
                 border: none;
+                font-size: 1em;
+                max-width: 48px;
             }
+
             #custom paper-input-container input:focus{
                 outline: 0;
             }
@@ -522,7 +526,7 @@
                                             <paper-item id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
                                             <paper-item id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
                                             <paper-item id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
-                                            <paper-item id="custom" data-item="monthly"><div class="custom-time"><span>[[localize('T:','T:',language)]]</span>
+                                            <paper-item id="custom" data-item="monthly" on-tap="_ignoreEvent"><div class="custom-time"><span>[[localize('T:','T:',language)]]</span>
                                                 <paper-input-container  no-label-float>
                                                     <iron-input slot="input" bind-value="{{customTime}}">
                                                         <input type="text" value="{{value::input}}">
@@ -835,6 +839,10 @@
 
             ready() {
                 super.ready()
+            }
+
+            _ignoreEvent(e) {
+                e.stopPropagation()
             }
 
             _weekly(items) {
