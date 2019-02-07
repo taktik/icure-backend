@@ -860,7 +860,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _invoiceSelectionIndexChanged() {
         if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { status: this.invoiceSelectionItem.dataset.status } } }));
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
 
             this.set('inboxSelectionIndex', null)
             this.set('sentboxSelectionIndex', null)
