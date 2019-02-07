@@ -661,6 +661,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: none;
                 }
             }
+
+            @media screen and (max-width: 200px) {
+                .log-info span.user-email {
+                    display: none !important;
+                }
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
