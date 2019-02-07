@@ -994,7 +994,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         }
                     }).then(pats =>
                         cfksLists.map(x => {
-                            const pat = pats.rows.find(p => p.id === x[1][0])
+                            const pat = pats.rows.find(p => x[1].includes(p.id))
                             return ({
                                 patient: pat,
                                 created: x[0].valueDate,
