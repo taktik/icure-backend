@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .first-panel{
                 display: flex;
                 flex-direction: column;
-                height:100%;
+                height:calc(100vh - 64px); /* 64px = app-header */
                 background: var(--app-background-color-dark);
                 top:64px;
                 left:0;
@@ -395,7 +395,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-size: 13px;
             }
 
-            .btn-close{
+            .btn-pat-close{
                 position: absolute;
                 left: 26px;
                 top: 18px;
@@ -406,7 +406,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 4;
             }
 
-            .btn-close:hover{
+            .btn-pat-close:hover{
                 @apply --transition;
                 top: 17px;
                 @apply --shadow-elevation-2dp;
@@ -508,10 +508,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
 
+                max-width: 216px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
                 /* Rules below not implemented in browsers yet */
                 -o-user-select: none;
                 user-select: none;
-
             }
 
             .contact .contact-text-row{
@@ -576,6 +580,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 -o-user-select: none;
                 user-select: none;
 
+            }
+
+            .contact label.hcp {
+                position: absolute;
+                right: 0;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .colour-code{
@@ -880,11 +893,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transition: transform 0.2s ease-in;
             }
 
+            @media screen and (max-width: 1168px) {
+                .patient-info-container{
+                    padding: 0;
+                }
+                .patient-picture-container{
+                    display:none;
+                }
+                .btn-pat-close {
+                    top: 16px;
+                    left: 172px;
+                }
+            }
 
             @media screen and (max-width:1025px){
                 .container{
                     grid-template-columns: 0% 40% 60%;
-
                 }
                 .container .fit-bottom{
                     left:0%!important;
@@ -896,6 +920,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container.expanded .first-panel {
                     width: 50vw;
                     z-index: 1001;
+                    width: 208px !important;
                 }
                 .container.expanded .fit-bottom {
                     /*left:20%!important;*/
@@ -909,18 +934,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-column: 1 / span 3;
                     grid-row: 1 / 1;
                 }
-                .patient-info-container{
-                    @apply --padding-right-left-16;
-                }
-                .patient-picture-container{
-                    display:none;
-                }
-                .btn-close{
-                    left: 8px;
-                    top: 16px;
-                }
                 .display-left-menu{
                     display:inherit;
+                    box-shadow: var(--app-shadow-elevation-1);
+                }
+                .display-left-menu.open {
+                    border-radius: 0 50% 50% 0;
+                    transform: none;
+                    left: 208px !important;
+                }
+                .display-left-menu.open iron-icon#icon {
+                    transform: rotate(180deg);
                 }
                 .floating-action-bar {
                     position: fixed;
@@ -928,6 +952,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     bottom: 0;
                     width: 100vw;
                     transform: none;
+                }
+            }
+
+            @media screen and (max-width:800px){
+                .contact label {
+                    max-width: 50% !important;
+                }
+                .contact h4 {
+                    max-width: 80%;
+                }
+                .contact .contact-text-row {
+                    padding: 0 4px;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+            }
+
+            @media screen and (max-width: 456px) {
+                .contact-year {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .contact-year > div {
+                    text-align: center;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-around;
                 }
             }
 
@@ -1230,7 +1281,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
                         <paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
-                            <paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
+                            <paper-fab id="pat-close" class="btn-pat-close" mini icon="close" on-tap="close"></paper-fab>
+                            <paper-tooltip for="pat-close" position="left">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
@@ -1422,11 +1474,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
                     <div class="contacts-container" on-scroll="openToast">
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
-                            <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
-                                <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
-                                <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
+                            <span class="contact-year" on-click="openToast">
+                                <div>[[localize('to_do','To Do',language)]]</div>
+                                <div>
+                                    <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
+                                    <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
+                                    <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
+                                    <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
+                                </div>
                             </span>
                             <template is="dom-if" if="[[events.length]]">
                                 <paper-listbox id="_events_listbox" class="todo-list">
@@ -1457,7 +1512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         <paper-item class="contact-text">
                                             <div class="contact-text-row contact-text-date">
                                                 <label>[[_timeFormat(contact.openingDate)]] ([[_shortId(contact.id)]])</label>
-                                                <label>[[hcp(contact)]]</label>
+                                                <label class="hcp">[[hcp(contact)]]</label>
                                             </div>
                                             <div class="contact-text-row grey">
                                                 <h4>[[contact.userDescr]]</h4>
@@ -1481,7 +1536,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             </div>
                                         </paper-item>
                                         <template is="dom-if" if="[[!contact.closingDate]]">
-                                            <paper-icon-button id="close-[[contact.id]]" class="menu-item-icon contact-icon" icon="icons:lock" alt="[[localize('fin_ctc','Finalize contact',language)]]" on-tap="closeContact"></paper-icon-button>
+                                            <paper-icon-button id="close-[[contact.id]]" class="menu-item-icon contact-icon close-ctc" icon="icons:lock" alt="[[localize('fin_ctc','Finalize contact',language)]]" on-tap="closeContact"></paper-icon-button>
                                             <paper-tooltip for="close-[[contact.id]]">[[localize('fin_ctc','Finalize contact',language)]]</paper-tooltip>
                                         </template>
                                     </paper-material>

@@ -344,16 +344,6 @@
 				transform: translate(-50%, 0);
 				box-shadow: var(--app-shadow-elevation-2);
 			}
-			/* // WIP Axel FIOLLE
-			@media screen and (max-width:1025px){*/
-			/*.floating-action-bar {*/
-			/*position: fixed;*/
-			/*left: 0;*/
-			/*bottom: 0;*/
-			/*width: 100vw;*/
-			/*transform: none;*/
-			/*}*/
-			/*}*/
 
 			.add-forms-container {
 				position: absolute;
@@ -504,17 +494,46 @@
 				height: 100%;
 			}
 
+            .mobile-only {
+                display: none;
+            }
+
+            @media screen and (max-width: 952px) {
+                paper-dialog#prescriptionDialog {
+                    position: fixed;
+                    max-height: none;
+                    max-width: none !important;
+                    top: 64px !important;
+                    left: 0 !important;
+                    height: calc(100vh - 64px) !important; /* 64 = app-header */
+                    width: 100% !important;
+                }
+
+                .floating-action-bar paper-button {
+                    min-width: 0 !important;
+                }
+                .floating-action-bar .no-mobile {
+                    display: none;
+                }
+                .mobile-only {
+                    display: initial;
+                }
+            }
+
 			@media screen and (max-width: 800px) {
 				.endline {
 					padding-bottom: 16px;
-				}
-				paper-radio-group, .buttons {
-					flex-direction: column;
 				}
 				paper-radio-group paper-radio-button {
 					line-height: normal;
 				}
 			}
+
+            @media screen and (max-width: 664px) {
+                paper-radio-group, .buttons {
+                    flex-direction: column;
+                }
+            }
 
 			#templateSavedIndicator{
 				position: fixed;
@@ -686,11 +705,17 @@
 			<div id="floating-action-bar" class="floating-action-bar">
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
-						<paper-button class="add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
+						<paper-button id="newFormBtn" class="add-forms-btn action-btn" on-tap="_toggleAddActions">
+                            <iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>
+                            <span class="no-mobile">[[localize('add_for','Add forms',language)]]</span>
+                        </paper-button>
 					</template>
 					<template is="dom-if" if=[[showAddFormsContainer]]>
 						<div class="paper-fab-container">
-							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions">
+                                <iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>
+                                <span class="no-mobile">[[localize('clo','Close',language)]]</span>
+                            </paper-button>
 							<div class="add-forms-container">
 								<!--<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>-->
 								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con_mso','Consultation MSOAP',language)]]</paper-fab-speed-dial-action>
@@ -705,23 +730,29 @@
 						<!--<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">-->
 						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe">
 							<iron-icon icon="vaadin:pills" ></iron-icon>
-							[[localize('pre','Prescribe',language)]]
+							<span class="no-mobile">[[localize('pre','Prescribe',language)]]</span>
 						</paper-button>
 					</div>
 					<div id="procedureBtnCtnr">
 						<paper-button id="procedureBtn" class="procedure-btn action-btn" on-tap="_planAction">
 							<iron-icon icon="vaadin:tools" ></iron-icon>
-							[[localize('proc','Procedure',language)]]
+							<span class="no-mobile">[[localize('proc','Procedure',language)]]</span>
 						</paper-button>
 					</div>
 					<div id="invoicingBtnCtnr">
 						<paper-button id="invoicingBtn" class="invoicing-btn ac.detail-panel div.paragraph-contenttion-btn"  on-tap="_invoicing">
 							<iron-icon icon="vaadin:invoice" ></iron-icon>
-							[[localize('inv','Invoice',language)]]
+							<span class="no-mobile">[[localize('inv','Invoice',language)]]</span>
 						</paper-button>
 					</div>
 				</template>
 			</div>
+            <div class="floating-action-bar-tooltips mobile-only">
+                <paper-tooltip for="newFormBtn" position="top">[[localize('add_for','Add forms',language)]]</paper-tooltip>
+                <paper-tooltip for="prescribeBtn" position="top">[[localize('pre','Prescribe',language)]]</paper-tooltip>
+                <paper-tooltip for="procedureBtn" position="top">[[localize('proc','Procedure',language)]]</paper-tooltip>
+                <paper-tooltip for="invoicingBtn" position="top">[[localize('inv','Invoice',language)]]</paper-tooltip>
+            </div>
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
 				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('pre_thi_but_to_pre','Press this button to prescribe',language)]]<br></template>
 				<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>

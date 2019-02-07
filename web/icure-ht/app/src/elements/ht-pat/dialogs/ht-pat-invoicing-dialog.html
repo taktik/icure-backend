@@ -333,7 +333,7 @@
                 width: 24px;
                 height: 20px;
                 margin: 8px 4px 0;
-                min-width: 0;
+                min-width: 24px;
                 padding: 0;
                 color: var(--app-text-color);
                 transition: .5s ease;
@@ -393,10 +393,13 @@
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
 
+                /*overflow: hidden;*/
+                /*text-overflow: ellipsis;*/
+                /*white-space: nowrap;*/
+
                 /* Rules below not implemented in browsers yet */
                 -o-user-select: none;
                 user-select: none;
-
             }
 
             .invoice-item .invoice-text-row {
@@ -407,15 +410,21 @@
                 align-items: center;
                 font-size: 14px;
                 @apply --padding-right-left-16;
+                overflow-x: auto;
+            }
+            .invoice-item .invoice-text-row.invoice-text-date {
+                min-height: 24px;
+                height: auto !important;
             }
 
             .invoice-item:nth-of-type(1) .invoice-text-row p {
                 padding-right: 32px;
             }
 
-            .invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child {
-                height: 24px;
-            }
+            /* WIP */
+            /*.invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child {*/
+                /*height: 24px;*/
+            /*}*/
 
             .invoice-item .colour-code:not(:first-child) {
                 margin-left: 4px;
@@ -586,6 +595,8 @@
                 justify-content: space-between;
                 align-items: center;
                 flex-wrap: nowrap;
+                height: auto;
+                max-height: none !important;
             }
 
             .verifiedNmcl {
@@ -847,6 +858,7 @@
             paper-item:hover .he-edit-btn-container {
                 position: absolute;
                 right: 5px;
+                bottom: 20px;
             }
 
             paper-item.iron-selected .he-edit-btn-container {
@@ -1023,6 +1035,83 @@
                 height: 120px;
             }
 
+            @media screen and (max-width: 1344px) {
+                .invoice-item .invoice-text-row {
+                    text-align: center;
+                    justify-content: space-around;
+                }
+                .invoiceDateInfo {
+                    flex-direction: column;
+                }
+            }
+
+            @media screen and (max-width: 936px) {
+                paper-dialog#invoiceDialog {
+                    max-width: none !important;
+                    max-height: none !important;
+                    height: calc(100vh - 64px);
+                    width: 100%;
+                    margin: 0;
+                }
+            }
+
+            @media screen and (max-width: 752px) {
+                .invoice-header .mobile-col {
+                    display: flex;
+                }
+                .mobile-col {
+                    padding: 16px 0;
+                }
+                .mobile-col .flex-container {
+                    flex-direction: column;
+                    height: 280px;
+                    width: 50%;
+                    overflow-y: scroll;
+                }
+            }
+
+            @media screen and (max-width: 632px) {
+                .invoice-item .invoice-text-row {
+                    text-align: left;
+                    justify-content: initial;
+                }
+                .invoiceDateInfo {
+                    flex-direction: initial;
+                }
+
+                paper-dialog#invoiceDialog {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .invoice-panel {
+                    height: 152px;
+                    box-shadow: none;
+                }
+                .detail-panel {
+                    box-shadow: 0 -8px 32px 0 rgba(0,0,0,.2);
+                    z-index: 10;
+                }
+                #barCode {
+                    display: none;
+                }
+                .buttons {
+                    position: initial;
+                    display: flex;
+                    height: 80px;
+                    background: var(--app-background-color);
+                    z-index: 10;
+                    bottom: 0;
+                    right: 0;
+                    box-sizing: border-box;
+                }
+            }
+
+            @media screen and (max-width:576px) {
+                .invoice-nomenclature-code-option {
+                    flex-direction: column;
+                }
+            }
+
         </style>
 
         <ht-inami-validator api="[[api]]" validator-name="ht-inami-validator"></ht-inami-validator>
@@ -1073,10 +1162,10 @@
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]-xades" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
                                                 <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item.id]]"></paper-icon-button>
                                             </div>
-                                            <paper-tooltip position="left" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                         </template>
                                     </div>
                                 </div>
@@ -1098,6 +1187,7 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mobile-col">
                     <div class="flex-container">
                         <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]"
                                           item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
@@ -1188,7 +1278,8 @@
                                 </div>
                             </paper-input>
                             <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
-                        </div>
+                    </div>
+                    </div>
 
                 </div>
                 <div class="invoice-nomenclature-code">
@@ -1430,6 +1521,8 @@
 
                 </div>
 
+            </div>
+                <canvas id="barCode"></canvas>
                 <div class="buttons">
                     <ht-spinner class="validAndTarif" active="[[isLoadingValidation]]"></ht-spinner>
                     <ht-spinner class="validAndTarif" active="[[isLoadingJustif]]"></ht-spinner>
@@ -1449,8 +1542,6 @@
                         <paper-button on-tap="_switchBetweenMethodForJustif" class="modal-button invoiceBtnEnable" disabled="[[isLoadingJustif]]">[[localize('val_justificatory','Justificatory',language)]]</paper-button>
                     </template>
                 </div>
-            </div>
-            <canvas id="barCode"></canvas>
         </paper-dialog>
 
         <paper-dialog id="transferDialog">
