@@ -322,15 +322,7 @@
                         type: Array,
                         value: () => []
                     },
-                    compoundName:{
-                        type: String,
-                        value: ''
-                    },
                     compoundListItems: {
-                        type: Array,
-                        value: () => []
-                    },
-                    compoundCache: {
                         type: Array,
                         value: () => []
                     }
@@ -512,8 +504,8 @@
                         this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
                     } else {
                         //compound
-                        this.set('newMedication.content.'+ this.language + '.compoundPrescription',this.compoundPrescriptionText)
                         this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
+                        this.set('newMedication.content.'+ this.language + '.compoundPrescription',this.compoundPrescriptionText)
                     }
 
                     if (this.selectedMedicationContentWithId.isNew) {

@@ -318,7 +318,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
         // this.addEventListener('newMedicFromChild', this.addMedication);
     }
 
-    addMedication
 	_widthChanged(width) {
 		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
 	}
@@ -374,8 +373,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	addMedication() {
         this.set('previouslySavedValue', _.cloneDeep(this.value))
-
-		this.dispatchEvent(new CustomEvent('medication-multi-selection', { detail: {onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+		const service = this.api.contact().service().newInstance(this.api.user, {})
+		this.dispatchEvent(new CustomEvent('multi-medication-selection', { detail: {service,onCreate: this._medicationCreated.bind(this), onShowDetails: this._displayMedicationDetails.bind(this), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 	}
 
 	editMedication(el) {

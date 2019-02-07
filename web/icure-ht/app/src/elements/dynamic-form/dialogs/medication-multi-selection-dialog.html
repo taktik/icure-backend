@@ -36,7 +36,7 @@
                 };
             }
 
-            paper-input {
+            paper-input, paper-input-container {
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
@@ -122,6 +122,11 @@
                     background-color: var(--app-primary-color);
                     color: white;
                 };
+            }
+
+            vaadin-combo-box {
+                display: block;
+                width: auto;
             }
 
             .buttons{
@@ -243,13 +248,12 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                        <div style="height:100%">
-                            <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
-                            <paper-input-container always-float-label="true">
-                                <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
-                                <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
-                            </paper-input-container>
-                        </div>
+                        <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
+                        <paper-input-container>
+                            <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
+                            <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
+                        </paper-input-container>
+                        <paper-icon-button id="[[_id(item)]]" class="add-btn" icon="icons:add" on-tap="_addCompound"></paper-icon-button>
                     </template>
                     <div class$="grid-container [[_noGridClass(medicationType)]]">
                         <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
@@ -366,13 +370,19 @@
                         type: Array,
                         value: () => []
                     },
-                    compoundName:{
-                        type: String,
-                        value: ""
-                    },
                     medicationAccumulator: {
                         type: String,
                         value: []
+                    },
+                    compoundListItems: {
+                        type: Array,
+                        value: () => []
+                    },
+                    selectedCompound: {
+                        type: Object,
+                        value: () => ({
+                            medicationValue: null
+                        })
                     }
                 }
             }
@@ -390,6 +400,11 @@
                 if (medication) {
                     this.set('newMedication', medication);
                 }
+
+                this.set('compoundFilterString', '')
+                this.set('compound','')
+                this.set('compoundPrescriptionText', '')
+
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -517,6 +532,10 @@
                 }
             }
 
+            _addCompound(e){
+                this.selectMedicationFromList(this.selectedCompound)
+            }
+
             _removeFromAcc(e) {
                 const idx = _.findIndex(this.medicationAccumulator, d => `remove-${this._id(d.newMedication)}` === e.target.id)
 
@@ -529,7 +548,7 @@
             }
 
             _id(item) {
-                return item && item.inncluster || item.id && (item.id.id || item.id) || item.name
+                return item && (item.inncluster || item.id && (item.id.id || item.id) || item.name)
             }
 
             _columnWidth(column) {
@@ -549,7 +568,7 @@
                 if (currentMedIdx >= 0) {
                     this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
                 } else {
-                    if (med.id) {
+                    if (med.id && med.id.id) {
                         //by productName
                         this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                             newMedicationContent.medicationValue.medicinalProduct = {
@@ -570,7 +589,7 @@
                                 version: '1'
                             })).code = mppInfos.atcCode)
 
-                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                            this.push('medicationAccumulator', {id: this._id(med),boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
                         })
                     } else {
                         //by molecule
@@ -590,18 +609,10 @@
                             })).code = med.atcCode)
                         } else {
                             //Compound prescription
-                            newMedicationContent.medicationValue = {
-                                medicinalProduct: {
-                                    intendedname: this.compoundName,
-                                    beginMoment: 0,
-                                    endMoment: 0,
-                                    priority: "low",
-                                    intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
-                                },
-                                compoundPrescription: med.name
-                            }
+                            newMedicationContent.medicationValue = this.selectedCompound.medicationValue
+                            newMedicationContent.medicationValue.compoundPrescription = this.compoundPrescriptionText
                         }
-                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                        this.push('medicationAccumulator', {id ,boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
                     }
                 }
             }
@@ -802,6 +813,37 @@
 
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
+            }
+
+            _compoundFilterChanged(e) {
+                const searchString = e.detail.value || ''
+
+                this.compoundSearchString = searchString;
+                if (!searchString || searchString.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('compoundListItems', []);
+                    return;
+                }
+
+                this.api.entitytemplate().findAllEntityTemplates('org.taktik.icure.entities.embed.Medication',searchString,true).then(res => {
+                    if (searchString !== this.compoundSearchString) {
+                        console.log("Cancelling obsolete search");
+                        this.set('compoundListItems', []);
+                    }
+                    this.set('compoundListItems', res);
+                })
+            }
+
+            _compoundChanged(e) {
+                const compound = this.compoundListItems.find(c => c.id === e.detail.value)
+                if(compound) {
+                    const medication = compound.entity.find(e => e.compoundPrescription)
+                    this.set('selectedCompound.id',e.detail.value)
+                    this.set('selectedCompound.medicationValue', medication )
+                    this.set('compoundPrescriptionText', medication.compoundPrescription )
+                }else {
+                    this.set('compoundPrescriptionText','')
+                }
             }
         }
 
