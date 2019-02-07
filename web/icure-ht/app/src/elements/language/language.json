@@ -930,7 +930,11 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Save to patient file"
+    "saveToPatFile" : "Save to patient file",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "old": "old"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1949,7 +1953,11 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Enregistrer et ajouter au dossier"
+    "saveToPatFile" : "Enregistrer et ajouter au dossier",
+    "weeks": "semaines",
+    "months": "mois",
+    "years": "ans",
+    "old": " "
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2974,6 +2982,10 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Save to patient file"
+    "saveToPatFile" : "Save to patient file",
+    "years": "jaren",
+    "weeks": "weken",
+    "months": "maanden",
+    "old": "oud"
   }
 }
