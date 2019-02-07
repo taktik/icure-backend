@@ -3053,7 +3053,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication', 'surgery', 'professionalrisk'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
 
-                        const oneWeekAgo = moment().subtract(7)
+                        const oneWeekAgo = moment().subtract(7, 'days')
                         this.set('medications', _.sortBy(hesAsServices.filter(s =>
                             s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
                         ).map(m =>
