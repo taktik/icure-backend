@@ -919,15 +919,17 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     medicalPostitChanged(medical) {
-        this.patient.note = medical
-
-        this.scheduleSave(this.patient)
+        if (this.patient && this.patient.note !== medical) {
+            this.patient.note = medical
+            this.scheduleSave(this.patient)
+        }
     }
 
     administrativePostitChanged(administrative) {
-        this.patient.administrativeNote = administrative
-
-        this.scheduleSave(this.patient)
+        if (this.patient && this.patient.administrativeNote !== administrative) {
+            this.patient.administrativeNote = administrative
+            this.scheduleSave(this.patient)
+        }
     }
 
     patientChanged() {

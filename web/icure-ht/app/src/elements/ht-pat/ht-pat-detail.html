@@ -65,6 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/ht-pat-list-plan-dialog.html">
 <link rel="import" href="dialogs/ht-pat-vaccine-history-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
+<link rel="import" href="../dynamic-form/dialogs/medication-multi-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
 <!--<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">-->
@@ -1505,7 +1506,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
                                                 api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" medications="[[medications]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication"
+                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-multi-medication-selection="_selectMultiMedication" on-medication-selection="_selectMedication"
                                                 on-medication-detail="_medicationDetail" contact-type-list="[[contactTypeList]]"></ht-pat-detail-ctc-detail-panel>
             </template>
 
@@ -1845,6 +1846,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices" readonly="false"></ht-pat-action-plan-dialog>
         <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
+        <medication-multi-selection-dialog id="medication-multi-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-multi-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
         <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
@@ -3851,6 +3853,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.currentSelectMedicationEventDetail = e.detail
                 this.$['medication-selection'].open(e.detail.service, e.detail.content );
             }
+
+            _selectMultiMedication(e) {
+                this.currentSelectMedicationEventDetail = e.detail
+                this.$['medication-multi-selection'].open(e.detail.service);
+            }
+
 
             _medicationDetail(e) {
                 this.currentMedicationDetailEventDetail = e.detail
