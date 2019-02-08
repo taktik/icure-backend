@@ -363,6 +363,36 @@
             });
         }
 
+        getCurrentAgeFromBirthDate(date, localizer) {
+
+            if(!date) {
+                return;
+            }
+
+            const birthDate = this.moment(date)
+            const now = moment()
+            let ageString = ""
+            const age = moment.duration(now.diff(birthDate))
+
+            const o = localizer('old','old')
+            const y = localizer('years', 'years')
+            const m = localizer('months', 'months')
+            const w = localizer('weeks', 'weeks')
+            const a = localizer('and', 'and')
+
+            if(age.year < 1) {
+                if( (age.years() == 0) && (age.months() <= 1)) {
+                    return `${age.weeks()} ${w} ${o}`
+                }else {
+                    return `${age.months()} ${m} ${a} ${age.weeks()} ${w} ${o}`
+                }
+            }else if (age.year <= 16) {
+                return `${age.years()} ${y} ${a} ${age.months()} ${m} ${o}`
+            }else {
+                return `${age.years()} ${y} ${o}`
+            }
+        }
+
         getAuthor(author) {
             const usr = this.users[author];
             const hcp = usr ? this.hcParties[usr.healthcarePartyId] : null;
