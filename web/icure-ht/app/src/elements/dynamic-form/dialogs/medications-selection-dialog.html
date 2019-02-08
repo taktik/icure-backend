@@ -402,6 +402,10 @@
                         value: () => ({
                             medicationValue: null
                         })
+                    },
+                    isPrescription: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -415,9 +419,11 @@
                 super()
             }
 
-            open(medication) {
+            open(medication, options = {}) {
                 this.set('newMedication', medication || { content: {}});
                 this.set('medicationAccumulator', []);
+
+                this.set('isPrescription', options.isPrescription);
 
                 this.set('compoundFilterString', '')
                 this.set('compound','')
@@ -582,6 +588,10 @@
                 const newMedicationContent = { medicationValue: {}, medicationUnit: unit, regimen: [{administratedQuantity: {time:'',quantity: 1, unit: unit}}]}
                 this.set('newMedication.content.'+this.language, newMedicationContent)
 
+                const options = {
+                    isPrescription: this.isPrescription
+                }
+
                 const id = this._id(med)
 
                 const currentMedIdx = _.findIndex(this.medicationAccumulator, m => this._id(m) === id)
@@ -609,7 +619,7 @@
                                 version: '1'
                             })).code = mppInfos.atcCode)
 
-                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication),id})
+                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication),id, options})
                         })
                     } else {
                         //by molecule
@@ -631,13 +641,13 @@
                             //Compound prescription
                             newMedicationContent.medicationValue = med.medicationValue
                         }
-                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication), id})
+                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication), id, options})
                     }
                 }
             }
 
             validateMedications() {
-                this.dispatchEvent(new CustomEvent('new-medications', {detail: { medications: this.medicationAccumulator, isPrescription: true }, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('new-medications', {detail: { medications: this.medicationAccumulator }, bubbles: true, composed: true}))
             }
 
             click(e) {

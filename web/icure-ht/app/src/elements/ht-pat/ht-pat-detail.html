@@ -3864,7 +3864,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _selectMultiMedication(e) {
                 this.currentSelectMedicationEventDetail = e.detail
-                this.$['medications-selection'].open(e.detail.service);
+                this.$['medications-selection'].open(e.detail.service, {isPrescription: true});
             }
 
 
@@ -3910,18 +3910,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //In case we get here coming from the prescription dialog by checking the checkbox
                 if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
                     this.currentMedicationDetailEventDetail.onValueChanged(e)
-                    if(e.detail.create) {
-                        const newMedication = _.cloneDeep(e.detail.medication)
-                        const medicationTag = 'CD-ITEM|medication|1.0'
-                        newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
-                        newMedication.label = this.localize('medication','medication',this.language)
-                        newMedication.id = this.api.crypto().randomUuid()
 
-                        this.saveNewService(this.api.contact().service().newInstance(this.user, newMedication)).then(() => this.refreshPatient())
-                    }
+                    const medicationArray = e.detail.medications && e.detail.medications.length ? e.detail.medications : [e.detail.medication];
+                    Promise.all( medicationArray.map( m => {
+                        if(m.options.createMedication || !m.options.isPrescription) {
+                            const newMedication = _.cloneDeep(m.newMedication)
+                            const medicationTag = 'CD-ITEM|medication|1.0'
+                            newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
+                            newMedication.label = this.localize('medication','medication',this.language)
+                            newMedication.id = this.api.crypto().randomUuid()
+                            return this.saveNewService(this.api.contact().service().newInstance(this.user, newMedication))
+                        }
+                        return null
+                    }) )
+                    .then((results) => results.find(r => r) && this.refreshPatient())
+
                 } else {
                     //Standard behaviour: create from medication button in left panel
-                    this.saveNewService(this.api.contact().service().newInstance(this.user, e.detail.medication)).then(() => this.refreshPatient())
+                    this.saveNewService(this.api.contact().service().newInstance(this.user, e.detail.medication.newMedication)).then(() => this.refreshPatient())
                 }
 
             }
