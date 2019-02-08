@@ -156,17 +156,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-admin-menu id="admin-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                      on-selection-change="handleMenuChange"></ht-admin-menu>
-
             <template is="dom-if" if="[[managementLayout]]">
-
+                <ht-admin-management id="admin-management" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-management>
             </template>
 
-            <template is="dom-if" if="[[preferenceLayout]]">
-
+            <template is="dom-if" if="[[preferencesLayout]]">
+                <ht-admin-preferences id="admin-preferences" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-preferences>
             </template>
 
-            <template is="dom-if" if="[[reportLayout]]">
-
+            <template is="dom-if" if="[[reportsLayout]]">
+                <ht-admin-reports id="admin-reports" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-reports>
             </template>
 
         </div>
@@ -199,13 +198,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value : false
                     },
-                    preferenceLayout:{
+                    preferencesLayout:{
                         type: Boolean,
                         value : false
                     },
-                    reportLayout:{
+                    reportsLayout:{
                         type: Boolean,
                         value: false
+                    },
+                    selectedSubMenu:{
+                        type: String,
+                        value: null
                     }
                 }
             }
@@ -226,17 +229,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             handleMenuChange(e) {
                 if (e.detail && e.detail.selection.item === 'management') {
                     this.set('managementLayout', true)
-                    this.set('preferenceLayout', false)
-                    this.set('reportLayout', false)
+                    this.set('preferencesLayout', false)
+                    this.set('reportsLayout', false)
                 }else if (e.detail && e.detail.selection.item === 'preference'){
                     this.set('managementLayout', false)
-                    this.set('preferenceLayout', true)
-                    this.set('reportLayout', false)
+                    this.set('preferencesLayout', true)
+                    this.set('reportsLayout', false)
                 }else if(e.detail && e.detail.selection.item === 'report'){
                     this.set('managementLayout', false)
-                    this.set('preferenceLayout', false)
-                    this.set('reportLayout', true)
+                    this.set('preferencesLayout', false)
+                    this.set('reportsLayout', true)
                 }
+                this.set('selectedSubMenu', e.detail.selection.item)
                 this.set('selectList', e.detail)
                 this._closeColumn(e)
             }

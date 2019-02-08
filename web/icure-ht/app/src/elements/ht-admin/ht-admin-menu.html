@@ -312,16 +312,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="managementlist" class="menu-content sublist" selected="{{managementSelectionIndex}}" selected-item="{{managementSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item flex-start" id="groupsManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="groupsManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:split"></iron-icon> [[localize('grps','Groups',language)]]
                     </paper-item>
-                    <paper-item class="one-line-menu menu-item flex-start" id="usersManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="usersManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:users"></iron-icon> [[localize('users','Users',language)]]
                     </paper-item>
-                    <paper-item class="one-line-menu menu-item flex-start" id="usersManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="parentManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:office"></iron-icon> [[localize('off_mh','Office / Medical house',language)]]
                     </paper-item>
-                    <paper-item class="one-line-menu menu-item flex-start" id="usersManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="delegationsManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegations',language)]]
                     </paper-item>
                 </paper-listbox>
@@ -338,7 +338,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="preferencelist" class="menu-content sublist" selected="{{preferenceSelectionIndex}}" selected-item="{{preferenceSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item flex-start" id="groupsManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="preferencesSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:sliders"></iron-icon> [[localize('prefs','Preferences',language)]]
                     </paper-item>
                 </paper-listbox>
@@ -355,7 +355,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="reportlist" class="menu-content sublist" selected="{{reportSelectionIndex}}" selected-item="{{reportSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item flex-start" id="groupsManagement">
+                    <paper-item class="one-line-menu menu-item flex-start" id="listOfAttestationSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:lines-list"></iron-icon> [[localize('lst_att','List of attestations',language)]]
                     </paper-item>
                 </paper-listbox>
