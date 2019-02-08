@@ -1569,7 +1569,7 @@
 
                             if (requestType === 'newrequest' || requestType === 'extension' || requestType === 'noncontinuousextension') {
                                 return Promise.all(links.map(l =>
-                                    this.api.contact().service().newInstance(this.api.user, {
+                                    this.api.contact().service().newInstance(this.user, {
                                         tags: [{type: "CD-ITEM", code: "medication"}],
                                         codes: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
                                         content: _.fromPairs([[this.language, {

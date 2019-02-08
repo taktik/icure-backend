@@ -36,7 +36,16 @@
                 };
             }
 
+            vaadin-combo-box {
+                display: block;
+                width: auto;
+            }
+
             paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            paper-input-container {
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
@@ -72,7 +81,6 @@
 
             paper-tabs {
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
-                width: 100%;
             }
 
             paper-tab {
@@ -212,8 +220,9 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                            <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
-                            <paper-input-container always-float-label="true">
+                            <!--<vaadin-combo-box-dropdown value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></vaadin-combo-box-dropdown>-->
+                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <paper-input-container>
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                             </paper-input-container>
@@ -316,9 +325,9 @@
                         type: Array,
                         value: () => []
                     },
-                    compoundName:{
-                        type: String,
-                        value: ""
+                    compoundListItems: {
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -345,6 +354,11 @@
                     this.set('newMedication', medication);
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(m, false))
                 }
+
+                this.set('compoundFilterString', '')
+                this.set('compound','')
+                this.set('compoundPrescriptionText', '')
+
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -489,24 +503,13 @@
 
                         med.inncluster && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-INNCLUSTER', version:'1'})).code = med.inncluster)
                         med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
+
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
                     } else {
-                        //Compound prescription
-                        this.set('selectedMedicationContentWithId.medicationValue', {
-                            medicinalProduct: {
-                                intendedname: this.compoundName,
-                                beginMoment: 0,
-                                endMoment: 0,
-                                priority: "low",
-                                intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
-                            },
-                            compoundPrescription: med.name
-                        })
-
+                        //compound
                         this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
-
-
+                        this.set('newMedication.content.'+ this.language + '.compoundPrescription',this.compoundPrescriptionText)
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 
                     if (this.selectedMedicationContentWithId.isNew) {
                         this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
@@ -594,8 +597,8 @@
             }
 
             confirm() {
-                if (this.medicationType === 'compoundPrescription' && this.compoundPrescriptionText) {
-                    this.select({name: this.compoundPrescriptionText})
+                if (this.medicationType === 'compoundPrescription') {
+                    this.select('placeholder')
                 } else if (this.selectedMedicationFromList) {
                     this.select(this.selectedMedicationFromList);
                 }
@@ -720,6 +723,38 @@
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
+
+            _compoundFilterChanged(e) {
+                const searchString = e.detail.value || ''
+
+                this.compoundSearchString = searchString;
+                if (!searchString || searchString.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('compoundListItems', []);
+                    return;
+                }
+
+                this.api.entitytemplate().findAllEntityTemplates('org.taktik.icure.entities.embed.Medication',searchString,true).then(res => {
+                    if (searchString !== this.compoundSearchString) {
+                        console.log("Cancelling obsolete search");
+                        this.set('compoundListItems', []);
+                    }
+                    this.set('compoundListItems', res);
+                })
+            }
+
+            _compoundChanged(e) {
+                const compound = this.compoundListItems.find(c => c.id === e.detail.value)
+                if(compound) {
+                    const medication = compound.entity.find(e => e.compoundPrescription)
+                    this.set('selectedMedicationContentWithId.medicationValue', medication )
+                    this.set('compoundPrescriptionText', medication.compoundPrescription )
+                }else {
+                    this.set('compoundPrescriptionText','')
+                }
+            }
+
+
         }
 
         customElements.define(MedicationSelectionDialog.is, MedicationSelectionDialog)

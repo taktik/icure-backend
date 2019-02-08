@@ -243,7 +243,8 @@
                 if (!he) {
                     return;
                 }
-                this.splice("currentContact.subContacts", this.currentContact.subContacts.find(subC => subC.healthElementId === he.id), 1)
+                const heIndex = _.findIndex(this.currentContact.subContacts,subC => subC.healthElementId === he.id);
+                this.splice("currentContact.subContacts", heIndex , 1)
                 this.scanServicesAndScheduleSave(this.currentContact)
 			}
 
