@@ -3846,12 +3846,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] }))
                 };
 
+                this.currentSelectMedicationEventDetail = null
                 this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
             }
 
             _editMedication(e) {
                 const id = e.target.id.substr("med-edit-btn-edit_".length)
                 const m = this.medications.find(s => s.id === id)
+                this.currentSelectMedicationEventDetail = null
                 this.$['medication-detail'].open(m);
             }
 
