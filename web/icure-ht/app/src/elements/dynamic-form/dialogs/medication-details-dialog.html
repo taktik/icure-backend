@@ -984,6 +984,9 @@
             }
 
             openList(list) {
+                // ------------------if we want to create an array even when we have only one medication selected
+                // list && list.length > 0 ? this.set('medications', _.clone(list)) : (list.newMedication && this.set('medications',[list])) || this.set('medications', [])
+                // ----------------------------------------------------------------------------------------------
                 list && list.length > 0 ? this.set('medications', _.clone(list)) : this.set('medications', [])
                 if (this.medications.length) {
                     this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true, this.medications[0].options.isPrescription), this.medications[0].boxes)
@@ -1163,6 +1166,7 @@
 
             close() {
                 this.set("selectedMedicationContentWithId", null)
+                this.set('medications', [])
             }
 
             save() {
