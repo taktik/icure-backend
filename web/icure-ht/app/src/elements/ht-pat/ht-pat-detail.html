@@ -3913,7 +3913,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     const medicationArray = e.detail.medications && e.detail.medications.length ? e.detail.medications : [e.detail.medication];
                     Promise.all( medicationArray.map( m => {
-                        if(m.options.createMedication || !m.options.isPrescription) {
+                        if( m.options && (m.options.createMedication || !m.options.isPrescription)) {
                             const newMedication = _.cloneDeep(m.newMedication)
                             const medicationTag = 'CD-ITEM|medication|1.0'
                             newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
