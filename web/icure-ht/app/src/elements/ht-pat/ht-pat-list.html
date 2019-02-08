@@ -1963,15 +1963,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 // Must click on a row
                 if (e.path[0].nodeName === 'TABLE') return
+                if(this.activeItem) {
+                    const selected = this.activeItem
+                    console.log('selected ', selected, ' - ' + this.latestSelected)
 
-                const selected = this.activeItem
-                console.log('selected ', selected, ' - ' + this.latestSelected)
-
-                this.api.patient().getPatientWithUser(this.user, selected.id).then(p => this.api.register(p, 'patient')).then(p => {
-                    this.set('selectedPatient', p)
-                    this.set('isLoadingPatient', false)
-                })
-
+                    this.api.patient().getPatientWithUser(this.user, selected.id).then(p => this.api.register(p, 'patient')).then(p => {
+                        this.set('selectedPatient', p)
+                        this.set('isLoadingPatient', false)
+                    })
+                }
             }
 
             _addPatient() {
