@@ -239,7 +239,13 @@
                             <div class="indicator"><iron-icon icon="info"></iron-icon> [[localize('inc_res','Incomplete result',language)]]</div>
                         </template>
                     </div>
-                    <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                    <template is="dom-if" if="[[_moreThan2(resInfo.services)]]">
+                        <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
+                    </template>
+                    <template is="dom-if" if="[[!_moreThan2(resInfo.services)]]">
+                        <div>[[_serviceDescription(resInfo.services.0)]]</div>
+                        <div>[[_serviceDescription(resInfo.services.1)]]</div>
+                    </template>
                 </template>
                 <template is="dom-if" if="[[downloadable]]">
                     <hr/>
@@ -446,6 +452,14 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	_wrap(o) { return [o] }
+
+	_moreThan2(items) {
+	    return items && items.length > 2
+    }
+
+	_serviceDescription(svc) {
+        return svc && this.api.contact().shortServiceDescription(svc, this.language) || ''
+    }
 }
 
 customElements.define(DynamicDoc.is, DynamicDoc);
