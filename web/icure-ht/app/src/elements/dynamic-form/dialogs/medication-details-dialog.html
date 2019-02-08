@@ -701,7 +701,7 @@
 
             <div class="buttons">
                 <template is="dom-if" if="[[_all(selectedMedicationContentWithId ,selectedMedicationContentWithId.isPrescription)]]">
-                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="[[medicationMustBeCreated]]"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
+                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="{{medicationDetail.options.createMedication}}"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -887,9 +887,8 @@
             }
 
             _selectedMedicationChanged(idx) {
-                this.set('selectedMedicationContentWithId', this.api.contact().preferredContent(this.medications[idx].newMedication))
+                this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.medications[idx].newMedication, true, this.medications[idx].options.isPrescription))
                 this.set('medicationDetail', this.medications[idx])
-
             }
 
             _posologyChanged(newValue, oldValue) {
@@ -929,7 +928,7 @@
                 this.updateGridIfNeeded()
             }
 
-            extractContentWithIdFromMedicationService(m, isNew) {
+            extractContentWithIdFromMedicationService(m, isNew, isPres) {
                 return {
                     id: m.id,
                     codes: m.codes,
@@ -943,7 +942,7 @@
                         )
                     ).medicationValue,
                     isNew: isNew || false,
-                    isPrescription: m.isPrescription || false
+                    isPrescription: m.isPrescription || isPres || false
                 };
             }
 
@@ -987,7 +986,7 @@
             openList(list) {
                 list && list.length > 0 ? this.set('medications', _.clone(list)) : this.set('medications', [])
                 if (this.medications.length) {
-                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true), this.medications[0].boxes)
+                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true, this.medications[0].options.isPrescription), this.medications[0].boxes)
                     this.set('selectedMedication',0)
                 }
             }
@@ -1172,7 +1171,7 @@
 
             _valueChanged() {
                 console.log("_valueChanged()",this.medicationDetail)
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail.newMedication, medications:this.medications, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail, medications:this.medications}, bubbles: true, composed: true}))
             }
 
             _regimenTableDataProvider(frequency) {
@@ -1283,7 +1282,7 @@
             }
 
             _createMedication(e){
-                this.set('medicationMustBeCreated', e.target.checked)
+                this.set('medicationDetail.options.createMedication', e.target.checked)
             }
 
             _medicationName(svc) {
