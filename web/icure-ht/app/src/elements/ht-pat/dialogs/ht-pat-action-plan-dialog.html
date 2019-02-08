@@ -777,7 +777,7 @@
                     const codeMedication = content && content.medicationValue && content.medicationValue.medicinalProduct && ((content.medicationValue.medicinalProduct.intendedcds || []).find(code => code.type === "CD-DRUG-CNK") || {})
                     Promise.all([
                         this.api.hcparty().getHealthcareParty(service.responsible),
-                        codeProcedure && codeProcedure.id ? this.api.code().getCode(codeProcedure.type + '|' + codeProcedure.code + '|' + codeProcedure.version) : Promise.resolve({}),
+                        (codeProcedure && codeProcedure.id ? this.api.code().getCode(codeProcedure.id) : this.api.code().getCode(codeProcedure.type + '|' + codeProcedure.code + '|' + codeProcedure.version)) || Promise.resolve({}),
                         codeProfession && codeProfession.id ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve({}),
                         codeVaccine && codeVaccine.id && codeMedication && codeMedication.code ? this.api.bedrugs().getMppInfos(codeMedication.code, this.language) : Promise.resolve({})
                     ]).then(([hcp, resultProced, resultProf, resultVaccine]) => {

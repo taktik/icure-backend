@@ -1419,7 +1419,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
                                                 <paper-tooltip position="left" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="left" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                                <paper-tooltip position="left" for="event-btn-done_[[e.id]]">[[localize('mark_as_aborted','Marquer comme abandonnée',language)]]</paper-tooltip>
                                             </div>
                                         </paper-item>
                                     </template>
@@ -2772,7 +2772,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 const t = svc.tags.find(t => t.type === 'CD-LIFECYCLE');
                 if (t) {
-                    t.code = 'cancelled';
+                    t.code = 'aborted';
                     if (!this.currentContact) {
                         return;
                     }
