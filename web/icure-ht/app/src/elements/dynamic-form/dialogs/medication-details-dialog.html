@@ -386,6 +386,14 @@
                 right: 0;
             }
 
+            paper-tab span{
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding-right: 12px;
+                display: block;
+                max-width: calc(100% - 34px);
+            }
+
             .add-col {
                 display: flex;
                 position: absolute;
@@ -491,8 +499,8 @@
 
                     <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
 
-                    <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
-                    <template is="dom-if" if="[[isRenewal]]">
+                    <vaadin-checkbox id="renewal" checked=[[selectedMedicationContentWithId.medicationValue.isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
+                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.isRenewal]]">
                         <paper-input type="number" min="0" value="{{selectedMedicationContentWithId.medicationValue.renewalDecimalValue}}"></paper-input>
                         <div>x tous les</div>
                         <paper-input type="number" min="0" value="{{selectedMedicationContentWithId.medicationValue.renewalDurationValue}}"></paper-input>
@@ -1282,7 +1290,7 @@
             }
 
             _renewalValueChanged(e){
-                this.set('isRenewal', e.target.checked)
+                this.set('selectedMedicationContentWithId.medicationValue.isRenewal', e.target.checked)
                 if(e.target.checked === false){
                     this.set("selectedMedicationContentWithId.medicationValue.renewal", null)
                 }
