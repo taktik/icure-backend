@@ -180,6 +180,9 @@
 
     </template>
     <script>
+
+        import moment from 'moment/src/moment';
+
         class HtPatActionPlanDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
                 return 'ht-pat-action-plan-dialog';
@@ -472,6 +475,9 @@
                         console.log("Cancelling obsolete search");
                         return [];
                     }
+                    if (!(res && res.rows && res.rows.length)) {
+                        return [];
+                    }
                     return this.api.code().getCodes(res.rows.map(code => code.id))
                 })
                 .then(codes =>{
@@ -517,8 +523,22 @@
                         let count = 15;
                         return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, null, count)]).then(results => {
                             const procedureList = results[0];
-                            const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
-                            return { totalSize: filtered.length, rows: filtered};
+                            const profCode = (this.selectedProfessionItem && this.selectedProfessionItem.id)
+                            let filtered = procedureList.rows
+                            if(profCode) {
+                                filtered = filtered.filter(proc => {
+                                    return proc.links && proc.links.some(link => {
+                                        return link == profCode
+                                    })
+                                })
+                            }
+                            filtered = _.flatten(filtered.map(procedure => ({
+                                id: procedure.id,
+                                label: procedure.label,
+                                code: procedure.code,
+                                searchTerms: procedure.searchTerms
+                            })))
+                            return {totalSize: filtered.length, rows: filtered};
                         })
 
                     }.bind(this)
@@ -807,6 +827,17 @@
                         console.log("error", err)
                         this.set('errMsg', err)
                     })
+                } else { // new action-plan, set default values
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                        if(hcp.type) {
+                            this.set("selectedHcpItem", hcp)
+                            this.set("plannedAction.HcpId",this.selectedHcpItem.id)
+                            this.set("plannedAction.ProfessionId","CD-HCPARTY|"+hcp.type+"|1")
+                            this.set("selectedProfessionItem", this.hcpartyTypeList.find(type => type.id === this.plannedAction.ProfessionId))
+                        }
+                    })
+                    this.set("plannedAction.Deadline", moment().format('YYYY-MM-DD'))
+                    this.set("plannedAction.Status", "pending")
                 }
                 this.$.dialog.open();
             }
