@@ -1034,7 +1034,7 @@
 			}
 
 			ifRecipeAvailable(){
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                this.user && this.user.healthcarePartyId && this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                     this.set("ehealthSession", this.api.tokenId ? true : false)
 					if(hcp.addresses && hcp.addresses.length > 0){
 

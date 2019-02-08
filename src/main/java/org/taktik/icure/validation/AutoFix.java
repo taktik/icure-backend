@@ -47,6 +47,8 @@ public enum AutoFix {
 			if (c.getCode() == null) {
 				c.setCode(parts[1]);
 			}
+		} else if (c.getType() != null && c.getCode() != null && c.getVersion() != null) {
+			c.setId(c.getType() + "|" + c.getCode() + "|" + c.getVersion());
 		}
 		return c;
 	});

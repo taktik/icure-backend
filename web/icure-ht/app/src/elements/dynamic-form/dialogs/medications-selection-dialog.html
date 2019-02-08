@@ -18,7 +18,7 @@
 <link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../ht-spinner/ht-spinner.html">
 
-<dom-module id="medication-multi-selection-dialog">
+<dom-module id="medications-selection-dialog">
     <template>
         <style include="dialog-style atc-styles">
             paper-dialog {
@@ -36,8 +36,13 @@
                 };
             }
 
-            paper-input {
+            paper-input, paper-input-container {
                 --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            paper-input-container {
+                margin-top: 24px;
+                margin-left: 40px;
             }
 
             #entities-list, #accumulated-medications {
@@ -124,6 +129,11 @@
                 };
             }
 
+            vaadin-combo-box {
+                display: block;
+                width: auto;
+            }
+
             .buttons{
                 position: absolute;
                 bottom: 0;
@@ -167,13 +177,13 @@
             }
 
             .left-pane {
-                width: calc(75% - 12px);
+                width: calc(67% - 12px);
                 margin-right: 12px;
                 flex-grow: 3;
             }
 
             .right-pane {
-                width: calc(25% - 12px);
+                width: calc(33% - 12px);
                 margin-left: 12px;
                 align-self: flex-end;
                 flex-grow: 1;
@@ -187,10 +197,22 @@
                 padding: 2px;
                 margin-right: 4px;
             }
+
+            .add-btn--compound {
+                position: absolute;
+                left: 0;
+                margin-top: 55px;
+            }
+
             .helper{
                 display:block;
                 width:100%;
                 height:62px;
+            }
+
+            .boxes-qty {
+                display: inline-block;
+                width:18px;
             }
         </style>
 
@@ -215,7 +237,7 @@
                 <div class="left-pane">
                     <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
                         <div class="helper"></div>
-                        <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
+                        <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="clickChron">
                             <vaadin-grid-column>
                                 <template class="header">
                                     <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
@@ -243,9 +265,10 @@
                         </vaadin-grid>
                     </template>
                     <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                        <div style="height:100%">
-                            <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
-                            <paper-input-container always-float-label="true">
+                        <div style="margin-top: 12px; position: relative;">
+                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <paper-icon-button id="[[_id(item)]]" class="add-btn add-btn--compound" icon="icons:add" on-tap="_addCompound"></paper-icon-button>
+                            <paper-input-container>
                                 <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
                             </paper-input-container>
@@ -283,15 +306,15 @@
                 <div class="right-pane">
                     <h5>Selected Medication(s)</h5>
                     <vaadin-grid id="accumulated-medications" items="[[medicationAccumulator]]" active-item="{{selectedMedicationFromAccumulator}}">
-                        <vaadin-grid-column size="40">
+                        <vaadin-grid-column width="72px">
                             <template class="header">
                                 <div>Boxes</div>
                             </template>
                             <template>
-                                <span>[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item.newMedication)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
+                                <span class="boxes-qty">[[item.boxes]]</span><paper-icon-button id="remove-[[_id(item)]]" class="add-btn" icon="icons:remove" on-tap="_removeFromAcc"></paper-icon-button>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column>
+                        <vaadin-grid-column width="calc(100% - 72px)">
                             <template class="header">
                                 <div>Description</div>
                             </template>
@@ -312,9 +335,9 @@
         import _ from 'lodash/lodash'
         import accounting from '../../../../scripts/accounting';
 
-        class MedicationMultiSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class MedicationsSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
-                return 'medication-multi-selection-dialog'
+                return 'medications-selection-dialog'
             }
 
             static get properties() {
@@ -366,13 +389,19 @@
                         type: Array,
                         value: () => []
                     },
-                    compoundName:{
-                        type: String,
-                        value: ""
-                    },
                     medicationAccumulator: {
-                        type: String,
+                        type: Array,
                         value: []
+                    },
+                    compoundListItems: {
+                        type: Array,
+                        value: () => []
+                    },
+                    selectedCompound: {
+                        type: Object,
+                        value: () => ({
+                            medicationValue: null
+                        })
                     }
                 }
             }
@@ -387,9 +416,13 @@
             }
 
             open(medication) {
-                if (medication) {
-                    this.set('newMedication', medication);
-                }
+                this.set('newMedication', medication || { content: {}});
+                this.set('medicationAccumulator', []);
+
+                this.set('compoundFilterString', '')
+                this.set('compound','')
+                this.set('compoundPrescriptionText', '')
+
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -503,22 +536,28 @@
 
             _addCnkDci(e) {
                 const grid = this.$['entities-list'];
-                const med = grid.drugsCache.find(d => d.id && d.id.id === e.target.id)
+                const med = grid.drugsCache.find(d => this._id(d) === e.target.id)
                 this.selectMedicationFromList(med)
             }
 
             _addChron(e) {
                 const med = this.medications.find(d => d.id === e.target.id)
-                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.newMedication && m.newMedication.id === med.id)
-                if (currentMedIdx >= 0) {
-                    this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
-                } else {
-                    this.push('medicationAccumulator', {boxes:1, newMedication:_.cloneDeep(med)})
+                this.selectChron(med)
+            }
+
+            _addCompound(e){
+                if (this.compoundPrescriptionText && this.compoundPrescriptionText.length) {
+                    ((this.selectedCompound || (this.selectedCompound = {})).medicationValue || (this.selectedCompound.medicationValue = {})).compoundPrescription = this.compoundPrescriptionText
+                    if (!this.selectedCompound.id) { this.selectedCompound.id = this.compoundPrescriptionText }
+                    this.selectMedicationFromList(this.selectedCompound)
+
+                    this.set('selectedCompound', null)
+                    this.set('compoundPrescriptionText', null)
                 }
             }
 
             _removeFromAcc(e) {
-                const idx = _.findIndex(this.medicationAccumulator, d => `remove-${this._id(d.newMedication)}` === e.target.id)
+                const idx = _.findIndex(this.medicationAccumulator, d => `remove-${this._id(d)}` === e.target.id)
 
                 if (idx>=0) {
                     this.set(`medicationAccumulator.${idx}.boxes`, (this.medicationAccumulator[idx].boxes || 1) - 1)
@@ -529,7 +568,7 @@
             }
 
             _id(item) {
-                return item && item.inncluster || item.id && (item.id.id || item.id) || item.name
+                return item && (item.inncluster || item.id && (item.id.id || item.id) || item.name)
             }
 
             _columnWidth(column) {
@@ -545,11 +584,11 @@
 
                 const id = this._id(med)
 
-                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.id === id)
+                const currentMedIdx = _.findIndex(this.medicationAccumulator, m => this._id(m) === id)
                 if (currentMedIdx >= 0) {
                     this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
                 } else {
-                    if (med.id) {
+                    if (med.id && med.id.id) {
                         //by productName
                         this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                             newMedicationContent.medicationValue.medicinalProduct = {
@@ -570,7 +609,7 @@
                                 version: '1'
                             })).code = mppInfos.atcCode)
 
-                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                            this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication),id})
                         })
                     } else {
                         //by molecule
@@ -590,28 +629,15 @@
                             })).code = med.atcCode)
                         } else {
                             //Compound prescription
-                            newMedicationContent.medicationValue = {
-                                medicinalProduct: {
-                                    intendedname: this.compoundName,
-                                    beginMoment: 0,
-                                    endMoment: 0,
-                                    priority: "low",
-                                    intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
-                                },
-                                compoundPrescription: med.name
-                            }
+                            newMedicationContent.medicationValue = med.medicationValue
                         }
-                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication)})
+                        this.push('medicationAccumulator', {boxes: 1, newMedication: _.cloneDeep(this.newMedication), id})
                     }
                 }
             }
 
             validateMedications() {
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                } else {
-                    this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
-                }
+                this.dispatchEvent(new CustomEvent('new-medications', {detail: { medications: this.medicationAccumulator, isPrescription: true }, bubbles: true, composed: true}))
             }
 
             click(e) {
@@ -634,6 +660,23 @@
                         delete this.inDoubleClick;
                     }, 500);
                 }
+            }
+
+            clickChron(e) {
+                const selected = this.selectedChronicalMedicationFromList;
+
+                console.log('selected ',selected,' - ',this.latestSelected);
+                if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
+                    this.selectChron(this.latestSelected);
+                } else {
+                    if (selected) this.latestSelected = selected;
+                    this.inDoubleClick = true;
+
+                    setTimeout(() => {
+                        delete this.inDoubleClick;
+                    }, 500);
+                }
+
             }
 
             loadCheapAlternativesIfNeeded(searchSeed) {
@@ -704,6 +747,18 @@
                     this.set('filterValue','')
                     this.set('medicationType','medicinalProduct')
                     this.$['entities-list'].clearCache();
+                }
+            }
+
+            selectChron(med) {
+                if (med) {
+                    const id = this._id(med)
+                    const currentMedIdx = _.findIndex(this.medicationAccumulator, m => m.id === id)
+                    if (currentMedIdx >= 0) {
+                        this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
+                    } else {
+                        this.push('medicationAccumulator', {id, boxes:1, newMedication:_.cloneDeep(med)})
+                    }
                 }
             }
 
@@ -803,8 +858,42 @@
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
+
+            _compoundFilterChanged(e) {
+                const searchString = e.detail.value || ''
+
+                this.compoundSearchString = searchString;
+                if (!searchString || searchString.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('compoundListItems', []);
+                    return;
+                }
+
+                this.api.entitytemplate().findAllEntityTemplates('org.taktik.icure.entities.embed.Medication',searchString,true).then(res => {
+                    if (searchString !== this.compoundSearchString) {
+                        console.log("Cancelling obsolete search");
+                        this.set('compoundListItems', []);
+                    }
+                    this.set('compoundListItems', res);
+                })
+            }
+
+            _compoundChanged(e) {
+                const compound = this.compoundListItems.find(c => c.id === e.detail.value)
+                if(compound) {
+                    const medication = compound.entity.find(e => e.compoundPrescription)
+                    this.set('selectedCompound', {
+                        id: e.detail.value,
+                        medicationValue: medication
+                    })
+                    this.set('compoundPrescriptionText', medication.compoundPrescription )
+                }else {
+                    this.set('selectedCompound', null);
+                    this.set('compoundPrescriptionText','')
+                }
+            }
         }
 
-        customElements.define(MedicationMultiSelectionDialog.is, MedicationMultiSelectionDialog)
+        customElements.define(MedicationsSelectionDialog.is, MedicationsSelectionDialog)
     </script>
 </dom-module>
