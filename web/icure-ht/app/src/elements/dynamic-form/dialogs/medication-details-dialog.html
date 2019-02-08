@@ -375,6 +375,17 @@
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
+            #main-table {
+                position: relative;
+            }
+
+            #dayListbox {
+                margin-right: 16px;
+            }
+            #add-take {
+                right: 0;
+            }
+
             paper-tab span{
                 text-overflow: ellipsis;
                 overflow: hidden;
@@ -387,7 +398,7 @@
                 display: flex;
                 position: absolute;
                 z-index: 1;
-                right: 24px;
+                right: 0;
             }
             .add-col .btn-dropdown-container {
                 position: initial;
@@ -457,24 +468,19 @@
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
 
             <div class="content">
-                <paper-tabs selected="{{selectedMedication}}">
-                    <template is="dom-repeat" items="[[medications]]">
-                        <paper-tab>
-                            <iron-icon icon="vaadin:pill" class="marginRight10"></iron-icon><span>[[_medicationName(item.newMedication)]]</span>
-                        </paper-tab>
-                    </template>
-                </paper-tabs>
+                <template is="dom-if" if="[[medications.length]]">
+                    <paper-tabs selected="{{selectedMedication}}">
+                        <template is="dom-repeat" items="[[medications]]">
+                            <paper-tab>
+                                <iron-icon icon="vaadin:pill" class="marginRight10"></iron-icon><span>[[_medicationName(item.newMedication)]]</span>
+                            </paper-tab>
+                        </template>
+                    </paper-tabs>
+                </template>
 
 
                 <div class="regimen-line display-type-regimen">
-                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                        <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
-                                        disabled="true"></paper-input>
-                    </template>
-                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                        <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
-                                        disabled="true"></paper-input>
-                    </template>
+                    <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="[[_any(selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname, selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname,selectedMedicationContentWithId.medicationValue.compoundPrescription)]]" disabled="true"></paper-input>
 
                         <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{selectedMedicationContentWithId.medicationValue.beginMomentAsString}}"
                                             class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
@@ -493,8 +499,8 @@
 
                     <vaadin-checkbox checked="[[selectedMedicationContentWithId.medicationValue.substitutionAllowed]]" id="substitutionAllowed" on-checked-changed="_substitutionAllowedChanged">[[localize('substitution', 'Substitution', language)]]</vaadin-checkbox>
 
-                    <vaadin-checkbox id="renewal" checked=[[isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
-                    <template is="dom-if" if="[[isRenewal]]">
+                    <vaadin-checkbox id="renewal" checked=[[selectedMedicationContentWithId.medicationValue.isRenewal]] on-checked-changed="_renewalValueChanged">[[localize('renewal', 'Renewal', language)]]</vaadin-checkbox>
+                    <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.isRenewal]]">
                         <paper-input type="number" min="0" value="{{selectedMedicationContentWithId.medicationValue.renewalDecimalValue}}"></paper-input>
                         <div>x tous les</div>
                         <paper-input type="number" min="0" value="{{selectedMedicationContentWithId.medicationValue.renewalDurationValue}}"></paper-input>
@@ -515,7 +521,7 @@
                     </paper-input-container>
                 </div>
 
-                    <div class="regimen-lines">
+                    <div id="main-table" class="regimen-lines">
                         <div class="regimen-line regimen-add">
                             <div class="add-first-regimen">
                                 <div class="modal-button--save add-btn">
@@ -549,12 +555,12 @@
                                                             </iron-input>
                                                         </paper-input-container>
                                                     </div>
-                                                    <paper-icon-button id="[[item.id]]" class="custom-time-add" icon="icons:add" on-tap="_addChron"></paper-icon-button>
+                                                    <paper-icon-button id="add-custom-time" class="custom-time-add" icon="icons:add" on-tap="_addCustomDayPeriod"></paper-icon-button>
                                                 </div>
                                             </paper-item>
                                         </paper-listbox>
                                     </template>
-                                    <paper-icon-button icon="add" on-tap="_toggleColDropDown"></paper-icon-button>
+                                    <paper-icon-button id="add-take" icon="add" on-tap="_toggleColDropDown"></paper-icon-button>
                                 </div>
                                 <vaadin-grid id="selectedMedicationTable" data-provider="[[_regimenTableDataProvider('daily', selectedMedicationContentWithId)]]" indexAs="index">
                                     <vaadin-grid-column flex-grow="1" width="160px">
@@ -664,7 +670,7 @@
                             </paper-dropdown-menu>
                             <template is="dom-if" if="[[!_isEqual(rg.dayPeriod.code,'custom')]]">
                                 <paper-dropdown-menu label="[[localize('tod','Time of day',language)]]" class="regimen--tod" id="{{rg.dayPeriod.code}}">
-                                    <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
+                                    <paper-listbox id="daylyListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-selected-changed="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
                                         <paper-item id="beforebreakfast">[[localize("beforebreakfast",'Beforebreakfast',language)]]</paper-item>
                                         <paper-item id="duringbreakfast">[[localize("duringbreakfast",'Duringbreakfast',language)]]</paper-item>
                                         <paper-item id="afterbreakfast">[[localize("afterbreakfast",'Afterbreakfast',language)]]</paper-item>
@@ -703,7 +709,7 @@
 
             <div class="buttons">
                 <template is="dom-if" if="[[_all(selectedMedicationContentWithId ,selectedMedicationContentWithId.isPrescription)]]">
-                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="[[medicationMustBeCreated]]"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
+                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="{{medicationDetail.options.createMedication}}"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -754,8 +760,7 @@
                         ]
                     },
                     bufferUnit: {
-                        type: String,
-                        value: "loading ..."
+                        type: String
                     },
                     bufferQuantity: {
                         type: Number,
@@ -860,6 +865,10 @@
                 super.ready()
             }
 
+            _any(a,b,c,d,e) {
+                return a||b||c||d||e
+            }
+
             _ignoreEvent(e) {
                 e.stopPropagation()
             }
@@ -886,9 +895,8 @@
             }
 
             _selectedMedicationChanged(idx) {
-                this.set('selectedMedicationContentWithId', this.api.contact().preferredContent(this.medications[idx].newMedication))
+                this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.medications[idx].newMedication, true, this.medications[idx].options.isPrescription))
                 this.set('medicationDetail', this.medications[idx])
-
             }
 
             _posologyChanged(newValue, oldValue) {
@@ -928,7 +936,7 @@
                 this.updateGridIfNeeded()
             }
 
-            extractContentWithIdFromMedicationService(m, isNew) {
+            extractContentWithIdFromMedicationService(m, isNew, isPres) {
                 return {
                     id: m.id,
                     codes: m.codes,
@@ -942,7 +950,7 @@
                         )
                     ).medicationValue,
                     isNew: isNew || false,
-                    isPrescription: m.isPrescription || false
+                    isPrescription: m.isPrescription || isPres || false
                 };
             }
 
@@ -980,13 +988,13 @@
             }
 
             _initSelectedMedicationContentWithId(){
-                this.selectedMedicationContentWithId.medicationValue && !this.selectedMedicationContentWithId.medicationValue.regimen ? this.set('selectedMedicationContentWithId.medicationValue', {regimen : []}) : null
+                this.selectedMedicationContentWithId.medicationValue && !this.selectedMedicationContentWithId.medicationValue.regimen ? this.set('selectedMedicationContentWithId.medicationValue.regimen', []) : null
             }
 
             openList(list) {
-                list && list.length > 0 ? this.set('medications', _clone(list)) : this.set('medications', [])
+                list && list.length > 0 ? this.set('medications', _.clone(list)) : this.set('medications', [])
                 if (this.medications.length) {
-                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true), this.medications[0].boxes)
+                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true, this.medications[0].options.isPrescription), this.medications[0].boxes)
                     this.set('selectedMedication',0)
                 }
             }
@@ -1031,16 +1039,18 @@
             }
 
             _addCustomDayPeriod(event) {
-                if (event.detail.value && this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue && this.selectedMedicationContentWithId.medicationValue.regimen && !this.selectedMedicationContentWithId.medicationValue.regimen.some(r => r.frequency === 'daily' && r.dayPeriod && r.dayPeriod.code === event.detail.value)) {
-                    this.push('selectedMedicationContentWithId.medicationValue.regimen', {
+                let medicationValue = this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue
+                if (medicationValue && medicationValue.regimen && !medicationValue.regimen.some(r => r.frequency === 'daily'
+                    && (r.dayPeriod && event.detail.value && r.dayPeriod.code === event.detail.value || event.target.id === 'add-custom-time' && this.customTime && r.timeOfDay === this.customTime))) {
+                    this.push('selectedMedicationContentWithId.medicationValue.regimen', _.assign({
                         frequency: 'daily',
                         administratedQuantity: {
                             time: null,
                             quantity: 1,
-                            unit: this.bufferUnit
-                        },
-                        dayPeriod: {type: "CD-DAYPERIOD", code: event.detail.value}
-                    })
+                            unit: this.medicationDetail && this.medicationDetail.bufferUnit || this.localize('generic_unit', 'unit', this.language)
+                        }
+                    }, event.target.id === 'add-custom-time' ? {timeOfDay: Number((moment(this.customTime,['HH:mm','HHmm']) || moment()).format('HHmmss') || '120000')} :
+                        {dayPeriod: {type: "CD-DAYPERIOD", code: event.detail.value}}))
                     this.updateGridIfNeeded()
                 }
                 this.set('openAddColDropDown', false)
@@ -1058,7 +1068,7 @@
                     administratedQuantity: {
                         time: null,
                         quantity: dropDownSelectedFreq ? 1 :this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
-                        unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                        unit: this.medicationDetail && this.medicationDetail.bufferUnit || this.localize('generic_unit', 'unit', this.language)
                     }
                 })
                 this.updateGridIfNeeded()
@@ -1162,12 +1172,6 @@
             close() {
                 this.set("selectedMedicationContentWithId", null)
             }
-            _closeAndNew() {
-                const target = this.parentNode
-                this._valueChanged() // instant save
-                this.close()
-                // this.parentNode.dispatchEvent(new CustomEvent('newMedicFromChild',{}) )
-            }
 
             save() {
                 this._valueChanged()
@@ -1175,7 +1179,7 @@
 
             _valueChanged() {
                 console.log("_valueChanged()",this.medicationDetail)
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail.newMedication, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail, medications:this.medications}, bubbles: true, composed: true}))
             }
 
             _regimenTableDataProvider(frequency) {
@@ -1266,7 +1270,7 @@
             }
 
             _renewalValueChanged(e){
-                this.set('isRenewal', e.target.checked)
+                this.set('selectedMedicationContentWithId.medicationValue.isRenewal', e.target.checked)
                 if(e.target.checked === false){
                     this.set("selectedMedicationContentWithId.medicationValue.renewal", null)
                 }
@@ -1286,7 +1290,7 @@
             }
 
             _createMedication(e){
-                this.set('medicationMustBeCreated', e.target.checked)
+                this.set('medicationDetail.options.createMedication', e.target.checked)
             }
 
             _medicationName(svc) {
