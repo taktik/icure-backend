@@ -156,10 +156,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _selectedManagementSubMenuChange(){
-                this.selectedSubMenu === "groupsManagementSubMenu" ? this.set('groupsManagementLayout', true) :
-                    this.selectedSubMenu === "usersManagementSubMenu" ? this.set('usersManagementLayout', true) :
-                        this.selectedSubMenu === "parentManagementSubMenu" ? this.set('parentManagementLayout', true) :
-                            this.selectedSubMenu === "delegationsManagementSubMenu" ? this.set('delegationsManagementLayout', true) : null
+
+                if(this.selectedSubMenu === "groupsManagementSubMenu"){
+                    this.set('groupsManagementLayout', true)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                }else if(this.selectedSubMenu === "usersManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', true)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                }else if(this.selectedSubMenu === "parentManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', true)
+                    this.set('delegationsManagementLayout', false)
+                }else{
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', true)
+                }
+
             }
 
         }

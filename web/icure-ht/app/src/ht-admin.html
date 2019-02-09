@@ -162,6 +162,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-admin-menu id="admin-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                      on-selection-change="handleMenuChange"></ht-admin-menu>
+
             <template is="dom-if" if="[[managementLayout]]">
                 <ht-admin-management id="admin-management" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-management>
             </template>
@@ -233,6 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleMenuChange(e) {
+
                 if (e.detail && e.detail.selection.item === 'management') {
                     this.set('managementLayout', true)
                     this.set('preferencesLayout', false)
@@ -246,7 +248,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('preferencesLayout', false)
                     this.set('reportsLayout', true)
                 }
-                this.set('selectedSubMenu', e.detail.selection.item)
+
+                this.set('selectedSubMenu', e.detail.selection.submenu)
                 this.set('selectList', e.detail)
                 this._closeColumn(e)
             }
