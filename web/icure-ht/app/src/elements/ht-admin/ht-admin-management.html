@@ -82,7 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
 
-        <template is="dom-if" if="[['groupsManagementLayout']]">
+        <template is="dom-if" if="[[groupsManagementLayout]]">
             <ht-admin-management-groups id="admin-management-groups" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-groups>
         </template>
 
@@ -122,7 +122,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     selectedSubMenu: {
                         type: String,
-                        observer: '_selectedManagementSubMenuChange'
+                        observer: '_selectedManagementSubMenuChanged'
                     },
                     groupsManagementLayout:{
                         type: Boolean,
@@ -155,7 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready()
             }
 
-            _selectedManagementSubMenuChange(){
+            _selectedManagementSubMenuChanged(){
 
                 if(this.selectedSubMenu === "groupsManagementSubMenu"){
                     this.set('groupsManagementLayout', true)

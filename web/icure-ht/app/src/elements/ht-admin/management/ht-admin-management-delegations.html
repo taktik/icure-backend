@@ -62,10 +62,123 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position:relative;
             }
 
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 0;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            #delegationList {
+                max-height: 90%;
+            }
+
         </style>
 
         <div class="delegations-panel">
             <h4>[[localize('man_my_delg', 'Management - My delegations', language)]]</h4>
+
+            <vaadin-grid id="delegationList" class="material" items="[[listOfDelegations]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('deleg_type','Delegation type',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.delegationType]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('deleg_user_type','User type',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.type]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('deleg_first_name','Name',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.firstName]] [[item.lastName]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('Id','Id',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.id]]</div>
+                    </template>
+                </vaadin-grid-column>
+
+            </vaadin-grid>
         </div>
 
     </template>
@@ -89,12 +202,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
+                    },
+                    listOfDelegations:{
+                        type: Object,
+                        value: () => []
                     }
                 }
             }
 
             static get observers() {
-                return [];
+                return ['_getDelegationOfUser(user)'];
             }
 
             constructor() {
@@ -103,6 +220,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            _getDelegationOfUser(){
+                const delegationsKeys = Object.keys(this.user.autoDelegations)
+                let userDelegations = []
+                let userD = []
+
+                delegationsKeys.forEach(key => {
+                     userDelegations.push(this.user.autoDelegations[key])
+                })
+
+                this.api.hcparty().getHealthcareParties(_.uniq(_.flatten(userDelegations)).map(del => del).join(',')).then(delegatesHcp => {
+                    console.log(delegatesHcp)
+
+                    delegationsKeys.forEach(key => {
+                        userD.push(this.user.autoDelegations[key].map(hcp => _.assign(_.compact(delegatesHcp).find(dhcp => hcp === dhcp.id), {delegationType : key})))
+                    })
+
+                    this.set('listOfDelegations', _.flatten(userD))
+
+                })
+
+                //this.api.hcparty().getHealthcareParties()
+
+                //Chunk.map(u => u.healthcarePartyId).filter(id => !!id).join(',')
             }
 
         }
