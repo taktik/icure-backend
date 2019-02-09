@@ -223,28 +223,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _getDelegationOfUser(){
+                this.set('listOfDelegations', [])
                 const delegationsKeys = Object.keys(this.user.autoDelegations)
-                let userDelegations = []
-                let userD = []
 
-                delegationsKeys.forEach(key => {
-                     userDelegations.push(this.user.autoDelegations[key])
-                })
-
-                this.api.hcparty().getHealthcareParties(_.uniq(_.flatten(userDelegations)).map(del => del).join(',')).then(delegatesHcp => {
-                    console.log(delegatesHcp)
+                this.api.hcparty().getHealthcareParties(_(_.flatten(delegationsKeys.map(key => this.user.autoDelegations[key]))).uniq().value().map(del => del).join(',')).then(delegatesHcp => {
 
                     delegationsKeys.forEach(key => {
-                        userD.push(this.user.autoDelegations[key].map(hcp => _.assign(_.compact(delegatesHcp).find(dhcp => hcp === dhcp.id), {delegationType : key})))
+                         this.user.autoDelegations[key].map(hcp => this.push('listOfDelegations', _.assign((delegatesHcp.find(dhcp => hcp === dhcp.id)), {delegationType: key})))
                     })
-
-                    this.set('listOfDelegations', _.flatten(userD))
-
                 })
-
-                //this.api.hcparty().getHealthcareParties()
-
-                //Chunk.map(u => u.healthcarePartyId).filter(id => !!id).join(',')
             }
 
         }

@@ -61,10 +61,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 box-sizing: border-box;
                 position:relative;
             }
+
+            #usersList {
+                max-height: 90%;
+            }
+
         </style>
 
         <div class="users-panel">
             <h4>[[localize('man_usr', 'Management - Users', language)]]</h4>
+
+            <vaadin-grid id="usersList" class="material" items="[[listOfUsers]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('login','Login',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.login]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+
         </div>
 
     </template>
@@ -88,12 +105,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
+                    },
+                    listOfUsers:{
+                        type: Object,
+                        value: () => []
                     }
                 }
             }
 
             static get observers() {
-                return [];
+                return ['_usersDataProvider(user)'];
             }
 
             constructor() {
@@ -102,6 +123,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            _usersDataProvider(){
+                this.api.user().listUsers().then(users => this.set('listOfUsers', users.rows))
             }
 
         }
