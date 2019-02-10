@@ -147,10 +147,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <vaadin-grid id="delegationList" class="material" items="[[listOfDelegations]]">
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_type','Delegation type',language)]]
+                        [[localize('deleg_first_name','Name',language)]]
                     </template>
                     <template>
-                        <div>[[item.delegationType]]</div>
+                        <div>[[item.firstName]] [[item.lastName]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
@@ -163,10 +163,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_first_name','Name',language)]]
+                        [[localize('deleg_type','Delegation type',language)]]
                     </template>
                     <template>
-                        <div>[[item.firstName]] [[item.lastName]]</div>
+                        <div>[[item.delegationType]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
@@ -226,12 +226,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('listOfDelegations', [])
                 const delegationsKeys = Object.keys(this.user.autoDelegations)
 
-                this.api.hcparty().getHealthcareParties(_(_.flatten(delegationsKeys.map(key => this.user.autoDelegations[key]))).uniq().value().map(del => del).join(',')).then(delegatesHcp => {
-
-                    delegationsKeys.forEach(key => {
-                         this.user.autoDelegations[key].map(hcp => this.push('listOfDelegations', _.assign((delegatesHcp.find(dhcp => hcp === dhcp.id)), {delegationType: key})))
+                if(delegationsKeys && delegationsKeys.length > 0){
+                    this.api.hcparty().getHealthcareParties(_(_.flatten(delegationsKeys.map(key => this.user.autoDelegations[key]))).uniq().value().map(del => del).join(',')).then(delegatesHcp => {
+                        delegationsKeys.forEach(key => {
+                            this.user.autoDelegations[key].map(hcp => this.push('listOfDelegations', _.assign((delegatesHcp.find(dhcp => hcp === dhcp.id)), {delegationType: key})))
+                        })
                     })
-                })
+                }
             }
 
         }
