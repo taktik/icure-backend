@@ -654,9 +654,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[_isUnreadResult(result)]]">[[result.patientName]]</div>
-									<div class="card-table-cell lab-name">[[result.descr]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patientName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
 							<ht-spinner class="spinner" active=[[isLoadingLabResults]]></ht-spinner>
@@ -1023,16 +1023,34 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             })
             .then(results => {
                 this.set('labResults', _.orderBy(results, 'created', 'desc') || [])
-                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
-                    .then(messages => this.set('unreadCount', _.filter(messages.rows, m => m.assignedResults && ((m.status & 1 << 1) !== 0)).length))
+                return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
+                    .then(messages => {
+                        this.set('unreadCount', _.filter(messages.rows, m => {
+                            return ((m.status & (1 << 1)) !== 0) && (
+								(m.assignedResults && Object.keys(m.assignedResults).length)
+								|| (m.unassignedResults && m.unassignedResults.length)
+							)
+                        }).length)
+                        this.messagesByResultId = {}
+                        messages.rows && messages.rows.forEach (mes => {
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(resid => {
+                                this.messagesByResultId[resid] = mes
+							})
+                        })
+						console.log("end loading mes", this.messagesByResultId)
+                    })
             })
-            .finally(() => this.set('isLoadingLabResults', false))
+            .finally(() => {
+				//console.log("FINISHED LOAD MESSAGES")
+                this.set('isLoadingLabResults', false)
+            })
     }
 
     _isUnreadResult(res) {
-	    return false
-		// FIXME: need a way to get messageId from result
-        //this.api.message().getMessage(res.groupId).then(m=>{return ((m.status & 1 << 1) !== 0) ? 'unread' : '' }).catch(()=>{return 'err'})
+	    //console.log("is unread ?", this.messagesByResultId, this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : 'read' , res)
+        //return 'unread'
+		// FIXME: WIP: no unread messages found
+	    return this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {
