@@ -558,7 +558,8 @@
                     this.selectMedicationFromList(this.selectedCompound)
 
                     this.set('selectedCompound', null)
-                    this.set('compoundPrescriptionText', null)
+                    this.set('compoundPrescriptionText', '')
+                    this.set('compoundFilterString','')
                 }
             }
 
@@ -767,7 +768,7 @@
                     if (currentMedIdx >= 0) {
                         this.set(`medicationAccumulator.${currentMedIdx}.boxes`, (this.medicationAccumulator[currentMedIdx].boxes || 1) + 1)
                     } else {
-                        this.push('medicationAccumulator', {id, boxes:1, newMedication:_.cloneDeep(med)})
+                        this.push('medicationAccumulator', { id, boxes:1, newMedication:_.cloneDeep(med),options: {isPrescription: this.isPrescription} })
                     }
                 }
             }
