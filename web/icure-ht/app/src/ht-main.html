@@ -267,8 +267,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-size:14psx;
+				font-size:14px;
 				font-style:italic;
+			}
+
+			.patient-age {
+				color:var(--app-text-color-disabled);
+				font-weight:400;
+				font-size:14px;
+				font-style:italic;
+				text-transform: lowercase;
 			}
 
 			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
@@ -575,7 +583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
 									<div class="divider"></div>
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
@@ -1029,6 +1037,12 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_timeFormat(date) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+	}
+
+	_ageFormat(date) {
+		if(this.language) {
+			return this.api.getCurrentAgeFromBirthDate(date, (id,placeholder) => this.localize(id,placeholder,this.language))
+		}
 	}
 
 	_shortTimeFormat(date) {

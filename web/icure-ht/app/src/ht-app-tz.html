@@ -1795,7 +1795,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                 {
-                    const isMH = hcp.type.toLowerCase() === 'medicalhouse';
+                    const isMH = hcp.type && hcp.type.toLowerCase() === 'medicalhouse';
                     return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, isMH ? hcp.nihii.substr(0,8): hcp.ssin, this.api.keystoreId, isMH).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')

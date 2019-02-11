@@ -431,7 +431,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	_isMedicalHouse(){
-		return this.hcp && this.hcp.type && this.hcp.type==="medicalhouse"
+		return this.hcp && this.hcp.type && this.hcp.type.toLowerCase() ==="medicalhouse"
 	}
 
 
