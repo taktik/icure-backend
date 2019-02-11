@@ -3115,9 +3115,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
                             }
-                            const contacttype = ctc.tags.find(tag => tag.type == "BE-CONTACT-TYPE")
+                            const contacttype = ctc.tags.find(tag => tag.type === "BE-CONTACT-TYPE")
                             if(contacttype) {
-                                ctc.userDescr = this.contactTypeList.find(sct => sct.code == contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
+                                ctc.userDescr = this.contactTypeList.find(sct => sct.code === contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
                             }
                             ctc.services.forEach(s => {
                                 if (!s.label) {
