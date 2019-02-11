@@ -622,7 +622,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
 					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
-							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]
+							<h1 class="card-title new-notif">[[localize('latest_lab_reports','Latest Lab and Reports',language)]]
                                 <template is="dom-if" if="[[!_isEqual(unreadCount,0)]]">
                                     <span class="notif">[[unreadCount]]<span class="nomobile"> [[localize('are_not_read','unread',language)]]</span></span>
                                 </template>
@@ -976,13 +976,22 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const start = Number(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'))
         const labsFilter = {
             '$type': 'UnionFilter',
-            'filters': [{
-                '$type': 'ServiceByHcPartyTagCodeDateFilter',
-                healthcarePartyId: this.user.healthcarePartyId,
-                tagCode: 'labresult',
-                tagType: 'CD-TRANSACTION',
-                startValueDate: start
-            }]
+            'filters': [
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'labresult',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'report',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+            ]
         }
         this.api.contact().filterServicesBy(null, null, 50, new models.FilterChain({filter: labsFilter}))
             .then(services => {
@@ -1013,7 +1022,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _isUnreadResult(res) {
-        this.api.message().getMessage(res.groupId).then(m=>{return ((m.status & 1 << 1) !== 0) ? 'unread' : '' }).catch(()=>{return 'err'})
+	    return false
+		// FIXME: need a way to get messageId from result
+        //this.api.message().getMessage(res.groupId).then(m=>{return ((m.status & 1 << 1) !== 0) ? 'unread' : '' }).catch(()=>{return 'err'})
     }
 
 	_timeFormat(date) {
