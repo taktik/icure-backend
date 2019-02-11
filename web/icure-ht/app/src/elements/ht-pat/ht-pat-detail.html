@@ -1215,7 +1215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
-                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
+                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] °[[_ageFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
                                 <div class="statusContainer">
                                     <paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
                                     <paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
@@ -2232,6 +2232,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeFormat(date) {
                 return date ? this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+            }
+
+            _ageFormat(date) {
+                return date ? this.api.getCurrentAgeFromBirthDate(date,( e , s ) => this.localize(e, s, this.language)) : '';
             }
 
             _dateFormat(date) {
