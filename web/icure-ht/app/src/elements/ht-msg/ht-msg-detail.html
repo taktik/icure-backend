@@ -980,8 +980,10 @@
 
                 <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
+                        <div class="layout-vertical annexe-card">
                         <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" preview="true" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                      resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true" downloadable="false"></dynamic-doc>
+                        </div>
                     </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
@@ -1392,6 +1394,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _getPatsFromDoc(document) {
+	    if(document.documentLocation === "body") return document
         console.log('_getPatsFromDoc')
         const unassigned = this.unassignedResults || []
         this.set('toImportPatsSuggestions', [])
