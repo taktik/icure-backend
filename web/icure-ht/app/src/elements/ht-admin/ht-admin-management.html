@@ -45,6 +45,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="management/ht-admin-management-groups.html">
 <link rel="import" href="management/ht-admin-management-users.html">
 <link rel="import" href="management/ht-admin-management-parent.html">
+<link rel="import" href="management/ht-admin-management-facturation-flat-rate.html">
+<link rel="import" href="management/ht-admin-management-facturation-service-fee.html">
 
 
 <dom-module id="ht-admin-management">
@@ -98,6 +100,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <ht-admin-management-delegations id="admin-management-delegations" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-delegations>
         </template>
 
+        <template is="dom-if" if="[[facturationServiceFeeManagementLayout]]">
+            <ht-admin-management-facturation-service-fee id="admin-management-facturation-service-fee" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-facturation-service-fee>
+        </template>
+
+        <template is="dom-if" if="[[facturationFlatRateManagementLayout]]">
+            <ht-admin-management-facturation-flat-rate id="admin-management-facturation-flat-rate" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-facturation-flat-rate>
+        </template>
+
     </template>
 
     <script>
@@ -139,6 +149,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     delegationsManagementLayout:{
                         type: Boolean,
                         value: false
+                    },
+                    facturationServiceFeeManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    facturationFlatRateManagementLayout:{
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -162,21 +180,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('usersManagementLayout', false)
                     this.set('parentManagementLayout', false)
                     this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
                 }else if(this.selectedSubMenu === "usersManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', true)
                     this.set('parentManagementLayout', false)
                     this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
                 }else if(this.selectedSubMenu === "parentManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
                     this.set('parentManagementLayout', true)
                     this.set('delegationsManagementLayout', false)
-                }else{
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "delegationsManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
                     this.set('parentManagementLayout', false)
                     this.set('delegationsManagementLayout', true)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "facturationServiceFeeManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', true)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "facturationFlatRateManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', true)
                 }
 
             }

@@ -324,20 +324,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="one-line-menu list-title management-line">
                         <div>
                             <iron-icon icon="vaadin:workplace" class="force-left"></iron-icon>
-                            <span class="force-left force-ellipsis box-txt">[[localize('manag','Management',language)]]</span>
+                            <span class="force-left force-ellipsis box-txt">[[localize('manag','Management of office / medical house',language)]]</span>
                         </div>
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="managementlist" class="menu-content sublist" selected="{{managementSelectionIndex}}" selected-item="{{managementSelectionItem}}" selectable="paper-item">
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="parentManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:office"></iron-icon> [[localize('off_mh','Office / Medical house',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="facturationServiceFeeManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:invoice"></iron-icon> [[localize('fac_ser_fee','Service fee facturation',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="facturationFlatRateManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:package"></iron-icon> [[localize('fac_fla_rat','Flat rate facturation',language)]]
+                    </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="groupsManagementSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:split"></iron-icon> [[localize('grps','Groups',language)]]
+                        <iron-icon class="sub-menu-icon" icon="vaadin:split"></iron-icon> [[localize('grps','Groups of users',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="usersManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:users"></iron-icon> [[localize('users','Users',language)]]
-                    </paper-item>
-                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="parentManagementSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:office"></iron-icon> [[localize('off_mh','Office / Medical house',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="delegationsManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegations',language)]]

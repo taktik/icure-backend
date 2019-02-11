@@ -41,7 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
 
-<dom-module id="ht-admin-management-groups">
+<dom-module id="ht-admin-management-facturation-service-fee">
 
     <template>
 
@@ -54,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 outline:0!important;
             }
 
-            .groups-panel{
+            .facturation-service-fee-panel{
                 height: 100%;
                 width: 100%;
                 padding: 0 20px;
@@ -64,8 +64,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         </style>
 
-        <div class="groups-panel">
-            <h4>[[localize('man_groups', 'Management - Groups of users', language)]]</h4>
+        <div class="facturation-service-fee-panel">
+            <h4>[[localize('man_serv_fee', 'Management - Service fee facturation', language)]]</h4>
         </div>
 
     </template>
@@ -75,9 +75,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
 
-        class HtAdminManagementGroups extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class HtAdminManagementFacturationServiceFee extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
-                return 'ht-admin-management-groups'
+                return 'ht-admin-management-facturation-service-fee'
             }
 
             static get properties() {
@@ -107,6 +107,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }
 
-        customElements.define(HtAdminManagementGroups.is, HtAdminManagementGroups)
+        customElements.define(HtAdminManagementFacturationServiceFee.is, HtAdminManagementFacturationServiceFee)
     </script>
 </dom-module>
