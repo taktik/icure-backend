@@ -1900,64 +1900,68 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
 
-                    this.$.loginDialog.opened = false
+                        this.$.loginDialog.opened = false
 
-                    //request electron tc.
-                    fetch('http://localhost:16042/tc',{
-                        method: "POST",
-                        headers: {
-                            "Content-Type" : "application/json; charset=utf-8"
-                        },
-                        body: JSON.stringify( {
-                            "userId" : this.user.id,
-                            "token" : this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
-                        } )
-                    })
-
-                    this.set('credentials.twofa', null)
-                    u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
-                    this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
-
-                    if ((this.credentials.userId && this.credentials.appToken)) {
-                        this.set('credentials.password', null)
-                        this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
-                    }
-                    sessionStorage.setItem('auth', JSON.stringify(this.credentials))
-                    localStorage.setItem('last_connection',this.credentials.username)
-
-                    if (!this.authenticated) {
-                        this.authenticated = true
-
-                        const loadKeysForParent = (parentId, prom) => {
-                            if (parentId) {
-                                return prom.then(([success, destPage]) => {
-                                    if (success) {
-                                        return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
-                                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
-                                        )
-                                    } else {
-                                        return Promise.resolve([success, destPage])
-                                    }
+                        this.api.isElectronAvailable().then(electron => {
+                            if (electron === true) {
+                                //request electron tc.
+                                fetch('http://localhost:16042/tc', {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json; charset=utf-8"
+                                    },
+                                    body: JSON.stringify({
+                                        "userId": this.user.id,
+                                        "token": this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
+                                    })
                                 })
-                            } else {
-                                return prom
-                            }
-                        }
-
-                        loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
-                            if (success) {
-                                const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                                if (!this.routeData || destPage !== this.routeData.page) {
-                                    this.set('routeData.page', destPage)
-                                } else {
-                                    this._routePageChanged(destPage)
-                                }
                             }
                         })
-                    }
-                    this._timeCheck()
-                    this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
-                    this._inboxMessageCheck()
+
+                        this.set('credentials.twofa', null)
+                        u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
+                        this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
+
+                        if ((this.credentials.userId && this.credentials.appToken)) {
+                            this.set('credentials.password', null)
+                            this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
+                        }
+                        sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                        localStorage.setItem('last_connection',this.credentials.username)
+
+                        if (!this.authenticated) {
+                            this.authenticated = true
+
+                            const loadKeysForParent = (parentId, prom) => {
+                                if (parentId) {
+                                    return prom.then(([success, destPage]) => {
+                                        if (success) {
+                                            return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
+                                                loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
+                                            )
+                                        } else {
+                                            return Promise.resolve([success, destPage])
+                                        }
+                                    })
+                                } else {
+                                    return prom
+                                }
+                            }
+
+                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
+                                if (success) {
+                                    const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                    if (!this.routeData || destPage !== this.routeData.page) {
+                                        this.set('routeData.page', destPage)
+                                    } else {
+                                        this._routePageChanged(destPage)
+                                    }
+                                }
+                            })
+                        }
+                        this._timeCheck()
+                        this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
+                        this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
