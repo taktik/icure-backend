@@ -1596,7 +1596,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
-            annex: this.selectedDocuments,
+            annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
             document: {
 	            title: 'Fw: '+origMsg.subject,
                 textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
