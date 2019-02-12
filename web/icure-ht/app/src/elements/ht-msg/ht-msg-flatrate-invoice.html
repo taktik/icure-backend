@@ -564,6 +564,7 @@
                 .batchRejected{background-color: var(--paper-red-400);}
                 .batchAccepted{background-color: var(--paper-green-400);}
                 .batchArchived{background-color: var(--paper-purple-300);}
+                .batchToBeSend{background-color: var(--paper-orange-400);}
 
                 ht-spinner {
                     margin-top:10px;
@@ -738,12 +739,12 @@
                     .hideOnMobile {display: none;opacity: 0;}
                 }
 
-                #warningMessage {
+                .warningMessage {
                     margin-top: 20px;
                     margin-bottom: 30px;
                 }
 
-                #warningMessageBody {
+                .warningMessageBody {
                     padding:20px 35px;
                     color:#7E0000;
                     background-color: rgba(255, 0, 0, 0.15);
@@ -824,6 +825,19 @@
                     display:block;
                 }
 
+                .exportMonthPicker {
+                    padding:20px 0 10px 0;
+                    border:1px solid #ddd;
+                    margin:40px auto;
+                    max-width:520px;
+                    -webkit-box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.2);
+                    box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.2);
+                }
+
+                vaadin-combo-box{
+                    margin:10px 20px 0 20px;
+                }
+
             </style>
         </custom-style>
 
@@ -840,12 +854,22 @@
                 </div>
             </template>
 
-            <div id="batchStatus" class="batch-status">[[localize(flatrateMenuSection, language)]]</div>
+
+
+            <div id="batchStatus" class="batch-status">
+                [[localize(flatrateMenuSection, language)]]
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeCorrected')]]"><span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.toBeCorrected]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeSend')]]"><span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.toBeSend]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_process')]]"><span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.processing]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_accept')]]"><span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.rejected]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_reject')]]"><span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.accepted]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_archive')]]"><span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></template>
+            </div>
 
 
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingListing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingListing()]]"><div class="warningMessage" id="warningMessageListing"><div class="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
                 <div class="centerCenter">
                     <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
                     <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
@@ -909,22 +933,56 @@
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingDownload()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingDownloadWarningMessage', 'Please only download invoicing at the end of the month', language)]]</div></div></template>
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_toBeCorrected')]]">
                 <div class="centerCenter">
-                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]] (*)</paper-button>
-                    <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
-                    <paper-button class="tool-btn tool-btn-previous-month p-10px m-t-50 f-s-08em bordered" id="_getInvoicingJ20PreviousMonth" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadInvoicingPreviousMonth','Download invoicing of previous month',language)]]<span class="onlyIfRejectRate">[[localize('downloadListingPreviousMonthRemark','Only when rejection rate > 5%',language)]]</span></paper-button>
+                    j20_toBeCorrected
                 </div>
             </template>
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej20')]]">
-                <div class="gridContainer">
-                    <div class="invoiceContainer">
-                        Archives J20
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_toBeSend')]]">
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingDownload()]]"><div class="warningMessage" id="warningMessageInvoicing"><div class="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingDownloadWarningMessage', 'Please only download invoicing at the end of the month', language)]]</div></div></template>
+                <div class="textAlignCenter">
+
+                    <div class="exportMonthPicker">
+                        <vaadin-combo-box id="exportedMonth" filtered-items="[[_getExportMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getExportCurrentMonth()]]"></vaadin-combo-box>
+                        <vaadin-combo-box id="exportedYear" filtered-items="[[_getExportYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getExportCurrentYear()]]"></vaadin-combo-box>
                     </div>
+
+                    <paper-button class="tool-btn p-15px f-s-1em bordered" on-tap="_exportFlatRateInvoicing"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]]</paper-button>
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_process')]]">
+                <div class="centerCenter">
+                    j20_process
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_accept')]]">
+                <div class="centerCenter">
+                    j20_accept
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_reject')]]">
+                <div class="centerCenter">
+                    j20_reject
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_archive')]]">
+                <div class="centerCenter">
+                    j20_archive
                 </div>
             </template>
 
@@ -993,7 +1051,7 @@
                     },
                     flatrateMenuSection: {
                         type: String,
-                        observer: '_flatrateMenuSectionChanged'
+                        observer: '_flatRateListingMenuSectionChanged'
                     },
                     activeGridItem:{
                         type: Object,
@@ -1043,7 +1101,18 @@
                     reportMonthGap: {
                         type: Number,
                         value: 1
-                    }
+                    },
+                    j20_batchCounter: {
+                        type: Object,
+                        value: () => ({
+                            toBeSend: 0,
+                            toBeCorrected: 0,
+                            processing: 0,
+                            rejected: 0,
+                            accepted: 0,
+                            archived: 0
+                        })
+                    },
                 };
             }
 
@@ -1070,7 +1139,7 @@
                 if(!this._isLoading) this._resetLoadingMessage();
             }
 
-            _flatrateMenuSectionChanged(){
+            _flatRateListingMenuSectionChanged(){
                 console.log("Menu section: " + this.flatrateMenuSection);
                 if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
             }
@@ -1505,7 +1574,7 @@
             }
 
             _showWarningMessageEarlyInvoicingDownload() {
-                return parseInt(moment().date()) < 25;
+                return parseInt(moment().date()) > 8;
             }
 
             _startOfPreviousMonth() {
@@ -2172,7 +2241,33 @@
                 }).catch(()=>{})
             }
 
-            _getInvoicingJ20() {
+            _getExportMonthsList() {
+                let toReturn = [];
+                for(let i=1; i<=12; i++) toReturn.push({id: i, label: this.localize('month_'+i,this.language) })
+                return toReturn
+            }
+
+            _getExportYearsList() {
+                let toReturn = [];
+                for(let i=(parseInt(moment().format('YYYY'))+1); i>=(parseInt(moment().format('YYYY'))-2); i--) toReturn.push({id: i, label: i })
+                return toReturn
+            }
+
+            _getExportCurrentMonth() {
+                return parseInt(moment().format('MM'))
+            }
+
+            _getExportCurrentYear() {
+                return parseInt(moment().format('YYYY'))
+            }
+
+            _exportFlatRateInvoicing() {
+
+                console.log("_exportFlatRateInvoicing");
+
+                // Flat files
+                // Bordereaux
+                // A4 files
 
                 // var invoicingYear: Int = 0
                 // var invoicingMonth: Int = 0
