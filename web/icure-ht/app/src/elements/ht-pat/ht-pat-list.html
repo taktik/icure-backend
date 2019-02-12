@@ -2084,7 +2084,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getAllPatients() {
 
                 return this.api.getRowsUsingPagination(
-                    (key, docId) => this.api.patient().listPatientsByHcPartyWithUser(this.user, this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                    (key, docId) => this.api.patient().listPatientsByHcPartyWithUser(this.user, this.user.healthcarePartyId, null, (key && JSON.stringify(key) || null), docId || null, 1000, null).then(pl => ({
                         rows: pl.rows.map(
                             p => (
                                 p.languages = p.languages.join(' / '),

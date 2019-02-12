@@ -1902,6 +1902,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     this.$.loginDialog.opened = false
 
+                    //request electron tc.
+                    fetch('http://localhost:16042/tc',{
+                        method: "POST",
+                        headers: {
+                            "Content-Type" : "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify( {
+                            "userId" : this.user.id,
+                            "token" : this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
+                        } )
+                    })
+
                     this.set('credentials.twofa', null)
                     u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
                     this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
