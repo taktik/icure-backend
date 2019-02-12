@@ -168,6 +168,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .show-all-patients {
                     bottom: 20px;
+                    width: 24px;
+                }
+                span.show-all-patients-txt {
+                    max-width: 70%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .progress-bar {
@@ -198,6 +205,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     align-items: center;
                     justify-content: space-between;
                     margin: 8px 0;
+                }
+                .line.bottom-line {
+                    justify-content: flex-start;
                 }
 
                 .add-btn-container {
@@ -671,8 +681,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     .add-list-mobile {
                         position: fixed;
-                        bottom: 69px;
-                        right: 38px;
+                        bottom: 48px;
+                        right: 40px;
 
                         background: var(--app-background-color-light);
                         width: 200px;
@@ -693,6 +703,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .toggle-btn {
                         color: var(--app-text-color);
                         background: var(--app-secondary-color);
+                        width: 32px;
+                        height: 32px;
                     }
 
                     .add-elem-mobile {
@@ -996,10 +1008,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                 </div>
 
-                <div class="line">
+                <div class="line bottom-line">
                     <vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">
-                        [[localize('show_inactive_patients','Show inactive patients',language)]]
                     </vaadin-checkbox>
+                    <span class="show-all-patients-txt">[[localize('show_inactive_patients','Show inactive patients',language)]]</span>
                     <div class="add-btn-container">
                         <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                             <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
