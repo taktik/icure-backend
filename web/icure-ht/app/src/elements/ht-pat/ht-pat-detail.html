@@ -145,11 +145,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-background-color-dark);
                 top:64px;
                 left:0;
-                @apply --shadow-elevation-3dp;
+                box-shadow: var(--app-shadow-elevation-2);
                 grid-column: 1 / 1;
                 grid-row:1 / 1;
                 z-index:3;
                 overflow:hidden;
+                transform: translateX(-100%);
+                /*transition: .5s ease;*/
             }
 
             #_contacts_listbox {
@@ -883,14 +885,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-background-color-dark);
                 transform:translateY(-50%) rotate(0);
                 border-radius:0 50% 50% 0;
-                transition: transform 0.2s ease-in;
-
+                transition: .5s ease;
+                box-shadow: var(--app-shadow-elevation-1);
             }
             .display-left-menu.open{
-                left:50vw;
-                border-radius:50% 0 0  50% ;
-                transform:translateY(-50%) rotate(180deg);
-                transition: transform 0.2s ease-in;
+                left: 208px;
+                border-radius: 0 50% 50% 0;
+                transform: translateY(-50%);
             }
 
             @media screen and (max-width: 1168px) {
@@ -918,9 +919,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     /*grid-template-columns: 20% 30% 50%;*/
                 }
                 .container.expanded .first-panel {
-                    width: 50vw;
+                    width: 208px;
                     z-index: 1001;
-                    width: 208px !important;
+                    transform: none;
                 }
                 .container.expanded .fit-bottom {
                     /*left:20%!important;*/
@@ -936,12 +937,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 .display-left-menu{
                     display:inherit;
-                    box-shadow: var(--app-shadow-elevation-1);
-                }
-                .display-left-menu.open {
-                    border-radius: 0 50% 50% 0;
-                    transform: translateY(-50%);
-                    left: 208px !important;
                 }
                 /* WIP */
                 /*.display-left-menu.open iron-icon#icon {*/
@@ -1277,7 +1272,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template is="dom-if" if="[[isAdminSelected(selectedAdminOrCompleteFileIndex)]]">
                 <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" on-patient-saved="_patientSaved"></ht-pat-admin-card>
             </template>
-            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            <template is="dom-if" if="[[!leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
+            </template>
             <div class="first-panel">
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
@@ -2239,6 +2239,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     SpinnerActive:{
                         type:Boolean,
+                        value: false
+                    },
+                    leftMenuOpen:{
+                        type: Boolean,
                         value: false
                     }
                 };
@@ -4153,13 +4157,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _expandColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.toggle('open');
-                this.root.querySelector('.container').classList.toggle('expanded');
+                this.set('leftMenuOpen',true)
+                this.root.querySelector('.container').classList.add('expanded');
                 this._updateFilterPanels();
             }
             _closeColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.set('leftMenuOpen',false)
                 this.root.querySelector('.container').classList.remove('expanded');
+                this._updateFilterPanels();
             }
 
             _concat(a, b, c, d, e) {
