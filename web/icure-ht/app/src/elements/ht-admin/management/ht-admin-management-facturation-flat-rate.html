@@ -166,7 +166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-dropdown-menu>
             </div>
             <div class="line">
-                <vaadin-date-picker id="invoice-date" class="flex" label="Start of validity" value="" i18n="[[i18n]]" value="{{startOfValidityAsString}}"></vaadin-date-picker>
+                <vaadin-date-picker id="invoice-date" class="flex" label="Start of validity" i18n="[[i18n]]" value="{{startOfValidityAsString}}"></vaadin-date-picker>
                 <paper-input label="Reimbursement" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
             </div>
 
@@ -204,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: {
                             code: null,
                             label: null,
-                            reimbursement : null,
+                            reimbursement : Number(0.00),
                             startOfValidity: null
                         }
                     },
@@ -286,12 +286,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addTarification(){
                 console.log(this.flatRateTarification)
 
-                const tar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code)
-                const lastTar = tar.valorisations.find(val => !val.endOfValidity)
-                lastTar.endOfValidity = moment().format('YYYYMMDD')
+                const selectedTar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code) || null
 
+                if(selectedTar){
+                    selectedTar ? selectedTar.valorisations.push({startOfValidity: parseInt(this.flatRateTarification.startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
+                    const lastTar = selectedTar.valorisations.find(val => !val.endOfValidity) || null
+                    lastTar ? _.assign(lastTar, {endOfValidity: parseInt(moment(this.startOfValidityAsString).subtract(1, "days").format('YYYYMMDD'))}) : null
+                }else{
+                    const valorisation = []
+                    valorisation.push({startOfValidity: parseInt(this.flatRateTarification.startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
 
-                //this.set('hcp.flatRateTarification', this.flatRateTarification)
+                    this.hcpParent.flatRateTarifications.push({
+                        code: this.flatRateTarification.code || null,
+                        label: this.flatRateTarification.label || null,
+                        valorisations: valorisation || []
+                    })
+                }
+
+                this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
+                    this.set('hcpParent', hcp)
+                    this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
+                })
+
 
             }
 
@@ -307,7 +323,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _startOfValidityChanged(){
-                this.startOfValidityAsString
+                this.set('flatRateTarification.startOfValidity', moment(this.startOfValidityAsString).format('YYYYMMDD'))
             }
 
         }
