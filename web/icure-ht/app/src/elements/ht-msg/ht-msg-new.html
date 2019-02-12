@@ -584,6 +584,12 @@
                 animation: displaySent 7.5s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             @keyframes displaySent {
                 0% {transform: translate(100vw,-50%);}
                 10% {transform: translate(0,-50%);}
@@ -700,7 +706,7 @@
                     <paper-button class="modal-button" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
                 </div>
                 <div class="fright">
-                    <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[hideSendBtn]]">[[localize('send','Send',language)]]</paper-button>
                     <template is="dom-if" if="[[isSendingMsg]]">
                         <ht-spinner class="sendingSpinner" active="[[isSendingMsg]]"></ht-spinner>
