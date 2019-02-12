@@ -2033,7 +2033,7 @@
 
                         return all
                                 .then(fts => {
-                                    const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
+                                    const filtered = fts.filter(ft => (!regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp)) && ft.disabled !== "true");
                                     return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
                                 });
                     }.bind(this)
