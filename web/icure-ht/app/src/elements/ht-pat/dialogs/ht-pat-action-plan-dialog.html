@@ -659,7 +659,7 @@
                 this.service.content= {
                     fr: {
                         stringValue: action.ProcedureInfo.label.fr,
-                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null // (A44 = vaccine) julien told me to do like that
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
                     },
                     nl: {
                         stringValue: action.ProcedureInfo.label.nl,
@@ -671,20 +671,8 @@
                     }
                 }
                 this.service.codes= [
-                    {
-                        region: action.ProcedureInfo.regions,
-                        type: action.ProcedureInfo.type,
-                        code: action.ProcedureId,
-                        version: action.ProcedureInfo.version,
-                        label: action.ProcedureInfo.label
-                    },
-                    {
-                        region: action.ProfessionInfo.regions,
-                        type: action.ProfessionInfo.type,
-                        version: action.ProfessionInfo.version,
-                        code: action.ProfessionInfo.code,
-                        label: action.ProfessionInfo.label
-                    }
+                    action.ProcedureInfo,
+                    action.ProfessionInfo
                 ]
                 this.service.comment= action.Description
                 this.service.valueDate= valueDate
