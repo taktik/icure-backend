@@ -223,6 +223,19 @@
                 display: inline-block;
                 width:18px;
             }
+
+            @media screen and (max-width: 936px) {
+                paper-dialog#medication-selection {
+                    position: fixed;
+                    max-width: none !important;
+                    top: 64px;
+                    left: 0;
+                    height: calc(100vh - 64px) !important;
+                    width: 100vw !important;
+                    margin: 0;
+                    transform: none;
+                }
+            }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
