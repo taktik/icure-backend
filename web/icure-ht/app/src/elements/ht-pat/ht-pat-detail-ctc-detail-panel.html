@@ -1163,9 +1163,10 @@
 				this.set('showAddFormsContainer', false);
 				this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, ((hcp.specialityCodes||[])[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/, 'deptgeneralpractice'))).then(formTemplates => {
 					console.log("FTs: " + formTemplates.size + " FTs loaded");
-					if (formTemplates[0] && formTemplates[0].id) {
+					const activeFormTemplates = formTemplates.filter(f => f.disabled !== "true")
+					if (activeFormTemplates[0] && activeFormTemplates[0].id) {
 						//Create a new form and link it to the currentContact
-						this.api.form().newInstance(this.user, this.patient, { contactId: this.currentContact.id, formTemplateId: formTemplates[0].id, descr: formTemplates[0].name }).then(f => this.api.form().createForm(f)).then(f => {
+						this.api.form().newInstance(this.user, this.patient, { contactId: this.currentContact.id, formTemplateId: activeFormTemplates[0].id, descr: activeFormTemplates[0].name }).then(f => this.api.form().createForm(f)).then(f => {
 							this.currentContact.subContacts.push({ formId: f.id, services: [] });
 							return this.saveCurrentContact();
 						}).then(c => this._contactsChanged());
