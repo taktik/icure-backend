@@ -261,6 +261,9 @@
                 margin: 8px 12px 8px 0;
                 font-weight: bold;
             }
+            .patLabel {
+                padding-top: 12px;
+            }
 
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
@@ -638,7 +641,7 @@
                                 </div>
                             </div>
                             <div class="cell">
-                                <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                                <div class="modal-subtitle patLabel">[[localize('pati','Patient',language)]]</div>
                                 <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
                                                   allow-custom-value on-change="_AddSSIN">
                                     <template>[[item.displayName]]</template>
