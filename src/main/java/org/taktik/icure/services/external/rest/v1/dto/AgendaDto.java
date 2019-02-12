@@ -10,7 +10,7 @@ public class AgendaDto extends StoredDto {
 
     private String name;
     private String userId;
-    private List<CalendarItem> events;
+    private List<CalendarItemDto> events;
     private List<Right> rights;
 
     public String getName() {
@@ -29,11 +29,11 @@ public class AgendaDto extends StoredDto {
         this.userId = userId;
     }
 
-    public List<CalendarItem> getEvents() {
+    public List<CalendarItemDto> getEvents() {
         return events;
     }
 
-    public void setEvents(List<CalendarItem> events) {
+    public void setEvents(List<CalendarItemDto> events) {
         this.events = events;
     }
 
