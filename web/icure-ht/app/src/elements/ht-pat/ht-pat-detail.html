@@ -150,7 +150,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 grid-row:1 / 1;
                 z-index:3;
                 overflow:hidden;
-                transform: translateX(-100%);
                 /*transition: .5s ease;*/
             }
 
@@ -917,6 +916,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 .container.expanded{
                     /*grid-template-columns: 20% 30% 50%;*/
+                }
+                .container .first-panel {
+                    transform: translateX(-100%);
                 }
                 .container.expanded .first-panel {
                     width: 208px;
