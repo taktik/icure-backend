@@ -839,13 +839,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             let resInfos = []
                             return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
                                 .map(doc => {
-                                    this.api.beresultimport().canHandle(doc.id).then(isResult => {
-                                        if (isResult) {
-                                            this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
-                                                resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
-                                            })
-                                        }
-                                    })
+                                    this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations).then(({extractedKeys: enckeys}) =>
+                                        this.api.beresultimport().canHandle(doc.id,enckeys.join(',')).then(isResult => {
+                                            if (isResult) {
+                                                this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
+                                                    resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
+                                                })
+                                            }
+                                        })
+                                    )
                                 }) || resInfos
                         } else return ['N/A']
                     })
@@ -1394,6 +1396,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _displayRestoreButton(){
                 return (this.selectList.selection.item == 'trash')
+            }
+
+            updateGridElementsSize() {
+                const grid = this.shadowRoot.getElementById('mail-list')
+                grid && grid.notifyResize()
             }
 
 		}

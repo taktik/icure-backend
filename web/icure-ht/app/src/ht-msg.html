@@ -170,7 +170,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  on-selection-messages-change="handleMessageChange"
-                                 class$="[[_selectedElem(selectedMessage)]]"></ht-msg-list>
+                                 id="msg-list" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                    user="[[user]]" credentials="[[credentials]]" selected-message="[[selectedMessage]]" on-item-delete="handleRefreshlist"
@@ -311,6 +311,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             handleMessageChange(e) {
                 this.set('selectedMessage', e.detail && e.detail.selection && e.detail.selection.item)
+                const msgList = this.shadowRoot.querySelector('#msg-list')
+                msgList && msgList.updateGridElementsSize()
             }
 
 			handleRefreshlist(e) {
