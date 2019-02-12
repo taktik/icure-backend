@@ -1134,32 +1134,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(!item){
                     return
                 }
-                const actions = {
-                    newMsg: this._newMsg,
-                    inbox: this.getInbox,
-                    unread: this.getUnreadEmail,
-                    sentbox: this.getSentMessages,
-                    submit: this.getSubmitMessages,
-                    labResult: this.getLabResult,
-                    reportOut: this.getReport,
-                    e_invOut: this.getEInv,
-                    ehealthMessages: this.getEhealthMessages,
-                    e_invIn: this.getEInvIn,
-                    reportIn: this.getReportIn,
-                    eheIn: this.getEheIn,
-                    mycarenet: this.getMycarenetIn,
-                    Chap4In: this.getChap4In,
-                    protIn: this.getAssigned,
-                    unsettedProtIn: this.getUnassigned,
-                    eheOut: this.getEheOut,
-                    protOut: this.getProtOut,
-                    EFactBatch: this.getEFactBatch,
-                    GMD: this.getGMD,
-                    trash: this.getTrash,
-                    hidden: this.getHidden,
-                    Refresh: () => null
+                const a = {
+                    newMsg:             this._newMsg,
+                    inbox:              this.getInbox,
+                    unread:             this.getUnreadEmail,
+                    sentbox:            this.getSentMessages,
+                    submit:             this.getSubmitMessages,
+                    labResult:          this.getLabResult,
+                    reportOut:          this.getReport,
+                    e_invOut:           this.getEInv,
+                    ehealthMessages:    this.getEhealthMessages,
+                    e_invIn:            this.getEInvIn,
+                    reportIn:           this.getReportIn,
+                    eheIn:              this.getEheIn,
+                    mycarenet:          this.getMycarenetIn,
+                    Chap4In:            this.getChap4In,
+                    protIn:             this.getAssigned,
+                    unsettedProtIn:     this.getUnassigned,
+                    eheOut:             this.getEheOut,
+                    protOut:            this.getProtOut,
+                    EFactBatch:         this.getEFactBatch,
+                    GMD:                this.getGMD,
+                    trash:              this.getTrash,
+                    hidden:             this.getHidden,
+                    Refresh:            null // Fake selection to refresh binding
                 }
-                return actions[item] && actions[item].call(this)
+                return a[item] && a[item].call(this)
             }
 
             sortByDates(messages){
