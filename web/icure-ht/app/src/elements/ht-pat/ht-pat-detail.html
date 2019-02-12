@@ -585,7 +585,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .contact label.hcp {
                 position: absolute;
-                right: 0;
+                right: 16px;
                 max-width: 80px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -874,6 +874,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             #ebmPracticeNet{
 
             }
+            
+            #select-more-options-dialog {
+                display: flex;
+                flex-direction: column;
+            }
+            #select-more-options-dialog .buttons {
+                position: initial;
+            }
+            
 
             .display-left-menu{
                 display:none;
@@ -955,7 +964,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             @media screen and (max-width:800px){
                 .contact label {
-                    max-width: 50% !important;
+                    max-width: 40% !important;
                 }
                 .contact h4 {
                     max-width: 80%;
@@ -1895,8 +1904,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="select-more-options-dialog">
+            <label><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
             <div class="horizontal">
-                <label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
                 <vaadin-date-picker label="[[localize('startDate','Start date',language)]]" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
                 <vaadin-date-picker label="[[localize('endDate','End date',language)]]" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
             </div>
@@ -1911,7 +1920,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-radio-group>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
         <ht-pat-list-plan-dialog id="listActions" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]" on-open-action="openActionDialog"></ht-pat-list-plan-dialog>
