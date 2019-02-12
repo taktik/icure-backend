@@ -887,6 +887,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDatesAndGUID(messages.rows)
                         .filter(msg => msg.fromAddress !== 'EFACT')
                         .filter(msg => !msg.transportGuid.startsWith('BIN'))
+                        .filter(msg => !msg.transportGuid.startsWith('GMD'))
                         .filter(m=>!m.transportGuid.startsWith('PROSE:'))
                         .filter(m=>!((m.status&1<<14)!==0))
                 }).then(messages => {
