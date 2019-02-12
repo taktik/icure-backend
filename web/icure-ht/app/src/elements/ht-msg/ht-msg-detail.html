@@ -1240,6 +1240,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._focusChanged()
         this.classList.remove('selected')
         this.parentElement.children[0].classList.remove('selected')
+        this.dispatchEvent(new CustomEvent('msg-detail-closed'))
     }
 
 	_getInitials(fromAddress){
