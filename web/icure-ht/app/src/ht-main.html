@@ -267,8 +267,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-size:14psx;
+				font-size:14px;
 				font-style:italic;
+			}
+
+			.patient-age {
+				color:var(--app-text-color-disabled);
+				font-weight:400;
+				font-size:14px;
+				font-style:italic;
+				text-transform: lowercase;
 			}
 
 			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
@@ -575,7 +583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
 									<div class="divider"></div>
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
@@ -647,7 +655,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[_isUnreadResult(result)]]">[[result.patient.name]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result)]]">[[result.patientName]]</div>
 									<div class="card-table-cell lab-name">[[result.descr]]</div>
 								</div>
 							</template>
@@ -973,7 +981,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _updateLabResults() {
         console.log('update Lab Results')
         this.set('isLoadingLabResults', true)
-        const start = Number(moment().subtract(15).format('YYYYMMDDHHmmss'))
+        const start = Number(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'))
         const labsFilter = {
             '$type': 'UnionFilter',
             'filters': [{
@@ -993,16 +1001,20 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             'ids': _.uniqBy(_.compact(_.flatMap(cfksLists.map(x => x[1]))))
                         }
                     }).then(pats =>
-                        cfksLists.map(x => ({
-                            patient: pats.find(p => p.id === x[1]),
-                            created: x[0].created,
-                            descr: (this.api.contact().preferredContent(x[0], this.language) || {}).descr
-                        }))
+                        cfksLists.map(x => {
+                            const pat = pats.rows.find(p => x[1].includes(p.id))
+                            return ({
+                                patient: pat,
+                                created: x[0].valueDate,
+                                patientName: pat.firstName + ' ' + pat.lastName,
+                                descr: (this.api.contact().preferredContent(x[0], this.language) || {}).stringValue
+                            })
+                        })
                     ))
             })
             .then(results => {
                 this.set('labResults', _.orderBy(results, 'created', 'desc') || [])
-                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000)
+                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
                     .then(messages => this.set('unreadCount', _.filter(messages.rows, m => m.assignedResults && ((m.status & 1 << 1) !== 0)).length))
             })
             .finally(() => this.set('isLoadingLabResults', false))
@@ -1014,6 +1026,12 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_timeFormat(date) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+	}
+
+	_ageFormat(date) {
+		if(this.language) {
+			return this.api.getCurrentAgeFromBirthDate(date, (id,placeholder) => this.localize(id,placeholder,this.language))
+		}
 	}
 
 	_shortTimeFormat(date) {

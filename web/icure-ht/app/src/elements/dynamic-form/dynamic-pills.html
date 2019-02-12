@@ -94,9 +94,9 @@ class DynamicPill extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation()
         if(e.target.id){
             const id = e.target.id.substr(5)
-            const he = this.healthElements.find(he => he.id === id)
-            this.splice('healthElements', he, 1)
-            this.dispatchEvent(new CustomEvent('unlink-to-health-element', { bubbles: true, composed: true, detail: { healthElement: he } }));
+            const heIndex = _.indexOf(this.healthElements,he => he.id === id)
+            this.splice('healthElements', heIndex, 1)
+            this.dispatchEvent(new CustomEvent('unlink-to-health-element', { bubbles: true, composed: true, detail: { healthElement: this.healthElements[heIndex] } }));
         }
     }
 

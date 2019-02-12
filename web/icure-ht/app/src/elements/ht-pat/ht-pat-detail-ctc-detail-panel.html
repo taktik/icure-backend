@@ -1070,7 +1070,7 @@
 			}
 
 			ifRecipeAvailable(){
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                this.user && this.user.healthcarePartyId && this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
                     this.set("ehealthSession", this.api.tokenId ? true : false)
 					if(hcp.addresses && hcp.addresses.length > 0){
 
@@ -1991,7 +1991,7 @@
 					this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 				}).finally(() => {
 				    console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.form.formTemplateId)) && (!this.contactsFormsAndDocuments.some(f => f.ctc === this.currentContact)) && (this.contactsFormsAndDocuments.some(f => f.ctc && f.ctc.services && f.ctc.services.length) || this.contactsFormsAndDocuments.some(f => f.unmappedServices && f.unmappedServices.length))) {
+                    if (!this.contactsFormsAndDocuments.some(c => c.forms && c.forms.some(f => f.form && f.form.formTemplateId)) && (!this.contactsFormsAndDocuments.some(f => f.ctc === this.currentContact)) && (this.contactsFormsAndDocuments.some(f => f.ctc && f.ctc.services && f.ctc.services.length) || this.contactsFormsAndDocuments.some(f => f.unmappedServices && f.unmappedServices.length))) {
                         this._list()
                     } else {
                         this._default()

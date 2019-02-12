@@ -65,7 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/ht-pat-list-plan-dialog.html">
 <link rel="import" href="dialogs/ht-pat-vaccine-history-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
-<link rel="import" href="../dynamic-form/dialogs/medication-multi-selection-dialog.html">
+<link rel="import" href="../dynamic-form/dialogs/medications-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-plan-dialog.html">
 <!--<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">-->
@@ -1495,7 +1495,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 <paper-icon-button id="event-btn-close_[[e.id]]" class="he-edit-btn hideable" icon="done" on-tap="completeEvent"></paper-icon-button>
                                                 <paper-tooltip position="left" for="event-btn-close_[[e.id]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                                                 <paper-icon-button id="event-btn-done_[[e.id]]" class="he-edit-btn hideable" icon="clear" on-tap="clearEvent"></paper-icon-button>
-                                                <paper-tooltip position="left" for="event-btn-done_[[e.id]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
+                                                <paper-tooltip position="left" for="event-btn-done_[[e.id]]">[[localize('mark_as_aborted','Marquer comme abandonnée',language)]]</paper-tooltip>
                                             </div>
                                         </paper-item>
                                     </template>
@@ -1575,10 +1575,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
                                                 api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" medications="[[medications]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-multi-medication-selection="_selectMultiMedication" on-medication-selection="_selectMedication"
-                                                on-medication-detail="_medicationDetail" contact-type-list="[[contactTypeList]]"></ht-pat-detail-ctc-detail-panel>
+                                                on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-close-contact="_closeContact" on-change="formsChanged" on-must-save-contact="_saveContact" on-medications-selection="_selectMultiMedication" on-medication-selection="_selectMedication"
+                                                on-medication-detail="_medicationDetail" on-medications-detail="_medicationsDetail" contact-type-list="[[contactTypeList]]"></ht-pat-detail-ctc-detail-panel>
             </template>
-
         </div>
 
         <health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('cre','Create',language)]]">
@@ -1917,7 +1916,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService" on-update-service="_updateServices" readonly="false"></ht-pat-action-plan-dialog>
         <ht-pat-vaccine-history-dialog id="vaccineHistory" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]"></ht-pat-vaccine-history-dialog>
         <medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
-        <medication-multi-selection-dialog id="medication-multi-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-multi-selection-dialog>
+        <medications-selection-dialog id="medications-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" medications="[[medications]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medications="_medicationsCreated"></medications-selection-dialog>
         <medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
         <medication-plan-dialog id="medication-plan" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" user="[[user]]" patient="[[patient]]"></medication-plan-dialog>
         <!--<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>-->
@@ -2354,9 +2353,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
                         this.set('patient.gender', this.curGenInsResp.sex);
 
-                        this.api.patient().modifyPatientWithUser(this.api.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
+                        this.api.patient().modifyPatientWithUser(this.user, this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient', defer)).then(p => {
                             this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                            this.patient && (this.set('patient.rev', p.rev))
+                            Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                            //this.patient && (this.set('patient.rev', p.rev))
                         })
                     })
                 }
@@ -2844,7 +2844,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 const t = svc.tags.find(t => t.type === 'CD-LIFECYCLE');
                 if (t) {
-                    t.code = 'cancelled';
+                    t.code = 'aborted';
                     if (!this.currentContact) {
                         return;
                     }
@@ -2948,7 +2948,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             filterEvents() {
                 const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
-                this.set('events', _.sortBy(filteredEvents, it => -this.api.moment(it.valueDate)));
+                this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
+                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                if(age>=25 && age<=65 && this.patient.gender==="female" &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
+                    this.createEvent("BE-THESAURUS-PROCEDURES|X37.002|3.1.0");
+                }
+                if(age>=50 && age<=69 && this.patient.gender==="female" &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="X41.005")).length){//mammotest
+                    this.createEvent("BE-THESAURUS-PROCEDURES|X41.005|3.1.0")
+                }
+                if(age>=50 && age<=74 &&
+                    !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
+                    this.createEvent("BE-THESAURUS-PROCEDURES|D36.002|3.1.0")
+                }
             }
 
             _lateEventCssClass(e) {
@@ -3125,7 +3138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healthcareelement', 'healthissue', 'familyrisk', 'risk', 'socialrisk', 'adr', 'allergy', 'medication', 'surgery', 'professionalrisk'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
                         const svcHes = hesAsServices.filter(s => !s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'medication')).map(svc => this._makeHeFromSvc(svc))
 
-                        const oneWeekAgo = moment().subtract(7)
+                        const oneWeekAgo = moment().subtract(7, 'days')
                         this.set('medications', _.sortBy(hesAsServices.filter(s =>
                             s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
                         ).map(m =>
@@ -3186,9 +3199,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             if (!ctc.userDescr || ctc.userDescr.length < 3) {
                                 ctc.userDescr = ctc.descr
                             }
-                            const contacttype = ctc.tags.find(tag => tag.type == "BE-CONTACT-TYPE")
+                            const contacttype = ctc.tags.find(tag => tag.type === "BE-CONTACT-TYPE")
                             if(contacttype) {
-                                ctc.userDescr = this.contactTypeList.find(sct => sct.code == contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
+                                ctc.userDescr = this.contactTypeList.find(sct => sct.code === contacttype.code).label[this.language || "fr"] + " : " + ctc.userDescr
                             }
                             ctc.services.forEach(s => {
                                 if (!s.label) {
@@ -3393,7 +3406,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 this.patient.insurabilities.push(newP);
                                                 if (patient === this.patient) {
                                                     this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                                        return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer))
+                                                        return this.api.patient().modifyPatientWithUser(this.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => {
+                                                            this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}));
+                                                            Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                                                        })
                                                     })
                                                 }
                                             }else{
@@ -3420,7 +3436,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         this.push("patient.insurabilities",newP);
                                         if (patient === this.patient) {
                                             this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
-                                                return this.api.patient().modifyPatientWithUser(this.api.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => this.set("patient",p))
+                                                return this.api.patient().modifyPatientWithUser(this.user,this.patient).catch(e => defer.resolve(this.patient)).then(pt => this.api.register(pt, 'patient', defer)).then(p => {
+                                                     this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                                                    Polymer.dom(this.root).querySelector('#pat-admin-card').patientChanged();
+                                                })
                                             })
                                         }
                                     }
@@ -3911,12 +3930,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] }))
                 };
 
+                this.currentSelectMedicationEventDetail = null
                 this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
             }
 
             _editMedication(e) {
                 const id = e.target.id.substr("med-edit-btn-edit_".length)
                 const m = this.medications.find(s => s.id === id)
+                this.currentSelectMedicationEventDetail = null
                 this.$['medication-detail'].open(m);
             }
 
@@ -3927,7 +3948,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _selectMultiMedication(e) {
                 this.currentSelectMedicationEventDetail = e.detail
-                this.$['medication-multi-selection'].open(e.detail.service);
+                this.$['medications-selection'].open(e.detail.service, {isPrescription: true});
             }
 
 
@@ -3936,7 +3957,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$['medication-detail'].open(e.detail.service, e.detail.content);
             }
 
+            _medicationsDetail(e) {
+                this.currentMedicationDetailEventDetail = e.detail
+                this.$['medication-detail'].openList(e.detail.services);
+            }
+
             _medicationCreated(e) {
+                if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onCreate) {
+                    this.currentSelectMedicationEventDetail.onCreate(e)
+                } else {
+                    if (!this.currentContact) {
+                        return;
+                    }
+                    this._displayMedicationDetails(e)
+                }
+            }
+
+            _medicationsCreated(e) {
                 if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onCreate) {
                     this.currentSelectMedicationEventDetail.onCreate(e)
                 } else {
@@ -3957,18 +3994,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //In case we get here coming from the prescription dialog by checking the checkbox
                 if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
                     this.currentMedicationDetailEventDetail.onValueChanged(e)
-                    if(e.detail.create) {
-                        const newMedication = _.cloneDeep(e.detail.medication)
-                        const medicationTag = 'CD-ITEM|medication|1.0'
-                        newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
-                        newMedication.label = this.localize('medication','medication',this.language)
-                        newMedication.id = this.api.crypto().randomUuid()
 
-                        this.saveNewService(this.api.contact().service().newInstance(this.api.user, newMedication)).then(() => this.refreshPatient())
-                    }
+                    const medicationArray = e.detail.medications && e.detail.medications.length ? e.detail.medications : [e.detail.medication];
+                    Promise.all( medicationArray.map( m => {
+                        if( m.options && (m.options.createMedication || !m.options.isPrescription)) {
+                            const newMedication = _.cloneDeep(m.newMedication)
+                            const medicationTag = 'CD-ITEM|medication|1.0'
+                            newMedication.tags = [{ id: medicationTag, type: medicationTag.split('|')[0], code: medicationTag.split('|')[1], version: medicationTag.split('|')[2] }]
+                            newMedication.label = this.localize('medication','medication',this.language)
+                            newMedication.id = this.api.crypto().randomUuid()
+                            return this.saveNewService(this.api.contact().service().newInstance(this.user, newMedication))
+                        }
+                        return null
+                    }) )
+                    .then((results) => results.find(r => r) && this.refreshPatient())
+
                 } else {
                     //Standard behaviour: create from medication button in left panel
-                    this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail.medication)).then(() => this.refreshPatient())
+                    this.saveNewService(this.api.contact().service().newInstance(this.user, e.detail.medication.newMedication)).then(() => this.refreshPatient())
                 }
 
             }
@@ -4308,6 +4351,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log("svcs",e.detail.service)
                 const lifecycle = e.detail.service.tags.find(tag => tag.type === "CD-LIFECYCLE") || {}
                 this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
+            }
+
+            createEvent(codeId){
+                this.api.code().getCode(codeId).then(procedure =>{
+                    const service = {
+                        label : "Actes",
+                        modified : +new Date(),
+                        responsible : this.hcp.id,
+                        content : {
+                            fr: {
+                                stringValue: procedure.label.fr,
+                                medicationValue: null
+                            },
+                            nl: {
+                                stringValue: procedure.label.nl,
+                                medicationValue: null
+                            },
+                            en: {
+                                stringValue: procedure.label.en,
+                                medicationValue: null
+                            }
+                        },
+                        codes : [
+                            procedure
+                        ],
+                        valueDate : +new Date(),
+                        tags : [
+                            {
+                                type: "CD-LIFECYCLE",
+                                code: "pending",
+                                version: "1.0",
+                            }
+                        ]
+                    }
+
+                    if (this.currentContact) {
+                        this._createService(new CustomEvent("create-service", {
+                            detail: {service: service, hes: []},
+                            bubbles: true,
+                            composed: true
+                        }))
+                        this.events.push(service)
+                        this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
+                    }
+                })
             }
 
         }

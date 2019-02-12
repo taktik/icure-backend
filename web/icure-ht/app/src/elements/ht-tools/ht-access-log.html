@@ -162,7 +162,7 @@
 
                 console.log(filter)
 
-                Promise.all([this.api.patient().filterByWithUser(this.api.user, null, null, 1000, 0, 'lastName', true, {filter: filter}), this.api.user().listUsers()]).then(([patients,users]) => {
+                Promise.all([this.api.patient().filterByWithUser(this.user, null, null, 1000, 0, 'lastName', true, {filter: filter}), this.api.user().listUsers()]).then(([patients,users]) => {
                     let promises = [];
                     let logListTemp = [];
                     let listIdUser =[];

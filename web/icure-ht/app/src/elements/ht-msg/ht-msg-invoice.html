@@ -1713,6 +1713,8 @@
 
             fetchMessageToBeSendOrToBeCorrected(){
 
+                this.set("_isLoadingMessages",true)
+
                 if(this.shadowRoot.getElementById("messagesGridContainer") && this.shadowRoot.getElementById("messagesGridContainer").classList.contains("half")){
                     this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
@@ -1721,9 +1723,9 @@
                 this.api.invoice().listToInsurancesUnsent(this.user.id)
                     .then(invoices => Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                     .then(invAndIdsPat =>
-                        this.api.patient().getPatientsWithUser(this.api.user, new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                     ).then(invAndPats =>
-                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
+                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i && i.insurabilities && i.insurabilities[0] && i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it=>[it[0], it[1], ins.find(i=>it && (it[0] && it[0].insurabilities && it[0].insurabilities[0] && i.id === it[1].insurabilities[0].insuranceId) || (it[1] && it[1].insurabilities && it[1].insurabilities.find(patIns => (it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate && it[0].invoiceDate>=patIns.startDate && it[0].invoiceDate<=patIns.endDate && patIns.insuranceId===i.id) || (!(it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate) && patIns.insuranceId===i.id))))]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
 
                         return ({
@@ -1762,7 +1764,6 @@
             }
 
             fetchMessages() {
-                this._isLoadingMessages = true
                 this.messageIdsCanBeAutoArchived = []
 
                 if(this.shadowRoot.getElementById("messagesGridContainer") && this.shadowRoot.getElementById("messagesGridContainer").classList.contains("half")){
@@ -1852,9 +1853,9 @@
                                     })
 
                             }))).then(msgsStructs => {
-                        this._isLoadingMessages = false
                         this.set('allMessages', msgsStructs)
                         this.dispatchMessages()
+                        this.set("_isLoadingMessages",false)
                         this.set("isMessagesLoaded",true)
                     })
 
@@ -2869,6 +2870,10 @@
                                 }))
                         }))).then(() => this.getMessage())
                 }
+            }
+
+            reset(){
+                this.set("isMessagesLoaded",false)
             }
         }
 

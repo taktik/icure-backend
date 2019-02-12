@@ -71,6 +71,7 @@
     "adm_ins": "Insurances",
     "adm_in": "Insurance",
     "adm_ins_sta": "Institution stays",
+    "admin" : "administration",
     "administrativeData": "Administrative Data",
     "adr": "Adverse drug reaction",
     "agr_res": "Agreement response",
@@ -162,6 +163,7 @@
     "complicated": "complicated",
     "com_fil": "Complete file",
     "com_res": "Complete result",
+    "compound_name": "Coumpound name",
     "con": "Consultation",
     "con_mso" : "Consultation MSOAP",
     "confidentialInformation" : "Confidential Information",
@@ -459,6 +461,7 @@
     "lunch": "lunch",
     "m>s": "m>Spam",
     "mak_act": "Make Active",
+    "mark_as_aborted": "Mark as aborted",
     "mandat_fields": "All fields are mandatory",
     "married": "married",
     "mdp": "Password",
@@ -747,6 +750,7 @@
     "skype": "Skype",
     "slctBtw2Date": "Select between 2 dates",
     "socialrisk": "Social risk",
+    "some_mandat_fields": "Some mandatory fields are empty",
     "spa": "Spam",
     "spe": "Speciality",
     "speciality": "Speciality",
@@ -944,7 +948,11 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Save to patient file"
+    "saveToPatFile" : "Save to patient file",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "old": "old"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1021,6 +1029,7 @@
     "adm_ins": "Assurances",
     "adm_in": "Assurance",
     "adm_ins_sta": "Séjours en institution",
+    "admin" : "Administration",
     "add_server": "Ajouter un server",
     "adm_svc": "Service",
     "administrativeData": "Données administratives",
@@ -1456,6 +1465,7 @@
     "m>s": "m>Spam",
     "mail_cap": "Capacité boîte mail",
     "mak_act": "Rendre actif",
+    "mark_as_aborted": "Marquer comme abandonnée",
     "mandat_fields": "Tous les champs sont obligatoires",
     "married": "marié.e",
     "male": "masculin",
@@ -1769,6 +1779,7 @@
     "skype": "Skype",
     "slctBtw2Date": "Recherche entre 2 dates",
     "socialrisk": "Risque social",
+    "some_mandat_fields": "Certains champs obligatoires ne sont pas remplis",
     "spa": "Spam",
     "spe": "Specialité",
     "specialSocialCategory": "Catégorie soc. spéc.",
@@ -1976,7 +1987,11 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Enregistrer et ajouter au dossier"
+    "saveToPatFile" : "Enregistrer et ajouter au dossier",
+    "weeks": "semaines",
+    "months": "mois",
+    "years": "ans",
+    "old": " "
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2055,6 +2070,7 @@
     "adm_h_t": "Care team",
     "adm_ins": "Verzekeringen",
     "adm_in": "Verzekering",
+    "admin" : "administration",
     "adm_ins_sta": "Verblijven in instelling",
     "adm_svc": "Dienst",
     "add_server": "Server toevoegen",
@@ -2486,6 +2502,7 @@
     "lunch": "lunch",
     "m>s": "m>Spam",
     "mak_act": "Make Active",
+    "mark_as_aborted": "Marquer comme abandonnée",
     "mandat_fields": "All fields are mandatory",
     "married": "married",
     "male": "man",
@@ -2802,6 +2819,7 @@
     "skype": "Skype",
     "slctBtw2Date": "Select between 2 dates",
     "socialrisk": "Sociaal risico",
+    "some_mandat_fields": "Certains champs obligatoires ne sont pas remplis",
     "spa": "Spam",
     "spe": "Speciality",
     "specialSocialCategory": "Spec sociale cathegorie",
@@ -3013,6 +3031,10 @@
     "linkingLetter": "Lettre de liaison",
     "senderHcp": "Médecin émeteur",
     "recipientHcp": "Médecin receveur",
-    "saveToPatFile" : "Save to patient file"
+    "saveToPatFile" : "Save to patient file",
+    "years": "jaren",
+    "weeks": "weken",
+    "months": "maanden",
+    "old": "oud"
   }
 }

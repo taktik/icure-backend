@@ -127,8 +127,14 @@
             </div>
             <h3 class="title">[[localize('plan_act','Plan an action',language)]]</h3>
             <div class="containerPlanAction">
-                <vaadin-date-picker id="date-picker" label="Date d'échéance*" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
-
+                <vaadin-form-layout>
+                    <vaadin-form-item  colspan="1">
+                        <vaadin-date-picker id="date-picker" label="Date d'échéance*" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                    </vaadin-form-item >
+                    <vaadin-form-item  colspan="1">
+                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut*" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus" readonly="[[readonly]]"></vaadin-combo-box>
+                    </vaadin-form-item>
+                </vaadin-form-layout>
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
                         <vaadin-combo-box filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="procedureChanged" label="Procédure*" value="{{plannedAction.ProcedureId}}" readonly="[[readonly]]"></vaadin-combo-box>
@@ -157,9 +163,6 @@
                     <vaadin-form-item  colspan="2">
                         <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée*" selected-item="{{selectedProfessionItem}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
-                    <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut*" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus" readonly="[[readonly]]"></vaadin-combo-box>
-                    </vaadin-form-item>
                 </vaadin-form-layout>
                 <template is="dom-if" if="[[isStatusRefusal]]">
                     <div>
@@ -184,6 +187,9 @@
 
     </template>
     <script>
+
+        import moment from 'moment/src/moment';
+
         class HtPatActionPlanDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
                 return 'ht-pat-action-plan-dialog';
@@ -421,6 +427,15 @@
                 }else{
                     this.set("isStatusRefusal", false)
                 }
+
+                if(status === "completed" && !this.selectedHcpItem && !this.plannedAction.HcpId) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                        if(hcp.type) {
+                            this.set("selectedHcpItem", hcp)
+                            this.set("plannedAction.HcpId",this.selectedHcpItem.id)
+                        }
+                    })
+                }
             }
 
             procedureChanged(e){
@@ -476,6 +491,9 @@
                         console.log("Cancelling obsolete search");
                         return [];
                     }
+                    if (!(res && res.rows && res.rows.length)) {
+                        return [];
+                    }
                     return this.api.code().getCodes(res.rows.map(code => code.id))
                 })
                 .then(codes =>{
@@ -521,8 +539,22 @@
                         let count = 15;
                         return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, null, count)]).then(results => {
                             const procedureList = results[0];
-                            const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
-                            return { totalSize: filtered.length, rows: filtered};
+                            const profCode = (this.selectedProfessionItem && this.selectedProfessionItem.id)
+                            let filtered = procedureList.rows
+                            if(profCode) {
+                                filtered = filtered.filter(proc => {
+                                    return proc.links && proc.links.some(link => {
+                                        return link == profCode
+                                    })
+                                })
+                            }
+                            filtered = _.flatten(filtered.map(procedure => ({
+                                id: procedure.id,
+                                label: procedure.label,
+                                code: procedure.code,
+                                searchTerms: procedure.searchTerms
+                            })))
+                            return {totalSize: filtered.length, rows: filtered};
                         })
 
                     }.bind(this)
@@ -601,8 +633,8 @@
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
                 const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
-                if (!action || !contactId || !responsible || !valueDate) {
-                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
+                if (!action || !contactId || !valueDate) {
+                    this.set('errMsg',this.localize('some_mandat_fields','Some fields are mandatory',this.language))
                     return
                 }
 
@@ -631,7 +663,7 @@
                 this.service.content= {
                     fr: {
                         stringValue: action.ProcedureInfo.label.fr,
-                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null // (A44 = vaccine) julien told me to do like that
+                        medicationValue: this.plannedAction.ProcedureId.startsWith('A44') ? medication : null
                     },
                     nl: {
                         stringValue: action.ProcedureInfo.label.nl,
@@ -643,20 +675,8 @@
                     }
                 }
                 this.service.codes= [
-                    {
-                        region: action.ProcedureInfo.regions,
-                        type: action.ProcedureInfo.type,
-                        code: action.ProcedureId,
-                        version: action.ProcedureInfo.version,
-                        label: action.ProcedureInfo.label
-                    },
-                    {
-                        region: action.ProfessionInfo.regions,
-                        type: action.ProfessionInfo.type,
-                        version: action.ProfessionInfo.version,
-                        code: action.ProfessionInfo.code,
-                        label: action.ProfessionInfo.label
-                    }
+                    action.ProcedureInfo,
+                    action.ProfessionInfo
                 ]
                 this.service.comment= action.Description
                 this.service.valueDate= valueDate
@@ -761,7 +781,7 @@
                     const codeMedication = content && content.medicationValue && content.medicationValue.medicinalProduct && ((content.medicationValue.medicinalProduct.intendedcds || []).find(code => code.type === "CD-DRUG-CNK") || {})
                     Promise.all([
                         this.api.hcparty().getHealthcareParty(service.responsible),
-                        codeProcedure && codeProcedure.id ? this.api.code().getCode(codeProcedure.type + '|' + codeProcedure.code + '|' + codeProcedure.version) : Promise.resolve({}),
+                        (codeProcedure && codeProcedure.id ? this.api.code().getCode(codeProcedure.id) : this.api.code().getCode(codeProcedure.type + '|' + codeProcedure.code + '|' + codeProcedure.version)) || Promise.resolve({}),
                         codeProfession && codeProfession.id ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve({}),
                         codeVaccine && codeVaccine.id && codeMedication && codeMedication.code ? this.api.bedrugs().getMppInfos(codeMedication.code, this.language) : Promise.resolve({})
                     ]).then(([hcp, resultProced, resultProf, resultVaccine]) => {
@@ -823,6 +843,18 @@
                         console.log("error", err)
                         this.set('errMsg', err)
                     })
+                } else { // new action-plan, set default values
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                        if(hcp.type) {
+                            // do not set prestataire by default
+                            //this.set("selectedHcpItem", hcp)
+                            //this.set("plannedAction.HcpId",this.selectedHcpItem.id)
+                            this.set("plannedAction.ProfessionId","CD-HCPARTY|"+hcp.type+"|1")
+                            this.set("selectedProfessionItem", this.hcpartyTypeList.find(type => type.id === this.plannedAction.ProfessionId))
+                        }
+                    })
+                    this.set("plannedAction.Deadline", moment().format('YYYY-MM-DD'))
+                    this.set("plannedAction.Status", "pending")
                 }
                 this.$.dialog.open();
             }
