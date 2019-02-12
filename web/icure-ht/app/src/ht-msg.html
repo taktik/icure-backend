@@ -261,8 +261,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     leftMenuOpen:{
                         type: Boolean,
                         value: false
+                    },
+                    ehealthSession: {
+                        type: Boolean
                     }
                 }
+            }
+
+            static get observers() {
+                return ['_isConnectedToEhbox(api.tokenId)'];
             }
 
             constructor() {
@@ -277,6 +284,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready()
                 this._inbox()
+            }
+
+            _isConnectedToEhbox() {
+                this.set("ehealthSession", this.api.tokenId ? true : false)
             }
 
             _selectedElem(e) {
@@ -348,10 +359,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _fwMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
             _reMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
 
             callInitializeBatchCounter(e){

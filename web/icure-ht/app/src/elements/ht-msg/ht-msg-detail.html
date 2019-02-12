@@ -923,6 +923,10 @@
                     overflow-y: hidden;
                     min-height: 80px;
                 }
+
+                .action-buttons {
+                    padding-left: 36px;
+                }
             }
 
             @media screen and (max-width: 650px) {
@@ -949,14 +953,16 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
-                            <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
-                            <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
-                        </paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
-                            <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
-                            <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
-                        </paper-button>
+                        <template is="dom-if" if="[[ehealthSession]]">
+                            <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
+                                <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
+                                <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
+                            </paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
+                                <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
+                                <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
+                            </paper-button>
+                        </template>
                         <template is="dom-if" if="[[isHidden]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="visibility-msg" icon="visibility"></iron-icon>
                                 <span class="nomobile-wide">[[localize('restore','Restore',language)]]</span>
@@ -1256,12 +1262,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             docTxt: {
 			    type: Object
+            },
+            ehealthSession: {
+                type: Boolean
             }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
+		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)','_isConnectedToEhbox(api.tokenId)'];
 	}
 
 	constructor() {
@@ -1276,6 +1285,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if(e.key === "Escape") {this.closeSuggestions()}
         }
 	}
+
+    _isConnectedToEhbox() {
+        this.set("ehealthSession", this.api.tokenId ? true : false)
+    }
 
 	close() {
 	    this.set('selectedMessage',null)
