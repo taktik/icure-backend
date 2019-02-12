@@ -154,10 +154,10 @@
                         <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}" readonly="[[readonly]]"></vaadin-text-area>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" readonly="[[readonly]]"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée*" selected-item="{{selectedProfessionItem}}" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeListFiltered]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée*" selected-item="{{selectedProfessionItem}}" readonly="[[readonly]]"></vaadin-combo-box>
+                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié*" readonly="[[readonly]]"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
                 <template is="dom-if" if="[[isStatusRefusal]]">
@@ -380,7 +380,6 @@
                     ).then(rows => {
                         this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
                         this.set('hcpartyTypeListFiltered', this.hcpartyTypeList)
-                        this.set('plannedAction.ProfessionId',this.professionId)
                     })
                 } catch (e) {
                     console.log(e);
@@ -423,15 +422,6 @@
                 }else{
                     this.set("isStatusRefusal", false)
                 }
-
-                if(status === "completed" && !this.selectedHcpItem && !this.plannedAction.HcpId) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-                        if(hcp.type) {
-                            this.set("selectedHcpItem", hcp)
-                            this.set("plannedAction.HcpId",this.selectedHcpItem.id)
-                        }
-                    })
-                }
             }
 
             procedureChanged(e){
@@ -448,7 +438,7 @@
 
                 let listFiltered=[]
                 const procedureCode = this.proceduresListItem.find(p=> p.code===code)
-                if(procedureCode) {
+                if(procedureCode && procedureCode.links) {
                     procedureCode.links.filter(link => link.includes("CD-HCPARTY|")).map(link => {
                         const info = link.split('|')
                         listFiltered.push(this.hcpartyTypeList.find(type => type.code === info[1]))
@@ -627,10 +617,11 @@
                 const action = this.plannedAction
                 const contactId = this.currentContact.id
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
+                const professionId = action.ProfessionId
                 const valueDate = action.Deadline && action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
-                if (!action || !contactId || !valueDate) {
-                    this.set('errMsg',this.localize('some_mandat_fields','Some fields are mandatory',this.language))
+                if (!action || !contactId || !responsible || !valueDate || !professionId) {
+                    this.set('errMsg',this.localize('mandat_fields','All fields are mandatory',this.language))
                     return
                 }
 
@@ -781,7 +772,13 @@
                         codeProfession && codeProfession.id ? this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', codeProfession.code, null, null, 10) : Promise.resolve({}),
                         codeVaccine && codeVaccine.id && codeMedication && codeMedication.code ? this.api.bedrugs().getMppInfos(codeMedication.code, this.language) : Promise.resolve({})
                     ]).then(([hcp, resultProced, resultProf, resultVaccine]) => {
+                        if(hcp) {
                         this.push("hcpListItem", {id: hcp.id, name: hcp.lastName + ' ' + hcp.firstName});
+                            this.set("selectedHcpItem", {
+                                id: hcp.id,
+                                name: hcp.name === "" ? hcp.lastName + ' ' + hcp.firstName : hcp.name
+                            })
+                        }
 
                         const date = this.api.moment(service.valueDate).format("YYYY-MM-DD");
 
@@ -809,10 +806,6 @@
                         })
 
                         this.set('drugsListItem', [resultVaccine]);
-                        this.set("selectedHcpItem", {
-                            id: this.plannedAction.HcpId,
-                            name: hcp.name === "" ? hcp.lastName + ' ' + hcp.firstName : hcp.name
-                        })
                         this.set("selectedVaccineItem", {
                             id: this.plannedAction.VaccineCommercialNameId,
                             name: resultVaccine.name
@@ -841,11 +834,11 @@
                     })
                 } else { // new action-plan, set default values
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-                        if(hcp.type) {
-                            // do not set prestataire by default
-                            //this.set("selectedHcpItem", hcp)
-                            //this.set("plannedAction.HcpId",this.selectedHcpItem.id)
-                            this.set("plannedAction.ProfessionId","CD-HCPARTY|"+hcp.type+"|1")
+                        const hctype = ((hcp.specialityCodes||[])[0] && hcp.specialityCodes[0].code || 'persphysician')
+                        if(hctype) {
+                            this.set("selectedHcpItem", hcp)
+                            this.set("plannedAction.HcpId",this.selectedHcpItem.id)
+                            this.set("plannedAction.ProfessionId","CD-HCPARTY|"+hctype+"|1")
                             this.set("selectedProfessionItem", this.hcpartyTypeList.find(type => type.id === this.plannedAction.ProfessionId))
                         }
                     })
