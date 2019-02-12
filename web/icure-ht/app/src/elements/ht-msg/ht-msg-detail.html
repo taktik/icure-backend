@@ -885,6 +885,12 @@
             .wide-only {
                 display: none;
             }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
             
             @media screen and (max-width: 1328px) {
                 .nomobile-wide {
@@ -1060,8 +1066,10 @@
                                         <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
                                     </template>
                                     <template is="dom-if" if="[[manualAssign]]">
-                                        <div class="line">
-                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                        <div>
+                                            <div class="line">
+                                                <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                            </div>
                                         </div>
                                     </template>
                                     <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
@@ -1090,7 +1098,7 @@
                         <!--</div>-->
                         <!--</template>-->
                         <div class="line save-line">
-                            <paper-button on-tap="closeSuggestions">
+                            <paper-button class="modal-button--cancel" on-tap="closeSuggestions">
                                 [[localize('can','Cancel',language)]]
                             </paper-button>
                             <template is="dom-if" if="[[canAssign]]">
