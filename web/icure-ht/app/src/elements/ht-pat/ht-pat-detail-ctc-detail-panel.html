@@ -1319,7 +1319,33 @@
 			}
 
 			_safeDrugsOnPrescriptions() {
-				return this._drugsOnPrescriptions || this._drugsToBePrescribed().map((s, idx) => ({ id: s.id, column: Math.floor(idx / 5) }));
+				return this._drugsOnPrescriptions ||
+				this._drugsToBePrescribed().reduce((accu, s) => {
+					const availableSpace = accu.reduce((acc,drug) => {
+						acc[drug.column] >= 0 ? acc[drug.column]-- : acc[drug.column] = 4;
+						return acc
+					}, []);
+					availableSpace.push(5);
+					let codes = s.codes && s.codes.map(c => c.code + '|' + c.type + '|' + c.version);
+					let sameDrugColumnIndex = 0
+					let compound = null
+					if(!codes || !codes.length) {
+						codes = null
+						const content = this.api.contact().preferredContent(s,this.language)
+						compound = content && content.medicationValue && content.medicationValue.compoundPrescription
+						sameDrugColumnIndex = (accu.slice(0).reverse().find( drug => drug.compound == compound ) || {}).column
+					}else {
+						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
+					}
+					const column = _.findIndex(availableSpace, (s, idx) => sameDrugColumnIndex >= 0 ? (idx === sameDrugColumnIndex + 1) && s : s );
+					accu.push({
+						id: s.id,
+						codes,
+						column,
+						compound
+					})
+					return accu
+				}, [] );
 			}
 
 			_splitColumns() {
@@ -1362,7 +1388,7 @@
 					return;
 				}
 
-				const current = this._safeDrugsOnPrescriptions().map(x => ({ id: x.id, column: x.column }));
+				const current = this._safeDrugsOnPrescriptions().map(x => ({ id: x.id, column: x.column, codes: x.codes, compound: x.compound }));
 
 				const mark = current.find(m => m.id === id);
 
@@ -1388,7 +1414,8 @@
 				}
 
 				const sums = dop.reduce((sums, i) => {
-					sums[i.column] = (sums[i.column] || 0) + 1;return sums;
+					sums[i.column] = (sums[i.column] || 0) + 1;
+					return sums;
 				}, []);
 
 				if ((sums[column] || 0) < 5) {
@@ -1541,11 +1568,10 @@
 				let prescNum = 0, pageNum = 1
 
 				splitColumns.forEach((c, idx) => {
-					const colId = splitColumns.indexOf(c)
-					// console.log('c',c,'idx',idx,'colId',colId)
-					JsBarcode(element, rid[colId] ? rid[colId] : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
+					const prescRid = rid[idx] ? rid[idx] : hcp.nihii;
+					JsBarcode(element, prescRid, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
-					const ridIdx = (rid[colId] ? rid[colId] : hcp.nihii).split('').join('&nbsp;')
+					const ridIdx = prescRid.split('').join('&nbsp;')
 					prescNum += 1
 					const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
 					if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
@@ -1577,7 +1603,7 @@
 						articleMedWithPoso.push({medR: onePrescri.R, poso: onePrescri.poso})//add medication with posology to the list
 						medicName = onePrescri.R
 					}) // map end
-					const prescri = (this.patient.ssin && this.api.tokenId && rid[colId]) ? `<article class="prescription">
+					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridIdx}</div>
