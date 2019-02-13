@@ -1323,7 +1323,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid items="[[patientShareStatuses]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
-                            Patient
+                            [[localize('pati','Patient',language)]]
                         </template>
                         <template>
                             [[item.patient.firstName]] [[item.patient.lastName]]
@@ -1331,7 +1331,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Patient
+                            [[localize('pati','Patient',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
@@ -1339,7 +1339,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Contacts
+                            [[localize('contacts','Contacts',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
@@ -1363,7 +1363,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Documents
+                            [[localize('files','Files',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
@@ -1390,7 +1390,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="150px">
                         <template class="header">
-                            Patient
+                            [[localize('pati','Patient',language)]]
                         </template>
                         <template>
                             [[item.patient.firstName]] [[item.patient.lastName]]
@@ -1406,7 +1406,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Contacts
+                            [[localize('contacts','Contacts',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.contacts)]]">[[_statusDetail(item.statuses.contacts)]]</span>
@@ -1430,7 +1430,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Documents
+                            [[localize('files','Files',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.documents)]]">[[_statusDetail(item.statuses.documents)]]</span>
