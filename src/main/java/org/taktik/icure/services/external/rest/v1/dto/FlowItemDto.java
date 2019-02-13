@@ -6,33 +6,63 @@ public class FlowItemDto  {
 
     protected String title;
 
+    protected String comment;
+
     protected Long receptionDate;
-
-    protected Long cancellationDate;
-
-    protected String canceller;
 
     protected Long processingDate;
 
     protected String processer;
 
-    protected String phoneNumber;
+    protected Long cancellationDate;
 
-    protected String patientId;
+    protected String canceller;
 
-    protected String patientFirstName;
+    protected String cancellationReason;
 
-    protected String patientLastName;
+    protected String cancellationNote;
 
     protected String status;
+
+    protected Boolean homeVisit;
+
+    protected String municipality;
+
+    protected String town;
+
+    protected String zipCode;
+
+    protected String street;
+
+    protected String building;
+
+    protected String buildingNumber;
+
+    protected String doorbellName;
+
+    protected String floor;
+
+    protected String letterBox;
+
+    protected String notesOps;
+
+    protected String notesContact;
+
+    protected String latitude;
+
+    protected String longitude;
 
     protected String type;
 
     protected Boolean emergency;
 
-    protected String cancellationReason;
+    protected String phoneNumber;
 
-    protected String cancellationNote;
+    protected String patientId;
+
+    protected String patientLastName;
+
+    protected String patientFirstName;
 
     public String getId() {
         return id;
@@ -161,4 +191,125 @@ public class FlowItemDto  {
     public void setCancellationNote(String cancellationNote) {
         this.cancellationNote = cancellationNote;
     }
+
+    public Boolean getHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(Boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public String getMunicipality() {
+        return municipality;
+    }
+
+    public void setMunicipality(String municipality) {
+        this.municipality = municipality;
+    }
+
+    public String getTown() {
+        return town;
+    }
+
+    public void setTown(String town) {
+        this.town = town;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public String getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(String building) {
+        this.building = building;
+    }
+
+    public String getBuildingNumber() {
+        return buildingNumber;
+    }
+
+    public void setBuildingNumber(String buildingNumber) {
+        this.buildingNumber = buildingNumber;
+    }
+
+    public String getDoorbellName() {
+        return doorbellName;
+    }
+
+    public void setDoorbellName(String doorbellName) {
+        this.doorbellName = doorbellName;
+    }
+
+    public String getLetterBox() {
+        return letterBox;
+    }
+
+    public void setLetterBox(String letterBox) {
+        this.letterBox = letterBox;
+    }
+
+    public String getNotesOps() {
+        return notesOps;
+    }
+
+    public void setNotesOps(String notesOps) {
+        this.notesOps = notesOps;
+    }
+
+    public String getNotesContact() {
+        return notesContact;
+    }
+
+    public void setNotesContact(String notesContact) {
+        this.notesContact = notesContact;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getFloor() {
+        return floor;
+    }
+
+    public void setFloor(String floor) {
+        this.floor = floor;
+    }
+
 }
