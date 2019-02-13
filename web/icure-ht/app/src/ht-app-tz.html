@@ -792,6 +792,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </paper-tooltip>
                         </div>
+                        <template is="dom-if" if="[[isElectron]]">
+                            <div class="log-info">
+                                <p><span class="user-email">Version - Electron: [[version]]</span></p>
+                            </div>
+                        </template>
                         <div>
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
                             <svg version="1.1"
@@ -1609,6 +1614,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     validMail: {
                         type: Boolean,
                         value: null
+                    },
+                    isElectron :{
+                        type: Boolean,
+                        value: false
+                    },
+                    version : {
+                        type : String,
+                        value : ""
                     }
                 }
             }
@@ -1729,6 +1742,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('updateMessage', this.localize('upd_fail','Update failed, please refresh.'))
                     }
                 });
+
+                this.api.isElectronAvailable().then(electron => {
+                    this.set("isElectron",electron)
+                    if(this.isElectron){
+                        fetch('http://127.0.0.1:16042/getVersion')
+                            .then((response) => {
+                                return response.json()
+                            })
+                            .then(res => {
+                                if (res.version) {
+                                    this.set("version",res.version)
+                                }
+                            })
+                    }
+                })
+
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
             }
