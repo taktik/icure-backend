@@ -1078,6 +1078,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <page>
                         <div class="horizontal" style="margin-top:20px">
                             <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
+                            <paper-tooltip for="read-eid" position="top">[[localize('fill_with_eid','Fill with eID',language)]]</paper-tooltip>
                             <paper-input label="[[localize('las_nam','Last name',language)]]" style="min-width:200px" value="{{lastName}}"></paper-input>
                             <paper-input label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
                             <vaadin-date-picker label="[[localize('dat_of_bir','Date of birth',language)]]" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
