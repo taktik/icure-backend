@@ -283,9 +283,9 @@
                 <div class="buttons">
                     <!--<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
                     <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
-                        <paper-button on-tap="_registerHubPatientConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
-                        <paper-button on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
-                        <paper-button on-tap="_runRegisterHubPatient" dialog-confirm>[[localize('register','Register',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_registerHubPatientConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_runRegisterHubPatient" dialog-confirm>[[localize('register','Register',language)]]</paper-button>
                     </template>
                     <!--<template is="dom-if" if="[[_enableRevokeConsent(patientHubConsent, hubSupportsConsent)]]">-->
                         <!--<paper-button on-tap="_revokeHubPatientConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
