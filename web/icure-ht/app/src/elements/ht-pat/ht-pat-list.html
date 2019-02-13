@@ -1216,7 +1216,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="sharePatientDialog">
-            <h2 class="modal-title">Avec quel prestataire souhaitez-vous partager ces patients ?</h2>
+            <h2 class="modal-title">[[localize('share_to_what_hcp','With which provider do you want to share these patients',language)]] ?</h2>
             <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
             <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
                 <vaadin-grid-column width="40px">
@@ -1281,7 +1281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid items="[[hcpSelectedForSharing]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
-                            Prestataires
+                            [[localize('hcp_ident','HCP',language)]]
                         </template>
                         <template>
                             [[getNamesWithHcpId(item.id)]]
@@ -1289,7 +1289,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="700px">
                         <template class="header">
-                            Droits d'accès
+                            [[localize('access_rights','Access rights',language)]]
                         </template>
                         <template>
                             <div>
@@ -1382,7 +1382,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid items="[[patientImportStatuses]]">
                     <vaadin-grid-column width="150px">
                         <template class="header">
-                            Fichier
+                            [[localize('file','File',language)]]
                         </template>
                         <template>
                             [[item.filename]]
@@ -1398,7 +1398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                     <vaadin-grid-column width="70px">
                         <template class="header">
-                            Dossier
+                            [[localize('folder','Folder',language)]]
                         </template>
                         <template>
                             <span class$="[[_statusDetailClass(item.statuses.patient)]]">[[_statusDetail(item.statuses.patient)]]</span>
@@ -1447,7 +1447,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="fusionDialog">
-            <h2 class="modal-title">Fusionner les patients</h2>
+            <h2 class="modal-title">[[localize('fus_pat','Fusion patients',language)]]</h2>
             <div class="content">
                 <paper-input-container>
                     <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]</label>
