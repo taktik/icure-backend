@@ -1274,7 +1274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
             <template is="dom-if" if="[[isAdminSelected(selectedAdminOrCompleteFileIndex)]]">
-                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" on-patient-saved="_patientSaved"></ht-pat-admin-card>
+                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
             </template>
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <div class="first-panel">
@@ -1839,6 +1839,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div id="legaltextTL"></div>
             <div class="ther-container">
                 <template is="dom-if" if="[[!haveTherLinks]]">
+                    <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
                     <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
                     <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
                 </template>
@@ -2239,6 +2240,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     SpinnerActive:{
                         type:Boolean,
                         value: false
+                    },
+                    cardData:{
+                        type: Object,
+                        value: {},
+                        observer : "cardDataChanged"
                     }
                 };
             }
@@ -2254,6 +2260,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready();
                 this.set("SpinnerActive",true)
+
+                this.api.isElectronAvailable().then(electron =>{
+                    if(electron){
+                        this._readEid()
+                    }
+                })
                 if(this.patientHealthCarePartiesById == null) {
                     Promise.all(
                         _.chunk(this.patient.patientHealthCareParties,100).map(uChunk =>
@@ -2378,6 +2390,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation();
                 this.selectedTherLink = null;
                 this._getTherLinks();
+
+                if(Object.keys(this.cardData).length && this.patient.ssin===this.cardData.nationalNumber) {
+                    this.set("eidCardNumber",this.cardData.logicalNumber)
+                }
+
                 //this.root.querySelector('#legaltext').innerHTML = this.localize('cons_legal', 'Informed consent legal text ...', this.language)
                 this.$.therLinkDialog.open();
             }
@@ -4399,6 +4416,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
                     }
                 })
+            }
+
+            _readEid() {
+                fetch('http://127.0.0.1:16042/read')
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then(res => {
+                        if (res.cards[0]) {
+                            this.set('cardData',res.cards[0])
+                        }
+                    })
+            }
+
+            cardDataChanged(){
+                if(this.$.therLinkDialog.opened){
+                    if(Object.keys(this.cardData).length && this.patient.ssin===this.cardData.nationalNumber) {
+                        this.set("eidCardNumber",this.cardData.logicalNumber)
+                    }
+                }
+            }
+
+            _cardChanged(e){
+                this.set("cardData",e.detail.cardData)
             }
 
         }
