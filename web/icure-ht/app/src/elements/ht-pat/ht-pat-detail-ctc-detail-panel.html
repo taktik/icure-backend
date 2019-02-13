@@ -1376,11 +1376,8 @@
 					return true;
 				}
 
-				const drugCodes = dop[line].codes;
-				const compound = !drugCodes && dop[line].compound || null
-
 				const sums = dop.reduce((sums, i) => {
-					sums[i.column] = ((drugCodes && drugCodes.filter(c => i.codes && i.codes.join(',').includes(c)).length === drugCodes.length) || (compound && compound == i.compound)) && i.column !== dop[line].column ? 5 : (sums[i.column] || 0) + 1;
+					sums[i.column] = (sums[i.column] || 0) + 1;
 					return sums;
 				}, []);
 
@@ -1534,11 +1531,10 @@
 				let prescNum = 0, pageNum = 1
 
 				splitColumns.forEach((c, idx) => {
-					const colId = splitColumns.indexOf(c)
-					// console.log('c',c,'idx',idx,'colId',colId)
-					JsBarcode(element, rid[colId] ? rid[colId] : hcp.nihii, {format: "CODE128A", displayValue: false, height: 75});
+					const prescRid = rid[idx] ? rid[idx] : hcp.nihii;
+					JsBarcode(element, prescRid, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
-					const ridIdx = (rid[colId] ? rid[colId] : hcp.nihii).split('').join('&nbsp;')
+					const ridIdx = prescRid.split('').join('&nbsp;')
 					prescNum += 1
 					const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
 					if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
@@ -1570,7 +1566,7 @@
 						articleMedWithPoso.push({medR: onePrescri.R, poso: onePrescri.poso})//add medication with posology to the list
 						medicName = onePrescri.R
 					}) // map end
-					const prescri = (this.patient.ssin && this.api.tokenId && rid[colId]) ? `<article class="prescription">
+					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridIdx}</div>
