@@ -167,8 +167,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="line">
                 <div class="exportMonthPicker">
-                    <vaadin-combo-box id="tarificationMonth" filtered-items="[[_getTarificationMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getTarificationCurrentMonth()]]" on-value-changed="_tarificationMonthChanged"></vaadin-combo-box>
-                    <vaadin-combo-box id="tarificationYear" filtered-items="[[_getTarificationYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getTarificationCurrentYear()]]" on-value-changed="_tarificationYearChanged"></vaadin-combo-box>
+                   <vaadin-combo-box id="tarificationMonth" filtered-items="[[_getTarificationMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getTarificationCurrentMonth()]]" selected-item="{{selectedTarificationMonth}}"></vaadin-combo-box>
+                   <vaadin-combo-box id="tarificationYear" filtered-items="[[_getTarificationYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getTarificationCurrentYear()]]" selected-item="{{selectedTarificationYear}}"></vaadin-combo-box>
                 </div>
                 <paper-input label="Reimbursement" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
             </div>
@@ -255,7 +255,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flatRateTarificationTab: {
                         type : Array,
                         value: () => []
+                    },
+                    selectedTarificationMonth:{
+                        type: Object,
+                        value: () => {},
+                        observer: '_selectedTarificationMonthValueChanged'
+                    },
+                    selectedTarificationYear:{
+                        type: Object,
+                        value: () => {},
+                        observer: '_selectedTarificationYearValueChanged'
                     }
+
                 }
             }
 
@@ -295,6 +306,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addTarification(){
                 console.log(this.flatRateTarification)
 
+                const startOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').startOf('month').format('YYYYMMDD') : null
+                const endOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').endOf('month').format('YYYYMMDD') : null
+
                 if(!this.hcpParent.flatRateTarifications){
                     _.assign(this.hcpParent, {flatRateTarifications : []})
                 }
@@ -302,12 +316,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selectedTar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code) || null
 
                 if(selectedTar){
-                    selectedTar ? selectedTar.valorisations.push({startOfValidity: parseInt(this.flatRateTarification.startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
-                    const lastTar = selectedTar.valorisations.find(val => !val.endOfValidity) || null
-                    lastTar ? _.assign(lastTar, {endOfValidity: parseInt(moment(this.startOfValidityAsString).subtract(1, "days").format('YYYYMMDD'))}) : null
+                    selectedTar ? selectedTar.valorisations.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
                 }else{
                     const valorisation = []
-                    valorisation.push({startOfValidity: parseInt(this.flatRateTarification.startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
+                    valorisation.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
 
                     this.hcpParent.flatRateTarifications.push({
                         code: this.flatRateTarification.code || null,
@@ -353,12 +365,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return parseInt(moment().format('YYYY'))
             }
 
-            _tarificationMonthChanged(e){
-                console.log(e)
+            _selectedTarificationMonthValueChanged(selectedMonth){
+                selectedMonth ? this.set('flatRateTarification.monthValidity', parseInt(selectedMonth.id)) : null
             }
 
-            _tarificationYearChanged(e){
-                console.log(e)
+            _selectedTarificationYearValueChanged(selectedYear){
+                selectedYear ? this.set('flatRateTarification.yearValidity', parseInt(selectedYear.id)) : null
             }
 
         }
