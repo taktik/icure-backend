@@ -715,6 +715,10 @@
             return inputContent.indexOf("-")>-1 || !_.trim(inputContent) ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
         }
 
+        formatBankAccount(inputContent) {
+            return _.trim([inputContent.slice(0,4),inputContent.slice(4,8),inputContent.slice(8,12),inputContent.slice(12,16)].join(" "));
+        }
+
         formatSsinNumber(inputContent) {
             inputContent = _.trim(inputContent).replace(/[^0-9]+/g, '')
             return _.trim([inputContent.slice(0,2),inputContent.slice(2,4),inputContent.slice(4,6)].join(".")) + "-" + _.trim([inputContent.slice(6,9),inputContent.slice(9,11)].join("."));

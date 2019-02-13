@@ -966,7 +966,8 @@
     "years": "years",
     "month": "Month",
     "year": "Year",
-    "old": "old"
+    "old": "old",
+    "j20_monthToGenerate": "Month to generate"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2019,7 +2020,24 @@
     "years": "ans",
     "month": "Mois",
     "year": "Année",
-    "old": " "
+    "old": " ",
+    "j20_monthToGenerate": "Mois à générer",
+
+    "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
+    "mhInvoicing.spinner.step_1_done": "Fin de la récupération de la Maison Médicale",
+    "mhInvoicing.spinner.step_2": "Collecte des patients...",
+    "mhInvoicing.spinner.step_3": "Collecte des titulaires d'assurance...",
+    "mhInvoicing.spinner.step_3_done": "Fin de la collecte des titulaires d'assurance",
+    "mhInvoicing.spinner.step_4": "Création des factures...",
+    "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
+    "mhInvoicing.spinner.step_5": "Création des fichiers...",
+    "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers",
+
+
+    "mhListing.spinner.step_7": "Archivage du rapport PDF...",
+    "mhListing.spinner.step_7_done": "Fin de l'archivage du rapport PDF",
+    "mhListing.spinner.step_8": "Téléchargement du fichier..."
+
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3079,6 +3097,7 @@
     "months": "maanden",
     "month": "Maand",
     "year": "Jaar",
-    "old": "oud"
+    "old": "oud",
+    "j20_monthToGenerate": "Maand te genereren"
   }
 }

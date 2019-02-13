@@ -53,3 +53,4 @@ bin/
 misc/
 .classpath
 .settings
+src/main/kotlin/org/taktik/icure/config/CouchDbLocalConfig.kt
