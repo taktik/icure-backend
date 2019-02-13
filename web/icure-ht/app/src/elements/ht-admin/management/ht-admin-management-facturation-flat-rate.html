@@ -275,7 +275,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then(hcp => this.api.hcparty().getHealthcareParty(hcp.parentId))
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
+                            /*
+                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
+                        flatRateTarifications.forEach(frt => frt.map(val => val))
+*/
+
                         this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
+
                 })
             }
 
@@ -285,6 +291,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _addTarification(){
                 console.log(this.flatRateTarification)
+
+                if(!this.hcpParent.flatRateTarifications){
+                    _.assign(this.hcpParent, {flatRateTarifications : []})
+                }
 
                 const selectedTar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code) || null
 
@@ -306,7 +316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
                     this.set('hcpParent', hcp)
                     this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
-                })
+                }).finally(() => this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null}))
 
 
             }
