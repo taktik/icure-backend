@@ -393,23 +393,34 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     _downloadAnnex(e){
-        let url = this.dataUrl;
+        const url = this.dataUrl
+        console.log('doc',this.document)
+        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)+';base64' :
+            this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'application/xml' :
+            'text/plain;charset=utf-8'
 
-        // const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'png' :
-        //     this._pdfMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'pdf' :
-        //     this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'xml' :
-        //     'txt'
+        let request = new XMLHttpRequest()
+        request.onreadystatechange = (()=> {
+            if (request.readyState === 4) {
+                console.log('curl',request.response); // Par défault une DOMString
+                const imgType = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) || null
+                let res = request.response
+                if (type !== imgType) { // TODO : format image
 
-        let a = document.createElement("a");
-        document.body.appendChild(a);
-        a.style = "display: none";
+                    let a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
 
-        a.href = url;
-        a.download = this.document.name;
+                    a.setAttribute('href', `data:${type},` + encodeURIComponent(res));
+                    a.download = this.document.name;
 
-        a.click();
-        window.URL.revokeObjectURL(url);
-
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+            }
+        })
+        request.open('GET', url, true)
+        request.send('')
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
