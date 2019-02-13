@@ -103,10 +103,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
             <div class="add_line">
                 <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button id="" class="" icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
-
-                <!--<paper-button class="modal-button" on-tap="_addFlatRateTarification">[[localize('add_tar', 'Add tarification', language)]]</paper-button>-->
             </div>
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('deleg_type','Start of valididy',language)]]
+                    </template>
+                    <template>
+                        <div>[[_getDateAsString(item.valorisation.startOfValidity)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('Id','End of validity',language)]]
+                    </template>
+                    <template>
+                        <div>[[_getDateAsString(item.valorisation.endOfValidity)]]</div>
+                    </template>
+                </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
                         [[localize('deleg_first_name','Code',language)]]
@@ -125,26 +139,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_type','Start of valididy',language)]]
-                    </template>
-                    <template>
-                        <div>[[item.startOfValidity]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column>
-                    <template class="header">
-                        [[localize('Id','End of validity',language)]]
-                    </template>
-                    <template>
-                        <div>[[item.endOfValidity]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column>
-                    <template class="header">
                         [[localize('Id','Reimbursement',language)]]
                     </template>
                     <template>
-                        <div>[[item.reimbursement]]</div>
+                        <div>[[item.valorisation.reimbursement]]</div>
                     </template>
                 </vaadin-grid-column>
 
@@ -290,11 +288,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
 
-                        _.flatten(flatRateTarifications.map(tar => tar.valorisations))
-
-                        _.assign(flatRateTarifications.map(t => t), )
-
-                        this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
+                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))))
 
                 })
             }
@@ -371,6 +365,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _selectedTarificationYearValueChanged(selectedYear){
                 selectedYear ? this.set('flatRateTarification.yearValidity', parseInt(selectedYear.id)) : null
+            }
+
+            _getDateAsString(date){
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : null
             }
 
         }
