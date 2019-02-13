@@ -1196,10 +1196,76 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height:100px;
             }
 
+            .postit-header {
+                box-sizing: border-box;
+                padding: 11px;
+                text-align: center;
+                min-width: 200px;
+                width: 100%;
+                margin: 0;
+                display: inline-block;
+            }
+
+            .postit-button {
+                position: absolute;
+                min-width: 0;
+                margin: 0;
+            }
+
+            .postit-close {
+                left: 0;
+                top: 0;
+            }
+
+            .postit-show {
+                top: 0;
+                right: 0;
+            }
+
+            .postit-body {
+                padding: 11px;
+                background: white;
+            }
+
+            .postit-body paper-textarea {
+                max-width: 300px;
+            }
+
+            #postit-notification {
+                position: fixed;
+                top: calc(46px + 10%);
+                right: 10px;
+                z-index: 1000;
+                background: var(--app-secondary-color);
+            }
+
         </style>
 
         <div class="container">
             <template is="dom-if" if="[[SpinnerActive]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
+            <template is="dom-if" if="[[showPostit]]">
+                <paper-card id="postit-notification">
+                    <paper-button name="closePostit" class="postit-button postit-close" on-tap="closePostit">
+                        <iron-icon class="iron-icon" icon="clear"></iron-icon>
+                    </paper-button>
+                    <p class="postit-header">[[localize('postit','post-it',language)]]</p>
+                    <paper-button name="showPostit" toggles class="postit-button postit-show" active="{{postitShowMsg}}">
+                        <template is="dom-if" if="[[!postitShowMsg]]">
+                            <iron-icon class="iron-icon" icon="visibility"></iron-icon>
+                        </template>
+                        <template is="dom-if" if="[[postitShowMsg]]">
+                            <iron-icon class="iron-icon" icon="visibility-off"></iron-icon>
+                        </template>
+                    </paper-button>
+                    <template is="dom-if" if="[[postitShowMsg]]">
+                        <div class="postit-body">
+                            <paper-textarea no-label-float value="{{postitMsg}}"></paper-textarea>
+                        </div>
+                    </template>
+                </paper-card>
+            </template>
+
             <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
@@ -2169,12 +2235,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     SpinnerActive:{
                         type:Boolean,
                         value: false
+                    },
+                    postitMsg: {
+                        type:String,
+                        value: null
+                    },
+                    postitShowMsg: {
+                        type:Boolean,
+                        value: false
+                    },
+                    showPostit: {
+                        type: Boolean,
+                        value: true
                     }
                 };
             }
 
             static get observers() {
-                return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
+                return ['patientOpened(patient.id,api,user)', 'postitChanged(postitMsg)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
             }
 
             constructor() {
@@ -3046,6 +3124,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //console.log("Before load "+(+new Date() - start))
                 Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient).then(ctcs => ctcs.map(ctc => this.api.register(ctc, 'contact'))), this.api.helement().findBy(this.user.healthcarePartyId, patient, true)]).then(([ctcs, allHes]) => {
                     //console.log("After load "+(+new Date() - start))
+                    this.set('postitMsg',this.patient.note || '')
+
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
@@ -4280,6 +4360,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log("svcs",e.detail.service)
                 const lifecycle = e.detail.service.tags.find(tag => tag.type === "CD-LIFECYCLE") || {}
                 this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
+            }
+
+
+
+            postitChanged(value) {
+                if(value == undefined) {
+                    return
+                }
+                if (this.patient && this.patient.note !== value) {
+                    if(!this.patient) {
+                        return;
+                    }
+                    const patient = this.patient
+                    const rev = patient.rev
+
+                    if (this.saveTimeout) {
+                        clearTimeout(this.saveTimeout);
+                        this.saveTimeout = undefined
+                    }
+
+                    this.saveAction = () => {
+                        this.api.queue(patient, 'patient').then(([pat, defer]) => {
+                            if (pat.rev !== rev) {
+                                defer.resolve(patient);
+                                return
+                            }
+                            this.api.patient().modifyPatientWithUser(this.user, patient)
+                            .catch(() => defer.resolve(patient))
+                            .then(p => this.api.register(p, 'patient', defer))
+                            .catch(e => {
+                                if (this.patient) {
+                                    return this.api.patient().getPatientWithUser(this.user, this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
+                                        this.patient = p
+                                        this.saveTimeout = undefined
+                                        this.saveAction = undefined
+                                        throw e
+                                    })
+                                } else {
+                                    throw e
+                                }
+                            })
+                        })
+                    }
+
+                    this.saveTimeout = setTimeout(this.saveAction, 5000);
+                }
+            }
+
+            closePostit() {
+                this.set('showPostit', false)
             }
 
             createEvent(codeId){
