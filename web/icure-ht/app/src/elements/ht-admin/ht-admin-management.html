@@ -1,0 +1,228 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="management/ht-admin-management-delegations.html">
+<link rel="import" href="management/ht-admin-management-groups.html">
+<link rel="import" href="management/ht-admin-management-users.html">
+<link rel="import" href="management/ht-admin-management-parent.html">
+<link rel="import" href="management/ht-admin-management-facturation-flat-rate.html">
+<link rel="import" href="management/ht-admin-management-facturation-service-fee.html">
+
+
+<dom-module id="ht-admin-management">
+
+    <template>
+
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            :host *:focus{
+                outline:0!important;
+            }
+
+            .col-left{
+                position: relative;
+                box-sizing: border-box;
+                grid-column: 1 / 1;
+                grid-row: 1 / 1;
+                background:var(--app-background-color-dark);
+                @apply --shadow-elevation-3dp;
+                padding: 24px 0;
+                display:flex;
+                flex-flow: column nowrap;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                z-index: 25;
+            }
+
+
+        </style>
+
+
+        <template is="dom-if" if="[[groupsManagementLayout]]">
+            <ht-admin-management-groups id="admin-management-groups" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-groups>
+        </template>
+
+        <template is="dom-if" if="[[usersManagementLayout]]">
+            <ht-admin-management-users id="admin-management-users" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-users>
+        </template>
+
+        <template is="dom-if" if="[[parentManagementLayout]]">
+            <ht-admin-management-parent id="admin-management-parent" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-parent>
+        </template>
+
+        <template is="dom-if" if="[[delegationsManagementLayout]]">
+            <ht-admin-management-delegations id="admin-management-delegations" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-delegations>
+        </template>
+
+        <template is="dom-if" if="[[facturationServiceFeeManagementLayout]]">
+            <ht-admin-management-facturation-service-fee id="admin-management-facturation-service-fee" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-facturation-service-fee>
+        </template>
+
+        <template is="dom-if" if="[[facturationFlatRateManagementLayout]]">
+            <ht-admin-management-facturation-flat-rate id="admin-management-facturation-flat-rate" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-facturation-flat-rate>
+        </template>
+
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+
+        class HtAdminManagement extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-admin-management'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        noReset: true
+                    },
+                    user: {
+                        type: Object,
+                        noReset: true
+                    },
+                    selectedSubMenu: {
+                        type: String,
+                        observer: '_selectedManagementSubMenuChanged'
+                    },
+                    groupsManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    usersManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    parentManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    delegationsManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    facturationServiceFeeManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    },
+                    facturationFlatRateManagementLayout:{
+                        type: Boolean,
+                        value: false
+                    }
+                }
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            _selectedManagementSubMenuChanged(){
+
+                if(this.selectedSubMenu === "groupsManagementSubMenu"){
+                    this.set('groupsManagementLayout', true)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "usersManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', true)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "parentManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', true)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "delegationsManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', true)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "facturationServiceFeeManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', true)
+                    this.set('facturationFlatRateManagementLayout', false)
+                }else if(this.selectedSubMenu === "facturationFlatRateManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', true)
+                }
+
+            }
+
+        }
+
+        customElements.define(HtAdminManagement.is, HtAdminManagement)
+    </script>
+</dom-module>
