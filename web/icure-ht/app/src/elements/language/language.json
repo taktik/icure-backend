@@ -954,6 +954,9 @@
     "weeks": "weeks",
     "months": "months",
     "years": "years",
+    "week": "week",
+    "month": "month",
+    "year": "year",
     "old": "old"
   },
   "fr": {
@@ -1995,6 +1998,9 @@
     "weeks": "semaines",
     "months": "mois",
     "years": "ans",
+    "week": "semaine",
+    "month": "mois",
+    "year": "an",
     "old": " "
   },
   "nl": {
@@ -3041,6 +3047,9 @@
     "years": "jaren",
     "weeks": "weken",
     "months": "maanden",
+    "year": "jaar",
+    "week": "week",
+    "month": "maand",
     "old": "oud"
   }
 }
