@@ -1380,7 +1380,7 @@
 				const compound = !drugCodes && dop[line].compound || null
 
 				const sums = dop.reduce((sums, i) => {
-					sums[i.column] = (drugCodes && drugCodes.filter(c => i.codes && i.codes.join(',').includes(c)).length === drugCodes.length || (compound == i.compound)) && i.column !== dop[line].column ? 5 : (sums[i.column] || 0) + 1;
+					sums[i.column] = ((drugCodes && drugCodes.filter(c => i.codes && i.codes.join(',').includes(c)).length === drugCodes.length) || (compound && compound == i.compound)) && i.column !== dop[line].column ? 5 : (sums[i.column] || 0) + 1;
 					return sums;
 				}, []);
 
