@@ -234,6 +234,13 @@
                 width:18px;
             }
 
+            .names-mobile-only {
+                display: none;
+            }
+            .names-nomobile {
+                display: initial;
+            }
+
             @media screen and (max-width: 936px) {
                 paper-dialog#medication-selection {
                     position: fixed;
@@ -244,6 +251,15 @@
                     width: 100vw !important;
                     margin: 0;
                     transform: none;
+                }
+            }
+
+            @media screen and (max-width: 800px) {
+                .names-mobile-only {
+                    display: initial;
+                }
+                .names-nomobile {
+                    display: none;
                 }
             }
 
@@ -283,16 +299,20 @@
             <div class="container">
                 <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                     <paper-tab name="chronical" on-tap="setMedicationType">
-                        [[localize('medication-chronical','Chronical medication',language)]]
+                        <span class="names-nomobile">[[localize('medication-chronical','Chronical medication',language)]]</span>
+                        <span class="names-mobile-only">[[localize('chronic','Chronical',language)]]</span>
                     </paper-tab>
                     <paper-tab name="medicinalProduct" on-tap="setMedicationType">
-                        [[localize('medication-by-product-name','By product name',language)]]
+                        <span class="names-nomobile">[[localize('medication-by-product-name','By product name',language)]]</span>
+                        <span class="names-mobile-only">[[localize('name','Name',language)]]</span>
                     </paper-tab>
                     <paper-tab name="substanceProduct" on-tap="setMedicationType">
-                        [[localize('medication-by-molecule','By molecule',language)]]
+                        <span class="names-nomobile">[[localize('medication-by-molecule','By molecule',language)]]</span>
+                        <span class="names-mobile-only">[[localize('mol','Molecule',language)]]</span>
                     </paper-tab>
                     <paper-tab name="compoundPrescription" on-tap="setMedicationType">
-                        [[localize('medication-compound','Compound prescription',language)]]
+                        <span class="names-nomobile">[[localize('medication-compound','Compound prescription',language)]]</span>
+                        <span class="names-mobile-only">[[localize('compound','Compound',language)]]</span>
                     </paper-tab>
                 </paper-tabs>
                 <div class="left-pane">
