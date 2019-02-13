@@ -651,6 +651,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-shadow: none;
                 }
 
+                .add-pat-buttons {
+                    margin-top: 0 !important;
+                }
+
                 @media screen and (max-width: 1120px) {
                     div.container {
                         display: inherit;
@@ -788,6 +792,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         flex-flow: row wrap;
                         justify-content: space-between;
                         align-items: flex-start;
+                    }
+                    .add-pat-dialog {
+                        display: initial;
                     }
                 }
 
@@ -1065,7 +1072,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
-        <paper-dialog id="add-patient-dialog" class="dialog">
+        <paper-dialog id="add-patient-dialog" class="dialog add-pat-dialog">
             <h2 class="modal-title">[[localize('add_pat','Add a patient',language)]]</h2>
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
@@ -1198,8 +1205,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 </div>
                 </div>
-               <div class="buttons" style="margin-top:30px; float:right">
-                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+               <div class="buttons add-pat-buttons" style="margin-top:30px; float:right">
+                    <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm" disabled="[[!canAddPat]]">[[localize('cre','Create',language)]]</paper-button>
                 </div>
             </div>
@@ -1472,7 +1479,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-input-container>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion patients',language)]]
                 </paper-button>
             </div>
