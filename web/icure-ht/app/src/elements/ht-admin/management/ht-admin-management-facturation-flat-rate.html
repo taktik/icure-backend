@@ -166,7 +166,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-dropdown-menu>
             </div>
             <div class="line">
-                <vaadin-date-picker id="invoice-date" class="flex" label="Start of validity" i18n="[[i18n]]" value="{{startOfValidityAsString}}"></vaadin-date-picker>
+                <div class="exportMonthPicker">
+                    <vaadin-combo-box id="tarificationMonth" filtered-items="[[_getTarificationMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getTarificationCurrentMonth()]]" on-value-changed="_tarificationMonthChanged"></vaadin-combo-box>
+                    <vaadin-combo-box id="tarificationYear" filtered-items="[[_getTarificationYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getTarificationCurrentYear()]]" on-value-changed="_tarificationYearChanged"></vaadin-combo-box>
+                </div>
                 <paper-input label="Reimbursement" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
             </div>
 
@@ -205,7 +208,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             code: null,
                             label: null,
                             reimbursement : Number(0.00),
-                            startOfValidity: null
+                            monthValidity: null,
+                            yearValidity: null,
+                            startOfValidity: null,
+                            endOfValidity: null
                         }
                     },
                     flatRateNmclSelectedItemIdx:{
@@ -242,11 +248,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }
                         }]
                    },
-                    startOfValidityAsString: {
-                        type: String,
-                        value: null,
-                        observer: "_startOfValidityChanged"
-                    },
                     hcpParent: {
                         type: Object,
                         value: () => {}
@@ -275,10 +276,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then(hcp => this.api.hcparty().getHealthcareParty(hcp.parentId))
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
-                            /*
+
                         const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
-                        flatRateTarifications.forEach(frt => frt.map(val => val))
-*/
+
+                        _.flatten(flatRateTarifications.map(tar => tar.valorisations))
+
+                        _.assign(flatRateTarifications.map(t => t), )
 
                         this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
 
@@ -332,8 +335,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return code[this.language]
             }
 
-            _startOfValidityChanged(){
-                this.set('flatRateTarification.startOfValidity', moment(this.startOfValidityAsString).format('YYYYMMDD'))
+            _getTarificationMonthsList() {
+                let toReturn = [];
+                for(let i=1; i<=12; i++) toReturn.push({id: i, label: this.localize('month_'+i,this.language) })
+                return toReturn
+            }
+            _getTarificationYearsList() {
+                let toReturn = [];
+                for(let i=(parseInt(moment().format('YYYY'))+1); i>=(parseInt(moment().format('YYYY'))-2); i--) toReturn.push({id: i, label: i })
+                return toReturn
+            }
+
+            _getTarificationCurrentMonth() {
+                return parseInt(moment().format('MM'))
+            }
+            _getTarificationCurrentYear() {
+                return parseInt(moment().format('YYYY'))
+            }
+
+            _tarificationMonthChanged(e){
+                console.log(e)
+            }
+
+            _tarificationYearChanged(e){
+                console.log(e)
             }
 
         }
