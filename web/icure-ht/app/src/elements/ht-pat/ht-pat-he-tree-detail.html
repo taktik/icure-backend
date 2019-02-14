@@ -247,7 +247,6 @@
             }
 
         </style>
-
         <collapse-button>
             <paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" aria-selected="[[selected]]" class$="menu-trigger menu-item [[isIronSelected(selected)]]" on-tap="select">
                 <div class="one-line-menu">
@@ -259,23 +258,18 @@
                 <div>
                     <div class="he-edit-btn-container">
                         <paper-icon-button id="he-edit-btn-edit_[[getHeId(he)]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-                        <paper-tooltip position="left" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
 
                         <template is="dom-if" if="[[isNotArchived(he)]]">
                             <paper-icon-button id="he-edit-btn-archive_[[getHeId(he)]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-                            <paper-tooltip offset="48" position="left" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotActive(he)]]">
                             <paper-icon-button id="he-edit-btn-active_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-                            <paper-tooltip offset="48" position="left" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotHistory(he)]]">
                             <paper-icon-button id="he-edit-btn-history_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-                            <paper-tooltip offset="24" position="left" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History',language)]]</paper-tooltip>
                         </template>
 
                         <paper-icon-button id="he-edit-btn-evlink_[[getHeId(he)]]" class="he-edit-btn" on-tap="_linkToEvidenceLinker" icon="vaadin:open-book"></paper-icon-button>
-                        <paper-tooltip position="left" for="he-edit-btn-evlink_[[getHeId(he)]]">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
 
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -295,6 +289,13 @@
                 </template>
             </paper-listbox>
         </collapse-button>
+        <div class="tooltips">
+            <paper-tooltip position="bottom" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
+            <template is="dom-if" if="[[isNotArchived(he)]]"><paper-tooltip position="bottom" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive',language)]]</paper-tooltip></template>
+            <template is="dom-if" if="[[isNotActive(he)]]"><paper-tooltip position="bottom" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip></template>
+            <template is="dom-if" if="[[isNotHistory(he)]]"><paper-tooltip position="bottom" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_ant','Add to med history',language)]]</paper-tooltip></template>
+            <paper-tooltip position="bottom" for="he-edit-btn-evlink_[[getHeId(he)]]">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
+        </div>
 
     </template>
     <script>

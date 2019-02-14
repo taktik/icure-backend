@@ -44,3 +44,7 @@ dist-tz/
 .gradle/vcsWorkingDirs/gc.properties
 test.json
 .gradletasknamecache
+bin/
+misc/
+.classpath
+.settings

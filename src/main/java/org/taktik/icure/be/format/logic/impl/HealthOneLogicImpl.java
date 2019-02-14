@@ -709,6 +709,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		String firstPat = patient.getFirstName() != null ? patient.getFirstName() : "";
 		String sexPat = patient.getGender() != null ? patient.getGender().getCode() : "";
 		String birthPat = patient.getDateOfBirth() != null ? patient.getDateOfBirth().toString().replaceAll("(....)(..)(..)","$3$2$1") : "";
+		String ssinPat = patient.getSsin() != null ? patient.getSsin() : "";
 
 		Optional<Address> a = patient.getAddresses().stream().filter(ad -> ad.getAddressType() == AddressType.home).findFirst();
 
@@ -726,6 +727,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		firstPat = firstPat.replaceAll("\n", "").replaceAll("\r", "");
 		sexPat = sexPat.replaceAll("\n", "").replaceAll("\r", "");
 		birthPat = birthPat.replaceAll("\n", "").replaceAll("\r", "");
+		ssinPat = ssinPat.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat3 = addrPat3.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat2 = addrPat2.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat1 = addrPat1.replaceAll("\n", "").replaceAll("\r", "");
@@ -738,6 +740,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		pw.print("A2\\" + ref + "\\" + namePat + "\\" + firstPat + "\\" + sexPat + "\\" + birthPat + "\\\r\n");
 		pw.print("A3\\" + ref + "\\" + addrPat1 + "\\" + addrPat2 + "\\" + addrPat3 + "\\\r\n");
 		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\" + isFull + "\\\r\n");
+		pw.print("A5\\" + ref + "\\\\" + ssinPat + "\\\\\\\\\r\n");
 
 		for (String line : text.replaceAll("\u2028", "\n").split("\n")) {
 			pw.print("L5\\" + ref + "\\DIVER\\\\\\\\\\" + line + "\\\r\n");
