@@ -35,6 +35,8 @@ interface CodeDAO : GenericDAO<Code> {
     fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
     fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Code>
     fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<*>?): PaginatedList<Code>
+    fun listCodeIdsByLabel(region: String?, language: String?, label: String?): List<String>
+    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String>
 	fun ensureValid(code : Code, ofType : String? = null, orDefault : Code? = null) : Code
 	fun isValid(code: Code, ofType: String? = null): Boolean
 	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -34,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 import org.taktik.icure.be.mikrono.MikronoLogic;
 import org.taktik.icure.dto.message.EmailOrSmsMessage;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentsDto;
 
 import java.io.IOException;
@@ -44,7 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MikronoLogicImpl implements MikronoLogic {
-	private Map<String,String> tokensPerServer;
+	private Map<String, String> tokensPerServer;
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final RestTemplate restTemplate = new RestTemplate();
 	private String applicationToken;
@@ -61,7 +63,9 @@ public class MikronoLogicImpl implements MikronoLogic {
 
 	private HttpHeaders getSuperUserHttpHeaders(String server) {
 		String plainCreds = tokensPerServer.get(server);
-		if (plainCreds == null) { return null; }
+		if (plainCreds == null) {
+			return null;
+		}
 
 		//Insert application token
 		String[] parts = plainCreds.split(":");
@@ -79,7 +83,7 @@ public class MikronoLogicImpl implements MikronoLogic {
 	}
 
 	private HttpHeaders getUserHttpHeaders(String server, String email, String userPassword) {
-		byte[] plainCredsBytes = (email+":"+userPassword).getBytes();
+		byte[] plainCredsBytes = (email + ":" + userPassword).getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
 
@@ -138,16 +142,16 @@ public class MikronoLogicImpl implements MikronoLogic {
 
 	@Override
 	public String getMikronoServer(String serverUrl) {
-		return serverUrl==null ? this.tokensPerServer.keySet().iterator().next() : serverUrl;
+		return serverUrl == null ? this.tokensPerServer.keySet().iterator().next() : serverUrl;
 	}
 
 	@Override
 	public void sendMessage(String serverUrl, String username, String userToken, EmailOrSmsMessage emailOrSmsMessage) throws IOException {
 		try {
 			serverUrl = getMikronoServer(serverUrl);
-			restTemplate.exchange(StringUtils.chomp(serverUrl,"/")+ "/rest/icure/sendMessage", HttpMethod.POST, new HttpEntity<>(emailOrSmsMessage, getUserHttpHeaders(serverUrl, username, userToken)), String.class);
+			restTemplate.exchange(StringUtils.chomp(serverUrl, "/") + "/rest/icure/sendMessage", HttpMethod.POST, new HttpEntity<>(emailOrSmsMessage, getUserHttpHeaders(serverUrl, username, userToken)), String.class);
 		} catch (HttpClientErrorException e) {
-			log.error("Error: "+e.getResponseBodyAsString(),e);
+			log.error("Error: " + e.getResponseBodyAsString(), e);
 			throw new IOException(e);
 		}
 	}
@@ -164,6 +168,23 @@ public class MikronoLogicImpl implements MikronoLogic {
 		serverUrl = getMikronoServer(serverUrl);
 		ResponseEntity<MikronoAppointmentsDto> appointmentDtosResponse = restTemplate.exchange(StringUtils.chomp(serverUrl, "/") + "/rest/icure/appointments/{userId}/{patientId}", HttpMethod.GET, new HttpEntity<>(null, getSuperUserHttpHeaders(serverUrl)), MikronoAppointmentsDto.class, ownerId, patientId);
 		return appointmentDtosResponse.getBody().getAppointments().stream().map(AppointmentDto::new).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<String> createAppointments(String serverUrl, String username, String userToken, List<AppointmentImportDto> appointments) throws IOException {
+		String finalServerUrl = getMikronoServer(serverUrl);
+		return appointments.stream().map(a -> {
+			try {
+				return restTemplate.exchange(StringUtils.chomp(finalServerUrl, "/") + "/rest/appointmentResource", HttpMethod.PUT, new HttpEntity<>(a, getUserHttpHeaders(finalServerUrl, username, userToken)), String.class).getBody();
+			} catch (HttpClientErrorException e) {
+				if (e.getStatusCode().equals(HttpStatus.FAILED_DEPENDENCY)) {
+					log.error("Customer with external ID" + a.getExternalCustomerId() + " is missing in db");
+				} else {
+					log.error(e.getMessage());
+				}
+				return e.getStatusCode()+":"+e.getMessage();
+			}
+		}).collect(Collectors.toList());
 	}
 
 }

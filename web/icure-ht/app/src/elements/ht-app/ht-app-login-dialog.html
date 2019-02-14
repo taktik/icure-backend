@@ -2,6 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="./ht-app-server-dialog.html">
 
 <dom-module id="ht-app-login-dialog">
@@ -10,6 +11,11 @@
 			paper-dialog{
 				border-radius:2px;
 			}
+            #loginDialog {
+                min-width: 256px;
+                width: 50vw;
+                max-width: 384px;
+            }
 			.top-gradient{
 				line-height:0;
 				font-size:0;
@@ -58,7 +64,7 @@
 			.server-icon {
 
 				box-sizing: border-box;
-				
+
 				height: 24px;
 				width: 24px;
 				text-align: right;
@@ -127,6 +133,24 @@
 				box-shadow: none;
 			}
 
+            .toggleOptionsBtn {
+                font-size: 12px;
+            }
+            .login-options-container {
+                transform: scaleY(0);
+                transition: .5s ease-in-out;
+                transform-origin: top;
+            }
+            .login-options-container.visible-true {
+                transform: scaleY(1);
+            }
+            .login-options {
+                display: none;
+            }
+            .login-options.visible-true {
+                display: block;
+            }
+
 		</style>
 
 		<paper-dialog id="loginDialog" opened="{{opened}}" modal>
@@ -144,17 +168,17 @@
 								 value="{{credentials.username}}" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="Password" name="password" type="password" always-float-label="true"
 								 value="{{credentials.password}}" on-keydown="checkForEnter" invalid$={{credentials.error}}></paper-input>
-					<paper-input label="2FA (optional)" name="twofa" always-float-label="true"
-								 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
+                    <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
+                                 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
 					<!-- <paper-dropdown-menu  label="Database server" vertical-align="bottom" horizontal-align="left">
 						<paper-listbox class="server-list" slot="dropdown-content" selected="{{dbServerSelected}}" selected-item="{{dbServerObject}}">
 							<paper-item data-server="http://127.0.0.1">Local</paper-item>
-							<template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">	
+							<template is="dom-repeat" items="[[dbServers]]" as="server" index-as="index">
 								<paper-item class="server-item" data-server$="[[server.url]]">
 									<div>
-										[[server.name]] 
+										[[server.name]]
 									</div>
 									<paper-icon-button noink icon="icons:clear" data-index$="[[index]]" class="server-icon" title="delete" on-click="_handleServerDelete"></paper-icon-button>
 								</paper-item>
@@ -167,10 +191,27 @@
 							</paper-item>
 						</paper-listbox>
 					</paper-dropdown-menu> -->
-					
-					<ht-app-server-dialog id="servers-list" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+                    <template is="dom-if" if="[[!showMoreOption]]">
+                        <paper-button class="toggleOptionsBtn" on-tap="_toggleMoreOption">[[localize('more_login_options','More login options',language)]]<iron-icon icon="expand-more"></iron-icon>
+                        </paper-button>
+                    </template>
+                    <template is="dom-if" if="[[showMoreOption]]">
+                        <paper-button class="toggleOptionsBtn" on-tap="_toggleMoreOption">[[localize('less_login_options','Less login options',language)]]<iron-icon icon="expand-less"></iron-icon>
+                        </paper-button>
+                    </template>
+                    <!--<template is="dom-if" if="[[showMoreOption]]">-->
+                    <div class$="login-options-container visible-[[showMoreOption]]">
+                        <div class$="login-options visible-[[showMoreOption]]">
+                            <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
+                                local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
 
-					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
+                            <ht-app-server-dialog id="fhc-servers-list" title="Free Health Connector [[localize('server', 'server', language)]]"
+                                server-name="fhc" local-url="[[defaultFhcUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
+
+                        </div>
+                    </div>
+                    <!--</template>-->
+                    <paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
 			</form>
 			<div class="taktik">
@@ -243,7 +284,11 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			disabled: {
 				type: Boolean,
 				value: false
-			}
+			},
+            showMoreOption: {
+			    type: Boolean,
+                value: false
+            }
 		};
 	}
 
@@ -252,10 +297,11 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	login() {
-	
-		const currentServerUrl = this.$["servers-list"].getSelectedServerURL()
 
-        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, url: currentServerUrl}, bubbles: true, composed: true }))
+		const currentIcureServerUrl = this.$["icure-servers-list"].getSelectedServerURL()
+		const currentFhcServerUrl = this.$["fhc-servers-list"].getSelectedServerURL()
+
+        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials, icureurl: currentIcureServerUrl, fhcurl: currentFhcServerUrl}, bubbles: true, composed: true }))
 
 	}
 
@@ -271,6 +317,10 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
         setTimeout(() => {
             this.set("credentials.username",localStorage.getItem("last_connection"))
         }, 0)
+    }
+
+    _toggleMoreOption() {
+        this.set('showMoreOption',!this.showMoreOption)
     }
 
 	disable() {

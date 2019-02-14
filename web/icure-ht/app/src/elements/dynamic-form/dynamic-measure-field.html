@@ -165,11 +165,11 @@ class DynamicMeasureField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_inputValueChanged(value) {
 		if (this.inputValue !== this.value + ' ' + this.unit) {
-			const match = /^ *([+-]?[0-9]+(?:[.,][0-9]*)?)(?: *([a-zA-Z°].*?))? *$/.exec(this.inputValue);
-			if (!this.inputValue.match(/^ *([+-]?[0-9]+(?:[.,]0*))(?: *([a-zA-Z°].*?))? *$/) /*intermediate situation*/) {
+			const match = /^ *([+-]?[0-9]+(?:[.,][0-9]*)?)(?: *([a-zA-Z°].*?))?(?: +([1-9].*?))? *$/.exec(this.inputValue);
+			if (!this.inputValue.match(/^ *([+-]?[0-9]+(?:[.,]0*))(?: *([a-zA-Z°].*?))?(?: +([1-9].*?))? *$/) /*intermediate situation*/) {
 					this.set('valueWithUnit', {
 						value: match && (match[1] ? parseFloat(match[1].replace(/([0-9]),([0-9])/, "$1.$2")) : null) || (isNaN(parseFloat(this.inputValue)) ? null : parseFloat(this.inputValue)),
-						unit: match && match[2] || null
+						unit: match && (match[2] || match[3]) || null
 					});
 					this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.valueWithUnit } }));
 				}

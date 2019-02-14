@@ -1,20 +1,32 @@
-FROM docker.taktik.be/node:1.0.4 as builder
+FROM node:8 as builder
+
+RUN mkdir -p /usr/src
+WORKDIR /usr/src
+RUN chown -R node .
+
+RUN npm install bower -g --quiet
+
+# copy env
+COPY --chown=node package* ./
+COPY --chown=node bower.json ./
+COPY --chown=node .bowerrc ./
+
+USER node
 
 # npm
-COPY --chown=node package* ./
 RUN npm install --quiet
 
 # bower
-COPY --chown=node bower.json ./
-COPY --chown=node .bowerrc ./
 RUN bower install
+
+# copy code
+COPY --chown=node tsconfig.json ./
+COPY --chown=node $wpc ./
+COPY --chown=node app app/
 
 # webpack
 ARG wpc=webpack.config.js
 ARG task=build
-COPY --chown=node tsconfig.json ./
-COPY --chown=node $wpc ./
-COPY --chown=node app app/
 RUN npm run $task
 
 FROM nginx:stable-alpine

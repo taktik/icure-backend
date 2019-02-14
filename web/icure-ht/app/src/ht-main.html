@@ -104,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.card-body {
 				display: block;
 				padding: 16px;
-				height: calc(100% - 96px);
+				height: calc(100% - 88px);
 				overflow: auto;
 				position: relative;
 			}
@@ -267,8 +267,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
-				font-size:14psx;
+				font-size:14px;
 				font-style:italic;
+			}
+
+			.patient-age {
+				color:var(--app-text-color-disabled);
+				font-weight:400;
+				font-size:14px;
+				font-style:italic;
+				text-transform: lowercase;
 			}
 
 			#latestPatientsWidget, #todaysConsultationsWidget, #latestLabResultsWidget, #todoWidget {
@@ -303,14 +311,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: var(--app-background-color);
 			}
 
-			.new-notif::after {
-				content: '';
+			h1 span.notif {
 				display: inline-block;
-				width: 7px;
-				height: 7px;
 				margin-left: 6px;
 				margin-bottom: 8px;
-				border-radius: 3.5px;
+				border-radius: 4px;
+                padding: 0 4px;
+                color: white;
 				background-color: var(--app-secondary-color);
 			}
 
@@ -325,11 +332,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-column-gap: 12px;
 					grid-row-gap: 12px;
 				}
-				
+
 				.card {
 					overflow:hidden;
 				}
-			
+
 				.card-body {
 					overflow-x: hidden;
 					overflow-y: scroll;
@@ -538,13 +545,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 42px;
 			}
 
+            @media (max-width: 880px) {
+                span.nomobile {
+                    display: none;
+                }
+            }
+
 		</style>
 
 		<div class="layout-buttons">
 			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
 			<paper-icon-button id="changeLayoutButton" icon="dashboard" on-tap="_layoutDialog"></paper-icon-button>
 			<!-- <paper-tooltip  offset="4" for="addWidgetButton">Add a widget</paper-tooltip> -->
-			<paper-tooltip  offset="4" for="changeLayoutButton">Edit layout</paper-tooltip>
+			<paper-tooltip  offset="4" for="changeLayoutButton">[[localize('edit_layout','Edit layout',language)]]</paper-tooltip>
 		</div>
 		<div id="gridContainer" class="grid-container ">
 			<template is="dom-repeat" items="{{widgets}}" as="widget">
@@ -553,23 +566,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows"  value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]"  value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="{{widget}}">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-latestpat">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('last_edi','last edit',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="accessLogs" sort="access.date">[[localize('last_edi','last edit',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
 									<div class="divider"></div>
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
@@ -583,19 +597,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-todayconsult" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-todayconsult">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell">[[localize('type','Type',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('hour','Hour',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="type">[[localize('type','Type',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="appointments" sort="startTime">[[localize('hour','Hour',language)]]</div>
 							</div>
 							<div class="consultations-list">
 								<template is="dom-repeat" items="[[appointments]]" as="appointment">
@@ -615,31 +630,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
 					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
-							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]] [[unreadCount]]</h1>
-                            <paper-icon-button icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
+							<h1 class="card-title new-notif">[[localize('latest_lab_reports','Latest Lab and Reports',language)]]
+                                <template is="dom-if" if="[[!_isEqual(unreadCount,0)]]">
+                                    <span class="notif">[[unreadCount]]<span class="nomobile"> [[localize('are_not_read','unread',language)]]</span></span>
+                                </template>
+                            </h1>
+                            <paper-icon-button id="refresh-latestlabs" icon="refresh" on-tap="_updateLabResults"></paper-icon-button>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-latestlabs" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
-									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="refresh-latestlabs">[[localize('refresh','Refresh',language)]]</paper-tooltip>
+                            <paper-tooltip for="settings-latestlabs">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell">[[localize('pat_ident','Patient',language)]]</div>
-								<div class="card-header-cell lab-name">[[localize('boxtitle.labResult','Laboratory',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('sender','sender',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[result.readStatus]]">[[result.patient.name]]</div>
-									<div class="card-table-cell lab-name">[[result.descr]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patientName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
-							<ht-spinner class="spinner" active=[[_isLoadingLatestLabResults]]"></ht-spinner>
+							<ht-spinner class="spinner" active=[[isLoadingLabResults]]></ht-spinner>
 						</div>
 					</div>
 				</template>
@@ -648,19 +668,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
 							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
+								<paper-icon-button id="settings-todo" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
-									<paper-input type="number" min="1" always-float-label label="Nr of columns" value="{{widget.nrCols}}"></paper-input>
-									<paper-input type="number" min="1" always-float-label label="Nr of rows" value="{{widget.nrRows}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
+									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_row','Nr of rows',language)]]" value="{{widget.nrRows}}"></paper-input>
 									<!-- <paper-button on-tap="_handleWidgetChange" data-item$="[[widget]]">Apply settings</paper-button> -->
 								</div>
 							</paper-menu-button>
+                            <paper-tooltip for="settings-todo">[[localize('settings','Settings',language)]]</paper-tooltip>
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
-								<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date',language)]]</div>
-								<div class="card-header-cell">[[localize('des','Description',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="services" sort="service.valueDate">[[localize('due_dat','Due date',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="service.content.language.stringValue">[[localize('des','Description',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[services]]" as="service">
 								<paper-listbox>
@@ -688,7 +709,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</div>
 
 		<paper-dialog id="layoutDialog">
-			<h2 class="modal-title">Edit layout</h2>
+			<h2 class="modal-title">[[localize('edit_layout','Edit layout',language)]]</h2>
 			<div class="content">
 				<div id="layoutA" class$="layout-button layout-a [[_isSelected(selectedLayout, 'layoutA')]]" on-tap="setSelectedLayout">
 					<span style="--area:latestPatientsWidget;"></span>
@@ -717,7 +738,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" on-tap="setFromSavedLayout" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('apply','Apply',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" on-tap="saveSelectedLayout" dialog-dismiss>[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
@@ -823,7 +844,15 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				],
 				notify: true,
 				observers: this._applySettings,
-			}
+			},
+            isLoadingLabResults: {
+			    type: Boolean,
+                value: false
+            },
+            unreadCount: {
+			    type: Number,
+                value: 0
+            }
 		};
 	}
 
@@ -849,11 +878,30 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     }
 
+    _sortList(e) {
+	    const list = e.target.getAttribute('list')
+        const sort = e.target.getAttribute('sort')
+        const target =
+            list == 'accessLogs' ? this.accessLogs :
+            list == 'appointments' ? this.appointments :
+            list == 'labResults' ? this.labResults :
+            list == 'services' ? this.services :
+            []
+        const dir = sort =='created' || sort =='startTime' || sort == 'service.valueDate' || sort == 'access.date' ?
+            'desc' : 'asc'
+        const ordered = _.orderBy(target,sort,dir)
+        this.set(list,ordered)
+    }
+
+    replaceAll(target,search, replacement) {
+        return target.split(search).join(replacement);
+    }
+
     apiReady() {
 		if (!this.user || !this.api) { return }
 
 		this._isLoadingLatestPatients = true;
-        this.set('_isLoadingLatestLabResults',true)
+        this.set('isLoadingLabResults',true)
 		this._isLoadingTodaysConsultations = true;
 		this._isLoadingToDoList = true;
 		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -930,37 +978,85 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		});
 	}
 
-	_updateLabResults() {
-	    console.log('update Lab Results')
-        this.set('_isLoadingLatestLabResults',true)
-        this.api.contact().getServiceCodesOccurences('labResult',0).then(occurences=>{
-            let occurList = []
-            occurences.map(occurence=>occurList.push(occurence.label))
-            return occurList
-        }).then((occurList)=>{
-            return this.api.contact().getContactsWithUser(this.user,{ids:occurList}).then(cs=>{
-                let resList = []
-                cs.forEach(c=>{
-                    console.log('c',c)
-                    const svc = c.services.filter(s=> s.label==='labResult')
-                    resList.push({
-                        patient: {name: svc[0].content.patientName ? svc[0].content.patientName.stringValue : 'no patient or test',id: svc[0].content.patientId ? svc[0].content.patientId.stringValue : '0'},
-                        created: c.created,
-                        descr: c.descr,
-                        readStatus: 'unread'
+    _updateLabResults() {
+        console.log('update Lab Results')
+        this.set('isLoadingLabResults', true)
+        const start = Number(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'))
+        const labsFilter = {
+            '$type': 'UnionFilter',
+            'filters': [
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'labresult',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'report',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+            ]
+        }
+        this.api.contact().filterServicesBy(null, null, 50, new models.FilterChain({filter: labsFilter}))
+            .then(services => {
+                return Promise.all(services.rows.map(s => this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, document.id, s.cryptedForeignKeys).then(({extractedKeys: cfks}) => [s, cfks])))
+                    .then(cfksLists => this.api.patient().filterByWithUser(this.user, null, null, 50, null, null, null, {
+                        filter: {
+                            '$type': 'PatientByIdsFilter',
+                            'ids': _.uniqBy(_.compact(_.flatMap(cfksLists.map(x => x[1]))))
+                        }
+                    }).then(pats =>
+                        cfksLists.map(x => {
+                            const pat = pats.rows.find(p => x[1].includes(p.id))
+                            return ({
+                                patient: pat,
+                                created: x[0].valueDate,
+                                patientName: pat.firstName + ' ' + pat.lastName,
+                                contactId: x[0].contactId,
+                                descr: (this.api.contact().preferredContent(x[0], this.language) || {}).stringValue
+                            })
+                        })
+                    ))
+            })
+            .then(results => {
+                this.set('labResults', _.orderBy(results, 'created', 'desc') || [])
+                return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
+                    .then(messages => {
+                        this.set('unreadCount', _.filter(messages.rows, m => {
+                            return ((m.status & (1 << 1)) !== 0) && (
+								(m.assignedResults && Object.keys(m.assignedResults).length)
+								|| (m.unassignedResults && m.unassignedResults.length)
+							)
+                        }).length)
+                        this.messagesByContactId = {}
+                        messages.rows && messages.rows.forEach (mes => {
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(conid => {
+                                this.messagesByContactId[conid] = mes
+							})
+                        })
                     })
-                })
-                let unreadCount = 0
-                resList.forEach(res=>{if(res.readSatus === 'unread') unreadCount+= 1})
-                this.set('unreadCount',unreadCount)
-                this.set('_isLoadingLatestLabResults',false)
-                return _.sortBy(resList,'created').reverse()
-            }).then(resList=> this.set('labResults',resList || []))
-        })
+            })
+            .finally(() => {
+                this.set('isLoadingLabResults', false)
+            })
+    }
+
+    _isUnreadResult(res) {
+	    return this.messagesByContactId && this.messagesByContactId[res.contactId] && ((this.messagesByContactId[res.contactId].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {
 		return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+	}
+
+	_ageFormat(date) {
+		if(this.language) {
+			return this.api.getCurrentAgeFromBirthDate(date, (id,placeholder) => this.localize(id,placeholder,this.language))
+		}
 	}
 
 	_shortTimeFormat(date) {
@@ -990,18 +1086,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
+		if (target.dataset.id != '0') location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
-
-	// openLabResult(ev) {
-	// 	let target = ev.target;
-    //     while (target && !target.dataset.id) {
-    //         target = target.parentNode;
-    //     }
-	// 	console.log(target)
-    //     console.log(target.dataset.id)
-	// 	// location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
-	// }
 
 	_layoutDialog(e){
 		e.stopPropagation()
@@ -1015,7 +1101,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_dragWidgetOver(e){
-		e.preventDefault()	
+		e.preventDefault()
 		return false
 	}
 
@@ -1162,9 +1248,9 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const currentWidget = this.widgets[index];
 
 			if(
-				currentWidget.nrCols != newWidget.nrCols || 
+				currentWidget.nrCols != newWidget.nrCols ||
 				currentWidget.nrRows != newWidget.nrRows ||
-				currentWidget.posCol != newWidget.posCol || 
+				currentWidget.posCol != newWidget.posCol ||
 				currentWidget.posRow != newWidget.posRow
 			) {
 
@@ -1220,7 +1306,7 @@ class GridLayout {
 
 					for( let colIndex = 0; colIndex < widget.nrCols; colIndex++ ) {
 
-							this.grid[widget.posRow + rowIndex][widget.posCol + colIndex] = widget.id
+                        this.grid[widget.posRow + rowIndex] && (this.grid[widget.posRow + rowIndex][widget.posCol + colIndex] = widget.id)
 
 					}
 
@@ -1327,7 +1413,7 @@ class GridLayout {
 			widget.posCol -= widget.nrCols - (minRightSpace + 1)
 
 			return widget
-				
+
 
 		}
 
@@ -1365,7 +1451,7 @@ class GridLayout {
 
 	}
 
-	setFromStorage(user, widgets) { 
+	setFromStorage(user, widgets) {
 
 		const savedGridLayout = localStorage.getItem(`org.taktik.icure.${user.id}.settings.main.grid`)
 
@@ -1415,7 +1501,7 @@ class GridLayout {
 	}
 
 	setGridSize(layout = this.layout) {
-		
+
 		switch (layout) {
 			case 'layoutA':
 				this.cols = 2;
@@ -1446,14 +1532,14 @@ class GridLayout {
 		this.layout = layout
 
 		return this;
-	} 
+	}
 
 	setLayoutFromSize(size) {
 
 		if( size >= 950 ){
-			
+
 			if( this.layout == 'layoutTab' || this.layout == 'layoutMobile') {
-			
+
 				this.setGridSize('layoutA')
 				return true
 

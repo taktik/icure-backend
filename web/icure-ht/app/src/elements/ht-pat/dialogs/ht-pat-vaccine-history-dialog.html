@@ -13,14 +13,24 @@
                 justify-content: space-between;
                 height: 60vh;
                 max-height: none !important;
-                width: 80vw;
-                max-width: 800px;
+                width: 90vw;
+                max-width: none !important;
                 position: fixed;
-                top: 50%;
-                left: 50%;
+                top: 50vh;
+                left: 50vw;
                 transform: translate(-50%,-50%);
                 overflow: hidden;
+                margin: 0;
             }
+            h2 {
+                min-height: 24px;
+            }
+            h3.err {
+                text-align: center;
+                margin-top: 10%;
+                color: var(--app-error-color);
+            }
+
             .view {
                 display: block;
                 flex-grow: 1; /* I don't believe it works with block */
@@ -60,8 +70,8 @@
                 padding: 0;
                 font-size: 12px;
                 line-height: 0.8;
-                background: white;
                 border: 0;
+                cursor: help;
             }
             .view .item.title > div:nth-child(3) > div {
                 border-left: 1px solid var(--app-background-color-dark);
@@ -75,9 +85,12 @@
                 overflow: hidden;
                 background: var(--app-background-color);
             }
-            .view .item.title > .vacc:nth-child(2n) > div,
-            .view .item.entry > .vacc:nth-child(2n){
+            .view .item.title > .vacc:nth-child(odd) > div,
+            .view .item.entry > .vacc:nth-child(odd){
                 background: var(--app-background-color-dark);
+            }
+            .view .item.title > .vacc:nth-child(even) > div {
+                border-right: 1px solid var(--app-background-color-dark);
             }
             .view .item.title > .vacc:hover > div {
                 overflow: initial;
@@ -104,15 +117,18 @@
                 padding: 0 12px;
                 box-sizing: border-box;
             }
+            .view .item.title div {
+                border: 0;
+            }
             .view .item.entry {
                 height: 64px;
                 line-height: 64px;
             }
             div.time {
-                min-width: 15%;
+                width: 15%;
             }
             div.name {
-                min-width: 50%;
+                width: 50%;
             }
             div.time, div.name {
                 font-weight: bold;
@@ -120,12 +136,21 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-            div.button {
-                border-top: 1px solid var(--app-background-color-dark);
-                justify-content: flex-end;
-            }
             paper-button {
                 color: #000;
+            }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
+            @media screen and (max-width: 1025px) {
+                #dialog {
+                    margin: 0;
+                    width: 80vw;
+                }
             }
         </style>
 
@@ -134,13 +159,16 @@
             <div class="view">
                 <div class="item title">
                     <div class="time">[[localize('dat','Date',language)]]</div>
-                    <div class="name">[[localize('cdItemVaccine','Vaccine',language)]]</div>
+                    <div class="name">[[localize('commercial_name','Commercial name',language)]]</div>
                     <template is="dom-repeat" items="[[allVaccines]]" as="allvac">
                         <div class="vacc">
                             <div><span>[[_getVaccNameFromThes(allvac)]]</span></div>
                         </div>
                     </template>
                 </div>
+                <template is="dom-if" if="[[!vaccines.length]]">
+                    <h3 class="err"><iron-icon icon="warning"></iron-icon> [[localize('no_hist','No history',language)]] !</h3>
+                </template>
                 <template is="dom-repeat" items="[[vaccines]]">
                     <div class="item entry">
                         <div class="time">[[item.date]]</div>
@@ -154,7 +182,7 @@
                 </template>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
@@ -211,7 +239,7 @@
             }
 
             static get observers() {
-                return ['setList(contacts)']
+                return ['setList(contacts)','getAllVaccFromThesaurus(vaccines)']
             }
 
             constructor() {
@@ -220,33 +248,29 @@
 
             ready() {
                 super.ready();
-                this.getAllVaccFromThesaurus()
             }
 
             setList(){
                 if(!(this.contacts && this.contacts.length)) return;
                 this.api.contact().filterServices(this.contacts,s => s.label==='Actes').then(services =>{
                     let vaccines = []
-                    services.forEach(svc=>{Object.keys(svc.tags).forEach(k=>{if (svc.tags[k].code == 'vaccine') {
-                        console.log('is vaccine',svc)
-                        let thesCode = '0'
-                        Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
-                        const vacc = {
-                            name: this._getName(svc),
-                            date: this._timeFormat(svc.valueDate),
-                            status: this._getStatut(svc),
-                            code: thesCode
-                        }
-                        // if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
-                        vaccines.push(vacc) // WIP test
-                    }})})
-                    this.set("vaccines",_.sortBy(vaccines,["valueDate"]))
-                    console.log('vaccines',this.vaccines)
+                    services.forEach(svc=>{
+                        Object.keys(svc.tags).forEach(k=>{
+                            if (svc.tags[k].code == 'vaccine') {
+                                let thesCode = '0'
+                                Object.keys(svc.codes).forEach(c=>{if(svc.codes[c].type == "BE-THESAURUS-PROCEDURES") {thesCode = svc.codes[c].code}})
+                                const vacc = {name: this._getName(svc),intDate:svc.valueDate, date: this._timeFormat(svc.valueDate),status: this._getStatut(svc),code: thesCode}
+                                if (vacc.status == 'Fait' || vacc.status == 'Geëxecuteerd' || vacc.status == 'Done') vaccines.push(vacc)
+                            }
+                        })
+                    })
+                    this.set("vaccines",_.orderBy(vaccines,'intDate','desc'))
                 })
             }
 
             _getName(svc){
-                return svc && svc.content['medication'] ? svc.content['medication'].medicationValue.medicinalProduct.intendedname : (svc.content[this.language] ? svc.content[this.language].stringValue : svc.content['en'] ? svc.content['en'].stringValue : 'no name')
+                const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
+                return (content && content.medicationValue && content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname) || this.localize('obs_val','obsolete value',this.language)
             }
             _timeFormat(date) {
                 return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY' : 'DD/MM/YYYY') || '';
@@ -257,18 +281,13 @@
 
             getAllVaccFromThesaurus() {
                 let allVacc = []
-                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', null, null, null, 50).then(results => {
-                    console.log('findPaginatedCodes',results.rows)
+                this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', this.language || 'en', 'vaccin', null, null, 100).then(results => {
                     let tempVacc = []
-                    results.rows.map(th=>{
-                        tempVacc.push({code:th.code,label:th.label,links:th.links})
-                    })
+                    results.rows.map(th=>{this.vaccines.forEach(v=>{if (v.code == th.code && (tempVacc.indexOf(th) < 0)) tempVacc.push(th)})})
                     this.set('allVaccines', _.sortBy(tempVacc,'code'))
-                    console.log('getAllVaccFromThesaurus',this.allVaccines)
                 })
             }
             _getVaccNameFromThes(vac) {
-                console.log('_getVaccNameFromThes',vac)
                 return vac.label[this.language] ? vac.label[this.language]+` (${vac.code})` : vac.label[0] ? vac.label[0]+` (${vac.code})` : 'no name'
             }
             isMatching(a,b) {

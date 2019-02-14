@@ -71,6 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-direction: column;
                 border-left: 1px solid var(--app-background-color-dark);
                 background-color: var(--app-background-color-light);
+                padding: 0;
             }
 
             .display-left-menu{
@@ -99,6 +100,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ht-msg-list.selected {
                 width: 152vw;
+            }
+
+            ht-msg-menu{
+                z-index : 1;
+            }
+
+            ht-msg-invoice#invoicingForm {
+                z-index : 10;
             }
 
             @media screen and (max-width:1025px){
@@ -169,11 +178,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  on-selection-messages-change="handleMessageChange"
-                                 class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-list>
+                                 id="msg-list" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
-                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" selected-message="[[selectedMessage]]" on-msg-detail-closed="_updateListElementsSize" on-item-delete="handleRefreshlist"
+                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -266,10 +275,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+                this._inbox()
             }
 
             _selectedElem(e) {
                 return (e) ? 'selected' : ''
+            }
+
+            _inbox() {
+                this.$['msg-menu'].dispatchEvent(new CustomEvent('selection-change',{detail:{selection:{item:'inbox'}}})) // select inbox
             }
 
             handleMenuChange(e) {
@@ -279,7 +293,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',false)
                     this.set('invoicesStatus', e.detail.selection.status)
-                    setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
+                    setTimeout(() =>{
+                        this.shadowRoot.querySelector("#msg-invoice").reset()
+                        this.shadowRoot.querySelector("#msg-invoice").getMessage()
+                    },0)
 
                 } else if (e.detail && e.detail.selection.item === 'e_flatrateinvOut') {
                     this.set('invoicesLayout', false)
@@ -304,7 +321,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleMessageChange(e) {
-                this.set('selectMessage', e.detail)
+                this.set('selectedMessage', e.detail && e.detail.selection && e.detail.selection.item)
+                this._updateListElementsSize()
+            }
+
+            _updateListElementsSize() {
+                const msgList = this.shadowRoot.querySelector('#msg-list')
+                msgList && msgList.updateGridElementsSize()
             }
 
 			handleRefreshlist(e) {

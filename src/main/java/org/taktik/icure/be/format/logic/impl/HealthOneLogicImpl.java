@@ -105,8 +105,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
 	*/
 	@Override
-	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException {
-		String text = decodeRawData(doc.getAttachment());
+	public Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException {
+		String text = decodeRawData(doc.decryptAttachment(enckeys));
 		if (text != null) {
 			Reader r = new StringReader(text);
 
@@ -128,8 +128,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		String line;
 		BufferedReader reader = new BufferedReader(r);
 		LaboLine ll = null;
-		int position = 0;
-		while ((line = reader.readLine()) != null) {
+		long position = 0;
+		while ((line = reader.readLine()) != null && position < 10_000_000L /* ultimate safeguard */) {
 			position++;
 			if (isLaboLine(line)) {
 				if (ll != null) {
@@ -173,7 +173,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private void createServices(LaboLine ll, String language, int position) {
+	private void createServices(LaboLine ll, String language, long position) {
 		if (ll.labosList.size() > 0) {
 			ll.services.addAll(importLaboResult(language, ll.labosList, position, ll.ril));
 			ll.labosList.clear();
@@ -185,7 +185,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 
-	private Service importProtocol(String language, List protoList, int position, ResultsInfosLine ril) {
+	private Service importProtocol(String language, List protoList, long position, ResultsInfosLine ril) {
 		String text = ((ProtocolLine) protoList.get(0)).text;
 		for (int i = 1; i < protoList.size(); i++) {
 			text += "\n" + ((ProtocolLine) protoList.get(i)).text;
@@ -201,11 +201,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private List<Service> importLaboResult(String language, List labResults, int position, ResultsInfosLine ril) {
+	private List<Service> importLaboResult(String language, List labResults, long position, ResultsInfosLine ril) {
 		List<Service> result = new ArrayList<>();
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
-			String comment = null;
+			String comment;
 			if (tryToGetValueAsNumber(lrl.value) != null) {
 				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
 				comment = lrl2.value;
@@ -247,7 +247,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private List<Service> addLaboResult(LaboResultLine lrl, String language, int position, ResultsInfosLine ril, String comment) {
+	private List<Service> addLaboResult(LaboResultLine lrl, String language, long position, ResultsInfosLine ril, String comment) {
 		List<Service> result = new ArrayList<>();
 		Double d = tryToGetValueAsNumber(lrl.value);
 		if (d != null) {
@@ -259,7 +259,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return result;
 	}
 
-	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, int position, ResultsInfosLine ril) {
+	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, long position, ResultsInfosLine ril) {
 		String value = lrl.value + " " + lrl.unit;
 		if (lrl.referenceValues.trim().length() > 0) {
 			value += " (" + lrl.referenceValues + " )";
@@ -276,7 +276,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, int position, ResultsInfosLine ril, String comment) {
+	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
 		Measure m = new Measure();
 
 		m.setValue(d);
@@ -369,19 +369,24 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	@Override
-	public List<ResultInfo> getInfos(Document doc) throws IOException {
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
-		BufferedReader br = getBufferedReader(doc);
-		String line;
+		BufferedReader br = getBufferedReader(doc, enckeys);
+		long position = 0;
 
-		while ((line = br.readLine()) != null) {
+		String line = br.readLine();
+		while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+			position++;
 			if (isLaboLine(line)) {
 				LaboLine ll = getLaboLine(line);
 
 				ResultInfo ri = new ResultInfo();
+
 				ri.setLabo(ll.getLabo());
 
-				while ((line = br.readLine()) != null) {
+				line = br.readLine();
+				while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+					position++;
 					if (isPatientLine(line)) {
 						PatientLine p = getPatientLine(line);
 
@@ -403,6 +408,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						}
 					} else if (isResultsInfosLine(line)) {
 						ResultsInfosLine r = getResultsInfosLine(line);
+						ll.ril = r;
 						if (r != null) {
 							ri.setComplete(r.complete);
 							ri.setDemandDate(r.demandDate.toEpochMilli());
@@ -413,17 +419,42 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 							ri.setSsin(p.ssin);
 						}
 					} else if (isProtocolLine(line)) {
-						ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1"));
-						break;
+						if (ri.getCodes().size() == 0) { ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1")); }
+						if (full) {
+							ProtocolLine lrl = getProtocolLine(line);
+							if (lrl != null) {
+								if (ll.protoList.size() > 20 && !lrl.code.equals((ll.protoList.get(ll.protoList.size() - 1)).code)) {
+									createServices(ll, language, position);
+								}
+								ll.protoList.add(lrl);
+							}
+						}
 					} else if (isLaboResultLine(line)) {
-						ri.getCodes().add(new Code("CD-TRANSACTION", "labresult", "1"));
+						if (ri.getCodes().size() == 0) { ri.getCodes().add(new Code("CD-TRANSACTION", "labresult", "1")); }
+						if (full) {
+							LaboResultLine lrl = getLaboResultLine(line, ll);
+							if (lrl != null) {
+								if (ll.labosList.size() > 0 && !lrl.analysisCode.equals(ll.labosList.get(0).analysisCode)) {
+									createServices(ll, language, position);
+								}
+								ll.labosList.add(lrl);
+							}
+						}
+					} else if (isLaboLine(line)) {
 						break;
 					}
+					line = br.readLine();
+				}
+				if (full) {
+					createServices(ll, language, position);
+					ri.setServices(ll.getServices());
 				}
 				if (ri.getProtocol()==null ||ri.getProtocol().length()==0) {
 					ri.setProtocol("***"+ri.getDemandDate());
 				}
 				l.add(ri);
+			} else {
+				line = br.readLine();
 			}
 		}
 		br.close();
@@ -678,6 +709,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		String firstPat = patient.getFirstName() != null ? patient.getFirstName() : "";
 		String sexPat = patient.getGender() != null ? patient.getGender().getCode() : "";
 		String birthPat = patient.getDateOfBirth() != null ? patient.getDateOfBirth().toString().replaceAll("(....)(..)(..)","$3$2$1") : "";
+		String ssinPat = patient.getSsin() != null ? patient.getSsin() : "";
 
 		Optional<Address> a = patient.getAddresses().stream().filter(ad -> ad.getAddressType() == AddressType.home).findFirst();
 
@@ -695,6 +727,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		firstPat = firstPat.replaceAll("\n", "").replaceAll("\r", "");
 		sexPat = sexPat.replaceAll("\n", "").replaceAll("\r", "");
 		birthPat = birthPat.replaceAll("\n", "").replaceAll("\r", "");
+		ssinPat = ssinPat.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat3 = addrPat3.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat2 = addrPat2.replaceAll("\n", "").replaceAll("\r", "");
 		addrPat1 = addrPat1.replaceAll("\n", "").replaceAll("\r", "");
@@ -707,6 +740,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		pw.print("A2\\" + ref + "\\" + namePat + "\\" + firstPat + "\\" + sexPat + "\\" + birthPat + "\\\r\n");
 		pw.print("A3\\" + ref + "\\" + addrPat1 + "\\" + addrPat2 + "\\" + addrPat3 + "\\\r\n");
 		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\" + isFull + "\\\r\n");
+		pw.print("A5\\" + ref + "\\\\" + ssinPat + "\\\\\\\\\r\n");
 
 		for (String line : text.replaceAll("\u2028", "\n").split("\n")) {
 			pw.print("L5\\" + ref + "\\DIVER\\\\\\\\\\" + line + "\\\r\n");
@@ -731,8 +765,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	@Override
-	public boolean canHandle(Document doc) throws IOException {
-		BufferedReader br = getBufferedReader(doc);
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
+		BufferedReader br = getBufferedReader(doc, enckeys);
 
 		String firstLine = br.readLine();
 		br.close();

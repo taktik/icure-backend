@@ -1,5 +1,6 @@
 /* webpack.config.js */
 
+var WebpackAutoInject = require('webpack-auto-inject-version')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var OfflinePlugin = require('offline-plugin')
@@ -38,10 +39,9 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
-
 				        options: {
 				        	/*presets: ['es2015'],*/
-					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
 				        }
 			        },
 			        {
@@ -52,7 +52,12 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-                use: [{loader: 'babel-loader', options: {plugins: ['syntax-dynamic-import']}}],
+                use: [{
+                        loader: 'babel-loader',
+                        options: {
+                            plugins: ['syntax-dynamic-import']
+                        }
+                    }],
                 exclude: /(node_modules|bower_components)/
             },
             {
@@ -75,23 +80,30 @@ module.exports = {
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
-        new OfflinePlugin({
-            // Unless specified in webpack's configuration itself
-            publicPath: '/',
-
-            appShell: '/',
-            externals: [
-                '/'
-            ]
-        })
-        ,
-        // This plugin will generate an index.html file for us that can be use
-        // by the Webpack dev server. We can give it a template file (written in EJS)
-        // and it will handle injecting our bundle for us.
+        new WebpackAutoInject({
+            components: {
+                AutoIncreaseVersion: false
+            }
+        }),
         new HtmlWebpackPlugin({
             inject: false,
 	        debug: true,
             template: path.resolve(__dirname, 'app/index.tz.ejs'),
+        }),
+        new OfflinePlugin({
+            // Unless specified in webpack's configuration itself
+            publicPath: '/',
+            autoUpdate: 1000*60*30,
+            appShell: '/',
+            externals: [
+                '/'
+            ],
+            excludes: [
+                'docs/*.pdf','app/docs/*.pdf'
+            ],
+            ServiceWorker: {
+                events: true
+            }
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST
@@ -99,6 +111,9 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
+        },{
+            from : path.resolve(__dirname, 'app/docs/*.pdf'),
+            to: 'docs/[name].[ext]'
         }]),
         new Clean(['dist-tz']),
     ],

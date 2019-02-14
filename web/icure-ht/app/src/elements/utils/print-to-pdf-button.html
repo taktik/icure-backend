@@ -87,8 +87,7 @@ class PrintToPdfButton extends Polymer.TkLocalizerMixin(Polymer.Element) {
 </head>
 <body>
 ${el.outerHTML}
-</body></html>`)
-          .then(data =>{
+</body></html>`) .then(({pdf:data}) =>{
               let blob = new Blob([data],{type :'application/pdf'});
 
               let url = window.URL.createObjectURL(blob)

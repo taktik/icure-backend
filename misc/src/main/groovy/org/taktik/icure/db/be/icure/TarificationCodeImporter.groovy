@@ -94,7 +94,7 @@ class TarificationCodeImporter extends Importer {
             "a_partir_du_18eme_anniversaire_avec_regime_preferentiel"                                                                                                                                                           : "major_preferentialstatus",
             "a_partir_du_18eme_anniversaire"                                                                                                                                                                                    : "major",
             "chez_les_nouveau_nes_et_les_nourrissons_de_moins_de_6_mois_sans_regime_preferentiel"                                                                                                                               : "no_preferentialstatus_child-6m",
-            "ntervention_sans_regime_preferentiel_prestataire_conventionne_a_taux_exceptionnel"                                                                                                                                 : "no_preferentialstatus_convention",
+            "intervention_sans_regime_preferentiel_prestataire_conventionne_a_taux_exceptionnel"                                                                                                                                 : "no_preferentialstatus_convention",
             "sans_regime_preferentiel_prestataire_conventionne_montant_arrondi_par_unite"                                                                                                                                       : "no_preferentialstatus_convention",
             "sans_regime_preferentiel_prestataire_conventionne_montant_non_arrondi_par_unite"                                                                                                                                   : "no_preferentialstatus_convention",
             "sans_regime_preferentiel_prestataire_conventionne"                                                                                                                                                                 : "no_preferentialstatus_convention",
@@ -148,7 +148,8 @@ class TarificationCodeImporter extends Importer {
             "avec_regime_preferentiel_a_50_"                                                                                                                                                                                    : "preferentialstatus",
             "avec_regime_preferentiel_a_75_"                                                                                                                                                                                    : "preferentialstatus",
             "avec_regime_preferentiel_a_90_"                                                                                                                                                                                    : "preferentialstatus",
-            "avec_regime_preferentiel_des_qui_consultent_un_medecin_specialiste_apres_avoir_ete_envoyes_par_un_medecin_generale"                                                                                                : "preferentialstatus",
+            "sans_regime_preferentiel_des_qui_consultent_un_medecin_specialiste_apres_avoir_ete_envoyes_par_un_medecin_generale"                                                                                                : "no_preferentialstatus_sentbygp",
+            "avec_regime_preferentiel_des_qui_consultent_un_medecin_specialiste_apres_avoir_ete_envoyes_par_un_medecin_generale"                                                                                                : "preferentialstatus_sentbygp",
             "avec_regime_preferentiel_fonction_agreee_de_soins_intensifs"                                                                                                                                                       : "preferentialstatus",
             "avec_regime_preferentiel_montant_fixe"                                                                                                                                                                             : "preferentialstatus",
             "avec_regime_preferentiel_pas_de_prestations_dans_l_annee_calendrier_precedent"                                                                                                                                     : "preferentialstatus",
@@ -244,7 +245,7 @@ class TarificationCodeImporter extends Importer {
             "sans_regime_preferentiel_enfant_avant_le_10eme_anniversaire_avec_sans_dmg_a_partir_du_10eme_jusqu_a_son_75eme_anniversaire_avec_dmg_ou_a_partir_du_75eme_anniversaire_avec_sans_dmg_malade_chronique_avec_sans_dmg": "no_preferentialstatus_child-120m,no_preferentialstatus_regular_dmg,no_preferentialstatus_old,no_preferentialstatus_chronical"
     ]
 
-    Map<String, TarificationCodeInfo> tarficationInfos = new HashMap<>()
+    Map<String, TarificationCodeInfo> tarificationInfos = new HashMap<>()
 
     class TarificationCodeInfo {
         String code
@@ -263,7 +264,7 @@ class TarificationCodeImporter extends Importer {
         this.couchdbConfig = couchdbConfig ? dbInstance.createConnector(couchdbConfig, false) : null
 
         Security.addProvider(new BouncyCastleProvider())
-        this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarficationInfos[it.code] = it } }
+        this.getClass().getResourceAsStream("prescriberRelatedCodes.json").withReader("UTF8") { new Gson().fromJson(it, new TypeToken<ArrayList<TarificationCodeInfo>>() {}.type).each { this.tarificationInfos[it.code] = it } }
     }
 
     TarificationCodeImporter(dbprotocol, dbhost, dbport, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig, username, password, lang) {
@@ -330,7 +331,7 @@ class TarificationCodeImporter extends Importer {
     }
 
     def splitTextKey(String key) {
-        def filtersMap = [preferentialstatus: "any", trainee: "any", child: "any", major: "any", old: "any", regular: "any", dmg: "any", chronical: "any", convention: "any"]
+        def filtersMap = [preferentialstatus: "any", trainee: "any", child: "any", major: "any", old: "any", regular: "any", dmg: "any", chronical: "any", convention: "any", sentbygp: "any"]
         "${key}_".eachMatch("(no_)?(.+?)_") { _0, _1, _2 ->
 
             if (_2.startsWith("child-")) {
@@ -348,7 +349,7 @@ class TarificationCodeImporter extends Importer {
         return filtersMap
     }
 
-    def doScan(File root, String type, List<Tarification> newCodes = null) {
+    def doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
         def YEAR = 2019
 
         def codes = newCodes ?: []
@@ -379,37 +380,43 @@ class TarificationCodeImporter extends Importer {
             def rei = ['02', '03', '04', '06']
             def tm = ['05']
 
+            def treated = [:]
+
             def groups = [
                     Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
-                    Full: ['Accouchements - accoucheuses', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1 bis', 'Prestations techniques urgentes - Article 26, §1 et 1 ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés']
-                    //Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Bandages, ceintures et protheses des seins', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radio-isotopes', 'Radiodiagnostic', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
+                    Full: ['Accouchements - accoucheuses', 'Bandages, ceintures et protheses des seins', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radio-isotopes', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
+                    //Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
             ]
 
             new File(root, 'NOMEN_SUMMARY_EXT.xml').withInputStream {
                 new XmlSlurper().parse(it).NOMEN_SUMMARY_EXT.each { e ->
-                    def r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = [id: e.nomen_grp_n.text(), fr: e.nomen_grp_n_desc_fr.text(), nl: e.nomen_grp_n_desc_nl.text(), tarifications: []])
 
-                    r.tarifications << (tarifications[e.nomen_code.text()] = [
-                            id           : e.nomen_code.text(),
-                            amb          : e.ambhos_pat_cat.text() != "2",
-                            startCode    : Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text()),
-                            fr           : e.nomen_desc_fr.text(),
-                            nl           : e.nomen_desc_nl.text(),
-                            rubric       : r,
-                            letter1      : e.key_letter1.text(),
-                            letter_index1: e.key_letter_index1.text(),
-                            coeff1       : e.key_coeff1.text(),
-                            letter1_value: e.key_letter1_value.text(),
-                            letter2      : e.key_letter2.text(),
-                            letter_index2: e.key_letter_index2.text(),
-                            coeff2       : e.key_coeff2.text(),
-                            letter2_value: e.key_letter2_value.text(),
-                            letter3      : e.key_letter3.text(),
-                            letter_index3: e.key_letter_index3.text(),
-                            coeff3       : e.key_coeff3.text(),
-                            letter3_value: e.key_letter3_value.text(),
-                            valorisations: []
-                    ])
+                    if (!treated[e.nomen_code.text()] && (subset == null || subset.contains(e.nomen_code.text()))) {
+                        treated[e.nomen_code.text()] = true
+                        def r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = [id: e.nomen_grp_n.text(), fr: e.nomen_grp_n_desc_fr.text(), nl: e.nomen_grp_n_desc_nl.text(), tarifications: []])
+
+                        r.tarifications << (tarifications[e.nomen_code.text()] = [
+                                id           : e.nomen_code.text(),
+                                amb          : e.ambhos_pat_cat.text() != "2",
+                                startCode    : Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text()),
+                                fr           : e.nomen_desc_fr.text(),
+                                nl           : e.nomen_desc_nl.text(),
+                                rubric       : r,
+                                letter1      : e.key_letter1.text(),
+                                letter_index1: e.key_letter_index1.text(),
+                                coeff1       : e.key_coeff1.text(),
+                                letter1_value: e.key_letter1_value.text(),
+                                letter2      : e.key_letter2.text(),
+                                letter_index2: e.key_letter_index2.text(),
+                                coeff2       : e.key_coeff2.text(),
+                                letter2_value: e.key_letter2_value.text(),
+                                letter3      : e.key_letter3.text(),
+                                letter_index3: e.key_letter_index3.text(),
+                                coeff3       : e.key_coeff3.text(),
+                                letter3_value: e.key_letter3_value.text(),
+                                valorisations: []
+                        ])
+                    }
                 }
             }
 
@@ -434,8 +441,6 @@ class TarificationCodeImporter extends Importer {
                                     reimbursement      : new Double(rei.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
                                     patientIntervention: new Double(tm.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0)
                             ]
-                        } else {
-                            println("${e.nomen_code.text()} valorisation not found")
                         }
                     }
                     new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
@@ -474,11 +479,11 @@ class TarificationCodeImporter extends Importer {
                 }
             }
 
-            println "Key\tDescr\tRaw conditions\tpreferentialstatus\ttrainee\tchild\tmajor\told\tregular\tdmg\tchronical\tconvention\tpredicate"
+            //println "Key\tDescr\tRaw conditions\tpreferentialstatus\ttrainee\tchild\tmajor\told\tregular\tdmg\tchronical\tconvention\tpredicate"
             valTypes.forEach { k, v ->
                 def frt = (Normalizer.normalize(v.fr, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").toLowerCase())
                         .replaceAll(/[^a-z0-9]+/, "_")
-                        .replaceAll("(honoraires?|rembousement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
+                        .replaceAll("(honoraires?|rembour?sement|intervention(?:.+l_assurance)?|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
                         .replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
                         .replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_")
 
@@ -492,7 +497,7 @@ class TarificationCodeImporter extends Importer {
                     v.predicateSource = conditions[frtCode] ? frtCode.split(',').collect { it -> splitTextKey(it) } : [:]
                     v.predicate = (conditions[frtCode] ?: "false&&'${frtCode}'").toString()
                     if (conditions[frtCode]) {
-                        println "$k\t${v.fr}\t$frtCode\t${v.predicateSource.collect { it -> it.preferentialstatus }.join(',')}\t${v.predicateSource.collect { it -> it.trainee }.join(',')}\t${v.predicateSource.collect { it -> it.child }.join(',')}\t${v.predicateSource.collect { it -> it.major }.join(',')}\t${v.predicateSource.collect { it -> it.old }.join(',')}\t${v.predicateSource.collect { it -> it.regular }.join(',')}\t${v.predicateSource.collect { it -> it.dmg }.join(',')}\t${v.predicateSource.collect { it -> it.chronical }.join(',')}\t${v.predicateSource.collect { it -> it.convention }.join(',')}\t${v.predicate}"
+                        //println "$k\t${v.fr}\t$frtCode\t${v.predicateSource.collect { it -> it.preferentialstatus }.join(',')}\t${v.predicateSource.collect { it -> it.trainee }.join(',')}\t${v.predicateSource.collect { it -> it.child }.join(',')}\t${v.predicateSource.collect { it -> it.major }.join(',')}\t${v.predicateSource.collect { it -> it.old }.join(',')}\t${v.predicateSource.collect { it -> it.regular }.join(',')}\t${v.predicateSource.collect { it -> it.dmg }.join(',')}\t${v.predicateSource.collect { it -> it.chronical }.join(',')}\t${v.predicateSource.collect { it -> it.convention }.join(',')}\t${v.predicate}"
                     }
                 } else {
                     v.code = frt
@@ -500,16 +505,18 @@ class TarificationCodeImporter extends Importer {
                 }
             }
 
-            println(new Gson().toJson(valTypes.values()))
+            //println(new Gson().toJson(valTypes.values()))
 
             [false, true].forEach { amb ->
+                println "Amb: $amb"
                 groups.each { kg, g ->
                     println g
                     def rubKeys = new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
                     rubKeys.each { kr ->
+
                         def r = rubrics[kr]
                         if (!g.contains(r.fr)) {
-                            println r.fr
+                            println "Skipping : ${r.fr}"
                             return
                         }
 
@@ -557,7 +564,7 @@ class TarificationCodeImporter extends Importer {
                                     )
 
                                 } else {
-                                    println "Couldn't find valorisation for ${code}"
+                                    //println "Couldn't find valorisation for ${code}"
                                     return null
                                 }
                             })
@@ -603,7 +610,7 @@ class TarificationCodeImporter extends Importer {
                                 code.valorisations << trueCode
                             }
 
-                            TarificationCodeInfo tci = tarficationInfos[code.code]
+                            TarificationCodeInfo tci = tarificationInfos[code.code]
                             if (tci) {
                                 code.needsPrescriber = tci.prescriber
                                 code.hasRelatedCode = tci.relatedCode
@@ -612,14 +619,15 @@ class TarificationCodeImporter extends Importer {
                                 }
                             }
 
+                            println "${r.id}: ${code.id}"
                             codes << code
                         }
                     }
                 }
             }
 
-            println "Unknowns"
-            unknownCodes.entrySet().each { println "${it.value}: ${it.key}" }
+            //println "Unknowns"
+            unknownCodes.entrySet().each { /*println "${it.value}: ${it.key}"*/ }
 
         }
 
@@ -628,8 +636,15 @@ class TarificationCodeImporter extends Importer {
         while (retry) {
             retry = false;
             try {
-                couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
-                    current[t.id] = t
+                if (subset && subset.size()<20) {
+                    subset.each {
+                        def t = couchdbBase.find(Tarification.class, "INAMI-RIZIV|${it}|1.0")
+                        if (t) {  current[t.id] = t }
+                    }
+                } else {
+                    couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
+                        current[t.id] = t
+                    }
                 }
             } catch (DbAccessException e) {
                 if (e instanceof DocumentNotFoundException || e.getMessage().startsWith("403") || e.getMessage().startsWith("401")) {
@@ -645,10 +660,13 @@ class TarificationCodeImporter extends Importer {
         codes.sort { a, b -> a.code <=> b.code }
 
         def updatedCodes = []
+        def gson = new Gson()
 
         codes.each { newCode ->
             if (current.containsKey(newCode.id)) {
                 Tarification modCode = current[newCode.id]
+
+                def originalVals = new HashSet<>(modCode.valorisations.collect { gson.fromJson(gson.toJson(it), Valorisation.class) })
 
                 def keptVals = modCode.valorisations.findAll { v -> v != null }.collect { Valorisation v ->
                     if (v.startOfValidity < 29991231) {
@@ -683,10 +701,10 @@ class TarificationCodeImporter extends Importer {
                 def combinedVals = new HashSet<Valorisation>(keptVals)
                 combinedVals.addAll(newCode.valorisations)
 
-                def sameVals = (combinedVals == modCode.valorisations)
+                def sameVals = (combinedVals == originalVals)
 
                 modCode.valorisations = newCode.valorisations //Ease comparison
-                if (newCode == modCode) {
+                if (newCode == modCode && sameVals) {
                     return
                 }
                 modCode.valorisations = combinedVals //Preserve previous vals
@@ -706,6 +724,7 @@ class TarificationCodeImporter extends Importer {
             }
         }
 
+        println "Importing ${updatedCodes.size()} codes"
         updatedCodes.collate(1000).each {
             try {
                 couchdbBase.executeBulk(it)

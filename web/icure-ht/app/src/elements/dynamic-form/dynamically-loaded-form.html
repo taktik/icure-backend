@@ -56,21 +56,59 @@
 				min-height: 30px;
 			}
 
+			.fancy {
+				line-height: 0.5;
+				text-align: center;
+				height: 18px;
+			}
+			.fancy span {
+				display: inline-block;
+				position: relative;
+				font-size: 11px;
+				color: var(--app-text-color-disabled);
+			}
+			.fancy span:before,
+			.fancy span:after {
+				content: "";
+				position: absolute;
+				height: 5px;
+				border-bottom: 1px solid var(--app-secondary-color);
+				border-top: 1px solid var(--app-secondary-color-light);
+				top: 0;
+				width: 600px
+			}
+			.fancy span:before {
+				right: 100%;
+				margin-right: 15px;
+			}
+			.fancy span:after {
+				left: 100%;
+				margin-left: 15px;
+			}
 		</style>
 
-		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate)]]">
+		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate, contact)]]">
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
+                          disabled="[[currentContact.closingDate]]"
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-unlink-to-health-element="unlinkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog" subcontact-type="[[subcontactType]]" on-subcontact-type-change="_subContactTypeChange">
 				<div slot="titlebar" class="title-bar">
 					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
 			</dynamic-form>
 		</template>
+		<template is="dom-if" if="[[_shouldDisplaySummary(form, form.deletionDate, contact)]]">
+			<div class="fancy"><span>[[localize('modification_of','Modification of',language)]] [[form.template.name]] [[localize('of','of',language)]] [[_dateFormat(contact.openingDate)]]</span></div>
+		</template>
+
 	</template>
 	<script>
-		class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
+		import {simple} from 'acorn/dist/walk'
+        import {parse} from 'acorn'
+        import * as evaljs from "evaljs"
+
+        class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'dynamically-loaded-form';
             }
@@ -171,8 +209,16 @@
                 this.flushSave();
             }
 
+            _dateFormat(date) {
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
+            }
+
             _shouldDisplay(form) {
-                return form && !form.deletionDate
+                return form && !form.deletionDate && this.contact && (!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
+            }
+
+            _shouldDisplaySummary(form) {
+                return form && !form.deletionDate && this.contact && !(!(form.contactId || !this.contact.id) || this.contact.id === form.contactId)
             }
 
             _isNotInCurrentContact(currentContact, contact, form) {
@@ -192,6 +238,16 @@
 				)
             }
 
+            unlinkService(e){
+                const he = e.detail.healthElement
+                if (!he) {
+                    return;
+                }
+                const heIndex = _.findIndex(this.currentContact.subContacts,subC => subC.healthElementId === he.id);
+                this.splice("currentContact.subContacts", heIndex , 1)
+                this.scanServicesAndScheduleSave(this.currentContact)
+			}
+
             linkForm(e) {
                 const he = e.detail.healthElement
                 if (!he) {
@@ -200,6 +256,7 @@
                 const ctc = this.currentContact
                 if (!he.id) {
                     this.promoteServiceToHealthElement(he).then(he => {
+                        _.assign(e.detail, he) //Prevent subsequent promotions
                         if (!ctc.subContacts.some(sc => sc.formId === this.formId && sc.healthElementId === he.id)) {
                             if (this.contact === ctc) {
                                 this.push('contact.subContacts', {formId: this.formId, healthElementId: he.id, services: []})
@@ -241,6 +298,11 @@
                 return this.contacts.includes(this.contact) ? this.contacts : _.concat([this.contact], this.contacts)
             }
 
+            _contactDescr(contactId) {
+                const ctc = (this.contact && this.contact.id === contactId ? this.contact : this.contacts && this.contacts.find(c => c.id === contactId))
+                return ctc && ctc.descr || contactId
+			}
+
             _loadReports() {
                 const reports = this.form && this.form.template && this.form.template.reports || []
                 this.form && this.form.template && this.form.template.layout && this.form.template.layout.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(field => {
@@ -250,34 +312,44 @@
 				})))
 
             	Promise.all(reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
-					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
+					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls);})
 			}
 
             _prepareDataProvider() {
                 if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
                     this.set('dataProvider', this.getDataProvider(this.form, ''));
-                    this.set('dataMap', _.fromPairs((this.form.template || {}).layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
-                        const sc = this.form.id && c.subContacts.find(sc => sc.formId === this.form.id);
-                        if (sc) {
-                            return c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s])
-						} else {
-                            const idsInScs = c.subContacts.flatMap(sc => sc.services.map(s => s.serviceId))
-                            return c.services.filter(s => !idsInScs.includes(s.id)).map(s => [s.label, s])
-						}
-                    }))));
-                    if (!this.form.template || !this.form.template.layout) {
+
+                    if ((this.form.template || {}).layout) {
+                        const layoutItems = _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList))
+                        this.set('dataMap', _.fromPairs(layoutItems.map(f => [f.name, 1])))
+					} else if (this.form.id) {
+                        this.set('dataMap', _.fromPairs(_.flatten(this._allContacts().map(c => {
+                            const sc = c.subContacts.find(sc => sc.formId === this.form.id);
+                            return sc && c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) || []
+                        }))))
+					} else {
+                        const idsInScs = this.contact.subContacts.flatMap(sc => sc.formId ? sc.services.map(s => s.serviceId) : [])
+                        this.set('dataMap', _.fromPairs(_.compact(this.contact.services.map(s => {
+                            if (!idsInScs.includes(s.id)) {
+								return [s.label, s]
+							}
+							return null
+						}))))
+                    }
+
+					if (!this.form.template || !this.form.template.layout) {
                         this.set('form.template.layout', {
                             sections: [{
                                 formColumns: [{
                                     formDataList: _.compact(Object.values(this.dataMap).map((s, idx) => {
-                                        const c = this.localizedContent(s, this.language);
+                                        const c = this.api.contact().preferredContent(s, this.language);
                                         return c ? {
                                             name: s.label,
                                             label: s.label,
                                             editor: {
                                                 key: c.medicationValue ? 'MedicationTableEditor' : c.numberValue || c.numberValue === 0 ? 'NumberEditor' : c.measureValue ? 'MeasureEditor' : "StringEditor",
                                                 left: 0,
-                                                width: 100,
+                                                width: 400,
                                                 top: idx * 20,
                                                 multiline: true
                                             }
@@ -301,10 +373,12 @@
                     return;
                 }
 
+                this.dataProvider.computeFormulas(['OnChange'])
+
                 //Make sure that healthElements contain new potential linkables
                 const idLinkables = this.healthElements.map(he=>he.idService)
 
-                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
+                ctc.services.filter(s => s.tags.some(t => t.type === 'CD-ITEM' && (t.code === 'healthelement'  || t.code === 'healthissue')))
 					.forEach(svc => {
                         const descr = this.shortServiceDescription(svc, this.language)
                         if (descr && descr.length && !idLinkables.includes(svc.id)) {
@@ -325,12 +399,16 @@
                                 svc: svc,
                                 plansOfAction: []
                             }
-                            this.api.code().icpcChapters([he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code)]).then(([code]) => code && code.descr && ((he.colour = cc.descr.colour)))
+                            this.api.code().icpcChapters(he.codes.filter(c => c.type === 'ICPC' || c.type === 'ICPC2').map(x => x.code))
+								.then(([code]) => {
+								    code && code.descr && ((he.colour = code.descr.colour))
+								})
+								.finally(() => {
+                                    idLinkables.push(svc.id)
 
-							idLinkables.push(svc.id)
-
-							this.splice('healthElements', 0, 0, he)
-                            this.splice('mainHealthElements', 0, 0, he)
+                                    this.splice('healthElements', 0, 0, he)
+                                    this.splice('mainHealthElements', 0, 0, he)
+								})
                         }
                     })
 
@@ -340,7 +418,9 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})); //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+                    this.dataProvider.computeFormulas(['OnSave']).then(
+						() => this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+					)
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -392,7 +472,76 @@
                 };
 
                 const self = {
+                    subFormsMap: {},
                     servicesMap: {},
+                    computeFormulas: (lifecycles) => {
+                        try {
+                            const layoutItems = _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList))
+                            const lis = layoutItems.filter(li => li.subForm || (li.formulas || []).some(f => f.lifecycle && lifecycles.includes(f.lifecycle.toString())))
+
+                            const computables = lis.filter(li => !li.subForm).map(li => {
+                                const deps = []
+                                li.formulas.filter(f => lifecycles.includes(f.lifecycle.toString())).forEach(f => {
+                                    const expr = `(function(x) { ${f.value} })(x)`
+                                    simple(parse(expr), {
+                                        MemberExpression(node) {
+                                            if (node.object.name === 'x') {
+                                                deps.push(node.property.name)
+                                            }
+                                        }
+                                    })
+                                })
+                                return {name: li.name, deps: deps, li: li}
+                            })
+
+
+                            const visit = (computables, oks) => {
+                                const okNames = oks.map(k => k.name)
+                                const thisPass = computables.filter(li => !okNames.includes(li.name) && (li.deps.length === 0 || li.deps.every(d => okNames.includes(d) || !computables.some(c => c.name === d))))
+
+                                return thisPass.length > 0 ? visit(computables, oks.concat(thisPass)) : oks
+                            }
+
+                            const orderedComputables = visit(computables, [])
+
+                            if (orderedComputables.length) {
+                                const env = new evaljs.Environment({
+                                    patient: this.patient,
+                                    contact: this.contact,
+                                    contacts: this.contacts,
+                                    x: _.keys(this.servicesMap).reduce((x, label) => {
+                                        x[label] = self.getRawValue(label)
+                                        return x
+                                    }, {})
+                                });
+                                return Promise.all(orderedComputables.map(comp => {
+                                    const f = comp.li.formulas.find(f => lifecycles.includes(f.lifecycle.toString()))
+                                    const expr = `(function(x,patient,contact,contacts) { ${f.value} })(x,patient,contact,contacts)`
+                                    const gen = (env.gen(expr)())
+                                    let status = {done: false, value: null}
+
+                                    while (!status.done) {
+                                        status = gen.next() //Execute lines one by one
+                                    }
+
+                                    ['StringEditor', 'PopupMenuEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'string') && this.dataProvider.setStringValue(comp.name, status.value || null, false);
+                                    ['NumberEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'number') && this.dataProvider.setNumberValue(comp.name, status.value === 0 ? 0 : (Number(status.value.toFixed(3)) || null), false);
+                                    ['MeasureEditor'].includes(comp.li.editor.key) && (typeof status.value === 'number') && this.dataProvider.setMeasureValue(comp.name, {value: Number(status.value.toFixed(3))} || null, false);
+                                    ['MeasureEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'object') && this.dataProvider.setMeasureValue(comp.name, Number(status.value.toFixed(3)) || null, false);
+                                    //['DateTimeEditor'].includes(comp.li.editor.key) && (typeof status.value === 'number') && this.dataProvider.setDateValue(comp.name, status.value || null, false);
+                                    //['DateTimeEditor'].includes(comp.li.editor.key) && (!status.value || typeof status.value === 'object') && this.dataProvider.setDateValue(comp.name, status.value || null, false);
+
+                                    this.root.querySelector('#dynamic-form') && this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + comp.name)
+
+                                    return Promise.resolve(status.value)
+                                })).catch(() => [])
+                            } else {
+                                return Promise.resolve([])
+                            }
+                        } catch (e) {
+                            return Promise.resolve([])
+                        }
+					},
                     //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
                     services: label => {
                         if (label && self.servicesMap[label]) {
@@ -401,21 +550,10 @@
                         return label ? self.servicesMap[label] = this.servicesInForm(form.id, label) : this.servicesInForm(form.id);
                     },
 					subContactTitle: () => {
-                        const scs = this.currentContact.subContacts.find(sc => sc.formId === form.id)
+                        const scs = this.contact && this.contact.subContacts.find(sc => sc.formId === form.id)
 						const contactType = scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE") || []
 						const type = this.subcontactType && this.subcontactType.length && this.subcontactType.find(c => c.id === contactType.id)
 						return type && "("+type.label[this.language]+")" || ""
-
-
-                        const ctcs = _.sortBy(this.contacts.filter(c => c.subContacts.some(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))).filter(c => c.subContacts.some(tags)), 'created')
-						const sc =_.last(ctcs).subContacts.find(sc => form.id === sc.formId && sc.tags.some(t => t.type === 'BE-CONTACT-TYPE'))
-						return sc.tags.find(t => t.type === 'BE-CONTACT-TYPE').code
-
-						/*
-                        const ctType = this.contact.tags.filter(t => t.type === "BE-CONTACT-TYPE") || []
-						const currentType =  ctType && this.subcontactType.find(c => c.id === ctType[0].id)
-						return currentType && currentType.label[this.language]
-						*/
 					},
                     servicesInHierarchy: label => {
                         return _.concat(self.services(label), _.flatMap(form.children, sf => this.getDataProvider(sf, (rootPath.length ? rootPath + '.' : '') + sf.descr + '.' + form.children.filter(sff => sff.descr === sf.descr).indexOf(sf)).servicesInHierarchy(label)));
@@ -442,7 +580,7 @@
                         }
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
-                    getOrCreateContent: (svc, lng) => svc && (svc.content && svc.content[lng] || ((svc.content || (svc.content = {}))[lng] = {})),
+                    getOrCreateContent: (svc, lng) => svc && (svc.content && this.api.contact().preferredContent(svc, lng) || ((svc.content || (svc.content = {}))[lng] = {})),
                     //Returns an array of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs share the same svc id. If there is a choice between several series of services. Pick the one that preferably appears in the contact.
                     getServicesLineForContact: label => {
                         const sss = self.services(label);
@@ -552,13 +690,14 @@
                     getValue: (label) => {
                         const s = self.getServicesLineForContact(label)[0];
                         return s ? s.svc ? this.api.contact().shortServiceDescription(s.svc, this.language) : "<NA>" : "-";
+					},
+                    getRawValue: (label) => {
+                        const s = self.getServicesLineForContact(label)[0];
+                        const c = s && s.svc && this.api.contact().preferredContent(s.svc, this.language)
 
-                        // return this.api.contact().shortServiceDescription(
-                        //     self.getStringValue(label) || self.getNumberValue(label) || self.getMeasureValue(label) || self.getDateValue(label) || self.getBooleanValue(label) || self.getValueContainers(label).join(", "),
-                        //     this.language
-                        //   )
+                        return c && (c.measureValue && (c.measureValue.value || c.measureValue.value === 0) ? c.measureValue.value : this.api.contact().contentValue(c))
                     },
-                    setStringValue: function (label, value) {
+                    setStringValue: function (label, value, save = true) {
                         const currentValue = self.getStringValue(label)
                         if ((currentValue || null) === (value || null) || ((!currentValue || !currentValue.length) && (!value || !value.length))) {
                             return;
@@ -567,12 +706,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.stringValue !== value) {
                                 c.stringValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setNumberValue: function (label, value) {
+                    setNumberValue: function (label, value, save = true) {
                         if (self.getNumberValue(label) === parseFloat(value)) {
                             return;
                         }
@@ -580,12 +719,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.numberValue !== value) {
                                 c.numberValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setMeasureValue: function (label, value) {
+                    setMeasureValue: function (label, value, save = true) {
                         const currentValue = self.getMeasureValue(label);
                         if (((!currentValue || !currentValue.value) && !value.value) /* No valid current value and no proposed value */
                             || (currentValue && value && ((currentValue.value || 0) === (value.value || 0)) && ((currentValue.unit || null) === (value.unit || null)))) {
@@ -595,12 +734,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.measureValue !== value) {
                                 c.measureValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setDateValue: function (label, value) {
+                    setDateValue: function (label, value, save = true) {
                         if (self.getDateValue(label) === value) {
                             return;
                         }
@@ -608,12 +747,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.fuzzyDateValue !== value) {
                                 c.fuzzyDateValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setBooleanValue: function (label, value) {
+                    setBooleanValue: function (label, value, save = true) {
                         if (self.getBooleanValue(label) === value) {
                             return;
                         }
@@ -621,12 +760,12 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.booleanValue !== value) {
                                 c.booleanValue = value;
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
                     }.bind(this),
-                    setValueDateOfValue: function (label, value, setBooleanValue) {
+                    setValueDateOfValue: function (label, value, setBooleanValue, save = true) {
                         if (self.getValueDateOfValue(label) === value) {
                             return;
                         }
@@ -642,23 +781,26 @@
                                         c.booleanValue = value;
                                     }
                                 }
-                                this.scanServicesAndScheduleSave(this.currentContact);
+                                save && this.scanServicesAndScheduleSave(this.currentContact);
                             } else if (setBooleanValue) {
                                 self.setBooleanValue(!!value);
                             }
                             return svc;
                         });
                     }.bind(this),
+                    hasSubForms: function (key) {
+                        return (form.children || []).filter(f => !key || f.descr === key).length > 0
+                    },
                     getSubForms: function (key) {
-                        return (form.children || []).filter(f => f.descr === key).map((subForm, idx) => {
-                            return {
+                        return (form.children || []).filter(f => !key || f.descr === key).map((subForm, idx) => {
+                            return self.subFormsMap[[subForm.id, subForm.descr, idx]] || ((self.subFormsMap[[subForm.id, key, idx]] = {
                                 dataMap: _.fromPairs(_.flatten(_.flatten(subForm.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])),
                                 dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
                                 template: subForm.template.layout,
 								reportsPromises: Promise.all((this.form && this.form.template && this.form.template.reports || [])
 									.concat(_.compact(this.form.template.layout.sections.flatMap(s => s.formColumns.flatMap(c => c.formDataList.map(fdl => fdl.type === 'TKAction' && null || null)))))
 									.map(dt => this.api.doctemplate().getDocumentTemplate(dt)))
-                            };
+                            }));
                         });
                     }.bind(this),
                     editForm: function () {
@@ -668,7 +810,6 @@
                         if (!this.currentContact) {
                             return;
                         }
-                        this.flushSave();
 
                         const id = form.id;
                         const subContacts = this.currentContact.subContacts.filter(sc => sc.formId === id);
@@ -687,11 +828,13 @@
                             }
                         });
 
-                        if( parseInt( _.get(form, "id", 0) ) ) {
+                        if( form.formTemplateId ) {
                             this.api.form().modifyForm(_.extend(form, {deletionDate: +new Date() * 1000})).then(f => {
                                 this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}));
+                                this.flushSave()
                             });
                         }
+
                     }.bind(this),
                     getId: () => form.id,
                     deleteSubForm: (key, id) => {
@@ -725,7 +868,7 @@
                         });
                     },
                     addSubForm: (key, guid) => {
-                        if (!this.currentContact) {
+                    	if (!this.currentContact) {
                             return;
                         }
                         this.flushSave();
@@ -748,17 +891,82 @@
                             }
                         });
                     },
-                    filter: (data, text) => {
-                        return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(data.types.map(ct => {
-                            const typeLng = this.api.code().languageForType(ct.type, this.language);
-                            const words = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
-                            const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
+                    filter: (data, text, uuid, comboBoxFirstHit=false) => {
+                        const uuids = (self.uuids || (self.uuids = {}))
+						const reqIdx = uuids[uuid] = (uuids[uuid] || 0) + 1
+                        const words = ( comboBoxFirstHit || (!comboBoxFirstHit && data.source === "codes" && _.trim(uuid) && !_.trim(text)) ) ? [""] : text && text.length > 1 && text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
 
-                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
-                                codeId: code.id, stringValue: code.label[typeLng],
-                                codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
-                            })), sorter));
-                        })).then(responses => _.flatMap(responses)) : Promise.resolve([]);
+                        // if(!comboBoxFirstHit) {
+                        //     console.log("--- FILTER ---");
+                        //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                        //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                        //     console.log("UUID:" +_.trim(uuid));
+                        //     console.log("TEXT:" +_.trim(text));
+                        //     console.log("WORDS:" +words);
+                        //     console.log( "reqIdx: " + reqIdx );
+                        //     console.log( uuids );
+                        //     console.log( uuid );
+                        //     console.log( reqIdx<uuids[uuid] )
+                        // }
+
+                        return data.source === "codes" && data.types.length && words && words.length ? Promise.all(data.types.map(ct => {
+                            const typeLng = this.api.code().languageForType(ct.type, this.language);
+                            const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
+							return this.api.code().filterBy(null, null, 1000, null, null, null, {filter: {'$type':'IntersectionFilter', 'filters':words.map(w => ({
+                                    '$type': 'CodeByRegionTypeLabelLanguageFilter',
+                                    'region': 'be',
+                                    'type': ct.type,
+									'language': typeLng,
+									'label':w
+                                }))}})
+                            .then(results => {
+
+                                // if( ["CD-INCAPACITY", "CD-INCAPACITYREASON"].indexOf(_.get(data, "types[0].type", "" )) > -1 ) {
+                                //     console.log("--- FILTER ---");
+                                //     console.log("FIRST HIT: " + (!!comboBoxFirstHit?"Yes":"No"));
+                                //     console.log("TYPE:" +_.get(data, "types[0].type", "" ));
+                                //     console.log("UUID:" +_.trim(uuid));
+                                //     console.log("TEXT:" +_.trim(text));
+                                //     console.log("WORDS:" +words);
+                                //     console.log(results);
+                                //     console.log( "reqIdx: " + reqIdx );
+                                //     console.log( uuids );
+                                //     console.log( uuid );
+                                //     console.log( reqIdx<uuids[uuid] );
+                                //     console.log("--- RETURN ---")
+                                //     console.log(
+                                //         _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                //             codeId: code.id,
+                                //             stringValue: code.label[typeLng],
+                                //             codes: [code].concat(code.links && code.links.map(c => ({
+                                //                 id: c,
+                                //                 type: c.split('|')[0],
+                                //                 code: c.split('|')[1],
+                                //                 version: c.split('|')[2]
+                                //             })) || []),
+                                //             id: code.id,
+                                //             name: code.label[typeLng]
+                                //         })), sorter)
+                                //     );
+                                // }
+
+                                if (reqIdx<uuids[uuid] && !comboBoxFirstHit) { return [] }
+
+                                return _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
+                                    codeId: code.id,
+                                    stringValue: code.label[typeLng],
+                                    codes: [code].concat(code.links && code.links.map(c => ({
+                                        id: c,
+                                        type: c.split('|')[0],
+                                        code: c.split('|')[1],
+                                        version: c.split('|')[2]
+                                    })) || []),
+                                    id: code.id,
+                                    name: code.label[typeLng]
+                                })), sorter)
+                            });
+
+                        })).then(responses => (reqIdx<uuids[uuid] && !comboBoxFirstHit) ? null : _.chain(responses).flatMap().uniqBy("codeId").value() ) : Promise.resolve([]);
                     }
                 };
                 return self;
@@ -806,7 +1014,7 @@
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
             servicesInForm(formId, label) {
                 const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
-                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || ((!ss.scs || !ss.scs.length) && !formId)) //Extract all services which appear at some point in that form
+                return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId) || (!formId && (!ss.scs || !ss.scs.some(ssc => ssc.formId) && ss.ctc && ss.ctc.id === this.contact.id))) //Extract all services which appear at some point in that form
                         .map(ss => ss.svc.id)) //Get their ids
                         .map(id => _.sortBy(svcStructs.filter(ss => ss.svc.id === id), ss => -ss.svc.modified)) //Sort them by modified for each id
                         .filter(svcHistory => svcHistory.length) //Keep the ones with a history
@@ -870,7 +1078,7 @@
             }
 
             localizedContent(svc, lng) {
-                return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
+                return this.api && svc && this.api.contact().preferredContent(svc, lng) || {};
             }
 
             _subContactTypeChange(e){
@@ -878,10 +1086,11 @@
 
                     const scs = this.currentContact.subContacts.find(sc => sc.formId === e.detail.formId)
 
-					if(scs && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
+					if(scs && scs.tags && scs.tags.find(t => t.type === "BE-CONTACT-TYPE")){
                         scs.tags.splice(scs.tags.indexOf(scs.tags.find(t => t.type === "BE-CONTACT-TYPE")), 1);
                         scs.tags.push(e.detail.type.type);
 					}else{
+                        scs.tags = scs.tags || []
                         scs && scs.tags.push(e.detail.type.type);
 					}
 

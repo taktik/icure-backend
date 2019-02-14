@@ -42,6 +42,16 @@
             h5 {
                 margin: 4px 0;
 			}
+
+            #errorKeystorePassword {
+                color: var(--app-error-color);
+            }
+            #successKeystorePassword, #successKeystorePasswordMultiple {
+                color: var(--app-status-color-ok);
+            }
+            #successKeystorePasswordMultiple {
+                padding-right: 16px;
+            }
 			
 			#currentEhKeychainList{
 				height: 350px;
@@ -49,13 +59,31 @@
 
             #ehKeychainFileInput {
                 margin-bottom: 8px;
-                padding: 8px;
+                padding: 0 8px;
                 border: 1px solid var(--app-background-color-darker);
             }
             #ehKeychainFileInput:hover,
             #ehKeychainFileInput:focus
             {
                 background: var(--app-background-color-dark);
+            }
+
+            paper-button.modal-button--cancel {
+                background: transparent;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
+            @media screen and (max-width: 376px) {
+                paper-dialog {
+                    position: fixed;
+                     max-height: initial !important;
+                     max-width: initial !important;
+                    margin: 0 !important;
+                    left: 0 !important;
+                    top: 0 !important;
+                    height: 100% !important;
+                    width: 100% !important;
+                }
             }
 		</style>
 
@@ -71,7 +99,7 @@
 						<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
 							<vaadin-grid-column flex-grow="15">
 								<template class="header">
-									<div>Name</div>
+									<div>[[localize('name','Name',language)]]</div>
 								</template>
 								<template>
 									<div class="cell frozen">[[item.keystore.name]]</div>
@@ -79,7 +107,7 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set the active keystore</div>
+									<div>[[localize('set_active_keystore','Set the active keystore',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveButtonIconName(item.onlyDecrypt)]]" keystore$='[[index]]'></iron-icon></paper-button>
@@ -87,7 +115,7 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set as MH keystore</div>
+									<div>[[localize('set_mh_keystore','Set as MH keystore',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]'><iron-icon icon="[[getActiveMMButtonIconName(item.personalKeystore)]]" keystore$='[[index]]'></iron-icon></paper-button>
@@ -95,23 +123,23 @@
 							</vaadin-grid-column>
 							<vaadin-grid-column flex-grow="4">
 								<template class="header">
-									<div>Set the keystore password</div>
+									<div>[[localize('set_keystore_pass','Set the keystore password',language)]]</div>
 								</template>
 								<template>
 									<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' ><iron-icon icon="[[getPasswordButtonIconName(item.hasPassword)]]" index$='[[index]]'></iron-icon></paper-button>
 								</template>
 							</vaadin-grid-column>
-							<vaadin-grid-column flex-grow="1">
-								<template class="header">
-									<div>[[localize('del','Delete',language)]]</div>
-								</template>
-								<template>
-									<div class="cell frozen">
-										<paper-button   hidden='[[_displayAltDeleteButton(item)]]'><iron-icon icon="delete" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'></iron-icon></paper-button>
-										<!--<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>-->
-									</div>
-								</template>
-							</vaadin-grid-column>
+                            <vaadin-grid-column flex-grow="1">
+                                <template class="header">
+                                    <div>[[localize('del','Delete',language)]]</div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">
+                                        <paper-button   hidden='[[_displayAltDeleteButton(item)]]'><iron-icon icon="delete" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'></iron-icon></paper-button>
+                                        <!--<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>-->
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
 						</vaadin-grid>
 	
 					</div>
@@ -119,17 +147,16 @@
 				</form>
 			</div>
 			
-				<div class="buttons">
-					<!--<paper-button dialog-dismiss on-tap="close" class="modal-button modal-button&#45;&#45;cancel">[[localize('can','Cancel',language)]]</paper-button>-->
-					<paper-button dialog-confirm autofocus class="modal-button modal-button--save" >[[localize('clo','Close',language)]]</paper-button>
-				</div>
+            <div class="buttons">
+                <paper-button dialog-confirm autofocus class="modal-button modal-button--save" >[[localize('done','Done',language)]]</paper-button>
+            </div>
 		</paper-dialog>
 		<paper-dialog id="keystorePasswordDialog">
 			<h2 class="modal-title">[[localize('mdp','Password',language)]]</h2>
 			<div class="content">
 				<h5 id="passwordDialogSubtitle"></h5>
 
-				<span id="errorKeystorePassword"></span>
+                <span id="errorKeystorePassword"></span>
 				<paper-input id="newPasswordKeystore" label="Set password" type="password"></paper-input>
 			</div>
 			

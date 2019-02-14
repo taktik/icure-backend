@@ -8,6 +8,10 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -106,7 +110,7 @@
 			}
 			#printable {
 				width: fit-content;
-                padding: 0 16px;
+                padding: 0 8px;
 			}
 
 			@media screen and (max-width:650px) {
@@ -167,6 +171,12 @@
 				@apply --padding-right-left-16;
 				height: 65px;
 			}
+
+            .horizontal .tile paper-input {
+                padding-left: initial;
+                padding-right: initial;
+                padding: 0 8px;
+            }
 
 			.horizontal paper-input-container {
 				@apply --padding-right-left-16;
@@ -275,7 +285,7 @@
 
 			.marginRight10 { margin-right:10px; }
 
-			#supervisor-search, #mh-search {
+			#supervisor-search, #mh-search, #hcp-search {
 				flex: 1;
 			}
 
@@ -347,45 +357,220 @@
                 width: calc(99.9995% - 4em);
             }
 
+            .col-lg-6.tile {
+                box-sizing: border-box;
+                border-radius: 4px;
+                border: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color);
+                margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
+            }
+            .tile h2 {
+                background: var(--app-background-color-dark);
+                width: 100%;
+                text-align: center;
+                margin: 0 0 8px 0;
+                padding: 8px;
+                box-sizing: border-box;;
+            }
+
+            .line {
+                display: flex;
+            }
+            .line.p8 {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+            .line.p16 {
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
+            .line > * {
+                 flex-grow: 1;
+             }
+            .line > *.no-grow {
+                flex-grow: 0;
+            }
+            .line > *.w50 {
+                width: 50px;
+            }
+            .line > *.w100 {
+                width: 100px;
+            }
+            .line > *.w150 {
+                width: 150px;
+            }
+            .line > *.grow-3 {
+                flex-grow: 3;
+            }
+
+            .line span.lang {
+                padding-top: 20px;
+                width: 80px !important;
+            }
+
+            .flex-horizontal, .flex-horizontal .format {
+                display: flex;
+                flex-direction: row;
+                flex-grow: 1;
+            }
+            .flex-horizontal .format {
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .flex-horizontal .format.regulations {
+                border-bottom: 0;
+            }
+
+            .flex-horizontal > div {
+                flex-grow: 1;
+                box-sizing: border-box;
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+            .flex-horizontal > div.col {
+                border: 0;
+                margin: initial;
+                border-radius: 0;
+            }
+            .flex-horizontal div.print-tile {
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+
+            .flex-horizontal h2 {
+                background: var(--app-background-color-dark);
+                padding: 8px;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+                margin: 0;
+            }
+            .flex-horizontal .format {
+                flex-direction: row;
+            }
+            .flex-horizontal .format .left {
+                flex-grow: initial;
+                width: 128px;
+                line-height: 64px;
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .flex-horizontal .format .right {
+                flex-grow: 1;
+                padding: 0 16px;
+            }
+            .flex-horizontal .format .right paper-dropdown-menu {
+                width: 100%;
+            }
+
+            .flex-horizontal paper-listbox {
+                max-height: 256px;
+                max-width: 256px;
+            }
+            .flex-horizontal paper-item {
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+            .flex-horizontal paper-item:hover {
+                background: var(--app-background-color-dark);
+            }
+            .flex-horizontal paper-item:active,
+            .flex-horizontal paper-item:focus {
+                background: var(--app-background-color-darker);
+            }
+
+            .modal-button--cancel {
+                background: transparent;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
+            .onlymobile {
+                display: none;
+            }
+
+            @media screen and (max-width: 800px) {
+                paper-dialog#dialog {
+                    margin: 0;
+                }
+
+                .flex-horizontal {
+                    flex-direction: column;
+                }
+
+                .flex-horizontal paper-listbox {
+                    width: 100%;
+                    max-width: none;
+                }
+            }
+            @media screen and (max-width: 1024px) {
+                .nomobile {
+                    display: none;
+                }
+                .onlymobile {
+                    display: block;
+                }
+            }
+
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
             <div class="administrative-panel">
                 <div class="top-gradient"></div>
 				<paper-tabs selected="{{tabs}}">
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:lock" class="marginRight10"></iron-icon>[[localize('my_access','Mes accès',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonnées',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>[[localize('my_banking_details','Informations bancaires',language)]]</paper-tab>
-                    <paper-tab class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
+                    <paper-tab id="tab-access" class="adm-tab"><iron-icon icon="icons:lock" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_access','Mes accès',language)]]</span></paper-tab>
+                    <paper-tab id="tab-details" class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_details','Mes coordonnées',language)]]</span></paper-tab>
+                    <paper-tab id="tab-banking" class="adm-tab"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon><span class="nomobile">[[localize('my_banking_details','Informations bancaires',language)]]</span></paper-tab>
+                    <paper-tab id="tab-edmg" class="adm-tab"><iron-icon icon="icons:folder-shared" class="marginRight10"></iron-icon><span class="nomobile">[[localize('edmg_subscription','EDMG',language)]]</span></paper-tab>
+                    <template is="dom-if" if="[[electronAvailable]]">
+                        <paper-tab id="tab-printer" class="adm-tab"><iron-icon icon="icons:print" class="marginRight10"></iron-icon><span class="nomobile">[[localize('def_printer','Default Printers',language)]]</span></paper-tab>
+                    </template>
 				</paper-tabs>
-
+                <div class="onlymobile">
+                    <paper-tooltip position="bottom" for="tab-access">[[localize('my_access','Mes accès',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-details">[[localize('my_details','Mes coordonnées',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-banking">[[localize('my_banking_details','Informations bancaires',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-edmg">[[localize('edmg_subscription','EDMG',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-printer">[[localize('def_printer','Default Printers',language)]]</paper-tooltip>
+                </div>
 
                 <iron-pages selected="[[tabs]]" class="panel-content">
                     <page>
 
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
-                                <div class="col-lg-6">
-                                    <paper-input label="Full name" value="{{user.name}}"></paper-input>
-                                    <paper-input label="Login" value="{{user.login}}"></paper-input>
-                                    <paper-input label="Email" value="{{user.email}}"></paper-input>
-                                    <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-                                        <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-                                            <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-                                            <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-                                            <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-                                        </paper-listbox>
-                                    </paper-dropdown-menu>
-                                    <paper-radio-group selected="{{userEHealthEnv}}">
-                                        <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-                                        <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-                                    </paper-radio-group>
-                                    <div class="horizontal" style="margin-top:10px">
-                                        <paper-radio-group selected="{{hcp.languages.0}}">
-                                            <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
-                                            <paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
-                                            <paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
-                                        </paper-radio-group>
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="communication:vpn-key"></iron-icon> [[localize('login_opt','Login option',language)]]</h2>
+                                    <paper-input label="Login*" value="{{user.login}}" readonly></paper-input>
+                                    <div class="line">
+                                        <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
+                                        <paper-input label="Confirmation" value="{{userConfirmation}}" type="password" disabled="[[!userPassword.length]]"></paper-input>
+                                    </div>
+                                    <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">[[localize('pass_nomatch','Passwords do not match',language)]]</div></template>
+                                    <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">[[localize('pass_tooshort','Password must be at least 8 characters',language)]]</div></template>
+
+                                    <paper-input label="[[localize('auto_logout','Auto logout delay (minutes)',language)]]" type="number" min="0" value=""></paper-input>
+                                    <div id="printable">
+                                        <vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+                                        <vaadin-checkbox colspan="2" checked="{{showQr}}">[[localize('sho_qr','Show QR code',language)]]</vaadin-checkbox>
+                                        <qrcode-printer i18n="[[i18n]]"language="[[language]]" hidden="[[!showQr]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="settings"></iron-icon> [[localize('oth_opt','Other options',language)]]</h2>
+                                    <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+
+                                    <div class="line p16">
+                                        <span class="lang">[[localize('languages','Langues',language)]] : </span>
+                                        <div class="horizontal" style="margin-top:10px">
+                                            <paper-radio-group selected="{{hcp.languages.0}}">
+                                                <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+                                                <paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+                                                <paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+                                            </paper-radio-group>
+                                        </div>
                                     </div>
 
                                     <!--<div class="horizontal" style="margin-top:10px">
@@ -397,18 +582,24 @@
                                     </div>-->
 
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
-                                        <div class="horizontal" style="margin-top:10px">
+                                        <div class="line" style="margin-top:10px">
                                             <paper-radio-group selected="{{hcp.billingType}}">
                                                 <label class="p-l-0">[[localize('billingType','Type de facturation',language)]]: </label>
                                                 <paper-radio-button name="serviceFee">[[localize('serviceFee','A l\'acte',language)]]</paper-radio-button>
                                                 <paper-radio-button name="flatRate">[[localize('medicalHouse','Au forfait',language)]]</paper-radio-button>
                                             </paper-radio-group>
                                         </div>
-                                        <paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>
+                                        <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>-->
+                                        <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPersonHcpId}}"></paper-input>-->
+                                        <vaadin-combo-box
+                                                id="hcp-search" filtered-items="[[contactListItem]]" item-label-path="hrLabel"
+                                                item-value-path="id" on-filter-changed="_hcpSearch" on-keydown="isEnterPressed"
+                                                label="[[localize('mhContactPerson','Personne de contact pour la facturation forfait',language)]]"
+                                                value="{{hcp.contactPersonHcpId}}">
+                                        </vaadin-combo-box>
                                     </template>
 
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-
                                         <vaadin-combo-box
                                             id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
                                             item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
@@ -422,78 +613,81 @@
                                             label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
                                             value="{{hcp.supervisorId}}">
                                         </vaadin-combo-box>
-
                                     </template>
 
-                                    <div class="horizontal">
-                                        <vaadin-checkbox checked="{{receiveMailAuto}}">Receive mails automatically</vaadin-checkbox>
-                                    </div>
-
-
-                                </div>
-                                <div class="col-lg-6">
-                                    <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
-                                    <paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
-                                    <paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
-                                    <paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
-
-                                    <div id="printable">
-                                        <vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
-                                        <qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
-                                    </div>
-
                                 </div>
 
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="cloud"></iron-icon> eServices</h2>
+                                    <div class="line p8">
+                                        <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+                                            <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+                                                <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                                                <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                                                <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                                            </paper-listbox>
+                                        </paper-dropdown-menu>
+                                        <paper-radio-group selected="{{userEHealthEnv}}">
+                                            <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+                                            <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+                                        </paper-radio-group>
+                                    </div>
 
-
-
+                                    <div class="horizontal line p8">
+                                        <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
+                                    </div>
+                                </div>
 
                             </vaadin-form-layout>
-
-                            <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">Passwords do not match</div></template>
-                            <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">Passwords must be at least 8 characters</div></template>
 
                         </div>
                     </page>
 
-
-
-
-
                     <page>
                         <div class="horizontal" style="margin-top:10px">
                             <vaadin-form-layout>
-                                <div class="col-lg-6">
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="social:person"></iron-icon> [[localize('gen_info','General informations',language)]]</h2>
                                     <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-                                        <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input>
-                                        <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
-                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
-                                    </template>
-                                </div>
-                                <div class="col-lg-6">
-                                    <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
-                                        <paper-input label="[[localize('lastname','Nom',language)]]" value="{{hcp.lastName}}"></paper-input>
-                                        <paper-input label="[[localize('firstname','Prénom',language)]]" value="{{hcp.firstName}}"></paper-input>
-                                        <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
-                                        <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                        <div class="line">
+                                            <paper-input label="[[localize('lastname','Nom',language)]] *" value="{{hcp.lastName}}"></paper-input>
+                                            <paper-input label="[[localize('firstname','Prénom',language)]] *" value="{{hcp.firstName}}"></paper-input>
+                                        </div>
+                                        <div class="line">
+                                            <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
+                                            <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                        </div>
                                     </template>
                                     <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
                                         <paper-input label="[[localize('name','Nom',language)]]" value="{{hcp.name}}"></paper-input>
                                     </template>
                                     <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
                                 </div>
-                                <div class="col-lg-6">
-                                    [[localize('addr_pro','Work Address',language)]]
-                                    <paper-input label="[[localize('street','Street',language)]]" value="{{adr.street}}"></paper-input>
-                                    <paper-input label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
-                                    <paper-input label="[[localize('city','City',language)]]" value="{{adr.city}}"></paper-input>
+                                <div class="col-lg-6 tile">
+                                    <h2><iron-icon icon="home"></iron-icon> [[localize('addr_pro','Work Address',language)]]</h2>
+                                    <div class="line">
+                                        <paper-input label="[[localize('street','Street',language)]] *" value="{{adr.street}}"></paper-input>
+                                        <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]] *" value="{{adr.houseNumber}}"></paper-input>
+                                        <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                                    </div>
+                                    <div class="line">
+                                        <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]] *" value="{{adr.postalCode}}"></paper-input>
+                                        <paper-input class="grow-3" label="[[localize('city','City',language)]] *" value="{{adr.city}}"></paper-input>
+                                        <paper-input label="[[localize('country','Country',language)]] *" value="{{adr.country}}"></paper-input>
+                                    </div>
+                                    <div class="line">
+                                        <paper-input label="[[localize('phone','Phone',language)]] *" value="{{adr.phoneNumber}}"></paper-input>
+                                        <paper-input label="[[localize('email','Email',language)]] *" value="{{adr.proMail}}"></paper-input>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6">
-                                    <br/>
-                                    <paper-input label="[[localize('number','House Number',language)]]" value="{{adr.houseNumber}}"></paper-input>
-                                    <paper-input label="[[localize('postalCode','Postal Code',language)]]" value="{{adr.postalCode}}"></paper-input>
-                                    <paper-input label="[[localize('country','Country',language)]]" value="{{adr.country}}"></paper-input>
-                                </div>
+                                <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                    <div class="col-lg-6 tile">
+                                        <h2><iron-icon icon="assignment"></iron-icon> [[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]</h2>
+                                        <!-- <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input> -->
+                                        <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
+                                        <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                                    </div>
+                                </template>
                                 <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
                                 <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
 
@@ -637,6 +831,154 @@
 
                     </page>
 
+                    <page>
+                        <div class="flex-horizontal">
+
+                            <div class="col">
+                                <div class="print-tile">
+                                    <h2>[[localize('color','Color',language)]]</h2>
+                                    <div class="format afour">
+                                        <div class="left">
+                                            <span>A4</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format afive">
+                                        <div class="left">
+                                            <span>A5</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format presc">
+                                        <div class="left">
+                                            <span>Prescription</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="print-tile">
+                                    <h2>[[localize('props','Properties',language)]] [[localize('stickers','Stickers',language)]]</h2>
+                                    <div class="format size-stickers">
+                                        <div class="left">
+                                            <span>H</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-input on-value-changed="_setPrinter" target="stickers.h" data-item$="[[numericSelectedPrinter.stickers.h]]" value="{{numericSelectedPrinter.stickers.h}}" label="mm" type="number" min="0"></paper-input>
+                                        </div>
+                                    </div>
+                                    <div class="format size-stickers">
+                                        <div class="left">
+                                            <span>L</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-input on-value-changed="_setPrinter" target="stickers.w" data-item$="[[numericSelectedPrinter.stickers.w]]" value="{{numericSelectedPrinter.stickers.w}}" label="mm" type="number" min="0"></paper-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="print-tile">
+                                    <h2>[[localize('b_and_w','Black and white',language)]]</h2>
+                                    <div class="format afour">
+                                        <div class="left">
+                                            <span>A4</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format afive">
+                                        <div class="left">
+                                            <span>A5</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format presc">
+                                        <div class="left">
+                                            <span>Prescription</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format stickers">
+                                        <div class="left">
+                                            <span>[[localize('stickers','Stickers',language)]]</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.stickers.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="stickers.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format regulations">
+                                        <div class="left">
+                                            <span>[[localize('regulations','Regulations',language)]]</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regulations.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="regulations.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </page>
+
 
                 </iron-pages>
 			</div>
@@ -644,7 +986,7 @@
 
 
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
@@ -774,6 +1116,12 @@
                             return [];
                         }
                     },
+                    hcpListItem: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
                     adr:{
                         type: Object,
                         value:{},
@@ -781,19 +1129,55 @@
                     },
                     receiveMailAuto: {
                         type: Boolean,
-                        value: localStorage.getItem('receiveMailAuto') == 'true' ? true : false
+                        value: localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true
+                    },
+                    printers: {
+                        type: Array,
+                        value: []
+                    },
+                    selectedPrinter: {
+                        type: Object,
+                        value: {
+                            a4: {"color": '', "bw": ''},
+                            a5: {"color": '', "bw": ''},
+                            presc: {"color": '', "bw": ''},
+                            stickers: {"bw": '', "h": 0, "w": 0},
+                            regulations: {"bw": ''}
+                        }
+                    },
+                    numericSelectedPrinter: {
+                        type: Object,
+                        value: {
+                            a4: {"color": null, "bw": null},
+                            a5: {"color": null, "bw": null},
+                            presc: {"color": null, "bw": null},
+                            stickers: {"bw": null, "h": null, "w": null},
+                            regulations: {"bw": null}
+                        }
+                    },
+                    electronAvailable: {
+                        type: Boolean,
+                        value: false
+                    },
+                    showQr: {
+                        type: Boolean,
+                        value: true
+                    },
+                    idAddress:{
+                        type: Number,
+                        value: -1
                     }
                 };
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)'];
+                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
             }
 
             ready() {
                 super.ready();
                 this.addEventListener('iron-resize', () => this.onWidthChange());
-                this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') == 'true' ? true : false)
+                this.set('receiveMailAuto', localStorage.getItem('receiveMailAuto') ? localStorage.getItem('receiveMailAuto') : true)
             }
 
             _autoMailChanged() {
@@ -989,12 +1373,13 @@
 
 
                         // Resolve for dataprovider / combobox
-                        if( hcp.supervisorId || hcp.parentId ) {
+                        if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
 
-                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId].join(',') )]).then(results => {
+                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId].join(',') )]).then(results => {
 
                                 const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
                                 const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();
+                                const contactPerson = _.chain(results[0]).filter({id:hcp.contactPersonHcpId}).head().value();
 
                                 this.supervisorListItem = supervisor ? [{
                                     id: supervisor.id,
@@ -1016,18 +1401,31 @@
                                         ''
                                 }] : [];
 
+                                this.contactListItem = contactPerson ? [{
+                                    id: contactPerson.id,
+                                    name: _.upperFirst(_.lowerCase(contactPerson.name)),
+                                    hrLabel:
+                                        _.upperFirst(_.lowerCase(contactPerson.name)) + ' ' +
+                                        (typeof contactPerson.nihii === 'undefined' || !contactPerson.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + contactPerson.nihii) + ' ' +
+                                        ''
+                                }] : [];
+
                                 // Only affect when computed
                                 this.hcp = hcp;
 
-                                let idxAddress = this.hcp.addresses.findIndex(addr => !addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                                idxAddress>=0 ? this.set('adr',{
+                                if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
+                                let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                                let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                                this.idAddress>=0 ? this.set('adr',{
                                     addressType:"work",
-                                    street:this.hcp.addresses[idxAddress].street,
-                                    houseNumber:this.hcp.addresses[idxAddress].houseNumber,
-                                    postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
-                                    postalCode:this.hcp.addresses[idxAddress].postalCode,
-                                    city:this.hcp.addresses[idxAddress].city,
-                                    country:this.hcp.addresses[idxAddress].country
+                                    street:this.hcp.addresses[this.idAddress].street,
+                                    houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
+                                    postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
+                                    postalCode:this.hcp.addresses[this.idAddress].postalCode,
+                                    city:this.hcp.addresses[this.idAddress].city,
+                                    country:this.hcp.addresses[this.idAddress].country,
+                                    phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                                    proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
                                 }) : ""
 
                             });
@@ -1037,22 +1435,71 @@
                             // Affect directly
                             this.hcp = hcp;
 
-                            let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                            idxAddress>=0 ? this.set('adr',{
+                            if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
+                            let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                            let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                            this.idAddress>=0 ? this.set('adr',{
                                 addressType:"work",
-                                street:this.hcp.addresses[idxAddress].street,
-                                houseNumber:this.hcp.addresses[idxAddress].houseNumber,
-                                postboxNumber:this.hcp.addresses[idxAddress].postboxNumber,
-                                postalCode:this.hcp.addresses[idxAddress].postalCode,
-                                city:this.hcp.addresses[idxAddress].city,
-                                country:this.hcp.addresses[idxAddress].country
+                                street:this.hcp.addresses[this.idAddress].street,
+                                houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
+                                postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
+                                postalCode:this.hcp.addresses[this.idAddress].postalCode,
+                                city:this.hcp.addresses[this.idAddress].city,
+                                country:this.hcp.addresses[this.idAddress].country,
+                                phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                                proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
                             }) : ""
-
                         }
-
-
                     });
 
+                    this.api.isElectronAvailable().then(isit=>this.set('electronAvailable',isit))
+                    this.api.printers().then(prt=>{
+                        this.set('printers',prt)
+
+                        if (localStorage.getItem('selectedPrinter')) {
+                            const selectedFromStorage = JSON.parse(localStorage.getItem('selectedPrinter'))
+                            let tempSelected = {}
+
+                            Object.keys(selectedFromStorage).forEach(k => {
+                                if (k != 'stickers' && k != 'regulations') {
+                                    const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
+                                    const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
+                                    tempSelected[k] = {color:color,bw:bw}
+                                }
+                            })
+                            tempSelected.stickers = {
+                                bw:this._getPrinterIdByName(this.printers,selectedFromStorage.stickers.bw),
+                                w:selectedFromStorage.stickers.w,
+                                h:selectedFromStorage.stickers.h
+                            }
+                            tempSelected.regulations = {bw:this._getPrinterIdByName(this.printers,selectedFromStorage.regulations.bw)}
+                            this.set('selectedPrinter', selectedFromStorage)
+                            this.set('numericSelectedPrinter', tempSelected)
+                        }
+                    })
+                }
+            }
+            _setPrinter(e) {
+                const target = 'selectedPrinter.'+e.target.getAttribute('target')
+                const value = e.target.dataset.item
+                const size = e.target.value
+                if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
+                if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
+                if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
+                if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
+                if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
+                if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if (target=='selectedPrinter.stickers.bw') this.set('selectedPrinter.stickers.bw',value)
+                if (target=='selectedPrinter.stickers.h') this.set('selectedPrinter.stickers.h',size)
+                if (target=='selectedPrinter.stickers.w') this.set('selectedPrinter.stickers.w',size)
+                if (target=='selectedPrinter.regulations.bw') this.set('selectedPrinter.regulations.bw',value)
+                if ( !_.isEqual(JSON.parse(localStorage.getItem('selectedPrinter')), this.numericSelectedPrinter)) {
+                    localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
+                }
+            }
+            _getPrinterIdByName(source,name) {
+                for (let i = 0;i<=source.length;i++) {
+                    if (source[i] && source[i].name == name) return i
                 }
             }
 
@@ -1074,8 +1521,7 @@
                 this.set('qrCodeWidth', Math.max(Math.min(offsetWidth / 2 - 64, 280), 120));
             }
 
-            open() {
-
+            open(tab) {
                 this.showEHPreferrences(this.user);
                 const regs = this.getRegistrationStatus()
                 regs.rs.forEach(reg => {
@@ -1085,6 +1531,7 @@
                 })
 
                 this.$.dialog.open();
+                this.set('tabs',tab>0?tab:0)
             }
 
             close() {
@@ -1171,6 +1618,56 @@
                 })
             }
 
+            _hcpSearch(e) {
+                let hcpLatestSearchValue = e && e.detail.value
+                this.hcpLatestSearchValue = hcpLatestSearchValue
+
+                if (!hcpLatestSearchValue || hcpLatestSearchValue.length < 2) { this.set('contactListItem', []); return; }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(hcpLatestSearchValue).then(res => {
+                    if (hcpLatestSearchValue !== this.hcpLatestSearchValue) return;
+                    this.set('contactListItem', res.rows)
+                })
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (supervisorFilterValue) {
+                        return Promise.all(
+                            [
+                                this.api.hcparty().findBySsinOrNihii( supervisorFilterValue ),
+                                this.api.hcparty().findByName( supervisorFilterValue )
+                            ]
+                        ).then(
+                            results => {
+                                const dataProviderResults =
+                                    _.flatten(
+                                        _
+                                            .chain( _.concat( results[0].rows, results[1].rows ) )
+                                            .uniqBy( 'id' )
+                                            .filter((i)=>{ return !i.type || i.type.toLowerCase() !== 'medicalhouse' })
+                                            .value()
+                                            .map(
+                                                i => ({
+                                                    id: i.id,
+                                                    lastName: _.upperFirst(_.lowerCase(i.lastName)),
+                                                    hrLabel:
+                                                        _.upperFirst(_.lowerCase(i.lastName)) + ' ' +
+                                                        _.upperFirst(_.lowerCase(i.firstName)) + ' ' +
+                                                        ( typeof i.nihii === 'undefined' || !i.nihii ? '' : ' - ' + this.localize('nihii','INAMI',language) + ': '+i.nihii ) + ' ' +
+                                                        ( typeof i.ssin === 'undefined' || !i.ssin ? '' : ' - ' + this.localize('ssin','Registre national',language) + ': ' + i.ssin.substr(0,6) + '-' + i.ssin.substr(6,3) + '-' + i.ssin.substr(8,2) ) + ' ' +
+                                                        ''
+                                                })
+                                            )
+                                    )
+                                ;
+                                return {totalSize: dataProviderResults.length, rows: _.sortBy( dataProviderResults, 'lastName')}
+                            }
+                        )
+
+                    }.bind(this)
+                }
+            }
+
             _mhSearch(e) {
                 let mhLatestSearchValue = e && e.detail.value
                 this.mhLatestSearchValue = mhLatestSearchValue
@@ -1197,7 +1694,7 @@
                                         _
                                             .chain( _.concat( results[0].rows, results[1].rows ) )
                                             .uniqBy( 'id' )
-                                            .filter({ type : 'medicalHouse' })
+                                            .filter({ type : 'medicalhouse' })
                                             .value()
                                         .map(
                                             i => ({
@@ -1234,7 +1731,7 @@
                                         _
                                             .chain( _.concat( results[0].rows, results[1].rows ) )
                                             .uniqBy( 'id' )
-                                            .filter((i)=>{ return i.type !== 'medicalHouse' })
+                                            .filter((i)=>{ return !i.type || i.type.toLowerCase() !== 'medicalhouse' })
                                             .value()
                                         .map(
                                             i => ({
@@ -1265,12 +1762,16 @@
             }
 
 
-            _isMedicalHouse(hcpType) {return hcpType==="medicalHouse";}
+            _isMedicalHouse(hcpType) {return hcpType && hcpType.toLowerCase() === "medicalhouse";}
 
             addressProChanged(){
                 if(!this.hcp)return;
-                let idxAddress = this.hcp.addresses.findIndex(addr =>!addr.addressType || addr.addressType==="work" || addr.addressType==="")
-                if(idxAddress<0){
+                if(this.idAddress===-1){this._findAddress()}
+
+                let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                // console.log('addressProChanged',idxAddress,idxPhone,idxMail)
+                if(this.idAddress<0){
                     this.push('hcp.addresses',{
                         addressType:"work",
                         street:this.adr.street || "",
@@ -1278,17 +1779,69 @@
                         postboxNumber:this.adr.postboxNumber || "",
                         postalCode:this.adr.postalCode || "",
                         city:this.adr.city || "",
-                        country:this.adr.country || ""
+                        country:this.adr.country || "",
+                        telecoms: [
+                            {telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""},
+                            {telecomType: "email",telecomNumber:this.adr.proMail || ""}
+                        ]
                     })
+                    // console.log('add addr',this.hcp)
+                }
+                else if (idxPhone<0) {
+                    this.push('hcp.addresses.'+this.idAddress+'.telecoms',{telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""})
+                    // console.log('add phone',this.hcp)
+                }
+                else if (idxMail<0) {
+                    this.push('hcp.addresses.'+this.idAddress+'.telecoms',{telecomType: "email",telecomNumber:this.adr.proMail || ""})
+                    // console.log('add mail',this.hcp)
                 }
                 else{
-                    this.set('hcp.addresses.'+idxAddress+'.addressType',"work")
-                    this.set('hcp.addresses.'+idxAddress+'.street',this.adr.street || "")
-                    this.set('hcp.addresses.'+idxAddress+'.houseNumber',this.adr.houseNumber || "")
-                    this.set('hcp.addresses.'+idxAddress+'.postboxNumber',this.adr.postboxNumber || "")
-                    this.set('hcp.addresses.'+idxAddress+'.postalCode',this.adr.postalCode || "")
-                    this.set('hcp.addresses.'+idxAddress+'.city',this.adr.city || "")
-                    this.set('hcp.addresses.'+idxAddress+'.country',this.adr.country || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.addressType',"work")
+                    this.set('hcp.addresses.'+this.idAddress+'.street',this.adr.street || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.houseNumber',this.adr.houseNumber || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.postboxNumber',this.adr.postboxNumber || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.postalCode',this.adr.postalCode || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.city',this.adr.city || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.country',this.adr.country || "")
+                    this.set('hcp.addresses.'+this.idAddress+'.telecoms.'+idxPhone,{telecomType: "phone",telecomNumber:this.adr.phoneNumber || ""})
+                    this.set('hcp.addresses.'+this.idAddress+'.telecoms.'+idxMail,{telecomType: "email",telecomNumber:this.adr.proMail || ""})
+                    // console.log('success',this.hcp)
+                }
+            }
+
+            _findAddress(){
+                let index=this.hcp.addresses.findIndex(addr => addr.addressType==="work" && this.adr.street===addr.street && this.adr.houseNumber===addr.houseNumber
+                    && this.adr.postboxNumber===addr.postboxNumber && this.adr.postalCode===addr.postalCode && this.adr.city===addr.city && this.adr.country===addr.country
+                    && (!this.adr.phoneNumber || this.adr.phoneNumber==="" || (this.adr.phoneNumber!=="" && addr.telecoms.find(tel => tel.telecomType==="phone" && this.adr.phoneNumber===tel.telecomNumber)))
+                    && (!this.adr.proMail || this.adr.proMail==="" || (this.adr.proMail!=="" && addr.telecoms.find(tel => tel.telecomType==="email" && this.adr.proMail===tel.telecomNumber))))
+                console.log(index,this.hcp)
+                if(index===-1){
+                    index=this.hcp.addresses.findIndex(addr => addr.addressType==="work" && this.adr.street===addr.street && this.adr.houseNumber===addr.houseNumber
+                        && this.adr.postboxNumber===addr.postboxNumber && this.adr.postalCode===addr.postalCode && this.adr.city===addr.city && this.adr.country===addr.country)
+                    if(index===-1){
+                        this.hcp.addresses.push({
+                            "addressType" : "work",
+                            "street" : this.adr.street,
+                            "houseNumber" : this.adr.houseNumber,
+                            "postboxNumber" : this.adr.postboxNumber,
+                            "postalCode" : this.adr.postalCode,
+                            "city" : this.adr.city,
+                            "country" : this.adr.country,
+                            "telecoms" : [
+                                {
+                                    "telecomType" : "phone",
+                                    "telecomNumber" : this.adr.phoneNumber || ""
+                                },
+                                {
+                                    "telecomType" : "email",
+                                    "telecomNumber" : this.adr.proMail || ""
+                                }
+                            ]
+                        })
+                        index = this.hcp.addresses.length-1
+                    }
+
+                    this.set("idAddress",index)
                 }
             }
         }

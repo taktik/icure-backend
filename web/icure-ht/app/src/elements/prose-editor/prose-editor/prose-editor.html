@@ -38,7 +38,7 @@
                     0 1px 8px 0 rgba(0, 0, 0, 0.20);
 
                     width: 555px;
-                    min-height: 801px;
+                    min-height: 931px;
                     transition: height .2s ease-in;
 
                     font-family: 'Roboto', sans-serif;
@@ -281,8 +281,18 @@
                 .ProseMirror .tableWrapper {
                     margin: 1em 0;
                 }
+
+                .linkingLetter h1 { margin-bottom:5px }
+                .linkingLetter h5 { margin-top:0px; text-decoration:none; font-weight:400 }
+                .linkingLetter p { padding:0; margin:10px 0 10px 0; }
+                .linkingLetter .tableWrapper { margin:0!important; }
+                .linkingLetter table { border:0; border-collapse: collapse; }
+                .linkingLetter table tr td { border:1px solid #000; }
+                .linkingLetter table tr td p { padding:0; margin:1px 0 1px 0; }
+
             </style>
         </custom-style>
+
         <div class="prose-editor-container">
             <div class="toolbar">
                 <paper-icon-button icon="icons:undo" on-tap="doUndo"></paper-icon-button>
@@ -359,7 +369,7 @@
 
             <div class="scroll-area">
                 <div id="container" class="container">
-                    <div id=editor></div>
+                    <div id=editor class$="[[additionalCssClasses]]"></div>
                     <div style="display: none" id="content">
                         <div id="page_0" class="page">
                         </div>

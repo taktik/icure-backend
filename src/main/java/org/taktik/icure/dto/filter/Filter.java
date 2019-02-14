@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dto.filter;
 
+import org.taktik.icure.dto.filter.code.CodeByRegionTypeLabelLanguageFilter;
 import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
 import org.taktik.icure.dto.filter.patient.*;
 import org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 @JsonPolymorphismSupport({Filters.UnionFilter.class, Filters.IntersectionFilter.class, Filters.ComplementFilter.class, Filters.ConstantFilter.class,
+		CodeByRegionTypeLabelLanguageFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
 		PatientByHcPartyAndSsinsFilter.class,PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class,
 		ContactByHcPartyPatientTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class, PatientByHcPartyNameFilter.class, PatientByHcPartyAndActiveFilter.class})

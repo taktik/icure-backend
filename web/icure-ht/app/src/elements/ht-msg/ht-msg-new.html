@@ -540,7 +540,8 @@
             }
 
             .sendingSpinner {
-                transform: translateY(8px);
+                display: block;
+                float: right;
             }
 
             #success,
@@ -896,25 +897,29 @@
 			}
 
 			_recipientFilterChanged(type, filter) {
-                setTimeout(()=>{
-                    if(filter && filter.length >2) {
-                        this.set('isLoadingDestinations',true)
-                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
+                if(filter && filter.length >2) {
+                    const reqIdx = (this.recipientReqIdx = (this.recipientReqIdx || 0) + 1)
+                    setTimeout(() => {
+                        if (reqIdx !== this.recipientReqIdx) {
+                            return
+                        }
+                        this.set('isLoadingDestinations', true)
+                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId, this.api.tokenId, this.credentials.ehpassword, filter + '*')
                             .then(hcps => {
-                            let setList = []
-                            hcps.map(hcp=>{
-                                hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
-                                setList.push(hcp)
-                            })
-                            this.set("hcpList", setList)
-                            this.set('isLoadingDestinations',false)
-                        })
-                    }
-                    else{
-                        this.set("hcpList",[]);
-                        this.set('isLoadingDestinations',false)
-                    }
-                },1500)
+                                if (reqIdx === this.recipientReqIdx) {
+                                    let setList = []
+                                    hcps.map(hcp => {
+                                        hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
+                                        setList.push(hcp)
+                                    })
+                                    this.set("hcpList", setList)
+                                }
+                            }).finally(() => this.set('isLoadingDestinations', false))
+                    }, 300)
+                } else{
+                    this.set("hcpList",[]);
+                    this.set('isLoadingDestinations',false)
+                }
             }
 
 			getHcpLight(hcp, type){
@@ -945,22 +950,27 @@
 				}
             }
 
-			_patientFilterChanged(filter){
-                if(filter && filter.length > 1) {
-					this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, filter, null, null, 100, "asc")
-						.then(patients => {
-							console.log(patients);
-							let filtredpatients = patients.rows.filter(pat => pat.ssin)
-								.map(pat => {
-									let newPat = {};
-									newPat.firstName = pat.firstName ? pat.firstName : "";
-									newPat.lastName = pat.lastName ? pat.lastName : "";
-									newPat.ssin = pat.ssin ? pat.ssin : "";
-									newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
-									return newPat
-								})
-							this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
-						})
+			_patientFilterChanged(filter) {
+                if(filter && filter.length > 3) {
+                    const reqIdx = (this.patientReqIdx = (this.patientReqIdx || 0) + 1)
+                    setTimeout(() => {
+                        reqIdx === this.patientReqIdx && this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, filter, null, null, 100, "asc")
+                            .then(patients => {
+                                if (reqIdx === this.patientReqIdx) {
+                                    console.log(patients);
+                                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                                        .map(pat => {
+                                            let newPat = {};
+                                            newPat.firstName = pat.firstName ? pat.firstName : "";
+                                            newPat.lastName = pat.lastName ? pat.lastName : "";
+                                            newPat.ssin = pat.ssin ? pat.ssin : "";
+                                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                                            return newPat
+                                        })
+                                    this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
+                                }
+                            })
+                    }, 300)
 				}
 				else{
 					this.set("patientList", [])
@@ -978,7 +988,7 @@
                 //     return;
                 // }
                 const files = _.clone(this.files);
-                console.log('cloned files',files)
+                // console.log('cloned files',files)
                 const vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
@@ -995,13 +1005,13 @@
                         fr.onload = function (se) {
                             let fileByteArray = [];
                             new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
-                            this.push('newMessage.annex',{
+                            this.set('newMessage.annex',[{
                                 "content": fileByteArray,
                                 "filename": file.name,
                                 "mimeType": file.type ? file.type : 'text/plain',
                                 "title": file.name,
                                 "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-                            });
+                            }]);
                             console.log('annexes',this.newMessage.annex)
                             this.dispatchEvent(new CustomEvent('file-received', file));
                         }.bind(this);
@@ -1012,6 +1022,9 @@
             }
 
             saveCurrentContact() {
+                if(!this.currentContact.id ) {
+                    this.currentContact.id = this.api.crypto().randomUuid()
+                }
                 return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
             }
 
@@ -1194,6 +1207,8 @@
                         	if(response) {
 								this.clearField();
                                 this.set('isSendingMsg',false)
+                                this.set('newMessage.annex',[]);
+                                this.set('uploadFiles',[])
                                 this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}

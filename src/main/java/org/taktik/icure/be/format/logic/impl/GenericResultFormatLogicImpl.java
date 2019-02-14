@@ -22,20 +22,14 @@ package org.taktik.icure.be.format.logic.impl;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.Contact;
@@ -103,14 +97,14 @@ public abstract class GenericResultFormatLogicImpl {
 		return text;
 	}
 
-	protected org.w3c.dom.Document getXmlDocument(Document doc) throws ParserConfigurationException, IOException, SAXException {
+	protected org.w3c.dom.Document getXmlDocument(Document doc, List<String> enckeys) throws ParserConfigurationException, IOException, SAXException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		return dBuilder.parse(new ByteArrayInputStream(doc.getAttachment()));
+		return dBuilder.parse(new ByteArrayInputStream(doc.decryptAttachment(enckeys)));
 	}
 
-	protected BufferedReader getBufferedReader(Document doc) throws IOException {
-		return new BufferedReader(new StringReader(decodeRawData(doc.getAttachment())));
+	protected BufferedReader getBufferedReader(Document doc, List<String> enckeys) throws IOException {
+		return new BufferedReader(new StringReader(decodeRawData(doc.decryptAttachment(enckeys))));
 	}
 
 	public static class LaboLine {

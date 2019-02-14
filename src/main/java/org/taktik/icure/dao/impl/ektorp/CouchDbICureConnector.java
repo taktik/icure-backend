@@ -30,7 +30,5 @@ public interface CouchDbICureConnector extends CouchDbConnector {
 
 	CouchDbICureConnector getCouchDbICureConnector(String groupId);
 
-	<T> List<CouchKeyValue<T>> queryViewWithKeys(final ViewQuery query, final Class<T> type);
-
 	CouchDbICureConnector getFallbackConnector();
 }

@@ -154,6 +154,12 @@
                 bottom: 15px;
                 margin: 0;
                 padding: 0;
+                display: flex;
+            }
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
             }
             .modal-button--save {
                 background: var(--app-secondary-color);
@@ -161,7 +167,6 @@
             }
             ht-spinner {
                 position: relative;
-                top: 10px;
                 height: 42px;
                 width: 42px;
             }
@@ -181,7 +186,6 @@
                             <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
                             <paper-button class="action" on-tap="_consultDmg" disabled="[[isLoading]]">[[localize('refresh','Refresh',language)]]</paper-button>
-                            <ht-spinner active="[[isLoading]]"></ht-spinner>
                         </div>
                         <!-- Show consultation result/errors -->
                         <div class="edmg-info">
@@ -242,7 +246,6 @@
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
                             <paper-button class="action" on-tap="_dmgNotify" disabled="[[isLoading]]">[[localize('dmg_not','Notify',language)]]</paper-button>
-                            <ht-spinner active="[[isLoading]]"></ht-spinner>
 
                             <template is="dom-if" if="{{notifyDmgResp}}">
                                 <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
@@ -267,7 +270,8 @@
                 </page>
             </iron-pages>
             <div class="end-buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                <ht-spinner active="[[isLoading]]"></ht-spinner>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>

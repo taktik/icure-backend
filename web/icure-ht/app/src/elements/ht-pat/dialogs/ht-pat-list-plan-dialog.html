@@ -12,13 +12,38 @@
     <template>
         <style>
             #dialog{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
                 min-height: 480px;
                 min-width: 800px;
-                max-height: calc( 90vh - 64px ) !important;
+                height: 60vh !important;
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%,-50%);
+            }
+            h2 {
+                min-height: 44px;
+            }
+            h3.err {
+                text-align: center;
+                margin-top: 10%;
+                color: var(--app-error-color);
+            }
+
+            .view {
+                margin-top: 0;
+                flex-grow: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                border-top: 1px solid var(--app-background-color-dark);
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .buttons {
+                height: 56px;
+                display: flex;
+                justify-content: flex-end;
             }
 
             .col-lg-1{
@@ -36,11 +61,21 @@
             .col-lg-4{
                 width: 5%;
             }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <div>
+            <h2>[[localize('plan_of_act','Action plan',language)]]</h2>
+            <div class="view">
                 <paper-listbox id="services-list" class="" selected="{{selected}}">
+                    <template is="dom-if" if="[[!services.length]]">
+                        <h3 class="err"><iron-icon icon="warning"></iron-icon> [[localize('no_action_plan','No action plans',language)]] !</h3>
+                    </template>
                     <template is="dom-repeat" items="[[services]]">
                         <paper-item class="">
                             <div class="col-lg-1">[[_formatDate(item.valueDate)]]</div>
@@ -48,13 +83,14 @@
                             <div class="col-lg-3">[[_getStatut(item)]]</div>
                             <div class="col-lg-4">
                                 <paper-icon-button id="bt-[[item.id]]" class="" icon="zoom-in" on-tap="showAction" data-item$="[[item.id]]"></paper-icon-button>
+                                <paper-tooltip position="left" for="bt-[[item.id]]">[[localize('show_det','Show details',language)]]</paper-tooltip>
                             </div>
                         </paper-item>
                     </template>
                 </paper-listbox>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>
@@ -157,7 +193,7 @@
             }
 
             static get observers() {
-                return [];
+                return ['contactsChanged(contacts)'];
             }
 
             ready() {
@@ -166,15 +202,15 @@
 
             contactsChanged(){
                 if(!(this.contacts && this.contacts.length))return;
-                this.api.contact().filterServices(this.contacts,s => s.label==='Actes')
-                    .then(services =>{
-                        console.log('services:',services)
-                        this.set("services",_.sortBy(services,"valueDate"))
-                    })
+                this.api.contact().filterServices(this.contacts,s => s.label==='Actes' || (s.tags.some(t => t.type == "SOAP" && t.code == "Plan") && s.tags.some(t => t.type == 'CD-ITEM-TASK')))
+                .then(services =>{
+                    this.set("services",_.orderBy(services,"valueDate",'desc'))
+                })
             }
 
             _getContent(svc){
-                return _svc.content && _.get( svc.content[this.language], "stringValue", "" ) || ""
+                const content = svc && this.api.contact().preferredContent(svc, this.language) || svc.content[this.language]
+                return content && content.stringValue || this.localize('obs_val','obsolete value',this.language)
             }
 
             _formatDate(date){

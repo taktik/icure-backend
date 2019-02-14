@@ -71,7 +71,7 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     protected String ssin;
 
-    protected Set<Address> addresses = new HashSet<>();
+    protected List<Address> addresses = new LinkedList<>();
     protected List<String> languages =  new LinkedList<>();
 
     protected List<HealthcarePartyStatus> statuses;
@@ -98,8 +98,9 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     // Medical houses
     protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
-    protected String type;                              // "persphysician" or "medicalHouse"
+    protected String type;                              // "persphysician" or "medicalHouse" or "perstechnician"
     protected String contactPerson;
+    protected String contactPersonHcpId;
 
 
 	public HealthcareParty() {
@@ -243,11 +244,11 @@ public class HealthcareParty extends StoredDocument implements Person {
         this.sendFormats = sendFormats;
     }
 
-    public Set<Address> getAddresses() {
+    public List<Address> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(Set<Address> addresses) {
+    public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
 
@@ -377,5 +378,13 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     public void setContactPerson(String contactPerson) {
         this.contactPerson = contactPerson;
+    }
+
+    public String getContactPersonHcpId() {
+        return contactPersonHcpId;
+    }
+
+    public void setContactPersonHcpId(String contactPersonHcpId) {
+        this.contactPersonHcpId = contactPersonHcpId;
     }
 }

@@ -88,6 +88,12 @@
 				position: relative;
 			}
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
 		</style>
 
 		<paper-dialog id="dialog">
@@ -110,6 +116,9 @@
 						<vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
 						<template is="dom-if" if="[[searchAllergen]]">
 							<vaadin-combo-box id="entities-list" filtered-items="[[allergenItems]]" on-filter-changed="_allergenFilterChanged" item-label-path="descr" selected-item="{{allergenSelectedItem}}" item-value-path="id" label="[[localize('sea_for_alle','Search for allergens',language)]]"></vaadin-combo-box>
+						</template>
+						<template is="dom-if" if="[[searchDrug]]">
+							<vaadin-combo-box id="entities-list" filtered-items="[[drugItems]]" on-filter-changed="_drugFilterChanged" item-label-path="name" selected-item="{{drugSelectedItem}}" item-value-path="id.id" label="[[localize('sea_for_dru','Search for drugs',language)]]"></vaadin-combo-box>
 						</template>
 						<template is="dom-if" if="[[searchFamilyLink]]">
 							<vaadin-combo-box id="entities-list" filtered-items="[[familyLinkItems]]" on-filter-changed="_familyRiskFilterChanged" item-label-path="descr" selected-item="{{familyRiskSelectedItem}}" item-value-path="id" label="[[localize('sea_for_fam_link','Search for family link',language)]]"></vaadin-combo-box>
@@ -179,8 +188,10 @@
 				<slot name="suffix"></slot>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
+				<paper-button class="modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<template is="dom-if" if="[[isValid]]">
+					<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
+				</template>
 			</div>
 		</paper-dialog>
 
@@ -249,6 +260,10 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Object,
                 value: null
 			},
+			drugSelectedItem: {
+				type: Object,
+				value: null
+			},
             familyRiskSelectedItem:{
                 type: Object,
                 value: null
@@ -275,12 +290,19 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Boolean,
                 value: false
 			},
+			searchDrug:{
+				type: Boolean,
+				value: false
+			},
             searchFamilyLink:{
                 type: Boolean,
                 value: false
 			},
             allergenFilterValue: {
 			    type: String
+			},
+ 			drugFilterValue: {
+				type: String
 			},
             familyLinkFilterValue: {
                 type: String
@@ -307,12 +329,16 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
             temporalityItem:{
 			    type: Object,
 				value: () => {}
+			},
+            isValid: {
+			    type : Boolean,
+				value : false
 			}
 		};
 	}
 
 	static get observers() {
-		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)'];
+		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem, drugSelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)','_checkValidity(entity.codes)'];
 	}
 
 	constructor() {
@@ -340,7 +366,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_updateDescription() {
         if (this.selectedItem || this.surgerySelectedItem) {
-            this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : (this.searchSurgery && this.surgerySelectedItem) ? `${this.surgerySelectedItem.descr}` : this.selectedItem.descr);
+            this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : (this.searchDrug && this.drugSelectedItem) ? `${this.selectedItem.descr} (${this.drugSelectedItem.name})` : (this.searchSurgery && this.surgerySelectedItem) ? `${this.surgerySelectedItem.descr}` : this.selectedItem.descr);
         }
     }
 
@@ -379,6 +405,34 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
             this.set('allergenItems', res.rows);
         });
+	}
+
+	_drugFilterChanged(e) {
+		let latestSearchValue = e && e.detail.value;
+		this.latestSearchValue = latestSearchValue;
+		if (!latestSearchValue || latestSearchValue.length < 2) {
+			console.log("Cancelling empty search");
+			this.set('drugItems', []);
+			return;
+		}
+
+
+		const search = this.dataProvider && (() => this.dataProvider.filterDrugs(latestSearchValue, 500, 0, 'name', false))
+
+		if(this.drugFilterTimeout) {
+			clearTimeout(this.drugFilterTimeout)
+		}
+
+		this.drugFilterTimeout = setTimeout(() => search().then(res => {
+			if (latestSearchValue !== this.latestSearchValue) {
+				console.log("Cancelling obsolete search");
+				return;
+			}
+
+			this.drugFilterTimeout = null
+			this.set('drugItems', res.rows);
+		}), 500)
+
 	}
 
     _familyRiskFilterChanged(e){
@@ -430,7 +484,21 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _status() {
-        return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' : 'active';
+		//possible returns
+		//entity === null --> null
+		//status & 3 === 3 -- x11 --> 'archived' !!! not 2
+		//status & 2 === 2 -- x10 --> 'active-irrelevant'
+		// && if closingdate before now -- x11 --> 'archived'
+		//status & 1 === 1 -- x01 --> 'inactive'
+		//status & 3 === 0 -- x00 --> 'active-relevant'
+		// && if closingdate before now -- x01 --> 'inactive'
+        return !this.entity ? null :
+				((this.entity.status || 0) & 3) === 3 ? 'archived' :
+						((this.entity.status || 0) & 2) === 2 && (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'archived' :
+								((this.entity.status || 0) & 2) === 2 ? 'active-irrelevant' :
+										((this.entity.status || 0) & 1) === 1 ? 'inactive' :
+												((this.entity.status || 0) & 3) === 0 && (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' :
+								'active-relevant';
     }
 
     _severity() {
@@ -452,22 +520,34 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this._cdItemTagForEntity(this.entity, true).code = e.detail.value;
 
         e.detail.value === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
+		e.detail.value === "adr" ? this.set("searchDrug", true) : this.set("searchDrug", false)
 		e.detail.value === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
 		e.detail.value === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 	}
 
 	_statusChanged(e) {
 		switch (e.detail.value) {
-			case 'active':
-				this.set('entity.closingDate', null);((this.entity.status || 0) & 1) === 1 && this.set('entity.status', (this.entity.status || 0) - 1);((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			// case 'active': //will never be hit !
+			// 	this.set('entity.closingDate', null);
+			// 	((this.entity.status || 0) & 1) === 1 && this.set('entity.status', (this.entity.status || 0) - 1);
+			// 	((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			// 	break;
+			case 'active-relevant': //set status to x00
+				this.set('entity.closingDate', null);
+				this.set('entity.status', (this.entity.status & 4 || 0));
 				break;
-			case 'inactive':
-				((this.entity.status || 0) & 1) === 0 && this.set('entity.status', (this.entity.status || 0) + 1);((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2);
+			case 'active-irrelevant': //set status to x10
+				this.set('entity.closingDate', null);
+				this.set('entity.status', (this.entity.status & 4 || 0) | 2);
 				break;
-			case 'archived':
-				((this.entity.status || 0) & 2) === 0 && this.set('entity.status', (this.entity.status || 0) + 2);
+			case 'inactive': //set status to x01
+				this.set('entity.status', (this.entity.status & 4 || 0) | 1);
+				break;
+			case 'archived': //set status to x11
+				this.set('entity.status', (this.entity.status & 4 || 0) | 3);
 				break;
 		}
+		console.log('status : ', this.entity.status)
 	}
 
     _severityChanged(e) {
@@ -531,6 +611,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	confirm() {
 		if (this.entity || this.activeItem) {
+			console.log(this.entity)
 			this.select(this.entity || this.activeItem);
 		}
 	}
@@ -544,6 +625,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	open() {
 		this.flushComboData()
+		this.set("isValid",false)
         this.api.code().findPaginatedCodes('be', 'CD-TEMPORALITY', '')
 			.then(c => this.set("temporalityList", c.rows.filter(c => c.code === "acute" || c.code === "subacute" || c.code === "chronic")))
 			.finally(() => {
@@ -553,10 +635,12 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				const type = this.entity.tags.find(t => t.type === "CD-ITEM")
 				type && type.code === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
                 type && type.code === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
+				type && type.code === "dra" ? this.set("searchDrug", true) : this.set("searchDrug", false)
                 type && type.code === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 
 				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
-		})
+				this._checkValidity();
+			})
 
 	}
 
@@ -565,6 +649,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('selectedItem',null)
         this.set('allergenFilterValue', '')
         this.set('allergenSelectedItem', null)
+		this.set('drugFilterValue', '')
+		this.set('drugSelectedItem', null)
         this.set('familyLinkFilterValue', '')
         this.set('familyRiskSelectedItem', null)
         this.set('surgeryFilterValue', '')
@@ -651,7 +737,14 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return item.label[this.language] ? item.label[this.language] : item.label.en
 	}
 
-
+    _checkValidity(){
+	    if(this.entity.codes){
+	        this.set("isValid",true)
+		}
+		else{
+            this.set("isValid",false)
+        }
+	}
 
 }
 
