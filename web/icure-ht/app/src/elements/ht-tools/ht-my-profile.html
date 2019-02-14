@@ -416,13 +416,23 @@
             .flex-horizontal .format {
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
-            .flex-horizontal .format.presc {
+            .flex-horizontal .format.regulations {
                 border-bottom: 0;
             }
 
             .flex-horizontal > div {
                 flex-grow: 1;
                 box-sizing: border-box;
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+            .flex-horizontal > div.col {
+                border: 0;
+                margin: initial;
+                border-radius: 0;
+            }
+            .flex-horizontal div.print-tile {
                 border: 1px solid var(--app-background-color-darker);
                 margin: 16px 8px;
                 border-radius: 4px;
@@ -824,94 +834,145 @@
                     <page>
                         <div class="flex-horizontal">
 
-                            <div>
-                                <h2>[[localize('color','Color',language)]]</h2>
-                                <div class="format afour">
-                                    <div class="left">
-                                        <span>A4</span>
+                            <div class="col">
+                                <div class="print-tile">
+                                    <h2>[[localize('color','Color',language)]]</h2>
+                                    <div class="format afour">
+                                        <div class="left">
+                                            <span>A4</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
+                                    <div class="format afive">
+                                        <div class="left">
+                                            <span>A5</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
+                                    </div>
+                                    <div class="format presc">
+                                        <div class="left">
+                                            <span>Prescription</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="format afive">
-                                    <div class="left">
-                                        <span>A5</span>
+                                <div class="print-tile">
+                                    <h2>[[localize('props','Properties',language)]] [[localize('stickers','Stickers',language)]]</h2>
+                                    <div class="format size-stickers">
+                                        <div class="left">
+                                            <span>H</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-input on-value-changed="_setPrinter" target="stickers.h" data-item$="[[numericSelectedPrinter.stickers.h]]" value="{{numericSelectedPrinter.stickers.h}}" label="mm" type="number" min="0"></paper-input>
+                                        </div>
                                     </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
-                                    </div>
-                                </div>
-                                <div class="format presc">
-                                    <div class="left">
-                                        <span>Prescription</span>
-                                    </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
+                                    <div class="format size-stickers">
+                                        <div class="left">
+                                            <span>L</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-input on-value-changed="_setPrinter" target="stickers.w" data-item$="[[numericSelectedPrinter.stickers.w]]" value="{{numericSelectedPrinter.stickers.w}}" label="mm" type="number" min="0"></paper-input>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div>
-                                <h2>BW</h2>
-                                <div class="format afour">
-                                    <div class="left">
-                                        <span>A4</span>
+                            <div class="col">
+                                <div class="print-tile">
+                                    <h2>[[localize('b_and_w','Black and white',language)]]</h2>
+                                    <div class="format afour">
+                                        <div class="left">
+                                            <span>A4</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
+                                    <div class="format afive">
+                                        <div class="left">
+                                            <span>A5</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="format afive">
-                                    <div class="left">
-                                        <span>A5</span>
+                                    <div class="format presc">
+                                        <div class="left">
+                                            <span>Prescription</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
+                                    <div class="format stickers">
+                                        <div class="left">
+                                            <span>[[localize('stickers','Stickers',language)]]</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.stickers.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="stickers.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="format presc">
-                                    <div class="left">
-                                        <span>Prescription</span>
-                                    </div>
-                                    <div class="right">
-                                        <paper-dropdown-menu>
-                                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
-                                                <template is="dom-repeat" items="[[printers]]" as="printer">
-                                                    <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
+                                    <div class="format regulations">
+                                        <div class="left">
+                                            <span>[[localize('regulations','Regulations',language)]]</span>
+                                        </div>
+                                        <div class="right">
+                                            <paper-dropdown-menu>
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regulations.bw]]">
+                                                    <template is="dom-repeat" items="[[printers]]" as="printer">
+                                                        <paper-item on-tap="_setPrinter" target="regulations.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1077,16 +1138,22 @@
                     selectedPrinter: {
                         type: Object,
                         value: {
-                            a4:{"color":'',"bw":''},
-                            a5:{"color":'',"bw":''},
-                            presc:{"color":'',"bw":''}}
+                            a4: {"color": '', "bw": ''},
+                            a5: {"color": '', "bw": ''},
+                            presc: {"color": '', "bw": ''},
+                            stickers: {"bw": '', "h": 0, "w": 0},
+                            regulations: {"bw": ''}
+                        }
                     },
                     numericSelectedPrinter: {
                         type: Object,
                         value: {
-                            a4:{"color":null,"bw":null},
-                            a5:{"color":null,"bw":null},
-                            presc:{"color":null,"bw":null}}
+                            a4: {"color": null, "bw": null},
+                            a5: {"color": null, "bw": null},
+                            presc: {"color": null, "bw": null},
+                            stickers: {"bw": null, "h": null, "w": null},
+                            regulations: {"bw": null}
+                        }
                     },
                     electronAvailable: {
                         type: Boolean,
@@ -1394,10 +1461,18 @@
                             let tempSelected = {}
 
                             Object.keys(selectedFromStorage).forEach(k => {
-                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
-                                const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
-                                tempSelected[k] = {color:color,bw:bw}
+                                if (k != 'stickers' && k != 'regulations') {
+                                    const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
+                                    const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
+                                    tempSelected[k] = {color:color,bw:bw}
+                                }
                             })
+                            tempSelected.stickers = {
+                                bw:this._getPrinterIdByName(this.printers,selectedFromStorage.stickers.bw),
+                                w:selectedFromStorage.stickers.w,
+                                h:selectedFromStorage.stickers.h
+                            }
+                            tempSelected.regulations = {bw:this._getPrinterIdByName(this.printers,selectedFromStorage.regulations.bw)}
                             this.set('selectedPrinter', selectedFromStorage)
                             this.set('numericSelectedPrinter', tempSelected)
                         }
@@ -1407,19 +1482,24 @@
             _setPrinter(e) {
                 const target = 'selectedPrinter.'+e.target.getAttribute('target')
                 const value = e.target.dataset.item
+                const size = e.target.value
                 if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
                 if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
                 if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
                 if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
                 if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
                 if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if (target=='selectedPrinter.stickers.bw') this.set('selectedPrinter.stickers.bw',value)
+                if (target=='selectedPrinter.stickers.h') this.set('selectedPrinter.stickers.h',size)
+                if (target=='selectedPrinter.stickers.w') this.set('selectedPrinter.stickers.w',size)
+                if (target=='selectedPrinter.regulations.bw') this.set('selectedPrinter.regulations.bw',value)
                 if ( !_.isEqual(JSON.parse(localStorage.getItem('selectedPrinter')), this.numericSelectedPrinter)) {
                     localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
                 }
             }
             _getPrinterIdByName(source,name) {
                 for (let i = 0;i<=source.length;i++) {
-                    if (source[i].name == name) return i
+                    if (source[i] && source[i].name == name) return i
                 }
             }
 

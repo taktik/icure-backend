@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+import org.taktik.icure.applications.utils.JarUtils;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
 import org.taktik.icure.logic.ContactLogic;
@@ -53,6 +54,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Map;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 @Component
@@ -87,7 +89,12 @@ public class ICureFacade implements OpenApiFacade{
 	@Path("/v")
 	@Produces({"text/plain"})
 	public Response getVersion() {
-		return Response.ok(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier())).build();
+		Manifest manifest = JarUtils.getManifest();
+		if (manifest != null) {
+			return Response.ok(manifest.getMainAttributes().getValue("Build-revision")).build();
+		} else {
+			return Response.ok(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier())).build();
+		}
 	}
 
 	@ApiOperation(

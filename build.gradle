@@ -1,5 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
+import java.text.SimpleDateFormat
+
 buildscript {
 	ext {
 		kotlinVersion = '1.3.10'
@@ -48,7 +50,6 @@ compileKotlin {
     }
 }
 
-
 compileJava {
     options.fork = true
     options.forkOptions.with {
@@ -90,6 +91,20 @@ repositories {
     }
     flatDir {
         dirs 'libs'
+    }
+}
+
+
+jar {
+    manifest {
+        attributes(
+                'Built-By'       : System.properties['user.name'],
+                'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Revision' : gitVersion,
+                'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
     }
 }
 

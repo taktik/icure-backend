@@ -1016,6 +1016,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 patient: pat,
                                 created: x[0].valueDate,
                                 patientName: pat.firstName + ' ' + pat.lastName,
+                                contactId: x[0].contactId,
                                 descr: (this.api.contact().preferredContent(x[0], this.language) || {}).stringValue
                             })
                         })
@@ -1031,26 +1032,21 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 								|| (m.unassignedResults && m.unassignedResults.length)
 							)
                         }).length)
-                        this.messagesByResultId = {}
+                        this.messagesByContactId = {}
                         messages.rows && messages.rows.forEach (mes => {
-                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(resid => {
-                                this.messagesByResultId[resid] = mes
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(conid => {
+                                this.messagesByContactId[conid] = mes
 							})
                         })
-						console.log("end loading mes", this.messagesByResultId)
                     })
             })
             .finally(() => {
-				//console.log("FINISHED LOAD MESSAGES")
                 this.set('isLoadingLabResults', false)
             })
     }
 
     _isUnreadResult(res) {
-	    //console.log("is unread ?", this.messagesByResultId, this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : 'read' , res)
-        //return 'unread'
-		// FIXME: WIP: no unread messages found
-	    return this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : ''
+	    return this.messagesByContactId && this.messagesByContactId[res.contactId] && ((this.messagesByContactId[res.contactId].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {

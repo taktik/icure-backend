@@ -1530,7 +1530,7 @@
 					//filter drugs that already have rid
 					let mvWithRid = drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID)
 					if(mvWithRid.length > 0) {
-						mvWithRid.map(mv => rid.push(mv.prescriptionRID))
+						rid.push(mvWithRid[0].prescriptionRID) // all medications should have same RID because same column
 						printed = true;
 					}
 				}))).finally(()=>{
@@ -1571,7 +1571,7 @@
 					const prescRid = rid[idx] ? rid[idx] : hcp.nihii;
 					JsBarcode(element, prescRid, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
-					const ridIdx = prescRid.split('').join('&nbsp;')
+					const ridLabel = prescRid.split('').join('&nbsp;')
 					prescNum += 1
 					const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
 					if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
@@ -1606,7 +1606,7 @@
 					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
-                    <div class="barcode-num">${ridIdx}</div>
+                    <div class="barcode-num">${ridLabel}</div>
                     <hr>
                     <h2>Preuve de prescription électronique</h2>
                     <hr>
@@ -1645,7 +1645,7 @@
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
-					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridIdx, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
+					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridLabel, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
 				}) // splitCol forEach end
 				// console.log("prescriToPrint",prescriToPrint)
 
@@ -1690,9 +1690,70 @@
 						let thatBody = ''
 						onePage.map((onePrescription)=>{
 							let singleName = onePrescription.name
-							thatBody += onePrescription.body
 							if (this.patient.ssin && this.api.tokenId && rid && rid.length>0) {
+								thatBody += onePrescription.body
 								onePrescription.poso.map((singlePoso)=>{posoTable += "<tr><td><b>"+singlePoso.medR+"</b></td><td>"+singlePoso.poso.toString()+"</td></tr>"}) // construct the posology body
+							}else{
+								thatBody += `
+								<div id="prescription">
+									<header id="header" class="flexbox vert bt center">
+										<div class="horiz">
+											<div class="cell br w50 p1025">
+												<img class="codbar" src="${onePrescription.jpegUrl}" alt="code-bar">
+												<span>${onePrescription.rid}</span>
+											</div>
+											<div class="cell w50">
+												<p>Nom et prénom du prescripteur</p>
+												<p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
+											</div>
+										</div>
+									</header>
+									<div class="horiz w100">
+										<div class="vert bt bb flex1 cell">
+											<p class="uppercase">À remplir par le prescripteur</p>
+											<p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+										</div>
+									</div>
+									<main id="main" class="flexbox flex1 horiz bb">
+										<div class="cell br w33">
+											<p>Réservé à la vignette de conditionnement</p>
+										</div>
+										<div class="cell">
+											${onePrescription.body}
+										</div>
+									</main>
+									<footer id="footer" class="flex horiz bb">
+										<div class="flex1 cell br w50">
+											<p class="title bold center w100">Cachet du prescripteur</p>
+											<ul>
+												<li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
+
+												"<li>" + _.get(hcpAddress, "street", "") + ", " + _.get(hcpAddress, "houseNumber", "") + ( _.trim(_.get(hcpAddress, "postboxNumber", "")) ? " / " + _.trim(_.get(hcpAddress, "postboxNumber", "")) : "" ) + "</li>" +
+												"<li class='uppercase'>" + _.get(hcpAddress, "postalCode", "") + " - " + _.get(hcpAddress, "city", "") + "</li>" +
+												( _.trim(hcpTel) ? "<li>Tel: " + _.trim(hcpTel) + "</li>" : "" ) + `
+
+												<li><span class="uppercase">`+ this.localize('inami',this.language) +`</span>&nbsp;: ${hcp.nihii}</li>
+											</ul>
+										</div>
+										<div class="w50">
+											<div class="vert w100">
+												<div class="cell bb center">
+													<p class="mt0">Date et signature du prescripteur</p>
+													<p>${deliveryDate}</p>
+												</div>
+												<div class="cell">
+													<p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+													<p class="signdate center bold w100">${deliveryDate}</p>
+												</div>
+											</div>
+										</div>
+									</footer>
+									<aside>
+										<div class="horiz">
+											<p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+										</div>
+									</aside>
+								</div>`
 							}
 						})
 						if (this.patient.ssin && this.api.tokenId && rid && rid.length>0) {
@@ -1701,64 +1762,8 @@
 							allPagesBody += onePageBodyTop+posoTable+onepageBodyBottom;
 						} else {
 							allPagesBody += `<div class="page">
-                        <header id="header" class="flexbox vert bt center">
-                            <div class="horiz">
-                                <div class="cell br w50 p1025">
-                                    <img class="codbar" src="${onePage[0].jpegUrl}" alt="code-bar">
-                                    <span>${onePage[0].rid}</span>
-                                </div>
-                                <div class="cell w50">
-                                    <p>Nom et prénom du prescripteur</p>
-                                    <p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
-                                </div>
-                            </div>
-                        </header>
-                        <div class="horiz w100">
-                            <div class="vert bt bb flex1">
-                                <p class="uppercase">À remplir par le prescripteur</p>
-                                <p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
-                            </div>
-                        </div>
-                        <main id="main" class="flexbox flex1 horiz bb">
-                            <div class="cell br w33">
-                                <p>Réservé à la vignette de conditionnement</p>
-                            </div>
-                            <div class="cell">
-                                ${thatBody}
-                            </div>
-                        </main>
-                        <footer id="footer" class="flex horiz bb">
-                            <div class="flex1 cell br w50">
-                                <p class="title bold center w100">Cachet du prescripteur</p>
-                                <ul>
-                                    <li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
-
-                                    "<li>" + _.get(hcpAddress, "street", "") + ", " + _.get(hcpAddress, "houseNumber", "") + ( _.trim(_.get(hcpAddress, "postboxNumber", "")) ? " / " + _.trim(_.get(hcpAddress, "postboxNumber", "")) : "" ) + "</li>" +
-                                    "<li class='uppercase'>" + _.get(hcpAddress, "postalCode", "") + " - " + _.get(hcpAddress, "city", "") + "</li>" +
-                                    ( _.trim(hcpTel) ? "<li>Tel: " + _.trim(hcpTel) + "</li>" : "" ) + `
-
-                            <li><span class="uppercase">`+ this.localize('inami',this.language) +`</span>&nbsp;: ${hcp.nihii}</li>
-                                </ul>
-                            </div>
-                            <div class="w50">
-                                <div class="vert w100">
-                                    <div class="cell bb center">
-                                        <p class="mt0">Date et signature du prescripteur</p>
-                                        <p>${deliveryDate}</p>
-                                    </div>
-                                    <div class="cell">
-                                        <p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
-                                        <p class="signdate center bold w100">${deliveryDate}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </footer>
-                        <aside>
-                            <div class="horiz">
-                                <p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
-                            </div>
-                        </aside>
-                    </div>`;
+                        		${thatBody}
+							</div>`;
 						} // elif end
 
 					}
@@ -1798,8 +1803,10 @@
 						`<html><head><style>
             /* body */
             body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: column;margin: 0;padding:0;padding-top:20mm;width: 105mm;height:200mm;overflow:hidden;page-break-after:always;}
+            div.page {display:flex;flex-direction: row;margin: 0;padding:0;${/*padding-top:20mm;*/""}width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
+            div#prescription {display:flex;flex-direction:column;${this.selectedFormat == 'A4' && "width: 50%;border-left: .25px solid black; border-right: .25px solid black; border-bottom: .25px solid black;" || ""}}
+            div#prescription:first-child {${this.selectedFormat == 'A4' ? "margin-right: 1px" : "margin: 0"}}
             * {font-size:10px;font-family: Arial,sans-serif;}
             *.bigtxt {font-size:13px;}
             /* flex */
@@ -1807,7 +1814,7 @@
             /* elems */
             img.codbar {height:auto;width:100%;background: black;margin-bottom: 5px;} *.signdate {border-bottom: .25px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
             /* style */
-            *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;} *.w20 {width: 20%;}
+            *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;min-width:33%;} *.w20 {width: 20%;}
             *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
             *.br {border-right: .25px solid black;} *.bt {border-top: .25px solid black} *.bb {border-bottom: .25px solid black}
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
