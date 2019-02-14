@@ -102,7 +102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="facturation-flat-rate-panel">
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
             <div class="add_line">
-                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button id="" class="" icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
                 <vaadin-grid-column>
@@ -286,9 +286,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
 
-                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
+                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
 
-                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))))
+                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))) )
 
                 })
             }
