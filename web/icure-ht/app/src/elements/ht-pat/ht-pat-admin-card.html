@@ -937,15 +937,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     printMutualVignette() {
-        const home = this.patient.addresses.find(a=>a.addressType === "home") || null
-        const insur = this.patient.insurabilities.find(a => !a.endDate && a.id != "") || null
-        if (insur && insur.insuranceId) {
+        const insur = this.patient.insurabilities.find(a => !a.endDate && a.id != "" && a.insuranceId != "") || null
+        if (insur) {
             this.api.insurance().getInsurance(insur.insuranceId).then(ins=>{
+                const home = this.patient.addresses.find(a=>a.addressType === "home") || null
                 const mut = ins.name[this.language].split(' ') || ins.name[0].split(' ') || []
                 let mutName = ""
                 mut.forEach(w=>mutName+=w[0].toUpperCase()) // get initials of mutual name
                 const patName = this.patient.firstName+" "+this.patient.lastName+" °"+this.api.moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
-                const oa = insur && insur.parameters && mutName.length ? insur.parameters.tc1+"-"+mutName : "no OA"
+                const oa = insur.parameters && insur.parameters.tc1 && mutName.length ? insur.parameters.tc1+"-"+mutName : "no OA"
                 const ssin = this.patient.ssin
                 const addr = home ? home.street+", "+home.houseNumber+(home.postboxNumber.length ? "/"+home.postboxNumber : "") : "no Addr"
                 const cp = home ? home.postalCode+" "+home.city : "no CP"
@@ -961,11 +961,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                       <pre class="addr">   ${addr}</pre>
                         <pre class="cp">   ${cp}</pre>
                     </body></html>`
-                console.log('toPrint',vignetteBody)
                 this.api.pdfReport(vignetteBody,{
-                    paperWidth: localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).stickers && JSON.parse(localStorage.getItem('selectedPrinter')).stickers.l || undefined,
-                    paperHeight: localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).stickers && JSON.parse(localStorage.getItem('selectedPrinter')).stickers.h || undefined,
+                    paperWidth: localStorage.getItem('selectedPrinter') ? JSON.parse(localStorage.getItem('selectedPrinter')).stickers.l : undefined,
+                    paperHeight: localStorage.getItem('selectedPrinter') ? JSON.parse(localStorage.getItem('selectedPrinter')).stickers.h : undefined,
                     marginLeft: 5,marginRight: 5,marginTop: 5,marginBottom: 5
+                }).then(({pdf:data, printed:printed}) =>{
+                    if (!printed) {
+                        let blob = new Blob([data],{type :'application/pdf'});
+
+                        let url = window.URL.createObjectURL(blob)
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        a.href = url;
+                        a.download = this.patient.firstName+"-"+this.patient.lastName+"-"+moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    }
                 })
             }).catch(e=>{console.log('cannot resolve insurance',e)})
         } else {console.log('cannot find insurance')}
