@@ -83,14 +83,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-background-color-dark);
                 transform:translateY(-50%) rotate(0);
                 border-radius:0 50% 50% 0;
-                transition: transform 0.2s ease-in;
-
+                /*transition: .5s ease;*/
+                box-shadow: var(--app-shadow-elevation-1);
             }
             .display-left-menu.open{
                 left:50vw;
-                border-radius:50% 0 0  50% ;
-                transform:translateY(-50%) rotate(180deg);
-                transition: transform 0.2s ease-in;
+                border-radius: 0 50% 50% 0;
+                transform: translateY(-50%);
             }
 
             paper-dialog {
@@ -125,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ht-msg-menu{
                     display:none;
                     width: 50vw;
+                    z-index: 150;
                 }
                 .container.expanded ht-msg-menu {
                     display: block;
@@ -164,12 +164,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ht-msg-detail.selected {
                     transform: none;
                     opacity: 1;
+                    border-top: 1px solid var(--app-background-color-darker);
                 }
             }
         </style>
 
         <div class="container">
-            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            <template is="dom-if" if="[[!leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
+            </template>
             <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                          on-selection-change="handleMenuChange" on-new-msg="_newMsg" on-fw-msg="_fwMsg" on-re-msg="_reMsg"></ht-msg-menu>
             <template is="dom-if" if="[[otherLayout]]">
@@ -259,9 +265,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     otherLayout:{
                         type: Boolean,
                         value : false
+                    },
+                    leftMenuOpen:{
+                        type: Boolean,
+                        value: false
+                    },
+                    ehealthSession: {
+                        type: Boolean
                     }
-
                 }
+            }
+
+            static get observers() {
+                return ['_isConnectedToEhbox(api.tokenId)'];
             }
 
             constructor() {
@@ -276,6 +292,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready()
                 this._inbox()
+            }
+
+            _isConnectedToEhbox() {
+                this.set("ehealthSession", this.api.tokenId ? true : false)
             }
 
             _selectedElem(e) {
@@ -334,11 +354,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _expandColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.toggle('open');
-                this.root.querySelector('.container').classList.toggle('expanded');
+                this.set('leftMenuOpen',true)
+                this.root.querySelector('.container').classList.add('expanded');
             }
             _closeColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.set('leftMenuOpen',false)
                 this.root.querySelector('.container').classList.remove('expanded');
             }
 
@@ -347,10 +367,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _fwMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
             _reMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
 
             callInitializeBatchCounter(e){

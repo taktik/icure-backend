@@ -60,11 +60,22 @@
                 text-transform: capitalize;
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             .modal-button--save {
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
+            }
+            .modal-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
             }
 
             paper-input {
@@ -137,7 +148,6 @@
             .buttons{
                 position: absolute;
                 bottom: 0;
-                right: 12px;
             }
 
             .modal-button{
@@ -149,6 +159,12 @@
                 min-width: 100px;
                 padding: 10px 1.2em;
                 text-transform: capitalize;
+            }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
             }
 
             .modal-button--save{
@@ -189,6 +205,10 @@
                 flex-grow: 1;
             }
 
+            .buttons {
+                background: var(--app-background-color);
+            }
+
             .add-btn{
                 height: 20px;
                 width: 20px;
@@ -214,6 +234,64 @@
                 display: inline-block;
                 width:18px;
             }
+
+            .names-mobile-only {
+                display: none;
+            }
+            .names-nomobile {
+                display: initial;
+            }
+
+            @media screen and (max-width: 936px) {
+                paper-dialog#medication-selection {
+                    position: fixed;
+                    max-width: none !important;
+                    top: 64px;
+                    left: 0;
+                    height: calc(100vh - 64px) !important;
+                    width: 100vw !important;
+                    margin: 0;
+                    transform: none;
+                }
+            }
+
+            @media screen and (max-width: 800px) {
+                .names-mobile-only {
+                    display: initial;
+                }
+                .names-nomobile {
+                    display: none;
+                }
+            }
+
+            @media screen and (max-width: 640px) {
+                div.container {
+                    flex-flow: initial;
+                    flex-direction: column;
+                    width: 100vw;
+                    box-sizing: border-box;
+                    overflow-y: auto;
+                    /*height: calc(100vh - 164px);*/
+                    justify-content: flex-start;
+                }
+                .left-pane, .right-pane {
+                    width: 100%;
+                    height: 33vh;
+                }
+                #entities-list {
+                    height: auto;
+                    max-height: 25vh;
+                    overflow-y: auto;
+                }
+                #accumulated-medications, #entities-list {
+                    margin-bottom: 0;
+                }
+                .buttons {
+                    position: fixed;
+                    bottom: 0;
+                    right: 0;
+                }
+            }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
@@ -222,16 +300,20 @@
             <div class="container">
                 <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                     <paper-tab name="chronical" on-tap="setMedicationType">
-                        [[localize('medication-chronical','Chronical medication',language)]]
+                        <span class="names-nomobile">[[localize('medication-chronical','Chronical medication',language)]]</span>
+                        <span class="names-mobile-only">[[localize('chronic','Chronical',language)]]</span>
                     </paper-tab>
                     <paper-tab name="medicinalProduct" on-tap="setMedicationType">
-                        [[localize('medication-by-product-name','By product name',language)]]
+                        <span class="names-nomobile">[[localize('medication-by-product-name','By product name',language)]]</span>
+                        <span class="names-mobile-only">[[localize('name','Name',language)]]</span>
                     </paper-tab>
                     <paper-tab name="substanceProduct" on-tap="setMedicationType">
-                        [[localize('medication-by-molecule','By molecule',language)]]
+                        <span class="names-nomobile">[[localize('medication-by-molecule','By molecule',language)]]</span>
+                        <span class="names-mobile-only">[[localize('mol','Molecule',language)]]</span>
                     </paper-tab>
                     <paper-tab name="compoundPrescription" on-tap="setMedicationType">
-                        [[localize('medication-compound','Compound prescription',language)]]
+                        <span class="names-nomobile">[[localize('medication-compound','Compound prescription',language)]]</span>
+                        <span class="names-mobile-only">[[localize('compound','Compound',language)]]</span>
                     </paper-tab>
                 </paper-tabs>
                 <div class="left-pane">
@@ -275,7 +357,7 @@
                         </div>
                     </template>
                     <div class$="grid-container [[_noGridClass(medicationType)]]">
-                        <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
+                        <paper-input id="filter" label="[[localize('sch_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
                         <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                             <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                                 <vaadin-grid-column width="[[_columnWidth(column)]]">
@@ -304,7 +386,7 @@
                     </div>
                 </div>
                 <div class="right-pane">
-                    <h5>Selected Medication(s)</h5>
+                    <h5>[[localize('selected_meds','Selected medication(s)',language)]]</h5>
                     <vaadin-grid id="accumulated-medications" items="[[medicationAccumulator]]" active-item="{{selectedMedicationFromAccumulator}}">
                         <vaadin-grid-column width="72px">
                             <template class="header">
@@ -327,7 +409,7 @@
             </div>
             <div class="buttons">
                 <paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="validateMedications">[[localize('valid','Validate',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="validateMedications" disabled="[[!medicationAccumulator.length]]">[[localize('valid','Validate',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>

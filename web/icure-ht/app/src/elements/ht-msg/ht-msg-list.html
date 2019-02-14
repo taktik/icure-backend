@@ -36,7 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 :host {
                     display: flex;
                     flex-direction: column;
-                    z-index:2;
+                    z-index:0;
                 }
 
                 :host *:focus {
@@ -441,6 +441,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         margin-left: 0;
                     }
                 }
+
                 @media screen and (max-width:1025px) {
                     .col-right {
                         width: 100vw;
@@ -461,23 +462,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .mb4 span {
                         display: none;
                     }
+                    
                     #capacity-indicator paper-progress {
                         width: 64px;
                     }
-                }
-                @media screen and (max-width:1025px) {
-                    .col-right {
-                        width: 100vw;
-                        transition: all .5s ease;
-                        box-shadow: none;
-                    }
 
-                    ht-spinner.center {
-                        left: 50vw;
-                    }
-                }
-
-                @media screen and (max-width: 800px) {
                     .table-top paper-dropdown-menu#filterLabresult {
                         min-width: 0;
                         margin-left: initial;
@@ -887,6 +876,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDatesAndGUID(messages.rows)
                         .filter(msg => msg.fromAddress !== 'EFACT')
                         .filter(msg => !msg.transportGuid.startsWith('BIN'))
+                        .filter(msg => !msg.transportGuid.startsWith('GMD'))
                         .filter(m=>!m.transportGuid.startsWith('PROSE:'))
                         .filter(m=>!((m.status&1<<14)!==0))
                 }).then(messages => {

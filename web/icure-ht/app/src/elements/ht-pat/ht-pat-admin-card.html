@@ -471,7 +471,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:edit"></iron-icon>[[localize('adm_post_it','Post-it',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
                 <div class="save">
-                    <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <iron-icon id="save-btn" icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <paper-tooltip for="save-btn" position="left">[[localize('save','Save',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
                     <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>

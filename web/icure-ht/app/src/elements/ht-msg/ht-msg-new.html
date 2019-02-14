@@ -261,6 +261,9 @@
                 margin: 8px 12px 8px 0;
                 font-weight: bold;
             }
+            .patLabel {
+                padding-top: 12px;
+            }
 
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
@@ -584,6 +587,12 @@
                 animation: displaySent 7.5s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             @keyframes displaySent {
                 0% {transform: translate(100vw,-50%);}
                 10% {transform: translate(0,-50%);}
@@ -593,10 +602,10 @@
 
             @media screen and (max-width: 1030px) {
                 #new-msg {
-                    right: initial !important;
-                    left: 50% !important;
-                    transform: translateX(-50%);
-                    width: 98vw;
+                    top: 64px !important;
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: calc(100vh - 64px) !important;
                 }
             }
 
@@ -632,7 +641,7 @@
                                 </div>
                             </div>
                             <div class="cell">
-                                <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                                <div class="modal-subtitle patLabel">[[localize('pati','Patient',language)]]</div>
                                 <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
                                                   allow-custom-value on-change="_AddSSIN">
                                     <template>[[item.displayName]]</template>
@@ -700,7 +709,7 @@
                     <paper-button class="modal-button" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
                 </div>
                 <div class="fright">
-                    <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[hideSendBtn]]">[[localize('send','Send',language)]]</paper-button>
                     <template is="dom-if" if="[[isSendingMsg]]">
                         <ht-spinner class="sendingSpinner" active="[[isSendingMsg]]"></ht-spinner>
