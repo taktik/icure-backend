@@ -952,14 +952,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const vignetteBody =`<html><head>
                     <style>
                         p.patName {font-size: 1.1em;font-weight:bold;}
-                        p {margin: 0;}
+                        p, pre {margin: 0;}
                     </style></head>
                     <body>
                         <p class="patName">${patName}</p>
-                        <p class="oa">OA ${oa}</p>
-                        <p class="ssin">${ssin}</p>
-                        <p class="addr">${addr}</p>
-                        <p class="cp">${cp}</p>
+                        <pre class="oa">OA ${oa}</pre>
+                      <pre class="ssin">   ${ssin}</pre>
+                      <pre class="addr">   ${addr}</pre>
+                        <pre class="cp">   ${cp}</pre>
                     </body></html>`
                 console.log('toPrint',vignetteBody)
                 this.api.pdfReport(vignetteBody,{
