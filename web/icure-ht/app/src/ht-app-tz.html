@@ -196,16 +196,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-light-color);
                 height: calc(100vh - 64px);
                 overflow: hidden;
-                width: 0;
-                transition: width .24s cubic-bezier(0.4, 0.0, 0.2, 1);
+                width: 180px;
+                transform: translateX(-180px); /* 180 = menu-width */
+                transition: .24s cubic-bezier(0.4, 0.0, 0.2, 1);
                 visibility: hidden;
                 @apply --shadow-elevation-6dp;
                 padding: 0 1em;
+                height: calc(100vh - 64px); /* 64px = app-header height */
+                overflow-y: auto;
             }
 
             .mobile-menu.open {
                 visibility: visible;
-                width: 180px;
+                transform: translateX(0);
             }
 
             .mobile-menu paper-button {
@@ -417,7 +420,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 0;
                 transform: translateX(50%);
                 margin: 0;
-                height: 40%;
+                display: flex;
+                flex-direction: column;
+            }
+            #ht-invite-hcp h3.modal-title {
+                margin: 0 !important;
             }
             paper-dialog#ht-invite-hcp-user-already-exists{
                 width: 60%;
@@ -431,15 +438,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #ht-invite-hcp .buttons {
+                position: initial !important;
                 border-top: 1px solid var(--app-background-color-dark);
                 color: var(--app-text-color-light);
             }
             #ht-invite-hcp .buttons * {
                 background: var(--app-secondary-color-dark);
             }
+            #ht-invite-hcp .buttons .modal-button--cancel {
+                background: transparent;
+                border: 1px solid var(--app-background-color-dark);
+            }
 
             .formNewHcp {
-                height: 350px;
+                max-height: 312px;
+                overflow-y: auto;
                 width: 100%;
                 box-sizing: border-box;
             }
@@ -593,7 +606,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color-light);
             }
 
+            span.warn {
+                color: var(--app-error-color);
+                background: transparent !important;
+            }
+            paper-tooltip.big {
+                transform: translateY(8px) scale(1.5);
+            }
 
+            @media screen and (max-width: 640px) {
+                div.log-info p .user-email {
+                    display: block;
+                    max-width: 80px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .timer {
+                    display: none;
+                }
+
+                paper-dialog#ht-invite-hcp {
+                    max-width: none !important;
+                    width: 100% !important;
+                    transform: none !important;
+                }
+
+                svg .logo-text {
+                    display: none;
+                }
+            }
+
+            @media screen and (max-width: 352px) {
+                .logo {
+                    width: 56px;
+                }
+            }
+
+            @media screen and (max-width: 256px) {
+                paper-menu-button#tools-and-parameters {
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    transform: none;
+                }
+                .log-info {
+                    position: fixed;
+                    left: 64px;
+                }
+                .log-info span.user-email {
+                    max-width: 33vw !important;
+                }
+                .logo {
+                    display: none;
+                }
+            }
+
+            @media screen and (max-width: 200px) {
+                .log-info span.user-email {
+                    display: none !important;
+                }
+            }
         </style>
 
         <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
@@ -704,7 +777,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-tab>
                         </paper-tabs>
                         <div class="log-info">
-                            <p><span>[[user.login]] –</span>
+                            <p><span class="user-email">[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
                                 <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
@@ -1224,7 +1297,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</svg>
                             <div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
 
-                            <paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+                            <paper-tooltip class="big" position="left" for="tools-and-parameters">[[localize('tools_and_parameters','Tools and parameters',language)]]</paper-tooltip>
+                            <paper-menu-button id="tools-and-parameters" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
                                 <paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
                                 <paper-listbox class="extra-menu" slot="dropdown-content" stop-keyboard-event-propagation>
                                     <div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
@@ -1293,8 +1367,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
 
             <div class="buttons">
+                <span class="warn">[[warn]]</span>
                 <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
+                <template is="dom-if" if="[[validInvite]]">
+                    <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
+                </template>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">
@@ -1535,18 +1612,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     updateAction: {
                         type: String,
                         value: null
+                    },
+                    validInvite: {
+                        type: Boolean,
+                        value: false
+                    },
+                    warn: {
+                        type: String
+                    },
+                    validMail: {
+                        type: Boolean,
+                        value: null
                     }
                 }
             }
 
             static get observers() {
                 return [
-                    '_routePageChanged(routeData.page)'
+                    '_routePageChanged(routeData.page)',
+                    '_isValidInvite(lastName,firstName,validMail)',
+                    'isMailValid(email)'
                 ]
             }
 
             constructor() {
                 super()
+            }
+
+            _isValidInvite() {
+                this.set('validInvite', this.lastName && this.firstName && this.lastName.length && this.firstName.length && this.validMail)
+            }
+
+            isMailValid(str) {
+                setTimeout(()=>{
+                    if (str.length) {
+                        const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+                        if (filter.test(str)) {
+                            this.set('warn','')
+                            this.set('validMail',true)
+                        } else {
+                            this.set('warn',this.localize('please_valid_mail','Please enter valid email',this.language))
+                            this.set('validMail',false)
+                        }
+                    }
+                },2000)
             }
 
             setUrls() {
@@ -1795,6 +1905,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _inviteHCP() {
+                this.set('firstName','')
+                this.set('lastName','')
+                this.set('email','')
+                this.set('warn','')
                 this.$['ht-invite-hcp'].open()
             }
 
@@ -1914,64 +2028,68 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
 
-                    this.$.loginDialog.opened = false
+                        this.$.loginDialog.opened = false
 
-                    //request electron tc.
-                    fetch('http://localhost:16042/tc',{
-                        method: "POST",
-                        headers: {
-                            "Content-Type" : "application/json; charset=utf-8"
-                        },
-                        body: JSON.stringify( {
-                            "userId" : this.user.id,
-                            "token" : this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
-                        } )
-                    })
-
-                    this.set('credentials.twofa', null)
-                    u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
-                    this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
-
-                    if ((this.credentials.userId && this.credentials.appToken)) {
-                        this.set('credentials.password', null)
-                        this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
-                    }
-                    sessionStorage.setItem('auth', JSON.stringify(this.credentials))
-                    localStorage.setItem('last_connection',this.credentials.username)
-
-                    if (!this.authenticated) {
-                        this.authenticated = true
-
-                        const loadKeysForParent = (parentId, prom) => {
-                            if (parentId) {
-                                return prom.then(([success, destPage]) => {
-                                    if (success) {
-                                        return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
-                                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
-                                        )
-                                    } else {
-                                        return Promise.resolve([success, destPage])
-                                    }
+                        this.api.isElectronAvailable().then(electron => {
+                            if (electron === true) {
+                                //request electron tc.
+                                fetch('http://localhost:16042/tc', {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json; charset=utf-8"
+                                    },
+                                    body: JSON.stringify({
+                                        "userId": this.user.id,
+                                        "token": this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
+                                    })
                                 })
-                            } else {
-                                return prom
-                            }
-                        }
-
-                        loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
-                            if (success) {
-                                const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                                if (!this.routeData || destPage !== this.routeData.page) {
-                                    this.set('routeData.page', destPage)
-                                } else {
-                                    this._routePageChanged(destPage)
-                                }
                             }
                         })
-                    }
-                    this._timeCheck()
-                    this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
-                    this._inboxMessageCheck()
+
+                        this.set('credentials.twofa', null)
+                        u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
+                        this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
+
+                        if ((this.credentials.userId && this.credentials.appToken)) {
+                            this.set('credentials.password', null)
+                            this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
+                        }
+                        sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                        localStorage.setItem('last_connection',this.credentials.username)
+
+                        if (!this.authenticated) {
+                            this.authenticated = true
+
+                            const loadKeysForParent = (parentId, prom) => {
+                                if (parentId) {
+                                    return prom.then(([success, destPage]) => {
+                                        if (success) {
+                                            return this.api.hcparty().getHealthcareParty(parentId).then(hcp =>
+                                                loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, destPage))
+                                            )
+                                        } else {
+                                            return Promise.resolve([success, destPage])
+                                        }
+                                    })
+                                } else {
+                                    return prom
+                                }
+                            }
+
+                            loadKeysForParent(hcp.parentId, this.loadOrImportRSAKeys(u, hcp, page)).then(([success, page]) => {
+                                if (success) {
+                                    const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                    if (!this.routeData || destPage !== this.routeData.page) {
+                                        this.set('routeData.page', destPage)
+                                    } else {
+                                        this._routePageChanged(destPage)
+                                    }
+                                }
+                            })
+                        }
+                        this._timeCheck()
+                        this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
+                        this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
                     this.authenticated = false
@@ -2134,18 +2252,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirmUserInvitation() {
-
-                // See if user exists first, based on email address
-                this.api.user().getUserByEmail(this.email).then(existingUserDto => {
-                    if (existingUserDto && existingUserDto.id) {
-                        this.$['ht-invite-hcp-user-already-exists'].open()
-                    } else {
+                if (this.validInvite) {
+                    // See if user exists first, based on email address
+                    this.api.user().getUserByEmail(this.email).then(existingUserDto => {
+                        if (existingUserDto && existingUserDto.id) {
+                            this.$['ht-invite-hcp-user-already-exists'].open()
+                        } else {
+                            this.createAndInviteUser();
+                        }
+                    }).catch( error=> {
                         this.createAndInviteUser();
-                    }
-                }).catch( error=> {
-                    this.createAndInviteUser();
-                })
-
+                    })
+                }
             }
 
             checkEhboxMessage() {

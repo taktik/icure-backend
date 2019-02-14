@@ -113,7 +113,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
+                box-shadow: var(--app-shadow-elevation-1);
 			}
+            .new-msg-btn:disabled {
+                cursor: default;
+                box-shadow: none;
+            }
 			.has-unread{
 				font-weight:bold;
 			}
@@ -502,9 +507,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 overflow: hidden;
             }
-            /* .box-txt.force-ellipsis {
-                max-width: 60%;
-            } */
+
+            .box-txt.force-ellipsis {
+                max-width: 80%;
+            }
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;
@@ -539,7 +545,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 		<div class="col-left">
             <template is="dom-if" if="[[isLoadingMailList]]"><ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner></template>
-			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-button class="new-msg-btn" on-tap="_newMsg" disabled="[[!ehealthSession]]">[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
@@ -549,11 +555,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('boxtitle.eheIn','eHealth inbox',language)]]</paper-item>-->
-                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> [[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</span></paper-item>
                     <!--<paper-item class="one-line-menu menu-item" id="unsettedProtIn">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('assigned_labresults','assigned lab results',language)]]</paper-item>-->
 					<!--<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>-->
-					<paper-item class="one-line-menu menu-item flex-start" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="mycarenet"><iron-icon icon="maps:local-hospital"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('mycarenet','My Carenet',language)]]</span></paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button id="sentboxcollapse">
@@ -620,7 +626,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get properties() {
 		return {
 			api: {
-				type: Object
+				type: Object,
+                observer: '_isConnectedToEhbox'
 			},
 			user: {
 				type: Object
@@ -696,12 +703,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLoadingMailList: {
 			    type: Boolean,
                 value: false
+            },
+            ehealthSession: {
+			    type: Boolean,
+                value: false
             }
 		};
 	}
 
 	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)'];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)','_isConnectedToEhbox(api.tokenId)'];
 	}
 
 	constructor() {
@@ -712,10 +723,15 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         super.ready();
         this.set('unreadNumber',0)
         this._updateUnreadCount()
+        this._isConnectedToEhbox()
+    }
+
+    _isConnectedToEhbox() {
+        this.set("ehealthSession", this.api.tokenId ? true : false)
     }
 
 	_newMsg(params){
-		this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
+		if (this.ehealthSession) this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
 	}
 
 	_updateUnreadCount() {
@@ -877,7 +893,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _trashSelectionIndexChanged() {
-        console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
+        // console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
         if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.trashSelectionItem.id, status: this.trashSelectionItem.dataset.status } } }));
 

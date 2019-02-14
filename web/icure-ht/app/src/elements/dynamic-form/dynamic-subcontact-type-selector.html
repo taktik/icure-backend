@@ -3,6 +3,7 @@
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <dom-module id="dynamic-subcontact-type-selector">
     <template>
@@ -28,9 +29,18 @@
                 margin-bottom: 1px;
             }
 
+            paper-listbox {
+                max-height: 33vh;
+            }
+
             paper-item {
                 font-size: 14px;
                 min-height: 30px;
+            }
+
+            paper-item.link:hover {
+                cursor: pointer;
+                background: var(--app-background-color-dark);
             }
 
             .dropdown_icon{
@@ -66,6 +76,7 @@
                     </template>
                 </paper-listbox>
             </paper-menu-button>
+        <paper-tooltip position="right" for="hc_menu">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
     </template>
     <script>
 
