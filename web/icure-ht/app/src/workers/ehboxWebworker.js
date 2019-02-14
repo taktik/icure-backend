@@ -117,7 +117,7 @@ onmessage = e => {
                                 tags:[{type:'CD-TRANSACTION',code:'labresult'}]
                             })
                             console.log('c services',c.services)
-                            return iccContactApi.createContactWithUser(user, c)
+                            return iccContactXApi.createContactWithUser(user, c)
                         }).then(c => {
                             console.log('createContact',c)
                             return iccFormXApi.newInstance(user, thisPat, {
@@ -128,8 +128,8 @@ onmessage = e => {
                                     iccCryptoXApi
                                         .extractKeysFromDelegationsForHcpHierarchy(
                                             user.healthcarePartyId,
-                                            createdDocument.id,
-                                            _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                                            document.id,
+                                            _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations
                                         )
                                         .then(({extractedKeys: enckeys}) => beResultApi.doImport(document.id, user.healthcarePartyId, language, docInfo.protocol, f.id, null, enckeys.join(','), c))
                                 )

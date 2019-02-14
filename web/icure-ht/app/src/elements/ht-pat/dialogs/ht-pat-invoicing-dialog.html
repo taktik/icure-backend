@@ -162,7 +162,11 @@
                 padding: 10px 1.2em;
                 text-transform: capitalize;
             }
-
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
             .modal-button--save{
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
@@ -329,7 +333,7 @@
                 width: 24px;
                 height: 20px;
                 margin: 8px 4px 0;
-                min-width: 0;
+                min-width: 24px;
                 padding: 0;
                 color: var(--app-text-color);
                 transition: .5s ease;
@@ -389,10 +393,13 @@
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
 
+                /*overflow: hidden;*/
+                /*text-overflow: ellipsis;*/
+                /*white-space: nowrap;*/
+
                 /* Rules below not implemented in browsers yet */
                 -o-user-select: none;
                 user-select: none;
-
             }
 
             .invoice-item .invoice-text-row {
@@ -403,15 +410,21 @@
                 align-items: center;
                 font-size: 14px;
                 @apply --padding-right-left-16;
+                overflow-x: auto;
+            }
+            .invoice-item .invoice-text-row.invoice-text-date {
+                min-height: 24px;
+                height: auto !important;
             }
 
             .invoice-item:nth-of-type(1) .invoice-text-row p {
                 padding-right: 32px;
             }
 
-            .invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child {
-                height: 24px;
-            }
+            /* WIP */
+            /*.invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child {*/
+                /*height: 24px;*/
+            /*}*/
 
             .invoice-item .colour-code:not(:first-child) {
                 margin-left: 4px;
@@ -582,6 +595,8 @@
                 justify-content: space-between;
                 align-items: center;
                 flex-wrap: nowrap;
+                height: auto;
+                max-height: none !important;
             }
 
             .verifiedNmcl {
@@ -843,6 +858,7 @@
             paper-item:hover .he-edit-btn-container {
                 position: absolute;
                 right: 5px;
+                bottom: 20px;
             }
 
             paper-item.iron-selected .he-edit-btn-container {
@@ -1019,6 +1035,83 @@
                 height: 120px;
             }
 
+            @media screen and (max-width: 1344px) {
+                .invoice-item .invoice-text-row {
+                    text-align: center;
+                    justify-content: space-around;
+                }
+                .invoiceDateInfo {
+                    flex-direction: column;
+                }
+            }
+
+            @media screen and (max-width: 936px) {
+                paper-dialog#invoiceDialog {
+                    max-width: none !important;
+                    max-height: none !important;
+                    height: calc(100vh - 64px);
+                    width: 100%;
+                    margin: 0;
+                }
+            }
+
+            @media screen and (max-width: 752px) {
+                .invoice-header .mobile-col {
+                    display: flex;
+                }
+                .mobile-col {
+                    padding: 16px 0;
+                }
+                .mobile-col .flex-container {
+                    flex-direction: column;
+                    height: 280px;
+                    width: 50%;
+                    overflow-y: scroll;
+                }
+            }
+
+            @media screen and (max-width: 632px) {
+                .invoice-item .invoice-text-row {
+                    text-align: left;
+                    justify-content: initial;
+                }
+                .invoiceDateInfo {
+                    flex-direction: initial;
+                }
+
+                paper-dialog#invoiceDialog {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .invoice-panel {
+                    height: 152px;
+                    box-shadow: none;
+                }
+                .detail-panel {
+                    box-shadow: 0 -8px 32px 0 rgba(0,0,0,.2);
+                    z-index: 10;
+                }
+                #barCode {
+                    display: none;
+                }
+                .buttons {
+                    position: initial;
+                    display: flex;
+                    height: 80px;
+                    background: var(--app-background-color);
+                    z-index: 10;
+                    bottom: 0;
+                    right: 0;
+                    box-sizing: border-box;
+                }
+            }
+
+            @media screen and (max-width:576px) {
+                .invoice-nomenclature-code-option {
+                    flex-direction: column;
+                }
+            }
+
         </style>
 
         <ht-inami-validator api="[[api]]" validator-name="ht-inami-validator"></ht-inami-validator>
@@ -1069,10 +1162,10 @@
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]-xades" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
                                                 <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item.id]]"></paper-icon-button>
                                             </div>
-                                            <paper-tooltip position="left" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
-                                            <paper-tooltip position="left" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-xml_[[item.id]]-khmer">[[localize('gen_kmehr','Download Kmehr',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-xml_[[item.id]]-xades">[[localize('gen_xades','Download Xades',language)]]</paper-tooltip>
+                                            <paper-tooltip position="bottom" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                         </template>
                                     </div>
                                 </div>
@@ -1094,6 +1187,7 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mobile-col">
                     <div class="flex-container">
                         <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]"
                                           item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
@@ -1154,8 +1248,6 @@
                                               on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                         </template>
 
-
-
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
                                               label="[[localize('location','Location',language)]]"
@@ -1184,7 +1276,8 @@
                                 </div>
                             </paper-input>
                             <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
-                        </div>
+                    </div>
+                    </div>
 
                 </div>
                 <div class="invoice-nomenclature-code">
@@ -1325,8 +1418,10 @@
                                                       item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
                                                       label="[[localize('code_type','Code type',language)]]"
                                                       value="{{selectedMediumCodeType}}"></vaadin-combo-box>
-                                    <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
-                                    <paper-icon-button icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
+                                    <paper-icon-button id="add-nmcl" icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
+                                    <paper-tooltip position="left" for="add-nmcl">[[localize('add_nmcl','Add nomenclature',language)]]</paper-tooltip>
+                                    <paper-icon-button id="add-fav" icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
+                                    <paper-tooltip position="left" for="add-fav">[[localize('add_to_fav','Add to favorites',language)]]</paper-tooltip>
                                 </div>
                             </template>
                         </div>
@@ -1424,10 +1519,12 @@
 
                 </div>
 
+            </div>
+                <canvas id="barCode"></canvas>
                 <div class="buttons">
                     <ht-spinner class="validAndTarif" active="[[isLoadingValidation]]"></ht-spinner>
                     <ht-spinner class="validAndTarif" active="[[isLoadingJustif]]"></ht-spinner>
-                    <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" on-tap="_closeDialog">[[localize('clo','close',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
                         <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">[[localize('can_eattest','Cancel eattest',language)]]</paper-button>
@@ -1443,8 +1540,6 @@
                         <paper-button on-tap="_switchBetweenMethodForJustif" class="modal-button invoiceBtnEnable" disabled="[[isLoadingJustif]]">[[localize('val_justificatory','Justificatory',language)]]</paper-button>
                     </template>
                 </div>
-            </div>
-            <canvas id="barCode"></canvas>
         </paper-dialog>
 
         <paper-dialog id="transferDialog">
@@ -2227,6 +2322,14 @@
                     favcodesScrollX: {
                         type: Number,
                         value: 0
+                    },
+                    defaultTicketMod:{
+                        type: Number,
+                        value: 0
+                    },
+                    needDefaultTicketMod:{
+                        type: Boolean,
+                        value: false
                     }
                 }
 
@@ -2238,6 +2341,23 @@
 
             ready() {
                 super.ready()
+                if(this.hcp){
+                    if(this.hcp.parentId && this.hcp.parentId!==""){
+                        this.api.hcparty().getHealthcareParty(this.hcp.parentId).then(hcp =>{
+                            if(hcp.type==="medicalHouse" && hcp.billingType==="flatRate"){
+                                this.set("needDefaultTicketMod",true)
+                                /** @ToDo
+                                 * Set the value of defaultTicket
+                                 * */
+                            }
+                        })
+                    }else if(this.hcp.type==="medicalHouse" && this.hcp.billingType==="flatRate"){
+                        this.set("needDefaultTicketMod",true)
+                        /** @ToDo
+                         * Set the value of defaultTicket
+                         * */
+                    }
+                }
             }
 
             dragHoriz(event) {
@@ -2290,6 +2410,12 @@
                         }
                     })
                     ).finally(() => {
+                    if(!selected.sentDate && this.needDefaultTicketMod) {
+                        selected.invoicingCodes.map(code => {
+                            code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                            code.patientIntervention = this.defaultTicketMod
+                        })
+                    }
 
                     this.set("isInvoiceToBeCorrected", !!selected.invoicingCodes.find(ic => ic.resent === true))
                     this.set('selectedInvoice', selected)
@@ -2510,6 +2636,7 @@
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
+
                     const env = new evaljs.Environment({
                         patient: {
                             preferentialstatus: (ins && ins.parameters && ins.parameters.chronicalDisease) ? !!ins.parameters.preferentialstatus : false,
@@ -2586,6 +2713,13 @@
                                 const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
                                 const prefix = 'invoice:'+this.user.healthcarePartyId+':'+(parentIns && parentIns.code ? parentIns.code : '000')+':'
 
+                                if(!invoice.sentDate && this.needDefaultTicketMod) {
+                                    invoice.invoicingCodes.map(code => {
+                                        code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                                        code.patientIntervention = this.defaultTicketMod
+                                    })
+                                }
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice, prefix))
                                     .then(invoice => this.api.register(invoice,'invoice'))
@@ -2614,6 +2748,12 @@
                                         }
                                     })
                                 ).then(x =>{
+                                    if(!invoice.sentDate && this.needDefaultTicketMod) {
+                                        invoice.invoicingCodes.map(code => {
+                                            code.totalAmount -= (code.patientIntervention-this.defaultTicketMod)
+                                            code.patientIntervention = this.defaultTicketMod
+                                        })
+                                    }
                                     const registered = this.api.register(invoice, 'invoice')
                                     this.$['nmclGrid'].clearCache()
                                     this.updateGui(registered)
@@ -2751,8 +2891,8 @@
                                     }
 
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.reimbursement`, c.reimbursement.amount)
-                                    this.set(`selectedInvoice.invoicingCodes.${idx}.patientIntervention`, c.patientFee.amount)
-                                    this.set(`selectedInvoice.invoicingCodes.${idx}.totalAmount`, c.fee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.patientIntervention`, this.needDefaultTicketMod ? this.defaultTicketMod :c.patientFee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.totalAmount`,this.needDefaultTicketMod ? c.fee.amount-c.patientFee.amount+this.defaultTicketMod : c.fee.amount)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.contract`, c.contract)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.valid`, true)
                                     this.set(`selectedInvoice.invoicingCodes.${idx}.override3rdPayerCode`, c.justification)
@@ -4546,6 +4686,24 @@
 
             _isInvoiceEattest(item){
                 return item && item.sentMediumType==="eattest"
+            }
+
+            getDMG(invoice){
+                if (!this.api.tokenId || this.isLoading) return;
+                this.set('isLoading', true);
+                this.api.getUpdatedEdmgStatus(
+                    this.user,
+                    this.patient,
+                    Date.parse(invoice.invoiceDate),
+                    null,
+                    null,
+                    this.patient.insurabilities.find(ins => moment(ins.startDate).isSameOrBefore(moment())),//OA
+                    this.genInsAFF,//AFF
+                    true    // Bypass cache, force hit on fhc().Dmgcontroller().consultDmgUsingGET()
+                ).then(edmgResp => {
+                    this.set('isLoading',false)
+                    this.set('consultDmgResp', edmgResp);
+                });
             }
         }
 

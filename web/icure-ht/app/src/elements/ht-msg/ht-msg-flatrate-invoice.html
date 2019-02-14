@@ -564,6 +564,7 @@
                 .batchRejected{background-color: var(--paper-red-400);}
                 .batchAccepted{background-color: var(--paper-green-400);}
                 .batchArchived{background-color: var(--paper-purple-300);}
+                .batchToBeSend{background-color: var(--paper-orange-400);}
 
                 ht-spinner {
                     margin-top:10px;
@@ -738,12 +739,12 @@
                     .hideOnMobile {display: none;opacity: 0;}
                 }
 
-                #warningMessage {
+                .warningMessage {
                     margin-top: 20px;
                     margin-bottom: 30px;
                 }
 
-                #warningMessageBody {
+                .warningMessageBody {
                     padding:20px 35px;
                     color:#7E0000;
                     background-color: rgba(255, 0, 0, 0.15);
@@ -824,6 +825,28 @@
                     display:block;
                 }
 
+                .exportMonthPicker {
+                    padding:0px 0 10px 0;
+                    border:1px solid #ddd;
+                    margin:40px auto;
+                    max-width:520px;
+                    -webkit-box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.2);
+                    box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.2);
+                }
+
+                vaadin-combo-box {
+                    margin:10px 30px 0 30px;
+                    width:130px;
+                }
+
+                .exportMonthPickerTitle {
+                    text-transform: uppercase;
+                    margin-bottom:20px;
+                    padding:10px 0 13px 0;
+                    background-color:var(--app-secondary-color);
+                    font-weight: 700;
+                }
+
             </style>
         </custom-style>
 
@@ -840,12 +863,22 @@
                 </div>
             </template>
 
-            <div id="batchStatus" class="batch-status">[[localize(flatrateMenuSection, language)]]</div>
+
+
+            <div id="batchStatus" class="batch-status">
+                [[localize(flatrateMenuSection, language)]]
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeCorrected')]]"><span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.toBeCorrected]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeSend')]]"><span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.toBeSend]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_process')]]"><span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.processing]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_accept')]]"><span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.rejected]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_reject')]]"><span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.accepted]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_archive')]]"><span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></template>
+            </div>
 
 
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j3')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingListing()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingListing()]]"><div class="warningMessage" id="warningMessageListing"><div class="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingWarningMessage', 'Attention\, veuillez ne procéder à la facturation qu\'entre le premier et le cinquième jour du mois.', language)]]</div></div></template>
                 <div class="centerCenter">
                     <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getListingJ3"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadListing','Téléchargement listing',language)]] (*)</paper-button>
                     <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
@@ -909,22 +942,57 @@
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20')]]">
-                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingDownload()]]"><div id="warningMessage"><div id="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingDownloadWarningMessage', 'Please only download invoicing at the end of the month', language)]]</div></div></template>
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_toBeCorrected')]]">
                 <div class="centerCenter">
-                    <paper-button class="tool-btn p-35px m-t-20 f-s-1em bordered" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]] (*)</paper-button>
-                    <div id="exportRangeNotification">(*) [[localize('exportedPeriod', language)]]: [[localize('from2', language)]] <span>[[_startOfPreviousMonth()]]</span> [[localize('till', language)]] <span>[[_endOfPreviousMonth()]]</span></div>
-                    <paper-button class="tool-btn tool-btn-previous-month p-10px m-t-50 f-s-08em bordered" id="_getInvoicingJ20PreviousMonth" on-tap="_getInvoicingJ20"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('downloadInvoicingPreviousMonth','Download invoicing of previous month',language)]]<span class="onlyIfRejectRate">[[localize('downloadListingPreviousMonthRemark','Only when rejection rate > 5%',language)]]</span></paper-button>
+                    j20_toBeCorrected
                 </div>
             </template>
 
 
 
-            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'archivej20')]]">
-                <div class="gridContainer">
-                    <div class="invoiceContainer">
-                        Archives J20
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_toBeSend')]]">
+                <template is="dom-if" if="[[_showWarningMessageEarlyInvoicingDownload()]]"><div class="warningMessage" id="warningMessageInvoicing"><div class="warningMessageBody"><iron-icon icon="icons:warning" class="w30px h30px"></iron-icon> &nbsp; [[localize('earlyInvoicingDownloadWarningMessage', 'Please only download invoicing at the end of the month', language)]]</div></div></template>
+                <div class="textAlignCenter">
+
+                    <div class="exportMonthPicker">
+                        <div class="exportMonthPickerTitle"><iron-icon icon="vaadin:calendar" style="max-width:20px; max-height:20px; margin-right:7px;"></iron-icon> Mois à générer</div>
+                        <vaadin-combo-box id="exportedMonth" filtered-items="[[_getExportMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getExportCurrentMonth()]]"></vaadin-combo-box>
+                        <vaadin-combo-box id="exportedYear" filtered-items="[[_getExportYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getExportCurrentYear()]]"></vaadin-combo-box>
                     </div>
+
+                    <paper-button class="tool-btn p-15px f-s-1em bordered" on-tap="_exportFlatRateInvoicing"><iron-icon icon="icons:cloud-download" class="w30px h30px"></iron-icon> &nbsp; [[localize('invoicingExport','Télécharger la facturation',language)]]</paper-button>
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_process')]]">
+                <div class="centerCenter">
+                    j20_process
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_accept')]]">
+                <div class="centerCenter">
+                    j20_accept
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_reject')]]">
+                <div class="centerCenter">
+                    j20_reject
+                </div>
+            </template>
+
+
+
+            <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_archive')]]">
+                <div class="centerCenter">
+                    j20_archive
                 </div>
             </template>
 
@@ -993,7 +1061,7 @@
                     },
                     flatrateMenuSection: {
                         type: String,
-                        observer: '_flatrateMenuSectionChanged'
+                        observer: '_flatRateListingMenuSectionChanged'
                     },
                     activeGridItem:{
                         type: Object,
@@ -1043,6 +1111,21 @@
                     reportMonthGap: {
                         type: Number,
                         value: 1
+                    },
+                    j20_batchCounter: {
+                        type: Object,
+                        value: () => ({
+                            toBeSend: 0,
+                            toBeCorrected: 0,
+                            processing: 0,
+                            rejected: 0,
+                            accepted: 0,
+                            archived: 0
+                        })
+                    },
+                    flatRateInvoicingDataObject: {
+                        type: Object,
+                        value: null
                     }
                 };
             }
@@ -1061,7 +1144,7 @@
                     this.set("hcp",response)
                     if(response.contactPersonHcpId){
                     this.api.hcparty().getHealthcareParty(response.contactPersonHcpId).then(hcpCt => {
-                        this.set("contactPerson", hcpCt.lastName + " " + hcpCt.firstName);
+                        this.set("contactPerson", _.trim( _.trim(_.get(hcpCt, "lastName", "")) + " " + _.trim(_.get(hcpCt, "firstName", "")) ));
                     })}
                 })
             }
@@ -1070,7 +1153,7 @@
                 if(!this._isLoading) this._resetLoadingMessage();
             }
 
-            _flatrateMenuSectionChanged(){
+            _flatRateListingMenuSectionChanged(){
                 console.log("Menu section: " + this.flatrateMenuSection);
                 if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
             }
@@ -1505,7 +1588,7 @@
             }
 
             _showWarningMessageEarlyInvoicingDownload() {
-                return parseInt(moment().date()) < 25;
+                return parseInt(moment().date()) > 8;
             }
 
             _startOfPreviousMonth() {
@@ -1520,17 +1603,18 @@
                 return a === b
             }
 
-            _getInsuranceTitularyInfo() {
+            _getInsuranceTitularyInfo(inputPatientsList=false) {
                 return new Promise(resolve =>{
-                    const insuranceTitularyIds = _.uniq(_.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
+                    const insuranceTitularyIds = _.uniq(_.filter( (inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
                     return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
-                        _.map(this.flatRateAllPatients, (i=>{
-                            if(!_.trim(_.get(i,"titularyId", "" ))) return i
-                            let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
-                            i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
-                            return i
-                        }))
-                        resolve(null)
+                        return resolve(
+                            _.map((inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i=>{
+                                if(!_.trim(_.get(i,"titularyId", "" ))) return i
+                                let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
+                                i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
+                                return i
+                            }))
+                        )
                     })
                 })
             }
@@ -1563,7 +1647,11 @@
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
                                     if(totalHcpPatientToResolve===resolvedHcpPatients){
                                         this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
-                                        this._getInsuranceTitularyInfo().then( data => { this._getInsurancesData(); })
+                                        this._getInsuranceTitularyInfo().then( data => {
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
+                                            this._getInsurancesData();
+                                        })
                                     }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
@@ -1969,13 +2057,8 @@
 
             _getInsurancesData() {
 
-                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
-
                 this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
                     .then((ins) => {
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         this.oaData = _
                           .chain(ins)
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
@@ -1987,7 +2070,23 @@
 
             }
 
+            _getInsurancesDataByPatientsList(inputPatientsList) {
+                return new Promise(resolve => {
+                    this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(inputPatientsList).map(i=>_.trim(_.get(i, "insurabilities[0].insuranceId"))).uniq().compact().value()}))
+                        .then(insurancesData => resolve(
+                            _
+                                .chain(insurancesData)
+                                .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                                .sortBy((i)=>{ return i.code; })
+                            .value()
+                        ))
+                })
+            }
+
             _generateJ3FileAndDownload() {
+
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
 
                 let pdfData = {};
 
@@ -2172,7 +2271,243 @@
                 }).catch(()=>{})
             }
 
-            _getInvoicingJ20() {
+            _getExportMonthsList() {
+                let toReturn = [];
+                for(let i=1; i<=12; i++) toReturn.push({id: i, label: this.localize('month_'+i,this.language) })
+                return toReturn
+            }
+
+            _getExportYearsList() {
+                let toReturn = [];
+                for(let i=(parseInt(moment().format('YYYY'))+1); i>=(parseInt(moment().format('YYYY'))-2); i--) toReturn.push({id: i, label: i })
+                return toReturn
+            }
+
+            _getExportCurrentMonth() {
+                return parseInt(moment().format('MM'))
+            }
+
+            _getExportCurrentYear() {
+                return parseInt(moment().format('YYYY'))
+            }
+
+            _sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }            
+
+            _createOrUpdateMedicalHousePatientsInvoices( inputData ) {
+
+                return new Promise((resolve, reject)=>{
+                    this._sleep(1000).then(()=>resolve([{foo:"bar"},{foo2:"bar2"}]))
+                })
+
+            }
+
+            _exportFlatRateInvoicing() {
+
+                this.set('_isLoading', true );
+                this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1',this.language), icon:"arrow-forward"});
+
+                // Force refresh - could be new "valorisation" was just set
+                if(_.size(_.get(this.api.hcparty().cache, _.get(this.user, "healthcarePartyId", "" )))) delete this.api.hcparty().cache[_.get(this.user, "healthcarePartyId", "" )];
+
+                this.api.hcparty().getHealthcareParty(_.get(this.user, "healthcarePartyId", "" ))
+                    .then(hcp => {
+
+                        this.set("hcp",hcp);
+
+                        this.flatRateInvoicingDataObject = {
+                            hcpData: {
+                                id: _.trim(_.get(this.hcp, "id")),
+                                name: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
+                                address: _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"work"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"home"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).head().value() || {},
+                                nihii: _.trim(_.get(this.hcp, "nihii", "")),
+                                nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
+                                contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
+                                contactPerson: _.trim(_.get(this, "contactPerson", "")),
+                                financialInfo: _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) )
+                            },
+                            patientsData: [],
+                            insurancesData: [],
+                            listsData: [],
+                            invoicesData: [],
+                            exportDate: _.trim(parseInt(_.get(this.shadowRoot.getElementById("exportedYear"), "value", this._getExportCurrentYear())) + "0" + parseInt(_.get(this.shadowRoot.getElementById("exportedMonth"), "value", this._getExportCurrentMonth())) + "01")
+                        }
+
+                        this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")
+
+                        this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
+                            phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
+                            email: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "email"}), "[0].telecomNumber", "")),
+                            financialInfo: {
+                                bankAccount: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", "")),
+                                bankAccountFormated: this.api.formatBankAccount( _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", "")) ),
+                                bic: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bic", "")) || this.api.getBicByIban(_.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", ""))),
+                                name: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.name", "")),
+                            }
+                        })
+
+                        this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth = _.merge(
+                            [
+                                {code: "109616", price: 0.00},  // Doctor
+                                {code: "409614", price: 0.00},  // Nurse
+                                {code: "509611", price: 0.00}   // Kine
+                            ],
+                            _.compact(
+                                _.chain(_.get(this.hcp, "flatRateTarifications", []))
+                                    .map(singleNomenclature => {
+                                        const valorisationPrice = parseFloat(
+                                            _.get(
+                                                _.head(
+                                                    _.orderBy(
+                                                        _
+                                                            .chain(singleNomenclature.valorisations)
+                                                            .filter(singleValorisation => {
+                                                                return (
+                                                                    !!singleValorisation
+                                                                    && parseFloat(_.get(singleValorisation, "reimbursement", 0))
+                                                                    && (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "startOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate)
+                                                                    // && (moment(_.trim(_.get(singleValorisation, "endOfValidity", "0")), "YYYYMMDD").isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "endOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate || !parseInt(_.get(singleValorisation, "endOfValidity", "0")))
+                                                                )
+
+                                                            })
+                                                        .value(),
+                                                        // ["startOfValidity", "endOfValidity"],
+                                                        // ["desc", "desc"]
+                                                        ["startOfValidity"],
+                                                        ["desc"]
+                                                    )
+                                                ),
+                                                "reimbursement"
+                                            )
+                                        )
+                                        return parseFloat(valorisationPrice) ? {
+                                            code: _.trim(_.get(singleNomenclature, "code")),
+                                            price: valorisationPrice
+                                        } : false
+                                    })
+                                .value()
+                            )
+                        )
+                    })
+                    .then(()=>{
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_2',this.language), icon:"arrow-forward"});
+                        return this._getPatientsByHcp(_.get(this.hcp, "id")).then(myPatients=>_.chain(myPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value())
+                    })
+                    .then((myPatients)=>{
+
+                        // Find valid MHContract or drop entry
+                        myPatients = _.compact(
+                            _.map( myPatients, pat => {
+                                pat.finalMedicalHouseContracts = _.get(
+                                    _.orderBy(
+                                        _
+                                            .chain(pat.medicalHouseContracts||[])
+                                            .filter(mhc => {
+                                                return (
+                                                    !!mhc &&
+                                                    !!_.size(mhc) &&
+
+                                                    // Has to begin in the past
+                                                    moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) &&
+                                                    (
+                                                        // Either end of contract is in the future or is not set
+                                                        moment(_.trim(_.get(mhc, "endOfContract", "0")), "YYYYMMDD").endOf('month').isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) ||
+                                                        !parseInt(_.get(mhc, "endOfContract", 0))
+                                                    ) &&
+                                                    (
+                                                        // Either start of coverage is before this month AND set OR
+                                                        // Start of coverage isn't set and start of contract is two month in the past (start of coverage = start of contract + 1 month when no trial period)
+                                                        (
+                                                            parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfCoverage", "0")), "YYYYMMDD").endOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        ) ||
+                                                        (
+                                                            !parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        )
+                                                    )
+                                                )
+                                            })
+                                            .value(),
+                                        ["startOfContract"],
+                                        ["desc"]
+                                    ),
+                                    "[0]", []
+                                )
+                                return _.size( pat.finalMedicalHouseContracts ) ? pat : false
+                            })
+                        )
+
+                        _.map( myPatients, pat => {
+                            pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
+                                pat.finalMedicalHouseContracts :
+                                _.merge(
+                                    pat.finalMedicalHouseContracts,
+                                    {startOfCoverage: parseInt(moment(_.trim(_.get(pat.finalMedicalHouseContracts, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').format("YYYYMMDD"))}
+                                )
+                        })
+
+                        this.flatRateInvoicingDataObject.patientsData = myPatients
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_3',this.language), icon:"arrow-forward"});
+                        return this._getInsuranceTitularyInfo(myPatients).then(x=>x)
+                    })
+                    .then((myPatientsWithInsuranceTitularyInfo)=>{
+                        this.flatRateInvoicingDataObject.patientsData = myPatientsWithInsuranceTitularyInfo
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
+                        return this._getInsurancesDataByPatientsList(myPatientsWithInsuranceTitularyInfo).then(x=>x)
+                    })
+                    .then((insurancesData)=>{
+                        this.flatRateInvoicingDataObject.insurancesData = insurancesData
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
+
+                        console.log(this.flatRateInvoicingDataObject.patientsData)
+                        console.log(moment())
+                        return {
+
+                            // "Old" patients
+                            // Start of month of start cover must be BEFORE (start of export month -1 month)
+                            // Ie: start of coverage began 2+ month before exported month
+                            list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) ),
+
+                            // New patients WITHOUT tryout (double amounts / must appear twice)
+                            // startmonth start cover == start month (export-1)
+                            // AND startmonth cover - 1 === startmonth contract
+                            list5: [],
+
+                            // New patients WITH tryout (double amounts / must appear twice)
+                            // startmonth cover == start month (export-1)
+                            // AND startmonth cover - 1 > startmonth contract
+                            list6: []
+                        }
+
+                    })
+                    .then((listsData)=>{
+                        this.flatRateInvoicingDataObject.listsData = listsData
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
+                        return this._createOrUpdateMedicalHousePatientsInvoices(this.flatRateInvoicingDataObject).then(x=>x)
+                    })
+                    .then(invoicesData=>{
+                        this.flatRateInvoicingDataObject.invoicesData = invoicesData
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
+
+                        console.log("Generate flat files + bordereaux + pdf here");
+                        console.log(this.flatRateInvoicingDataObject)
+
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(()=>{this.set('_isLoading', false );})
+
+
+                // Flat files
+                // Bordereaux
+                // A4 files
 
                 // var invoicingYear: Int = 0
                 // var invoicingMonth: Int = 0

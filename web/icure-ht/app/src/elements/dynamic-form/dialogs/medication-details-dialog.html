@@ -386,6 +386,14 @@
                 right: 0;
             }
 
+            paper-tab span{
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding-right: 12px;
+                display: block;
+                max-width: calc(100% - 34px);
+            }
+
             .add-col {
                 display: flex;
                 position: absolute;
@@ -509,7 +517,7 @@
                 <div class="regimen-line display-type-regimen">
                     <paper-input-container always-float-label="true" class="comment">
                         <label slot="label" class="color-status">[[localize('com','Comment',language)]]</label>
-                        <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}" max-rows="32"></iron-autogrow-textarea>
+                        <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{selectedMedicationContentWithId.medicationValue.commentForDelivery}}"></iron-autogrow-textarea>
                     </paper-input-container>
                 </div>
 
@@ -693,7 +701,7 @@
                         <div class="regimen-line display-type-regimen">
                             <paper-input-container always-float-label="true" class="comment">
                                 <label slot="label" class="color-status">[[localize('posology','Posology',language)]]</label>
-                                <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{posologyString}}" max-rows="32"></iron-autogrow-textarea>
+                                <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{posologyString}}"></iron-autogrow-textarea>
                             </paper-input-container>
                         </div>
                     </div>
@@ -701,7 +709,7 @@
 
             <div class="buttons">
                 <template is="dom-if" if="[[_all(selectedMedicationContentWithId ,selectedMedicationContentWithId.isPrescription)]]">
-                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="[[medicationMustBeCreated]]"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
+                    <paper-checkbox id="createMedication" on-checked-changed="_createMedication" checked="{{medicationDetail.options.createMedication}}"> [[localize('create_med','Create medication',language)]]</paper-checkbox>
                     <!-- Create medication <vaadin-checkbox id="createMedication" on-checked-changed="_createMedication"></vaadin-checkbox> -->
                 </template>
                 <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -887,9 +895,23 @@
             }
 
             _selectedMedicationChanged(idx) {
-                this.set('selectedMedicationContentWithId', this.api.contact().preferredContent(this.medications[idx].newMedication))
-                this.set('medicationDetail', this.medications[idx])
-
+                this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.medications[idx].newMedication, true, this.medications[idx].options.isPrescription))
+                this._initSelectedMedicationContentWithId()
+                const medicationDetail = this.medications[idx]
+                this.set('medicationDetail', Object.assign(
+                    medicationDetail,
+                    {
+                        bufferUnit: this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit', 'unit', this.language),
+                        medicPriority : this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0,
+                        reimbursementItemIdx: this.selectedMedicationContentWithId.medicationValue.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"),
+                        isRenewal : !!this.selectedMedicationContentWithId.medicationValue.renewal,
+                        renewalDecimalValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1 : null,
+                        renewalDurationValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1 : null,
+                        renewalTimeUnitIdx : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo") : null,
+                        beginMomentAsString : this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || (medicationDetail.newMedication && medicationDetail.newMedication.valueDate) || (medicationDetail.newMedication && medicationDetail.newMedication.openingDate) || Date.now()).format('YYYY-MM-DD') || null,
+                        endMomentAsString: this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || (medicationDetail.newMedication && medicationDetail.newMedication.closingDate)) || null
+                    }
+                ))
             }
 
             _posologyChanged(newValue, oldValue) {
@@ -929,7 +951,7 @@
                 this.updateGridIfNeeded()
             }
 
-            extractContentWithIdFromMedicationService(m, isNew) {
+            extractContentWithIdFromMedicationService(m, isNew, isPres) {
                 return {
                     id: m.id,
                     codes: m.codes,
@@ -943,7 +965,7 @@
                         )
                     ).medicationValue,
                     isNew: isNew || false,
-                    isPrescription: m.isPrescription || false
+                    isPrescription: m.isPrescription || isPres || false
                 };
             }
 
@@ -955,22 +977,28 @@
                     .then(timeunit => this.set("timeUnit", _.orderBy(_.filter(_.get(timeunit, "rows", []), i => ["ns", "us", "ms", "s", "min"].indexOf(_.trim(_.get(i, "code"))) == -1), ['label.fr'], 'asc'))) : Promise.resolve())
                     .finally(() => {
                         if (medicationDetail) {
-                            this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(medicationDetail.newMedication, false))
+                            this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(medicationDetail, false))
                             this._initSelectedMedicationContentWithId()
                             this.set('previousMedication', this.selectedMedicationContentWithId)
-                            this.set('medicationDetail', {
-                                boxes: boxes || 1,
-                                bufferUnit: this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit', 'unit', this.language),
-                                medicPriority : this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0,
-                                reimbursementItemIdx: this.selectedMedicationContentWithId.medicationValue.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"),
-                                isRenewal : !!this.selectedMedicationContentWithId.medicationValue.renewal,
-                                renewalDecimalValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1 : null,
-                                renewalDurationValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1 : null,
-                                renewalTimeUnitIdx : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo") : null,
-                                beginMomentAsString : this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || (medicationDetail.newMedication && medicationDetail.newMedication.valueDate) || (medicationDetail.newMedication && medicationDetail.newMedication.openingDate) || Date.now()).format('YYYY-MM-DD') || null,
-                                endMomentAsString: this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || (medicationDetail.newMedication && medicationDetail.newMedication.closingDate)) || null,
-                                newMedication: medicationDetail
-                            })
+                            if(!this.medicationDetail) {
+                                this.set('medicationDetail', {
+                                    boxes: boxes || 1,
+                                    bufferUnit: this.selectedMedicationContentWithId.medicationUnit || this.localize('generic_unit', 'unit', this.language),
+                                    medicPriority : this.selectedMedicationContentWithId.medicationValue.priority === "high" ? 2 : this.selectedMedicationContentWithId.medicationValue.priority === "middle" ? 1 : 0,
+                                    reimbursementItemIdx: this.selectedMedicationContentWithId.medicationValue.reimbursementReason ? this.reimbursementCodeRecipe.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.reimbursementReason.code) : this.reimbursementCodeRecipe.findIndex(idx => idx.code === "notreimbursable"),
+                                    isRenewal : !!this.selectedMedicationContentWithId.medicationValue.renewal,
+                                    renewalDecimalValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.decimal ? this.selectedMedicationContentWithId.medicationValue.renewal.decimal : 1 : null,
+                                    renewalDurationValue : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal && this.selectedMedicationContentWithId.medicationValue.renewal.duration.value ? this.selectedMedicationContentWithId.medicationValue.renewal.duration.value : 1 : null,
+                                    renewalTimeUnitIdx : this.isRenewal ? this.selectedMedicationContentWithId.medicationValue.renewal ? this.timeUnit.findIndex(idx => idx.code === this.selectedMedicationContentWithId.medicationValue.renewal.duration.unit.code) : this.timeUnit.findIndex(idx => idx.code === "mo") : null,
+                                    beginMomentAsString : this.api.moment(this.selectedMedicationContentWithId.medicationValue.beginMoment || (medicationDetail.newMedication && medicationDetail.newMedication.valueDate) || (medicationDetail.newMedication && medicationDetail.newMedication.openingDate) || Date.now()).format('YYYY-MM-DD') || null,
+                                    endMomentAsString: this.api.moment(this.selectedMedicationContentWithId.medicationValue.endMoment || (medicationDetail.newMedication && medicationDetail.newMedication.closingDate)) || null,
+                                    newMedication: medicationDetail,
+                                    options:{
+                                        createMedication: false,
+                                        isPrescription: this.selectedMedicationContentWithId.isPrescription
+                                    }
+                                })
+                            }
 
                             this.set('medicationMustBeCreated', false)
                             this.set('openAddDropDown', false)
@@ -985,9 +1013,12 @@
             }
 
             openList(list) {
+                // ------------------if we want to create an array even when we have only one medication selected
+                // list && list.length > 0 ? this.set('medications', _.clone(list)) : (list.newMedication && this.set('medications',[list])) || this.set('medications', [])
+                // ----------------------------------------------------------------------------------------------
                 list && list.length > 0 ? this.set('medications', _.clone(list)) : this.set('medications', [])
                 if (this.medications.length) {
-                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true), this.medications[0].boxes)
+                    this.open(this.medications[0].newMedication, this.extractContentWithIdFromMedicationService(this.medications[0].newMedication, true, this.medications[0].options.isPrescription), this.medications[0].boxes)
                     this.set('selectedMedication',0)
                 }
             }
@@ -1164,6 +1195,7 @@
 
             close() {
                 this.set("selectedMedicationContentWithId", null)
+                this.set('medications', [])
             }
 
             save() {
@@ -1172,7 +1204,7 @@
 
             _valueChanged() {
                 console.log("_valueChanged()",this.medicationDetail)
-                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail.newMedication, medications:this.medications, create: this.medicationMustBeCreated}, bubbles: true, composed: true}))
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: {medication: this.medicationDetail, medications:this.medications}, bubbles: true, composed: true}))
             }
 
             _regimenTableDataProvider(frequency) {
@@ -1283,7 +1315,7 @@
             }
 
             _createMedication(e){
-                this.set('medicationMustBeCreated', e.target.checked)
+                this.set('medicationDetail.options.createMedication', e.target.checked)
             }
 
             _medicationName(svc) {
