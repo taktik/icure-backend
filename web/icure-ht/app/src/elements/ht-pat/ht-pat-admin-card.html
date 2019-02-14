@@ -898,6 +898,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             tabs: {
                 type: Number,
                 value: 0
+            },
+            tabIndex: {
+                type: Number,
+                value: 0,
+                observer: '_tabIndexChanged'
             }
         };
     }
@@ -1619,6 +1624,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.newHcpCareTeam.Invite = true
         }else{
             this.newHcpCareTeam.Invite = false
+        }
+    }
+
+    _tabIndexChanged() {
+        if(this.tabIndex >= 0 && this.tabs >= 0 && this.tabIndex != this.tabs){
+            this.set('tabs',this.tabIndex)
         }
     }
 
