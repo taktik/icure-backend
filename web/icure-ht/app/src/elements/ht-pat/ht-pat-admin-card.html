@@ -944,7 +944,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const mut = ins.name[this.language].split(' ') || ins.name[0].split(' ') || []
                 let mutName = ""
                 mut.forEach(w=>mutName+=w[0].toUpperCase()) // get initials of mutual name
-                const patName = this.patient.firstName+" "+this.patient.lastName+" °"+moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
+                const patName = this.patient.firstName+" "+this.patient.lastName+" °"+this.api.moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
                 const oa = insur && insur.parameters && mutName.length ? insur.parameters.tc1+"-"+mutName : "no OA"
                 const ssin = this.patient.ssin
                 const addr = home ? home.street+", "+home.houseNumber+(home.postboxNumber.length ? "/"+home.postboxNumber : "") : "no Addr"
