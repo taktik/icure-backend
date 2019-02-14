@@ -22,13 +22,28 @@
             paper-dialog {
                 width: 60%;
                 height: 50%;
+                max-height: none !important;
+                display: flex;
+                flex-direction: column;
+            }
+
+            h3.modal-title {
+                margin: 0;
             }
 
             div {
                 width : 100%;
             }
+
+            div.content {
+                display: flex;
+                flex-direction: column;
+            }
+
             vadin-grid {
                 width : 100%;
+                flex-grow: 1 !important;
+                height: auto !important;
             }
 
             paper-input{

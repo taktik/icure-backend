@@ -547,7 +547,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 10px 1.2em;
                     text-transform: capitalize;
                 }
-
+                .modal-button--cancel {
+                    background: transparent;
+                    color: black;
+                    border: 1px solid var(--app-background-color-dark);
+                }
                 .modal-button--save {
                     box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                     background: var(--app-secondary-color);
@@ -617,6 +621,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .status-red {
                     background: #ff4d4d4d;
+                }
+
+                pre.recap-filter {
+                    flex-grow: 1;
+                    margin: 4px;
+                    background: var(--app-background-color-dark);
+                    padding: 4px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    box-sizing: border-box;
+                    max-width: 90%;
                 }
 
                 @media screen and (max-width: 1024px) {
@@ -856,7 +872,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
                         <div slot="suffix">
-                            <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter"></paper-icon-button>
+                            <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter" disabled="[[!filterValue.length]]"></paper-icon-button>
                             <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
                         </div>
                     </paper-input>
@@ -1027,7 +1043,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     on-upload-success="_mfFileUploaded"></vaadin-upload>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -1174,7 +1190,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="saveFilterDialog">
             <h2 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h2>
             <div>
-                <paper-input class="filterNameInput" label="Filter name" value="{{filterName}}"></paper-input>
+                <paper-input class="filterNameInput" label="[[localize('filter_name','Filter name',language)]]" value="{{filterName}}"></paper-input>
+            </div>
+            <div class="line">
+                <span>[[localize('fil','Filter',language)]] : </span>
+                <pre class="recap-filter">[[filterValue]]</pre>
             </div>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -1697,6 +1717,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     shareAll: {
                         type: Boolean,
                         value: false
+                    },
+                    cardData: {
+                        type: Object,
+                        value:{}
                     }
                 }
             }
@@ -1966,7 +1990,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(this.activeItem) {
                     const selected = this.activeItem
                     console.log('selected ', selected, ' - ' + this.latestSelected)
-
                     this.api.patient().getPatientWithUser(this.user, selected.id).then(p => this.api.register(p, 'patient')).then(p => {
                         this.set('selectedPatient', p)
                         this.set('isLoadingPatient', false)
@@ -1998,6 +2021,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('dateAsString', this.api.moment(res.cards[0].dateOfBirth * 1000).format('YYYY-MM-DD'))
                             this.set('ssin', res.cards[0].nationalNumber)
                             this.set('valueGender', res.cards[0].gender === 'M' ? 'male' : 'female')
+                            this.set('cardData',res.cards[0])
                         }
                     })
             }
@@ -2376,8 +2400,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             confirm() {
                 // Trigger update
-                this.updateStartOfCoverage()
-                this.api.patient().newInstance(this.user, {
+                let newPatient ={
                     lastName: this.lastName,
                     firstName: this.firstName,
                     active: true,
@@ -2385,7 +2408,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ssin: this.ssin,
                     gender: this.valueGender,
                     medicalHouseContracts: [this.medicalHouseContractShadowObject]
-                }).then(
+                }
+                if(Object.keys(this.cardData).length!==0){
+                    let streetData = _.trim(this.cardData.street).split(" ")
+                    const number = streetData.find(str => str.match(/\d/g))
+                    const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+                    const street = streetData.reduce((tot,str)=>{
+                        if(!tot)tot="";
+                        if(!(str===number || str===boxNumber ))
+                            tot = tot.concat(" ",str)
+                        return tot;
+                    })
+                    _.merge(newPatient,{
+                        placeOfBirth : this.cardData.locationOfBirth,
+                        nationality : this.cardData.nationality,
+                        picture : this.cardData.picture,
+                        addresses : [
+                            {
+                                addressType : "home",
+                                street : street,
+                                houseNumber : number,
+                                postboxNumber : boxNumber,
+                                postalCode : this.cardData.zipCode,
+                                city : this.cardData.municipality,
+                                country : this.cardData.country
+                            }
+                        ]
+                    })
+                }
+                this.updateStartOfCoverage()
+                this.api.patient().newInstance(this.user, newPatient).then(
                     p => this.api.patient().createPatientWithUser(this.user, p)
                 ).then(
                     p => this.api.register(p, 'patient')
@@ -2429,11 +2481,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     filtersProperty.typedValue.stringValue = '{}'
                 }
 
+                const key = this.filterName.length ? this.filterName : this.filterValue.substring(0,5)+'...'
+
                 const filters = JSON.parse(filtersProperty.typedValue.stringValue)
                 try {
-                    filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+                    filters[key] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
                 } catch (e) {
-                    filters[this.filterName] = {
+                    filters[key] = {
                         '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
                         'healthcarePartyId': this.user.healthcarePartyId,
                         'searchString': this.filterValue
@@ -2629,7 +2683,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                                 secretForeignKeys: secretForeignKeys.extractedKeys,
                                                 comment: null
-                                            }, (progress) => this.set('taskProgress', (pidx + progress) / this.patientSelected.length)).then(output => {
+                                            }, (progress) => this.set('taskProgress', (pidx + progress) / this.patientSelected.length), this.api.sessionId).then(output => {
                                                 //creation of the xml file
                                                 var file = typeof output === "string" ? new Blob([output], {type: "application/xml"}) : output
 
