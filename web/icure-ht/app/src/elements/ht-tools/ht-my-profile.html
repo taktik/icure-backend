@@ -966,7 +966,7 @@
                                         </div>
                                         <div class="right">
                                             <paper-dropdown-menu>
-                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regu.bw]]">
+                                                <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regulations.bw]]">
                                                     <template is="dom-repeat" items="[[printers]]" as="printer">
                                                         <paper-item on-tap="_setPrinter" target="regulations.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
                                                     </template>
@@ -1461,10 +1461,18 @@
                             let tempSelected = {}
 
                             Object.keys(selectedFromStorage).forEach(k => {
-                                const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
-                                const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
-                                tempSelected[k] = {color:color,bw:bw}
+                                if (k != 'stickers' && k != 'regulations') {
+                                    const color = this._getPrinterIdByName(this.printers,selectedFromStorage[k].color)
+                                    const bw = this._getPrinterIdByName(this.printers,selectedFromStorage[k].bw)
+                                    tempSelected[k] = {color:color,bw:bw}
+                                }
                             })
+                            tempSelected.stickers = {
+                                bw:this._getPrinterIdByName(this.printers,selectedFromStorage.stickers.bw),
+                                h:selectedFromStorage.stickers.h,
+                                l:selectedFromStorage.stickers.l
+                            }
+                            tempSelected.regulations = {bw:this._getPrinterIdByName(this.printers,selectedFromStorage.regulations.bw)}
                             this.set('selectedPrinter', selectedFromStorage)
                             this.set('numericSelectedPrinter', tempSelected)
                         }
@@ -1491,7 +1499,7 @@
             }
             _getPrinterIdByName(source,name) {
                 for (let i = 0;i<=source.length;i++) {
-                    if (source[i].name == name) return i
+                    if (source[i] && source[i].name == name) return i
                 }
             }
 
