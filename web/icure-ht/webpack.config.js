@@ -106,6 +106,11 @@ module.exports = {
             from : path.resolve(__dirname, 'app/docs/*.pdf'),
             to: 'docs/[name].[ext]'
         }]),
+        new WebpackAutoInject({
+            components: {
+                AutoIncreaseVersion: false
+            }
+        }),
         new Clean(['dist']),
     ],
     devServer: {
