@@ -437,10 +437,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-bottom:32px;
             }
 
-            .save {
+            .save, .print-vignette {
                 background: var(--app-secondary-color);
                 border-radius: 50%;
-                margin: 7px 36px;
+                margin: 7px 4px;
                 padding: 4px;
                 cursor: pointer;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
@@ -449,16 +449,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 24px;
                 text-align: center;
                 line-height: 24px;
+                background: var(--app-background-color);
             }
-            .save iron-icon {
+            .save {
+                margin-right: 36px;
+            }
+            .save iron-icon,
+            .print-vignette iron-icon {
                 width: 20px;
                 margin-top: -3px;
             }
-            .save:hover {
+            .save:hover,
+            .print-vignette:hover {
                 transform: scale(1.05);
             }
-            .save:active {
-                background: var(--app-secondary-color-dark);
+            .save:active,
+            .print-vignette:active {
+                background: var(--app-background-color-dark);
                 box-shadow: none;
                 transform: scale(.9);
             }
@@ -470,6 +477,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:edit"></iron-icon>[[localize('adm_post_it','Post-it',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
+                <div class="print-vignette">
+                    <iron-icon id="print-vignette" icon="av:recent-actors" on-tap="printMutualVignette"></iron-icon>
+                    <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
+                </div>
                 <div class="save">
                     <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
                 </div>
@@ -923,6 +934,41 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
+
+    printMutualVignette() {
+        const home = this.patient.addresses.find(a=>a.addressType === "home") || null
+        const insur = this.patient.insurabilities.find(a => !a.endDate && a.id != "") || null
+        if (insur && insur.insuranceId) {
+            this.api.insurance().getInsurance(insur.insuranceId).then(ins=>{
+                const mut = ins.name[this.language].split(' ') || ins.name[0].split(' ') || []
+                let mutName = ""
+                mut.forEach(w=>mutName+=w[0].toUpperCase()) // get initials of mutual name
+                const patName = this.patient.firstName+" "+this.patient.lastName+" °"+moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
+                const oa = insur && insur.parameters && mutName.length ? insur.parameters.tc1+"-"+mutName : "no OA"
+                const ssin = this.patient.ssin
+                const addr = home ? home.street+", "+home.houseNumber+(home.postboxNumber.length ? "/"+home.postboxNumber : "") : "no Addr"
+                const cp = home ? home.postalCode+" "+home.city : "no CP"
+                const vignetteBody =`<html><head>
+                    <style>
+                        p.patName {font-size: 1.1em;}
+                        p {margin: 0;}
+                    </style></head>
+                    <body>
+                        <p class="patName">${patName}</p>
+                        <p class="oa">OA ${oa}</p>
+                        <p class="ssin">${ssin}</p>
+                        <p class="addr">${addr}</p>
+                        <p class="cp">${cp}</p>
+                    </body></html>`
+                console.log('toPrint',vignetteBody)
+                this.api.pdfReport(vignetteBody,{
+                    paperWidth: localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).stickers && JSON.parse(localStorage.getItem('selectedPrinter')).stickers.l || undefined,
+                    paperHeight: localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).stickers && JSON.parse(localStorage.getItem('selectedPrinter')).stickers.h || undefined,
+                    marginLeft: 5,marginRight: 5,marginTop: 5,marginBottom: 5
+                })
+            }).catch(e=>{console.log('cannot resolve insurance',e)})
+        } else {console.log('cannot find insurance')}
     }
 
     medicalPostitChanged(medical) {
