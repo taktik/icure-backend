@@ -955,7 +955,7 @@
                 <div class="textAlignCenter">
 
                     <div class="exportMonthPicker">
-                        <div class="exportMonthPickerTitle"><iron-icon icon="vaadin:calendar" style="max-width:20px; max-height:20px; margin-right:7px;"></iron-icon> Mois à générer</div>
+                        <div class="exportMonthPickerTitle"><iron-icon icon="vaadin:calendar" style="max-width:20px; max-height:20px; margin-right:7px;"></iron-icon> [[localize('j20_monthToGenerate','Month to generate',language)]]</div>
                         <vaadin-combo-box id="exportedMonth" filtered-items="[[_getExportMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getExportCurrentMonth()]]"></vaadin-combo-box>
                         <vaadin-combo-box id="exportedYear" filtered-items="[[_getExportYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getExportCurrentYear()]]"></vaadin-combo-box>
                     </div>
@@ -1619,6 +1619,10 @@
                 })
             }
 
+            _powRoundFloatByPrecisionDecimalPlaces(inputNumber,decimalPlaces){
+                return parseFloat(Math.round(parseFloat(inputNumber) * Math.pow(10, decimalPlaces)) /Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+            }
+
             _getListingJ3(e) {
 
                 this.set('_isLoading', true );
@@ -1674,7 +1678,7 @@
                 this._loadingMessages = [];
             }
 
-            _getExportPageHeader(data) {
+            _getExportPageHeader(data, isInvoicingExport=false) {
 
                 return `
                     <article id="" class="page">
@@ -1689,39 +1693,53 @@
                                 </tr>
                             </tbody>
                         </table>
-
                         <table class="small-txt boderBottomGrey" cellspacing="0" cellpadding="0">
                             <tbody>
                                 <tr class="">
                                     <td width="55%">
-                                        <span class="bold uppercase">${_.get(this.user, "name", "")}</span><br />
-                                        ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
-                                        ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
-                                        ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
-                                        ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.contactPerson} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
-                                    </td>
-                                    <td width="45%">
-                                        <table class="borderOa"><tbody><tr><td class="fs11">
-                                            <b>` +_.get(data, "code", "") + ` &nbsp;&nbsp; ` +_.get(data, "finalName", "") + `</b><br /><br />
-                                            ` +_.get(data, "address", "") + `<br />
-                                            ` +_.get(data, "city", "") + ` ` +_.get(data, "postalCode", "") + `<br />
-                                        </td></tr></tbody></table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> `;
+                ` + (
+                        isInvoicingExport ?
+                        `
+                            <span class="bold uppercase">${this.flatRateInvoicingDataObject.hcpData.name}</span><br />
+                            ${this.flatRateInvoicingDataObject.hcpData.address.street} ${this.flatRateInvoicingDataObject.hcpData.address.houseNumber}` +( _.trim(this.flatRateInvoicingDataObject.hcpData.address.postboxNumber) ? " / " + _.trim(this.flatRateInvoicingDataObject.hcpData.address.postboxNumber) : "" )+ `<br />
+                            ${this.flatRateInvoicingDataObject.hcpData.address.postalCode} ${this.flatRateInvoicingDataObject.hcpData.address.city}<br />
+                            ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${this.flatRateInvoicingDataObject.hcpData.nihiiFormated}<br />
+                            ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.flatRateInvoicingDataObject.hcpData.contactPerson} &nbsp;&nbsp; ${this.flatRateInvoicingDataObject.hcpData.phone}<br />
+                            ` + this.localize('bankAccountNumber',this.language) + `: &nbsp;&nbsp; ${this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccountFormated}<br />
+                        ` :
+                        `
+                            <span class="bold uppercase">${_.get(this.user, "name", "")}</span><br />
+                            ${_.get(this.hcp, "addresses[0].street", "")} ${_.get(this.hcp, "addresses[0].houseNumber", "")}<br />
+                            ${_.get(this.hcp, "addresses[0].postalCode", "")} ${_.get(this.hcp, "addresses[0].city", "")}<br />
+                            ` + this.localize('inami',this.language) + `: &nbsp;&nbsp; ${_.get(this.hcp, "nihii", "")}<br />
+                            ` + this.localize('adm_ctc_per',this.language) + `: &nbsp;&nbsp; ${this.contactPerson} &nbsp;&nbsp; ${_.get(this.hcp, "addresses[0].telecoms[0].telecomNumber", "")}<br />
+                        `
+                    ) + `
+                                </td>
+                                <td width="45%">
+                                    <table class="borderOa"><tbody><tr><td class="fs11">
+                                        <b>` +_.get(data, "code", "") + ` &nbsp;&nbsp; ` +_.get(data, "finalName", "") + `</b><br /><br />
+                                        ` +_.get(data, "address", "") + `<br />
+                                        ` +_.get(data, "city", "") + ` ` +_.get(data, "postalCode", "") + `<br />
+                                    </td></tr></tbody></table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `
+                ;
 
             }
 
-            _getExportListHeader(listIndex) {
+            _getExportListHeader(listIndex, isInvoicingExport=false) {
 
                 return `
                     <table id="documentHeader" class="boderBottomGrey" cellspacing="0" cellpadding="0">
                         <tbody>
                             <tr class="">
                                 <td width="100%">
-                                    <span class="bold uppercase colorBlue fs12">` + this.localize("flatrate_list_"+listIndex+"_header",this.language) + `</span><br />
-                                    <span class="bold uppercase colorBlue fs10">` + this.localize("flatrate_list_"+listIndex+"_subheader",this.language) + `</span><br />
+                                    <span class="bold uppercase colorBlue fs12">` + this.localize("flatrate_" + ( isInvoicingExport ? "invoicing" : "list") + "_"+listIndex+"_header",this.language) + `</span><br />
+                                    <span class="bold uppercase colorBlue fs10">` + this.localize("flatrate_" + ( isInvoicingExport ? "invoicing" : "list") + "_"+listIndex+"_subheader",this.language) + `</span><br />
                                 </td>
                             </tr>
                         </tbody>
@@ -1821,7 +1839,71 @@
 
             }
 
-            _getExportPageFooter(currentPage,totalPages,oaCode) {
+            _getExportListContentForInvoicing(listIndex,listEntries) {
+
+                let contentToReturn = "";
+
+                contentToReturn += `
+                    <table id="contentBodyTable" class="mt10" cellspacing="0" cellpadding="0">
+                        <thead>
+                            <tr class="fs10 colorBlue italic bold txt-left pb10">
+                                <td class="contentBodyHeader underlined" width="10%">` + this.localize("flatrate_invoicing_column_1",this.language) + `</td>
+                                <td class="contentBodyHeader" width="5%">` + this.localize("flatrate_column_1",this.language) + `</td>
+                                <td class="contentBodyHeader" width="21%">` + this.localize("flatrate_column_2",this.language) + `</td>
+                                <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_4",this.language) + `</td>
+                                <td class="contentBodyHeader" width="9%">` + this.localize("flatrate_column_3",this.language) + `</td>
+                                <td class="contentBodyHeader" width="8%">` + this.localize("flatrate_column_6",this.language) + `</td>
+                                <td class="contentBodyHeader" width="6%">` + this.localize("flatrate_column_5",this.language) + `</td>
+                                <td class="contentBodyHeader txt-center" width="6%">M</td>
+                                <td class="contentBodyHeader txt-center" width="6%">K</td>
+                                <td class="contentBodyHeader txt-center" width="6%">I</td>
+                                <td class="contentBodyHeader txt-center" width="7%">MKI tot.</td>
+                                <td class="contentBodyHeader txt-center" width="7%">` + this.localize("month",this.language) + `</td>
+                            </tr>
+                        </thead>
+                    <tbody>`
+
+                _.forEach(listEntries, (singleEntry)=>{
+                    _.forEach(singleEntry, _.trim);
+
+                    let gpPrice = !_.get(singleEntry, "finalMedicalHouseContracts.gp", false ) ? 0 : this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, {code:"109616"}), "[0].price", 0 ) ), 2 )
+                    let kinePrice = !_.get(singleEntry, "finalMedicalHouseContracts.kine", false ) ? 0 :  this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, {code:"509611"}), "[0].price", 0 ) ), 2 )
+                    let nursePrice = !_.get(singleEntry, "finalMedicalHouseContracts.nurse", false ) ? 0 :  this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, {code:"409614"}), "[0].price", 0 ) ), 2 )
+                    let totalPriceMKI = this._powRoundFloatByPrecisionDecimalPlaces( (parseFloat(gpPrice) + parseFloat(kinePrice) + parseFloat(nursePrice)), 2 )
+
+                    // Lists 5 & 6 = NEW subscribers => sum both current & previous (export month) valorisations
+                    if([5,6].indexOf(listIndex) > -1) {
+                        console.log( "OK lists 5 or 6, current listIndex: " + listIndex );
+                        gpPrice = !_.get(singleEntry, "finalMedicalHouseContracts.gp", false ) ? gpPrice : parseFloat(parseFloat(gpPrice) + parseFloat(this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, {code:"109616"}), "[0].price", 0 ) ), 2 )))
+                        kinePrice = !_.get(singleEntry, "finalMedicalHouseContracts.kine", false ) ? kinePrice : parseFloat(parseFloat(kinePrice) + parseFloat(this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, {code:"509611"}), "[0].price", 0 ) ), 2 )))
+                        nursePrice = !_.get(singleEntry, "finalMedicalHouseContracts.nurse", false ) ? nursePrice : parseFloat(parseFloat(nursePrice) + parseFloat(this._powRoundFloatByPrecisionDecimalPlaces( parseFloat( _.get( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, {code:"409614"}), "[0].price", 0 ) ), 2 )))
+                        totalPriceMKI = parseFloat(this._powRoundFloatByPrecisionDecimalPlaces( (parseFloat(gpPrice) + parseFloat(kinePrice) + parseFloat(nursePrice)), 2 ))
+                    }
+
+                    contentToReturn += `
+                        <tr class="fs9 borderTopLightThinGrey pt2 pb2">
+                            <td width="10%" class="bold underlined">123456789999</td>
+                            <td width="5%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
+                            <td width="21%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
+                            <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
+                            <td width="9%" class="">`+_.get(singleEntry, "dateOfBirth", "")+`</td>
+                            <td width="8%" class="">`+(parseInt(_.get(singleEntry, "finalMedicalHouseContracts.startOfContract",0))?moment(_.get(singleEntry, "finalMedicalHouseContracts.startOfContract",0)+"","YYYYMMDD").format("DD/MM/YYYY"):"")+`</td>
+                            <td width="6%" class="">`+_.get(singleEntry, "finalInsurability.parameters.tc1", "")+``+_.get(singleEntry, "finalInsurability.parameters.tc2", "")+`</td>
+                            <td width="6%" class="txt-center" >` + _.trim(gpPrice) + ` €</td>
+                            <td width="6%" class="txt-center" >` + _.trim(kinePrice) + ` €</td>
+                            <td width="6%" class="txt-center" >` + _.trim(nursePrice) + ` €</td>
+                            <td width="7%" class="txt-center bold" >` + _.trim(totalPriceMKI) + ` €</td>
+                            <td width="7%" class="txt-center" >` + _.trim(this.reportCurrentDateMomentObject.format('YYYY')) + "/" + _.trim(this.reportCurrentDateMomentObject.format('MM')) + `</td>
+                        </tr>`
+                })
+
+                contentToReturn += `</tbody></table>`
+
+                return contentToReturn;
+
+            }
+
+            _getExportPageFooter(currentPage,totalPages,oaCode, isInvoicingExport=false) {
 
                 return `
                     </article>
@@ -1829,7 +1911,7 @@
                         <table class="boderGreyTop pageFooter">
                             <tbody>
                                 <tr class="fs9 bold">
-                                    <td width="40%" class="colorBlue txt-left italic">`+ this.localize('flatrate_footer_reply_before',this.language) +`</td>
+                                    <td width="40%" class="colorBlue txt-left italic">`+ ( isInvoicingExport ? "" : this.localize('flatrate_footer_reply_before',this.language) ) +`</td>
                                     <td width="20%" class="colorBlue txt-center italic underlined">`+ this.localize('month_' + parseInt(this.reportCurrentDateMomentObject.format('M')), this.language) + ` `+ this.reportCurrentDateMomentObject.format('YYYY')+`</td>
                                     <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
                                 </tr>
@@ -1916,7 +1998,7 @@
                                     #factBody .row-total > td {text-align: right;}
                                     #factBody .row-total > td:first-child {text-align: left;}
 
-                                    .txt-center {text-align: center;}
+                                    .txt-center {text-align: center!important;}
                                     .txt-right {text-align: right;}
                                     .txt-left tr td, .txt-left td, .txt-left {text-align: left;}
                                     .mt5 {margin-top: 5px!important;}
@@ -1970,7 +2052,8 @@
                                 </style>
                                 </head>
                                 <body>`
-                    }
+
+            }
 
             _getMyHcps() {
 
@@ -2329,6 +2412,80 @@
 
             }
 
+            _generateJ20PdfFiles() {
+
+                let pdfData = {};
+
+                _.forEach( this.flatRateInvoicingDataObject.insurancesData, (oa,k)=> {
+                    pdfData[oa.id] = {
+                        oa: {
+                            id: _.get(oa, "id", ""),
+                            finalName: _.get(oa, "finalName", ""),
+                            code: _.get(oa, "code", ""),
+                            address: _.trim(_.compact([_.get(oa, "address.street", ""), _.get(oa, "address.houseNumber", ""), _.get(oa, "address.postboxNumber", "")]).join(' ')),
+                            postalCode: _.get(oa, "address.postalCode", ""),
+                            city: _.get(oa, "address.city", "")
+                        },
+                        entries: {
+                            list5: _.filter(this.flatRateInvoicingDataObject.listsData.list5, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITHOUT tryout
+                            list6: _.filter(this.flatRateInvoicingDataObject.listsData.list6, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITH tryout
+                            list8: _.filter(this.flatRateInvoicingDataObject.listsData.list8, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // "Old" patients
+                        }
+                    };
+                }); // Loop OA
+
+
+
+
+
+                // <NOT FOR PROD, just to test page breaks with large records amount>
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // </NOT FOR PROD, just to test page breaks with large records amount>
+
+
+
+
+
+                let totalPages = 0;
+                let currentPage = 0;
+                const maxEntriesPerPage = 47;
+
+                // Eval total pages
+                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; })})})
+                this.flatRateInvoicingDataObject.pdfTotalPages = parseInt(totalPages);
+
+                let pdfTemplate = this._getExportPdfHeader();
+
+                _.forEach( pdfData, (oaData)=> {
+                    _.forEach( oaData.entries, (listEntries, listKey)=> {
+                        if(!parseInt(_.size(listEntries))) return;
+                        let listIndex = parseInt(listKey.replace('list',''));
+                        let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                            currentPage++;
+                            pdfTemplate +=
+                                this._getExportPageHeader(oaData.oa, true) +
+                                this._getExportListHeader(listIndex, true) +
+                                this._getExportListContentForInvoicing(listIndex,entriesChunk) +
+                                "Insérer total liste (LL flatrate_invoicing_listTotal)" +
+                                this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
+                        });
+                    })
+                    pdfTemplate += "Insérer total de OA (LL flatrate_invoicing_insTotal)"
+                })
+
+                // Close document
+                pdfTemplate += this._getExportPdfFooter();
+
+                return this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
+
+            }
+
             _exportFlatRateInvoicing() {
 
                 this.set('_isLoading', true );
@@ -2575,30 +2732,38 @@
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
-
-                        console.log("Generate flat files + bordereaux + pdf here");
+                        return this._generateJ20PdfFiles().then(x=>x)
+                    })
+                    .then(pdfObject=>{
+                        this.flatRateInvoicingDataObject.pdfFileContent = pdfObject.pdf
+                        this.flatRateInvoicingDataObject.pdfDownloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-invoiving-patients" + ".pdf";
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_6',this.language), icon:"arrow-forward"});
+                        return this.api.message().newInstance(this.user)
+                            .then(newMessageInstance => this.api.message().createMessage(
+                                _.merge(newMessageInstance, {
+                                    transportGuid: "MH:ARCHIVES:INVOICING",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                    metas: {totalPages: this.flatRateInvoicingDataObject.pdfTotalPages, filename: this.flatRateInvoicingDataObject.pdfDownloadFileName},
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                    subject: "MH: Archive invoicing patients download - " + this.flatRateInvoicingDataObject.pdfDownloadFileName
+                                }))
+                            )
+                    })
+                    .then(createdMessage => this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: this.flatRateInvoicingDataObject.pdfDownloadFileName}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance)))
+                    .then(createdDocument => this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.flatRateInvoicingDataObject.pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent})))
+                    .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                    .then(() => {
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_done',this.language), icon:"check-circle", updateLastMessage: true, done:true})
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
+                        this.api.triggerFileDownload( this.flatRateInvoicingDataObject.pdfFileContent, "application/pdf", this.flatRateInvoicingDataObject.pdfDownloadFileName )
                         console.log(this.flatRateInvoicingDataObject)
-
                     })
                     .catch((e)=>{console.log(e)})
-                    .finally(()=>{this.set('_isLoading', false );})
-
-
-                // Flat files
-                // Bordereaux
-                // A4 files
-
-                // var invoicingYear: Int = 0
-                // var invoicingMonth: Int = 0
-                // var fileRef: String? = null //13 alphanumeric internal reference. Typically, we use a base36 representation of the 16 first hex of the UUID id of the Message
-                // var batchRef: String? = null //25 alphanumeric internal reference. Typically, we use a base36 representation of the UUID id of the Message
-                // var ioFederationCode: String? = null //3 digits code of the IO federation
-                // var uniqueSendNumber : Long? = null //3 digits number for batch (typically the number of the day * 2 + 1 if 306)
-                // var sender:  InvoiceSender? = null
-                // var numericalRef : Long? = null
-                // var invoices: MutableList<Invoice> = LinkedList()
-
-                // console.log(this.api.fhc().Efactcontroller().makeFlatFileTestUsingPOST(...));
+                    .finally(()=>{
+                        this.flatRateInvoicingDataObject = {}
+                        this.set('_isLoading', false )
+                    })
 
             }
 

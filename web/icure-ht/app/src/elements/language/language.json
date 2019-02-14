@@ -984,7 +984,18 @@
     "year": "Year",
     "week": "week",
     "old": "old",
-    "j20_monthToGenerate": "Month to generate"
+    "j20_monthToGenerate": "Month to generate",
+    "bankAccountNumber": "Bank account number",
+    "flatrate_invoicing_5_header": "ATTACHMENT 5: FLATRATE PAYMENT",
+    "flatrate_invoicing_6_header": "ATTACHMENT 6: FLATRATE PAYMENT",
+    "flatrate_invoicing_8_header": "ATTACHMENT 8: FLATRATE PAYMENT",
+    "flatrate_invoicing_5_subheader": "FACTURATION DES NOUVEAUX INSCRITS SANS PERIODE D'ESSAI",
+    "flatrate_invoicing_6_subheader": "FACTURATION DES NOUVEAUX INSCRITS AVEC PERIODE D'ESSAI",
+    "flatrate_invoicing_8_subheader": "FACTURATION DES ANCIENS INSCRITS",
+    "flatrate_invoicing_column_1": "Invoice n°",
+    "flatrate_invoicing_listTotal": "List total",
+    "flatrate_invoicing_insTotal": "Insurance total"
+
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2055,6 +2066,19 @@
     "week": "semaine",
     "old": "Ancien",
     "j20_monthToGenerate": "Mois à générer",
+    "bankAccountNumber": "Numéro de compte bancaire",
+    "flatrate_invoicing_5_header": "ANNEXE 5: PAIEMENT FORFAITAIRE",
+    "flatrate_invoicing_6_header": "ANNEXE 6: PAIEMENT FORFAITAIRE",
+    "flatrate_invoicing_8_header": "ANNEXE 8: PAIEMENT FORFAITAIRE",
+    "flatrate_invoicing_5_subheader": "FACTURATION DES NOUVEAUX INSCRITS SANS PERIODE D'ESSAI",
+    "flatrate_invoicing_6_subheader": "FACTURATION DES NOUVEAUX INSCRITS AVEC PERIODE D'ESSAI",
+    "flatrate_invoicing_8_subheader": "FACTURATION DES ANCIENS INSCRITS",
+    "flatrate_invoicing_column_1": "Nr. facture",
+    "flatrate_invoicing_listTotal": "Total de la liste",
+    "flatrate_invoicing_insTotal": "Total de la mutualité",
+
+
+
 
     "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
     "mhInvoicing.spinner.step_1_done": "Fin de la récupération de la Maison Médicale",
@@ -2065,11 +2089,10 @@
     "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
     "mhInvoicing.spinner.step_5": "Création des fichiers...",
     "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers",
+    "mhInvoicing.spinner.step_6": "Archivage des fichiers...",
+    "mhInvoicing.spinner.step_done": "Fin de l'archivage des fichiers"
 
 
-    "mhListing.spinner.step_7": "Archivage du rapport PDF...",
-    "mhListing.spinner.step_7_done": "Fin de l'archivage du rapport PDF",
-    "mhListing.spinner.step_8": "Téléchargement du fichier..."
 
   },
   "nl": {
@@ -3146,6 +3169,16 @@
     "year": "Jaar",
     "week": "week",
     "old": "oud",
-    "j20_monthToGenerate": "Maand te genereren"
+    "j20_monthToGenerate": "Maand te genereren",
+    "bankAccountNumber": "Bankrekeningnummer",
+    "flatrate_invoicing_5_header": "BIJLAGE 5: FORFAITAIRE BETALING",
+    "flatrate_invoicing_6_header": "BIJLAGE 6: FORFAITAIRE BETALING",
+    "flatrate_invoicing_8_header": "BIJLAGE 8: FORFAITAIRE BETALING",
+    "flatrate_invoicing_5_subheader": "FACTURATIE DER NIEUWE INSCHRIJVINGEN ZONDER PROEFPERIODE",
+    "flatrate_invoicing_6_subheader": "FACTURATIE DER NIEUWE INSCHRIJVINGEN MET PROEFPERIODE",
+    "flatrate_invoicing_8_subheader": "FACTURATIE DER OUDE INSCHRIJVINGEN",
+    "flatrate_invoicing_column_1": "Factnr",
+    "flatrate_invoicing_listTotal": "Totalllijst",
+    "flatrate_invoicing_insTotal": "Totaal mutualiteit"
   }
 }
