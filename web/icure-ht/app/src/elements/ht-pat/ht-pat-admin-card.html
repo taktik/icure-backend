@@ -473,6 +473,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="save">
                     <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
                 </div>
+                <div class="save">
+                    <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
+                </div>
             </paper-tabs>
 
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
@@ -903,6 +906,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Number,
                 value: 0,
                 observer: '_tabIndexChanged'
+            },
+            cardData: {
+                type: Object,
+                value: {}
             }
         };
     }
@@ -1624,6 +1631,63 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.newHcpCareTeam.Invite = true
         }else{
             this.newHcpCareTeam.Invite = false
+        }
+    }
+
+    fillWithCard(){
+        if(Object.keys(this.cardData).length!==0 && this.patient.ssin === this.cardData.nationalNumber){
+            let streetData = _.trim(this.cardData.street).split(" ")
+            const number = streetData.find(str => str.match(/\d/g))
+            const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+            const street = streetData.reduce((tot,str)=>{
+                if(!tot)tot="";
+                if(!(str===number || str===boxNumber ))
+                    tot = tot.concat(" ",str)
+                return tot;
+            })
+
+            this.set("patient.lastName", this.cardData.surname)
+            this.set("patient.firstName", this.cardData.firstName)
+            this.set("patient.placeOfBirth", this.cardData.locationOfBirth)
+            this.set("patient.dateOfBirth", parseInt(this.api.moment(this.cardData.dateOfBirth * 1000).format('YYYYMMDD')))
+            this.set("patient.nationality", this.cardData.nationality)
+            this.set("patient.picture", this.cardData.picture)
+            this.set("patient.gender", this.cardData.gender === 'M' ? 'male' : 'female')
+
+            if(!this.patient.addresses.find(adr => adr.addressType==="home")) {
+                this.push("patient.addresses", {
+                    addressType: "home",
+                    street: street,
+                    houseNumber: number,
+                    postboxNumber: boxNumber,
+                    postalCode: this.cardData.zipCode,
+                    city: this.cardData.municipality,
+                    country: this.cardData.country
+                })
+            }
+            else{
+                this.set("patient.addresses."+this.patient.addresses.findIndex(adr => adr.addressType==="home"), {
+                    street: street,
+                    houseNumber: number,
+                    postboxNumber: boxNumber,
+                    postalCode: this.cardData.zipCode,
+                    city: this.cardData.municipality,
+                    country: this.cardData.country
+                })
+            }
+        }
+        else{
+            fetch('http://127.0.0.1:16042/read')
+                .then((response) => {
+                    return response.json()
+                })
+                .then(res => {
+                    if (res.cards[0]) {
+                        this.set('cardData',res.cards[0])
+                        this.fillWithCard()
+                        this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
+                    }
+                })
         }
     }
 

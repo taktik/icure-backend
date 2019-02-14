@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .first-panel{
                 display: flex;
                 flex-direction: column;
-                height:100%;
+                height:calc(100vh - 64px); /* 64px = app-header */
                 background: var(--app-background-color-dark);
                 top:64px;
                 left:0;
@@ -395,7 +395,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 font-size: 13px;
             }
 
-            .btn-close{
+            .btn-pat-close{
                 position: absolute;
                 left: 26px;
                 top: 18px;
@@ -406,7 +406,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 4;
             }
 
-            .btn-close:hover{
+            .btn-pat-close:hover{
                 @apply --transition;
                 top: 17px;
                 @apply --shadow-elevation-2dp;
@@ -508,10 +508,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
 
+                max-width: 216px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
                 /* Rules below not implemented in browsers yet */
                 -o-user-select: none;
                 user-select: none;
-
             }
 
             .contact .contact-text-row{
@@ -576,6 +580,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 -o-user-select: none;
                 user-select: none;
 
+            }
+
+            .contact label.hcp {
+                position: absolute;
+                right: 0;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .colour-code{
@@ -880,11 +893,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transition: transform 0.2s ease-in;
             }
 
+            @media screen and (max-width: 1168px) {
+                .patient-info-container{
+                    padding: 0;
+                }
+                .patient-picture-container{
+                    display:none;
+                }
+                .btn-pat-close {
+                    top: 16px;
+                    left: 172px;
+                }
+            }
 
             @media screen and (max-width:1025px){
                 .container{
                     grid-template-columns: 0% 40% 60%;
-
                 }
                 .container .fit-bottom{
                     left:0%!important;
@@ -896,6 +920,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container.expanded .first-panel {
                     width: 50vw;
                     z-index: 1001;
+                    width: 208px !important;
                 }
                 .container.expanded .fit-bottom {
                     /*left:20%!important;*/
@@ -909,18 +934,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-column: 1 / span 3;
                     grid-row: 1 / 1;
                 }
-                .patient-info-container{
-                    @apply --padding-right-left-16;
-                }
-                .patient-picture-container{
-                    display:none;
-                }
-                .btn-close{
-                    left: 8px;
-                    top: 16px;
-                }
                 .display-left-menu{
                     display:inherit;
+                    box-shadow: var(--app-shadow-elevation-1);
+                }
+                .display-left-menu.open {
+                    border-radius: 0 50% 50% 0;
+                    transform: none;
+                    left: 208px !important;
+                }
+                .display-left-menu.open iron-icon#icon {
+                    transform: rotate(180deg);
                 }
                 .floating-action-bar {
                     position: fixed;
@@ -928,6 +952,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     bottom: 0;
                     width: 100vw;
                     transform: none;
+                }
+            }
+
+            @media screen and (max-width:800px){
+                .contact label {
+                    max-width: 50% !important;
+                }
+                .contact h4 {
+                    max-width: 80%;
+                }
+                .contact .contact-text-row {
+                    padding: 0 4px;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+            }
+
+            @media screen and (max-width: 456px) {
+                .contact-year {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .contact-year > div {
+                    text-align: center;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-around;
                 }
             }
 
@@ -990,6 +1041,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 80%;
             }
 
+            div.ther-container {
+                height: 469px;
+                margin: 0;
+                flex-grow: 1;
+                margin-bottom: 60px;
+                overflow-y: auto;
+            }
+
+            #therLinkDialog .buttons {
+                background: white;
+            }
+
             #transactionDialog, #genInsDialog{
                 width: 60%;
             }
@@ -1031,7 +1094,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: flex-start;
                 width: 100%;
                 box-sizing: border-box;
-                margin-bottom: 10px;
+                margin-bottom: 0;
+                padding: 0;
             }
 
             #genInsDialog .request-transfert paper-button.action {
@@ -1163,6 +1227,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-ink-color:var(--app-text-color);
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             .icon-prof{
                 height: 14px;
                 width: 14px;
@@ -1291,25 +1361,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
             <template is="dom-if" if="[[isAdminSelected(selectedAdminOrCompleteFileIndex)]]">
-                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" tab-index="[[adminTabIndex]]" on-patient-saved="_patientSaved"></ht-pat-admin-card>
+                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" tab-index="[[adminTabIndex]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
             </template>
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <div class="first-panel">
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
                         <paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
-                            <paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
+                            <paper-fab id="pat-close" class="btn-pat-close" mini icon="close" on-tap="close"></paper-fab>
+                            <paper-tooltip for="pat-close" position="left">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
-                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
+                                <div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]] °[[_ageFormat(patient.dateOfBirth)]] [[patient.profession]]</div>
                                 <div class="statusContainer">
                                     <paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
-                                    <paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
+                                    <paper-tooltip for="insuranceStatus">[[localize('gen_ins','assurability',language)]]</paper-tooltip>
                                     <paper-fab id="consentStatus" mini icon="icons:thumb-up" on-tap="_openConsentDialog"></paper-fab>
-                                    <paper-tooltip for="consentStatus">[[localize('consent','insurance',language)]]</paper-tooltip>
+                                    <paper-tooltip for="consentStatus">[[localize('consent','consent',language)]]</paper-tooltip>
                                     <paper-fab id="tlStatus" mini icon="vaadin:specialist" on-tap="_openTherLinkDialog"></paper-fab>
-                                    <paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
+                                    <paper-tooltip for="tlStatus">[[localize('tl','therapeutic link',language)]]</paper-tooltip>
                                     <paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
                                     <paper-tooltip for="hubStatus">Hub</paper-tooltip>
                                     <paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
@@ -1438,7 +1509,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item">
                                 <div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
                                 <paper-icon-button id="med-edit-btn-plan" class="extra-button" icon="icons:assignment" on-tap="_medicationPlan"></paper-icon-button>
-                                <paper-tooltip position="bottom" offset="-1" for="med-edit-btn-plan">[[localize('med_plan','Medication Plan',language)]]</paper-tooltip>
+                                <paper-tooltip position="left" offset="-1" for="med-edit-btn-plan">[[localize('med_plan','Medication Plan',language)]]</paper-tooltip>
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
                             </paper-item>
                             <paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1490,13 +1561,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
                     <div class="contacts-container" on-scroll="openToast">
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
-                            <template is="dom-if" if="[[events.length]]">
-                                <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
+                            <span class="contact-year" on-click="openToast">
+                                <div>[[localize('to_do','To Do',language)]]</div>
+                                <div>
                                     <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
                                     <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
                                     <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
                                     <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
-                                </span>
+                                </div>
+                            </span>
+                            <template is="dom-if" if="[[events.length]]">
                                 <paper-listbox id="_events_listbox" class="todo-list">
                                     <template is="dom-repeat" items="[[events]]" as="e">
                                         <paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
@@ -1513,12 +1587,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </template>
                                 </paper-listbox>
                             </template>
-                            <template is="dom-if" if="[[!events.length]]">
-                                <span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]
-                                    <paper-icon-button id="button_list_plan_of_action" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
-                                    <paper-tooltip position="bottom" for="button_list_plan_of_action">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                </span>
-                            </template>
                             <template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">
 									[[contactYear.year]]
@@ -1531,7 +1599,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         <paper-item class="contact-text">
                                             <div class="contact-text-row contact-text-date">
                                                 <label>[[_timeFormat(contact.openingDate)]] ([[_shortId(contact.id)]])</label>
-                                                <label>[[hcp(contact)]]</label>
+                                                <label class="hcp">[[hcp(contact)]]</label>
                                             </div>
                                             <div class="contact-text-row grey">
                                                 <h4>[[contact.userDescr]]</h4>
@@ -1555,7 +1623,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             </div>
                                         </paper-item>
                                         <template is="dom-if" if="[[!contact.closingDate]]">
-                                            <paper-icon-button id="close-[[contact.id]]" class="menu-item-icon contact-icon" icon="icons:lock" alt="[[localize('fin_ctc','Finalize contact',language)]]" on-tap="closeContact"></paper-icon-button>
+                                            <paper-icon-button id="close-[[contact.id]]" class="menu-item-icon contact-icon close-ctc" icon="icons:lock" alt="[[localize('fin_ctc','Finalize contact',language)]]" on-tap="closeContact"></paper-icon-button>
                                             <paper-tooltip for="close-[[contact.id]]">[[localize('fin_ctc','Finalize contact',language)]]</paper-tooltip>
                                         </template>
                                     </paper-material>
@@ -1817,7 +1885,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 </template>
                 <div class="buttons">
-                    <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
                 </div>
 
             </div>
@@ -1843,7 +1911,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="{{patientConsent.consent}}">
                     <paper-button class="modal-button modal-button--save" on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
                 </template>
@@ -1856,53 +1924,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="therLinkDialog">
             <h2 class="modal-title">[[localize('tl_req','Therapeutic Link',language)]]</h2>
             <div id="legaltextTL"></div>
-            <vaadin-grid id="ther-link-list" class="material" overflow="bottom" items=[[currentTherLinks]] active-item="{{selectedTherLink}}">
-                <vaadin-grid-column width="120px">
-                    <template class="header">
-                        <vaadin-grid-sorter path="description">[[localize('hcp_ident','Hcp',language)]]</vaadin-grid-sorter>
-                    </template>
-                    <template>
-                        <div class="cell frozen">[[_hcpIdent(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="120px">
-                    <template class="header">[[localize('pat_ident','Patient',language)]]</template>
-                    <template>
-                        <div class="cell frozen">[[_patIdent(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="80px">
-                    <template class="header">[[localize('sta_dat','Start Date',language)]]</template>
-                    <template>
-                        <div class="cell frozen">[[_startDate(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="80px">
-                    <template class="header">[[localize('end_dat','End Date',language)]]</template>
-                    <template>
-                        <div class="cell frozen">[[_endDate(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="80px">
-                    <template class="header">[[localize('tl_type','Type',language)]]</template>
-                    <template>
-                        <div class="cell frozen">[[_tlType(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="80px">
-                    <template class="header">[[localize('status','Status',language)]]</template>
-                    <template>
-                        <div class="cell frozen">[[_tlStatus(item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-            </vaadin-grid>
-            <template is="dom-if" if="[[!haveTherLinks]]">
-                <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
-                <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
-            </template>
+            <div class="ther-container">
+                <template is="dom-if" if="[[!haveTherLinks]]">
+                    <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
+                    <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
+                    <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+                </template>
+                <vaadin-grid id="ther-link-list" class="material" overflow="bottom" items=[[currentTherLinks]] active-item="{{selectedTherLink}}">
+                    <vaadin-grid-column width="120px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="description">[[localize('hcp_ident','Hcp',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[_hcpIdent(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="120px">
+                        <template class="header">[[localize('pat_ident','Patient',language)]]</template>
+                        <template>#genInsDialog .request-transfert
+                            <div class="cell frozen">[[_patIdent(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">[[localize('sta_dat','Start Date',language)]]</template>
+                        <template>
+                            <div class="cell frozen">[[_startDate(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">[[localize('end_dat','End Date',language)]]</template>
+                        <template>
+                            <div class="cell frozen">[[_endDate(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">[[localize('tl_type','Type',language)]]</template>
+                        <template>
+                            <div class="cell frozen">[[_tlType(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">[[localize('status','Status',language)]]</template>
+                        <template>
+                            <div class="cell frozen">[[_tlStatus(item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
             <!--<paper-button on-tap="_getTherLinks">[[localize('get_TL','Get Therapeutic link',language)]]</paper-button>-->
             <div class="buttons">
-                <paper-button class="modal-button" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button--save" on-tap="_revokeTherLink" hidden="[[!haveTherLinks]]" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
                 <paper-button class="modal-button--save" enabled="false" on-tap="_registerNationalAndHubTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
             </div>
@@ -2149,10 +2220,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     secondPanelItems: {
                         type: Array,
                         value: function () {
-                            return [{ icon: "icure-svg-icons:laboratory", filter:[{type:'CD-TRANSACTION',code:['labresult']}] , title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" },
-                                { icon: "icure-svg-icons:imaging", filter:[{type:'CD-TRANSACTION',code:['result']},{type:'CD-HCPARTY',code:['deptradiology']}], title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" },
+                            return [{ icon: "icure-svg-icons:laboratory", filter:[{type:'CD-TRANSACTION',code:['labresult']}] , title: {en: "Lab Results", fr:"Résultats de laboratoire", nl:"Lab Results"}, id: "LabResults" },
+                                { icon: "icure-svg-icons:imaging", filter:[{type:'CD-TRANSACTION',code:['result']},{type:'CD-HCPARTY',code:['deptradiology']}], title: {en: "Imaging", fr:"Imagerie", nl:"Imaging"}, id: "Imaging" },
                                 { icon: "icure-svg-icons:stethoscope", filter:[{type:'CD-ENCOUNTER',code:['consultation']}], title: {en: "Consultation", fr:"Consultation", nl:"Consultation"}, id: "Consultation" },
-                                { icon: "editor:insert-drive-file", filter:[{type:'CD-TRANSACTION',code:['contactreport']}], title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" },
+                                { icon: "editor:insert-drive-file", filter:[{type:'CD-TRANSACTION',code:['contactreport']}], title: {en: "Protocol", fr:"Protocole", nl:"Protocol"}, id: "Protocol" },
                                 { icon: "icure-svg-icons:prescription", filter:[{type:'CD-ITEM',code:['treatment']}], title: {en: "Prescription",  fr:"Prescription", nl:"Prescription"}, id: "Prescription" }];
                         }
                     },
@@ -2264,6 +2335,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     adminTabIndex: {
                         type: Number,
                         value: 0
+                    },
+                    cardData:{
+                        type: Object,
+                        value: {},
+                        observer : "cardDataChanged"
                     }
                 };
             }
@@ -2279,6 +2355,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready();
                 this.set("SpinnerActive",true)
+
+                this.api.isElectronAvailable().then(electron =>{
+                    if(electron){
+                        this._readEid()
+                    }
+                })
                 if(this.patientHealthCarePartiesById == null) {
                     Promise.all(
                         _.chunk(this.patient.patientHealthCareParties,100).map(uChunk =>
@@ -2327,6 +2409,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeFormat(date) {
                 return date ? this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+            }
+
+            _ageFormat(date) {
+                return date ? this.api.getCurrentAgeFromBirthDate(date,( e , s ) => this.localize(e, s, this.language)) : '';
             }
 
             _dateFormat(date) {
@@ -2399,6 +2485,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation();
                 this.selectedTherLink = null;
                 this._getTherLinks();
+
+                if(Object.keys(this.cardData).length && this.patient.ssin===this.cardData.nationalNumber) {
+                    this.set("eidCardNumber",this.cardData.logicalNumber)
+                }
+
                 //this.root.querySelector('#legaltext').innerHTML = this.localize('cons_legal', 'Informed consent legal text ...', this.language)
                 this.$.therLinkDialog.open();
             }
@@ -4451,6 +4542,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set("events",_.sortBy(this.events,it => this.api.moment(it.valueDate)))
                     }
                 })
+            }
+
+            _readEid() {
+                fetch('http://127.0.0.1:16042/read')
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then(res => {
+                        if (res.cards[0]) {
+                            this.set('cardData',res.cards[0])
+                        }
+                    })
+            }
+
+            cardDataChanged(){
+                if(this.$.therLinkDialog.opened){
+                    if(Object.keys(this.cardData).length && this.patient.ssin===this.cardData.nationalNumber) {
+                        this.set("eidCardNumber",this.cardData.logicalNumber)
+                    }
+                }
+            }
+
+            _cardChanged(e){
+                this.set("cardData",e.detail.cardData)
             }
 
         }

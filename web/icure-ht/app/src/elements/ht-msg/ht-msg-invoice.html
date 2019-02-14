@@ -614,6 +614,10 @@
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
+
+                #toBeCorrectedGridDetail{
+                    height: 96%;
+                }
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -1367,48 +1371,48 @@
                     <paper-input label="Mutuelle" value="[[activeGridItem.insuranceCode]]"readonly></paper-input>
                 </div>
                     <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="7%" class="recipient-col">
                             <template class="header">Date</template>
                             <template>[[formatDate(item.dateCode,"date")]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="7%" class="recipient-col">
                             <template class="header">Code</template>
                             <template>[[item.code]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="25%" class="recipient-col">
                             <template class="header">Libellé</template>
                             <template>[[item.label]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="7%" class="recipient-col">
                             <template class="header">PR</template>
                             <template>[[item.relatedCode]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="4%" class="recipient-col">
                             <template class="header">Tp</template>
                             <template>[[item.insuranceJustification]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
+                        <vaadin-grid-column width="13%" class="recipient-col">
                             <template class="header">N° engagement</template>
                             <template>[[item.contract]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column-group class="hasBorder">
                             <template class="header">Montants</template>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column width="9%" class="recipient-col">
                                 <template class="header">OA</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)]]">[[_formatAmount(item.reimbursement)]]</span></template>
                                 <template class="footer">[[sumReimb]] €</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column width="9%" class="recipient-col">
                                 <template class="header">Patient</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)]]">[[_formatAmount(item.patientIntervention)]]</span></template>
                                 <template class="footer">[[sumPatInter]] €</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column width="9%" class="recipient-col">
                                 <template class="header">Supplément</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)]]">[[_formatAmount(item.doctorSupplement)]]</span></template>
                                 <template class="footer">[[sumDoctorSup]] €</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column width="9%" class="recipient-col">
                                 <template class="header">Total</template>
                                 <template><span class$="[[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)]]">[[_formatAmount(item.totalAmount)]]</span></template>
                                 <template class="footer">[[sumTot]] €</template>

@@ -25,6 +25,12 @@
             h2 {
                 min-height: 24px;
             }
+            h3.err {
+                text-align: center;
+                margin-top: 10%;
+                color: var(--app-error-color);
+            }
+
             .view {
                 display: block;
                 flex-grow: 1; /* I don't believe it works with block */
@@ -134,6 +140,12 @@
                 color: #000;
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             @media screen and (max-width: 1025px) {
                 #dialog {
                     margin: 0;
@@ -154,6 +166,9 @@
                         </div>
                     </template>
                 </div>
+                <template is="dom-if" if="[[!vaccines.length]]">
+                    <h3 class="err"><iron-icon icon="warning"></iron-icon> [[localize('no_hist','No history',language)]] !</h3>
+                </template>
                 <template is="dom-repeat" items="[[vaccines]]">
                     <div class="item entry">
                         <div class="time">[[item.date]]</div>
@@ -167,7 +182,7 @@
                 </template>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
     </template>

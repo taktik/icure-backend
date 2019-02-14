@@ -630,7 +630,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="[[_isEqual(widget.id,'latestLabResultsWidget')]]">
 					<div id="[[widget.id]]" class="card latest-lab-result" style="--area:latestLabResultsWidget;"  draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
-							<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]
+							<h1 class="card-title new-notif">[[localize('latest_lab_reports','Latest Lab and Reports',language)]]
                                 <template is="dom-if" if="[[!_isEqual(unreadCount,0)]]">
                                     <span class="notif">[[unreadCount]]<span class="nomobile"> [[localize('are_not_read','unread',language)]]</span></span>
                                 </template>
@@ -650,13 +650,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="card-table-header row">
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
 								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
-								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('boxtitle.labResult','Laboratory',language)]]</div>
+								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('sender','sender',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
-									<div class="card-table-cell card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[_isUnreadResult(result)]]">[[result.patientName]]</div>
-									<div class="card-table-cell lab-name">[[result.descr]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patientName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
 							<ht-spinner class="spinner" active=[[isLoadingLabResults]]></ht-spinner>
@@ -984,13 +984,22 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const start = Number(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'))
         const labsFilter = {
             '$type': 'UnionFilter',
-            'filters': [{
-                '$type': 'ServiceByHcPartyTagCodeDateFilter',
-                healthcarePartyId: this.user.healthcarePartyId,
-                tagCode: 'labresult',
-                tagType: 'CD-TRANSACTION',
-                startValueDate: start
-            }]
+            'filters': [
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'labresult',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+                {
+                    '$type': 'ServiceByHcPartyTagCodeDateFilter',
+                    healthcarePartyId: this.user.healthcarePartyId,
+                    tagCode: 'report',
+                    tagType: 'CD-TRANSACTION',
+                    startValueDate: start
+                },
+            ]
         }
         this.api.contact().filterServicesBy(null, null, 50, new models.FilterChain({filter: labsFilter}))
             .then(services => {
@@ -1014,14 +1023,34 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             })
             .then(results => {
                 this.set('labResults', _.orderBy(results, 'created', 'desc') || [])
-                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
-                    .then(messages => this.set('unreadCount', _.filter(messages.rows, m => m.assignedResults && ((m.status & 1 << 1) !== 0)).length))
+                return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
+                    .then(messages => {
+                        this.set('unreadCount', _.filter(messages.rows, m => {
+                            return ((m.status & (1 << 1)) !== 0) && (
+								(m.assignedResults && Object.keys(m.assignedResults).length)
+								|| (m.unassignedResults && m.unassignedResults.length)
+							)
+                        }).length)
+                        this.messagesByResultId = {}
+                        messages.rows && messages.rows.forEach (mes => {
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(resid => {
+                                this.messagesByResultId[resid] = mes
+							})
+                        })
+						console.log("end loading mes", this.messagesByResultId)
+                    })
             })
-            .finally(() => this.set('isLoadingLabResults', false))
+            .finally(() => {
+				//console.log("FINISHED LOAD MESSAGES")
+                this.set('isLoadingLabResults', false)
+            })
     }
 
     _isUnreadResult(res) {
-        this.api.message().getMessage(res.groupId).then(m=>{return ((m.status & 1 << 1) !== 0) ? 'unread' : '' }).catch(()=>{return 'err'})
+	    //console.log("is unread ?", this.messagesByResultId, this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : 'read' , res)
+        //return 'unread'
+		// FIXME: WIP: no unread messages found
+	    return this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {
