@@ -13,52 +13,61 @@ metadata:
         ingress.appscode.com/load-balancer-ip: {{ .Values.ingressIP }}
       {{- end }}
 spec:
-  {{- if (.Values.tls.host) and .Values.tls.refName }}
+    {{- if .Values.tls }}
     tls:
+        {{- range .Values.tls }}
         -   hosts:
-                - "{{ .Values.tls.host }}"
-                - "backend.{{ .Values.tls.host }}"
-                - "ht.{{ .Values.tls.host }}"
-                - "couch.{{ .Values.tls.host }}"
+                {{- range .hosts }}
+                - "{{ . }}"
+                - "backend.{{ . }}"
+                - "ht.{{ . }}"
+                - "couch.{{ . }}"
+                {{- end }}
             ref:
                 kind: Secret
-                name: {{ .Values.tls.refName }}
+                name: {{ .refName }}
+        {{- end }}
     frontendRules:
         -   port: 443
             rules:
                 - option httplog
                 - option forwardfor
                 - http-request set-header X-Forwarded-Proto https
-  {{- end }}
+    {{- end }}
     rules:
-        -   host: "ht.{{ .Values.tls.host }}"
+        {{- $root := . -}}
+        {{- range .Values.tls }}
+        {{- range .hosts }}
+        -   host: "ht.{{ . }}"
             http:
                 paths:
                     -   path: /
                         backend:
-                            serviceName: "{{ template "fullname" . }}-frontend"
-                            servicePort: {{ .Values.images.frontend.servicePort }}
-        -   host: "backend.{{ .Values.tls.host }}"
+                            serviceName: "{{ template "fullname" $ }}-frontend"
+                            servicePort: {{ $root.Values.images.frontend.servicePort }}
+        -   host: "backend.{{ . }}"
             http:
                 paths:
                     -   path: /
                         backend:
-                            serviceName: "{{ template "fullname" . }}-backend"
-                            servicePort: {{ .Values.images.backend.servicePort }}
-        -   host: "{{ .Values.tls.host }}"
+                            serviceName: "{{ template "fullname" $ }}-backend"
+                            servicePort: {{ $root.Values.images.backend.servicePort }}
+        -   host: "{{ . }}"
             http:
                 paths:
                     -   path: /
                         backend:
-                            serviceName: "{{ template "fullname" . }}-backend"
-                            servicePort: {{ .Values.images.backend.servicePort }}
+                            serviceName: "{{ template "fullname" $ }}-backend"
+                            servicePort: {{ $root.Values.images.backend.servicePort }}
 
-        -   host: "couch.{{ .Values.tls.host }}"
+        -   host: "couch.{{ . }}"
             http:
                 paths:
                     -   path: /
                         backend:
-                            serviceName: {{ .Values.couchdbServiceName }}
-                            servicePort: {{ .Values.couchdbPortNumber }}
+                            serviceName: {{ $root.Values.couchdbServiceName }}
+                            servicePort: {{ $root.Values.couchdbPortNumber }}
                             backendRules:
-                                - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ .Values.couchdbCredentialsBase64 }}'
+                                - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ $root.Values.couchdbCredentialsBase64 }}'
+        {{- end }}
+        {{- end }}

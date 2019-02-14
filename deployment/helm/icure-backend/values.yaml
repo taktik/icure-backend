@@ -5,9 +5,10 @@ couchdbPortNumber: 5984
 couchdbCredentialsBase64: "" # defiend in the config
 
 ingressIP: "" # defined during helm install
-tls:
-    host: ""
-    refName: ""
+#tls:
+#    -   hosts:
+#            -   example.com
+#        refName: tls-example-com
 
 images:
     backend:
