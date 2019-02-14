@@ -1,5 +1,6 @@
 /* webpack.config.js */
 
+var WebpackAutoInject = require('webpack-auto-inject-version')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var OfflinePlugin = require('offline-plugin')
@@ -75,6 +76,11 @@ module.exports = {
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
+        new WebpackAutoInject({
+            components: {
+                AutoIncreaseVersion: false
+            }
+        }),
         new HtmlWebpackPlugin({
             inject: false,
             debug: true,
@@ -106,11 +112,6 @@ module.exports = {
             from : path.resolve(__dirname, 'app/docs/*.pdf'),
             to: 'docs/[name].[ext]'
         }]),
-        new WebpackAutoInject({
-            components: {
-                AutoIncreaseVersion: false
-            }
-        }),
         new Clean(['dist']),
     ],
     devServer: {

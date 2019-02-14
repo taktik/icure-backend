@@ -585,8 +585,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 50%;
                 top: 50%;
                 transform: translateX(-50%) translateY(-50%);
-                width:200px;
-                height:200px;
+                width:100px;
+                height:100px;
             }
             #update-notification {
                 z-index: 1000;
@@ -769,7 +769,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-tab>
                         </paper-tabs>
                         <div class="log-info">
-                            <p><span class="user-email">[[user.login]] –</span>
+                            <p><span class="user-email">[AIV]{version}[/AIV] |</span>
+                                <template is="dom-if" if="[[isElectron]]">
+                                    <span class="user-email">e—[[electronVersion]] |</span>
+                                </template>
+                                <span class="user-email">[[user.login]] –</span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
                                 <template is="dom-if" if="[[hasMHCertificate]]">
@@ -794,14 +798,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </paper-tooltip>
                         </div>
-                        <template is="dom-if" if="[[isElectron]]">
-                            <div class="log-info">
-                                <p><span class="user-email">Version - Electron: [[version]]</span></p>
-                            </div>
-                        </template>
                         <div>
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
-                            <svg version="1.1"
+                            <svg electronVersion="1.1"
 						xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
 						x="0px" y="0px" width="204px" height="81px" viewBox="0 0 204 81" style="enable-background:new 0 0 204 81;"
 						xml:space="preserve" class="logo">
@@ -1443,7 +1442,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
         const runtime = require('offline-plugin/runtime');
 
-
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'ht-app-tz'
@@ -1451,6 +1449,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             static get properties() {
                 return {
+                    versions: {
+                        type: Object,
+                        value: function () {
+                            return require('../versions.json');
+                        }
+                    },
                     api: {
                         type: Object,
                         noReset: true,
@@ -1621,7 +1625,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value: false
                     },
-                    version : {
+                    electronVersion : {
                         type : String,
                         value : ""
                     }
@@ -1753,12 +1757,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return response.json()
                             })
                             .then(res => {
-                                if (res.version) {
-                                    this.set("version",res.version)
+                                if (res.electronVersion) {
+                                    this.set("electronVersion", res.electronVersion)
                                 }
                             })
                     }
                 })
+
+
 
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
