@@ -2298,7 +2298,7 @@
             _createOrUpdateMedicalHousePatientsInvoices( inputData ) {
 
                 return new Promise((resolve, reject)=>{
-                    this._sleep(3000).then(()=>resolve([{foo:"bar"}]))
+                    this._sleep(1000).then(()=>resolve([{foo:"bar"},{foo2:"bar2"}]))
                 })
 
             }
@@ -2347,10 +2347,10 @@
                             }
                         })
 
-                        this.flatRateInvoicingDataObject.hcpValorisations = _.merge(
+                        this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth = _.merge(
                             [
                                 {code: "109616", price: 0.00},  // Doctor
-                                {code: "409614", price: 0.00},  //Nurse
+                                {code: "409614", price: 0.00},  // Nurse
                                 {code: "509611", price: 0.00}   // Kine
                             ],
                             _.compact(
@@ -2364,16 +2364,18 @@
                                                             .chain(singleNomenclature.valorisations)
                                                             .filter(singleValorisation => {
                                                                 return (
-                                                                    !!singleValorisation &&
-                                                                    parseFloat(_.get(singleValorisation, "reimbursement", 0)) &&
-                                                                    (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "startOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate) &&
-                                                                    (moment(_.trim(_.get(singleValorisation, "endOfValidity", "0")), "YYYYMMDD").isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "endOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate || !parseInt(_.get(singleValorisation, "endOfValidity", "0")))
+                                                                    !!singleValorisation
+                                                                    && parseFloat(_.get(singleValorisation, "reimbursement", 0))
+                                                                    && (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "startOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate)
+                                                                    // && (moment(_.trim(_.get(singleValorisation, "endOfValidity", "0")), "YYYYMMDD").isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) || _.trim(_.get(singleValorisation, "endOfValidity", "0")) === this.flatRateInvoicingDataObject.exportDate || !parseInt(_.get(singleValorisation, "endOfValidity", "0")))
                                                                 )
 
                                                             })
                                                         .value(),
-                                                        ["startOfValidity", "endOfValidity"],
-                                                        ["desc", "desc"]
+                                                        // ["startOfValidity", "endOfValidity"],
+                                                        // ["desc", "desc"]
+                                                        ["startOfValidity"],
+                                                        ["desc"]
                                                     )
                                                 ),
                                                 "reimbursement"
@@ -2394,6 +2396,59 @@
                         return this._getPatientsByHcp(_.get(this.hcp, "id")).then(myPatients=>_.chain(myPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value())
                     })
                     .then((myPatients)=>{
+
+                        // Find valid MHContract or drop entry
+                        myPatients = _.compact(
+                            _.map( myPatients, pat => {
+                                pat.finalMedicalHouseContracts = _.get(
+                                    _.orderBy(
+                                        _
+                                            .chain(pat.medicalHouseContracts||[])
+                                            .filter(mhc => {
+                                                return (
+                                                    !!mhc &&
+                                                    !!_.size(mhc) &&
+
+                                                    // Has to begin in the past
+                                                    moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) &&
+                                                    (
+                                                        // Either end of contract is in the future or is not set
+                                                        moment(_.trim(_.get(mhc, "endOfContract", "0")), "YYYYMMDD").endOf('month').isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) ||
+                                                        !parseInt(_.get(mhc, "endOfContract", 0))
+                                                    ) &&
+                                                    (
+                                                        // Either start of coverage is before this month AND set OR
+                                                        // Start of coverage isn't set and start of contract is two month in the past (start of coverage = start of contract + 1 month when no trial period)
+                                                        (
+                                                            parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfCoverage", "0")), "YYYYMMDD").endOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        ) ||
+                                                        (
+                                                            !parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        )
+                                                    )
+                                                )
+                                            })
+                                            .value(),
+                                        ["startOfContract"],
+                                        ["desc"]
+                                    ),
+                                    "[0]", []
+                                )
+                                return _.size( pat.finalMedicalHouseContracts ) ? pat : false
+                            })
+                        )
+
+                        _.map( myPatients, pat => {
+                            pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
+                                pat.finalMedicalHouseContracts :
+                                _.merge(
+                                    pat.finalMedicalHouseContracts,
+                                    {startOfCoverage: parseInt(moment(_.trim(_.get(pat.finalMedicalHouseContracts, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').format("YYYYMMDD"))}
+                                )
+                        })
+
                         this.flatRateInvoicingDataObject.patientsData = myPatients
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_3',this.language), icon:"arrow-forward"});
@@ -2410,11 +2465,23 @@
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
 
-                        console.log("Re-organise lists here");
-                        console.log(this.flatRateInvoicingDataObject)
+                        console.log(this.flatRateInvoicingDataObject.patientsData)
+                        console.log(moment())
                         return {
-                            list8: [],
+
+                            // "Old" patients
+                            // Start of month of start cover must be BEFORE (start of export month -1 month)
+                            // Ie: start of coverage began 2+ month before exported month
+                            list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) ),
+
+                            // New patients WITHOUT tryout (double amounts / must appear twice)
+                            // startmonth start cover == start month (export-1)
+                            // AND startmonth cover - 1 === startmonth contract
                             list5: [],
+
+                            // New patients WITH tryout (double amounts / must appear twice)
+                            // startmonth cover == start month (export-1)
+                            // AND startmonth cover - 1 > startmonth contract
                             list6: []
                         }
 
@@ -2435,7 +2502,7 @@
 
                     })
                     .catch((e)=>{console.log(e)})
-                    .finally(()=>{/*this.set('_isLoading', false );*/})
+                    .finally(()=>{this.set('_isLoading', false );})
 
 
                 // Flat files
