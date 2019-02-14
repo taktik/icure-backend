@@ -1571,7 +1571,7 @@
 					const prescRid = rid[idx] ? rid[idx] : hcp.nihii;
 					JsBarcode(element, prescRid, {format: "CODE128A", displayValue: false, height: 75});
 					const jpegUrl = element.toDataURL("image/jpeg");
-					const ridIdx = prescRid.split('').join('&nbsp;')
+					const ridLabel = prescRid.split('').join('&nbsp;')
 					prescNum += 1
 					const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
 					if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
@@ -1606,7 +1606,7 @@
 					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
-                    <div class="barcode-num">${ridIdx}</div>
+                    <div class="barcode-num">${ridLabel}</div>
                     <hr>
                     <h2>Preuve de prescription électronique</h2>
                     <hr>
@@ -1645,7 +1645,7 @@
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
-					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridIdx, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
+					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridLabel, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
 				}) // splitCol forEach end
 				// console.log("prescriToPrint",prescriToPrint)
 
