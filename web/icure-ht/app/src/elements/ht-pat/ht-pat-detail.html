@@ -1273,15 +1273,102 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height:100px;
             }
 
+            .postit-header {
+                box-sizing: border-box;
+                padding: 11px;
+                text-align: center;
+                min-width: 200px;
+                width: 100%;
+                margin: 0;
+                font-weight: 600;
+                display: inline-block;
+                background: var(--app-background-color-dark);
+            }
+
+            .postit-button {
+                position: absolute;
+                min-width: 0;
+                margin: 0;
+            }
+
+            .postit-close {
+                left: 0;
+                top: 0;
+            }
+
+            .postit-edit {
+                top: 0;
+                right: 0;
+            }
+
+            .postit-body {
+                padding: 24px;
+                max-height: 220px;
+                overflow: auto;
+                /*background: white;*/
+            }
+
+            .postit-body p {
+                margin: 0;
+                max-width: 300px;
+                font-size: 14px;
+            }
+
+            #postit-notification {
+                position: fixed;
+                top: calc(46px + 15%);
+                right: 10px;
+                transform: translateX(110%);
+                z-index: 1000;
+                /*background: var(--app-secondary-color);*/
+                background: white;
+                opacity: 0;
+                transition: .3s cubic-bezier(0,.07,.45,.99);
+            }
+
+            #postit-notification.show-postit:hover {
+                opacity: 1;
+                transition: .2s;
+            }
+
+            #postit-notification.show-postit .postit-body {
+                opacity: .5;
+                transition: .2s;
+            }
+            #postit-notification.show-postit:hover .postit-body {
+                opacity: 1;
+                transition: .2s;
+            }
+
+            #postit-notification.show-postit {
+                opacity: .5;
+                transform: translateX(0);
+                transition: .4s cubic-bezier(0,.07,.45,.99);
+            }
+
         </style>
 
         <div class="container">
             <template is="dom-if" if="[[SpinnerActive]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
+            <paper-card id="postit-notification">
+                <paper-button name="closePostit" class="postit-button postit-close" on-tap="closePostit">
+                    <iron-icon class="iron-icon" icon="clear"></iron-icon>
+                </paper-button>
+                <p class="postit-header">[[localize('postit','Post-it',language)]]</p>
+                <paper-button name="editPostit" class="postit-button postit-edit" on-tap="editPostit">
+                    <iron-icon class="iron-icon" icon="create"></iron-icon>
+                </paper-button>
+                <div class="postit-body">
+                    <p>[[postitMsg]]</p>
+                </div>
+            </paper-card>
+
             <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
             <template is="dom-if" if="[[isAdminSelected(selectedAdminOrCompleteFileIndex)]]">
-                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
+                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" tab-index="[[adminTabIndex]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
             </template>
             <template is="dom-if" if="[[!leftMenuOpen]]">
                 <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
@@ -2253,6 +2340,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type:Boolean,
                         value: false
                     },
+                    postitMsg: {
+                        type:String,
+                        value: null
+                    },
+                    adminTabIndex: {
+                        type: Number,
+                        value: 0
+                    },
                     cardData:{
                         type: Object,
                         value: {},
@@ -2266,7 +2361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
+                return ['patientOpened(patient.id,api,user)', 'postitChanged(postitMsg)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
             }
 
             constructor() {
@@ -3094,6 +3189,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('selectedContactIds', [])
 
                 this.set('currentContact', null)
+
+                this.set('adminTabIndex',0);
                 if (this.api && this.user && this.patient) {
                     this.refreshPatient()
                 }
@@ -3150,9 +3247,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const now = moment()
 
                 const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id => id && id.substr(4) /* format is ctc_... see DOM */)
+                this.set('postitMsg',this.patient.note)
                 //console.log("Before load "+(+new Date() - start))
                 Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient).then(ctcs => ctcs.map(ctc => this.api.register(ctc, 'contact'))), this.api.helement().findBy(this.user.healthcarePartyId, patient, true)]).then(([ctcs, allHes]) => {
                     //console.log("After load "+(+new Date() - start))
+
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
@@ -3891,7 +3990,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             isAdminSelected(el) {
-                return el === 0;
+                if(el === 0) {
+                    this.closePostit()
+                    return true;
+                }else {
+                    if(this.patient){
+                        this.set('postitMsg',this.patient.note)
+                    }
+                    return false;
+                }
             }
 
             highlightedServiceLabels(user) {
@@ -4388,6 +4495,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log("svcs",e.detail.service)
                 const lifecycle = e.detail.service.tags.find(tag => tag.type === "CD-LIFECYCLE") || {}
                 this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
+            }
+
+
+
+            postitChanged(value) {
+                if(value && value.length) {
+                    this.$["postit-notification"].classList.add('show-postit')
+                }else {
+                    this.closePostit()
+                }
+            }
+
+            editPostit() {
+                this.set('adminTabIndex',3);
+                this.set('selectedAdminOrCompleteFileIndex',0);
+            }
+
+            closePostit() {
+                this.$["postit-notification"].classList.remove('show-postit')
             }
 
             createEvent(codeId){
