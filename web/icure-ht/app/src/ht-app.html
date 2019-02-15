@@ -1320,9 +1320,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return response.json()
                             })
                             .then(res => {
-                                if (res.electronVersion) {
-                                    this.set("electronVersion", res.electronVersion)
-                                    this.set("electronVersionOk",this.versions.electron.includes(res.electronVersion))
+                                if (res.version) {
+                                    this.set("electronVersion", res.version)
+                                    this.set("electronVersionOk",this.versions.electron.includes(res.version))
                                 }
                             })
                     } else {
