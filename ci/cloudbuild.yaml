@@ -1,0 +1,15 @@
+steps:
+    -   name: 'gcr.io/cloud-builders/git'
+        entrypoint: 'bash'
+        args: [ '-c', 'git fetch --unshallow --tags && git checkout ${BRANCH_NAME} && git submodule init && git submodule update' ]
+
+    -   name: 'gcr.io/cloud-builders/docker'
+        args: ['login', 'docker.taktik.be', '--username', '${_REPO_USERNAME}', '--password', '${_REPO_PASSWORD}']
+
+    -   name: 'gcr.io/cloud-builders/javac' # java + docker
+        entrypoint: 'bash'
+        args: [ '-c', './gradlew :dockerize -x test -PskipFrontend -PdockerPush :dockerizeFrontend -PdockerPush' ]
+
+options:
+    machineType: 'N1_HIGHCPU_8'
+timeout: 2700s
