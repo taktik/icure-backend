@@ -757,7 +757,7 @@
                 grid-template-columns: 50% 50%;
             }
 
-            #import-suggest .twocol > div > h5 {
+            #import-suggest h5 {
                 margin: 0 auto 4px auto;
                 text-align: center;
             }
@@ -1044,6 +1044,7 @@
                         <div class="line">
                             <h4>[[localize('set_attach','Set attachment',language)]]</h4> <ht-spinner class="patlist-spinner" active="[[isLoadingPatsSuggest]]"></ht-spinner>
                         </div>
+                        <template is="dom-if" if="[[documentBeingAssigned.unimportedPats.length]]">
                         <div class="twocol">
                             <div>
                                 <h5>[[localize('un_attachs','Unassigned results',language)]]</h5>
@@ -1091,6 +1092,32 @@
                                 </div>
                             </div>
                         </div>
+                        </template>
+                        <template is="dom-if" if="[[!documentBeingAssigned.unimportedPats.length]]">
+                        <div>
+                            <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                            <div class="scrollbox patlist">
+                                <template is="dom-if" if="[[!manualAssign]]">
+                                    <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
+                                </template>
+                                <template is="dom-if" if="[[manualAssign]]">
+                                    <div>
+                                        <div class="line">
+                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients" icon="close" on-tap="toggleManualAssign" disabled="[[isLoadingPatsSuggest]]"></iron-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
+                                    <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                </template>
+                                <template is="dom-if" if="[[toImportPatsSearch.length]]">
+                                    <template is="dom-repeat" items="[[toImportPatsSearch]]">
+                                        <paper-checkbox class="checkbox-item" on-iron-change="_getPatsFromCheckbox" data-item$="[[item]]"><b>[[item.lastName]] [[item.firstName]]</b><br/>[[localize('dat_of_bir','Date of birth',language)]]: [[item.dateOfBirth]]<br/>SSIN: [[item.ssin]]</paper-checkbox>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                        </template>
                         <!--TODO : Get lab result -->
                         <!--<template is="dom-if" if="[[toImportPatsSuggestions.length]]">-->
                         <!--<div class="line lab-details noPortable">-->
@@ -1110,7 +1137,7 @@
                                 [[localize('can','Cancel',language)]]
                             </paper-button>
                             <template is="dom-if" if="[[canAssign]]">
-                                <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignResultToSelected">
+                                <paper-button id="patients-importBtn" class="confirmPats" on-tap="_assignToPat">
                                     [[localize('set','Assign',language)]] <iron-icon id="patients-icon" icon="check"></iron-icon>
                                 </paper-button>
                             </template>
@@ -1312,9 +1339,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     toggleManualAssign() {
-	    this.set('searchPatValue','')
-	    this.set('manualAssign',!this.manualAssign)
-        if(!this.manualAssign) this.set('toImportPatsSearch',[])
+	    if (!this.isLoadingPatsSuggest) {
+            this.set('searchPatValue','')
+            this.set('manualAssign',!this.manualAssign)
+            if(!this.manualAssign) this.set('toImportPatsSearch',[])
+        }
     }
     _updatePatSearch() {
 	    if (this.searchPatValue.length >= 2) {
@@ -1478,7 +1507,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _updateSuggestions() {
         console.log('_updateSuggestions')
-        if (this.selectedProtocol >= 0) {
+        if (this.selectedProtocol > 0) {
             this.set('isLoadingPatsSuggest',true)
             const unimportedPats = this.documentBeingAssigned && this.documentBeingAssigned.unimportedPats || []
             const index = this.selectedProtocol
@@ -1588,6 +1617,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
             }) // map end
         }
+    }
+
+    _assignToPat() {
+        this.targetPats.map(thisPat=>{
+            this.api.contact().newInstance(this.user, thisPat, {
+                created: new Date().getTime() ,
+                modified: new Date().getTime() ,
+                author: this.user.id,
+                responsible: this.user.healthcarePartyId,
+                subContacts: []
+            }).then(ctc=>{
+                const doc = this.selectedDocuments.find(d=>d.documentLocation === 'annex')
+                if (doc && doc.id && doc.id.length) {
+                    const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: doc.id, stringValue: doc.name || 'annex-'+this.api.moment(Date.now()).format('YYYYMMDD') }]]), label: 'document' });
+                    ctc.services.push(svc);
+                    ctc.subContacts = [{ status: 64, services: [{serviceId: svc.id }]}]
+                    this.api.contact().createContactWithUser(this.user, ctc).then(c=>{
+                        this.api.register(c,'contact')
+                        this.closeSuggestions()
+                    })
+                }
+            })
+        })
     }
 
     textType(uti, utis) {
