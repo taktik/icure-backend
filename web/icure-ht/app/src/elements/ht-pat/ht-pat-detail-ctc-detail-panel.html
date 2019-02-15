@@ -635,7 +635,7 @@
 
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="layout horizontal">
-				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
+				<filter-panel id="serviceFilterPanel" selected-filters="{{serviceFilters}}" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
@@ -940,7 +940,7 @@
 						value: function () {
 							return [];
 						},
-						observer: '_contactsChanged'
+						observer: '_servicesFilter'
 					},
 					allContacts: {
 						type: Array,
@@ -1087,12 +1087,20 @@
             linkingLetterDpData :{
                 type: Object,
                 value: {}
+            },
+            serviceFilters: {
+                type: Array,
+                value: () => ([])
+            },
+            filteredContacts: {
+                type: Array,
+                value: () => ([])
             }
 		};
 	}
 
 			static get observers() {
-				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)','_servicesFilter(serviceFilters)'];
 			}
 
 			constructor() {
@@ -1105,7 +1113,35 @@
                     this.set('globalHcp',tempHcp)
                 })
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
-			}
+            }
+            
+            _servicesFilter() {
+                if(!this.contacts) {
+                    return;
+                }
+
+                if(!this.serviceFilters || !this.serviceFilters.length) {
+                    this.set('filteredContacts',this.contacts);
+                    this._contactsChanged()
+                    return 
+                }
+                
+                const filterCodesByType = {}
+                _.flatten(this.serviceFilters).forEach( filter => {
+                    const codesArray = filterCodesByType[filter.type] || []
+                    filterCodesByType[filter.type] = codesArray.concat(filter.code)
+                })
+
+                this.set('filteredContacts',_.flatten(this.contacts.filter(contact => {
+                    return contact.services.some( service => {
+                        return service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code))
+                    })
+                })))
+
+                this._contactsChanged()
+
+
+            }
 
 			ifRecipeAvailable(){
                 this.user && this.user.healthcarePartyId && this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
@@ -2007,14 +2043,14 @@
 
             _contactsChanged() {
                 this.set('contactsFormsAndDocuments', [])
-                if (!this.contacts) {
+                if (!this.filteredContacts) {
                     return
                 }
 
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.contacts.map(contact => {
+                const formGroups = this.filteredContacts.map(contact => {
                     const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {

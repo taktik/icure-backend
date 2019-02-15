@@ -4036,7 +4036,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             shortServiceDescription(svc, lng) {
                 let rawDesc
-                console.log(svc)
                 if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
                     rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
                 }else {
