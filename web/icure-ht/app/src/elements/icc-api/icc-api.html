@@ -507,10 +507,11 @@
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
 
-
-            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : 'a4'
             const printersPrefs = JSON.parse(localStorage.getItem('selectedPrinter') || '{}')
-            const printerName = printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null) || null
+            const stickersPrefs = printersPrefs.stickers
+
+            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : (stickersPrefs && options.paperWidth === stickersPrefs.w && options.paperHeight === stickersPrefs.h) ? 'stickers' : 'a4'
+            const printerName = options.printer || (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
 
             return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
                 return this.isElectronAvailable().then(electron =>
