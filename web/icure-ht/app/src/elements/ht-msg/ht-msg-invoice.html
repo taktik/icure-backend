@@ -1887,12 +1887,12 @@
                 let mutGroups = []
                 inputList.map(patient => {
                     const thisMutGrp = // set this pat insurance code grp
-                        (patient.insuranceCode < 200) ? "100" :
-                        (patient.insuranceCode < 300) ? "200" :
-                        (patient.insuranceCode < 400) ? "300" :
-                        (patient.insuranceCode < 500) ? "400" :
-                        (patient.insuranceCode < 600) ? "500" :
-                        (patient.insuranceCode < 700) ? "600" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 200) ? "100" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 300) ? "200" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 400) ? "300" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 500) ? "400" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 600) ? "500" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 700) ? "600" :
                         "900"
                     let grpExists = false
                     mutGroups.map(grp=> { if (grp.code === thisMutGrp) { // check if grp exists
