@@ -949,15 +949,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber).length ? "/"+home.postboxNumber : "") : "no Addr"
                 const cp = home ? home.postalCode+" "+home.city : "no CP"
                 const sps = JSON.parse(localStorage.getItem('selectedPrinter'))
-                const paperWidth = sps && sps.stickers && sps.stickers.w || 80
-                const paperHeight = sps && sps.stickers && sps.stickers.h || 40
+                const paperWidth = sps && sps.stickers && sps.stickers.w || 62 // 80
+                const paperHeight = sps && sps.stickers && sps.stickers.h || 29 // 40
                 const vignetteBody =`<html><head>
                     <style>
                         * {margin:0;padding:0;}
-                        html,body {height: ${paperHeight}mm;width: ${paperWidth}mm}
-                        div.sticker {}
+                        /*div.sticker {transform:rotate(-90deg);transform-origin:bottom;}*/
                         p.patName {font-size: 1.1em;font-weight:bold;}
-                        p, pre {width: ${paperWidth}mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
+                        p, pre {overflow: hidden; text-overflow: ellipsis;} /* inverted size for rotation */
                     </style></head>
                     <body>
                         <div class="sticker">
