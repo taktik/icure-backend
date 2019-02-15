@@ -483,7 +483,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
-                    <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <iron-icon id="save-btn" icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <paper-tooltip for="save-btn" position="left">[[localize('save','Save',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
                     <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
