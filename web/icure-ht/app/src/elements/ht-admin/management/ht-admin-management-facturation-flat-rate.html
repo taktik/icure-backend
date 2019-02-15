@@ -102,7 +102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="facturation-flat-rate-panel">
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
             <div class="add_line">
-                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button id="" class="" icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
                 <vaadin-grid-column>
@@ -111,14 +111,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                     <template>
                         <div>[[_getDateAsString(item.valorisation.startOfValidity)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column>
-                    <template class="header">
-                        [[localize('Id','End of validity',language)]]
-                    </template>
-                    <template>
-                        <div>[[_getDateAsString(item.valorisation.endOfValidity)]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
@@ -208,8 +200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             reimbursement : Number(0.00),
                             monthValidity: null,
                             yearValidity: null,
-                            startOfValidity: null,
-                            endOfValidity: null
+                            startOfValidity: null
                         }
                     },
                     flatRateNmclSelectedItemIdx:{
@@ -281,14 +272,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _flatRateTarificationDataProvider(){
+
+
+
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp => this.api.hcparty().getHealthcareParty(hcp.parentId))
+                    .then(hcp => hcp.parentId ? this.api.hcparty().getHealthcareParty(hcp.parentId) : Promise.resolve(hcp))
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
 
-                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
+                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
 
-                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))))
+                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))) )
 
                 })
             }
@@ -301,7 +295,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log(this.flatRateTarification)
 
                 const startOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').startOf('month').format('YYYYMMDD') : null
-                const endOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').endOf('month').format('YYYYMMDD') : null
 
                 if(!this.hcpParent.flatRateTarifications){
                     _.assign(this.hcpParent, {flatRateTarifications : []})
@@ -310,10 +303,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selectedTar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code) || null
 
                 if(selectedTar){
-                    selectedTar ? selectedTar.valorisations.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
+                    selectedTar ? selectedTar.valorisations.push({startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
                 }else{
                     const valorisation = []
-                    valorisation.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
+                    valorisation.push({startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
 
                     this.hcpParent.flatRateTarifications.push({
                         code: this.flatRateTarification.code || null,
