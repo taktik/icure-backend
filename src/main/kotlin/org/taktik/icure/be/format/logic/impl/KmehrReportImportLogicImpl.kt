@@ -62,14 +62,14 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 	}
 
 	@Throws(IOException::class)
-	override fun canHandle(doc: Document, enckeys: MutableList<String>): Boolean {
+	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } } } ?: false
     }
 
 	@Throws(IOException::class)
-	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>): List<ResultInfo>? {
+	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>?): List<ResultInfo>? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } }.map { t -> ResultInfo().apply {
@@ -95,7 +95,7 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 		formIds: MutableList<String>,
 		planOfActionId: String,
 		ctc: Contact,
-		enckeys: MutableList<String>): Contact? {
+		enckeys: MutableList<String>?): Contact? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		msg?.folders?.forEach { f ->
@@ -151,7 +151,7 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 		return contactLogic!!.modifyContact(ctc)
 	}
 
-	private fun extractMessage(doc: Document, enckeys: List<String>) =
+	private fun extractMessage(doc: Document, enckeys: List<String>?) =
 		try { JAXBContext.newInstance(Kmehrmessage::class.java).createUnmarshaller().unmarshal(getBufferedReader(doc, enckeys)) as Kmehrmessage
 		} catch(e:Exception) { null }
 

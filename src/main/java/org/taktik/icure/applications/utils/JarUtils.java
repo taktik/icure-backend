@@ -19,6 +19,7 @@
 package org.taktik.icure.applications.utils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -27,7 +28,7 @@ public class JarUtils {
 	public static String getJarPath() {
 		// Note : This will only work when packaged as JAR
 		try {
-			String jarPath = JarUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			String jarPath = new URI(JarUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("jar\\!/.+", "jar")).getPath();
 
 			// Make sure we found a jar path
 			if (jarPath != null && jarPath.toLowerCase().endsWith(".jar")) {
