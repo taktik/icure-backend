@@ -80,16 +80,15 @@
 
         <div class="settings-btn-container">
             <paper-icon-button id="settings-btn-show" class="settings-btn" icon="settings" on-tap="_toggleEditSettings"></paper-icon-button>
-            <paper-tooltip position="top" for="settings-btn-show">[[localize('settings','Settings',language)]]</paper-tooltip>
-
             <paper-icon-button id="settings-btn-by-time" class="settings-btn" icon="hourglass-full" on-tap="_sortByTime"></paper-icon-button>
-            <paper-tooltip position="top" for="settings-btn-by-time">[[localize('by_dat','By date',language)]]</paper-tooltip>
-
             <paper-icon-button id="settings-btn-by-code" class="settings-btn" icon="flag" on-tap="_sortByCode"></paper-icon-button>
-            <paper-tooltip position="top" for="settings-btn-by-code">[[localize('by_code','By Code',language)]]</paper-tooltip>
-
             <paper-icon-button id="settings-btn-archived" class="settings-btn" icon="archive" on-tap="_toggleInactive"></paper-icon-button>
-            <paper-tooltip position="top" for="he-edit-btn-archived">[[localize('show_irr','ebmPracticeNet',language)]]</paper-tooltip>
+        </div>
+        <div class="tooltips">
+            <paper-tooltip position="bottom" for="settings-btn-show">[[localize('settings','Settings',language)]]</paper-tooltip>
+            <paper-tooltip position="bottom" for="settings-btn-by-time">[[localize('by_dat','By date',language)]]</paper-tooltip>
+            <paper-tooltip position="bottom" for="settings-btn-by-code">[[localize('by_code','By Code',language)]]</paper-tooltip>
+            <paper-tooltip position="bottom" for="he-edit-btn-archived">[[localize('show_irr','ebmPracticeNet',language)]]</paper-tooltip>
         </div>
     </template>
     <script>

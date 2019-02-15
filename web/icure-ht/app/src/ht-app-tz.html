@@ -618,6 +618,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateY(8px) scale(1.5);
             }
 
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
+
             @media screen and (max-width: 640px) {
                 div.log-info p .user-email {
                     display: block;
@@ -803,6 +809,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </paper-tooltip>
                         </div>
+                        <template is="dom-if" if="[[isElectron]]">
+                            <div class="log-info">
+                                <p><span class="user-email">Version - Electron: [[version]]</span></p>
+                            </div>
+                        </template>
                         <div>
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
                             <svg electronVersion="1.1"
@@ -1369,9 +1380,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <span class="warn">[[warn]]</span>
                 <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <template is="dom-if" if="[[validInvite]]">
-                    <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
-                </template>
+                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save" disabled="[[!validInvite]]">[[localize('invite','Invite',language)]]</paper-button>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">
@@ -1770,9 +1779,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return response.json()
                             })
                             .then(res => {
-                                if (res.electronVersion) {
-                                    this.set("electronVersion", res.electronVersion)
-                                    this.set("electronVersionOk",this.versions.electron.includes(res.electronVersion))
+                                if (res.version) {
+                                    this.set("electronVersion", res.version)
+                                    this.set("electronVersionOk",this.versions.electron.includes(res.version))
                                 }
                             })
                     } else {

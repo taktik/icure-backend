@@ -30,6 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				:host #hcps-list {
 					outline: none;
                     flex-grow: 1;
+                    height: calc(100vh - 184px);
 				}
 
 				vaadin-grid.material {
@@ -297,6 +298,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					border : 0px
 				}
 
+                .add-btn-mobile {
+                    display: none;
+                }
+
+                @media screen and (max-width: 528px) {
+                    .nomobile {
+                        display: none;
+                    }
+
+                    .add-btn-container {
+                        width: 100%;
+                        left: inherit;
+                        position: initial;
+                        justify-content: initial;
+                        padding-top: 15px;
+                        overflow-x: scroll;
+                        height: 100px;
+                        border-left: 1px dashed lightgrey;
+                        border-right: 1px dashed lightgrey;
+                        box-sizing: border-box;
+                    }
+
+                    .add-btn-container paper-button.add-btn,
+                    .add-btn-container .exportcsv-btn {
+                        height: 60px;
+                    }
+
+                    .add-btn-container {
+                        display: none;
+                    }
+
+                    .add-btn-mobile {
+                        display: block;
+                        position: fixed;
+                        bottom: 16px;
+                        right: 36px;
+                    }
+
+                    .add-list-mobile {
+                        position: fixed;
+                        bottom: 64px;
+                        right: 40px;
+
+                        background: var(--app-background-color-light);
+                        width: 200px;
+                        border: 1px solid rgba(0, 0, 0, .1);
+                        border-radius: 2px;
+                        z-index: 99;
+                        padding: 8px 0;
+
+                        transition: .25s cubic-bezier(0.075, 0.82, 0.165, 1);
+                        transform: scaleY(0);
+                        transform-origin: bottom;
+                    }
+
+                    .shown-menu {
+                        transform: scaleY(1);
+                    }
+
+                    .toggle-btn {
+                        color: var(--app-text-color);
+                        background: var(--app-secondary-color);
+                        width: 32px;
+                        height: 32px;
+                    }
+
+                    .add-elem-mobile {
+                        cursor: pointer;
+                        padding: 10px;
+                    }
+
+                    .add-elem-mobile:hover {
+                        background: rgba(0, 0, 0, .1);
+                    }
+                }
+
 			</style>
 		</custom-style>
 
@@ -327,7 +404,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</template>
 				</vaadin-grid-column>
 
-				<vaadin-grid-column width="5%">
+				<vaadin-grid-column width="50px">
 					<template class="header">
 						<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
 					</template>
@@ -392,7 +469,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 			</vaadin-grid>
 
-			<div class="btn-container export-btn-container">
+			<div class="btn-container export-btn-container nomobile">
 				<template is="dom-if" if="{{!modeGrid}}">
 					<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
 					<paper-button class="exportcsv-btn" on-tap="_openAddHcpDialog">[[localize('add_hcp','Add New HCP',language)]]</paper-button>
@@ -403,6 +480,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-button class="exportcsv-btn" on-tap="_openFusionDialog">[[localize('fusion_hcp','Fusionner HCP',language)]]</paper-button>
 				</template>
 			</div>
+
+            <div class="add-btn-mobile">
+                <paper-fab mini icon="more-vert" id="add-btn-mobile-btn" class="toggle-btn" on-tap="toggleMobileMenu"></paper-fab>
+                <paper-tooltip position="left" for="add-btn-mobile-btn">[[localize('more','More',language)]]</paper-tooltip>
+                <div id="add-list-mobile" class$="add-list-mobile [[isShown]]">
+                    <template is="dom-if" if="[[!modeGrid]]">
+                        <div class="add-elem-mobile" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</div>
+                        <div class="add-elem-mobile" on-tap="_openAddHcpDialog">[[localize('add_hcp','Add New HCP',language)]]</div>
+                        <div class="add-elem-mobile" on-tap="_switchMode">[[localize('fusion_hcp','Fusionner HCP',language)]]</div>
+                    </template>
+                    <template is="dom-if" if="[[modeGrid]]">
+                        <div class="add-elem-mobile" on-tap="_switchMode">[[localize('can','Cancel',language)]]</div>
+                        <div class="add-elem-mobile" on-tap="_openFusionDialog">[[localize('fusion_hcp','Fusionner HCP',language)]]</div>
+                    </template>
+                </div>
+            </div>
 
 			<paper-dialog id="newHcpDialog">
 				<h3>[[localize('add_hcp','Ajouter un prestataire',language)]]</h3>
@@ -558,6 +651,14 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             idFusionHcp: {
                 type: String,
                 notify: true
+            },
+            mobileMenuHidden: {
+                type: Boolean,
+                value: true
+            },
+            isShown: {
+                type: String,
+                value: ""
             }
 		};
 	}
@@ -681,6 +782,11 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}, 500);
 		}
 	}
+
+    toggleMobileMenu() {
+        this.set('mobileMenuHidden', !this.mobileMenuHidden)
+        this.set('isShown', !this.mobileMenuHidden ? "shown-menu" : "")
+    }
 
     _exportListToCsv() {
         var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"];

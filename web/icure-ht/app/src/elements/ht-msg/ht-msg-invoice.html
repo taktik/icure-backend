@@ -13,6 +13,7 @@
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
 <link rel="import" href="../../spinner-style.html">
@@ -143,6 +144,7 @@
                     width: 100%;
                     padding: 0 20px;
                     box-sizing: border-box;
+                    z-index: -1;
                 }
 
                 .recipient-col{
@@ -476,6 +478,11 @@
                     text-align: center;
                 }
 
+                .invoiceGrid {
+                    overflow-y: scroll;
+                    max-height: 20vh;
+                }
+
                 #invoiceGrid .footer{
                     background: red;
                 }
@@ -611,6 +618,10 @@
                     margin: 10px;
                 }
 
+                .edit-invoice {
+                    cursor: pointer;
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -618,6 +629,27 @@
                 #toBeCorrectedGridDetail{
                     height: 96%;
                 }
+
+                .invoice-filter {
+                    padding: 0 14px;
+                    margin-bottom: 14px;
+                }
+
+                .invoice-error-msg {
+                    font-size: 14px;
+                    font-weight: 400;
+                    display: inline-block;
+                    padding: 6px 14px;
+                    border-radius: 100px;
+                    margin-bottom: 0;
+                    margin-left: 12px;
+                    box-sizing: border-box;
+                }
+
+                .invoice-detail-title {
+                    margin-left: 14px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -1206,7 +1238,9 @@
                             <template is="dom-if" if="[[ifInvoiceSelected]]">
                                 <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
                                     <h4 class="mb0">Détail de la facture n°[[activeGridItem.invoice.invoiceReference]]<paper-button on-tap="_openInvoicingDialog" class="modal-button alignRight" id="[[activeGridItem.invoice.id]]">Corriger</paper-button></h4>
-                                    <h6>Erreur sur la facture: <span class="error_message_red">[[activeGridItem.invoice.error]]</span></h6>
+                                    <template is="dom-if" if="[[activeGridItem.invoice.error]]">
+                                        <h6 class="invoice-error-msg">[[activeGridItem.invoice.error]]</h6>
+                                    </template>
                                     <div id="toBeCorrectedDetailContainer" class="toBeCorrectedContainerDetail">
                                         <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
                                             <vaadin-grid-column class="recipient-col">
@@ -1255,19 +1289,23 @@
                                             <vaadin-grid-column class="recipient-col">
                                                 <template class="header"></template>
                                                 <template>
-                                                    <iron-icon icon="vaadin:pencil" id="[[item.id]]" on-tap="_openInvoicingDialog"></iron-icon>
+                                                    <iron-icon class="edit-invoice" icon="vaadin:pencil" id="edit-[[item.id]]" on-tap="_openInvoicingDialog"></iron-icon>
                                                 </template>
                                             </vaadin-grid-column>
                                         </vaadin-grid>
+                                        <paper-tooltip for="edit-[[item.id]]" position="left">[[localize('edit','Edit',language)]]</paper-tooltip>
                                     </div>
                                 </template>
                                 <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
-                                    <h4 class="mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]]
+                                    <h4 class="invoice-detail-title mb0">Détail de l'envoi n°[[activeGridItem.message.externalRef]] de l'oa [[activeGridItem.messageInfo.oa]]
                                         <template is="dom-if" if="[[!isArchived(invoicesStatus.*)]]">
                                             <paper-button class="modal-button alignRight" on-tap="_openArchiveDialogForBatch">Archiver</paper-button>
                                         </template>
                                     </h4>
-                                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
+                                    <template is="dom-if" if="[[invoicesErrorMsg]]">
+                                        <h2 class="invoice-error-msg mb0 invoice-status--redStatus">[[invoicesErrorMsg]]</h2>
+                                    </template>
+                                    <paper-input id="filter" class="invoice-filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
                                     <div id="invoiceDetailContainer" class="invoiceDetailContainer">
                                         <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
@@ -1603,6 +1641,10 @@
                             return [];
                         }
                     },
+                    invoicesErrorMsg: {
+                        type: String,
+                        value: ""
+                    },
                     toBeCorrectedMessageDetail:{
                         type: Object,
                         value: function () {
@@ -1689,10 +1731,10 @@
             activeGridItemChanged(item){
                 if(!item || item.length==0)return;
                 console.log("selected:",item)
-                this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
-                this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
-                this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
-                this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
+                // this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
+                // this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
+                // this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
+                // this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
             }
 
             ready() {
@@ -1752,7 +1794,7 @@
                             patient: pat,
                             invoice: inv,
                             toBeCorrected: !!inv.invoicingCodes.find(ic => ic.resent === true),
-                            error: inv.error
+                            error: inv.error || ""
                     })
                 }))
                 .then(invoiceStruct => {
@@ -1887,12 +1929,12 @@
                 let mutGroups = []
                 inputList.map(patient => {
                     const thisMutGrp = // set this pat insurance code grp
-                        (patient.insuranceCode < 200) ? "100" :
-                        (patient.insuranceCode < 300) ? "200" :
-                        (patient.insuranceCode < 400) ? "300" :
-                        (patient.insuranceCode < 500) ? "400" :
-                        (patient.insuranceCode < 600) ? "500" :
-                        (patient.insuranceCode < 700) ? "600" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 200) ? "100" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 300) ? "200" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 400) ? "300" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 500) ? "400" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 600) ? "500" :
+                        (parseInt(_.trim(patient.insuranceCode).substring(0,3)) < 700) ? "600" :
                         "900"
                     let grpExists = false
                     mutGroups.map(grp=> { if (grp.code === thisMutGrp) { // check if grp exists
@@ -2581,13 +2623,15 @@
                     this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
 
+                    this.set('invoicesErrorMsg',"");
+
                     const invoiceIds = this.activeGridItem.message.invoiceIds
                     const st = this.activeGridItem.message.status
 
                     this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invoiceIds.map(i => i)}))
                         .then(invoices => Promise.all(invoices.map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]]))))
                         .then(invAndIdsPat =>
-                            this.api.patient().getPatientsWithUser(this.api.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                            this.api.patient().getPatientsWithUser(this.user,new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                         )
                         .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
                             invoiceReference: inv.invoiceReference,
@@ -2625,6 +2669,21 @@
                                 } else if (typeof a === "object") {
                                     try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                 }
+
+                                const zone1and90 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "1" || z.zone == "90"))
+                                let errorString = ''
+                                Object.keys(zone1and90 && zone1and90.errorDetail || {}).find(key => {
+                                    if(key.includes('rejectionCode')) {
+                                        if( parseInt(zone1and90.errorDetail[key]) > 0 ){
+                                            const index = key.replace('rejectionCode',"")
+                                            errorString = zone1and90.errorDetail['rejectionDescr' + index] + ' '
+                                            return zone1and90.errorDetail['rejectionDescr' + index] && zone1and90.errorDetail['rejectionDescr' + index].length
+                                        }
+                                    }
+                                    return false
+                                })
+
+                                this.set('invoicesErrorMsg',errorString);
 
                                 const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
                                 const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
