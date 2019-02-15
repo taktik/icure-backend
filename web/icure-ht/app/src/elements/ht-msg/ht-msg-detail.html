@@ -1026,8 +1026,10 @@
 
                 <template is="dom-repeat" items="[[_sorted(selectedDocuments)]]">
                     <template is="dom-if" if="[[_isEqualTo(item.documentLocation,'body')]]">
+                        <div class="layout-vertical annexe-card">
                         <dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" preview="true" document-id="[[item.id]]" i18n="[[i18n]]" language="[[language]]"
                                      resources="[[resources]]" title="[[localize('doc_body','Message Body')]]" mailbody="true" downloadable="false"></dynamic-doc>
+                        </div>
                     </template>
                     <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
                         <div class="layout-vertical annexe-card">
@@ -1295,6 +1297,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._focusChanged()
         this.classList.remove('selected')
         this.parentElement.children[0].classList.remove('selected')
+        this.dispatchEvent(new CustomEvent('msg-detail-closed'))
     }
 
 	_getInitials(fromAddress){
@@ -1392,12 +1395,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 .then(docs => Promise.all(docs.map(d => this._getPatsFromDoc(d))))
                 .then(docs =>{
                     if (docs && docs.length) {
-                        Promise.all(docs).then(docs => {
-                            this.set('isLoadingMessage', false)
-                            this.set('messages', [selMsg])
-                            this.set("selectedDocuments", docs)
-                            this.set('attachmentQuantity', this.selectedDocuments.length - 1)
-                        })
+                        this.set('isLoadingMessage', false)
+                        this.set('messages', [selMsg])
+                        this.set("selectedDocuments", docs)
+                        this.set('attachmentQuantity', this.selectedDocuments.length - 1)
                     } else {
                         this.set('isLoadingMessage', false)
                         this.set('messages', [selMsg])
@@ -1447,14 +1448,18 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _getPatsFromDoc(document) {
+	    if(document.documentLocation === "body") return document
         console.log('_getPatsFromDoc')
         const unassigned = this.unassignedResults || []
         this.set('toImportPatsSuggestions', [])
         return this.api.crypto()
             .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, document.id, _.size(document.encryptionKeys) ? document.encryptionKeys : document.delegations)
-            .then(({extractedKeys: enckeys}) => this.api.beresultimport().getInfos(document.id, false, null, enckeys.join(',')))
+            .then(({extractedKeys: enckeys}) =>
+                this.api.beresultimport().canHandle(document.id, enckeys.join(','))
+                .then(isResult => isResult && this.api.beresultimport().getInfos(document.id, false, null, enckeys.join(',')))
+            )
             .then(resultInfo => {
-                if (resultInfo.length && unassigned.length) {
+                if (resultInfo && resultInfo.length && unassigned.length) {
                     resultInfo.forEach(res => {
                         document.docInfo = res
                         unassigned.forEach(u => {

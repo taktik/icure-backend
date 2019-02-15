@@ -657,7 +657,7 @@
             }
 
             _id(item) {
-                return item && (item.inncluster || item.id && (item.id.id || item.id) || item.name)
+                return item && (item.id && (item.id.id || item.id) || item.inncluster || item.name)
             }
 
             _columnWidth(column) {

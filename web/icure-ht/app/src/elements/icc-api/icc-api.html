@@ -93,7 +93,7 @@
             this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers)
             this.authicc = new api.iccAuthApi(this.host, this.headers)
             this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers)
-            this.onlineBeMikronoicc = new api.iccBemikronoApi("https://backend.svc.icure.cloud/rest/v1", this.headers)
+            this.onlineBeMikronoicc = new api.iccBemikronoApi(this.host && this.host.match(/https:\/\/backend.(.+).icure.cloud.+/) ? this.host : "https://backend.svc.icure.cloud/rest/v1", this.headers)
             this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers)
             this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers)
             this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers)
@@ -375,22 +375,24 @@
             const age = moment.duration(now.diff(birthDate))
 
             const o = localizer('old','old')
-            const y = localizer('years', 'years')
-            const m = localizer('months', 'months')
-            const w = localizer('weeks', 'weeks')
+            const ys = localizer('years', 'years')
+            const y = localizer('year', 'year')
+            const ms = localizer('months', 'months')
+            const m = localizer('month', 'month')
+            const ws = localizer('weeks', 'weeks')
+            const w = localizer('week', 'week')
             const a = localizer('and', 'and')
 
-            if(age.year < 1) {
-                if( (age.years() == 0) && (age.months() <= 1)) {
-                    return `${age.weeks()} ${w} ${o}`
-                }else {
-                    return `${age.months()} ${m} ${a} ${age.weeks()} ${w} ${o}`
+            if(age.years() < 1) {
+                if( (age.years() == 0) && (age.months() + (age.weeks() / 4) <= 1)) {
+                    return `${age.weeks()} ${age.weeks() == 1 ? w : ws} ${o}`
                 }
-            }else if (age.year <= 16) {
-                return `${age.years()} ${y} ${a} ${age.months()} ${m} ${o}`
-            }else {
-                return `${age.years()} ${y} ${o}`
+                return `${age.months()} ${age.months() == 1 ? m : ms} ${a} ${age.weeks()} ${age.weeks() == 1 ? w : ws} ${o}`
+            }else if (age.years() + (age.months() / 12) <= 16) {
+                return `${age.years()} ${age.years() == 1 ? y : ys} ${a} ${age.months()} ${age.months() == 1 ? m : ms} ${o}`
             }
+            return `${age.years()} ${age.years() == 1 ? y : ys} ${o}`
+
         }
 
         getAuthor(author) {
@@ -505,10 +507,11 @@
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
 
-
-            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : 'a4'
             const printersPrefs = JSON.parse(localStorage.getItem('selectedPrinter') || '{}')
-            const printerName = printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null) || null
+            const stickersPrefs = printersPrefs.stickers
+
+            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : (stickersPrefs && options.paperWidth === stickersPrefs.w && options.paperHeight === stickersPrefs.h) ? 'stickers' : 'a4'
+            const printerName = options.printer || (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
 
             return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
                 return this.isElectronAvailable().then(electron =>

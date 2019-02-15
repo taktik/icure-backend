@@ -827,13 +827,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             let resInfos = []
                             return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
                                 .map(doc => {
-                                    this.api.beresultimport().canHandle(doc.id).then(isResult => {
-                                        if (isResult) {
-                                            this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
-                                                resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
-                                            })
-                                        }
-                                    })
+                                    this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations).then(({extractedKeys: enckeys}) =>
+                                        this.api.beresultimport().canHandle(doc.id,enckeys.join(',')).then(isResult => {
+                                            if (isResult) {
+                                                this.api.beresultimport().getInfos(doc.id, true, this.language || 'fr').then(resInfo =>{
+                                                    resInfos.push(resInfo) // `${resInfo.sex} ${resInfo.firstName} ${resInfo.lastName} `
+                                                })
+                                            }
+                                        })
+                                    )
                                 }) || resInfos
                         } else return ['N/A']
                     })
@@ -1124,82 +1126,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
 					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
-                    switch (item) {
-                        case 'newMsg':
-                        	this._newMsg();
-                        	break;
-                        case 'inbox' :
-                            this.getInbox();
-                            break;
-                        case 'unread' :
-                            this.getUnreadEmail();
-                            break;
-                        case 'sentbox' :
-                            this.getSentMessages();
-                            break;
-                        case 'submit' :
-                            this.getSubmitMessages();
-                            break;
-                        case 'labResult' :
-                            this.getLabResult();
-                            break;
-                        case 'reportOut' :
-                            this.getReport();
-                            break;
-                        case 'e_invOut' :
-                            this.getEInv();
-                            break;
-                        case 'ehealthMessages' :
-                            this.getEhealthMessages();
-                            break;
-                        case 'e_invIn' :
-                            this.getEInvIn();
-                            break;
-                        case 'reportIn' :
-                            this.getReportIn();
-                            break;
-                        case 'eheIn' :
-                            this.getEheIn();
-                            break;
-                        case 'mycarenet' :
-                            this.getMycarenetIn();
-                            break;
-                        case 'Chap4In' :
-                        	this.getChap4In();
-                        	break;
-                        case 'protIn' :
-                            this.getAssigned();
-                            break;
-                        case 'unsettedProtIn' :
-                            this.getUnassigned();
-                            break;
-                        case 'eheOut' :
-                            this.getEheOut();
-                            break;
-                        case 'protOut' :
-                            this.getProtOut();
-                            break;
-                        case 'EFactBatch' :
-                            this.getEFactBatch();
-                            break;
-                        case 'GMD' :
-                            this.getGMD();
-                            break;
-                        case 'trash' :
-                        	this.getTrash();
-                        	break;
-                        case 'hidden' :
-                            this.getHidden();
-                            break;
-                        case 'Refresh':
-                        	// Fake selection to refresh binding
-                        	break;
-                    }
+                    this._actionFromItem(item)
                     this.set('isLabresultBox', (item === "labResult") ? true : false )
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                 this._isRefreshAllowed()
                 this._deselectAll();
+            }
+
+            _actionFromItem(item) {
+                if(!item){
+                    return
+                }
+                const a = {
+                    newMsg:             this._newMsg,
+                    inbox:              this.getInbox,
+                    unread:             this.getUnreadEmail,
+                    sentbox:            this.getSentMessages,
+                    submit:             this.getSubmitMessages,
+                    labResult:          this.getLabResult,
+                    reportOut:          this.getReport,
+                    e_invOut:           this.getEInv,
+                    ehealthMessages:    this.getEhealthMessages,
+                    e_invIn:            this.getEInvIn,
+                    reportIn:           this.getReportIn,
+                    eheIn:              this.getEheIn,
+                    mycarenet:          this.getMycarenetIn,
+                    Chap4In:            this.getChap4In,
+                    protIn:             this.getAssigned,
+                    unsettedProtIn:     this.getUnassigned,
+                    eheOut:             this.getEheOut,
+                    protOut:            this.getProtOut,
+                    EFactBatch:         this.getEFactBatch,
+                    GMD:                this.getGMD,
+                    trash:              this.getTrash,
+                    hidden:             this.getHidden,
+                    Refresh:            null // Fake selection to refresh binding
+                }
+                return a[item] && a[item].call(this)
             }
 
             sortByDates(messages){
@@ -1398,6 +1362,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _displayRestoreButton(){
                 return (this.selectList.selection.item == 'trash')
+            }
+
+            updateGridElementsSize() {
+                const grid = this.shadowRoot.getElementById('mail-list')
+                grid && grid.notifyResize()
             }
 
 		}

@@ -1031,6 +1031,9 @@
             }
 
             saveCurrentContact() {
+                if(!this.currentContact.id ) {
+                    this.currentContact.id = this.api.crypto().randomUuid()
+                }
                 return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
             }
 

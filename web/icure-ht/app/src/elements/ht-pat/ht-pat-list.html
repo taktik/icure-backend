@@ -2719,7 +2719,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             return this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                                 secretForeignKeys: secretForeignKeys.extractedKeys,
                                                 comment: null
-                                            }, (progress) => this.set('taskProgress', (pidx + progress) / this.patientSelected.length)).then(output => {
+                                            }, (progress) => this.set('taskProgress', (pidx + progress) / this.patientSelected.length), this.api.sessionId).then(output => {
                                                 //creation of the xml file
                                                 var file = typeof output === "string" ? new Blob([output], {type: "application/xml"}) : output
 

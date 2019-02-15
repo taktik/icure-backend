@@ -37,6 +37,8 @@ public class MeasureDto implements Serializable {
 
 	String comment;
 
+	Integer severity;
+
 	public Double getValue() {
 		return value;
 	}
@@ -91,5 +93,13 @@ public class MeasureDto implements Serializable {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public Integer getSeverity() {
+		return severity;
+	}
+
+	public void setSeverity(Integer severity) {
+		this.severity = severity;
 	}
 }
