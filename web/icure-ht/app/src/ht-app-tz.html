@@ -497,6 +497,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 64px;
             }
 
+            .nok {
+                color: var(--app-status-color-nok);
+            }
+
             .logo-text {
                 visibility: hidden;
                 transform-origin: center right;
@@ -769,11 +773,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-tab>
                         </paper-tabs>
                         <div class="log-info">
-                            <p><span class="user-email">[AIV]{version}[/AIV] |</span>
+                            <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
+                                <paper-tooltip for="frontend-version">frontend: [AIV]{version}[/AIV] - backend : [[backendVersion]]</paper-tooltip>
                                 <template is="dom-if" if="[[isElectron]]">
-                                    <span class="user-email">e—[[electronVersion]] |</span>
+                                    <span class$="user-email [[_versionOk(electronVersionOk,true)]]">| e—[[electronVersion]]</span>
                                 </template>
-                                <span class="user-email">[[user.login]] –</span>
+                                <span class="user-email">| [[user.login]] – </span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
                                 <template is="dom-if" if="[[hasMHCertificate]]">
@@ -1628,6 +1633,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     electronVersion : {
                         type : String,
                         value : ""
+                    },
+                    electronVersionOk : {
+                        type : Boolean,
+                        value : true
+                    },
+                    backendVersionOk : {
+                        type : Boolean,
+                        value : true
                     }
                 }
             }
@@ -1759,12 +1772,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             .then(res => {
                                 if (res.electronVersion) {
                                     this.set("electronVersion", res.electronVersion)
+                                    this.set("electronVersionOk",this.versions.electron.includes(res.electronVersion))
                                 }
                             })
+                    } else {
+                        this.set("electronVersionOk", true)
                     }
                 })
 
-
+                this.api.icure().getVersion().then(v => {
+                    this.set("backendVersion", v)
+                    this.set("backendVersionOk",this.versions.backend.includes(v))
+                })
 
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
@@ -1982,7 +2001,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 )
             }
-
+            _versionOk(a,b) {
+                return a && b ? '' : 'nok'
+            }
             _getMHToken() {
                 //TODO: change the request for MH
                 //this.api.fhc().Stscontroller().requestTokenUsingGET(k.passPhrase, this.getNihii8(MHNihii), k.uuid, true )
