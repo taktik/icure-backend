@@ -272,8 +272,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _flatRateTarificationDataProvider(){
+
+
+
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp => this.api.hcparty().getHealthcareParty(hcp.parentId))
+                    .then(hcp => hcp.parentId ? this.api.hcparty().getHealthcareParty(hcp.parentId) : Promise.resolve(hcp))
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
 
