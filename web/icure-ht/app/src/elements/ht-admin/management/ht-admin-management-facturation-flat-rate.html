@@ -311,8 +311,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.hcpParent.flatRateTarifications.push({
                         code: this.flatRateTarification.code || null,
                         label: this.flatRateTarification.label || null,
+                        flatRateType : this.flatRateTarification.code === "109616" ? "physician" : this.flatRateTarification.code === "409614" ? "nurse" : this.flatRateTarification.code === "509611" ? "physiotherapist" : null,
                         valorisations: valorisation || []
-                    })
+                     })
                 }
 
                 this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
