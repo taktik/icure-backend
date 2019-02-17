@@ -2357,12 +2357,11 @@
                                         this.api.invoice().appendCodes( this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, [nmcl])
                                         .then(invoices =>
                                             !invoices[0].id ? this.api.invoice().newInstance(this.user, pat, invoices[0])
-                                            .then(inv => this.api.invoice().createInvoice(inv/*, 'invoice:'+this.user.healthcarePartyId+':'+(insParent && insParent.code ? insParent.code : '000')+':'*/))
+                                            .then(inv => this.api.invoice().createInvoice(inv, 'invoice:'+this.user.healthcarePartyId+':'+(insParent && insParent.code ? insParent.code : '000')+':'))
                                             .then(inv => inv) : Promise.resolve([]))
                                     )
                                 ))}))
                     ).then(pat => console.log(pat))
-
                 )
             }
 
