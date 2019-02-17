@@ -2352,7 +2352,20 @@
                         _.flatten(pats).map(pat =>
                             _.assign(pat, {invoice: this.api.insurance().getInsurance(this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
                                 .then(insParent => Promise.all([insParent, this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)]))
-                                .then(([insParent, secretForeignKeys]) =>
+                                .then(([insParent, secretForeignKeys]) => {
+                                        let prom = Promise.resolve()
+                                        pat.invoicingCodes.map(nmcl => {
+                                            prom = prom.then(() => new Promise((resolve) => {
+                                                this.api.invoice().appendCodes( this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, [nmcl])
+                                                    .then(invoices =>
+                                                        !invoices[0].id ? this.api.invoice().newInstance(this.user, pat, invoices[0])
+                                                            .then(inv => this.api.invoice().createInvoice(inv, 'invoice:'+this.user.healthcarePartyId+':'+(insParent && insParent.code ? insParent.code : '000')+':'))
+                                                            .then(inv => inv) : resolve())
+                                            }))
+                                        })
+                                        prom = prom.then(result => console.log(result))
+                                    }
+        /*
                                     Promise.all(pat.invoicingCodes.map(nmcl =>
                                         this.api.invoice().appendCodes( this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, [nmcl])
                                         .then(invoices =>
@@ -2360,7 +2373,8 @@
                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:'+this.user.healthcarePartyId+':'+(insParent && insParent.code ? insParent.code : '000')+':'))
                                             .then(inv => inv) : Promise.resolve([]))
                                     )
-                                ))}))
+                                    */
+                                )}))
                     ).then(pat => console.log(pat))
                 )
             }
@@ -2449,7 +2463,7 @@
                                         )
                                         return parseFloat(valorisationPrice) ? {
                                             code: _.trim(_.get(singleNomenclature, "code")),
-                                            label: _.trim(_.get(singleNomenclature, "label")),
+                                            label: _.get(singleNomenclature, "label"),
                                             flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
                                             price: valorisationPrice
                                         } : false
