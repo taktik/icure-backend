@@ -1464,8 +1464,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             console.log("connecter au niveau frontend")
         })
 
-        socket.on("testing",msg=>{
+        socket.on("update-downloaded",msg=>{
             console.log(msg)
+            this.$.electronMessage.classList.add('notification');
+            setTimeout(() => {
+                this.$.electronMessage.classList.remove('notification');
+            }, 7500);
         })
 
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
