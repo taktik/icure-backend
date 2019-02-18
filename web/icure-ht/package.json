@@ -1,6 +1,6 @@
 {
   "name": "icure-cloud",
-  "version": "0.0.62",
+  "version": "0.0.69",
   "scripts": {
     "dev": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "dev-tz": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.tz.js",
@@ -70,6 +70,7 @@
     "url-loader": "^1.0.1",
     "web-component-tester": "^6.9.0",
     "webpack": "4.28.4",
+    "webpack-auto-inject-version": "^1.2.2",
     "webpack-cli": "^3.0.8",
     "webpack-defaults": "^2.3.0",
     "webpack-dev-server": "^3.1.7",

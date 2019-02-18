@@ -885,6 +885,12 @@
             .wide-only {
                 display: none;
             }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
             
             @media screen and (max-width: 1328px) {
                 .nomobile-wide {
@@ -917,6 +923,10 @@
                     overflow-y: hidden;
                     min-height: 80px;
                 }
+
+                .action-buttons {
+                    padding-left: 36px;
+                }
             }
 
             @media screen and (max-width: 650px) {
@@ -943,14 +953,16 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-                        <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
-                            <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
-                            <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
-                        </paper-button>
-                        <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
-                            <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
-                            <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
-                        </paper-button>
+                        <template is="dom-if" if="[[ehealthSession]]">
+                            <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
+                                <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
+                                <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
+                            </paper-button>
+                            <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
+                                <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
+                                <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
+                            </paper-button>
+                        </template>
                         <template is="dom-if" if="[[isHidden]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="visibility-msg" icon="visibility"></iron-icon>
                                 <span class="nomobile-wide">[[localize('restore','Restore',language)]]</span>
@@ -1062,8 +1074,10 @@
                                         <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
                                     </template>
                                     <template is="dom-if" if="[[manualAssign]]">
-                                        <div class="line">
-                                            <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                        <div>
+                                            <div class="line">
+                                                <paper-input class="search-patients" value="{{searchPatValue}}" label="[[localize('pati','Patient',language)]]"></paper-input><iron-icon class="search-patients"  icon="close" on-tap="toggleManualAssign"></iron-icon>
+                                            </div>
                                         </div>
                                     </template>
                                     <template is="dom-repeat" items="[[toImportPatsSuggestions]]">
@@ -1092,7 +1106,7 @@
                         <!--</div>-->
                         <!--</template>-->
                         <div class="line save-line">
-                            <paper-button on-tap="closeSuggestions">
+                            <paper-button class="modal-button--cancel" on-tap="closeSuggestions">
                                 [[localize('can','Cancel',language)]]
                             </paper-button>
                             <template is="dom-if" if="[[canAssign]]">
@@ -1250,12 +1264,15 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             docTxt: {
 			    type: Object
+            },
+            ehealthSession: {
+                type: Boolean
             }
 		};
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)'];
+		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)','_isConnectedToEhbox(api.tokenId)'];
 	}
 
 	constructor() {
@@ -1270,6 +1287,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if(e.key === "Escape") {this.closeSuggestions()}
         }
 	}
+
+    _isConnectedToEhbox() {
+        this.set("ehealthSession", this.api.tokenId ? true : false)
+    }
 
 	close() {
 	    this.set('selectedMessage',null)
@@ -1351,8 +1372,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('manualAssign',false)
             this.set('selectName','')
             this.set('toImportPatsSearch',[])
-            this.set('isDeleted',this.selectedMessage && this.selectedMessage.transportGuid.startsWith("BIN"))
-            this.set('isHidden',this.selectedMessage && this.selectedMessage.transportGuid.startsWith("HIDDEN"))
+            this.set('isDeleted',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("BIN"))
+            this.set('isHidden',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("HIDDEN"))
             this.set('unassignedResults',selMsg.unassignedResults)
             this.set('assignedResults',selMsg.assignedResults)
 			this.set('hasUnassignedResults',selMsg.unassignedResults ? selMsg.unassignedResults.length ? true : false : false)
@@ -1593,7 +1614,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
-            annex: this.selectedDocuments,
+            annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
             document: {
 	            title: 'Fw: '+origMsg.subject,
                 textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)

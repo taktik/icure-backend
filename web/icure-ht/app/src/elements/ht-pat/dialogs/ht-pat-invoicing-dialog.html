@@ -3672,7 +3672,7 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template))
+                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
@@ -4495,7 +4495,7 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template))
+                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
