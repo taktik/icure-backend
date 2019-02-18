@@ -892,7 +892,7 @@
                 border: 1px solid var(--app-background-color-dark);
             }
             
-            @media screen and (max-width: 1328px) {
+            @media screen and (max-width: 1336px) {
                 .nomobile-wide {
                     display: none;
                 }
@@ -1338,6 +1338,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return msgBody.body != '' ? msgBody.body : this.localize('no_msg_content','No message',this.language)
 	}
 
+	_uncheckBoxes() {
+        const checkboxes = this.shadowRoot.querySelectorAll('.checkbox-item') || []
+        checkboxes.forEach(c=>c.checked = false)
+    }
+
     toggleManualAssign() {
 	    if (!this.isLoadingPatsSuggest) {
             this.set('searchPatValue','')
@@ -1346,6 +1351,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
     _updatePatSearch() {
+        this.set('canAssign',false)
 	    if (this.searchPatValue.length >= 2) {
             this.set('isLoadingPatsSuggest',true)
             console.log('updatePatSearch',this.searchPatValue)
@@ -1459,6 +1465,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	closeSuggestions() {
         this.set('documentBeingAssigned', null)
+        this.set('targetPats',[])
+        this.set('canAssign',false)
         this.set('toImportPatsSuggestions', [])
         this.set('assignModal',false)
         this.set('selectName','')
@@ -1524,6 +1532,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         if (pat.lastName.toUpperCase() === unimportedPats[index].lastName.toUpperCase()) {
                             pat.dateOfBirth = this.api.moment(pat.dateOfBirth).format('DD/MM/YYYY')
                             this.push('toImportPatsSuggestions', pat)
+                            this._uncheckBoxes()
                         }
                     })
                 })
@@ -1531,7 +1540,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _getPatsFromCheckbox(e) {
-        console.log('_getPatsFromCheckbox')
         const elem = JSON.parse(e.target.dataset.item)
         const checked = e.target.checked
         let arr = this.targetPats ? this.targetPats : []
@@ -1542,6 +1550,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
         this.set('canAssign',this.targetPats.length)
         this.set('targetPats',arr)
+        // console.log('_getPatsFromCheckbox',elem,'checked:'+checked,arr)
     }
 
     _assignResultToSelected(selMsg,targets,document,docInfo) {
