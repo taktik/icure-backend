@@ -2446,7 +2446,7 @@
                                                     .then(invoices =>
                                                         !invoices[0].id ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
-                                                            .then(inv => {console.log(inv); return inv}) : resolve(invoices[0]))
+                                                            .then(inv => {console.log(inv); return inv}) : Promise.resolve(invoices[0]))
                                                     .then(newInvoice => {
                                                         pat.invoices = [newInvoice]
                                                         return _.concat(pats, [pat])
