@@ -3672,7 +3672,8 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
+                const regPrinter = localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).regulations && JSON.parse(localStorage.getItem('selectedPrinter')).regulations.bw || ""
+                this.api.pdfReport(mustache.render(html, template), {printer: regPrinter})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
@@ -4495,7 +4496,8 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
+                const regPrinter = localStorage.getItem('selectedPrinter') && JSON.parse(localStorage.getItem('selectedPrinter')).regulations && JSON.parse(localStorage.getItem('selectedPrinter')).regulations.bw || ""
+                this.api.pdfReport(mustache.render(html, template), {printer: regPrinter})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
