@@ -1069,7 +1069,7 @@
                                 </div>
                             </div>
                             <div>
-                                <h5>[[patsLng]] [[localize('poss_matches','Possible matches',language)]] [[selectName]]</h5>
+                                <h5>[[patsLng]] [[localize('found_matches','Found matches',language)]] [[selectName]]</h5>
                                 <div class="scrollbox patlist">
                                     <template is="dom-if" if="[[!manualAssign]]">
                                         <paper-button class="search-patients" on-tap="toggleManualAssign"><iron-icon icon="perm-identity"></iron-icon> [[localize('sch_pats','Search patients',language)]]</paper-button>
@@ -1544,17 +1544,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('targetPats',arr)
     }
 
-    _assignResultToSelected() {
-        const selMsg = this.selectedMessage
-        const targets = this.targetPats || []
-        const docInfo = this.documentBeingAssigned.docInfo || null
-        const assigned = this.assignedResults || []
-        const unassigned = this.unassignedResults || []
-        const document = this.documentBeingAssigned
+    _assignResultToSelected(selMsg,targets,document,docInfo) {
         if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
-        if (selMsg && targets && docInfo && assigned && unassigned && document) {
+        if (selMsg && selMsg.unassignedResults && selMsg.unassignedResults.length && targets && docInfo && document) {
             targets.map(thisPat=>{
-                console.log('_assignResultToSelected',selMsg, targets, docInfo, assigned, unassigned, document,thisPat)
+                console.log('_assignResultToSelected',selMsg, targets, docInfo, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
                     created: new Date().getTime() ,
                     modified: new Date().getTime() ,
@@ -1616,30 +1610,44 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     console.warn("error:" + err)
                 })
             }) // map end
+        } else {
+            console.warn('_assignResultToSelected missing attribute',selMsg,targets,document,docInfo)
         }
     }
 
     _assignToPat() {
-        this.targetPats.map(thisPat=>{
-            this.api.contact().newInstance(this.user, thisPat, {
-                created: new Date().getTime() ,
-                modified: new Date().getTime() ,
-                author: this.user.id,
-                responsible: this.user.healthcarePartyId,
-                subContacts: []
-            }).then(ctc=>{
-                const doc = this.selectedDocuments.find(d=>d.documentLocation === 'annex')
-                if (doc && doc.id && doc.id.length) {
-                    const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: doc.id, stringValue: doc.name || 'annex-'+this.api.moment(Date.now()).format('YYYYMMDD') }]]), label: 'document' });
-                    ctc.services.push(svc);
-                    ctc.subContacts = [{ status: 64, services: [{serviceId: svc.id }]}]
-                    this.api.contact().createContactWithUser(this.user, ctc).then(c=>{
-                        this.api.register(c,'contact')
-                        this.closeSuggestions()
+        if (this.selectedMessage && this.selectedMessage.unassignedResults && this.selectedMessage.unassignedResults.length &&
+            this.documentBeingAssigned && this.documentBeingAssigned.docInfo &&
+            this.targetPats && this.targetPats.length) { // if has unassigned results && docinfo && targetPats
+            const selMsg = this.selectedMessage
+            const targets = this.targetPats || []
+            const document = this.documentBeingAssigned
+            const docInfo = this.documentBeingAssigned.docInfo || null
+            this._assignResultToSelected(selMsg,targets,document,docInfo)
+        } else {
+            if (this.targetPats && this.targetPats.length) { // if no unassigned && no docinfo && no targetPats
+                this.targetPats.map(thisPat=>{
+                    this.api.contact().newInstance(this.user, thisPat, {
+                        created: new Date().getTime() ,
+                        modified: new Date().getTime() ,
+                        author: this.user.id,
+                        responsible: this.user.healthcarePartyId,
+                        subContacts: []
+                    }).then(ctc=>{
+                        const doc = this.selectedDocuments.find(d=>d.documentLocation === 'annex')
+                        if (doc && doc.id && doc.id.length) {
+                            const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: doc.id, stringValue: doc.name || 'annex-'+this.api.moment(Date.now()).format('YYYYMMDD') }]]), label: 'document' });
+                            ctc.services.push(svc);
+                            ctc.subContacts = [{ status: 64, services: [{serviceId: svc.id }]}]
+                            this.api.contact().createContactWithUser(this.user, ctc).then(c=>{
+                                this.api.register(c,'contact')
+                                this.closeSuggestions()
+                            })
+                        }
                     })
-                }
-            })
-        })
+                })
+            }
+        } // else end
     }
 
     textType(uti, utis) {
