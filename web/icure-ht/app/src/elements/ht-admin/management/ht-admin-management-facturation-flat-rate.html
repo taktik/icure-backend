@@ -220,21 +220,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 fr : 'Forfait soins médicaux dans les centres de santé',
                                 en: 'Medical care package in health centers',
                                 nl : 'Zorgpakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType: 'physician'
                         },{
                             code: '409614',
                             label: {
                                 fr : 'Forfait soins infirmiers dans les centres de santé',
                                 en: 'Nursing package at health centers',
                                 nl : 'Verpleegpakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType : 'nurse'
                         },{
                             code: '509611',
                             label: {
                                 fr : 'Forfait soins kiné dans les centres de santé',
                                 en: 'Physiotherapy package in health centers',
                                 nl : 'Fysiotherapie pakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType: 'physiotherapist'
                         }]
                    },
                     hcpParent: {
@@ -311,8 +314,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.hcpParent.flatRateTarifications.push({
                         code: this.flatRateTarification.code || null,
                         label: this.flatRateTarification.label || null,
+                        flatRateType : this.flatRateTarification.flatRateType || null,
                         valorisations: valorisation || []
-                    })
+                     })
                 }
 
                 this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
