@@ -226,12 +226,12 @@
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
-                    </template>
-                    <template is="dom-if" if="[[downloadable]]">
-                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                            [[localize('dl','Download',language)]]
-                            <paper-icon-button icon="file-download"></paper-icon-button>
-                        </div>
+                        <template is="dom-if" if="[[downloadable]]">
+                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]]
+                                <paper-icon-button icon="file-download"></paper-icon-button>
+                            </div>
+                        </template>
                     </template>
                 </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
