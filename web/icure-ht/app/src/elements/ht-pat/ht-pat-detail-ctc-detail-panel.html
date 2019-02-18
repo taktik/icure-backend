@@ -1092,7 +1092,7 @@
                 type: Array,
                 value: () => ([])
             },
-            filteredContacts: {
+            filteredServiceIds: {
                 type: Array,
                 value: () => ([])
             }
@@ -1121,7 +1121,7 @@
                 }
 
                 if(!this.serviceFilters || !this.serviceFilters.length) {
-                    this.set('filteredContacts',this.contacts);
+                    this.set('filteredServiceIds',[]);
                     this._contactsChanged()
                     return 
                 }
@@ -1131,12 +1131,15 @@
                     const codesArray = filterCodesByType[filter.type] || []
                     filterCodesByType[filter.type] = codesArray.concat(filter.code)
                 })
-
-                this.set('filteredContacts',_.flatten(this.contacts.filter(contact => {
-                    return contact.services.some( service => {
-                        return service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code))
-                    })
-                })))
+                
+                this.set('filteredServiceIds',_.flatten(this.contacts.map( contact => 
+                    (contact.services.filter( service => 
+                        service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code) ) && 
+                        Object.values( this.api.contact().preferredContent(service, this.language) || {} ).some(value => value)
+                    ) || []).map(service => 
+                        service.id
+                    )
+                )))
 
                 this._contactsChanged()
 
@@ -2043,27 +2046,43 @@
 
             _contactsChanged() {
                 this.set('contactsFormsAndDocuments', [])
-                if (!this.filteredContacts) {
+                if (!this.contacts || (this.serviceFilters && this.serviceFilters.length && !(this.filteredServiceIds && this.filteredServiceIds.length))) {
                     return
                 }
 
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.filteredContacts.map(contact => {
-                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
+                const formGroups = this.contacts.reduce((contacts, contact) => {
+                    
+                    const forms = ((this.serviceFilters && this.serviceFilters.length ? 
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && sc.services.some( s => this.filteredServiceIds.find(fsId => fsId === s.serviceId))):
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) ))|| [])
+                    .map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
                             docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
                     })
-					const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
-					return {
-                    ctc: contact,
-                    forms: _.sortBy(forms, f => -f.created),
-                    unmappedServices: _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-                }})
+
+                    const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
+
+                    const unmappedServices = this.serviceFilters && this.serviceFilters.length ? 
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) && this.filteredServiceIds.some(fsId => fsId === svc.id) ), 'created'):
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) ), 'created')  
+
+                    if((forms && forms.length) || (unmappedServices && unmappedServices.length)) {
+                        contacts.push({
+                            ctc: contact,
+                            forms: _.sortBy(forms, f => -f.created),
+                            unmappedServices
+                        })
+                    }
+
+                    return contacts
+
+                }, [])
 
                 const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
