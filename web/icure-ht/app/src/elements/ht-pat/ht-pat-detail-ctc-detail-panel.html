@@ -703,7 +703,7 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[currentContactTypeLabel]][[dof.ctc.descr]] ([[_dateFormat(dof.ctc.openingDate)]])
+                            <span class="contact-title">[[currentContactTypeLabel]][[dof.ctc.userDescr]] ([[_dateFormat(dof.ctc.openingDate)]])
 								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                     <dynamic-subcontact-type-selector id="subctc-type-d" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
 								</template>
