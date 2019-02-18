@@ -93,7 +93,7 @@
             this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers)
             this.authicc = new api.iccAuthApi(this.host, this.headers)
             this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers)
-            this.onlineBeMikronoicc = new api.iccBemikronoApi("https://backend.svc.icure.cloud/rest/v1", this.headers)
+            this.onlineBeMikronoicc = new api.iccBemikronoApi(this.host && this.host.match(/https:\/\/backend.(.+).icure.cloud.+/) ? this.host : "https://backend.svc.icure.cloud/rest/v1", this.headers)
             this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers)
             this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers)
             this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers)
