@@ -2352,7 +2352,7 @@
                     const allPats = _.flatten(pats)
                     const parentInsuranceIds = allPats.reduce((acc,pat) => { const parentId = this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent; if (!acc.includes(parentId)) { acc.push(parentId) }; return acc}, [])
 
-                    this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : parentInsuranceIds})).then(
+                    return this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : parentInsuranceIds})).then(
                         parentInsurances => {
                             allPats.forEach(pat => {
                                 prom = prom.then(pats =>
@@ -2363,10 +2363,10 @@
                                                     .then(invoices =>
                                                         !invoices[0].id ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
-                                                            .then(inv => console.log(inv)) : resolve(invoices[0]))
+                                                            .then(inv => {console.log(inv); return inv}) : resolve(invoices[0]))
                                                     .then(newInvoice => {
                                                         pat.invoices = [newInvoice]
-                                                        return pats.concat([pat])
+                                                        return _.concat(pats, [pat])
                                                     })
                                             }
                                         ))
