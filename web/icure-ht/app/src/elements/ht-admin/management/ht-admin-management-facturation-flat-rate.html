@@ -107,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_type','Start of valididy',language)]]
+                        [[localize('startOfValidity','Start of valididy',language)]]
                     </template>
                     <template>
                         <div>[[_getDateAsString(item.valorisation.startOfValidity)]]</div>
@@ -115,15 +115,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_first_name','Code',language)]]
+                        [[localize('co','Code',language)]]
                     </template>
                     <template>
-                        <div>[[item.firstName]] [[item.code]]</div>
+                        <div>[[item.code]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_user_type','Label',language)]]
+                        [[localize('lab','Label',language)]]
                     </template>
                     <template>
                         <div>[[_getCodeLabel(item.label)]]</div>
@@ -131,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('Id','Reimbursement',language)]]
+                        [[localize('presc_reimb','Reimbursement',language)]]
                     </template>
                     <template>
                         <div>[[item.valorisation.reimbursement]]</div>
