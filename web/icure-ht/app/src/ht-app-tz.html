@@ -1451,6 +1451,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
         const runtime = require('offline-plugin/runtime');
 
+        import io from 'socket.io-client';
+
+        const socket = io('http://localhost:16042')
+
+        socket.on("connect",()=>{
+            console.log("connecter au niveau frontend")
+        })
+
+        socket.on("testing",msg=>{
+            console.log(msg)
+        })
+
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'ht-app-tz'
