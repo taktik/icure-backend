@@ -1360,6 +1360,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     console.log('pats',pats)
                     this.set('toImportPatsSearch',pats.rows || [])
                     this.set('isLoadingPatsSuggest',false)
+                    this._uncheckBoxes()
                 })
             },2000)
         } else {
@@ -1557,7 +1558,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (docInfo && docInfo.formatedDemandDate) delete docInfo.formatedDemandDate
         if (selMsg && selMsg.unassignedResults && selMsg.unassignedResults.length && targets && docInfo && document) {
             targets.map(thisPat=>{
-                console.log('_assignResultToSelected',selMsg, targets, docInfo, document,thisPat)
+                // console.log('_assignResultToSelected',selMsg, targets, docInfo, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
                     created: new Date().getTime() ,
                     modified: new Date().getTime() ,
@@ -1634,6 +1635,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const docInfo = this.documentBeingAssigned.docInfo || null
             this._assignResultToSelected(selMsg,targets,document,docInfo)
         } else {
+            // console.log("assignToPat",this.targetPats)
             if (this.targetPats && this.targetPats.length) { // if no unassigned && no docinfo && no targetPats
                 this.targetPats.map(thisPat=>{
                     this.api.contact().newInstance(this.user, thisPat, {
