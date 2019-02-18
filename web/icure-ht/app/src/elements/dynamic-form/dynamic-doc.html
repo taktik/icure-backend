@@ -221,8 +221,8 @@
                     </template>
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
-                    <span>[[_title(document.name, title)]]</span>
                     <template is="dom-if" if="[[attachmentContent.length]]">
+                        <span>[[localize('msg_body','Message body',language)]] :</span>
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
