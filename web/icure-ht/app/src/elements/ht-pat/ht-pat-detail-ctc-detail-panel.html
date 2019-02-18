@@ -1346,7 +1346,17 @@
 			_default(e) {
 				this.hideAll();
 				this.set('doc', true);
+
+				setTimeout(()=>this._setPdfSizes(),2000)
 			}
+
+			_setPdfSizes() {
+			    if (this.doc) this.root.querySelectorAll('.contact-card-container').forEach(card=>{ // get contact cards
+                    card.querySelectorAll('dynamic-doc').forEach(dynas=>{ // get dynamic-doc
+                        dynas.root.querySelectorAll('pdf-element').forEach(pdf=>pdf.dispatchEvent(new CustomEvent('iron-resize', {detail: {}}))) // force resize
+                    })
+                })
+            }
 
 			_drugDescription(svc) {
 				return svc && this.api.contact().medication().medicationNameToString(this.api.contact().medicationValue(svc, this.language), this.language) || "N/A";

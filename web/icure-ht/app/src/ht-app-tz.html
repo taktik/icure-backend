@@ -251,7 +251,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
-            .ehbox-notification-panel {
+            .ehbox-notification-panel,
+            .electron-notification-panel{
                 position: fixed;
                 top: 50%;
                 right: 0;
@@ -264,6 +265,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border-radius: 3px 0 0 3px;
                 width: 0;
                 opacity: 0;
+            }
+            .electron-notification-panel {
+                background: rgb(255,215,64);
             }
 
             .notification-panel {
@@ -285,7 +289,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 animation: notificationAnim 7.5s ease-in;
             }
 
-            .notificationEhbox {
+            .notificationEhbox,
+            .notificationElectron {
                 animation: notificationEhboxAnim 7.5s ease-in;
             }
 
@@ -1417,6 +1422,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>
             [[ehboxWebWorkerMessage]]
+        </paper-item>
+
+        <paper-item id="electronMessage" class="electron-notification-panel">
+            <iron-icon icon="icons:warning"></iron-icon>
+            [[localize('electron_update_available','New electron version available',language)]]
         </paper-item>
 
         <paper-dialog id="mikronoErrorDialog">

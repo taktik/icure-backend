@@ -245,7 +245,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
-            .ehbox-notification-panel {
+            .ehbox-notification-panel,
+            .electron-notification-panel{
                 position: fixed;
                 top: 50%;
                 right: 0;
@@ -957,6 +958,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>
             [[ehboxWebWorkerMessage]]
+        </paper-item>
+
+        <paper-item id="electronMessage" class="electron-notification-panel">
+            <iron-icon icon="icons:warning"></iron-icon>
+            [[localize('electron_update_available','New electron version available',language)]]
         </paper-item>
 
         <paper-dialog id="mikronoErrorDialog">
