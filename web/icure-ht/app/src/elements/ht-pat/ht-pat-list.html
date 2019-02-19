@@ -875,10 +875,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .doNotDisplay {
                     display: none;
                 }
+
+                .electron-notification-panel{
+                    position: fixed;
+                    top: 50%;
+                    right: 0;
+                    z-index: 1000;
+                    color: white;
+                    font-size: 13px;
+                    height: 48px;
+                    padding: 0 8px 0 12px;
+                    border-radius: 3px 0 0 3px;
+                    width: 0;
+                    opacity: 0;
+                    background: rgb(255,215,64);
+                }
+
+                @keyframes notificationAnim {
+                    0% {
+                        width: 0;
+                        opacity: 0;
+                    }
+                    10% {
+                        width: 160px;
+                        opacity: 1;
+                    }
+                    12% {
+                        width: 144px;
+                        opacity: 1;
+                    }
+                    88% {
+                        width: 144px;
+                        opacity: 1;
+                    }
+                    100% {
+                        width: 0;
+                        opacity: 0;
+                    }
+                }
+
+                .notification {
+                    animation: notificationAnim 60.0s ease-in;
+                }
+
             </style>
         </custom-style>
 
         <div class="container">
+
+            <paper-item id="eidOpenPatientMessage" class="electron-notification-panel">
+                <iron-icon icon="vaadin:health-card"></iron-icon>
+                [[localize('open_pat_elect','Open patient',language)]]
+            </paper-item>
+            <paper-item id="eidCreatePatientMessage" class="electron-notification-panel">
+                <iron-icon icon="vaadin:health-card"></iron-icon>
+                [[localize('create_new_pat_elect','Create New Patient',language)]]
+            </paper-item>
 
             <div class="second-filter-panel">
 
@@ -1751,6 +1803,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     canAddPat: {
                         type: Boolean,
                         value: false
+                    },
+                    socket: {
+                        type : Object,
+                        value : {}
+                    },
+                    hasNotificationEidMessage : {
+                        type : Number,
+                        value : 0
                     }
                 }
             }
@@ -3253,7 +3313,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            setSocket(){
+                this.socket.on("auto-read-card-eid",cards =>{
+                    if(this.hasNotificationEidMessage===1){
+                        this.$['eidOpenPatientMessage'].classList.remove('notification');
+                    }
+                    else if(this.hasNotificationEidMessage===2){
+                        this.$['eidCreatePatientMessage'].classList.remove('notification');
+                    }
+                    this.set("hasNotificationEidMessage",0)
 
+                    const res = JSON.parse(cards)
+                    if (res.cards[0]) {
+                        this.set('firstName', res.cards[0].firstName)
+                        this.set('lastName', res.cards[0].surname)
+                        this.set('dateAsString', this.api.moment(res.cards[0].dateOfBirth * 1000).format('YYYY-MM-DD'))
+                        this.set('ssin', res.cards[0].nationalNumber)
+                        this.set('valueGender', res.cards[0].gender === 'M' ? 'male' : 'female')
+                        this.set('cardData',res.cards[0])
+                    }
+
+                    const filter ={
+                        '$type': 'PatientByHcPartyAndSsinFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'ssin': res.cards[0].nationalNumber
+                    }
+                    this.api.patient().filterByWithUser(this.user, null, null, 1000, 0, 'lastName', 'asc', {filter: filter})
+                        .then(patients =>{
+                            if(patients.rows.length){
+                                this.$['eidOpenPatientMessage'].classList.add('notification');
+                                this.set("hasNotificationEidMessage",1)
+                                setTimeout(() => {
+                                    if(this.hasNotificationEidMessage!==0) {
+                                        this.$['eidOpenPatientMessage'].classList.remove('notification');
+                                        this.set("hasNotificationEidMessage", 0)
+                                    }
+                                }, 60000);
+                            }
+                            else{
+                                this.$['eidCreatePatientMessage'].classList.add('notification');
+                                this.set("hasNotificationEidMessage",2)
+                                setTimeout(() => {
+                                    if(this.hasNotificationEidMessage!==0) {
+                                        this.$['eidCreatePatientMessage'].classList.remove('notification');
+                                        this.set("hasNotificationEidMessage", 0)
+                                    }
+                                }, 60000);
+                            }
+                        })
+                })
+            }
         }
 
         customElements.define(HtPatList.is, HtPatList)

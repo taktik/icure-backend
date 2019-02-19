@@ -251,7 +251,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
-            .ehbox-notification-panel {
+            .ehbox-notification-panel,
+            .electron-notification-panel{
                 position: fixed;
                 top: 50%;
                 right: 0;
@@ -264,6 +265,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border-radius: 3px 0 0 3px;
                 width: 0;
                 opacity: 0;
+            }
+            .electron-notification-panel {
+                background: rgb(255,215,64);
             }
 
             .notification-panel {
@@ -1348,7 +1352,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved" on-idle="resetTimer">
+                            socket="[[socket]]" on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
@@ -1419,6 +1423,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             [[ehboxWebWorkerMessage]]
         </paper-item>
 
+        <paper-item id="electronMessage" class="electron-notification-panel">
+            <iron-icon icon="icons:warning"></iron-icon>
+            [[localize('electron_update_available','New electron version available',language)]]
+        </paper-item>
+
         <paper-dialog id="mikronoErrorDialog">
             <h3>Erreur lors de la création de votre compte agenda</h3>
             <div class="errorMikrono">
@@ -1455,6 +1464,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
         const runtime = require('offline-plugin/runtime');
+
+        import io from 'socket.io-client';
 
         class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1650,6 +1661,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     backendVersionOk : {
                         type : Boolean,
                         value : true
+                    },
+                    socket: {
+                        type : Object,
+                        value : {}
                     }
                 }
             }
@@ -1745,6 +1760,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                //init socket io
+                this.api.isElectronAvailable().then(electron => {
+                    if (electron) {
+                        this.set("socket",io('http://localhost:16042'))
+
+                        this.socket.on("connect", () => {
+                            console.log("connection avec le socket de electron")
+                        })
+
+                        this.socket.on("update-downloaded", msg => {
+                            console.log(msg)
+                            this.$['electronMessage'].classList.add('notification');
+                            setTimeout(() => {
+                                this.$['electronMessage'].classList.remove('notification');
+                            }, 7500);
+                        })
+                        this.notifyPath("socket");
+                    }
+
+                })
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
