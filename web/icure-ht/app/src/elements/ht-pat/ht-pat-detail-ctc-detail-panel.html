@@ -1820,18 +1820,18 @@
             body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
             body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
             body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
-            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+            body > div.page > main > article .prescription-content p.center {margin:2px;text-align: center;}
             body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
             body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
             body > div.page > main > article div.profile {margin: 0 25px;}
             body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
             body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+            body > div.page > main > article div.prescription-content > article {margin: 5px 0;}
             body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
             body > div.page > footer {${this.selectedFormat != 'A4' ? 'display:none;' : ''}border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
             body > div.page > footer table:first-child {border-top:none;}
-            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
             body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
             body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
             body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
@@ -1841,7 +1841,7 @@
 						`<html><head><style>
             /* body */
             body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: row;margin: 0;padding:0;${/*padding-top:20mm;*/""}width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;}
+            div.page {display:flex;flex-direction: row;margin: 0;padding:0;padding-top:20mm;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;box-sizing: border-box;}
             div.page:last-child {page-break-after: avoid;}
             div#prescription {display:flex;flex-direction:column;${this.selectedFormat == 'A4' && "width: 50%;border-left: .25px solid black; border-right: .25px solid black; border-bottom: .25px solid black;" || ""}}
             div#prescription:first-child {${this.selectedFormat == 'A4' ? "margin-right: 1px" : "margin: 0"}}
@@ -1858,7 +1858,7 @@
             *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
             *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
         </style></head><body>${allPagesBody}</body></html>`; // finalize PDF body
-				// console.log("toPrint",toPrint)
+				console.log("toPrint",toPrint)
 				return toPrint
 			}
 
