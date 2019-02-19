@@ -1760,7 +1760,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 //init socket io
                 this.api.isElectronAvailable().then(electron => {
-                    if (this.isElectron) {
+                    if (electron) {
                         const socket = io('http://localhost:16042')
 
                         socket.on("connect", () => {
@@ -1773,6 +1773,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             setTimeout(() => {
                                 this.$['electronMessage'].classList.remove('notification');
                             }, 7500);
+                        })
+
+                        socket.on("auto-read-card-eid", cards =>{
+                            console.log(cards)
                         })
                     }
 
