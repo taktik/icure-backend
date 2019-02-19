@@ -394,32 +394,55 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _downloadAnnex(e){
         const url = this.dataUrl
         console.log('doc',this.document)
-        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)+';base64' :
+        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) :
             this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'application/xml' :
-            'text/plain;charset=utf-8'
+            'text/plain'
 
         let request = new XMLHttpRequest()
         request.onreadystatechange = (()=> {
             if (request.readyState === 4) {
-                console.log('curl',request.response); // Par défault une DOMString
-                const imgType = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) || null
-                let res = request.response
-                if (type !== imgType) { // TODO : format image
-
-                    let a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
-
-                    a.setAttribute('href', `data:${type},` + encodeURIComponent(res));
-                    a.download = this.document.name;
-
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }
+                const res = request.response
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.download = this.document.name;
+                a.setAttribute('href',
+                    (type === this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)) ?
+                        window.URL.createObjectURL(this._base64toBlob(this._xhrResponseToBase64(res),type)) :
+                        window.URL.createObjectURL(new Blob([res],{type:type}))
+                );
+                a.click();
+                window.URL.revokeObjectURL(url);
             }
         })
         request.open('GET', url, true)
+        if (type === this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)) request.overrideMimeType('plain/text;charset=ANSI')
+        request.responseType = "arraybuffer"
         request.send('')
+    }
+    _xhrResponseToBase64(xhr) {
+        const uInt8Array = new Uint8Array(xhr);
+        let binaryString = [];
+        for (let i=0;i<=uInt8Array.length;i++) {
+            binaryString[i] = String.fromCharCode(uInt8Array[i])
+        }
+        const data = binaryString.join('');
+        return window.btoa(data);
+    }
+    _base64toBlob(base64, type) {
+        const byteChars = atob(base64);
+        const slicesCount = Math.ceil(byteChars.length / 1024);
+        const byteArrays = new Array(slicesCount);
+        for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+            const begin = sliceIndex * 1024;
+            const end = Math.min(begin + 1024, byteChars.length);
+            const bytes = new Array(end - begin);
+            for (let offset = begin, i = 0; offset < end; ++i, ++offset) {
+                bytes[i] = byteChars[offset].charCodeAt(0);
+            }
+            byteArrays[sliceIndex] = new Uint8Array(bytes);
+        }
+        return new Blob(byteArrays,{type:type});
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
