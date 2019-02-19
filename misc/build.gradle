@@ -45,6 +45,8 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
     compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.4.0.jre8'
+    compile group: 'com.xlson.groovycsv', name: 'groovycsv', version: '1.0'
+    compile group: 'net.sf.ucanaccess', name: 'ucanaccess', version: '4.0.1'
     compile project(path: ':')
 }
 
