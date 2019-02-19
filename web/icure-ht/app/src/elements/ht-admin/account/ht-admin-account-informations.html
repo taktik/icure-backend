@@ -7,7 +7,6 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -41,7 +40,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
 
-<dom-module id="ht-admin-reports-list-of-attestations">
+
+<dom-module id="ht-admin-account-informations">
 
     <template>
 
@@ -54,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 outline:0!important;
             }
 
-            .list-of-attestations{
+            .users-panel{
                 height: 100%;
                 width: 100%;
                 padding: 0 20px;
@@ -62,12 +62,116 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position:relative;
             }
 
+            #activeUsersListDiv{
+                height: 25%;
+            }
+
+            #inactiveUsersListDiv{
+                height: 25%;
+            }
+
+            #userInformationDialog{
+                height: 500px;
+                width: 900px;
+            }
+
+            .line {
+                display: flex;
+            }
+            .line.p8 {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+            .line.p16 {
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
+            .line > * {
+                flex-grow: 1;
+            }
+            .line > *.no-grow {
+                flex-grow: 0;
+            }
+            .line > *.w50 {
+                width: 50px;
+            }
+            .line > *.w100 {
+                width: 100px;
+            }
+            .line > *.w150 {
+                width: 150px;
+            }
+            .line > *.grow-3 {
+                flex-grow: 3;
+            }
+
+            .line span.lang {
+                padding-top: 20px;
+                width: 80px !important;
+            }
+
+            .marginRight10 {
+                margin-right:10px;
+            }
+
+            @media screen and (max-width: 1024px) {
+                .nomobile {
+                    display: none;
+                }
+                .onlymobile {
+                    display: block;
+                }
+            }
+
+            .user-panel .panel-content {
+                padding: 0 12px;
+                overflow: hidden;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+                height: 400px;
+                overflow-y: auto;
+            }
+
+            paper-tabs {
+                background: var(--app-background-color);
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+                --paper-tabs: {
+                    color: var(--app-text-color);
+                };
+            }
+
+            paper-tab {
+                --paper-tab-ink: var(--app-text-color);
+            }
+
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
+
+            paper-tab.iron-selected iron-icon{
+                opacity: 1;
+            }
+
+            paper-tab iron-icon{
+                opacity: 0.5;
+                color: var(--app-text-color);
+            }
+
+            .user-panel {
+                height:100%;
+                background: var(--app-background-color);
+                margin: 0;
+                width:100%;
+                grid-column: 2 / 4;
+                /*grid-template-columns: 40px 200px 200px 40px;*/
+                grid-row: 1 / 1;
+            }
+
         </style>
 
-        <div class="list-of-attestations">
-            <h4>[[localize('rap_att_list', 'Rapports - List of attestations', language)]]</h4>
+        <div class="users-panel">
+            <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_info', 'Informations', language)]]</h4>
         </div>
-
     </template>
 
     <script>
@@ -75,9 +179,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
 
-        class HtAdminReportsListOfAttestations extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class HtAdminAccountInformations extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
-                return 'ht-admin-reports-list-of-attestations'
+                return 'ht-admin-account-informations'
             }
 
             static get properties() {
@@ -107,6 +211,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }
 
-        customElements.define(HtAdminReportsListOfAttestations.is, HtAdminReportsListOfAttestations)
+        customElements.define(HtAdminAccountInformations.is, HtAdminAccountInformations)
     </script>
 </dom-module>
