@@ -97,6 +97,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-top: 16px;
             }
 
+            .trashIcon{
+                height: 14px;
+                width: 14px;
+            }
+
         </style>
 
         <div class="facturation-flat-rate-panel">
@@ -104,13 +109,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="add_line">
                 <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
-            <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
+            <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]" active-item="{{selectedPrice}}">
                 <vaadin-grid-column>
                     <template class="header">
                         [[localize('startOfValidity','Start of valididy',language)]]
                     </template>
                     <template>
                         <div>[[_getDateAsString(item.valorisation.startOfValidity)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        [[localize('type','Type',language)]]
+                    </template>
+                    <template>
+                        <div>[[item.flatRateType]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
@@ -135,6 +148,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                     <template>
                         <div>[[item.valorisation.reimbursement]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                    </template>
+                    <template>
+                        <div>
+                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice"></iron-icon>
+                        </div>
                     </template>
                 </vaadin-grid-column>
 
@@ -257,13 +279,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Object,
                         value: () => {},
                         observer: '_selectedTarificationYearValueChanged'
+                    },
+                    selectedPrice:{
+                        type: Object,
+                        value: () => {}
                     }
 
                 }
             }
 
             static get observers() {
-                return ['_flatRateTarificationDataProvider(user)'];
+                return ['_flatRateTarificationDataProvider(user)', '_selectedPriceChanged(selectedPrice)'];
             }
 
             constructor() {
@@ -277,7 +303,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _flatRateTarificationDataProvider(){
 
 
-
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp => hcp.parentId ? this.api.hcparty().getHealthcareParty(hcp.parentId) : Promise.resolve(hcp))
                     .then(hcpParent => {
@@ -285,7 +310,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
 
-                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))) )
+                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
 
                 })
             }
@@ -368,6 +393,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return date ? this.api.moment(date).format('DD/MM/YYYY') : null
             }
 
+            _deleteFalRatePrice(e){
+                e.stopPropagation()
+
+            }
+
+            _selectedPriceChanged(e){
+
+                this.$['addedFlatRateTarificationDialog'].open()
+            }
         }
 
         customElements.define(HtAdminManagementFacturationFlatRate.is, HtAdminManagementFacturationFlatRate)

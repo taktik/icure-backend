@@ -106,7 +106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     selectedSubMenu: {
                         type: String,
-                        observer: '_selectedReportsSubMenuChange'
+                        observer: '_selectedReportsSubMenuChanged'
                     },
                     listOfAttestationLayout:{
                         type: Boolean,
@@ -127,7 +127,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready()
             }
 
-            _selectedReportsSubMenuChange(){
+            _selectedReportsSubMenuChanged(){
                 this.selectedSubMenu === "listOfAttestationSubMenu" ? this.set('listOfAttestationLayout', true) : null
             }
 
