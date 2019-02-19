@@ -1008,6 +1008,7 @@
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
         import * as models from 'icc-api/dist/icc-api/model/models'
+        import * as fhcmodels from 'fhc-api/dist/model/models'
         import mustache from "mustache/mustache.js";
 
         class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -2460,6 +2461,87 @@
                 })
             }
 
+            _generateJ20FlatFiles(){
+                let flatData = {};
+                flatData.content = [];
+
+                const OAs = ['100','200','300','400','500','600','900'];
+                //loop OA
+
+                return Promise.all(OAs.map(OA => {
+                    let ib  = new fhcmodels.InvoicesBatch('');
+                    ib.invoicingYear = this.flatRateInvoicingDataObject.exportDate.substr(0,4);
+                    ib.invoicingMonth = this.flatRateInvoicingDataObject.exportDate.substr(4,2);
+                    ib.fileRef = '902f';
+                    ib.batchRef = '902b';
+                    ib.ioFederationCode = '100';
+                    ib.uniqueSendNumber = 1;
+                    ib.sender = {};
+                    ib.sender.bce = '123456789';
+                    ib.sender.bic = 'GEBEBAB';
+                    ib.sender.firstName = ''
+                    ib.sender.lastName = 'WGC Botermarkt';
+                    ib.sender.nihii = '12345678111';
+                    ib.sender.phoneNumber = '091234567';
+                    ib.sender.ssin = '72022102793';
+                    ib.sender.iban = 'BE540011234512';
+                    ib.numericalRef = 2;
+                    ib.invoiceContent = 0;
+                    ib.magneticInvoice = true;
+                    let invoices = []
+                    //loop patients of OA
+                    let iNr = 1;
+                    invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
+                    ib.invoices = invoices; //1 per patient
+                    //end loop patients of OA
+                    return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
+                        return {oa:OA, file: flatRes};
+                    })
+                })).then(res => {
+                    flatData.content = res;
+                    return flatData;
+                })
+                //end loop OA
+            }
+
+            getPatientInvoice(patientData, iNr){
+                let inv = new fhcmodels.Invoice('');
+                inv.patient = {}
+                inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
+                inv.patient.insurabilities = [];
+                let ins = new fhcmodels.Insurability('');
+                ins.insuranceCode = '120';
+                ins.parameters = {tc1 : '110', tc2 : '110'}
+                inv.patient.insurabilities.push(ins);
+                inv.invoiceNumber = iNr;
+                inv.invoiceRef = iNr;
+                inv.ioCode = '100';
+                inv.reason = 'Other';
+                inv.startOfCoveragePeriod= 19950101;
+                inv.items = [];
+                _.forEach(patientData.invoices, invItm => {
+                    _.forEach(invItm.invoicingCodes, invCd => {
+                        let itm = new fhcmodels.InvoiceItem('');
+                        itm.codeNomenclature = invCd.code;
+                        itm.dateCode = 20190201;
+                        itm.endDateCode = 20190228;
+                        itm.reimbursedAmount = invCd.reimbursement;
+                        inv.items.push(itm);
+                    })
+                });
+
+                //patientData.invoices[0].patient =
+                return inv;
+            }
+
+            convertDate(sDate){
+                //Todo: implement
+                //moment(_.get(i, "dateOfBirth"+"", "0")+"", "DD/MM/YYYY")
+                //let d = moment(sDate, "DD/MM/YYYY");
+
+                return sDate;
+            }
+
             _generateJ20PdfFiles() {
 
                 let pdfData = {};
@@ -2781,6 +2863,14 @@
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
+
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
+                        return this._generateJ20FlatFiles().then(x=>x)
+                    })
+                    .then(flatObject=>{
+                        this.flatRateInvoicingDataObject.flatFileContent = flatObject.content
+
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
                         return this._generateJ20PdfFiles().then(x=>x)
