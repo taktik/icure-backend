@@ -1373,7 +1373,7 @@
 						compound = content && content.medicationValue && content.medicationValue.compoundPrescription
 						sameDrugColumnIndex = (accu.slice(0).reverse().find( drug => drug.compound == compound ) || {}).column
 					}else {
-						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
+						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => drug.codes && drug.codes.length && codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
 					}
 					const column = _.findIndex(availableSpace, (s, idx) => sameDrugColumnIndex >= 0 ? (idx === sameDrugColumnIndex + 1) && s : s );
 					accu.push({
