@@ -289,8 +289,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 animation: notificationAnim 7.5s ease-in;
             }
 
-            .notificationEhbox,
-            .notificationElectron {
+            .notificationEhbox {
                 animation: notificationEhboxAnim 7.5s ease-in;
             }
 
@@ -1353,7 +1352,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved" on-idle="resetTimer">
+                            socket="[[socket]]" on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
@@ -1662,6 +1661,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     backendVersionOk : {
                         type : Boolean,
                         value : true
+                    },
+                    socket: {
+                        type : Object,
+                        value : {}
                     }
                 }
             }
@@ -1761,23 +1764,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //init socket io
                 this.api.isElectronAvailable().then(electron => {
                     if (electron) {
-                        const socket = io('http://localhost:16042')
+                        this.set("socket",io('http://localhost:16042'))
 
-                        socket.on("connect", () => {
+                        this.socket.on("connect", () => {
                             console.log("connection avec le socket de electron")
                         })
 
-                        socket.on("update-downloaded", msg => {
+                        this.socket.on("update-downloaded", msg => {
                             console.log(msg)
                             this.$['electronMessage'].classList.add('notification');
                             setTimeout(() => {
                                 this.$['electronMessage'].classList.remove('notification');
                             }, 7500);
                         })
-
-                        socket.on("auto-read-card-eid", cards =>{
-                            console.log(cards)
-                        })
+                        this.notifyPath("socket");
                     }
 
                 })
