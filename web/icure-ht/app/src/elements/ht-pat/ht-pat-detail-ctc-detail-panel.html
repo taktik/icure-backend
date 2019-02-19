@@ -1751,20 +1751,20 @@
 												<span>${onePrescription.rid}</span>
 											</div>
 											<div class="cell w50">
-												<p>Nom et prénom du prescripteur</p>
+												<p>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}</p>
 												<p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
 											</div>
 										</div>
 									</header>
 									<div class="horiz w100">
 										<div class="vert bt bb flex1 cell">
-											<p class="uppercase">À remplir par le prescripteur</p>
-											<p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+											<p class="uppercase">${this.localize("complete_by_prescriber","To be completed by the prescriber",this.language)}</p>
+											<p>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)} : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
 										</div>
 									</div>
 									<main id="main" class="flexbox flex1 horiz bb">
 										<div class="cell br w33">
-											<p>Réservé à la vignette de conditionnement</p>
+											<p>${this.localize("reserved_sticker","Reserved for the packaging sticker",this.language)}</p>
 										</div>
 										<div class="cell">
 											${onePrescription.body}
@@ -1772,7 +1772,7 @@
 									</main>
 									<footer id="footer" class="flex horiz bb">
 										<div class="flex1 cell br w50">
-											<p class="title bold center w100">Cachet du prescripteur</p>
+											<p class="title bold center w100">${this.localize("prescriber_stamp","Prescriber's stamp",this.language)}</p>
 											<ul>
 												<li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
 
