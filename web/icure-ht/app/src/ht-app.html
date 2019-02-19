@@ -1002,20 +1002,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import io from 'socket.io-client';
 
-        const socket = io('http://localhost:16042')
-
-        socket.on("connect",()=>{
-            console.log("connecter au niveau frontend")
-        })
-
-        socket.on("update-downloaded",msg=>{
-            console.log(msg)
-            this.$.electronMessage.classList.add('notification');
-            setTimeout(() => {
-                this.$.electronMessage.classList.remove('notification');
-            }, 7500);
-        })
-
         class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'ht-app'
@@ -1308,6 +1294,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (!this.icureUrl) { this.setUrls() }
 
                 this.set('api', this.$.api)
+
+                //init socket io
+                this.api.isElectronAvailable().then(electron => {
+                    if (this.isElectron) {
+                        const socket = io('http://localhost:16042')
+
+                        socket.on("connect", () => {
+                            console.log("connection avec le socket de electron")
+                        })
+
+                        socket.on("update-downloaded", msg => {
+                            console.log(msg)
+                            this.$['electronMessage'].classList.add('notification');
+                            setTimeout(() => {
+                                this.$['electronMessage'].classList.remove('notification');
+                            }, 7500);
+                        })
+                    }
+
+                })
 
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
