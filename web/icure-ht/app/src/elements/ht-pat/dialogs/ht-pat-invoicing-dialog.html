@@ -4167,6 +4167,7 @@
                 if(!this.activeNmclItem)return ;
                 const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
+                this._isJustifButtonDisabled()
             }
 
             _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
@@ -4611,21 +4612,12 @@
             }
 
             _isJustifButtonDisabled(){
-                if(!this.selectedInvoice || !this.selectedInvoice.invoicingCodes) {
-                    return false;
-                }
-                this.calculateTotalOfInvoice()
-                // return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
-                return this.isLoadingJustif || 
-                (  this._isSelectedInvoiceEattest() && !( this._invoiceDateIsToday() && this.npi )   ) || 
-                (  this._isSelectedInvoiceEfact()   && Number(this.totalInvoice.patientIntervention) <= 0 ) || 
-                (  this._isSelectedInvoicePaper()   && ( Number(this.totalInvoice.patientIntervention) <= 0 || Number(this.totalInvoice.reimbursement) <= 0 ) ) ||
-                !((!this.isNmclVerified && ( this.isTarificationError || this.isTarificationMcnError )) || this.isNmclVerified)
-                    // || ( !this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && ( this.isTarificationError || this.isTarificationMcnError )) || this.isNmclVerified))
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
             }
 
             _switchBetweenMethodForJustifAndCreation(){
-                if(this._isSelectedInvoiceEattest() || (this._isSelectedInvoiceEfact() && Number(this.totalInvoice.patientIntervention) >= 0) || (this._isSelectedInvoicePaper() && (Number(this.totalInvoice.patientIntervention) >= 0 || Number(this.totalInvoice.reimbursement) <= 0))){
+                this.calculateTotalOfInvoice()
+                if(this._isSelectedInvoiceEattest() || (this._isSelectedInvoiceEfact() && Number(this.totalInvoice.patientIntervention) > 0) || (this._isSelectedInvoicePaper() && (Number(this.totalInvoice.patientIntervention) > 0 || Number(this.totalInvoice.reimbursement) > 0))){
                     this._prevalidateAndPrepareInvoiceForBatchSending();
                 }
                 else{
