@@ -255,6 +255,12 @@
                         [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                     </paper-button>
                 </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                </template>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -274,12 +280,6 @@
                         <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
                         <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
                     </template>
-                </template>
-                <template is="dom-if" if="[[downloadable]]">
-                    <hr/>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
                 </template>
             </paper-card>
         </template>
