@@ -1851,7 +1851,7 @@
 						`<html><head><style>
             /* body */
             body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: row;margin: 0;padding:0;padding-top:20mm;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;box-sizing: border-box;}
+            div.page {display:flex;flex-direction: row;margin: 0;padding:0;padding-top:20mm;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;}
             div.page:last-child {page-break-after: avoid;}
             div#prescription {display:flex;flex-direction:column;${this.selectedFormat == 'A4' && "width: 50%;border-left: .25px solid black; border-right: .25px solid black; border-bottom: .25px solid black;" || ""}}
             div#prescription:first-child {${this.selectedFormat == 'A4' ? "margin-right: 1px" : "margin: 0"}}
