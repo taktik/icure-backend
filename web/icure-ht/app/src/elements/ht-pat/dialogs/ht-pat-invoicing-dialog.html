@@ -3036,15 +3036,11 @@
 
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
-                if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) {
-                        this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
-                        this.set('selectedInvoice.paymentType',"cash")
-                    }
-                    this.$['paymentCheckDialog'].open()
-                } else {
-                    this._validateAndPrepareInvoiceForBatchSending()
+                if (this.selectedInvoice) {
+                    this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
+                    this.set('selectedInvoice.paymentType',"cash")
                 }
+                this.$['paymentCheckDialog'].open()
             }
 
             _confirmPayment() {
@@ -4557,6 +4553,14 @@
                 return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'eattest'
             }
 
+            _isSelectedInvoiceEfact() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'efact'
+            }
+
+            _isSelectedInvoicePaper() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'paper'
+            }
+
             _isInvoiceClosedOrSelectedInvoiceEattest(){
                 return this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
             }
@@ -4607,11 +4611,21 @@
             }
 
             _isJustifButtonDisabled(){
-                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
+                if(!this.selectedInvoice || !this.selectedInvoice.invoicingCodes) {
+                    return false;
+                }
+                this.calculateTotalOfInvoice()
+                // return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && (this.isTarificationError || this.isTarificationMcnError)) || this.isNmclVerified)));
+                return this.isLoadingJustif || 
+                (  this._isSelectedInvoiceEattest() && !( this._invoiceDateIsToday() && this.npi )   ) || 
+                (  this._isSelectedInvoiceEfact()   && Number(this.totalInvoice.patientIntervention) <= 0 ) || 
+                (  this._isSelectedInvoicePaper()   && ( Number(this.totalInvoice.patientIntervention) <= 0 || Number(this.totalInvoice.reimbursement) <= 0 ) ) ||
+                !((!this.isNmclVerified && ( this.isTarificationError || this.isTarificationMcnError )) || this.isNmclVerified)
+                    // || ( !this._isSelectedInvoiceEattest() && !((!this.isNmclVerified && ( this.isTarificationError || this.isTarificationMcnError )) || this.isNmclVerified))
             }
 
             _switchBetweenMethodForJustifAndCreation(){
-                if(this._isSelectedInvoiceEattest()){
+                if(this._isSelectedInvoiceEattest() || (this._isSelectedInvoiceEfact() && Number(this.totalInvoice.patientIntervention) >= 0) || (this._isSelectedInvoicePaper() && (Number(this.totalInvoice.patientIntervention) >= 0 || Number(this.totalInvoice.reimbursement) <= 0))){
                     this._prevalidateAndPrepareInvoiceForBatchSending();
                 }
                 else{
