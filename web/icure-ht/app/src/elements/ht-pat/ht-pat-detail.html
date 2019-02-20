@@ -1376,12 +1376,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template is="dom-if" if="[[leftMenuOpen]]">
                 <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
             </template>
+            <paper-tooltip for="pat-close" position="right">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
             <div class="first-panel">
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
                         <paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
                             <paper-fab id="pat-close" class="btn-pat-close" mini icon="close" on-tap="close"></paper-fab>
-                            <paper-tooltip for="pat-close" position="left">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
