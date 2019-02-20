@@ -2477,14 +2477,14 @@
                     ib.ioFederationCode = OA;
                     ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportDate);
                     ib.sender = {};
-                    ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.bce;
-                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic;
-                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.iban;
+                    ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.cbe.replace(/[^\d]/g, '');
+                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(' ', '').replace('-', '');
+                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/[^\d]/g, '');
                     ib.sender.firstName = ''
                     ib.sender.lastName = this.flatRateInvoicingDataObject.hcpData.name;
                     ib.sender.nihii = this.flatRateInvoicingDataObject.hcpData.nihii;
-                    ib.sender.phoneNumber = this.flatRateInvoicingDataObject.hcpData.address.telecoms.select(tc => tc.telecomType = "phone").telecomNumber;
-                    ib.sender.ssin = ''; //not used
+                    ib.sender.phoneNumber = Number(this.flatRateInvoicingDataObject.hcpData.address.telecoms.filter(tc => tc.telecomType = "phone")[0].telecomNumber.replace(/[^\d]/g, ''));
+                    ib.sender.ssin = '72022102793'; //not used
                     ib.numericalRef = 0;//not used
                     ib.invoiceContent = 0;
                     ib.magneticInvoice = true;
@@ -2493,9 +2493,10 @@
                     let iNr = 1;
                     const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
-                    const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIs.includes(idt.insurabilities[0].insuranceId));
+                    const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
                     oaInvoicesData.map(idt => {
-                        invoices.push(this.getPatientInvoice(idt, iNr));
+                        const invoiceNr = ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
+                        invoices.push(this.getPatientInvoice(idt, invoiceNr, OA));
                         iNr++;
                     })
 
@@ -2503,13 +2504,19 @@
                     ib.invoices = invoices; //1 per patient
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
-                        return {oa:OA, file: flatRes};
-                    })
+                        return {oa:OA, file: flatRes, slip: "TODO", msg: ""};
+                    }).catch(err => {
+                        return {oa:OA, file: "", slip: "", msg: err}
+                    });
                 })).then(res => {
                     flatData.content = res;
                     return flatData;
                 })
                 //end loop OA
+            }
+
+            cleanNumericalString(str){
+                return str.replace(/[^\d]/g, '');
             }
 
             getUniqueSendNr(exportDate){
@@ -2520,27 +2527,30 @@
                 return exportDate.substr(3,3) + OA;
             }
 
-            getPatientInvoice(patientData, iNr){
+            getPatientInvoice(patientData, iNr, OA){
                 let inv = new fhcmodels.Invoice('');
                 inv.patient = {}
                 inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
+                inv.patient.ssin = patientData.ssin;
                 inv.patient.insurabilities = [];
                 let ins = new fhcmodels.Insurability('');
-                ins.insuranceCode = '120';
-                ins.parameters = {tc1 : '110', tc2 : '110'}
+                const patIns = patientData.insurabilities[0];
+                ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
+                ins.parameters = {tc1 : patIns.parameters.tc1 , tc2 : patIns.parameters.tc2};
                 inv.patient.insurabilities.push(ins);
-                inv.invoiceNumber = iNr;
-                inv.invoiceRef = iNr;
-                inv.ioCode = '100';
+                inv.invoiceNumber = Number(iNr);
+                patientData.invoiceNumber = iNr;
+                inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
+                inv.ioCode = OA;
                 inv.reason = 'Other';
-                inv.startOfCoveragePeriod= 19950101;
+                inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
                 _.forEach(patientData.invoices, invItm => {
                     _.forEach(invItm.invoicingCodes, invCd => {
                         let itm = new fhcmodels.InvoiceItem('');
                         itm.codeNomenclature = invCd.code;
-                        itm.dateCode = 20190201;
-                        itm.endDateCode = 20190228;
+                        itm.dateCode = invCd.dateCode;
+                        itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
                         itm.reimbursedAmount = invCd.reimbursement;
                         inv.items.push(itm);
                     })
@@ -2649,7 +2659,7 @@
                                 id: _.trim(_.get(this.hcp, "id")),
                                 name: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
                                 address: _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"work"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"home"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).head().value() || {},
-                                bce: _.trim(_.get(this.hcp, "bce", "")),
+                                cbe: _.trim(_.get(this.hcp, "cbe", "")),
                                 nihii: _.trim(_.get(this.hcp, "nihii", "")),
                                 nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
                                 contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
