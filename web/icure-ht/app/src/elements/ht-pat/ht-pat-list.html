@@ -876,46 +876,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: none;
                 }
 
-                .electron-notification-panel{
+                .e.eid-notification-panel{
                     position: fixed;
-                    top: 50%;
-                    right: 0;
-                    z-index: 1000;
-                    color: white;
+                    top: 84px;
+                    right: -264px;
+                    color: #fff;
                     font-size: 13px;
-                    height: 48px;
+                    height: 96px;
                     padding: 0 8px 0 12px;
                     border-radius: 3px 0 0 3px;
-                    width: 0;
+                    width: 208px;
                     opacity: 0;
-                    background: rgb(255,215,64);
-                }
-
-                @keyframes notificationAnim {
-                    0% {
-                        width: 0;
-                        opacity: 0;
-                    }
-                    10% {
-                        width: 160px;
-                        opacity: 1;
-                    }
-                    12% {
-                        width: 144px;
-                        opacity: 1;
-                    }
-                    88% {
-                        width: 144px;
-                        opacity: 1;
-                    }
-                    100% {
-                        width: 0;
-                        opacity: 0;
-                    }
+                    background: #ffd740;
+                    z-index: 1000;
+                    box-shadow: var(--app-shadow-elevation-1);
                 }
 
                 .notification {
-                    animation: notificationAnim 60.0s ease-in;
+                    opacity: 1;
+                    right: 16px;
+                    transition: all .5s ease-in;
                 }
 
             </style>
@@ -923,11 +903,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="container">
 
-            <paper-item id="eidOpenPatientMessage" class="electron-notification-panel">
+            <paper-item id="eidOpenPatientMessage" class="eid-notification-panel">
                 <iron-icon icon="vaadin:health-card"></iron-icon>
                 [[localize('open_pat_elect','Open patient',language)]]
             </paper-item>
-            <paper-item id="eidCreatePatientMessage" class="electron-notification-panel">
+            <paper-item id="eidCreatePatientMessage" class="eid-notification-panel">
                 <iron-icon icon="vaadin:health-card"></iron-icon>
                 [[localize('create_new_pat_elect','Create New Patient',language)]]
             </paper-item>
