@@ -287,7 +287,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-direction: row;
             }
 
-            #preferences {
+            #account {
                 flex-direction: row;
             }
 
@@ -300,7 +300,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: space-between;
             }
 
-            .preferences-line.one-line-menu {
+            .account-line.one-line-menu {
                 width: 100%;
                 justify-content: space-between;
             }
@@ -345,25 +345,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="usersManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:users"></iron-icon> [[localize('users','Users',language)]]
                     </paper-item>
+                    <!--
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="delegationsManagementSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegations',language)]]
                     </paper-item>
+                    -->
                 </paper-listbox>
             </collapse-button>
 
-            <collapse-button id="preferencecollapse">
-                <paper-item id="preferences" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_preference" elevation="">
-                    <div class="one-line-menu list-title preferences-line">
+            <collapse-button id="accountcollapse">
+                <paper-item id="account" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_account" elevation="">
+                    <div class="one-line-menu list-title account-line">
                         <div>
-                            <iron-icon icon="vaadin:sliders" class="force-left"></iron-icon>
-                            <span class="force-left force-ellipsis box-txt">[[localize('prefs','Preferences',language)]]</span>
+                            <iron-icon icon="vaadin:male" class="force-left"></iron-icon>
+                            <span class="force-left force-ellipsis box-txt">[[localize('my_pro','My profil',language)]]</span>
                         </div>
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
-                <paper-listbox id="preferencelist" class="menu-content sublist" selected="{{preferenceSelectionIndex}}" selected-item="{{preferenceSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item flex-start" id="preferences" data-submenu="preferencesSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:sliders"></iron-icon> [[localize('prefs','Preferences',language)]]
+                <paper-listbox id="accountlist" class="menu-content sublist" selected="{{accountSelectionIndex}}" selected-item="{{accountSelectionItem}}" selectable="paper-item">
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="edmgInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:folder-open"></iron-icon> [[localize('acc_edmg_info','Edmg informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="printersInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:print"></iron-icon> [[localize('acc_print_info','Printers',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="accountInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:info-circle"></iron-icon> [[localize('acc_info','Account informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="bankInformationsSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:institution"></iron-icon> [[localize('acc_bank_info','Bank informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="myDelegationsSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegation',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="preferencesSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:sliders"></iron-icon> [[localize('acc_prefs','Preferences',language)]]
                     </paper-item>
                 </paper-listbox>
             </collapse-button>
@@ -413,21 +430,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Number,
                         value: null
                     },
-                    managementSelectionItem:{
-                      type: Object,
-                      value: () => {}
-                    },
-                    preferenceSelectionIndex: {
-                        type: Number,
-                        value: null
-                    },
-                    preferenceSelectionItem: {
-                        type: Object,
-                        value: () => {}
-                    },
                     reportSelectionIndex:{
                         type: Number,
                         value: null
+                    },
+                    accountSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    managementSelectionItem:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    accountSelectionItem: {
+                        type: Object,
+                        value: () => {}
                     },
                     reportSelectionItem:{
                         type: Object,
@@ -437,7 +454,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_managementSelectionIndexChanged(managementSelectionIndex)', '_preferenceSelectionIndexChanged(preferenceSelectionIndex)', '_reportSelectionIndexChange(reportSelectionIndex)'];
+                return ['_managementSelectionIndexChanged(managementSelectionIndex)', '_accountSelectionIndexChanged(accountSelectionIndex)', '_reportSelectionIndexChanged(reportSelectionIndex)'];
             }
 
             constructor() {
@@ -455,55 +472,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'management', submenu: 'groupsManagementSubMenu'}}}));
 
                 //this.set('managementSelectionIndex', null)
-                this.set('preferenceSelectionIndex', null)
+                this.set('accountSelectionIndex', null)
                 this.set('reportSelectionIndex', null)
 
                 this.$.management.classList.add('iron-selected')
-                this.$.preferences.classList.remove('iron-selected')
+                this.$.account.classList.remove('iron-selected')
                 this.$.reports.classList.remove('iron-selected')
             }
 
-            _managementSelectionIndexChanged(){
-                if (this.managementSelectionIndex !== null && this.managementSelectionIndex !== undefined) {
-                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.managementSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
-
-                    //this.set('managementSelectionIndex', null)
-                    this.set('preferenceSelectionIndex', null)
-                    this.set('reportSelectionIndex', null)
-
-                    this.$.management.classList.remove('iron-selected')
-                    this.$.preferences.classList.remove('iron-selected')
-                    this.$.reports.classList.remove('iron-selected')
-                }
-            }
-
-            _preference(e){
+            _account(e){
                 e.stopPropagation()
                 e.preventDefault()
 
-                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'preference', submenu: 'preferencesSubMenu'}}}));
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'account', submenu: 'accountSubMenu'}}}));
 
                 this.set('managementSelectionIndex', null)
-                this.set('preferenceSelectionIndex', null)
+                //this.set('accountSelectionIndex', null)
                 this.set('reportSelectionIndex', null)
 
                 this.$.management.classList.remove('iron-selected')
-                this.$.preferences.classList.add('iron-selected')
+                this.$.account.classList.add('iron-selected')
                 this.$.reports.classList.remove('iron-selected')
-            }
-
-            _preferenceSelectionIndexChanged(){
-                if (this.preferenceSelectionIndex !== null && this.preferenceSelectionIndex !== undefined) {
-                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.preferenceSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
-
-                    this.set('managementSelectionIndex', null)
-                    this.set('preferenceSelectionIndex', null)
-                    this.set('reportSelectionIndex', null)
-
-                    this.$.management.classList.remove('iron-selected')
-                    this.$.preferences.classList.remove('iron-selected')
-                    this.$.reports.classList.remove('iron-selected')
-                }
             }
 
             _report(e){
@@ -513,24 +502,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'report', submenu: 'reportsSubMenu'}}}));
 
                 this.set('managementSelectionIndex', null)
-                this.set('preferenceSelectionIndex', null)
-                this.set('reportSelectionIndex', null)
+                this.set('accountSelectionIndex', null)
+                //this.set('reportSelectionIndex', null)
 
                 this.$.management.classList.remove('iron-selected')
-                this.$.preferences.classList.remove('iron-selected')
+                this.$.account.classList.remove('iron-selected')
                 this.$.reports.classList.add('iron-selected')
             }
 
-            _reportSelectionIndexChange(){
-                if (this.reportSelectionIndex !== null && this.reportSelectionIndex !== undefined) {
-                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.reportSelectionIndex.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
+            _managementSelectionIndexChanged(){
+                if (this.managementSelectionIndex !== null && this.managementSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.managementSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
 
-                    this.set('managementSelectionIndex', null)
-                    this.set('preferenceSelectionIndex', null)
+                    //this.set('managementSelectionIndex', null)
+                    this.set('accountSelectionIndex', null)
                     this.set('reportSelectionIndex', null)
 
                     this.$.management.classList.remove('iron-selected')
-                    this.$.preferences.classList.remove('iron-selected')
+                    this.$.account.classList.remove('iron-selected')
+                    this.$.reports.classList.remove('iron-selected')
+                }
+            }
+
+            _accountSelectionIndexChanged(){
+                if (this.accountSelectionIndex !== null && this.accountSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.accountSelectionItem.id, submenu: this.accountSelectionItem.dataset.submenu} } }));
+
+                    this.set('managementSelectionIndex', null)
+                   // this.set('accountSelectionIndex', null)
+                    this.set('reportSelectionIndex', null)
+
+                    this.$.management.classList.remove('iron-selected')
+                    this.$.account.classList.remove('iron-selected')
+                    this.$.reports.classList.remove('iron-selected')
+                }
+            }
+
+            _reportSelectionIndexChanged(){
+                if (this.reportSelectionIndex !== null && this.reportSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.reportSelectionItem.id, submenu: this.reportSelectionItem.dataset.submenu} } }));
+
+                    this.set('managementSelectionIndex', null)
+                    this.set('accountSelectionIndex', null)
+                    //this.set('reportSelectionIndex', null)
+
+                    this.$.management.classList.remove('iron-selected')
+                    this.$.account.classList.remove('iron-selected')
                     this.$.reports.classList.remove('iron-selected')
                 }
             }

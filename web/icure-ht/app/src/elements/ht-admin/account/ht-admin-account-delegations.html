@@ -7,7 +7,6 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -41,7 +40,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
 
-<dom-module id="ht-admin-management-delegations">
+
+<dom-module id="ht-admin-account-delegations">
 
     <template>
 
@@ -142,7 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
         <div class="delegations-panel">
-            <h4>[[localize('man_my_delg', 'Management - My delegations', language)]]</h4>
+            <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('deleg', 'My delegations', language)]]</h4>
 
             <vaadin-grid id="delegationList" class="material" items="[[listOfDelegations]]">
                 <vaadin-grid-column>
@@ -188,9 +188,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
 
-        class HtAdminManagementDelegations extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class HtAdminAccountDelegations extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
-                return 'ht-admin-management-delegations'
+                return 'ht-admin-account-delegations'
             }
 
             static get properties() {
@@ -224,7 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _getDelegationOfUser(){
                 this.set('listOfDelegations', [])
-
                 const delegationsKeys = Object.keys(this.user.autoDelegations)
 
                 if(delegationsKeys && delegationsKeys.length > 0){
@@ -238,6 +237,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }
 
-        customElements.define(HtAdminManagementDelegations.is, HtAdminManagementDelegations)
+        customElements.define(HtAdminAccountDelegations.is, HtAdminAccountDelegations)
     </script>
 </dom-module>
