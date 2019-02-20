@@ -649,7 +649,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-body">
 							<div class="card-table-header row">
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patientName">[[localize('pat_ident','Patient',language)]]</div>
 								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('sender','sender',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
