@@ -2472,26 +2472,34 @@
                     let ib  = new fhcmodels.InvoicesBatch('');
                     ib.invoicingYear = this.flatRateInvoicingDataObject.exportDate.substr(0,4);
                     ib.invoicingMonth = this.flatRateInvoicingDataObject.exportDate.substr(4,2);
-                    ib.fileRef = '902f';
-                    ib.batchRef = '902b';
-                    ib.ioFederationCode = '100';
-                    ib.uniqueSendNumber = 1;
+                    ib.fileRef = 'xxx';//not used
+                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportDate, OA);
+                    ib.ioFederationCode = OA;
+                    ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportDate);
                     ib.sender = {};
-                    ib.sender.bce = '123456789';
-                    ib.sender.bic = 'GEBEBAB';
+                    ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.bce;
+                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic;
+                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.iban;
                     ib.sender.firstName = ''
-                    ib.sender.lastName = 'WGC Botermarkt';
-                    ib.sender.nihii = '12345678111';
-                    ib.sender.phoneNumber = '091234567';
-                    ib.sender.ssin = '72022102793';
-                    ib.sender.iban = 'BE540011234512';
-                    ib.numericalRef = 2;
+                    ib.sender.lastName = this.flatRateInvoicingDataObject.hcpData.name;
+                    ib.sender.nihii = this.flatRateInvoicingDataObject.hcpData.nihii;
+                    ib.sender.phoneNumber = this.flatRateInvoicingDataObject.hcpData.address.telecoms.select(tc => tc.telecomType = "phone").telecomNumber;
+                    ib.sender.ssin = ''; //not used
+                    ib.numericalRef = 0;//not used
                     ib.invoiceContent = 0;
                     ib.magneticInvoice = true;
                     let invoices = []
                     //loop patients of OA
                     let iNr = 1;
-                    invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
+                    const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
+                    const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
+                    const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIs.includes(idt.insurabilities[0].insuranceId));
+                    oaInvoicesData.map(idt => {
+                        invoices.push(this.getPatientInvoice(idt, iNr));
+                        iNr++;
+                    })
+
+                    //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
                     ib.invoices = invoices; //1 per patient
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
@@ -2502,6 +2510,14 @@
                     return flatData;
                 })
                 //end loop OA
+            }
+
+            getUniqueSendNr(exportDate){
+                return exportDate.substr(3,3);
+            }
+
+            getBatchRef(exportDate, OA){
+                return exportDate.substr(3,3) + OA;
             }
 
             getPatientInvoice(patientData, iNr){
@@ -2633,6 +2649,7 @@
                                 id: _.trim(_.get(this.hcp, "id")),
                                 name: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
                                 address: _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"work"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"home"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).head().value() || {},
+                                bce: _.trim(_.get(this.hcp, "bce", "")),
                                 nihii: _.trim(_.get(this.hcp, "nihii", "")),
                                 nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
                                 contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
