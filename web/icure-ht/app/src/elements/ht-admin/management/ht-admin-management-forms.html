@@ -336,7 +336,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('tabs',tab>0?tab:0)
 
                             let mirror = CodeMirror.fromTextArea(this.$['formData'], {
-                                value: this.selectedFormData.formDataAsString,
+                                //value: this.selectedFormData.formDataAsString,
+                                value: 'test',
                                 mode: 'javascript',
                                 json: true,
                                 readOnly: true,
