@@ -2944,11 +2944,13 @@
                             this._getExportPdfFooter();
 
                         return {
-                            pdfTemplate: pdfTemplate,
                             oaId: _.trim(oaData.oa.id),
-                            totalPages: parseInt(totalPages),
                             invoiceIds: _.compact( _.map( _.flatMap( oaData.entries ), i =>_.trim(_.get(i, "invoices[0].id", "")) )),
-                            totalAmount: totalAmount
+                            totalAmount: totalAmount,
+                            pdf: {
+                                template: pdfTemplate,
+                                totalPages: parseInt(totalPages)
+                            }
                         }
 
                     })
@@ -3214,30 +3216,24 @@
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
-
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
                         return this._generateJ20FlatFiles().then(x=>x)
                     })
                     .then(flatObject=>{
                         this.flatRateInvoicingDataObject.flatFileContent = flatObject.content
-
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
-
-                        // TO DO: insert new prom here to generate flatfiles & slips, only then generate PDFS
-                        // TO DO: update loading messages
-
                         return this._generateJ20PdfTemplateObjects().then(x=>x)
                     })
                     .then(pdfTemplateObjects=>{
-                        return Promise.all(pdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.pdfTemplate, {})).then(x=>_.merge(singlePdfFileObject, {pdfFileContent:x.pdf})) ))
+                        return Promise.all(pdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.pdf.template, {})).then(x=>_.merge(singlePdfFileObject, {pdf:{fileContent:x.pdf}})) ))
                     })
                     .then(generatedPdfFiles=>{
 
                         this.flatRateInvoicingDataObject.generatedFiles = _.map(generatedPdfFiles,i=>{
-                            delete(i.pdfTemplate);
-                            i.pdfDownloadFileName = _.kebabCase(_.compact([
+                            try{ delete(i.pdf.template); } catch(e){}
+                            i.pdf.downloadFileName = _.kebabCase(_.compact([
                                 moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
                                 "medical house invoicing export pdf oa",
                                 _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.insurancesData, {id:i.oaId}), "[0].code" )),
@@ -3255,8 +3251,8 @@
                                         recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
                                         recipientsType: "org.taktik.icure.entities.HealthcareParty",
                                         metas: {
-                                            totalPages: parseInt(singlePdfFileObject.totalPages),
-                                            filename: _.trim(singlePdfFileObject.pdfDownloadFileName),
+                                            totalPages: parseInt(singlePdfFileObject.pdf.totalPages),
+                                            filename: _.trim(singlePdfFileObject.pdf.downloadFileName),
                                             totalInvoices: parseInt(_.size(singlePdfFileObject.invoiceIds)),
                                             exportDate: parseInt(this.flatRateInvoicingDataObject.exportDate),
                                             totalAmount: singlePdfFileObject.totalAmount,
@@ -3269,12 +3265,12 @@
                                     }))
                                 )
                                 .then(createdMessage => {
-                                    _.merge(singlePdfFileObject, {pdfMessageId:createdMessage.id})
-                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.pdfDownloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                    _.merge(singlePdfFileObject, {pdf:{messageId:createdMessage.id}})
+                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.pdf.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
                                 })
                                 .then(createdDocument => {
-                                    _.merge(singlePdfFileObject, {pdfDocumentId:createdDocument.id})
-                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                    _.merge(singlePdfFileObject, {pdf:{documentId:createdDocument.id}})
+                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.pdf.fileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                                 })
                                 .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
                         })).then(x=>x)
@@ -3282,9 +3278,7 @@
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
-
                         // this.api.triggerFileDownload( this.flatRateInvoicingDataObject.pdfFileContent, "application/pdf", this.flatRateInvoicingDataObject.pdfDownloadFileName )
-
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(()=>{

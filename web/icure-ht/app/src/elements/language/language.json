@@ -2130,9 +2130,11 @@
     "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
     "mhInvoicing.spinner.step_5": "Création des fichiers PDF...",
     "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers PDF",
-
     "mhInvoicing.spinner.step_6": "Archivage des fichiers...",
-    "mhInvoicing.spinner.step_done": "Fin de l'archivage des fichiers"
+    "mhInvoicing.spinner.step_done": "Fin de l'archivage des fichiers",
+    "mhInvoicing.spinner.step_6_done" : "",
+    "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
+    "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables"
 
 
 
