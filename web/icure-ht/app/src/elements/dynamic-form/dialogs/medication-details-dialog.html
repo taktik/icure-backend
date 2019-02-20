@@ -409,6 +409,14 @@
                 position: absolute;
                 right: 0;
                 padding-top: 36px;
+                transition: .5s ease;
+                transform-origin: top;
+            }
+            .add-col .btn-dropdown-container.visible-false {
+                transform: scaleY(0);
+            }
+            .add-col .btn-dropdown-container.visible-true {
+                transform: scaleY(1);
             }
 
             #custom paper-input-container{
@@ -572,8 +580,7 @@
                         </div>
                                 <h4>[[localize('pos','Posology',language)]]</h4>
                                 <div class="add-col">
-                                    <template is="dom-if" if="[[openAddColDropDown]]">
-                                        <paper-listbox id="dayListbox" class="btn-dropdown-container" slot="dropdown-content" selected="[[tempColToAdd]]"  on-selected-changed="_addCustomDayPeriod" attr-for-selected="id">
+                                        <paper-listbox id="dayListbox" class$="btn-dropdown-container visible-[[openAddColDropDown]]" slot="dropdown-content" selected="[[tempColToAdd]]"  on-selected-changed="_addCustomDayPeriod" attr-for-selected="id">
                                             <paper-item class="timeOfDay" id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
                                             <paper-item class="timeOfDay" id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
                                             <paper-item class="timeOfDay" id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
@@ -591,7 +598,6 @@
                                                 </div>
                                             </paper-item>
                                         </paper-listbox>
-                                    </template>
                                     <paper-icon-button id="add-take" icon="add" on-tap="_toggleColDropDown"></paper-icon-button>
                                 </div>
                                 <vaadin-grid id="selectedMedicationTable" data-provider="[[_regimenTableDataProvider('daily', selectedMedicationContentWithId)]]" indexAs="index">
