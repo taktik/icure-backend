@@ -1,0 +1,417 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
+
+
+<dom-module id="ht-admin-management-users">
+
+    <template>
+
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            :host *:focus{
+                outline:0!important;
+            }
+
+            .users-panel{
+                height: 100%;
+                width: 100%;
+                padding: 0 20px;
+                box-sizing: border-box;
+                position:relative;
+            }
+
+            #activeUsersListDiv{
+                height: 25%;
+            }
+
+            #inactiveUsersListDiv{
+                height: 25%;
+            }
+
+            #userInformationDialog{
+                height: 500px;
+                width: 900px;
+            }
+
+            .line {
+                display: flex;
+            }
+            .line.p8 {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+            .line.p16 {
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
+            .line > * {
+                flex-grow: 1;
+            }
+            .line > *.no-grow {
+                flex-grow: 0;
+            }
+            .line > *.w50 {
+                width: 50px;
+            }
+            .line > *.w100 {
+                width: 100px;
+            }
+            .line > *.w150 {
+                width: 150px;
+            }
+            .line > *.grow-3 {
+                flex-grow: 3;
+            }
+
+            .line span.lang {
+                padding-top: 20px;
+                width: 80px !important;
+            }
+
+            .marginRight10 {
+                margin-right:10px;
+            }
+
+            @media screen and (max-width: 1024px) {
+                .nomobile {
+                    display: none;
+                }
+                .onlymobile {
+                    display: block;
+                }
+            }
+
+            .user-panel .panel-content {
+                padding: 0 12px;
+                overflow: hidden;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+                height: 400px;
+                overflow-y: auto;
+            }
+
+            paper-tabs {
+                background: var(--app-background-color);
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+                --paper-tabs: {
+                    color: var(--app-text-color);
+                };
+            }
+
+            paper-tab {
+                --paper-tab-ink: var(--app-text-color);
+            }
+
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
+
+            paper-tab.iron-selected iron-icon{
+                opacity: 1;
+            }
+
+            paper-tab iron-icon{
+                opacity: 0.5;
+                color: var(--app-text-color);
+            }
+
+            .user-panel {
+                height:100%;
+                background: var(--app-background-color);
+                margin: 0;
+                width:100%;
+                grid-column: 2 / 4;
+                /*grid-template-columns: 40px 200px 200px 40px;*/
+                grid-row: 1 / 1;
+            }
+
+        </style>
+
+        <div class="users-panel">
+            <h4>[[localize('man_usr', 'Management - Users', language)]]</h4>
+
+            <div id="activeUsersListDiv">
+                <h4>[[localize('usr_act', 'Active users', language)]]</h4>
+                <vaadin-grid id="activeUsersList" class="material" items="[[listOfActiveUsers]]" active-item="{{selectedUser}}">
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('Id','Id',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.healthcarePartyId]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('name','Name',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.name]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('login','Login',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.login]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('crea_date','Create date',language)]]
+                        </template>
+                        <template>
+                            <div>[[_getDateAsString(item.createdDate)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+
+            <div id="inactiveUsersListDiv">
+                <h4>[[localize('usr_in', 'inactive users', language)]]</h4>
+                <vaadin-grid id="inactiveUsersList" class="material" items="[[listOfInactiveUsers]]" active-item="{{selectedUser}}">
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('Id','Id',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.healthcarePartyId]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('name','Name',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.name]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('login','Login',language)]]
+                        </template>
+                        <template>
+                            <div>[[item.login]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            [[localize('crea_date','Create date',language)]]
+                        </template>
+                        <template>
+                            <div>[[_getDateAsString(item.createdDate)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+
+        </div>
+
+        <paper-dialog id="userInformationDialog">
+            <div class="user-panel">
+                <paper-tabs selected="{{tabs}}">
+                    <paper-tab id="tab-userInformation" class="adm-tab"><iron-icon icon="vaadin:user" class="marginRight10"></iron-icon><span class="nomobile">[[localize('user_info','User informations',language)]]</span></paper-tab>
+                    <paper-tab id="tab-delegations" class="adm-tab"><iron-icon icon="vaadin:key" class="marginRight10"></iron-icon><span class="nomobile">[[localize('usr_deleg','User delegations',language)]]</span></paper-tab>
+                </paper-tabs>
+
+                <iron-pages selected="[[tabs]]" class="panel-content">
+                    <page>
+                        <div class="line">
+                            <paper-input label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
+                            <paper-input label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
+                        </div>
+                        <div class="line">
+                            <paper-input label="[[localize('first_name', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
+                            <paper-input label="[[localize('last_name', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
+                        </div>
+                        <div class="line">
+                            <paper-dropdown-menu label="[[localize('stat','Status',language)]]">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" on-selected-changed="_selectedUserStatusChanged">
+                                    <paper-item id="ACTIVE">[[localize('active','Active',language)]]</paper-item>
+                                    <paper-item id="DISABLED">[[localize('disabled','Disabled',language)]]</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                        </div>
+                    </page>
+                    <page>
+                        <vaadin-grid id="delegationList" class="material" items="[[selectedUserlistOfDelegations]]">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('deleg_first_name','Name',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.firstName]] [[item.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('deleg_user_type','User type',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.type]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('deleg_type','Delegation type',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.delegationType]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    [[localize('Id','Id',language)]]
+                                </template>
+                                <template>
+                                    <div>[[item.id]]</div>
+                                </template>
+                            </vaadin-grid-column>
+
+                        </vaadin-grid>
+                    </page>
+                </iron-pages>
+                <div class="buttons">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                </div>
+            </div>
+        </paper-dialog>
+
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+
+        class HtAdminManagementUsers extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-admin-management-users'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        noReset: true
+                    },
+                    user: {
+                        type: Object,
+                        noReset: true
+                    },
+                    listOfActiveUsers:{
+                        type: Object,
+                        value: () => []
+                    },
+                    listOfInactiveUsers:{
+                        type: Object,
+                        value: () => []
+                    },
+                    selectedUser: {
+                        type: Object,
+                        value: () => {}
+                    },
+                    selectedUserHcp:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    tabs: {
+                        type: Number,
+                        value: 0
+                    },
+                    selectedUserlistOfDelegations:{
+                        type: Object,
+                        value: () => []
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['_usersDataProvider(user)', '_selectedUserChanged(selectedUser)'];
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            _usersDataProvider(){
+                this.api.user().listUsers().then(users => {
+                    this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
+                    this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
+                })
+            }
+
+            _selectedUserChanged(){
+                if(this.selectedUser && this.selectedUser.healthcarePartyId){
+                    this.set('selectedUserlistOfDelegations', [])
+                    this.set('selectedUserHcp', {})
+                    this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId).then(hcp => this.set('selectedUserHcp', hcp))
+                        .then(() => Object.keys(this.selectedUser.autoDelegations).length > 0 ? this.api.hcparty().getHealthcareParties(_(_.flatten(Object.keys(this.selectedUser.autoDelegations).map(key => this.selectedUser.autoDelegations[key]))).uniq().value().map(del => del).join(',')) : Promise.resolve([]))
+                        .then(delegatesHcp => {
+                            Object.keys(this.selectedUser.autoDelegations).forEach(key => {
+                                this.selectedUser.autoDelegations[key].map(hcp => this.push('selectedUserlistOfDelegations', _.assign((delegatesHcp.find(dhcp => hcp === dhcp.id)), {delegationType: key})))
+                            })
+                        })
+                        .finally(() => {
+                            this.$['userInformationDialog'].open()
+                            this.set('tabs',tab>0?tab:0)
+                        })
+                }
+            }
+
+            _getDateAsString(date){
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : null
+            }
+
+        }
+
+        customElements.define(HtAdminManagementUsers.is, HtAdminManagementUsers)
+    </script>
+</dom-module>
