@@ -413,21 +413,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Number,
                         value: null
                     },
-                    managementSelectionItem:{
-                      type: Object,
-                      value: () => {}
+                    reportSelectionIndex:{
+                        type: Number,
+                        value: null
                     },
                     preferenceSelectionIndex: {
                         type: Number,
                         value: null
                     },
-                    preferenceSelectionItem: {
+                    managementSelectionItem:{
                         type: Object,
                         value: () => {}
                     },
-                    reportSelectionIndex:{
-                        type: Number,
-                        value: null
+                    preferenceSelectionItem: {
+                        type: Object,
+                        value: () => {}
                     },
                     reportSelectionItem:{
                         type: Object,
@@ -437,7 +437,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_managementSelectionIndexChanged(managementSelectionIndex)', '_preferenceSelectionIndexChanged(preferenceSelectionIndex)', '_reportSelectionIndexChange(reportSelectionIndex)'];
+                return ['_managementSelectionIndexChanged(managementSelectionIndex)', '_preferenceSelectionIndexChanged(preferenceSelectionIndex)', '_reportSelectionIndexChanged(reportSelectionIndex)'];
             }
 
             constructor() {
@@ -463,6 +463,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$.reports.classList.remove('iron-selected')
             }
 
+            _preference(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'preference', submenu: 'preferencesSubMenu'}}}));
+
+                this.set('managementSelectionIndex', null)
+                //this.set('preferenceSelectionIndex', null)
+                this.set('reportSelectionIndex', null)
+
+                this.$.management.classList.remove('iron-selected')
+                this.$.preferences.classList.add('iron-selected')
+                this.$.reports.classList.remove('iron-selected')
+            }
+
+            _report(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'report', submenu: 'reportsSubMenu'}}}));
+
+                this.set('managementSelectionIndex', null)
+                this.set('preferenceSelectionIndex', null)
+                //this.set('reportSelectionIndex', null)
+
+                this.$.management.classList.remove('iron-selected')
+                this.$.preferences.classList.remove('iron-selected')
+                this.$.reports.classList.add('iron-selected')
+            }
+
             _managementSelectionIndexChanged(){
                 if (this.managementSelectionIndex !== null && this.managementSelectionIndex !== undefined) {
                     this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.managementSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
@@ -477,27 +507,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            _preference(e){
-                e.stopPropagation()
-                e.preventDefault()
-
-                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'preference', submenu: 'preferencesSubMenu'}}}));
-
-                this.set('managementSelectionIndex', null)
-                this.set('preferenceSelectionIndex', null)
-                this.set('reportSelectionIndex', null)
-
-                this.$.management.classList.remove('iron-selected')
-                this.$.preferences.classList.add('iron-selected')
-                this.$.reports.classList.remove('iron-selected')
-            }
-
             _preferenceSelectionIndexChanged(){
                 if (this.preferenceSelectionIndex !== null && this.preferenceSelectionIndex !== undefined) {
-                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.preferenceSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.preferenceSelectionItem.id, submenu: this.preferenceSelectionItem.dataset.submenu} } }));
 
                     this.set('managementSelectionIndex', null)
-                    this.set('preferenceSelectionIndex', null)
+                   // this.set('preferenceSelectionIndex', null)
                     this.set('reportSelectionIndex', null)
 
                     this.$.management.classList.remove('iron-selected')
@@ -506,28 +521,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            _report(e){
-                e.stopPropagation()
-                e.preventDefault()
-
-                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'report', submenu: 'reportsSubMenu'}}}));
-
-                this.set('managementSelectionIndex', null)
-                this.set('preferenceSelectionIndex', null)
-                this.set('reportSelectionIndex', null)
-
-                this.$.management.classList.remove('iron-selected')
-                this.$.preferences.classList.remove('iron-selected')
-                this.$.reports.classList.add('iron-selected')
-            }
-
-            _reportSelectionIndexChange(){
+            _reportSelectionIndexChanged(){
                 if (this.reportSelectionIndex !== null && this.reportSelectionIndex !== undefined) {
-                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.reportSelectionIndex.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.reportSelectionItem.id, submenu: this.reportSelectionItem.dataset.submenu} } }));
 
                     this.set('managementSelectionIndex', null)
                     this.set('preferenceSelectionIndex', null)
-                    this.set('reportSelectionIndex', null)
+                    //this.set('reportSelectionIndex', null)
 
                     this.$.management.classList.remove('iron-selected')
                     this.$.preferences.classList.remove('iron-selected')

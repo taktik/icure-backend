@@ -734,6 +734,16 @@
                 .then(() => true)
                 .catch(() => false)
         }
+
+        _powRoundFloatByPrecision(inputNumber,decimalPlaces){
+            return parseFloat(Math.round(parseFloat(inputNumber) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+        }
+
+
+        hrFormatNumber(inputNumber) {
+            return parseFloat( _.trim(inputNumber).replace(',','.') ).toLocaleString("de-DE", {maximumFractionDigits:2, minimumFractionDigits:2})
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
