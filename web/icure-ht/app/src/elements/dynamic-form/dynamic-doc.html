@@ -255,6 +255,12 @@
                         [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                     </paper-button>
                 </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
+                </template>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -274,12 +280,6 @@
                         <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
                         <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
                     </template>
-                </template>
-                <template is="dom-if" if="[[downloadable]]">
-                    <hr/>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
                 </template>
             </paper-card>
         </template>
@@ -394,31 +394,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _downloadAnnex(e){
         const url = this.dataUrl
         console.log('doc',this.document)
-        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)+';base64' :
+        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) :
             this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'application/xml' :
-            'text/plain;charset=utf-8'
+            'text/plain'
 
         let request = new XMLHttpRequest()
         request.onreadystatechange = (()=> {
             if (request.readyState === 4) {
-                console.log('curl',request.response); // Par défault une DOMString
-                const imgType = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) || null
-                let res = request.response
-                if (type !== imgType) { // TODO : format image
-
-                    let a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
-
-                    a.setAttribute('href', `data:${type},` + encodeURIComponent(res));
-                    a.download = this.document.name;
-
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }
+                this.api.triggerFileDownload(request.response,type,this.document.name)
+                window.URL.revokeObjectURL(url);
             }
         })
         request.open('GET', url, true)
+        if (type === this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)) request.overrideMimeType('plain/text;charset=ANSI')
         request.send('')
     }
 
