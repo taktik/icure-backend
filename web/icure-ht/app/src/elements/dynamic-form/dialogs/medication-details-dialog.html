@@ -386,11 +386,9 @@
                 position: relative;
             }
 
-            #dayListbox {
-                margin-right: 16px;
-            }
             #add-take {
                 right: 0;
+                z-index: 10;
             }
 
             paper-tab span{
@@ -408,7 +406,9 @@
                 right: 0;
             }
             .add-col .btn-dropdown-container {
-                position: initial;
+                position: absolute;
+                right: 0;
+                padding-top: 36px;
             }
 
             #custom paper-input-container{
@@ -419,6 +419,18 @@
                     outline: 0;
                 };
                 max-width: 64px;
+            }
+
+            #add-take {
+                transition: .25s ease-out;
+            }
+            .rotate-icon {
+                transform: rotate(-225deg);
+            }
+
+            .timeOfDay:hover {
+                cursor: pointer;
+                background: var(--app-background-color-dark);
             }
 
             #custom paper-input-container input{
@@ -562,9 +574,9 @@
                                 <div class="add-col">
                                     <template is="dom-if" if="[[openAddColDropDown]]">
                                         <paper-listbox id="dayListbox" class="btn-dropdown-container" slot="dropdown-content" selected="[[tempColToAdd]]"  on-selected-changed="_addCustomDayPeriod" attr-for-selected="id">
-                                            <paper-item id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
-                                            <paper-item id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
-                                            <paper-item id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
+                                            <paper-item class="timeOfDay" id="morning" on-tap="" data-item="daily">[[localize('ms_morning','morning',language)]]</paper-item>
+                                            <paper-item class="timeOfDay" id="evening" on-tap="" data-item="weekly">[[localize('ms_evening','evening',language)]]</paper-item>
+                                            <paper-item class="timeOfDay" id="night" on-tap="" data-item="monthly">[[localize('ms_night','night',language)]]</paper-item>
                                             <paper-item id="custom" data-item="monthly" on-tap="_ignoreEvent">
                                                 <div class="custom-time">
                                                     <div>
@@ -720,7 +732,7 @@
 
                         <div class="regimen-line display-type-regimen">
                             <paper-input-container always-float-label="true" class="comment">
-                                <label slot="label" class="color-status">[[localize('posology','Posology',language)]]</label>
+                                <label slot="label" class="color-status">[[localize('pos','Posology',language)]]</label>
                                 <iron-autogrow-textarea class="paper-input-input" slot="input" value="{{posologyString}}"></iron-autogrow-textarea>
                             </paper-input-container>
                         </div>
@@ -906,6 +918,11 @@
             }
 
             _toggleColDropDown() {
+                if (!this.root.querySelector('#add-take').classList.contains('rotate-icon')) {
+                    this.root.querySelector('#add-take').classList.add('rotate-icon')
+                } else {
+                    this.root.querySelector('#add-take').classList.remove('rotate-icon')
+                }
                 this.set('openAddColDropDown',!this.openAddColDropDown)
             }
 
@@ -1083,6 +1100,7 @@
             }
 
             _addCustomDayPeriod(event) {
+                this.root.querySelector('#add-take').classList.remove('rotate-icon')
                 let medicationValue = this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.medicationValue
                 if (medicationValue && medicationValue.regimen && !medicationValue.regimen.some(r => r.frequency === 'daily'
                     && (r.dayPeriod && event.detail.value && r.dayPeriod.code === event.detail.value || event.target.id === 'add-custom-time' && this.customTime && r.timeOfDay === this.customTime))) {
