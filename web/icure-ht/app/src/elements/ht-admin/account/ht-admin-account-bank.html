@@ -1,0 +1,216 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
+
+
+<dom-module id="ht-admin-account-bank">
+
+    <template>
+
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            :host *:focus{
+                outline:0!important;
+            }
+
+            .users-panel{
+                height: 100%;
+                width: 100%;
+                padding: 0 20px;
+                box-sizing: border-box;
+                position:relative;
+            }
+
+            #activeUsersListDiv{
+                height: 25%;
+            }
+
+            #inactiveUsersListDiv{
+                height: 25%;
+            }
+
+            #userInformationDialog{
+                height: 500px;
+                width: 900px;
+            }
+
+            .line {
+                display: flex;
+            }
+            .line.p8 {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+            .line.p16 {
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
+            .line > * {
+                flex-grow: 1;
+            }
+            .line > *.no-grow {
+                flex-grow: 0;
+            }
+            .line > *.w50 {
+                width: 50px;
+            }
+            .line > *.w100 {
+                width: 100px;
+            }
+            .line > *.w150 {
+                width: 150px;
+            }
+            .line > *.grow-3 {
+                flex-grow: 3;
+            }
+
+            .line span.lang {
+                padding-top: 20px;
+                width: 80px !important;
+            }
+
+            .marginRight10 {
+                margin-right:10px;
+            }
+
+            @media screen and (max-width: 1024px) {
+                .nomobile {
+                    display: none;
+                }
+                .onlymobile {
+                    display: block;
+                }
+            }
+
+            .user-panel .panel-content {
+                padding: 0 12px;
+                overflow: hidden;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+                height: 400px;
+                overflow-y: auto;
+            }
+
+            paper-tabs {
+                background: var(--app-background-color);
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+                --paper-tabs: {
+                    color: var(--app-text-color);
+                };
+            }
+
+            paper-tab {
+                --paper-tab-ink: var(--app-text-color);
+            }
+
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
+
+            paper-tab.iron-selected iron-icon{
+                opacity: 1;
+            }
+
+            paper-tab iron-icon{
+                opacity: 0.5;
+                color: var(--app-text-color);
+            }
+
+            .user-panel {
+                height:100%;
+                background: var(--app-background-color);
+                margin: 0;
+                width:100%;
+                grid-column: 2 / 4;
+                /*grid-template-columns: 40px 200px 200px 40px;*/
+                grid-row: 1 / 1;
+            }
+
+        </style>
+
+        <div class="users-panel">
+            <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_bank_info', 'Bank informations', language)]]</h4>
+        </div>
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+
+        class HtAdminAccountBank extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-admin-account-bank'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        noReset: true
+                    },
+                    user: {
+                        type: Object,
+                        noReset: true
+                    }
+                }
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+        }
+
+        customElements.define(HtAdminAccountBank.is, HtAdminAccountBank)
+    </script>
+</dom-module>

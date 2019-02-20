@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-admin/ht-admin-menu.html">
 
 <link rel="import" href="elements/ht-admin/ht-admin-management.html">
-<link rel="import" href="elements/ht-admin/ht-admin-preferences.html">
+<link rel="import" href="elements/ht-admin/ht-admin-account.html">
 <link rel="import" href="elements/ht-admin/ht-admin-reports.html">
 <link rel="import" href="elements/ht-admin/ht-admin-menu.html">
 
@@ -167,8 +167,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ht-admin-management id="admin-management" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-management>
             </template>
 
-            <template is="dom-if" if="[[preferencesLayout]]">
-                <ht-admin-preferences id="admin-preferences" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-preferences>
+            <template is="dom-if" if="[[accountLayout]]">
+                <ht-admin-account id="admin-account" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-sub-menu="[[selectedSubMenu]]"></ht-admin-account>
             </template>
 
             <template is="dom-if" if="[[reportsLayout]]">
@@ -205,7 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value : false
                     },
-                    preferencesLayout:{
+                    accountLayout:{
                         type: Boolean,
                         value : false
                     },
@@ -237,15 +237,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 if (e.detail && e.detail.selection.item === 'management') {
                     this.set('managementLayout', true)
-                    this.set('preferencesLayout', false)
+                    this.set('accountLayout', false)
                     this.set('reportsLayout', false)
-                }else if (e.detail && e.detail.selection.item === 'preference'){
+                }else if (e.detail && e.detail.selection.item === 'account'){
                     this.set('managementLayout', false)
-                    this.set('preferencesLayout', true)
+                    this.set('accountLayout', true)
                     this.set('reportsLayout', false)
                 }else if(e.detail && e.detail.selection.item === 'reports'){
                     this.set('managementLayout', false)
-                    this.set('preferencesLayout', false)
+                    this.set('accountLayout', false)
                     this.set('reportsLayout', true)
                 }
 
