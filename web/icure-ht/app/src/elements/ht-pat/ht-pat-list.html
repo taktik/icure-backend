@@ -906,10 +906,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-item id="eidOpenPatientMessage" class="eid-notification-panel">
                 <iron-icon icon="vaadin:health-card"></iron-icon>
                 [[localize('open_pat_elect','Open patient',language)]]
+                <div>
+                    <vaadin-grid id="eid-patients-list" class="material" items="[[eidPatientsList]]"
+                                 on-tap="clickOnRow" active-item="{{activeItem}}">
+                        <vaadin-grid-column flex-grow="0" width="5%">
+                            <template class="header">
+                                <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+                            </template>
+                            <template>
+                                <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="20%">
+                            <template class="header">
+                                <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[item.lastName]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="20%">
+                            <template class="header">
+                                <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[item.firstName]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </div>
             </paper-item>
             <paper-item id="eidCreatePatientMessage" class="eid-notification-panel">
                 <iron-icon icon="vaadin:health-card"></iron-icon>
-                [[localize('create_new_pat_elect','Create New Patient',language)]]
+                [[localize('create_new_pat_elect','Create New Patient ?',language)]]
+                <div>
+                    <paper-icon-button icon="check" on-tap="confirm"></paper-icon-button>
+                    <paper-icon-button icon="cancel" on-tap="closeAnim"></paper-icon-button>
+                </div>
             </paper-item>
 
             <div class="second-filter-panel">
@@ -1791,6 +1826,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     hasNotificationEidMessage : {
                         type : Number,
                         value : 0
+                    },
+                    eidPatientsList : {
+                        type : Array,
+                        value : []
                     }
                 }
             }
@@ -3321,6 +3360,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.patient().filterByWithUser(this.user, null, null, 1000, 0, 'lastName', 'asc', {filter: filter})
                         .then(patients =>{
                             if(patients.rows.length){
+                                this.set("eidPatientsList",patients.rows)
                                 this.$['eidOpenPatientMessage'].classList.add('notification');
                                 this.set("hasNotificationEidMessage",1)
                                 setTimeout(() => {
