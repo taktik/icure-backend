@@ -879,8 +879,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _sortList(e) {
-	    const list = e.target.getAttribute('list')
-        const sort = e.target.getAttribute('sort')
+        const list = e && e.target && e.target.getAttribute('list') || ''
+        const sort = e && e.target && e.target.getAttribute('sort') || ''
         const target =
             list == 'accessLogs' ? this.accessLogs :
             list == 'appointments' ? this.appointments :
