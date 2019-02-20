@@ -3633,16 +3633,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(!this.hubSupportsConsent){
                     this.$.hubStatus.classList.add('accessOk');
                 } else {
-                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
-                    this._getHubHcpConsent().then(consentResp => {
-                            if (consentResp) {
-                                this.set('hcpHubConsent', consentResp)
-                                hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
-                                this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-                                Polymer.updateStyles(this.$.hubStatus)
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error)).then(() => {
+                        this._getHubHcpConsent().then(consentResp => {
+                                if (consentResp) {
+                                    this.set('hcpHubConsent', consentResp)
+                                    hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
+                                    this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
+                                    Polymer.updateStyles(this.$.hubStatus)
+                                }
                             }
-                        }
-                    )
+                        )
+                    })
                 }
             }
 

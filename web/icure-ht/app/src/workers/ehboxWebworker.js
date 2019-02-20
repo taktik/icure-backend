@@ -176,15 +176,15 @@ onmessage = e => {
 
         const tryToAssignAppendices = (createdMessage, fullMessage, annexDocs, boxId) => {
             if (boxId === "INBOX" && annexDocs) { // only import annexes in inbox
-                let results = annexDocs.filter(doc => doc.documentLocation !== "body").map(doc => {
+                let results = _.flatten(annexDocs.filter(doc => doc.documentLocation !== "body").map(doc => {
                     return tryToAssignAppendix(fullMessage, doc)
-                }).flat()
+                }))
 
                 return Promise.all(results)
                     .then (reslist => {
                         let assignedMap = {}
                         let unassignedList = []
-                        reslist.flat().forEach(result => {
+                        _.flatten(reslist).forEach(result => {
                             if (result.assigned) {
                                 assignedMap[result.contactId] = result.protocolId
                             } else {
