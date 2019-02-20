@@ -1008,8 +1008,10 @@
     "flatrate_invoicing_8_subheader": "FACTURATION DES ANCIENS INSCRITS",
     "flatrate_invoicing_column_1": "Invoice n°",
     "flatrate_invoicing_listTotal": "List total",
-    "flatrate_invoicing_insTotal": "Insurance total"
-
+    "flatrate_invoicing_insTotal": "Insurance total",
+    "flatrate_invoicing_physiotherapist": "Physiotherapist",
+    "flatrate_invoicing_physician": "Physician",
+    "flatrate_invoicing_nurse": "Nurse"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2104,8 +2106,9 @@
     "flatrate_invoicing_column_1": "Nr. facture",
     "flatrate_invoicing_listTotal": "Total de la liste",
     "flatrate_invoicing_insTotal": "Total de la mutualité",
-
-
+    "flatrate_invoicing_physiotherapist": "Kinésithérapeute",
+    "flatrate_invoicing_physician": "Médecin",
+    "flatrate_invoicing_nurse": "Infirmier",
 
 
     "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
@@ -2115,8 +2118,9 @@
     "mhInvoicing.spinner.step_3_done": "Fin de la collecte des titulaires d'assurance",
     "mhInvoicing.spinner.step_4": "Création des factures...",
     "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
-    "mhInvoicing.spinner.step_5": "Création des fichiers...",
-    "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers",
+    "mhInvoicing.spinner.step_5": "Création des fichiers PDF...",
+    "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers PDF",
+
     "mhInvoicing.spinner.step_6": "Archivage des fichiers...",
     "mhInvoicing.spinner.step_done": "Fin de l'archivage des fichiers"
 
@@ -3221,6 +3225,9 @@
     "flatrate_invoicing_8_subheader": "FACTURATIE DER OUDE INSCHRIJVINGEN",
     "flatrate_invoicing_column_1": "Factnr",
     "flatrate_invoicing_listTotal": "Totalllijst",
-    "flatrate_invoicing_insTotal": "Totaal mutualiteit"
+    "flatrate_invoicing_insTotal": "Totaal mutualiteit",
+    "flatrate_invoicing_physiotherapist": "Fysiotherapeut",
+    "flatrate_invoicing_physician": "Arts",
+    "flatrate_invoicing_nurse": "Verpleegster"
   }
 }

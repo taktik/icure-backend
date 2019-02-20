@@ -2730,7 +2730,7 @@
                 })
             }
 
-            _generateJ20PdfFiles() {
+            _generateJ20PdfTemplateObjects() {
 
                 let pdfData = {};
 
@@ -2754,8 +2754,6 @@
 
 
 
-
-
                 // <NOT FOR PROD, just to test page breaks with large records amount>
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
                 // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
@@ -2767,69 +2765,74 @@
 
 
 
-
-
-                let totalPages = 0;
-                let currentPage = 0;
-                let oaEntriesLoopCount = 0;
                 const maxEntriesPerPage = 47;
 
-                // Eval total pages (last "totalPages++;" ==> as we add a page (by list) with the summaries
-                _.forEach( pdfData, (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; }); totalPages++; })})
-                this.flatRateInvoicingDataObject.pdfTotalPages = parseInt(totalPages);
+                const pdfDataToPrint = _.compact(
+                    _.map( pdfData, (oaData)=> {
 
-                let pdfTemplate = this._getExportPdfHeader();
+                        let totalPages = 1;
+                        let currentPage = 0;
+                        let pdfTemplate = this._getExportPdfHeader();
 
-                _.forEach( pdfData, (oaData)=> {
-                    _.forEach( oaData.entries, (listEntries, listKey)=> {
+                        // Eval total pages
+                        _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; }); })
 
-                        oaEntriesLoopCount++;
-                        if(!parseInt(_.size(listEntries))) return;
-                        let listIndex = parseInt(listKey.replace('list',''));
-                        let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+                        _.forEach( oaData.entries, (listEntries, listKey)=> {
 
-                        this.flatRateInvoicingDataObject.oaTotalPrices.push({
-                            oaId: oaData.oa.id,
-                            listId: listKey,
-                            listTotal: this.api._powRoundFloatByPrecision(_.sumBy( _.map( listEntries, i => this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( i, "invoicingCodes" ), "totalAmount" ) ), 2 ) ), i=>parseFloat(i) ), 2)
+                            if(!parseInt(_.size(listEntries))) return;
+                            let listIndex = parseInt(listKey.replace('list',''));
+                            let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+
+                            this.flatRateInvoicingDataObject.oaTotalPrices.push({
+                                oaId: oaData.oa.id,
+                                listId: listKey,
+                                listTotal: this.api._powRoundFloatByPrecision(_.sumBy( _.map( listEntries, i => this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( i, "invoicingCodes" ), "totalAmount" ) ), 2 ) ), i=>parseFloat(i) ), 2)
+                            })
+
+                            _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                                currentPage++;
+                                pdfTemplate +=
+                                    this._getExportPageHeader(oaData.oa, true) +
+                                    this._getExportListHeader(listIndex, true) +
+                                    this._getExportListContentForInvoicing(listIndex,entriesChunk) +
+                                    this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
+                            });
+
                         })
 
-                        _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
-                            currentPage++;
-                            pdfTemplate +=
-                                this._getExportPageHeader(oaData.oa, true) +
-                                this._getExportListHeader(listIndex, true) +
-                                this._getExportListContentForInvoicing(listIndex,entriesChunk) +
-                                this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
-                        });
+                        const totalAmount = this.api._powRoundFloatByPrecision( _.sumBy(_.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) }), i=>parseFloat(i.listTotal)), 2);
 
-                        // List total
+                        // List totals
                         currentPage++
                         pdfTemplate +=
                             this._getExportPageHeader(oaData.oa, true) +
-                            this._getExportListHeader(listIndex, true) +
-                            this._getExportListContentForInvoicing(listIndex,{}) +
-                            "<p class='bold fs10 ' style='margin-left:40%; margin-top:100px'>" + this.localize('flatrate_invoicing_listTotal',this.language) + ': ' + this.api.hrFormatNumber(_.get( _.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) && _.trim(i.listId)=== _.trim(listKey) }), "[0].listTotal", 0 )) + ' €</p>' +
-                            (
-                                (
-                                    parseInt(oaEntriesLoopCount) === parseInt(_.size(oaData.entries)) ||
-                                    (listKey === "list5" && !_.size(oaData.entries.list6) && !_.size(oaData.entries.list8)) ||
-                                    (listKey === "list6" && !_.size(oaData.entries.list8))
-                                ) ?
-                                    "<p class='bold fs15 mt10 colorBlue uppercase italic' style='margin-left:40%;'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(_.sumBy( _.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) }), i=>parseFloat(i.listTotal) )) + ' €</p>'
-                                    : ""
-                            ) +
-                            this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
+                            "<div style='margin-top:100px'></div>" +
+                            "<p class='bold fs10'>" +
+                                _.compact(
+                                    _.map(oaData.entries, (listEntries, listKey) => {
+                                        let listIndex = parseInt(listKey.replace('list',''));
+                                        return !parseInt(_.size(listEntries)) ? false :
+                                            this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') " '+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+' ": ' +
+                                            this.api.hrFormatNumber(_.get( _.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) && _.trim(i.listId)=== _.trim(listKey) }), "[0].listTotal", 0 )) + ' €'
+                                    })
+                                ) .join("<br />") +
+                            "</p>" +
+                            "<p class='bold fs15 mt10 colorBlue uppercase italic'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(totalAmount) + ' €</p>' +
+                            this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true) +
+                            this._getExportPdfFooter();
+
+                        return {
+                            pdfTemplate: pdfTemplate,
+                            oaId: _.trim(oaData.oa.id),
+                            totalPages: parseInt(totalPages),
+                            invoiceIds: _.compact( _.map( _.flatMap( oaData.entries ), i =>_.trim(_.get(i, "invoices[0].id", "")) )),
+                            totalAmount: totalAmount
+                        }
+
                     })
+                );
 
-                    oaEntriesLoopCount = 0;
-
-                })
-
-                // Close document
-                pdfTemplate += this._getExportPdfFooter();
-
-                return this.api.pdfReport(mustache.render(pdfTemplate, pdfData))
+                return new Promise(resolve =>resolve(pdfDataToPrint))
 
             }
 
@@ -3084,45 +3087,71 @@
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
-                        return this._generateJ20PdfFiles().then(x=>x)
+
+                        // TO DO: insert new prom here to generate flatfiles & slips, only then generate PDFS
+                        // TO DO: update loading messages
+
+                        return this._generateJ20PdfTemplateObjects().then(x=>x)
                     })
-                    .then(pdfObject=>{
-                        this.flatRateInvoicingDataObject.pdfFileContent = pdfObject.pdf
-                        this.flatRateInvoicingDataObject.pdfDownloadFileName = moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]') + "-invoiving-patients" + ".pdf";
+                    .then(pdfTemplateObjects=>{
+                        return Promise.all(pdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.pdfTemplate, {})).then(x=>_.merge(singlePdfFileObject, {pdfFileContent:x.pdf})) ))
+                    })
+                    .then(generatedPdfFiles=>{
+
+                        this.flatRateInvoicingDataObject.generatedFiles = _.map(generatedPdfFiles,i=>{
+                            delete(i.pdfTemplate);
+                            i.pdfDownloadFileName = _.kebabCase(_.compact([
+                                moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                "medical house invoicing export pdf oa",
+                                _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.insurancesData, {id:i.oaId}), "[0].code" )),
+                                _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.insurancesData, {id:i.oaId}), "[0].finalName" )),
+                                +new Date()
+                            ]).join(" ")) + ".pdf"
+                            return i;
+                        })
+
+                        return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.map( singlePdfFileObject =>  {
+                            return this.api.message().newInstance(this.user)
+                                .then(newMessageInstance => this.api.message().createMessage(
+                                    _.merge(newMessageInstance, {
+                                        transportGuid: "MH:FLATRATE:INVOICING-PDF",
+                                        recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                        recipientsType: "org.taktik.icure.entities.HealthcareParty",
+                                        metas: {
+                                            totalPages: parseInt(singlePdfFileObject.totalPages),
+                                            filename: _.trim(singlePdfFileObject.pdfDownloadFileName),
+                                            totalInvoices: parseInt(_.size(singlePdfFileObject.invoiceIds)),
+                                            exportDate: parseInt(this.flatRateInvoicingDataObject.exportDate),
+                                            totalAmount: singlePdfFileObject.totalAmount,
+                                            oaId: _.trim(_.get(singlePdfFileObject, "oaId", ""))
+                                        },
+                                        toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                        subject: "MH: Flatrate invoicing PDF export",
+                                        status: this.invoiceMessageStatuses.pending.status,
+                                        invoiceIds: _.compact(singlePdfFileObject.invoiceIds)
+                                    }))
+                                )
+                                .then(createdMessage => {
+                                    _.merge(singlePdfFileObject, {pdfMessageId:createdMessage.id})
+                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.pdfDownloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                })
+                                .then(createdDocument => {
+                                    _.merge(singlePdfFileObject, {pdfDocumentId:createdDocument.id})
+                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                })
+                                .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                        })).then(x=>x)
+                    })
+                    .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_6',this.language), icon:"arrow-forward"});
-                        return this.api.message().newInstance(this.user)
-                            .then(newMessageInstance => this.api.message().createMessage(
-                                _.merge(newMessageInstance, {
-                                    transportGuid: "MH:FLATRATE:INVOICING",
-                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
-                                    recipientsType: "org.taktik.icure.entities.HealthcareParty",
-                                    metas: {
-                                        totalPages: parseInt(this.flatRateInvoicingDataObject.pdfTotalPages),
-                                        filename: this.flatRateInvoicingDataObject.pdfDownloadFileName,
-                                        totalInvoices: parseInt(_.size(this.flatRateInvoicingDataObject.invoicesData)),
-                                        exportDate: parseInt(this.flatRateInvoicingDataObject.exportDate),
-                                        totalOa: parseInt(_.size(this.flatRateInvoicingDataObject.insurancesData)),
-                                        totalAmount: this.api._powRoundFloatByPrecision(_.sumBy(this.flatRateInvoicingDataObject.oaTotalPrices, i=>parseFloat(i.listTotal)),2)
-                                    },
-                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
-                                    subject: "MH: Archive invoicing patients download - " + this.flatRateInvoicingDataObject.pdfDownloadFileName,
-                                    status: this.invoiceMessageStatuses.pending.status,
-                                    invoiceIds: _.compact( _.map( this.flatRateInvoicingDataObject.invoicesData, pat=> _.get(pat, "invoices[0].id", "" ) ) )
-                                }))
-                            )
-                    })
-                    .then(createdMessage => this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: this.flatRateInvoicingDataObject.pdfDownloadFileName}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance)))
-                    .then(createdDocument => this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.flatRateInvoicingDataObject.pdfFileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent})))
-                    .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
-                    .then(() => {
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_done',this.language), icon:"check-circle", updateLastMessage: true, done:true})
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
-                        this.api.triggerFileDownload( this.flatRateInvoicingDataObject.pdfFileContent, "application/pdf", this.flatRateInvoicingDataObject.pdfDownloadFileName )
-                        console.log(this.flatRateInvoicingDataObject)
+
+                        // this.api.triggerFileDownload( this.flatRateInvoicingDataObject.pdfFileContent, "application/pdf", this.flatRateInvoicingDataObject.pdfDownloadFileName )
+
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(()=>{
+                        console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false )
                     })
