@@ -2539,7 +2539,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         gender: this.valueGender,
                         medicalHouseContracts: [this.medicalHouseContractShadowObject]
                     }
-                    if (Object.keys(this.cardData).length !== 0) {
+                    if (Object.keys(this.cardData).length !== 0 && this.ssin === this.cardData.nationalNumber) {
                         let streetData = _.trim(this.cardData.street).split(" ")
                         const number = streetData.find(str => str.match(/\d/g))
                         const boxNumber = streetData[streetData.length - 1] !== number ? streetData[streetData.length - 1] : ""

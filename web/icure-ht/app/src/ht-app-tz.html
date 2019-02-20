@@ -1762,6 +1762,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('api', this.$.api)
 
                 //init socket io
+                this.set("socket",null)
                 this.api.isElectronAvailable().then(electron => {
                     if (electron) {
                         this.set("socket",io('http://localhost:16042'))

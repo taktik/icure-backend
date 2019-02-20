@@ -101,8 +101,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         _patientChanged() {
-            this.socket.removeAllListeners("auto-read-card-eid")
-            this.notifyPath("socket")
+            if(this.socket) {
+                this.socket.removeAllListeners("auto-read-card-eid")
+                this.notifyPath("socket")
+            }
             if (!this.selectedPatient || this.selectedPatient === null) {
                 if (this.routeData && this.routeData.selectedPatientId) {
                     this.set('routeData.selectedPatientId', '');
@@ -112,6 +114,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, 0);
             } else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
                 this.set('routeData.selectedPatientId', this.selectedPatient.id);
+                setTimeout(() => {
+                    this.shadowRoot.querySelector('#pat-detail').setSocket()
+                }, 0);
             }
         }
 
