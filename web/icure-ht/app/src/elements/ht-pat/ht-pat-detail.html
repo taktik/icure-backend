@@ -4505,7 +4505,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             postitChanged(value) {
-                if(value && value.length) {
+                const trimmedValue = value && value.trim()
+                if(trimmedValue && trimmedValue.length) {
                     this.$["postit-notification"].classList.add('show-postit')
                 }else {
                     this.closePostit()
