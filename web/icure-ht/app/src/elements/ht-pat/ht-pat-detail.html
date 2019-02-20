@@ -4590,6 +4590,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             setSocket(){
+                if(!this.socket)return;
                 this.socket.on("auto-read-card-eid",cards =>{
                     const res = JSON.parse(cards)
                     if (res.cards[0] && this.patient.ssin===res.cards[0].nationalNumber) {

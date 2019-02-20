@@ -1861,10 +1861,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type : Object,
                         value : {}
                     },
-                    hasNotificationEidMessage : {
-                        type : Number,
-                        value : 0
-                    },
                     eidPatientsList : {
                         type : Array,
                         value : []
@@ -3371,6 +3367,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             setSocket(){
+                if(!this.socket)return;
                 this.socket.on("auto-read-card-eid",cards =>{
                     const res = JSON.parse(cards)
                     if (res.cards[0]) {
@@ -3427,11 +3424,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .then(patients => {
                             this.set("eidPatientsList", patients.rows)
                             this.$['eidOpenPatientMessage'].classList.add('notification');
-                            this.set("hasNotificationEidMessage", 1)
                             setTimeout(() => {
                                 if (this.hasNotificationEidMessage !== 0) {
                                     this.$['eidOpenPatientMessage'].classList.remove('notification');
-                                    this.set("hasNotificationEidMessage", 0)
                                 }
                             }, 60000);
                         })
@@ -3439,14 +3434,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkNiss(){
-
+                const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
+                    '$type': 'PatientByHcPartyAndSsinFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'ssin': this.ssin
+                })
+                this.$['eidFound'].classList.remove('notification');
+                this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: ssinFilter})
+                    .then(patients => {
+                        if(patients.rows.length){
+                            this.set('selectedPatient', patients.rows[0])
+                        }
+                        else{
+                            this.searchPatientsEid()
+                        }
+                    })
             }
 
             closeEidPanel(e) {
                 const target = e && e.target && e.target.getAttribute('panel') || ''
-                if(this.hasNotificationEidMessage!==0) {
+                if (this.$[target] && this.$[target].classList.contains('notification') ){
                     this.$[target].classList.remove('notification');
-                    this.set("hasNotificationEidMessage", 0)
                 }
             }
         }
