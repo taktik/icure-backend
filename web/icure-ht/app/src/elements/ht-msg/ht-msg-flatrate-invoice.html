@@ -2340,7 +2340,7 @@
                                 accepted: false,
                                 pending: false,
                                 resent: false,
-                                dateCode: moment().format('YYYYMMDD'),
+                                dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
                                 id: this.api.crypto().randomUuid(),
                                 logicalId: this.api.crypto().randomUuid()
                             }))}
@@ -2462,7 +2462,8 @@
                                             code: _.trim(_.get(singleNomenclature, "code")),
                                             label: _.get(singleNomenclature, "label"),
                                             flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
-                                            price: valorisationPrice
+                                            price: valorisationPrice,
+                                            type: 'previous'
                                         } : false
                                     })
                                 .value()
@@ -2507,7 +2508,8 @@
                                             code: _.trim(_.get(singleNomenclature, "code")),
                                             label: _.get(singleNomenclature, "label"),
                                             flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
-                                            price: valorisationPrice
+                                            price: valorisationPrice,
+                                            type: 'current'
                                         } : false
                                     })
                                     .value()
