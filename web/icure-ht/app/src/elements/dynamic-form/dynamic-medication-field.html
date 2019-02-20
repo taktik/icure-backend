@@ -230,7 +230,7 @@
 		<ul>
 		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
 			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span>
-                <template is="dom-if" if="[[!readOnly]]">
+                <template is="dom-if" if="[[!isReadOnlyOrRecipeSent(lv)]]">
                     <div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div>
                 </template>
             </li>
@@ -373,6 +373,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (item) {
             this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false, this.createTreatment), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
+	}
+
+	isReadOnlyOrRecipeSent(val) {
+        const idx = this.value.findIndex(s => s.id === val.id)
+        return this.readOnly || this.api.contact().medicationValue(this.value[idx], this.language).prescriptionRID
 	}
 
 	clearMedication(el) {
