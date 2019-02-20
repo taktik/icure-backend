@@ -2193,6 +2193,19 @@
                 })
             }
 
+            _getIOsDataByInsurancesList(inputInsurancesList) {
+                return new Promise(resolve => {
+                    this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(inputInsurancesList).map(i=>_.trim(_.get(i, "parent"))).uniq().compact().value()}))
+                        .then(insurancesData => resolve(
+                            _
+                                .chain(insurancesData)
+                                .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                                .sortBy((i)=>{ return i.code; })
+                                .value()
+                        ))
+                })
+            }
+
             _generateJ3FileAndDownload() {
 
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -2465,7 +2478,8 @@
                 let flatData = {};
                 flatData.content = [];
 
-                const OAs = ['100','200','300','400','500','600','900'];
+                //const OAs = ['100','200','300','400','500','600','900'];
+                const OAs = this.flatRateInvoicingDataObject.iosData.map(ioDt => ioDt.code);
                 //loop OA
 
                 return Promise.all(OAs.map(OA => {
@@ -2504,9 +2518,9 @@
                     ib.invoices = invoices; //1 per patient
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
-                        return {oa:OA, file: flatRes, slip: "TODO", msg: ""};
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: ""};
                     }).catch(err => {
-                        return {oa:OA, file: "", slip: "", msg: err}
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err}
                     });
                 })).then(res => {
                     flatData.content = res;
@@ -2668,6 +2682,7 @@
                             },
                             patientsData: [],
                             insurancesData: [],
+                            iosData:[],
                             listsData: [],
                             invoicesData: [],
                             exportDate: _.trim(
@@ -2855,6 +2870,9 @@
                     })
                     .then((insurancesData)=>{
                         this.flatRateInvoicingDataObject.insurancesData = insurancesData
+                        return this._getIOsDataByInsurancesList(this.flatRateInvoicingDataObject.insurancesData).then(x=>x);})
+                    .then((iosData) => {
+                        this.flatRateInvoicingDataObject.iosData = iosData
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         return {
