@@ -923,6 +923,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 div.panel-bottom-btns > paper-button {
                     flex-grow: 1;
+                    height: 40px;
                     margin: 4px;
                     padding: 4px;
                     text-align: center;
@@ -973,15 +974,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                 </vaadin-grid>
                 <div class="panel-bottom-btns">
-                    <paper-button on-tap="confirm"><paper-icon-button icon="add"></paper-icon-button> [[localize('create_new_pat','Create New Patient',language)]]</paper-button>
-                    <paper-button on-tap="closeEidPanel" panel="eidOpenPatientMessage"><paper-icon-button icon="cancel" panel="eidOpenPatientMessage"></paper-icon-button> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button on-tap="confirm"><iron-icon icon="add-circle"></iron-icon> [[localize('create_new_pat','Create New Patient',language)]]</paper-button>
+                    <paper-button on-tap="closeEidPanel" panel="eidOpenPatientMessage"><iron-icon icon="cancel" panel="eidOpenPatientMessage"></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-item>
             <paper-item id="eidFound" class="eid-notification-panel">
                 <div class="panel-header"><iron-icon icon="vaadin:health-card"></iron-icon> [[localize('eid_found','eid found',language)]], [[localize('open_pat','open patient',language)]] ?</div>
                 <div class="panel-bottom-btns">
-                    <paper-button on-tap="checkNiss"><paper-icon-button icon="check"></paper-icon-button> [[localize('yes','Yes',language)]]</paper-button>
-                    <paper-button on-tap="closeEidPanel" panel="eidFound"><paper-icon-button icon="cancel" panel="eidFound"></paper-icon-button>[[localize('no','No',language)]]</paper-button>
+                    <paper-button on-tap="closeEidPanel" panel="eidFound"><iron-icon icon="cancel" panel="eidFound"></iron-icon>[[localize('no','No',language)]]</paper-button>
+                    <paper-button on-tap="checkNiss"><iron-icon icon="check-circle"></iron-icon> [[localize('yes','Yes',language)]]</paper-button>
                 </div>
             </paper-item>
 
