@@ -167,11 +167,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 grid-row: 1 / 1;
             }
 
+            .flex{
+                flex: 1;
+            }
+
+            .line {
+                display: flex;
+            }
+
         </style>
 
         <div class="users-panel">
             <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_prefs', 'Preferences', language)]]</h4>
+
+            <div>
+                <h5>Dossier patient</h5>
+                <h5>Schémas d'échéances récurrentes</h5>
+                <div class="line">
+                    <paper-dropdown-menu class="flex" label="[[localize('prc_coll_smear','Collar smear for screening of neoplastic cells',language)]]">
+                        <paper-listbox slot="dropdown-content" selected="{{collarSmearSelectedItemIdx}}" selected-item="{{collarSmearSelectedItem}}" attr-for-selected="id" on-selected-changed="_collarSmearStatusChanged">
+                            <template is="dom-repeat" items="[[valueForProcedure]]" as="val">
+                                <paper-item id="[[val.id]]">[[_getValueLabel(val.label)]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+
+                    <paper-dropdown-menu class="flex" label="[[localize('prc_mammo','Mammography',language)]]">
+                        <paper-listbox slot="dropdown-content" selected="{{mammographySelectedItemIdx}}" selected-item="{{mammographySelectedItem}}" attr-for-selected="id" on-selected-changed="_mammographyStatusChanged">
+                            <template is="dom-repeat" items="[[valueForProcedure]]" as="val">
+                                <paper-item id="[[val.id]]">[[_getValueLabel(val.label)]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                </div>
+               <div class="line">
+                   <paper-dropdown-menu class="flex" label="[[localize('prc_sea_occ_blood','Search for occult blood in the stool',language)]]">
+                       <paper-listbox slot="dropdown-content" selected="{{occultBloodSelectedItemIdx}}" selected-item="{{occultBloodSelectedItem}}" attr-for-selected="id" on-selected-changed="_occultBloodStatusChanged">
+                           <template is="dom-repeat" items="[[valueForProcedure]]" as="val">
+                               <paper-item id="[[val.id]]">[[_getValueLabel(val.label)]]</paper-item>
+                           </template>
+                       </paper-listbox>
+                   </paper-dropdown-menu>
+               </div>
+            </div>
+
+            <div>
+                <h5>Ehbox</h5>
+            </div>
+
+            <div>
+                <h5>Facturation</h5>
+            </div>
+
         </div>
+
+
+
     </template>
 
     <script>
@@ -193,6 +244,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
+                    },
+                    valueForProcedure:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id : 'active',
+                                label: {
+                                    'fr' : 'Activé',
+                                    'nl' : 'Geactiveerd',
+                                    'en' : 'Active'
+                                }
+                            },{
+                                id : 'inactive',
+                                label: {
+                                    'fr' : 'Désactivé',
+                                    'nl' : 'Invalide',
+                                    'en' : 'Inactive'
+                                }
+                            }
+                        ]
+                    },
+                    collarSmearSelectedItemIdx:{
+
+                    },
+                    mammographySelectedItemIdx:{
+
+                    },
+                    occultBloodSelectedItemIdx:{
+
+                    },
+                    collarSmearSelectedItem: {
+
+                    },
+                    mammographySelectedItem: {
+
+                    },
+                    occultBloodSelectedItem:{
+
                     }
                 }
             }
@@ -207,6 +296,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            _getValueLabel(label){
+                return label[this.language]
             }
 
         }
