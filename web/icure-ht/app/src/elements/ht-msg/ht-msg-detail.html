@@ -958,10 +958,10 @@
                                 <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
                                 <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
                             </paper-button>
-                            <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
-                                <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
-                                <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
-                            </paper-button>
+                            <!--<paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>-->
+                                <!--<span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>-->
+                                <!--<paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>-->
+                            <!--</paper-button>-->
                         </template>
                         <template is="dom-if" if="[[isHidden]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="visibility-msg" icon="visibility"></iron-icon>
@@ -1681,66 +1681,58 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg)
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
             annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
             document: {
 	            title: 'Fw: '+origMsg.subject,
-                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+                textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
             },
             customMetas: origMsg.metas,
             type: 'fwd'
         }
-        const target = this.parentElement.parentNode.children[1]
+        const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
         target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
     }
 
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
         let dest = []
-        if (origMsg.fromHealthcarePartyId.length == 11) {
-            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+        this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
+        .then(paginated=>{
+            if(paginated.rows && paginated.rows[0] && !paginated.rows[0].name.startsWith('Noreply') && paginated.rows[0].ssin !== "12345678912") {
                 let hcp = paginated.rows[0]
                 hcp.type = 'NIHII'
                 hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
                 dest.push(hcp)
-            })
-        } else {
-            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
-                hcp.type = 'NIHII'
-                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
-                dest.push(hcp)
-            })
-        }
-        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
-        const msgToRe = {
-	        // delegations: origMsg.delegations,
-            destinations: dest,
-            patientInss: origMsg.patientInss,
-            annex: undefined,
-            document: {
-                title: 'Re: '+origMsg.subject,
-                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
-            },
-            customMetas: origMsg.metas,
-            type: 'replyto'
-        }
-        const target = this.parentElement.parentNode.children[1]
-        target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
+                console.log('hcp to re',hcp)
+                const msgToRe = {
+                    // delegations: origMsg.delegations,
+                    destinations: dest,
+                    patientInss: origMsg.patientInss,
+                    annex: undefined,
+                    document: {
+                        title: 'Re: ' + origMsg.subject,
+                        textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
+                    },
+                    customMetas: origMsg.metas,
+                    type: 'replyto'
+                }
+                const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
+                target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true,composed: true,params: msgToRe}}))
+            } else console.log('cannot find ssin or nihii : '+origMsg.fromHealthcarePartyId)
+        }).catch(e=>console.log(e))
     }
 
     _hideMsg() {
         let msg = this.messages[0]
         if (msg) {
-            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            if (!msg.transportGuid.startsWith('HIDDEN')){
-                msg.transportGuid = 'HIDDEN'+msg.transportGuid
+            if ((msg.status&(1<<14)) !== 0){
+                msg.status = msg.status & 0<<14
             } else {
-                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
-                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                msg.status = msg.status | 1<<14
             }
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }

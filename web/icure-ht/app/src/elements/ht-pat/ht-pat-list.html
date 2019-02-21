@@ -1337,7 +1337,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="sharePatientDialog">
             <h2 class="modal-title">[[localize('share_to_what_hcp','With which provider do you want to share these patients',language)]] ?</h2>
-            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
+            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}"></paper-input>
             <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
                 <vaadin-grid-column width="40px">
                     <template class="header">
@@ -1353,7 +1353,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-sorter>
                     </template>
                     <template>
-                        <div class="cell frozen">[[item.lastName]]</div>
+                        <div class="cell frozen">[[_any(item.lastName, item.name, item)]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column width="100px">
@@ -1385,12 +1385,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
             </vaadin-grid>
             <div class="buttons">
+                <vaadin-checkbox on-checked-changed="displayAllHcps">[[localize('disp_all_hcps','Display all HCPs', language)]]</vaadin-checkbox>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
                     patients',language)]]
-                </paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingAllNextStep">[[localize('share_to_all','Share
-                    to everyone',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
@@ -1870,7 +1868,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_selectedFilterIndexesChanged(selectedFilterIndexes.splices)', '_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)', '_filesChanged(files.*)','_canAddPat(lastName,firstName,dateAsString)']
+                return ['_hcpChanged(hcp)','_selectedFilterIndexesChanged(selectedFilterIndexes.splices)', '_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue, _allHcpsChecked)', '_filesChanged(files.*)','_canAddPat(lastName,firstName,dateAsString)']
             }
 
             constructor() {
@@ -1879,6 +1877,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _showInactivePatientsChanged() {
                 this.$['patients-list'].clearCache()
+            }
+
+            _any(a,b,c) {
+                return a || b
+            }
+
+            _hcpChanged(hcp) {
+                console.log(hcp)
             }
 
             ready() {
@@ -2058,12 +2064,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
             }
 
+            displayAllHcps(checked) {
+                this._allHcpsChecked = checked.detail.value
+            }
+
             _hcpFilterChanged(e) {
-                let latestSearchValue = this.hcpFilterValue || e && e.detail.value
+                let latestSearchValue = this.hcpFilterValue
                 this.latestSearchValue = latestSearchValue
+
                 if (!latestSearchValue || latestSearchValue.length < 2) {
                     console.log("Cancelling empty search")
-                    this.set('hcp', _.orderBy((_.values(this.api.hcParties || {}) || []).filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")), ['lastName'], ['asc']))
+                    const hcps = (_.values(this.api.hcParties || {}) || []).filter(hcp => hcp.publicKey && (!hcp.parentId || this._allHcpsChecked) && ((hcp.lastName || '').length || (hcp.name || '').length))
+                    this.set('hcp', _.orderBy(hcps, ['lastName'], ['asc']))
                     return
                 }
                 this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
@@ -2082,7 +2094,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         let count = 15
                         return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null, null, count, desc)]).then(results => {
                             const hcpList = results[0]
-                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.publicKey && (hcp.name && hcp.name !== "" || hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "")).map(hcp => ({
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.publicKey && ((hcp.lastName || '').length || (hcp.name || '').length)).map(hcp => ({
                                 id: hcp.id,
                                 lastName: hcp.lastName,
                                 firstName: hcp.firstName,
@@ -2807,7 +2819,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('shareOption', true)
                     this.selectedPatientsForSharing = pats
                     this.$['sharePatientDialog'].open()
-                    this.set('hcp', _.orderBy(_.values(this.api.hcParties), ['lastName'], ['asc']))
                 }).finally(() => {
                     this.set('isImportingPatients', false)
                 })

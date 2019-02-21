@@ -478,7 +478,7 @@
                     text-align: center;
                 }
 
-                vaadin-grid {
+                vaadin-grid.subGrid {
                     overflow-y: auto;
                     max-height: 20vh;
                 }
@@ -755,7 +755,7 @@
                                     <span class="center" style="width: 7%;">[[_formatAmount(item.sum.tot)]]€</span>
                                 </div>
                                 <div slot="collapse-content">
-                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
+                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid subGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <!--<template>[[item.invoice.sentMediumType]]</template>-->
                                         </vaadin-grid-column>

@@ -786,7 +786,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
                                 <paper-tooltip for="frontend-version">frontend: [AIV]{version}[/AIV] - backend : [[backendVersion]]</paper-tooltip>
                                 <template is="dom-if" if="[[isElectron]]">
-                                    <span class$="user-email [[_versionOk(electronVersionOk,true)]]">| e—[[electronVersion]]</span>
+                                    <span class$="user-email [[_versionOk(electronVersionOk,'true')]]">| e—[[electronVersion]]</span>
                                 </template>
                                 <span class="user-email">| [[user.login]] – </span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
@@ -2050,15 +2050,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //this.api.fhc().Stscontroller().requestTokenUsingGET(k.passPhrase, this.getNihii8(MHNihii), k.uuid, true )
                 //get the password from local storage
                 //let mhPassword= "";
-                const MHNihii = "84450178101";
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp => this.$.api.hcparty().getHealthcareParty(hcp.parentId))
                     .then(hcpMH => {
                         this.set('hasMHCertificate', hcpMH && this.api.keystoreIdMH)
                         return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpasswordMH, hcpMH.nihii.substr(0, 8), this.api.keystoreIdMH, true).then(res => {
-                            this.$.eHealthMHStatus.classList.remove('pending')
-                            this.$.eHealthMHStatus.classList.remove('disconnected')
-                            this.$.eHealthMHStatus.classList.add('connected')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('disconnected')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('connected')
 
                             this.set('api.tokenIdMH', res.tokenId)
                             this.set('api.tokenMH', res.token)
@@ -2066,9 +2065,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             return res.tokenId
                         })
                     }).catch((e) => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('connected')
-                        this.$.eHealthMHStatus.classList.add('disconnected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                         throw(e)
                     })
             }
@@ -2256,23 +2255,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 this.$.api.keystoreIdMH = res.uuid
                                                 return this._getMHToken()
                                             }).catch((e) => {
-                                                this.$.eHealthMHStatus.classList.remove('pending')
-                                                this.$.eHealthMHStatus.classList.remove('connected')
-                                                this.$.eHealthMHStatus.classList.add('disconnected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                                 throw(e)
                                             })
                                         } else {
                                             //TODO: notif for no MH session
                                             //this.$.noehealth.classList.add("notification")
-
-                                            this.$.eHealthMHStatus.classList.remove('pending')
-                                            this.$.eHealthMHStatus.classList.remove('connected')
-                                            this.$.eHealthMHStatus.classList.add('disconnected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                         }
                                     } else {
-                                        this.$.eHealthMHStatus.classList.remove('pending')
-                                        this.$.eHealthMHStatus.classList.remove('connected')
-                                        this.$.eHealthMHStatus.classList.add('disconnected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                     }
                                     return Promise.resolve(null);
                                 });

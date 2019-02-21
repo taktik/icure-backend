@@ -1383,7 +1383,7 @@
 						compound = content && content.medicationValue && content.medicationValue.compoundPrescription
 						sameDrugColumnIndex = (accu.slice(0).reverse().find( drug => drug.compound == compound ) || {}).column
 					}else {
-						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
+						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => drug.codes && drug.codes.length && codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
 					}
 					const column = _.findIndex(availableSpace, (s, idx) => sameDrugColumnIndex >= 0 ? (idx === sameDrugColumnIndex + 1) && s : s );
 					accu.push({
@@ -1586,7 +1586,7 @@
 					// this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 
 
-				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
+				if (this.patient.ssin && this.api.tokenId){ // if ehealth connected
 					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
 						patient: this.patient,
 						hcp: hcp,
@@ -1656,12 +1656,12 @@
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridLabel}</div>
                     <hr>
-                    <h2>Preuve de prescription électronique</h2>
+                    <h2>${this.localize('proof_of_e_prescription','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}</h2>
                     <hr>
-                    <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+                    <p class="center">${this.localize('ple_present_doc','',this.language)}.</p>
                     <hr>
                     <div class="profile">
-                        <small>Nom et prénom du prescripteur&nbsp;:</small>
+                        <small>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}&nbsp;:</small>
                         <ul class="prescripteur-details">
                             <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
                             <li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
@@ -1669,7 +1669,7 @@
                     </div>
                     <hr>
                     <div class="profile">
-                        <small>Nom et prénom du patient&nbsp;:</small>
+                        <small>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)}&nbsp;:</small>
                         <ul class="patient-details">
                             <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
                             <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
@@ -1677,19 +1677,19 @@
                     </div>
                     <hr>
                 </header>
-                <h2>Contenu de la prescription électronique</h2>
+                <h2>${this.localize('content_of_e_prescription','Content of electronical prescription',this.language)}</h2>
                 <hr>
                 <div class="prescription-content">
                     ${prescriContent}
                 </div>
                 <footer>
                     <hr>
-                    <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+                    <p class="center">${this.localize('no_man_ad','No manuscript additions will be taken into account',this.language)}.</p>
                     <hr>
-                    <small class="center">Date&nbsp;:</small>
+                    <small class="center">${this.localize('date','Date',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                     <hr>
-                    <small class="center">Délivrable à partir du&nbsp;:</small>
+                    <small class="center">${this.localize('deliv_from','Deliverable from',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
@@ -1751,20 +1751,20 @@
 												<span>${onePrescription.rid}</span>
 											</div>
 											<div class="cell w50">
-												<p>Nom et prénom du prescripteur</p>
+												<p>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}</p>
 												<p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
 											</div>
 										</div>
 									</header>
 									<div class="horiz w100">
 										<div class="vert bt bb flex1 cell">
-											<p class="uppercase">À remplir par le prescripteur</p>
-											<p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+											<p class="uppercase">${this.localize("complete_by_prescriber","To be completed by the prescriber",this.language)}</p>
+											<p>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)} : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
 										</div>
 									</div>
 									<main id="main" class="flexbox flex1 horiz bb">
 										<div class="cell br w33">
-											<p>Réservé à la vignette de conditionnement</p>
+											<p>${this.localize("reserved_sticker","Reserved for the packaging sticker",this.language)}</p>
 										</div>
 										<div class="cell">
 											${onePrescription.body}
@@ -1772,7 +1772,7 @@
 									</main>
 									<footer id="footer" class="flex horiz bb">
 										<div class="flex1 cell br w50">
-											<p class="title bold center w100">Cachet du prescripteur</p>
+											<p class="title bold center w100">${this.localize("prescriber_stamp","Prescriber's stamp",this.language)}</p>
 											<ul>
 												<li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
 
@@ -1786,11 +1786,11 @@
 										<div class="w50">
 											<div class="vert w100">
 												<div class="cell bb center">
-													<p class="mt0">Date et signature du prescripteur</p>
+													<p class="mt0">${this.localize('date_and_sign_of_presc',"Date and prescriber's signature",this.language)}</p>
 													<p>${deliveryDate}</p>
 												</div>
 												<div class="cell">
-													<p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+													<p class="center">${this.localize('deliv_date','Deliverable from the specified date or from',this.language)}&nbsp;:</p>
 													<p class="signdate center bold w100">${deliveryDate}</p>
 												</div>
 											</div>
@@ -1798,7 +1798,7 @@
 									</footer>
 									<aside>
 										<div class="horiz">
-											<p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+											<p class="big uppercase center w100 bold fs1">${this.localize('presc_of_med','Prescription of drugs',this.language)}</p>
 										</div>
 									</aside>
 								</div>`
@@ -1836,12 +1836,14 @@
             body > div.page > main > article div.profile {margin: 0 25px;}
             body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
             body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-            body > div.page > main > article div.prescription-content > article {margin: 5px 0;}
+            body > div.page > main > article div.prescription-content > article {margin: 0 0 10px 0;}
+            body > div.page > main > article div.prescription-content > article > p {font-size:1.1em; margin: 0;padding: 0;}
+            body > div.page > main > article div.prescription-content > article > p > .bold {font-weight: bold;}
             body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
             body > div.page > footer {${this.selectedFormat != 'A4' ? 'display:none;' : ''}border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
             body > div.page > footer table:first-child {border-top:none;}
-            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+            body > div.page > footer table tr td {font-size:.8em; border-bottom:1px solid black;text-align: left;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
             body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
             body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
             body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
