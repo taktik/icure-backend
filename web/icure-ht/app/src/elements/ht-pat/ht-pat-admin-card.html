@@ -953,25 +953,26 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.api.insurance().getInsurance(insur.insuranceId).then(ins=>{
                 const home = this.patient.addresses.find(a=>a.addressType === "home") || null
                 const mutName = this.localizeContent(ins.name)
+                const mutCode = this.localizeContent(ins.code)
                 const patName = this.patient.firstName+" "+this.patient.lastName+" °"+this.api.moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
-                const oa = insur.parameters && insur.parameters.tc1 && mutName && mutName.length ? insur.parameters.tc1+" - "+mutName : "no OA"
+                const oa = mutCode && insur.parameters && insur.parameters.tc1 && insur.parameters.tc2 && mutName && mutName.length ? mutCode+" "+insur.parameters.tc1+"-"+insur.parameters.tc2 : "no OA"
                 const ssin = this.patient.ssin
-                const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber).length ? "/"+home.postboxNumber : "") : "no Addr"
+                const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber.length) ? (!home.postboxNumber.startsWith('/')?"/":"")+home.postboxNumber:"") : "no Addr"
                 const cp = home ? home.postalCode+" "+home.city : "no CP"
                 const sps = JSON.parse(localStorage.getItem('selectedPrinter'))
                 const paperWidth = sps && sps.stickers && sps.stickers.w || 62 // 80
                 const paperHeight = sps && sps.stickers && sps.stickers.h || 29 // 40
                 const vignetteBody =`<html><head>
                     <style>
-                        * {margin:0;padding:0;}
+                        * {margin:0;padding:0;font-size:12px;}
                         /*div.sticker {transform:rotate(-90deg);transform-origin:bottom;}*/
-                        p.patName {font-size: 1.1em;font-weight:bold;}
-                        p, pre {overflow: hidden; text-overflow: ellipsis;} /* inverted size for rotation */
+                        p.patName {font-size:14px;font-weight:bold;}
+                        p, pre {overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
                     </style></head>
                     <body>
                         <div class="sticker">
                             <p class="patName">${patName}</p>
-                            <pre class="oa">OA ${oa}</pre>
+                            <pre class="oa"><b>OA${oa}</b> ${mutName}</pre>
                             <pre class="ssin">   ${ssin}</pre>
                             <pre class="addr">   ${addr}</pre>
                             <pre class="cp">   ${cp}</pre>
@@ -1746,8 +1747,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     country: this.cardData.country
                 })
             }
+
+            this.api.patient().modifyPatientWithUser(this.user,this.patient)
+                .then(p => this.api.register(p,'patient'))
+                .then(p => {
+                    this.set('patient',p)
+                    this.patientChanged()
+                })
         }
-        else{
+        else if(Object.keys(this.cardData).length===0){
             fetch('http://127.0.0.1:16042/read')
                 .then((response) => {
                     return response.json()
@@ -1759,6 +1767,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+        else {
+            console.log("mauvaise carte inserer")
         }
     }
 
