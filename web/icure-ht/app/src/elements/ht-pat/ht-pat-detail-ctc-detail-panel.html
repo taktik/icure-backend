@@ -1656,12 +1656,12 @@
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridLabel}</div>
                     <hr>
-                    <h2>Preuve de prescription électronique</h2>
+                    <h2>${this.localize('proof_of_e_prescription','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}</h2>
                     <hr>
-                    <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+                    <p class="center">${this.localize('ple_present_doc','',this.language)}.</p>
                     <hr>
                     <div class="profile">
-                        <small>Nom et prénom du prescripteur&nbsp;:</small>
+                        <small>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}&nbsp;:</small>
                         <ul class="prescripteur-details">
                             <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
                             <li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
@@ -1669,7 +1669,7 @@
                     </div>
                     <hr>
                     <div class="profile">
-                        <small>Nom et prénom du patient&nbsp;:</small>
+                        <small>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)}&nbsp;:</small>
                         <ul class="patient-details">
                             <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
                             <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
@@ -1677,19 +1677,19 @@
                     </div>
                     <hr>
                 </header>
-                <h2>Contenu de la prescription électronique</h2>
+                <h2>${this.localize('content_of_e_prescription','Content of electronical prescription',this.language)}</h2>
                 <hr>
                 <div class="prescription-content">
                     ${prescriContent}
                 </div>
                 <footer>
                     <hr>
-                    <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+                    <p class="center">${this.localize('no_man_ad','No manuscript additions will be taken into account',this.language)}.</p>
                     <hr>
-                    <small class="center">Date&nbsp;:</small>
+                    <small class="center">${this.localize('date','Date',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                     <hr>
-                    <small class="center">Délivrable à partir du&nbsp;:</small>
+                    <small class="center">${this.localize('deliv_from','Deliverable from',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
@@ -1786,11 +1786,11 @@
 										<div class="w50">
 											<div class="vert w100">
 												<div class="cell bb center">
-													<p class="mt0">Date et signature du prescripteur</p>
+													<p class="mt0">${this.localize('date_and_sign_of_presc',"Date and prescriber's signature",this.language)}</p>
 													<p>${deliveryDate}</p>
 												</div>
 												<div class="cell">
-													<p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
+													<p class="center">${this.localize('deliv_date','Deliverable from the specified date or from',this.language)}&nbsp;:</p>
 													<p class="signdate center bold w100">${deliveryDate}</p>
 												</div>
 											</div>
@@ -1798,7 +1798,7 @@
 									</footer>
 									<aside>
 										<div class="horiz">
-											<p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
+											<p class="big uppercase center w100 bold fs1">${this.localize('presc_of_med','Prescription of drugs',this.language)}</p>
 										</div>
 									</aside>
 								</div>`
