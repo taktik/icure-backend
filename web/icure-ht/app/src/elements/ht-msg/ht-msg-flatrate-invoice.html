@@ -1008,6 +1008,7 @@
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
         import * as models from 'icc-api/dist/icc-api/model/models'
+        import * as fhcmodels from 'fhc-api/dist/model/models'
         import mustache from "mustache/mustache.js";
 
         class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -2192,6 +2193,19 @@
                 })
             }
 
+            _getIOsDataByInsurancesList(inputInsurancesList) {
+                return new Promise(resolve => {
+                    this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(inputInsurancesList).map(i=>_.trim(_.get(i, "parent"))).uniq().compact().value()}))
+                        .then(insurancesData => resolve(
+                            _
+                                .chain(insurancesData)
+                                .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                                .sortBy((i)=>{ return i.code; })
+                                .value()
+                        ))
+                })
+            }
+
             _generateJ3FileAndDownload() {
 
                 this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -2423,7 +2437,7 @@
                                 accepted: false,
                                 pending: false,
                                 resent: false,
-                                dateCode: moment().format('YYYYMMDD'),
+                                dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
                                 id: this.api.crypto().randomUuid(),
                                 logicalId: this.api.crypto().randomUuid()
                             }))}
@@ -2458,6 +2472,114 @@
                         }
                     )
                 })
+            }
+
+            _generateJ20FlatFiles(){
+                let flatData = {};
+                flatData.content = [];
+
+                //const OAs = ['100','200','300','400','500','600','900'];
+                const OAs = this.flatRateInvoicingDataObject.iosData.map(ioDt => ioDt.code);
+                //loop OA
+
+                return Promise.all(OAs.map(OA => {
+                    let ib  = new fhcmodels.InvoicesBatch('');
+                    ib.invoicingYear = this.flatRateInvoicingDataObject.exportDate.substr(0,4);
+                    ib.invoicingMonth = this.flatRateInvoicingDataObject.exportDate.substr(4,2);
+                    ib.fileRef = 'xxx';//not used
+                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportDate, OA);
+                    ib.ioFederationCode = OA;
+                    ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportDate);
+                    ib.sender = {};
+                    ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.cbe.replace(/[^\d]/g, '');
+                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(' ', '').replace('-', '');
+                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/[^\d]/g, '');
+                    ib.sender.firstName = ''
+                    ib.sender.lastName = this.flatRateInvoicingDataObject.hcpData.name;
+                    ib.sender.nihii = this.flatRateInvoicingDataObject.hcpData.nihii;
+                    ib.sender.phoneNumber = Number(this.flatRateInvoicingDataObject.hcpData.address.telecoms.filter(tc => tc.telecomType = "phone")[0].telecomNumber.replace(/[^\d]/g, ''));
+                    ib.sender.ssin = '72022102793'; //not used
+                    ib.numericalRef = 0;//not used
+                    ib.invoiceContent = 0;
+                    ib.magneticInvoice = true;
+                    let invoices = []
+                    //loop patients of OA
+                    let iNr = 1;
+                    const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
+                    const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
+                    const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
+                    oaInvoicesData.map(idt => {
+                        const invoiceNr = ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
+                        invoices.push(this.getPatientInvoice(idt, invoiceNr, OA));
+                        iNr++;
+                    })
+
+                    //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
+                    ib.invoices = invoices; //1 per patient
+                    //end loop patients of OA
+                    return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: ""};
+                    }).catch(err => {
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err}
+                    });
+                })).then(res => {
+                    flatData.content = res;
+                    return flatData;
+                })
+                //end loop OA
+            }
+
+            cleanNumericalString(str){
+                return str.replace(/[^\d]/g, '');
+            }
+
+            getUniqueSendNr(exportDate){
+                return exportDate.substr(3,3);
+            }
+
+            getBatchRef(exportDate, OA){
+                return exportDate.substr(3,3) + OA;
+            }
+
+            getPatientInvoice(patientData, iNr, OA){
+                let inv = new fhcmodels.Invoice('');
+                inv.patient = {}
+                inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
+                inv.patient.ssin = patientData.ssin;
+                inv.patient.insurabilities = [];
+                let ins = new fhcmodels.Insurability('');
+                const patIns = patientData.insurabilities[0];
+                ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
+                ins.parameters = {tc1 : patIns.parameters.tc1 , tc2 : patIns.parameters.tc2};
+                inv.patient.insurabilities.push(ins);
+                inv.invoiceNumber = Number(iNr);
+                patientData.invoiceNumber = iNr;
+                inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
+                inv.ioCode = OA;
+                inv.reason = 'Other';
+                inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
+                inv.items = [];
+                _.forEach(patientData.invoices, invItm => {
+                    _.forEach(invItm.invoicingCodes, invCd => {
+                        let itm = new fhcmodels.InvoiceItem('');
+                        itm.codeNomenclature = invCd.code;
+                        itm.dateCode = invCd.dateCode;
+                        itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
+                        itm.reimbursedAmount = invCd.reimbursement;
+                        inv.items.push(itm);
+                    })
+                });
+
+                //patientData.invoices[0].patient =
+                return inv;
+            }
+
+            convertDate(sDate){
+                //Todo: implement
+                //moment(_.get(i, "dateOfBirth"+"", "0")+"", "DD/MM/YYYY")
+                //let d = moment(sDate, "DD/MM/YYYY");
+
+                return sDate;
             }
 
             _generateJ20PdfFiles() {
@@ -2551,6 +2673,7 @@
                                 id: _.trim(_.get(this.hcp, "id")),
                                 name: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
                                 address: _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"work"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"home"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).head().value() || {},
+                                cbe: _.trim(_.get(this.hcp, "cbe", "")),
                                 nihii: _.trim(_.get(this.hcp, "nihii", "")),
                                 nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
                                 contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
@@ -2559,6 +2682,7 @@
                             },
                             patientsData: [],
                             insurancesData: [],
+                            iosData:[],
                             listsData: [],
                             invoicesData: [],
                             exportDate: _.trim(
@@ -2619,7 +2743,8 @@
                                             code: _.trim(_.get(singleNomenclature, "code")),
                                             label: _.get(singleNomenclature, "label"),
                                             flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
-                                            price: valorisationPrice
+                                            price: valorisationPrice,
+                                            type: 'previous'
                                         } : false
                                     })
                                 .value()
@@ -2664,7 +2789,8 @@
                                             code: _.trim(_.get(singleNomenclature, "code")),
                                             label: _.get(singleNomenclature, "label"),
                                             flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
-                                            price: valorisationPrice
+                                            price: valorisationPrice,
+                                            type: 'current'
                                         } : false
                                     })
                                     .value()
@@ -2744,6 +2870,9 @@
                     })
                     .then((insurancesData)=>{
                         this.flatRateInvoicingDataObject.insurancesData = insurancesData
+                        return this._getIOsDataByInsurancesList(this.flatRateInvoicingDataObject.insurancesData).then(x=>x);})
+                    .then((iosData) => {
+                        this.flatRateInvoicingDataObject.iosData = iosData
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         return {
@@ -2781,6 +2910,14 @@
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
+
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_6_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
+                        return this._generateJ20FlatFiles().then(x=>x)
+                    })
+                    .then(flatObject=>{
+                        this.flatRateInvoicingDataObject.flatFileContent = flatObject.content
+
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
                         return this._generateJ20PdfFiles().then(x=>x)
