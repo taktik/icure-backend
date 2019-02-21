@@ -2509,7 +2509,7 @@
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
                     const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
                     oaInvoicesData.map(idt => {
-                        const invoiceNr = ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
+                        const invoiceNr = idt.invoiceReference;//ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
                         invoices.push(this.getPatientInvoice(idt, invoiceNr, OA));
                         iNr++;
                     })
@@ -2518,9 +2518,9 @@
                     ib.invoices = invoices; //1 per patient
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: ""};
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: "", batch: ib};
                     }).catch(err => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err}
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err, batch: ib}
                     });
                 })).then(res => {
                     flatData.content = res;
