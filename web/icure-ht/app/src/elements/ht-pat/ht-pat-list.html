@@ -898,7 +898,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
                         <div slot="suffix">
                             <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter" disabled="[[!filterValue.length]]"></paper-icon-button>
-                            <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
+                            <paper-tooltip for="save-filter" position="left">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
                         </div>
                     </paper-input>
 

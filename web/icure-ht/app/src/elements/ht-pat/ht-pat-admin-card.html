@@ -453,6 +453,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             .save {
                 margin-right: 36px;
+                margin-left: 16px;
             }
             .save iron-icon,
             .print-vignette iron-icon {
@@ -481,6 +482,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="print-vignette">
                     <iron-icon id="print-vignette" icon="av:recent-actors" on-tap="printMutualVignette"></iron-icon>
                     <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
+                </div>
+                <div class="print-vignette">
                     <iron-icon id="fill-with-card" icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
                     <paper-tooltip for="fill-with-card" position="left">[[localize('fill_with_eid','Fill with eid',language)]]</paper-tooltip>
                 </div>
