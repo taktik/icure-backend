@@ -1239,7 +1239,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg =>{
                         msg.status = msg.status&(0<<14)
-                        this.api.message().modifyMessage(msg).then(() => {
+                        this.api.message().modifyMessage(msg).then((m) => {
+                            _.assign(msg,m)
                             this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                             this._refresh()
                         })
@@ -1252,7 +1253,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg=>{
                         msg.status = msg.status|(1<<14)
-                        this.api.message().modifyMessage(msg).then(()=>{
+                        this.api.message().modifyMessage(msg).then((m)=>{
+                            _.assign(msg,m)
                             this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                             this._refresh()
                         })
@@ -1270,7 +1272,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, id, 'INBOX', 'BININBOX').then(res=>{
                                 if (res) {
                                     msg.transportGuid = 'BININBOX:' + id
-                                    this.api.message().modifyMessage(msg).then((msg)=> {
+                                    this.api.message().modifyMessage(msg).then((m)=> {
+                                        _.assign(msg,m)
                                         this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                                         this._refresh()
                                     })
@@ -1281,7 +1284,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, id, 'SENTBOX', 'BINSENTBOX').then(res=>{
                                 if (res) {
                                     msg.transportGuid = 'BINSENTBOX:' + id
-                                    this.api.message().modifyMessage(msg).then((msg)=> {
+                                    this.api.message().modifyMessage(msg).then((m)=> {
+                                        _.assign(msg,m)
                                         this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                                         this._refresh()
                                     })
@@ -1300,14 +1304,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
                         if (msg.transportGuid.includes('INBOX')) {
                             msg.transportGuid = 'INBOX:' + id
-                            this.api.message().modifyMessage(msg).then(()=>{
+                            this.api.message().modifyMessage(msg).then((m)=>{
+                                _.assign(msg,m)
                                 this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                                 this._refresh()
                             })
                         }
                         if (msg.transportGuid.includes('SENTBOX')) {
                             msg.transportGuid = 'SENTBOX:' + id
-                            this.api.message().modifyMessage(msg).then(()=>{
+                            this.api.message().modifyMessage(msg).then((m)=>{
+                                _.assign(msg,m)
                                 this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                                 this._refresh()
                             })
