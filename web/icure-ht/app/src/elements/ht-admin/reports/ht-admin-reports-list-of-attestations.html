@@ -66,6 +66,163 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="list-of-attestations">
             <h4>[[localize('rap_att_list', 'Rapports - List of attestations', language)]]</h4>
+            <vaadin-form-layout>
+                <vaadin-form-item  colspan="1">
+                    <vaadin-date-picker id="date-picker" label="De" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                </vaadin-form-item >
+                <vaadin-form-item  colspan="1">
+                    <vaadin-date-picker id="date-picker" label="A" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                </vaadin-form-item >
+                <vaadin-form-item  colspan="2">
+                    <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire" readonly="[[readonly]]"></vaadin-combo-box>
+                </vaadin-form-item>
+            </vaadin-form-layout>
+
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Mutuelle
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Patient
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Autres Organismes
+
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> e-Attest
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> e-Fact
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Mediprima
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Papier
+
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Especes
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Carte debit
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Carte credit
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Virement
+
+            <vaadin-grid id="attestationsGrid" class="material" items="[[attestationsItems]]" active-item="{{selectedAttestation}}">
+
+                <vaadin-grid-column flex-grow="0" width="5%">
+                    <template class="header">
+                        <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientSelected(item, patientSelected.*)]]"
+                                         on-checked-changed="_checkSharePatient"></vaadin-checkbox>
+                    </template>
+                    <template>
+                            <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientSelected(item, patientSelected.*)]]"
+                                             on-checked-changed="_checkSharePatient"></vaadin-checkbox>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Prestataire
+                    </template>
+                    <template>
+                        <div>[[item.author]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Date
+                    </template>
+                    <template>
+                        <div>[[item.date]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Patient
+                    </template>
+                    <template>
+                        <div>[[item.patient]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        N° d'attestation
+                    </template>
+                    <template>
+                        <div>[[item.attestNumber]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        O.A.
+                    </template>
+                    <template>
+                        <div>[[item.oa]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Mutuelle
+                    </template>
+                    <template>
+                        <div>[[item.mutuality]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Type de facturation
+                    </template>
+                    <template>
+                        <div>[[item.facturationType]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <!--
+                <vaadin-grid-column>
+                    <template class="header">
+                        Convention liée
+                    </template>
+                    <template>
+                        <div>[[item.linkedConvention]]</div>
+                    </template>
+                </vaadin-grid-column>
+                -->
+                <vaadin-grid-column>
+                    <template class="header">
+                        Mode facturation
+                    </template>
+                    <template>
+                        <div>[[item.facturationMode]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Espèces
+                    </template>
+                    <template>
+                        <div>[[item.cash]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Carte debit
+                    </template>
+                    <template>
+                        <div>[[item.debitCard]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Carte crédit
+                    </template>
+                    <template>
+                        <div>[[item.creditCard]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Virement
+                    </template>
+                    <template>
+                        <div>[[item.transfert]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Montant total
+                    </template>
+                    <template>
+                        <div>[[item.totalAmount]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+
+            <vaadin-checkbox on-checked-changed="_isSurgical" readonly="[[_checkReadonlySurgical]]"></vaadin-checkbox> Export Anonyme
+            <paper-button on-tap="refreshInvoiceList" class="modal-button">Refresh</paper-button>
+            <paper-button on-tap="refreshInvoiceList" class="modal-button">Exporter</paper-button>
         </div>
 
     </template>
@@ -74,6 +231,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
+        import * as models from 'icc-api/dist/icc-api/model/models'
 
         class HtAdminReportsListOfAttestations extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -89,7 +247,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
-                    }
+                    },
+                    attestationsItems: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
                 }
             }
 
@@ -103,10 +267,126 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+                this.refreshInvoiceList()
             }
 
+            _hcpFilterChanged(e){
+                let latestSearchValue = e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('hcpListItem', []);
+                    return;
+                }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('hcpListItem', res.rows);
+                });
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (filterValue) {
+                        const desc = 'desc';
+                        let count = 15;
+                        return Promise.all([this.api.hcparty().findByName(filterValue, null,  null, count, desc)]).then(results => {
+                            const hcpList = results[0];
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+            refreshInvoiceList() {
+                this.api.invoiceicc.listToPatients().then(invoices => {
+                    //invoices = [invoices[0]]
+                    // patsIns type : [inv, pat, ins]
+                    return Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]])))
+                        .then(invAndIdsPat =>
+                            this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        ).then(invAndPats =>
+                            this.api.insurance().getInsurances(new models.ListOfIdsDto({ids: _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i && i.insurabilities && i.insurabilities[0] && i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => it && (it[0] && it[0].insurabilities && it[0].insurabilities[0] && i.id === it[1].insurabilities[0].insuranceId) || (it[1] && it[1].insurabilities && it[1].insurabilities.find(patIns => (it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate && it[0].invoiceDate >= patIns.startDate && it[0].invoiceDate <= patIns.endDate && patIns.insuranceId === i.id) || (!(it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate) && patIns.insuranceId === i.id))))]))
+                        )
+                        .then(invAndPats => {
+                            return Promise.all(invAndPats.map(([invoice, pat, ins]) => {
+
+                                console.log("invoice:", invoice)
+                                const item = {
+                                    //author: after,
+                                    date: invoice.invoiceDate,
+                                    //patient: after
+                                    attestNumber: invoice.invoiceReference,
+                                    //oa: after
+                                    //mutuality: after
+                                    facturationType: invoice.invoiceType,
+                                    //linkedConvention: for future use
+                                    facturationMode: invoice.paymentType,
+                                    cash: 0,
+                                    debitCard: 0,
+                                    creditCard: 0,
+                                    transfert: 0,
+                                    totalAmount: 0
+                                }
+                                item.totalAmount = invoice.invoicingCodes.reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0) || 0
+                                item.cash = invoice.invoicingCodes.filter(c => c.paymentType === 'cash').reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0)
+                                item.debitCard = invoice.invoicingCodes.filter(c => c.paymentType === 'debitcard').reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0)
+                                item.creditCard = invoice.invoicingCodes.filter(c => c.paymentType === 'creditcard').reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0)
+                                item.transfert = invoice.invoicingCodes.filter(c => c.paymentType === 'wired').reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0)
+
+                                item.mutuality = ins ? ins.code + ' ' + (ins.name["fr"] || ins.name["nl"]) : null
+                                item.oa = item.mutuality ? item.mutuality[0] + '00' : null
+                                item.patient = pat ? (pat.firstName + ' ' + pat.lastName) : null
+
+                                return this.api.hcpartyicc.getHealthcareParty(invoice.author).then(hcp => {
+                                    item.author = hcp.name
+                                    return item
+                                })
+                            }))
+                        }).then(invlist =>
+                            this.set('attestationsItems', invlist)
+                        )
+                })
+            }
         }
 
         customElements.define(HtAdminReportsListOfAttestations.is, HtAdminReportsListOfAttestations)
+
+        /*
+        this.api.crypto().extractCryptedFKs(invoice, this.user.healthcarePartyId).then(id => [invoice, id.extractedKeys[0]])
+        .catch(e => console.log(e))
+        .then(invAndIdsPat =>
+        this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ids: [invAndIdsPat[1]]}))
+        .then(pats => [invAndIdsPat[0], pats[0]])
+        ).then(invAndPats => {
+
+        const i = invAndPats[1]
+        return this.api.insurance().getInsurances(
+        new models.ListOfIdsDto({ids : [i && i.insurabilities && i.insurabilities[i.insurabilities.length-1] && i.insurabilities[i.insurabilities.length-1].insuranceId]} )
+        )
+        .then(ins =>
+        invAndPats.map(it=>[it[0], it[1], ins.find(i=>it && (it[0] && it[0].insurabilities && it[0].insurabilities[0] && i.id === it[1].insurabilities[0].insuranceId) || (it[1] && it[1].insurabilities && it[1].insurabilities.find(patIns => (it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate && it[0].invoiceDate>=patIns.startDate && it[0].invoiceDate<=patIns.endDate && patIns.insuranceId===i.id) || (!(it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate) && patIns.insuranceId===i.id))))])
+        )
+        } ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
+        console.log("bla", [inv, pat, ins])
+        }))
+        */
     </script>
 </dom-module>
+
+
+
