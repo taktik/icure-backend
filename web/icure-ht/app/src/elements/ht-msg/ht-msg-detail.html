@@ -1628,35 +1628,31 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
         let dest = []
-        if (origMsg.fromHealthcarePartyId.length == 11) {
-            const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
+        this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
+        .then(paginated=>{
+            if(paginated.rows && paginated.rows[0]) {
                 let hcp = paginated.rows[0]
                 hcp.type = 'NIHII'
                 hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
                 dest.push(hcp)
-            })
-        } else {
-            this.api.hcparty().getHealthcareParty(origMsg.fromHealthcarePartyId).then(hcp=>{
-                hcp.type = 'NIHII'
-                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
-                dest.push(hcp)
-            })
-        }
-        // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
-        const msgToRe = {
-	        // delegations: origMsg.delegations,
-            destinations: dest,
-            patientInss: origMsg.patientInss,
-            annex: undefined,
-            document: {
-                title: 'Re: '+origMsg.subject,
-                textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
-            },
-            customMetas: origMsg.metas,
-            type: 'replyto'
-        }
-        const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
-        target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
+                console.log('hcp to re',hcp)
+                const msgToRe = {
+                    // delegations: origMsg.delegations,
+                    destinations: dest,
+                    patientInss: origMsg.patientInss,
+                    annex: undefined,
+                    document: {
+                        title: 'Re: ' + origMsg.subject,
+                        textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
+                    },
+                    customMetas: origMsg.metas,
+                    type: 'replyto'
+                }
+                const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
+                target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true,composed: true,params: msgToRe}}))
+            } else console.log('cannot find ssin or nihii : '+origMsg.fromHealthcarePartyId)
+        }).catch(e=>console.log(e))
     }
 
     _hideMsg() {
