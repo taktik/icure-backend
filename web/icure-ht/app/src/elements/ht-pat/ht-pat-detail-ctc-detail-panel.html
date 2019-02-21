@@ -635,7 +635,7 @@
 
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="layout horizontal">
-				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
+				<filter-panel id="serviceFilterPanel" selected-filters="{{serviceFilters}}" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
@@ -703,7 +703,7 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <span class="contact-title">[[currentContactTypeLabel]][[dof.ctc.userDescr]] ([[_dateFormat(dof.ctc.openingDate)]])
 								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                     <dynamic-subcontact-type-selector id="subctc-type-d" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
 								</template>
@@ -940,7 +940,7 @@
 						value: function () {
 							return [];
 						},
-						observer: '_contactsChanged'
+						observer: '_servicesFilter'
 					},
 					allContacts: {
 						type: Array,
@@ -1087,12 +1087,20 @@
             linkingLetterDpData :{
                 type: Object,
                 value: {}
+            },
+            serviceFilters: {
+                type: Array,
+                value: () => ([])
+            },
+            filteredServiceIds: {
+                type: Array,
+                value: () => ([])
             }
 		};
 	}
 
 			static get observers() {
-				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)','_servicesFilter(serviceFilters)'];
 			}
 
 			constructor() {
@@ -1105,7 +1113,38 @@
                     this.set('globalHcp',tempHcp)
                 })
                 this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
-			}
+            }
+            
+            _servicesFilter() {
+                if(!this.contacts) {
+                    return;
+                }
+
+                if(!this.serviceFilters || !this.serviceFilters.length) {
+                    this.set('filteredServiceIds',[]);
+                    this._contactsChanged()
+                    return 
+                }
+                
+                const filterCodesByType = {}
+                _.flatten(this.serviceFilters).forEach( filter => {
+                    const codesArray = filterCodesByType[filter.type] || []
+                    filterCodesByType[filter.type] = codesArray.concat(filter.code)
+                })
+                
+                this.set('filteredServiceIds',_.flatten(this.contacts.map( contact => 
+                    (contact.services.filter( service => 
+                        service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code) ) && 
+                        Object.values( this.api.contact().preferredContent(service, this.language) || {} ).some(value => value)
+                    ) || []).map(service => 
+                        service.id
+                    )
+                )))
+
+                this._contactsChanged()
+
+
+            }
 
 			ifRecipeAvailable(){
                 this.user && this.user.healthcarePartyId && this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
@@ -2007,27 +2046,43 @@
 
             _contactsChanged() {
                 this.set('contactsFormsAndDocuments', [])
-                if (!this.contacts) {
+                if (!this.contacts || (this.serviceFilters && this.serviceFilters.length && !(this.filteredServiceIds && this.filteredServiceIds.length))) {
                     return
                 }
 
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.contacts.map(contact => {
-                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
+                const formGroups = this.contacts.reduce((contacts, contact) => {
+                    
+                    const forms = ((this.serviceFilters && this.serviceFilters.length ? 
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && sc.services.some( s => this.filteredServiceIds.find(fsId => fsId === s.serviceId))):
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) ))|| [])
+                    .map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
                             docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
                     })
-					const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
-					return {
-                    ctc: contact,
-                    forms: _.sortBy(forms, f => -f.created),
-                    unmappedServices: _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-                }})
+
+                    const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
+
+                    const unmappedServices = this.serviceFilters && this.serviceFilters.length ? 
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) && this.filteredServiceIds.some(fsId => fsId === svc.id) ), 'created'):
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) ), 'created')  
+
+                    if((forms && forms.length) || (unmappedServices && unmappedServices.length)) {
+                        contacts.push({
+                            ctc: contact,
+                            forms: _.sortBy(forms, f => -f.created),
+                            unmappedServices
+                        })
+                    }
+
+                    return contacts
+
+                }, [])
 
                 const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
