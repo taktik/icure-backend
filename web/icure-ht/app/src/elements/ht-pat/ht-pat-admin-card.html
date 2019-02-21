@@ -1742,8 +1742,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     country: this.cardData.country
                 })
             }
+
+            this.api.patient().modifyPatientWithUser(this.user,this.patient)
+                .then(p => this.api.register(p,'patient'))
+                .then(p => {
+                    this.set('patient',p)
+                    this.patientChanged()
+                })
         }
-        else{
+        else if(Object.keys(this.cardData).length===0){
             fetch('http://127.0.0.1:16042/read')
                 .then((response) => {
                     return response.json()
@@ -1755,6 +1762,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+        else {
+            console.log("mauvaise carte inserer")
         }
     }
 

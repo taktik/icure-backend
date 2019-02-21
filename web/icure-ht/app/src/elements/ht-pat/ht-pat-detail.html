@@ -3084,7 +3084,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             filterEvents() {
                 const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
                 this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
-                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                /*const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
                 if(age>=25 && age<=65 && this.patient.gender==="female" &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
                     this.createEvent("BE-THESAURUS-PROCEDURES|X37.002|3.1.0");
@@ -3096,7 +3096,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(age>=50 && age<=74 &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
                     this.createEvent("BE-THESAURUS-PROCEDURES|D36.002|3.1.0")
-                }
+                }*/
             }
 
             _lateEventCssClass(e) {
