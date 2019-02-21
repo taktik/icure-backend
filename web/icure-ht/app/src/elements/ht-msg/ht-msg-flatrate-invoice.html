@@ -775,6 +775,10 @@
                     text-align: center;
                 }
 
+                #loadingContent {
+                    text-align: left;
+                }
+
                 .loadingIcon {
                     margin-right:5px;
                 }
@@ -1249,6 +1253,7 @@
         import * as models from 'icc-api/dist/icc-api/model/models'
         import * as fhcmodels from 'fhc-api/dist/model/models'
         import mustache from "mustache/mustache.js";
+        import jsZip from "jszip/dist/jszip.js";
 
         class HtMsgFlatrateInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
@@ -2148,9 +2153,12 @@
                     let nursePrice = this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.filter( _.get(singleEntry, "invoicingCodes"), {code:"409614"} ), "totalAmount" ) ), 2 )
                     let totalPriceMKI = this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get(singleEntry, "invoicingCodes"), "totalAmount" ) ), 2 )
 
+                    // _.get(singleEntry, "invoices[0].invoiceReference") => From local invoices model
+                    // _.get(singleEntry, "invoiceNumber") => From FHC flat files
+
                     contentToReturn += `
                         <tr class="fs9 borderTopLightThinGrey pt2 pb2">
-                            <td width="10%" class="bold underlined">`+_.get(singleEntry, "invoices[0].invoiceReference")+`</td>
+                            <td width="10%" class="bold underlined">`+_.get(singleEntry, "invoiceNumber", "")+`</td>
                             <td width="5%" class="">`+_.get(singleEntry, "externalId", "")+`</td>
                             <td width="21%" class="">`+_.get(singleEntry, "lastName", "")+` `+_.get(singleEntry, "firstName", "")+`</td>
                             <td width="9%" class="bold">`+_.get(singleEntry, "ssin", "")+`</td>
@@ -2181,7 +2189,7 @@
                                 <tr class="fs9 bold">
                                     <td width="40%" class="colorBlue txt-left italic">`+ ( isInvoicingExport ? "" : this.localize('flatrate_footer_reply_before',this.language) ) +`</td>
                                     <td width="20%" class="colorBlue txt-center italic underlined">`+ this.localize('month_' + parseInt(this.reportCurrentDateMomentObject.format('M')), this.language) + ` `+ this.reportCurrentDateMomentObject.format('YYYY')+`</td>
-                                    <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('of',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
+                                    <td width="40%" class="colorBlue txt-right italic">`+this.localize('page',this.language)+` `+currentPage+` `+this.localize('on',this.language)+` `+totalPages+` - Mut. `+oaCode+`</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2745,8 +2753,6 @@
             }
 
             _generateJ20FlatFiles(){
-                let flatData = {};
-                flatData.content = [];
 
                 //const OAs = ['100','200','300','400','500','600','900'];
                 const OAs = this.flatRateInvoicingDataObject.iosData.map(ioDt => ioDt.code);
@@ -2754,12 +2760,12 @@
 
                 return Promise.all(OAs.map(OA => {
                     let ib  = new fhcmodels.InvoicesBatch('');
-                    ib.invoicingYear = this.flatRateInvoicingDataObject.exportDate.substr(0,4);
-                    ib.invoicingMonth = this.flatRateInvoicingDataObject.exportDate.substr(4,2);
+                    ib.invoicingYear = this.flatRateInvoicingDataObject.exportedDate.substr(0,4);
+                    ib.invoicingMonth = this.flatRateInvoicingDataObject.exportedDate.substr(4,2);
                     ib.fileRef = 'xxx';//not used
-                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportDate, OA);
+                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportedDate, OA);
                     ib.ioFederationCode = OA;
-                    ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportDate);
+                    ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportedDate);
                     ib.sender = {};
                     ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.cbe.replace(/[^\d]/g, '');
                     ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(' ', '').replace('-', '');
@@ -2786,29 +2792,26 @@
 
                     //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
                     ib.invoices = invoices; //1 per patient
+
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: ""};
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: "", oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )};
                     }).catch(err => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err}
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err, oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )}
                     });
-                })).then(res => {
-                    flatData.content = res;
-                    return flatData;
-                })
-                //end loop OA
+                })).then(x=>x)
             }
 
             cleanNumericalString(str){
                 return str.replace(/[^\d]/g, '');
             }
 
-            getUniqueSendNr(exportDate){
-                return exportDate.substr(3,3);
+            getUniqueSendNr(exportedDate){
+                return exportedDate.substr(3,3);
             }
 
-            getBatchRef(exportDate, OA){
-                return exportDate.substr(3,3) + OA;
+            getBatchRef(exportedDate, OA){
+                return exportedDate.substr(3,3) + OA;
             }
 
             getPatientInvoice(patientData, iNr, OA){
@@ -2860,6 +2863,7 @@
                     pdfData[oa.id] = {
                         oa: {
                             id: _.get(oa, "id", ""),
+                            parent: _.get(oa, "parent", ""),
                             finalName: _.get(oa, "finalName", ""),
                             code: _.get(oa, "code", ""),
                             address: _.trim(_.compact([_.get(oa, "address.street", ""), _.get(oa, "address.houseNumber", ""), _.get(oa, "address.postboxNumber", "")]).join(' ')),
@@ -2934,29 +2938,60 @@
                                     _.map(oaData.entries, (listEntries, listKey) => {
                                         let listIndex = parseInt(listKey.replace('list',''));
                                         return !parseInt(_.size(listEntries)) ? false :
-                                            this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') " '+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+' ": ' +
+                                            this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') "<span class="italic colorBlue">'+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+'</span>": ' +
                                             this.api.hrFormatNumber(_.get( _.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) && _.trim(i.listId)=== _.trim(listKey) }), "[0].listTotal", 0 )) + ' €'
                                     })
                                 ) .join("<br />") +
                             "</p>" +
-                            "<p class='bold fs15 mt10 colorBlue uppercase italic'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(totalAmount) + ' €</p>' +
+                            "<p class='bold fs15 mt20 colorBlue uppercase italic'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(totalAmount) + ' €</p>' +
                             this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true) +
                             this._getExportPdfFooter();
 
                         return {
                             oaId: _.trim(oaData.oa.id),
+                            parentOaId: _.trim(oaData.oa.parent),
                             invoiceIds: _.compact( _.map( _.flatMap( oaData.entries ), i =>_.trim(_.get(i, "invoices[0].id", "")) )),
                             totalAmount: totalAmount,
-                            pdf: {
-                                template: pdfTemplate,
-                                totalPages: parseInt(totalPages)
-                            }
+                            template: pdfTemplate,
+                            totalPages: parseInt(totalPages)
                         }
 
                     })
                 );
 
                 return new Promise(resolve =>resolve(pdfDataToPrint))
+
+            }
+
+            _createMhExportZipArchive() {
+
+                let zipArchive = new jsZip();
+
+                _.map(this.flatRateInvoicingDataObject.iosData, parentOa => {
+
+                    let parentOaFolderName = _.kebabCase( _.compact([ _.trim(_.get(parentOa, "code", "")), _.trim(_.get(parentOa, "finalName", "")) ]).join(" "))
+
+                    zipArchive
+                        .folder(parentOaFolderName)
+                            .file("slipFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.slips, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("flatFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.flatFiles, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+
+                    _.map(_.filter(this.flatRateInvoicingDataObject.insurancesData, {parent:parentOa.id}), oa => {
+                        zipArchive
+                            .folder(parentOaFolderName)
+                                .folder(_.kebabCase( _.compact([ _.trim(_.get(oa, "code", "")), _.trim(_.get(oa, "finalName", "")) ]).join(" ")))
+                                    .file("lists-A4-export.pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
+                    })
+
+                })
+
+                return zipArchive.generateAsync({
+                    // type:"blob",
+                    type:"arraybuffer",
+                    mimeType: "application/zip",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 9 }
+                })
 
             }
 
@@ -2991,14 +3026,29 @@
                             listsData: [],
                             invoicesData: [],
                             oaTotalPrices: [],
-                            exportDate: _.trim(
+                            batchExportTstamp: +new Date(),
+                            exportedDate: _.trim(
                                 parseInt(_.get(this.shadowRoot.getElementById("exportedYear"), "value", this._getExportCurrentYear())) +
                                 ( ( _.trim(_.get(this.shadowRoot.getElementById("exportedMonth"), "value", this._getExportCurrentMonth())).length === 1 ? "0" : "" ) + parseInt(_.get(this.shadowRoot.getElementById("exportedMonth"), "value", this._getExportCurrentMonth())) ) +
                                 "01"
-                            )
+                            ),
+                            generatedFiles: {
+                                pdfs: {},
+                                flatFiles: {},
+                                slips: {}
+                            },
+                            finalArchive: {
+                                archiveDownloadFileName: _.kebabCase(_.compact([
+                                    moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                    "medical house",
+                                    _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
+                                    "invoicing export",
+                                    +new Date()
+                                ]).join(" ")) + ".zip"
+                            }
                         }
 
-                        this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")
+                        this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")
 
                         this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
                             phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
@@ -3031,8 +3081,8 @@
                                                                     !!singleValorisation
                                                                     && parseFloat(_.get(singleValorisation, "reimbursement", 0))
                                                                     && (
-                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').subtract(1, 'month') ) ||
-                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format("YYYYMMDD")
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').subtract(1, 'month') ) ||
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format("YYYYMMDD")
                                                                     )
                                                                 )
 
@@ -3077,8 +3127,8 @@
                                                                     !!singleValorisation
                                                                     && parseFloat(_.get(singleValorisation, "reimbursement", 0))
                                                                     && (
-                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month') ) ||
-                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').format("YYYYMMDD")
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month') ) ||
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format("YYYYMMDD")
                                                                     )
                                                                 )
 
@@ -3124,10 +3174,10 @@
                                                     !!_.size(mhc) &&
 
                                                     // Has to begin in the past
-                                                    moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) &&
+                                                    moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")) &&
                                                     (
                                                         // Either end of contract is in the future or is not set
-                                                        moment(_.trim(_.get(mhc, "endOfContract", "0")), "YYYYMMDD").endOf('month').isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) ||
+                                                        moment(_.trim(_.get(mhc, "endOfContract", "0")), "YYYYMMDD").endOf('month').isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")) ||
                                                         !parseInt(_.get(mhc, "endOfContract", 0))
                                                     ) &&
                                                     (
@@ -3135,11 +3185,11 @@
                                                         // Start of coverage isn't set and start of contract is two month in the past (start of coverage = start of contract + 1 month when no trial period)
                                                         (
                                                             parseInt(_.get(mhc, "startOfCoverage", 0)) &&
-                                                            moment(_.trim(_.get(mhc, "startOfCoverage", "0")), "YYYYMMDD").endOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                            moment(_.trim(_.get(mhc, "startOfCoverage", "0")), "YYYYMMDD").endOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD"))
                                                         ) ||
                                                         (
                                                             !parseInt(_.get(mhc, "startOfCoverage", 0)) &&
-                                                            moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                            moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD"))
                                                         )
                                                     )
                                                 )
@@ -3187,14 +3237,14 @@
                             // Start of month of start cover must be BEFORE (start of export month -1 month)
                             // Ie: start of coverage began 2+ month before exported month
                             list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
                             )}),
 
                             // New patients WITHOUT tryout (double amounts / must appear twice)
                             // Start of month of start cover must be EQUAL TO (start of export month -1 month)
                             // AND Start of month of cover - 1 month === Start of month of contract
                             list5: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
                                 !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
                             )}),
 
@@ -3202,7 +3252,7 @@
                             // Start of month of start cover must be EQUAL TO (start of export month -1 month)
                             // AND Start of month of cover - 1 month > Start of month of contract
                             list6: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
                                 !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
                             )}),
                         }
@@ -3220,20 +3270,113 @@
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
                         return this._generateJ20FlatFiles().then(x=>x)
                     })
-                    .then(flatObject=>{
-                        this.flatRateInvoicingDataObject.flatFileContent = flatObject.content
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
-                        return this._generateJ20PdfTemplateObjects().then(x=>x)
+                    .then(flatFileObjects=>{
+
+                        this.flatRateInvoicingDataObject.generatedFiles.flatFiles = _.map(flatFileObjects,i=>{
+                            return {
+                                downloadFileName: _.kebabCase(_.compact([
+                                    moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                    "medical house invoicing export flatfile parent oa",
+                                    _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.io}), "[0].code" )),
+                                    _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.io}), "[0].finalName" )),
+                                    +new Date()
+                                ]).join(" ")) + ".txt",
+                                fileContent: i.file,
+                                parentOaId: i.io,
+                                oaInvoiceIds: i.oaInvoiceIds,
+                            }
+                        })
+
+                        this.flatRateInvoicingDataObject.generatedFiles.slips = _.map(flatFileObjects,i=>{
+                            return {
+                                downloadFileName: _.kebabCase(_.compact([
+                                    moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                    "medical house invoicing export slip parent oa",
+                                    _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.io}), "[0].code" )),
+                                    _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.io}), "[0].finalName" )),
+                                    +new Date()
+                                ]).join(" ")) + ".txt",
+                                fileContent: i.slip,
+                                parentOaId: i.io,
+                                oaInvoiceIds: i.oaInvoiceIds,
+                            }
+                        })
+
+                        return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.flatFiles.map( singleFileObject =>  {
+                            return this.api.message().newInstance(this.user)
+                                .then(newMessageInstance => this.api.message().createMessage(
+                                    _.merge(newMessageInstance, {
+                                        transportGuid: "MH:FLATRATE:INVOICING-FLATFILE",
+                                        recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                        recipientsType: "org.taktik.icure.entities.HealthcareParty",
+                                        metas: {
+                                            filename: _.trim(singleFileObject.downloadFileName),
+                                            totalInvoices: parseInt(_.size(singleFileObject.oaInvoiceIds)),
+                                            exportedDate: parseInt(this.flatRateInvoicingDataObject.exportedDate),
+                                            batchExportTstamp: parseInt(this.flatRateInvoicingDataObject.batchExportTstamp),
+                                            parentOaId: _.trim(_.get(singleFileObject, "parentOaId", ""))
+                                        },
+                                        toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                        subject: "MH: Flatrate invoicing FLAT FILE export",
+                                        status: this.invoiceMessageStatuses.pending.status,
+                                        invoiceIds: _.compact(singleFileObject.oaInvoiceIds)
+                                    }))
+                                )
+                                .then(createdMessage => {
+                                    _.merge(singleFileObject, {messageId:createdMessage.id})
+                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("text/plain"), name: _.trim(singleFileObject.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                })
+                                .then(createdDocument => {
+                                    _.merge(singleFileObject, {documentId:createdDocument.id})
+                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(singleFileObject.fileContent))).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                })
+                                .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                        }))
+                            .then(()=>{
+                                return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.slips.map( singleFileObject =>  {
+                                    return this.api.message().newInstance(this.user)
+                                        .then(newMessageInstance => this.api.message().createMessage(
+                                            _.merge(newMessageInstance, {
+                                                transportGuid: "MH:FLATRATE:INVOICING-SLIP",
+                                                recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                                recipientsType: "org.taktik.icure.entities.HealthcareParty",
+                                                metas: {
+                                                    filename: _.trim(singleFileObject.downloadFileName),
+                                                    totalInvoices: parseInt(_.size(singleFileObject.oaInvoiceIds)),
+                                                    exportedDate: parseInt(this.flatRateInvoicingDataObject.exportedDate),
+                                                    batchExportTstamp: parseInt(this.flatRateInvoicingDataObject.batchExportTstamp),
+                                                    parentOaId: _.trim(_.get(singleFileObject, "parentOaId", ""))
+                                                },
+                                                toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                                subject: "MH: Flatrate invoicing SLIP export",
+                                                status: this.invoiceMessageStatuses.pending.status,
+                                                invoiceIds: _.compact(singleFileObject.oaInvoiceIds)
+                                            }))
+                                        )
+                                        .then(createdMessage => {
+                                            _.merge(singleFileObject, {messageId:createdMessage.id})
+                                            return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("text/plain"), name: _.trim(singleFileObject.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                        })
+                                        .then(createdDocument => {
+                                            _.merge(singleFileObject, {documentId:createdDocument.id})
+                                            return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(singleFileObject.fileContent))).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                        })
+                                        .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                                })).then(x=>x)
+                        }).then(()=>{
+                            this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                            this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
+                            return this._generateJ20PdfTemplateObjects().then(x=>x)
+                        })
                     })
                     .then(pdfTemplateObjects=>{
-                        return Promise.all(pdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.pdf.template, {})).then(x=>_.merge(singlePdfFileObject, {pdf:{fileContent:x.pdf}})) ))
+                        return Promise.all(pdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.template, {})).then(x=>_.merge(singlePdfFileObject, {fileContent:x.pdf})) ))
                     })
                     .then(generatedPdfFiles=>{
 
-                        this.flatRateInvoicingDataObject.generatedFiles = _.map(generatedPdfFiles,i=>{
-                            try{ delete(i.pdf.template); } catch(e){}
-                            i.pdf.downloadFileName = _.kebabCase(_.compact([
+                        this.flatRateInvoicingDataObject.generatedFiles.pdfs = _.map(generatedPdfFiles,i=>{
+                            try{ delete(i.template); } catch(e){}
+                            i.downloadFileName = _.kebabCase(_.compact([
                                 moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
                                 "medical house invoicing export pdf oa",
                                 _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.insurancesData, {id:i.oaId}), "[0].code" )),
@@ -3243,7 +3386,7 @@
                             return i;
                         })
 
-                        return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.map( singlePdfFileObject =>  {
+                        return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.pdfs.map( singlePdfFileObject =>  {
                             return this.api.message().newInstance(this.user)
                                 .then(newMessageInstance => this.api.message().createMessage(
                                     _.merge(newMessageInstance, {
@@ -3251,12 +3394,14 @@
                                         recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
                                         recipientsType: "org.taktik.icure.entities.HealthcareParty",
                                         metas: {
-                                            totalPages: parseInt(singlePdfFileObject.pdf.totalPages),
-                                            filename: _.trim(singlePdfFileObject.pdf.downloadFileName),
+                                            totalPages: parseInt(singlePdfFileObject.totalPages),
+                                            filename: _.trim(singlePdfFileObject.downloadFileName),
                                             totalInvoices: parseInt(_.size(singlePdfFileObject.invoiceIds)),
-                                            exportDate: parseInt(this.flatRateInvoicingDataObject.exportDate),
+                                            exportedDate: parseInt(this.flatRateInvoicingDataObject.exportedDate),
+                                            batchExportTstamp: parseInt(this.flatRateInvoicingDataObject.batchExportTstamp),
                                             totalAmount: singlePdfFileObject.totalAmount,
-                                            oaId: _.trim(_.get(singlePdfFileObject, "oaId", ""))
+                                            oaId: _.trim(_.get(singlePdfFileObject, "oaId", "")),
+                                            parentOaId: _.trim(_.get(singlePdfFileObject, "parentOaId", ""))
                                         },
                                         toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
                                         subject: "MH: Flatrate invoicing PDF export",
@@ -3265,20 +3410,61 @@
                                     }))
                                 )
                                 .then(createdMessage => {
-                                    _.merge(singlePdfFileObject, {pdf:{messageId:createdMessage.id}})
-                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.pdf.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                    _.merge(singlePdfFileObject, {messageId:createdMessage.id})
+                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
                                 })
                                 .then(createdDocument => {
-                                    _.merge(singlePdfFileObject, {pdf:{documentId:createdDocument.id}})
-                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.pdf.fileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                    _.merge(singlePdfFileObject, {documentId:createdDocument.id})
+                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.fileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                                 })
                                 .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
                         })).then(x=>x)
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_8',this.language), icon:"arrow-forward"})
+                        return this._createMhExportZipArchive().then(x=>x)
+                    })
+                    .then(batchZipFileBlob=>{
+                        this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob = batchZipFileBlob
+                        return this.api.message().newInstance(this.user)
+                            .then(newMessageInstance => this.api.message().createMessage(
+                                _.merge(newMessageInstance, {
+                                    transportGuid: "MH:FLATRATE:INVOICING-BATCH-ZIP",
+                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                    recipientsType: "org.taktik.icure.entities.HealthcareParty",
+                                    metas: {
+                                        totalOa: parseInt(_.size(this.flatRateInvoicingDataObject.insurancesData)),
+                                        totalParentOa: parseInt(_.size(this.flatRateInvoicingDataObject.iosData)),
+                                        filename: _.trim(this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName),
+                                        exportedDate: parseInt(this.flatRateInvoicingDataObject.exportedDate),
+                                        batchExportTstamp: parseInt(this.flatRateInvoicingDataObject.batchExportTstamp),
+                                        totalInvoices: parseInt(_.size(_.compact( _.map(this.flatRateInvoicingDataObject.invoicesData,i=>_.get(i,"invoices[0].id",""))))),
+                                        totalAmount: this.api._powRoundFloatByPrecision(_.sumBy( this.flatRateInvoicingDataObject.oaTotalPrices, i=>parseFloat(i.listTotal) ), 2),
+                                        messageIdsPdfs: _.map(this.flatRateInvoicingDataObject.generatedFiles.pdfs,i=>i.messageId).join(","),
+                                        messageIdsSlips: _.map(this.flatRateInvoicingDataObject.generatedFiles.slips,i=>i.messageId).join(","),
+                                        messageIdsFlatFiles: _.map(this.flatRateInvoicingDataObject.generatedFiles.flatFiles,i=>i.messageId).join(",")
+                                    },
+                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                    subject: "MH: Flatrate invoicing BATCH ZIP export",
+                                    status: this.invoiceMessageStatuses.pending.status,
+                                    invoiceIds: _.compact( _.map(this.flatRateInvoicingDataObject.invoicesData,i=>_.get(i,"invoices[0].id","")))
+                                }))
+                            )
+                            .then(createdMessage => {
+                                _.merge(this.flatRateInvoicingDataObject.finalArchive, {messageId:createdMessage.id})
+                                return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/zip"), name: _.trim(this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                            })
+                            .then(createdDocument => {
+                                _.merge(this.flatRateInvoicingDataObject.finalArchive, {documentId:createdDocument.id})
+                                return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                            })
+                            .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                    })
+                    .then(()=>{
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_8_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
-                        // this.api.triggerFileDownload( this.flatRateInvoicingDataObject.pdfFileContent, "application/pdf", this.flatRateInvoicingDataObject.pdfDownloadFileName )
+                        this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(()=>{

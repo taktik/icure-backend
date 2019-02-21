@@ -1016,7 +1016,21 @@
     "flatrate_invoicing_insTotal": "Insurance total",
     "flatrate_invoicing_physiotherapist": "Physiotherapist",
     "flatrate_invoicing_physician": "Physician",
-    "flatrate_invoicing_nurse": "Nurse"
+    "flatrate_invoicing_nurse": "Nurse",
+    "on": "of",
+    "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
+    "mhInvoicing.spinner.step_1_done": "Fin de la récupération de la Maison Médicale",
+    "mhInvoicing.spinner.step_2": "Collecte des patients...",
+    "mhInvoicing.spinner.step_3": "Collecte des titulaires d'assurance...",
+    "mhInvoicing.spinner.step_3_done": "Fin de la collecte des titulaires d'assurance",
+    "mhInvoicing.spinner.step_4": "Création des factures...",
+    "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
+    "mhInvoicing.spinner.step_5": "Création des fichiers PDF...",
+    "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers PDF",
+    "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
+    "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
+    "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2119,8 +2133,7 @@
     "flatrate_invoicing_physiotherapist": "Kinésithérapeute",
     "flatrate_invoicing_physician": "Médecin",
     "flatrate_invoicing_nurse": "Infirmier",
-
-
+    "on": "sur",
     "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
     "mhInvoicing.spinner.step_1_done": "Fin de la récupération de la Maison Médicale",
     "mhInvoicing.spinner.step_2": "Collecte des patients...",
@@ -2130,14 +2143,10 @@
     "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
     "mhInvoicing.spinner.step_5": "Création des fichiers PDF...",
     "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers PDF",
-    "mhInvoicing.spinner.step_6": "Archivage des fichiers...",
-    "mhInvoicing.spinner.step_done": "Fin de l'archivage des fichiers",
-    "mhInvoicing.spinner.step_6_done" : "",
     "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
-    "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables"
-
-
-
+    "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
+    "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3245,6 +3254,20 @@
     "flatrate_invoicing_insTotal": "Totaal mutualiteit",
     "flatrate_invoicing_physiotherapist": "Fysiotherapeut",
     "flatrate_invoicing_physician": "Arts",
-    "flatrate_invoicing_nurse": "Verpleegster"
+    "flatrate_invoicing_nurse": "Verpleegster",
+    "on": "op",
+    "mhInvoicing.spinner.step_1": "Récupération de la Maison Médicale...",
+    "mhInvoicing.spinner.step_1_done": "Fin de la récupération de la Maison Médicale",
+    "mhInvoicing.spinner.step_2": "Collecte des patients...",
+    "mhInvoicing.spinner.step_3": "Collecte des titulaires d'assurance...",
+    "mhInvoicing.spinner.step_3_done": "Fin de la collecte des titulaires d'assurance",
+    "mhInvoicing.spinner.step_4": "Création des factures...",
+    "mhInvoicing.spinner.step_4_done": "Fin de la création des factures",
+    "mhInvoicing.spinner.step_5": "Création des fichiers PDF...",
+    "mhInvoicing.spinner.step_5_done": "Fin de la création des fichiers PDF",
+    "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
+    "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
+    "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
   }
 }
