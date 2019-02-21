@@ -1,7 +1,15 @@
 package org.taktik.icure.logic.impl
 
+import com.thoughtworks.xstream.XStream
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.codec.binary.Base64
+import org.apache.commons.io.IOUtils
 import org.springframework.stereotype.Service
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.entities.Invoice
@@ -10,15 +18,21 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.exceptions.CreationException
+import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.EfactLogic
+import org.taktik.icure.logic.EntityReferenceLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.InsuranceLogic
 import org.taktik.icure.logic.InvoiceLogic
+import org.taktik.icure.logic.MessageLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.EfactMessage
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceItem
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceSender
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
@@ -27,7 +41,11 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingPrescrib
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
+import java.io.IOException
 import java.math.BigInteger
+import java.net.URI
+import java.net.URISyntaxException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -36,13 +54,17 @@ import java.util.ArrayList
 import java.util.Arrays
 import java.util.Calendar
 import java.util.HashMap
+import java.util.LinkedList
+import java.util.Optional
 import java.util.UUID
 import java.util.stream.Collectors
+import java.util.zip.DataFormatException
+import javax.security.auth.login.LoginException
+import javax.xml.ws.soap.SOAPFaultException
 
 @Service
-class EfactLogicImpl(val mapper: MapperFacade, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
+class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
     private val LSB_MASK = BigInteger("ffffffffffffffff", 16)
-
     private fun decodeUuidFromRef(`val`: String?): UUID? {
         var `val` = `val`
         var uuid: UUID? = null
@@ -80,6 +102,36 @@ class EfactLogicImpl(val mapper: MapperFacade, val sessionLogic: SessionLogic, v
         invBatch.invoicingMonth = calendar.get(Calendar.MONTH) + 1
         invBatch.batchRef = "" + batchRef
         invBatch.ioFederationCode = `is`.code
+
+        assert(hcp.cbe != null)
+        assert(hcp.nihii != null)
+        val bic = hcp.financialInstitutionInformation.stream().filter { fi -> `is`.code == fi.key }
+            .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBic != null) financialInstitutionInformation.proxyBic else financialInstitutionInformation.bic }
+            .orElse(if (hcp.proxyBic != null) hcp.proxyBic else hcp.bic)
+        val iban = hcp.financialInstitutionInformation.stream().filter { fi -> `is`.code == fi.key }
+            .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBankAccount != null) financialInstitutionInformation.proxyBankAccount else financialInstitutionInformation.bankAccount }
+            .orElse(if (hcp.proxyBankAccount != null) hcp.proxyBankAccount else hcp.bankAccount)
+
+        assert(bic != null)
+        assert(iban != null)
+
+        invBatch.sender = InvoiceSender().apply{
+            this.nihii = java.lang.Long.valueOf(hcp.nihii!!.replace("[^0-9]".toRegex(), ""))
+            this.bic = bic
+            this.iban = iban
+            this.firstName = hcp.firstName
+            this.lastName = hcp.lastName
+
+            this.phoneNumber = (hcp.addresses?.map { a -> a.telecoms.first { t -> t.telecomType == TelecomType.phone } }
+                ?.map { t -> t.telecomNumber?.replace("\\+".toRegex(), "00")?.replace("[^0-9]".toRegex(), "") }
+                ?.firstOrNull() ?: "0").toLong()
+
+            this.bce = java.lang.Long.valueOf(hcp.cbe!!.replace("[^0-9]".toRegex(), ""))
+
+            this.conventionCode = if (hcp.convention != null) hcp.convention else 0
+        }
+
+
 
         val invoices = ArrayList<org.taktik.icure.services.external.rest.v1.dto.be.efact.Invoice>()
 
@@ -201,97 +253,102 @@ class EfactLogicImpl(val mapper: MapperFacade, val sessionLogic: SessionLogic, v
         return invoiceItem
     }
 
-
-    override fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): InvoicesBatch {
+    override fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch {
         synchronized(this) {
             val invBatch = createBatch(encodeRefFromUUID(UUID.fromString(batchRef)).substring(0, 13), insurance, invoices, hcp)
 
-            assert(hcp.cbe != null)
-            assert(hcp.nihii != null)
-            val bic = hcp.financialInstitutionInformation.stream().filter { fi -> insurance.getCode() == fi.key }
-                .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBic != null) financialInstitutionInformation.proxyBic else financialInstitutionInformation.bic }
-                .orElse(if (hcp.proxyBic != null) hcp.proxyBic else hcp.bic)
-            val iban = hcp.financialInstitutionInformation.stream().filter { fi -> insurance.getCode() == fi.key }
-                .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBankAccount != null) financialInstitutionInformation.proxyBankAccount else financialInstitutionInformation.bankAccount }
-                .orElse(if (hcp.proxyBankAccount != null) hcp.proxyBankAccount else hcp.bankAccount)
-
-            assert(bic != null)
-            assert(iban != null)
-
-            val sender = InvoiceSender().apply{
-                this.nihii = java.lang.Long.valueOf(hcp.nihii!!.replace("[^0-9]".toRegex(), ""))
-                this.bic = bic
-                this.iban = iban
-                this.firstName = hcp.firstName
-                this.lastName = hcp.lastName
-
-                this.phoneNumber = (hcp.addresses?.map { a -> a.telecoms.first { t -> t.telecomType == TelecomType.phone } }
-                                                              ?.map { t -> t.telecomNumber?.replace("\\+".toRegex(), "00")?.replace("[^0-9]".toRegex(), "") }
-                                                              ?.firstOrNull() ?: "0").toLong()
-
-                this.bce = java.lang.Long.valueOf(hcp.cbe!!.replace("[^0-9]".toRegex(), ""))
-
-                this.conventionCode = if (hcp.convention != null) hcp.convention else 0
-
-                var zonedDateTime = ZonedDateTime.now().minusDays(1)
-                for (invoice in invoices.values.flatten()) {
-                    val invoiceDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate!!), ZoneId.systemDefault())
-                    if (invoiceDateTime.isAfter(zonedDateTime)) {
-                        zonedDateTime = invoiceDateTime
-                    }
+            var zonedDateTime = ZonedDateTime.now().minusDays(1)
+            for (invoice in invoices.values.flatten()) {
+                val invoiceDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate!!), ZoneId.systemDefault())
+                if (invoiceDateTime.isAfter(zonedDateTime)) {
+                    zonedDateTime = invoiceDateTime
                 }
+            }
 
-                val maxSendNumber = ZonedDateTime.now().get(ChronoField.DAY_OF_YEAR) * 2 + if (insurance.getCode() == "306") 1 else 0
-                var sendNumber = zonedDateTime.get(ChronoField.DAY_OF_YEAR) * 2 + if (insurance.getCode() == "306") 1 else 0
-                //Check unicity
-                while (messageLogic.listMessagesByExternalRefs(hcp.id, listOf("" + sendNumber)).stream().filter({ m -> m.getRecipients().contains(insurance.getId()) }).count() > 0) {
-                    sendNumber += 1
-                    if (sendNumber > maxSendNumber) {
-                        throw IllegalArgumentException("A message has already eben sent for this reference")
-                    }
-                }
+            val prefix = "efact:${hcp.id}:${insurance.code}:"
+            val latestPrefix = entityReferenceLogic.getLatest(prefix)
+            val sendNumber = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
+            val er = entityReferenceLogic.createEntities(listOf(EntityReference().apply {
+                id = sendNumber
+                docId =  batchRef
+            }), listOf())
 
-                val invoiceIds = ArrayList<String>()
-                val mm = org.taktik.icure.entities.Message()
+            val mm = org.taktik.icure.entities.Message()
 
-                for (ivs in invoices.values) {
-                    invoiceIds.addAll(ivs.stream().map<String>(Function<Invoice, String> { it.getId() }).collect<List<String>, Any>(Collectors.toList()))
-                }
+            mm.id = batchRef
+            mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
+            mm.subject = "Facture tiers payant"
+            mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
+            mm.transportGuid = "EFACT:BATCH:$numericalRef"
+            mm.author = sessionLogic.currentSessionContext.user.id
+            mm.responsible = hcp.id
+            mm.fromHealthcarePartyId = hcp.id
+            mm.recipients = setOf(insurance.id)
+            mm.externalRef = ("" + sendNumber.toLong() % 1000).padStart(3, '0')
+            mm.metas = mapOf(
+                "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
+                "numericalRef" to (invBatch.numericalRef?.toString() ?: ""),
+                "invoiceMonth" to (invBatch.numericalRef?.toString() ?: ""),
+                "invoiceYear" to (invBatch.invoicingYear.toString()),
+                "totalAmount" to (invoices.values.sumByDouble { it.sumByDouble { it.invoicingCodes.sumByDouble { it.reimbursement } } } ).toString()
+                            )
+            val delegations = HashMap<String, Set<Delegation>>()
+            delegations[hcp.id] = HashSet()
 
-                mm.id = batchRef
-                mm.invoiceIds = invoiceIds
-                mm.subject = "Facture tiers payant"
-                mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT
-                mm.transportGuid = "EFACT:BATCH:$batchRef"
-                mm.author = sessionLogic.currentSessionContext.user.id
-                mm.responsible = hcp.id
-                mm.fromHealthcarePartyId = hcp.id
-                mm.recipients = setOf(insurance.getId())
-                mm.externalRef = "" + sendNumber
+            mm.delegations = delegations
+            mm.toAddresses = setOf(insurance.address?.telecoms?.first { t: Telecom -> t.telecomType == TelecomType.email && t.telecomNumber?.isNotEmpty() ?: false }?.let { it.telecomNumber } ?: insurance.code)
+            mm.sent = System.currentTimeMillis()
 
-                val delegations = HashMap<String, List<Delegation>>()
-                delegations[hcp.id] = ArrayList()
+            return MessageWithBatch().apply { invoicesBatch = invBatch; message = mapper.map(mm, MessageDto::class.java) }
+        }
+    }
 
-                mm.setDelegations(delegations)
-                if (insurance.getAddress() != null && insurance.getAddress().getTelecoms() != null) {
-                    mm.toAddresses = setOf(insurance.getAddress().getTelecoms().stream()
-                                               .filter({ t: Telecom -> t.telecomType == TelecomType.email && t.telecomNumber != null && t.telecomNumber!!.length > 0 }).findAny().map(Function<Telecom, String> { it.getTelecomNumber() }).orElse(insurance.getCode()))
-                }
-                mm.sent = System.currentTimeMillis()
-
-                val response = sendInvoicesBatch(token, invBatch, sendNumber.toLong(), sender, mm.id, numericalRef, ignorePrescriptionDate)
-
-                messageLogic.createMessage(mm)
-
-                for (ivs in invoices.values) {
-                    invoiceLogic.getInvoices(ivs.stream().map<String>(Function<Invoice, String> { it.getId() }).collect<List<String>, Any>(Collectors.toList())).forEach { i ->
-                        i.sentDate = mm.sent
-                        invoiceLogic.modifyInvoice(i)
-                    }
-                }
-
-                return SentMessageBatch(mm, response)
+    @Throws(LoginException::class, MissingRequirementsException::class)
+    private fun acceptAndMaskMessage(msg: Message, hasError: Boolean) {
+        msg.status = msg.status or Message.STATUS_MASKED
+        if (hasError) {
+            msg.status = msg.status or Message.STATUS_WARNING
+        }
+        messageLogic.modifyMessage(msg)
+        if (msg.parentId != null) {
+            val parent = messageLogic.get(msg.parentId)
+            parent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+            messageLogic.modifyMessage(parent)
+            if (parent.getParentId() != null) {
+                val parentParent = messageLogic.get(parent.getParentId())
+                parentParent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+                messageLogic.modifyMessage(parentParent)
             }
         }
     }
+
+    @Throws(LoginException::class, MissingRequirementsException::class)
+    private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): List<org.taktik.icure.entities.Invoice> {
+        msg.status = msg.status or Message.STATUS_ERROR
+        messageLogic.modifyMessage(msg)
+        if (msg.parentId != null) {
+            val parent = messageLogic.get(msg.parentId)
+            parent.setStatus(parent.getStatus() or Message.STATUS_REJECTED)
+            parent.setStatus(parent.getStatus() or Message.STATUS_ERROR)
+            messageLogic.modifyMessage(parent)
+            if (parent.getParentId() != null) {
+                val parentParent = messageLogic.get(parent.getParentId())
+                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_REJECTED)
+                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_ERROR)
+                messageLogic.modifyMessage(parentParent)
+                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.getInvoiceIds()).orElse(LinkedList()))
+                for (iv in invoices) {
+                    for (ic in iv.invoicingCodes) {
+                        val uuid = UUID.fromString(ic.id)
+                        ic.canceled = true
+                        ic.error = rejectedIcErrorCodes?.get(uuid)?.joinToString(",")
+                        ic.pending = false
+                    }
+                }
+                return invoices
+            }
+        }
+        return LinkedList()
+    }
+
 }

@@ -23,9 +23,10 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import java.util.HashMap
 
 
 interface EfactLogic  {
-    fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): InvoicesBatch
+    fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch
 }
