@@ -958,10 +958,10 @@
                                 <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
                                 <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
                             </paper-button>
-                            <paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>
-                                <span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>
-                                <paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>
-                            </paper-button>
+                            <!--<paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>-->
+                                <!--<span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>-->
+                                <!--<paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>-->
+                            <!--</paper-button>-->
                         </template>
                         <template is="dom-if" if="[[isHidden]]">
                             <paper-button class="msg-detail-btn" on-tap="_restoreMsgs"><iron-icon id="visibility-msg" icon="visibility"></iron-icon>
@@ -1630,7 +1630,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         let dest = []
         this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
         .then(paginated=>{
-            if(paginated.rows && paginated.rows[0]) {
+            if(paginated.rows && paginated.rows[0] && !paginated.rows[0].name.startsWith('Noreply') && paginated.rows[0].ssin !== "12345678912") {
                 let hcp = paginated.rows[0]
                 hcp.type = 'NIHII'
                 hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
