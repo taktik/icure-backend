@@ -1165,7 +1165,7 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
+                return ['apiReady(api,user,opened)','_hcpChanged(hcp)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
             }
 
             ready() {
@@ -1364,7 +1364,8 @@
                         if (!hcp.type) hcp.type='persphysician';
                         if (!hcp.billingType) hcp.billingType='flatRate';
 
-
+                        const registery = this.api.getRegistry('hcp');
+                        registery.listeners['hcp-profile'] = {target: this, paths: ['hcp','hcp.*'], pool: [hcp.id]}
 
                         // Resolve for dataprovider / combobox
                         if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
@@ -1405,44 +1406,15 @@
                                 }] : [];
 
                                 // Only affect when computed
-                                this.hcp = hcp;
-
-                                if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
-                                let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
-                                let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
-                                this.idAddress>=0 ? this.set('adr',{
-                                    addressType:"work",
-                                    street:this.hcp.addresses[this.idAddress].street,
-                                    houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
-                                    postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
-                                    postalCode:this.hcp.addresses[this.idAddress].postalCode,
-                                    city:this.hcp.addresses[this.idAddress].city,
-                                    country:this.hcp.addresses[this.idAddress].country,
-                                    phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
-                                    proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
-                                }) : ""
+                                this.set('hcp', this.api.register(hcp,'hcp'));
 
                             });
 
                         } else {
 
                             // Affect directly
-                            this.hcp = hcp;
-
-                            if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
-                            let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
-                            let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
-                            this.idAddress>=0 ? this.set('adr',{
-                                addressType:"work",
-                                street:this.hcp.addresses[this.idAddress].street,
-                                houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
-                                postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
-                                postalCode:this.hcp.addresses[this.idAddress].postalCode,
-                                city:this.hcp.addresses[this.idAddress].city,
-                                country:this.hcp.addresses[this.idAddress].country,
-                                phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
-                                proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
-                            }) : ""
+                            this.set('hcp', this.api.register(hcp,'hcp'));
+                            
                         }
                     });
 
@@ -1473,6 +1445,26 @@
                     })
                 }
             }
+
+            _hcpChanged() {
+                if(this.api && this.hcp) {
+                    if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
+                    let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                    let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                    this.idAddress>=0 ? this.set('adr',{
+                        addressType:"work",
+                        street:this.hcp.addresses[this.idAddress].street,
+                        houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
+                        postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
+                        postalCode:this.hcp.addresses[this.idAddress].postalCode,
+                        city:this.hcp.addresses[this.idAddress].city,
+                        country:this.hcp.addresses[this.idAddress].country,
+                        phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                        proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
+                    }) : ""
+                }
+            }
+
             _setPrinter(e) {
                 const target = 'selectedPrinter.'+e.target.getAttribute('target')
                 const value = e.target.dataset.item
@@ -1553,10 +1545,13 @@
                     //     .then(hcp => this.api.register(hcp,"hcp"))
                     //     .then(hcp => this.hcp = hcp)
                     //     .finally(() => this.$.dialog.close())
-
-                    this.api.user().modifyUser(this.user).then(
-                        user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
-                    ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).then(hcp => this.hcp = hcp).finally(() => this.$.dialog.close())
+                    Promise.all([this.api.user().modifyUser(this.user), this.api.hcparty().modifyHealthcareParty(this.hcp)])
+                    .then(([user,hcp]) => {
+                        this.hcp = this.api.register(hcp,'hcp');
+                        this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+                        this.$.dialog.close()
+                    })
+                    .catch(err => console.error(err))
 
                 }
             }
