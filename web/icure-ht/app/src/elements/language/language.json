@@ -1030,7 +1030,8 @@
     "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
     "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
     "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
-    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
+    "pleaseWait": "Please wait..."
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2146,7 +2147,8 @@
     "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
     "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
     "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
-    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
+    "pleaseWait": "Veuillez patienter svp..."
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3268,6 +3270,7 @@
     "mhInvoicing.spinner.step_7": "Création des fichiers comptables...",
     "mhInvoicing.spinner.step_7_done": "Fin de la création des fichiers comptables",
     "mhInvoicing.spinner.step_8": "Création du dossier d'envoi...",
-    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi"
+    "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
+    "pleaseWait": "Een ogenblik alstublieft"
   }
 }

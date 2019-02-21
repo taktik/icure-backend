@@ -754,7 +754,7 @@
                     text-align: center;
                 }
 
-                #loadingContainer {
+                #loadingContainer, #loadingContainerSmall {
                     position:absolute;
                     width: 100%;
                     height: 100%;
@@ -764,7 +764,7 @@
                     text-align: center;
                 }
 
-                #loadingContentContainer {
+                #loadingContentContainer, #loadingContentContainerSmall {
                     position:relative;
                     width: 400px;
                     min-height: 200px;
@@ -773,6 +773,11 @@
                     border:3px solid var(--app-secondary-color);
                     margin:40px auto 0 auto;
                     text-align: center;
+                }
+
+                #loadingContentContainerSmall {
+                    width: 250px;
+                    min-height: 1px;
                 }
 
                 #loadingContent {
@@ -873,6 +878,14 @@
                     </div>
                 </div>
             </template>
+            <template is="dom-if" if="[[_isLoadingSmall]]">
+                <div id="loadingContainerSmall">
+                    <div id="loadingContentContainerSmall">
+                        <ht-spinner class="spinner" alt="Loading..." active></ht-spinner>
+                        <p><iron-icon icon="arrow-forward" class="loadingIcon"></iron-icon> [[localize("pleaseWait", language)]]</p>
+                    </div>
+                </div>
+            </template>
 
 
 
@@ -884,7 +897,6 @@
                 <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_accept')]]"><span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.rejected]]</span></template>
                 <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_reject')]]"><span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.accepted]]</span></template>
                 <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_archive')]]"><span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></template>
-                <ht-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></ht-spinner>
             </div>
 
 
@@ -1333,6 +1345,10 @@
                         value: false,
                         observer: '_loadingStatusChanged'
                     },
+                    _isLoadingSmall: {
+                        type: Boolean,
+                        value: false
+                    },
                     _loadingMessages: {
                         type: Array,
                         value: () => []
@@ -1420,12 +1436,13 @@
                 if(!this._isLoading) this._resetLoadingMessage();
             }
 
-            _flatRateListingMenuSectionChanged(){
+            _flatRateListingMenuSectionChanged() {
 
-                console.log("Menu section: " + this.flatrateMenuSection);
+                this.set('_isLoading', false );
+                this.set('_isLoadingSmall', false );
 
                 if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
-                if( this.flatrateMenuSection === "j20_process" ) this.fetchMessages();
+                if( ['j20_toBeCorrected', 'j20_process', 'j20_reject', 'j20_accept', 'j20_archive'].indexOf(_.trim(this.flatrateMenuSection)) > -1  ) this._fetchJ20Messages();
 
             }
 
@@ -1936,7 +1953,6 @@
             _setLoadingMessage( messageData ) {
                 if( messageData.updateLastMessage ) { this._loadingMessages.pop(); }
                 this._loadingMessages.push( messageData );
-
                 let loadingContentTarget = this.shadowRoot.querySelectorAll('#loadingContent')[0];
                 if(loadingContentTarget) { loadingContentTarget.innerHTML = ''; _.each(this._loadingMessages, (v)=>{ loadingContentTarget.innerHTML += "<p><iron-icon icon='"+v.icon+"' class='"+(v.done?"loadingIcon done":"loadingIcon")+"'></iron-icon>" + v.message + "</p>"; }); }
             }
@@ -3470,8 +3486,16 @@
                     .finally(()=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
-                        this.set('_isLoading', false )
+                        this.set('_isLoading', false );
+                        this._fetchJ20Messages(true);
                     })
+
+            }
+
+            _fetchJ20Messages( forceRefresh = false ) {
+
+                this.set('_isLoadingSmall', true );
+                console.log(forceRefresh);
 
             }
 

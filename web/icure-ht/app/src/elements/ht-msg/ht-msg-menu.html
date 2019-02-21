@@ -729,7 +729,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)'];
+                return [
+                    '_inboxSelectionIndexChanged(inboxSelectionIndex)',
+                    '_sentboxSelectionIndexChanged(sentboxSelectionIndex)',
+                    '_invoiceSelectionIndexChanged(invoiceSelectionIndex)',
+                    '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)',
+                    '_checkForMedicalHouse(user)',
+                    '_trashSelectionIndexChanged(trashSelectionIndex)',
+                    '_updateUnreadCount(messages)'
+                ];
             }
 
             constructor() {
@@ -926,7 +934,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _flatRateInvoicingSelectionIndexChanged() {
-
                 if (this.flatRateInvoicingSelectionIndex !== null && this.flatRateInvoicingSelectionIndex !== undefined) {
                     this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.flatRateInvoicingSelectionItem.id, status: this.flatRateInvoicingSelectionItem.dataset.status } } }));
 
@@ -965,6 +972,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this._updateUnreadCount()
             }
+
             _trash(){
                 this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
                 this.set('sentboxSelectionIndex', null)
