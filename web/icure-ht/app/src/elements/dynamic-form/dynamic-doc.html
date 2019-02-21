@@ -176,10 +176,22 @@
             .assignToPat:hover {
                 background: var(--app-secondary-color-dark);
             }
-
+            .assign-ico {
+                position: absolute;
+                right: 8px;
+                top: 4px;
+                cursor: pointer;
+                height: 16px;
+                width: 16px;
+                box-sizing: border-box;
+            }
 		</style>
         <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
+                <template is="dom-if" if="[[!_isEqual(document.documentLocation,'body')]]">
+                    <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
+                    <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
+                </template>
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
                         <ht-spinner class="center" active></ht-spinner>
@@ -209,17 +221,17 @@
                     </template>
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
-                    <span>[[_title(document.name, title)]]</span>
                     <template is="dom-if" if="[[attachmentContent.length]]">
+                        <span>[[localize('msg_body','Message body',language)]] :</span>
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
-                    </template>
-                    <template is="dom-if" if="[[downloadable]]">
-                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                            [[localize('dl','Download',language)]]
-                            <paper-icon-button icon="file-download"></paper-icon-button>
-                        </div>
+                        <template is="dom-if" if="[[downloadable]]">
+                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]]
+                                <paper-icon-button icon="file-download"></paper-icon-button>
+                            </div>
+                        </template>
                     </template>
                 </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
@@ -235,11 +247,19 @@
 
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
+                <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
+                <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
                 <span>[[_title(document.name, title)]]</span>
                 <template is="dom-if" if="[[unassigned.length]]">
                     <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
                         [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                     </paper-button>
+                </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
                 </template>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
@@ -257,15 +277,18 @@
                         <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
                     </template>
                     <template is="dom-if" if="[[!_moreThan2(resInfo.services)]]">
-                        <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
-                        <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
+                        <template is="dom-if" if="[[_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <div class="label">[[_serviceDescription(resInfo.services.0)]]</div>
+                                <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
+                            </div>
+                        </template>
+                        <template is="dom-if" if="[[!_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
+                            </div>
+                        </template>
                     </template>
-                </template>
-                <template is="dom-if" if="[[downloadable]]">
-                    <hr/>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
                 </template>
             </paper-card>
         </template>
@@ -380,31 +403,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _downloadAnnex(e){
         const url = this.dataUrl
         console.log('doc',this.document)
-        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)+';base64' :
+        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) :
             this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'application/xml' :
-            'text/plain;charset=utf-8'
+            'text/plain'
 
         let request = new XMLHttpRequest()
         request.onreadystatechange = (()=> {
             if (request.readyState === 4) {
-                console.log('curl',request.response); // Par défault une DOMString
-                const imgType = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) || null
-                let res = request.response
-                if (type !== imgType) { // TODO : format image
-
-                    let a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
-
-                    a.setAttribute('href', `data:${type},` + encodeURIComponent(res));
-                    a.download = this.document.name;
-
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }
+                this.api.triggerFileDownload(request.response,type,this.document.name)
+                window.URL.revokeObjectURL(url);
             }
         })
         request.open('GET', url, true)
+        if (type === this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)) request.overrideMimeType('plain/text;charset=ANSI')
         request.send('')
     }
 
@@ -484,6 +495,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_serviceDescription(svc) {
         return svc && this.api.contact().shortServiceDescription(svc, this.language) || ''
+    }
+
+    _isEqual(a,b) {
+	    return a === b
     }
 }
 

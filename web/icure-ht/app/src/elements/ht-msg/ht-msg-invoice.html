@@ -478,8 +478,8 @@
                     text-align: center;
                 }
 
-                .invoiceGrid {
-                    overflow-y: scroll;
+                vaadin-grid {
+                    overflow-y: auto;
                     max-height: 20vh;
                 }
 
@@ -2739,7 +2739,7 @@
 
             receiveInvoices() {
                 const LastGet = parseInt(localStorage.getItem('lastInvoicesGet')) ? parseInt(localStorage.getItem('lastInvoicesGet')) : -1
-                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet==-1)
+                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet===-1)
                 if (mayGet) {
                     this.set('cannotGet',true)
                     localStorage.setItem('lastInvoicesGet', Date.now())

@@ -97,6 +97,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-input-container-color: var(--app-text-color);
             }
 
+            paper-textarea {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
 			paper-dropdown-menu {
 				padding-left: 5px;
 				padding-right: 5px;
@@ -782,8 +786,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
 
-
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
+
     static get is() {
         return 'ht-pat-admin-card';
     }
@@ -955,15 +959,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber).length ? "/"+home.postboxNumber : "") : "no Addr"
                 const cp = home ? home.postalCode+" "+home.city : "no CP"
                 const sps = JSON.parse(localStorage.getItem('selectedPrinter'))
-                const paperWidth = sps && sps.stickers && sps.stickers.w || 80
-                const paperHeight = sps && sps.stickers && sps.stickers.h || 40
+                const paperWidth = sps && sps.stickers && sps.stickers.w || 62 // 80
+                const paperHeight = sps && sps.stickers && sps.stickers.h || 29 // 40
                 const vignetteBody =`<html><head>
                     <style>
                         * {margin:0;padding:0;}
-                        html,body {height: ${paperHeight}mm;width: ${paperWidth}mm}
-                        div.sticker {}
+                        /*div.sticker {transform:rotate(-90deg);transform-origin:bottom;}*/
                         p.patName {font-size: 1.1em;font-weight:bold;}
-                        p, pre {width: ${paperWidth}mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
+                        p, pre {overflow: hidden; text-overflow: ellipsis;} /* inverted size for rotation */
                     </style></head>
                     <body>
                         <div class="sticker">
