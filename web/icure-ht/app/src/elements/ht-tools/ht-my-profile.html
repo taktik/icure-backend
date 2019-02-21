@@ -1358,14 +1358,11 @@
 
             apiReady() {
                 if (this.user && this.api && this.opened) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.register(hcp, 'hcp',null,true)).then(hcp => {
 
                         if (!hcp.languages || !hcp.languages.length) hcp.languages = ['en'];
                         if (!hcp.type) hcp.type='persphysician';
                         if (!hcp.billingType) hcp.billingType='flatRate';
-
-                        const registery = this.api.getRegistry('hcp');
-                        registery.listeners['hcp-profile'] = {target: this, paths: ['hcp','hcp.*'], pool: [hcp.id]}
 
                         // Resolve for dataprovider / combobox
                         if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
@@ -1406,14 +1403,14 @@
                                 }] : [];
 
                                 // Only affect when computed
-                                this.set('hcp', this.api.register(hcp,'hcp'));
+                                this.set('hcp', hcp);
 
                             });
 
                         } else {
 
                             // Affect directly
-                            this.set('hcp', this.api.register(hcp,'hcp'));
+                            this.set('hcp', hcp);
                             
                         }
                     });
@@ -1448,6 +1445,8 @@
 
             _hcpChanged() {
                 if(this.api && this.hcp) {
+                    this.api.getRegistry('hcp').listeners['hcp-profile'] = {target: this, paths: ['hcp'], pool: [this.hcp.id]}
+
                     if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
                     let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
                     let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
