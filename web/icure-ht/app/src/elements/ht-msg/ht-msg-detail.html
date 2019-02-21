@@ -1610,25 +1610,23 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_forwardMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg)
         const msgToFw = {
 	        destinations: [],
             patientInss: origMsg.patientINSS,
             annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
             document: {
 	            title: 'Fw: '+origMsg.subject,
-                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+                textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
             },
             customMetas: origMsg.metas,
             type: 'fwd'
         }
-        const target = this.parentElement.parentNode.children[1]
+        const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
         target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
     }
 
     _replyMsgs(e) {
 	    const origMsg = this.messages[0]
-        console.log('origMsg',origMsg,origMsg.fromHealthcarePartyId.length)
         let dest = []
         if (origMsg.fromHealthcarePartyId.length == 11) {
             const hcpId = this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId).then(paginated=>{
@@ -1652,24 +1650,22 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             annex: undefined,
             document: {
                 title: 'Re: '+origMsg.subject,
-                textContent: this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+                textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
             },
             customMetas: origMsg.metas,
             type: 'replyto'
         }
-        const target = this.parentElement.parentNode.children[1]
+        const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
         target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true, composed: true, params:msgToRe}}))
     }
 
     _hideMsg() {
         let msg = this.messages[0]
         if (msg) {
-            const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':')+1)
-            if (!msg.transportGuid.startsWith('HIDDEN')){
-                msg.transportGuid = 'HIDDEN'+msg.transportGuid
+            if ((msg.status&(1<<14)) !== 0){
+                msg.status = msg.status & 0<<14
             } else {
-                if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
-                if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+                msg.status = msg.status | 1<<14
             }
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
