@@ -2509,8 +2509,8 @@
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
                     const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
                     oaInvoicesData.map(idt => {
-                        const invoiceNr = idt.invoiceReference;//ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
-                        invoices.push(this.getPatientInvoice(idt, invoiceNr, OA));
+                        //const invoiceNr = idt.invoiceReference;//ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
+                        invoices.push(this.getPatientInvoice(idt, OA));
                         iNr++;
                     })
 
@@ -2541,7 +2541,7 @@
                 return exportDate.substr(3,3) + OA;
             }
 
-            getPatientInvoice(patientData, iNr, OA){
+            getPatientInvoice(patientData, OA){
                 let inv = new fhcmodels.Invoice('');
                 inv.patient = {}
                 inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
@@ -2552,8 +2552,8 @@
                 ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
                 ins.parameters = {tc1 : patIns.parameters.tc1 , tc2 : patIns.parameters.tc2};
                 inv.patient.insurabilities.push(ins);
-                inv.invoiceNumber = Number(iNr);
-                patientData.invoiceNumber = iNr;
+                inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
+                patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
                 inv.ioCode = OA;
                 inv.reason = 'Other';
