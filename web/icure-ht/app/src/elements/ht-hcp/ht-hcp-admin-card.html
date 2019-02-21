@@ -146,7 +146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				.then(hcp => this.api.register(hcp,"hcp"))
 				.then(h => this.hcp.rev = h.rev)
 				.catch(e => this.api.hcparty().getHealthcareParty((this.hcp && this.hcp.id) || (hcp && hcp.id))
-					.then(p => this.hcp = p))
+					.then(p => this.hcp = this.api.register(p, 'hcp')))
 				.finally( () => this.dispatchEvent(new CustomEvent("hcp-saved",{ detail: {hcp : this.hcp},params: null})));
 		}.bind(this);
 		this.saveTimeout = setTimeout(this.saveAction, 10000);
