@@ -63,35 +63,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-msg-menu">
-    <template>
-        <style include="iron-flex iron-flex-alignment"></style>
-        <!--suppress CssUnusedSymbol -->
-        <style include="shared-styles">
-            :host {
-                display: block;
-            }
+	<template>
+		<style include="iron-flex iron-flex-alignment"></style>
+		<!--suppress CssUnusedSymbol -->
+		<style include="shared-styles">
+			:host {
+				display: block;
+                z-index: 1;
+			}
 
-            :host *:focus{
-                outline:0!important;
-            }
+			:host *:focus{
+				outline:0!important;
+			}
 
-            .col-left{
-                position: relative;
-                box-sizing: border-box;
-                grid-column: 1 / 1;
-                grid-row: 1 / 1;
-                background:var(--app-background-color-dark);
-                @apply --shadow-elevation-3dp;
-                padding: 24px 0;
-                display:flex;
-                flex-flow: column nowrap;
-                align-items: center;
-                height: 100%;
-                width: 100%;
-                overflow-y: auto;
-                overflow-x: hidden;
-                z-index: 25;
-            }
+			.col-left{
+				position: relative;
+				box-sizing: border-box;
+				grid-column: 1 / 1;
+    			grid-row: 1 / 1;
+				background:var(--app-background-color-dark);
+				box-shadow: var(--app-shadow-elevation-2);
+				padding: 24px 0;
+				display:flex;
+				flex-flow: column nowrap;
+				align-items: center;
+				height: 100%;
+				width: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
 
             .new-msg-btn{
                 margin: 0 24px 16px;
@@ -502,9 +502,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 overflow: hidden;
             }
-            /* .box-txt.force-ellipsis {
-                max-width: 60%;
-            } */
+            
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;

@@ -308,6 +308,13 @@
                 margin: 0 auto;
                 cursor: pointer;
             }
+
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             .regimen-line .add-first-regimen {
                 margin: initial;
             }
@@ -424,6 +431,20 @@
                 outline: 0;
             }
 
+            @media screen and (max-width: 936px) {
+                paper-dialog#medication-detail {
+                    position: fixed;
+                    max-width: none !important;
+                    max-height: none !important;
+                    top: 64px;
+                    left: 0;
+                    height: calc(100vh - 64px) !important;
+                    width: 100vw !important;
+                    margin: 0;
+                    transform: none;
+                }
+            }
+
             @media screen and (max-width: 768px) {
                 .display-type-regimen {
                     flex-direction: column;
@@ -481,7 +502,6 @@
 
                 <div class="regimen-line display-type-regimen">
                     <paper-input id="medication-name" label="[[localize('med','Medication',language)]]" value="[[_any(selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname, selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname,selectedMedicationContentWithId.medicationValue.compoundPrescription)]]" disabled="true"></paper-input>
-
                         <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{selectedMedicationContentWithId.medicationValue.beginMomentAsString}}"
                                             class="regimen--datepicker" i18n="[[i18n]]"></vaadin-date-picker>
                         <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{selectedMedicationContentWithId.medicationValue.endMomentAsString}}"
