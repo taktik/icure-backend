@@ -1576,7 +1576,7 @@
 					// this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
 
 
-				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
+				if (this.patient.ssin && this.api.tokenId){ // if ehealth connected
 					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
 						patient: this.patient,
 						hcp: hcp,
@@ -1826,12 +1826,14 @@
             body > div.page > main > article div.profile {margin: 0 25px;}
             body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
             body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-            body > div.page > main > article div.prescription-content > article {margin: 5px 0;}
+            body > div.page > main > article div.prescription-content > article {margin: 0 0 10px 0;}
+            body > div.page > main > article div.prescription-content > article > p {font-size:1.1em; margin: 0;padding: 0;}
+            body > div.page > main > article div.prescription-content > article > p > .bold {font-weight: bold;}
             body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
             body > div.page > footer {${this.selectedFormat != 'A4' ? 'display:none;' : ''}border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
             body > div.page > footer table:first-child {border-top:none;}
-            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+            body > div.page > footer table tr td {font-size:.8em; border-bottom:1px solid black;text-align: left;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
             body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
             body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
             body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
