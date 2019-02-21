@@ -277,8 +277,17 @@
                         <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
                     </template>
                     <template is="dom-if" if="[[!_moreThan2(resInfo.services)]]">
-                        <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
-                        <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
+                        <template is="dom-if" if="[[_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <div class="label">[[_serviceDescription(resInfo.services.0)]]</div>
+                                <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
+                            </div>
+                        </template>
+                        <template is="dom-if" if="[[!_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
+                            </div>
+                        </template>
                     </template>
                 </template>
             </paper-card>
