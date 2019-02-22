@@ -954,10 +954,12 @@
                 <div class="action-buttons">
                     <div class="buttons">
                         <template is="dom-if" if="[[ehealthSession]]">
-                            <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
-                                <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
-                                <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
-                            </paper-button>
+                            <template is="dom-if" if="[[!isSentbox]]">
+                                <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
+                                    <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
+                                    <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
+                                </paper-button>
+                            </template>
                             <!--<paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>-->
                                 <!--<span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>-->
                                 <!--<paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>-->
@@ -1273,7 +1275,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)','_isConnectedToEhbox(api.tokenId)'];
+		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)',
+            '_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)',
+            '_isConnectedToEhbox(api.tokenId)','_isSentbox(selectedMessage)'];
 	}
 
 	constructor() {
@@ -1725,6 +1729,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             })
 
         }
+    }
+
+    _isSentbox(msg) {
+	    this.set('isSentbox',msg.transportGuid && msg.transportGuid.startsWith('SENT'))
     }
 
 	_isEqualTo(title, string) {
