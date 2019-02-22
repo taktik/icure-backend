@@ -891,12 +891,12 @@
 
             <div id="batchStatus" class="batch-status">
                 [[localize(flatrateMenuSection, language)]]
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeCorrected')]]"><span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.toBeCorrected]]</span></template>
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeSend')]]"><span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.toBeSend]]</span></template>
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_process')]]"><span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.processing]]</span></template>
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_accept')]]"><span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.rejected]]</span></template>
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_reject')]]"><span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.accepted]]</span></template>
-                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_archive')]]"><span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeCorrected')]]"><span class="batchNumber j20_batchNumber batchToBeCorrected">[[messagesCachedData.countByStatus.error]]</span></template>
+                <!--<template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_toBeSend')]]"><span class="batchNumber j20_batchNumber batchToBeSend">[[messagesCachedData.countByStatus.xxx]]]</span></template>-->
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_process')]]"><span class="batchNumber j20_batchNumber batchProcessed">[[messagesCachedData.countByStatus.pending]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_accept')]]"><span class="batchNumber j20_batchNumber batchAccepted">[[messagesCachedData.countByStatus.fullyAccepted]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_reject')]]"><span class="batchNumber j20_batchNumber batchRejected">[[messagesCachedData.countByStatus.rejected]]</span></template>
+                <template is="dom-if" if="[[_isEqual(flatrateMenuSection,'j20_archive')]]"><span class="batchNumber j20_batchNumber batchArchived">[[messagesCachedData.countByStatus.archived]]</span></template>
             </div>
 
 
@@ -1373,17 +1373,6 @@
                         type: Number,
                         value: 1
                     },
-                    j20_batchCounter: {
-                        type: Object,
-                        value: () => ({
-                            toBeSend: 0,
-                            toBeCorrected: 0,
-                            processing: 0,
-                            rejected: 0,
-                            accepted: 0,
-                            archived: 0
-                        })
-                    },
                     flatRateInvoicingDataObject: {
                         type: Object,
                         value: null
@@ -1408,6 +1397,29 @@
                             acceptedForTreatment:   { status:(1 << 10), llKey:'inv_acc_tre' },
                             successfullySentToOA:   { status:(1 << 9),  llKey:'inv_succ_tra_oa' },
                             pending:                { status:(1 << 8),  llKey:'inv_pen' }
+                        })
+                    },
+                    cachedDataTTL: {
+                        type: Number,
+                        value: 300000
+                    },
+                    messagesCachedData: {
+                        type: Object,
+                        value: () => ({
+                            cachedTstamp: 0,
+                            roughData: [],
+                            dataByStatus: {},
+                            countByStatus: {
+                                archived: 0,
+                                error: 0,
+                                partiallyAccepted: 0,
+                                fullyAccepted: 0,
+                                rejected: 0,
+                                treated: 0,
+                                acceptedForTreatment: 0,
+                                successfullySentToOA: 0,
+                                pending: 0
+                            }
                         })
                     }
                 };
@@ -1934,7 +1946,7 @@
                                     this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3',this.language) + " " + (resolvedHcpPatients) + '/' + totalHcpPatientToResolve+"...", icon:"arrow-forward", updateLastMessage: true});
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
                                     if(totalHcpPatientToResolve===resolvedHcpPatients){
-                                        this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
+                                        this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').orderBy(['lastName', 'firstName'],['asc','asc']).value();
                                         this._getInsuranceTitularyInfo().then( data => {
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                                             this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
@@ -3048,7 +3060,8 @@
 
                 _.map(this.flatRateInvoicingDataObject.iosData, parentOa => {
 
-                    let parentOaFolderName = _.kebabCase( _.compact([ _.trim(_.get(parentOa, "code", "")), _.trim(_.get(parentOa, "finalName", "")) ]).join(" "))
+                    // let parentOaFolderName = _.kebabCase( _.compact([ _.trim(_.get(parentOa, "code", "")), _.trim(_.get(parentOa, "finalName", "")) ]).join(" "))
+                    let parentOaFolderName = _.trim(_.get(parentOa, "code", ""))
 
                     zipArchive
                         .folder(parentOaFolderName)
@@ -3058,7 +3071,8 @@
                     _.map(_.filter(this.flatRateInvoicingDataObject.insurancesData, {parent:parentOa.id}), oa => {
                         zipArchive
                             .folder(parentOaFolderName)
-                                .folder(_.kebabCase( _.compact([ _.trim(_.get(oa, "code", "")), _.trim(_.get(oa, "finalName", "")) ]).join(" ")))
+                                // .folder(_.kebabCase( _.compact([ _.trim(_.get(oa, "code", "")), _.trim(_.get(oa, "finalName", "")) ]).join(" ")))
+                                .folder( _.trim(_.get(oa, "code", "")))
                                     .file("lists-A4-export.pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
                     })
 
@@ -3116,13 +3130,19 @@
                                 flatFiles: {},
                                 slips: {}
                             },
-                            finalArchive: {
+                            finalArchiveSpeakingName: {
                                 archiveDownloadFileName: _.kebabCase(_.compact([
                                     moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
                                     "medical house",
                                     _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
                                     "invoicing export",
                                     +new Date()
+                                ]).join(" ")) + ".zip"
+                            },
+                            finalArchive: {
+                                archiveDownloadFileName: _.kebabCase(_.compact([
+                                    moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                    "invoicing export",
                                 ]).join(" ")) + ".zip"
                             }
                         }
@@ -3236,7 +3256,7 @@
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_2',this.language), icon:"arrow-forward"});
-                        return this._getPatientsByHcp(_.get(this.hcp, "id")).then(myPatients=>_.chain(myPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value())
+                        return this._getPatientsByHcp(_.get(this.hcp, "id")).then(myPatients=>_.chain(myPatients).uniqBy('ssin').orderBy(['lastName', 'firstName'],['asc','asc']).value())
                     })
                     .then((myPatients)=>{
 
@@ -3557,8 +3577,48 @@
 
             _fetchJ20Messages( forceRefresh = false ) {
 
+                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return;
+
                 this.set('_isLoadingSmall', true );
-                console.log(forceRefresh);
+
+                this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                            .then(pl => { return {
+                                rows:_.filter(pl.rows, m => {
+                                    return m
+                                        && _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId
+                                        && _.get(m, "recipients", []).indexOf(this.user.healthcarePartyId) > -1
+                                        && parseInt( _.get(m, "metas.batchExportTstamp", 0) )
+                                        && parseInt( _.size( _.get(m, "invoiceIds", [] ) ) )
+                                }),
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done: !pl.nextKeyPair
+                            }})
+                            .catch(()=>{ return Promise.resolve(); })
+                ).then(messages=>{
+
+                    this.messagesCachedData = _.merge(this.messagesCachedData, { cachedTstamp: +new Date(), roughData: _.chain(messages).uniqBy('id').orderBy(['created'],['desc']).value() });
+                    _.map( this.invoiceMessageStatuses, (invMsgStatus,statusKey) =>{
+                        this.messagesCachedData.dataByStatus[statusKey] = {
+                            batches : _.orderBy(_.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-BATCH-ZIP" ), ['created'],['desc']),
+                            flatFiles : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-FLATFILE" ), ['created'],['desc']),
+                            slips : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-SLIP" ), ['created'],['desc']),
+                            pdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-PDF" ), ['created'],['desc'])
+                        }
+                        this.messagesCachedData.countByStatus[statusKey] = parseInt(_.size(this.messagesCachedData.dataByStatus[statusKey].batches))
+                    })
+
+                    // For msg-menu
+                    this.dispatchEvent(new CustomEvent('initialize-batch-counter-j20', { bubbles: true, composed: true, detail: this.messagesCachedData.countByStatus }));
+
+                })
+                .catch((e)=>console.log(e))
+                .finally(()=>{
+                    console.log(this.messagesCachedData)
+                    this.set('_isLoadingSmall', false )
+                })
 
             }
 
