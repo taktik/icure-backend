@@ -1707,8 +1707,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
                 .then(paginated=>{
                     if(paginated.rows && paginated.rows[0]) {
-                        if (paginated.rows[0].name && !paginated.rows[0].name.startsWith('Noreply') && paginated.rows[0].ssin !== "12345678912") {
-                            let hcp = paginated.rows[0]
+                        let hcp = paginated.rows[0]
+                        if (hcp.name && !hcp.name.startsWith('Noreply') || hcp.ssin !== "12345678912") {
                             hcp.type = 'NIHII'
                             hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
                             // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
