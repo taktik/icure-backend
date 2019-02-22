@@ -2370,6 +2370,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     leftMenuOpen:{
                         type: Boolean,
                         value: false
+                    },
+                    socket : {
+                        type : Object,
+                        value: {}
                     }
                 };
             }
@@ -3094,7 +3098,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             filterEvents() {
                 const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
                 this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
-                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                /*const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
                 if(age>=25 && age<=65 && this.patient.gender==="female" &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
                     this.createEvent("BE-THESAURUS-PROCEDURES|X37.002|3.1.0");
@@ -3106,7 +3110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(age>=50 && age<=74 &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
                     this.createEvent("BE-THESAURUS-PROCEDURES|D36.002|3.1.0")
-                }
+                }*/
             }
 
             _lateEventCssClass(e) {
@@ -4051,7 +4055,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             shortServiceDescription(svc, lng) {
                 let rawDesc
-                console.log(svc)
                 if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
                     rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
                 }else {
@@ -4515,7 +4518,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             postitChanged(value) {
-                if(value && value.length) {
+                const trimmedValue = value && value.trim()
+                if(trimmedValue && trimmedValue.length) {
                     this.$["postit-notification"].classList.add('show-postit')
                 }else {
                     this.closePostit()
@@ -4600,6 +4604,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set("cardData",e.detail.cardData)
             }
 
+            setSocket(){
+                if(!this.socket)return;
+                this.socket.on("auto-read-card-eid",cards =>{
+                    const res = JSON.parse(cards)
+                    if (res.cards[0] && this.patient.ssin===res.cards[0].nationalNumber) {
+                        this.set('cardData',res.cards[0])
+                        this.set("eidCardNumber",this.cardData.logicalNumber)
+                        if(!this.haveTherLinks){
+                            this._registerNationalAndHubTherLink();
+                        }
+                    }
+                })
+            }
         }
 
         customElements.define(HtPatDetail.is, HtPatDetail);

@@ -97,6 +97,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-input-container-color: var(--app-text-color);
             }
 
+            paper-textarea {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
 			paper-dropdown-menu {
 				padding-left: 5px;
 				padding-right: 5px;
@@ -784,8 +788,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
 
-
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
+
     static get is() {
         return 'ht-pat-admin-card';
     }
@@ -1745,8 +1749,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     country: this.cardData.country
                 })
             }
+
+            this.api.patient().modifyPatientWithUser(this.user,this.patient)
+                .then(p => this.api.register(p,'patient'))
+                .then(p => {
+                    this.set('patient',p)
+                    this.patientChanged()
+                })
         }
-        else{
+        else if(Object.keys(this.cardData).length===0){
             fetch('http://127.0.0.1:16042/read')
                 .then((response) => {
                     return response.json()
@@ -1758,6 +1769,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+        else {
+            console.log("mauvaise carte inserer")
         }
     }
 

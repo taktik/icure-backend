@@ -86,6 +86,7 @@ public class Document extends StoredICureDocument implements Serializable {
 			this.attachment = other.attachment;
 		} else if (other.attachment != null && this.attachment.length < other.attachment.length) {
 			this.attachment = other.attachment;
+			this.attachmentId = null;
 		}
 	}
 
