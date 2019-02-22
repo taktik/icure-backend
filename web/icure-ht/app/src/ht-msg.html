@@ -202,7 +202,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
             <template is="dom-if" if="[[flatrateinvoicesLayout]]">
-                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" flatrate-menu-section="[[flatrateMenuSection]]"></ht-msg-flatrate-invoice>
+                    <ht-msg-flatrate-invoice
+                        id="msg-flatrate-invoice"
+                        api="[[api]]"
+                        i18n="[[i18n]]"
+                        language="[[language]]"
+                        resources="[[resources]]"
+                        user="[[user]]"
+                        flatrate-menu-section="[[flatrateMenuSection]]"
+                        on-selection-messages-change="handleMessageChange"
+                        on-initialize-batch-counter-j20="callInitializeBatchCounterJ20"
+                    ></ht-msg-flatrate-invoice>
             </template>
 
             <template is="dom-if" if="[[mycarenetLayout]]">
@@ -381,6 +391,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             callInitializeBatchCounter(e){
                 this.shadowRoot.querySelector("#msg-menu").initializeBatchCounter(e)
+            }
+
+            callInitializeBatchCounterJ20(e){
+                this.shadowRoot.querySelector("#msg-menu").initializeBatchCounterJ20(e)
             }
 
         }
