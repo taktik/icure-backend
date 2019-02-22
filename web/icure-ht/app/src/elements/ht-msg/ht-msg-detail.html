@@ -1646,6 +1646,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             const msgToRe = {
                                 // delegations: origMsg.delegations,
                                 destinations: dest,
+                                received: this.api.moment(origMsg.received).format('DD/MM/YYYY hh:mm'),
                                 patientInss: origMsg.patientInss,
                                 annex: undefined,
                                 document: {
