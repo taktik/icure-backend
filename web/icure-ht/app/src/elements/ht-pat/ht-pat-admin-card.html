@@ -483,7 +483,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
-                    <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <iron-icon id="save-btn" icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <paper-tooltip for="save-btn" position="left">[[localize('save','Save',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
                     <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
@@ -914,6 +915,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Number,
                 value: 0
             },
+            tabIndex: {
+                type: Number,
+                value: 0,
+                observer: '_tabIndexChanged'
+            },
             cardData: {
                 type: Object,
                 value: {}
@@ -1128,7 +1134,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 throw e
                             }
                         })
-                )
+                    )
             })
         }
 
@@ -1750,6 +1756,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+    }
+
+    _tabIndexChanged() {
+        if(this.tabIndex >= 0 && this.tabs >= 0 && this.tabIndex != this.tabs){
+            this.set('tabs',this.tabIndex)
         }
     }
 
