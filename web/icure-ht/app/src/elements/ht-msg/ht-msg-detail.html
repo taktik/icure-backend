@@ -1690,7 +1690,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
                 document: {
                     title: 'Fw: '+origMsg.subject,
-                    textContent: this.docTxt ||  this.localize('no_msg_content','No message',this.language)
+                    textContent: this.docTxt != undefined && this.docTxt.length ? this.docTxt : this.localize('no_msg_content','No message',this.language)
                 },
                 customMetas: origMsg.metas,
                 type: 'fwd'
@@ -1721,7 +1721,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 annex: undefined,
                                 document: {
                                     title: 'Re: ' + origMsg.subject,
-                                    textContent: this.docTxt ||  this.localize('no_msg_content','No message',this.language)
+                                    textContent: this.docTxt != undefined && this.docTxt.length ? this.docTxt : this.localize('no_msg_content','No message',this.language)
                                 },
                                 customMetas: origMsg.metas,
                                 type: 'replyto'
