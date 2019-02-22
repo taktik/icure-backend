@@ -878,11 +878,11 @@
                     // params.destinations.forEach(d=>delete d.delegations)
                     this.set('newMessage.destinations',params.destinations || [])
                     this.set('newMessage.document.title', params.document.title || '')
-                    // this.set('newMessage.document.textContent',
-                    //     params.type === 'fwd' ? `\r\n\r\n====${this.localize(params.type,'',this.language)} ====\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
-                    //     : params.type === 'replyto' ? `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
-                    //     : ''
-                    // ) TODO : get msg txt
+                    this.set('newMessage.document.textContent',
+                        params.type === 'fwd' ? `\r\n\r\n====${this.localize(params.type,'',this.language)} ====\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
+                        : params.type === 'replyto' ? `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
+                        : ''
+                    )
                     // this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
                     this.set('isForwardOrReply',
