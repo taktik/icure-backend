@@ -2517,10 +2517,10 @@
                     //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
                     ib.invoices = invoices; //1 per patient
                     //end loop patients of OA
-                    return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes, slip: "TODO", msg: "", batch: ib};
+                    return this.api.fhc().Efactcontroller().makeFlatFileCoreUsingPOST(ib).then(flatRes => {
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: flatRes.flatFile, metadata: flatRes.metadata, slip: this.slipDataFromBatchAndFlatFile(ib, flatRes), msg: "", batch: ib};
                     }).catch(err => {
-                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", slip: "", msg: err, batch: ib}
+                        return {io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id, file: "", metadata: "", slip: "", msg: err, batch: ib}
                     });
                 })).then(res => {
                     flatData.content = res;
@@ -2529,6 +2529,69 @@
                 //end loop OA
             }
 
+            slipDataFromBatchAndFlatFile(batch, flatWithMetadata){
+                let slip = {
+                    mm: {name:"", address:"", pcCity: "", nihii: "", cbe: "", BIC:"", IBAN:"", contactPerson:""},
+                    io: {name:"", address:"", pcCity:""},
+                    batch: {version:"", nr:"", fileName:"", yearMonth:"", creationDate: ""},
+                    invoiceSummaries: [],
+                    invoiceTotal: {nRecords:0, checkSum:0, amount:0}
+                };
+                //file checksum is .....CSxx
+                let invoiceSummary = {mutCode:"", nRecords:0, checkSum:0, amount:0};
+
+                //title
+                let title="VERZENDINGSBORDEREL VOOR MAGNETISCHE DRAGERS\n" +
+                    "------------------------------------------------\n" +
+                    "Factureringsvorm ; 1)  1 bestand - 1 financiële rekening\n" +
+                    "Identificatie inrichting :\n" +
+                    "---------------------------- :\n";
+                //MM info
+                let mmInfo = "Benaming               : [mm.name]\n" +
+                    "Adres                  : [mm.address]\n" +
+                    "Postnr. - gemeente     : [mm.cpCity]\n" +
+                    "Erkenningsnummer       : [mm.nihii]\n" +
+                    "KBO nummer             : [mm.cbe]\n" +
+                    "BIC.                   : [mm.BIC]\n" +
+                    "IBAN.                  : [mm.IBAN]\n";
+                //OA info
+                let oaInfo = "---------------------------------------------------------------------------\n" +
+                    "Identificatie verzekeringsinstelling : \n" +
+                    "--------------------------------- : \n" +
+                    "Benaming              :  [oa.name]\n" +
+                    "Adres                 :  [oa.address]\n" +
+                    "Postnummer - gemeente :  [oa.pcCity]\n" +
+                    "---------------------------------------------------------------------------\n";
+                //File info
+                let fileInfo = "Versie bestand  (zone 4)                  : [batch.version]\n" +
+                    "Zendingsnummer (zone 7)                   : [batch.nr]\n" +
+                    "Identificatie magnetische dragers         : [batch.fileName]\n" +
+                    "Gefactureerd jaar en maand ( zones 22-23) : [batch.yearMonth]\n" +
+                    "Datum van opstelling (zone 25-26)         : [batch.creationDate]\n" +
+                    "Verantwoordelijke                         : [mm.contactPerson]\n";
+                //column headers
+                let columnHeaders = "---------------------------------------------------------------------------\n" +
+                    "Nr.zieken-     Aantal         Controlecijfer   Bedragen ten laste V.I.    \n" +
+                    "fonds          records        per ziekenfonds          Totaal             \n" +
+                    "---------------------------------------------------------------------------\n";
+                //mut lines
+                let mutLines =
+                    "        [mutCode:3]         [nRecords:4]               [checkSum:2]                       [amount:8]";
+                //total line
+                let totalLine = "---------------------------------------------------------------------------\n" +
+                    "     Totaux         [nRecords:4]               [checkSum:2]                       [total:8]\n" +
+                    "---------------------------------------------------------------------------\n";
+                //footer
+                let footer = "Voorbehouden aan de verzekeringsinstelling :        Visa instelling    :\n" +
+                    "------------------------------------------          --------------------\n" +
+                    "Ontvangsdatum :...........................          Datum :.............\n" +
+                    "Naam :....................................          Naam  :.............\n" +
+                    "Funktie  :................................          ....................\n" +
+                    "Handtekening :.........................             Handtekening :......";
+
+                return title + mmInfo + oaInfo + fileInfo + columnHeaders + mutLines + totalLine + footer;
+            }
+            
             cleanNumericalString(str){
                 return str.replace(/[^\d]/g, '');
             }
@@ -2555,7 +2618,7 @@
                 inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
                 patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = OA;
+                inv.ioCode = ins.insuranceCode;
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
