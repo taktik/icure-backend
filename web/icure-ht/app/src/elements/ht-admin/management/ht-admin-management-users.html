@@ -383,7 +383,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(this.selectedUser && this.selectedUser.healthcarePartyId){
                     this.set('selectedUserlistOfDelegations', [])
                     this.set('selectedUserHcp', {})
-                    this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId).then(hcp => this.set('selectedUserHcp', hcp))
+
+                    this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId)
+                        .then(hcp => this.set('selectedUserHcp', hcp))
                         .then(() => Object.keys(this.selectedUser.autoDelegations).length > 0 ? this.api.hcparty().getHealthcareParties(_(_.flatten(Object.keys(this.selectedUser.autoDelegations).map(key => this.selectedUser.autoDelegations[key]))).uniq().value().map(del => del).join(',')) : Promise.resolve([]))
                         .then(delegatesHcp => {
                             Object.keys(this.selectedUser.autoDelegations).forEach(key => {
