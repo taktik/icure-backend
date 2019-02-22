@@ -852,7 +852,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _messagesChanged(messages,page) {
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
-                    grid.size = grid.getAttribute('page-size') || 30
+                    // grid.size = grid.getAttribute('page-size') || 30
                     console.log('messagesChanged',grid.size)
                     this.set('gridSize',grid.size)
                     // if (!this.pages) {
