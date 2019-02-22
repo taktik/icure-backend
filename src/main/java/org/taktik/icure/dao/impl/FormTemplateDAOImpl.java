@@ -141,7 +141,7 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 
 		if (entity != null && entity.getLayoutAttachmentId() != null) {
 			try {
-				AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getLayoutAttachmentId());
+				AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getLayoutAttachmentId(), entity.getRev());
 				byte[] layout = ByteStreams.toByteArray(attachmentIs);
 				entity.setLayout(layout);
 			} catch (IOException|DocumentNotFoundException e) {
