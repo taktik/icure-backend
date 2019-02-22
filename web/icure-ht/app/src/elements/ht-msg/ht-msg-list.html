@@ -531,12 +531,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div id="stamp-indicator" class="stamp-indicator hasNew"><iron-icon icon="warning"></iron-icon><span class="label">[[bufferedMsgs]]</span></div>
                         <paper-tooltip for="stamp-indicator" offset="0">[[localize('buff_msgs','buffered msgs',language)]]</paper-tooltip>
                     </template>
+
                     <div id="capacity-indicator">
-                        <div class="mb4"><iron-icon icon="cloud"></iron-icon> <span>[[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)</span></div>
-                        <paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress>
+                        <div class="mb4"><iron-icon icon="cloud"></iron-icon>
+                            <span>
+                                <template is="dom-if" if="[[ehealthSession]]">
+                                    [[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)
+                                </template>
+                                <template is="dom-if" if="[[!ehealthSession]]">
+                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                                </template>
+                            </span>
+                        </div>
+                        <template is="dom-if" if="[[ehealthSession]]"><paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress></template>
                     </div>
                     <template is="dom-if" if="[[actualCapacity]] >= 100">
-                        <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
+                        <template is="dom-if" if="[[ehealthSession]]">
+                            <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
+                        </template>
                     </template>
                 </div>
 
@@ -792,6 +804,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     gridSize: {
                         typez: Number
+                    },
+                    ehealthSession: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -801,12 +817,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_refresh(selectList,selectList.*)','_messagesChanged(messages, page)','_getBoxCapacity(messages, page)'];
+                return ['_refresh(selectList,selectList.*)','_messagesChanged(messages, page)','_getBoxCapacity(messages)','_isConnectedToEhbox(api.tokenId)'];
             }
 
             ready() {
                 super.ready();
                 this._isRefreshAllowed()
+            }
+
+            _isConnectedToEhbox() {
+                this.set("ehealthSession", this.api.tokenId ? true : false)
             }
 
             _getBoxCapacity() {
@@ -852,7 +872,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _messagesChanged(messages,page) {
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
-                    // grid.size = grid.getAttribute('page-size') || 30
+                    // pageSize = grid.getAttribute('page-size') || 30
                     console.log('messagesChanged',grid.size)
                     this.set('gridSize',grid.size)
                     // if (!this.pages) {
@@ -860,11 +880,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     //         return index + 1;
                     //     }));
                     // }
-                    // let start = page * grid.pageSize;
-                    // let end = (page + 1) * grid.pageSize;
+                    // let start = page * pageSize;
+                    // let end = (page + 1) * pageSize;
                     // grid.items = messages.slice(start, end);
                     grid._scrollToIndex(0)
                 }
+                this._getBoxCapacity()
             }
 
             _isRefreshAllowed() {
