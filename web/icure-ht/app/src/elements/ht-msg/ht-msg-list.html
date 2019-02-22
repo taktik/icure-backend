@@ -436,6 +436,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
+                div.last-commands {
+                    display: flex;
+                    width: 100%;
+                    justify-content: flex-end;
+                }
+
+                div.last-commands > * {
+                    border-left: 1px solid var(--app-background-color-dark);
+                    margin-left: 8px;
+                    padding-left: 4px;
+                }
+
+                .scroll-top {
+                    cursor: pointer;
+                }
+
                 @media screen and (max-width:1696px) {
                     .table-top paper-dropdown-menu#filterLabresult {
                         margin-left: 0;
@@ -669,6 +685,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-column>
                     </template>
                 </vaadin-grid>
+                <div class="last-commands">
+                    <div>[[gridSize]] [[localize('mes','Messages',language)]]</div>
+                    <iron-icon id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_gridTop"></iron-icon>
+                </div>
+                <paper-tooltip for="scrolltop" position="left">scroll top</paper-tooltip>
             </div>
             <!-- WORK IN PROGRESS -->
             <!--<div class="pagination">-->
@@ -886,6 +907,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid._scrollToIndex(0)
                 }
                 this._getBoxCapacity()
+            }
+
+            _gridTop() {
+                const grid = this.shadowRoot.getElementById('mail-list')
+                if (grid) grid._scrollToIndex(0)
             }
 
             _isRefreshAllowed() {
