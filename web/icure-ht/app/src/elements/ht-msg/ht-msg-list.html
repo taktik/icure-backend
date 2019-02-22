@@ -880,6 +880,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .filter(msg => !msg.transportGuid.startsWith('BIN'))
                         .filter(msg => !msg.transportGuid.startsWith('GMD'))
                         .filter(m=>!m.transportGuid.startsWith('PROSE:'))
+                        .filter(m=>!m.transportGuid.startsWith('HIDDEN:')) // legacy
                         .filter(m=>!((m.status&1<<14)!==0))
                 }).then(messages => {
                     this.set('messages', messages || [])
@@ -1090,9 +1091,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getHidden(){
-                return this.findMessagesByTransportGUIDs(['INBOX:*','SENTBOX:*'], null, null, 1000)
+                return this.findMessagesByTransportGUIDs(['INBOX:*','SENTBOX:*','HIDDEN'], null, null, 1000) // 'hidden' needed for legacy
                     .then(messages => {
-                        return messages.filter(m=>((m.status&(1<<14)) !== 0))
+                        return messages.filter(m=>(((m.status&(1<<14)) !== 0) || m.transportGuid.startsWith('HIDDEN')))
                     })
                     .then(m=> this.set('messages', m || []) )
             }

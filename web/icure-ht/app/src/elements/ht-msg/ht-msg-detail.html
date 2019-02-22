@@ -1390,7 +1390,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return this.messages[0].transportGuid.startsWith("BIN")
     }
     _isHidden() {
-        return this.messages[0].transportGuid.startsWith("HIDDEN")
+        return this.messages && this.messages[0] && this.messages[0].status && ((this.messages[0].status & 1<<14) !== 0)
     }
 
     _sorted(docs) {
@@ -1410,7 +1410,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('selectName','')
             this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("BIN"))
-            this.set('isHidden',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("HIDDEN"))
+            this.set('isHidden',this.selectedMessage && this.selectedMessage.status && ((this.selectedMessage.status & 1<<14) !== 0))
             this.set('unassignedResults',selMsg.unassignedResults)
             this.set('assignedResults',selMsg.assignedResults)
 			this.set('hasUnassignedResults',selMsg.unassignedResults ? selMsg.unassignedResults.length ? true : false : false)
@@ -1738,10 +1738,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _hideMsg() {
         let msg = this.messages[0]
         if (msg) {
-            if ((msg.status&(1<<14)) !== 0){
-                msg.status = msg.status & 0<<14
+            if ((msg.status&(1<<14)) !== 0){ // if hidden
+                msg.status = msg.status & 0<<14 // unhide
             } else {
-                msg.status = msg.status | 1<<14
+                msg.status = msg.status | 1<<14 // else hide
             }
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
@@ -1772,10 +1772,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _restoreMsgs(){
         let msg = this.messages[0]
-        if (msg) {
+        if (msg && msg.transportGuid && msg.status) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
-            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
-            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id // legacy
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id // legacy
+            msg.status&0<<14 // unhide
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
