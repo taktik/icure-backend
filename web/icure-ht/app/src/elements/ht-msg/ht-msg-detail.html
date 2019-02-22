@@ -1705,7 +1705,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id // legacy
             if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id // legacy
-            msg.status&0<<14 // unhide
+            msg.status = msg.status&0<<14 // unhide
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
