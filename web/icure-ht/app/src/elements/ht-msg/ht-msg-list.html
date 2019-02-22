@@ -546,7 +546,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]"
                              active-item="{{activeItem}}" items="[[messages]]"
                              on-tap="click" on-removed-opened="_deselectMessages"
-                             selection-mode="multi" width="100%" pageSize="30">
+                             selection-mode="multi" width="100%" page-size="100">
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="0" width="46px">
                             <template>
@@ -789,6 +789,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     refreshAllowed: {
                         type: Boolean
+                    },
+                    gridSize: {
+                        typez: Number
                     }
                 };
             }
@@ -845,21 +848,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _selectPage(e) {this.set('page',e.model.item -1)}
             _prevPage(e) {this.set('page',Math.max(0, this.page - 1))}
             _nextPage(e) {this.set('page',Math.min(this.pages.length - 1, this.page + 1))}
+
             _messagesChanged(messages,page) {
-                console.log('messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
-                    grid.size = 30
-                    if (!this.pages) {
-                        this.set('pages',Array.apply( null, {length: Math.ceil(messages.length / grid.pageSize)} ).map(function(message, index) {
-                            return index + 1;
-                        }));
-                    }
-                    let start = page * grid.pageSize;
-                    let end = (page + 1) * grid.pageSize;
-                    grid.items = messages.slice(start, end);
-                    grid.clearCache()
-
+                    grid.size = grid.getAttribute('page-size') || 30
+                    console.log('messagesChanged',grid.size)
+                    this.set('gridSize',grid.size)
+                    // if (!this.pages) {
+                    //     this.set('pages',Array.apply( null, {length: Math.ceil(messages.length / grid.pageSize)} ).map(function(message, index) {
+                    //         return index + 1;
+                    //     }));
+                    // }
+                    // let start = page * grid.pageSize;
+                    // let end = (page + 1) * grid.pageSize;
+                    // grid.items = messages.slice(start, end);
                 }
             }
 
@@ -883,7 +886,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .filter(m=>!m.transportGuid.startsWith('HIDDEN:')) // legacy
                         .filter(m=>!((m.status&1<<14)!==0))
                 }).then(messages => {
-                    this.set('messages', messages || [])
+                    this.set('messages', _.orderBy(messages, ['received'], ['desc']))
                     this._deselectAll()
                 });
             }
@@ -928,7 +931,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(m=>(m.status&1<<14)!==1);
+                    return this.sortByDates(messages.rows)
+                        .filter(msg => !msg.transportGuid.startsWith('BIN'))
+                        .filter(m=>((m.status&1<<14)!==0) == false);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -1093,13 +1098,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             getHidden(){
                 return this.findMessagesByTransportGUIDs(['INBOX:*','SENTBOX:*','HIDDEN'], null, null, 1000) // 'hidden' needed for legacy
                     .then(messages => {
-                        return messages.filter(m=>(((m.status&(1<<14)) !== 0) || m.transportGuid.startsWith('HIDDEN')))
+                        return this.sortByDatesAndGUID(messages)
+                            .filter(m=>(((m.status&(1<<14)) !== 0) || m.transportGuid.startsWith('HIDDEN')))
                     })
                     .then(m=> this.set('messages', m || []) )
             }
             getTrash(){
 				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
-					.then(messages => this.set('messages', messages || []));
+					.then(messages => this.set('messages', this.sortByDatesAndGUID(messages) || []));
             }
 
             findMessagesByTransportGUID(guid){
@@ -1133,6 +1139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
                 this._isRefreshAllowed()
                 this._deselectAll();
+                this.updateGridElementsSize()
             }
 
             _actionFromItem(item) {
@@ -1206,17 +1213,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _itemSelected(e) {
                 if (e.path[0].checked) {
                     const checkedMsg = JSON.parse(e.target.dataset.item)
-                    if (this.checkedMessages.length != this.messages.length) this.push('checkedMessages', checkedMsg)
+                    if (this.checkedMessages.length != this.gridSize) this.push('checkedMessages', checkedMsg)
                 } else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
                     this.set('allSelected',false)
                 }
-                console.log(this.checkedMessages.length+' checked',this.checkedMessages)
+                console.log(this.checkedMessages)
             }
 
             _toggleSelectAll() {
                 this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
-                this.set('checkedMessages',this.allSelected ? this.messages : [])
+                this.set('checkedMessages',this.allSelected ? this.messages.splice(0,this.gridSize) : [])
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 const selectedState = this.allSelected

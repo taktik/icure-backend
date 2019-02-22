@@ -1694,7 +1694,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _msgToBin(param){
-        let msg = param ? param : this.messages[0]
+        let msg = this.messages[0]
         if (msg) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
@@ -1732,7 +1732,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _isSentbox(msg) {
-	    this.set('isSentbox',msg.transportGuid && msg.transportGuid.startsWith('SENT'))
+	    this.set('isSentbox',msg && msg.transportGuid && msg.transportGuid.startsWith('SENT'))
     }
 
 	_isEqualTo(title, string) {
