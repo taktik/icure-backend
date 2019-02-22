@@ -2,11 +2,14 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 
+import java.util.List;
+
 public class MedicalLocationDto extends StoredDto {
     protected String name;
     protected String description;
     protected AddressDto address;
     protected String responsible;
+    protected List<String> agendaIds;
 
     public String getName() {
         return name;
@@ -39,4 +42,8 @@ public class MedicalLocationDto extends StoredDto {
     public void setResponsible(String responsible) {
         this.responsible = responsible;
     }
+
+    public List<String> getAgendaIds() { return agendaIds; }
+
+    public void setAgendaIds(List<String> agendaIds) { this.agendaIds = agendaIds; }
 }
