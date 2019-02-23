@@ -245,13 +245,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="user-panel">
                 <paper-tabs selected="{{tabs}}">
                     <paper-tab id="tab-userInformation" class="adm-tab"><iron-icon icon="vaadin:user" class="marginRight10"></iron-icon><span class="nomobile">[[localize('user_info','User informations',language)]]</span></paper-tab>
-                    <paper-tab id="tab-role" class="adm-tab"><iron-icon icon="vaadin:clipboard-user" class="marginRight10"></iron-icon><span class="nomobile">[[localize('usr_deleg','User roles',language)]]</span></paper-tab>
                     <paper-tab id="tab-delegations" class="adm-tab"><iron-icon icon="vaadin:key" class="marginRight10"></iron-icon><span class="nomobile">[[localize('usr_deleg','User delegations',language)]]</span></paper-tab>
                 </paper-tabs>
 
                 <iron-pages selected="[[tabs]]" class="panel-content">
                     <page>
-                        <h4>General information</h4>
                         <div class="line">
                             <paper-input label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
                             <paper-input label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
@@ -269,6 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-input label="[[localize('mail', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
                         </div>
                         <div class="line">
+                            <vaadin-checkbox checked="{{isAdministrator}}" on-checked-changed="_administratorRoleChanged">[[localize('adm','Administrator',language)]]</vaadin-checkbox>
                             <paper-dropdown-menu label="[[localize('stat','Status',language)]]">
                                 <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" selected-item="{{userStatus}}" on-selected-changed="_selectedUserStatusChanged">
                                     <paper-item id="ACTIVE">[[localize('active','Active',language)]]</paper-item>
@@ -276,28 +275,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
-                        <h4>Agenda</h4>
                         <div class="line">
                             <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
-                            <paper-dropdown-menu label="[[localize('agd_type','Agenda type',language)]]">
-                                <paper-listbox slot="dropdown-content" selected="{{}}" attr-for-selected="id" selected-item="{{agendaType}}" on-selected-changed="_selectedAgendaTypeChanged">
-                                    <paper-item id="persphysician">[[localize('agd_phy','Physician',language)]]</paper-item>
-                                    <paper-item id="perstechnician">[[localize('agd_sec','Secretary',language)]]</paper-item>
+                            <paper-dropdown-menu label="[[localize('usr_spec','Speciality',language)]]">
+                                <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
+                                    <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
+                                        <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
+                                    </template>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
-                    </page>
-                    <page>
-                        <vaadin-grid id="roleList" class="material" items="[[selectedUser.roles]]">
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    [[localize('usr_role_typ','Role type',language)]]
-                                </template>
-                                <template>
-                                    <div>[[item]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
+                        <div class="line">
+                            <paper-dropdown-menu label="[[localize('stat','Type',language)]]">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedUserHcp.type}}" attr-for-selected="id" selected-item="{{selectedHcpType}}" on-selected-changed="_selectedHcpStatusChanged">
+                                    <paper-item id="persphysician">[[localize('active','Prestataire',language)]]</paper-item>
+                                    <paper-item id="medicalhouse">[[localize('disabled','Medical house',language)]]</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                        </div>
                     </page>
                     <page>
                         <vaadin-grid id="delegationList" class="material" items="[[selectedUserlistOfDelegations]]">
@@ -401,6 +396,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     agendaType:{
                         type: Object,
                         value: () => {}
+                    },
+                    isAdministrator:{
+                        type: Boolean,
+                        value : false
+                    },
+                    selectedHcpSpeciality:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    hcpartyList:{
+                        type: Object,
+                        value: () => []
+                    },
+                    selectedHcpSpecialityIdx : {
+                        type: Number,
+                        value: 0
+                    },
+                    selectedHcpType:{
+                        type: Object,
+                        value: () => {}
                     }
                 }
             }
@@ -418,10 +433,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _usersDataProvider(){
-                this.api.user().listUsers().then(users => {
-                    this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
-                    this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
-                })
+                this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', null, null, 1000)
+                    .then(hcpList => this.set('hcpartyList', _.uniqBy(_.orderBy(hcpList.rows, ['label.fr'], ['asc']), 'code')))
+                    .then(() =>  this.api.user().listUsers())
+                    .then(users => {
+                        this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
+                        this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
+                    })
             }
 
             _selectedUserChanged(){
@@ -429,6 +447,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('selectedUserlistOfDelegations', [])
                     this.set('selectedUserHcp', {})
                     this.set('agendaCreated', false)
+                    this.set('isAdministrator', false)
+                    this.set('selectedHcpSpecialityIdx', null)
+                    this.set('selectedHcpType', {})
 
                     const applicationTokens = _.get(this.selectedUser, "applicationTokens", "" )
                     const mikronoUrl = this.selectedUser && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
@@ -436,6 +457,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const mikronoPassword = this.selectedUser && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
 
                     mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO ?  this.set('agendaCreated', true) :  this.set('agendaCreated', false)
+
+                    this.selectedUser.roles && this.selectedUser.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN') ? this.set('isAdministrator', true) : this.set('isAdministrator', false)
+
 
                     this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId)
                         .then(hcp => this.set('selectedUserHcp', hcp))
@@ -446,6 +470,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         })
                         .finally(() => {
+                            const specilityCode = this.selectedUserHcp && this.selectedUserHcp.specialityCodes || []
+                            const hcpartyType = specilityCode && specilityCode.find(spec => spec.type === "CD-HCPARTY") || null
+
+                            hcpartyType ? this.set('selectedHcpSpecialityIdx', hcpartyType && this.hcpartyList && this.hcpartyList.findIndex(hcp => hcp.id === hcpartyType.id) || null) : null
+
                             this.$['userInformationDialog'].open()
                             this.set('tabs',tab>0?tab:0)
                         })
@@ -457,12 +486,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _selectedUserStatusChanged(){
-                this.selectedUser && this.this.userStatus && this.this.userStatus.id ?  this.set('selectedUser.status', this.userStatus.id) : null
+                this.selectedUser && this.userStatus && this.this.userStatus.id ?  this.set('selectedUser.status', this.userStatus.id) : null
             }
 
             _saveUser(){
                 this.api.user().modifyUser(this.selectedUser)
                     .then(selectedUser => this.set('selectedUser', selectedUser))
+                    .then(() => this.api.hcparty().modifyHealthcareParty(this.selectedUserHcp))
+                    .then(hcp => this.set('selectedUserHcp', hcp))
                     .then(() => this.api.user().listUsers())
                     .then(users => {
                         this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
@@ -471,27 +502,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
             }
 
-            _selectedAgendaTypeChanged(){
-                if(this.selectedUserHcp && this.agendaType && this.agendaType.id){
+            _hcpSpecialityChanged(){
+                if(this.selectedUserHcp && this.selectedHcpSpeciality && this.selectedHcpSpeciality.id){
+
+                    const selectedSpeciality = this.hcpartyList.find(hcp => hcp.id === this.selectedHcpSpeciality.id) || null
+
                     const specialityCodes = this.selectedUserHcp.specialityCodes || []
+
                     specialityCodes.length === 0 ? _.assign(this.selectedUserHcp, {specialityCodes: []}) : null
 
                     const hcpartySpeciality = specialityCodes.find(sc => sc.type === 'CD-HCPARTY') || null
 
                     if(hcpartySpeciality){
-
+                        this.splice('selectedUserHcp.specialityCodes', _.indexOf(specialityCodes, hcpartySpeciality), 1)
+                        this.push('selectedUserHcp.specialityCodes', _.omit(selectedSpeciality, 'rev'))
                     }else{
-                        this.push('selectedUserHcp.specialityCodes', {
-                            type: "CD-HCPARTY",
-                            code: "perstechnician",
-                            version: "1",
-                            _attachments: {},
-                            _id: "CD-HCPARTY|perstechnician|1",
-                            java_type: "org.taktik.icure.entities.base.Code"
-                        })
+                        this.push('selectedUserHcp.specialityCodes', _.omit(selectedSpeciality, 'rev'))
                     }
 
+                    console.log(this.selectedUserHcp)
 
+                }
+            }
+
+            _administratorRoleChanged(e){
+                if(this.selectedUser && e.detail){
+                    if(e.detail.value === true){
+                        this.push('selectedUser.roles', 'ADMIN')
+                    }else{
+                        const idx = this.selectedUser.roles && _.indexOf(this.selectedUser.roles, this.selectedUser.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN')) || null
+                        this.splice('selectedUser.roles', idx, 1)
+                    }
+                }
+            }
+
+            _getLabel(label){
+                return label[this.language]
+            }
+
+            _selectedHcpStatusChanged(){
+                if(this.selectedUserHcp && this.selectedHcpType && this.selectedHcpType.id){
+                    this.set('selectedUserHcp.type', this.selectedHcpType.id)
                 }
             }
 
