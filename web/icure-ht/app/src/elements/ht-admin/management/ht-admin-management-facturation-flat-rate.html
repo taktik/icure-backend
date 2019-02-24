@@ -155,7 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                     <template>
                         <div>
-                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice"></iron-icon>
+                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice" data-item$="[[item]]"></iron-icon>
                         </div>
                     </template>
                 </vaadin-grid-column>
@@ -344,10 +344,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      })
                 }
 
-                this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
-                    this.set('hcpParent', hcp)
-                    this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
-                }).finally(() => this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null}))
+                this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                    .then(hcp => this.set('hcpParent', hcp))
+                    .finally(() => {
+                    const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                    this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                    this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null})
+                })
 
 
             }
@@ -395,6 +398,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _deleteFalRatePrice(e){
                 e.stopPropagation()
+                if(e.target.dataset && e.target.dataset.item){
+                    const dataToBeDeleted = JSON.parse(e.target.dataset.item)
+                    const tarification = this.hcpParent.flatRateTarifications.find(t => t.code === dataToBeDeleted.code)
+                    const valorisationsOfTarification = tarification.valorisations
+                    const valorisationToBeDeleted = tarification.valorisations.findIndex(val => val.startOfValidity === dataToBeDeleted.valorisation.startOfValidity && val.reimbursement === dataToBeDeleted.valorisation.reimbursement)
+                    valorisationsOfTarification.splice(valorisationToBeDeleted, 1)
+
+                    this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                        .then(hcp => this.set('hcpParent', hcp))
+                        .finally(() => {
+                            const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                            this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                        })
+                }
             }
 
             _selectedPriceChanged(e){
