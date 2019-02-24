@@ -610,6 +610,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeSend"><div class="one-line-menu list-title"><iron-icon icon="send"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeSend','To be send',language)]]</span></div> <!--<span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.xxx]]</span>--><span class="batchNumber j20_batchNumber batchToBeSend">+</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_process"><div class="one-line-menu list-title"><iron-icon icon="cached"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_process','Processing',language)]]</span></div> <span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.pending]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_reject"><div class="one-line-menu list-title"><iron-icon icon="cancel"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_reject','Rejected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.rejected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_partiallyAccepted"><div class="one-line-menu list-title"><iron-icon icon="settings-backup-restore"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_partiallyAccepted','Partially accepted batches',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.partiallyAccepted]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_accept"><div class="one-line-menu list-title"><iron-icon icon="check-circle"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_accept','Accepted',language)]]</span></div> <span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.fullyAccepted]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_archive"><div class="one-line-menu list-title"><iron-icon icon="markunread-mailbox"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_archive','Archived',language)]]</span></div> <span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></paper-item>
 
@@ -1089,7 +1090,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             initializeBatchCounterJ20(e){
-                if(e && e.detail && _.size(e.detail)) _.map(e.detail, (batchCount,batchKey) => this.set("j20_batchCounter." + batchKey , parseInt(batchCount)))
+                if(_.size(e.detail)) _.map(e.detail, (batchCount,batchKey) => this.set("j20_batchCounter." + batchKey , parseInt(batchCount)))
             }
 
             _checkForMedicalHouse() {
