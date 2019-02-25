@@ -2223,73 +2223,73 @@
                 var erreur = '';
 
                 //Erreur sur le nom du message
-                if(zones.find(z => z.zone === "2001") !== '00'){
-                    if(zones.find(z => z.zone === "2001") === '10'){
+                if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value != '00'){
+                    if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '10'){
                         erreur += 'Nom du message => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '11'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '11'){
                         erreur += 'Nom du message => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '20'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '20'){
                         erreur += 'Nom du message => Codification inconnue<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '21'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '21'){
                         erreur += 'Nom du message => Message non autorisé pour cet émetteur<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '22'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '22'){
                         erreur += 'Nom du message => # de 920000<br>';
                     }
                 }
 
                 //Erreur sur le n° de version du message
-                if(zones.find(z => z.zone === "2011") !== '00'){
-                    if(zones.find(z => z.zone === "2011") === '10'){
+                if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value != '00'){
+                    if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '10'){
                         erreur += 'N° version mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '11'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '11'){
                         erreur += 'N° version mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '20'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '20'){
                         erreur += 'N° version mess => N° de version n\'est plus d\'application<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '21'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '21'){
                         erreur += 'N° version mess => N° de version pas encore d\'application<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '30'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '30'){
                         erreur += 'N° version mess => N° de version non autorisé pour ce flux<br>';
                     }
                 }
 
                 //Erreur sur le type de message
-                if(zones.find(z => z.zone === "2021") !== '00'){
-                    if(zones.find(z => z.zone === "2021") === '10'){
+                if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value != '00'){
+                    if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '10'){
                         erreur += 'Type de mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '11'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '11'){
                         erreur += 'Type de mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '20'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '20'){
                         erreur += 'Type de mess => Valeur non permise<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '30'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '30'){
                         erreur += 'Type de mess => Message test dans un buffer de production (1er car zone 107 = P)<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '31'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '31'){
                         erreur += 'Type de mess => Message de production dans un buffer de test (1er car zone 107 = T)<br>';
                     }
                 }
 
                 //Erreur sur le statut du message
-                if(zones.find(z => z.zone === "2031") !== '00'){
-                    if(zones.find(z => z.zone === "2031") === '10'){
+                if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value != '00'){
+                    if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value == '10'){
                         erreur += 'Statut mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2031") === '20'){
+                    }else if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value == '20'){
                         erreur += 'Statut mess => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur la référence message institution ou prestataire de soins
-                if(zones.find(z => z.zone === "2041") !== '00'){
-                    if(zones.find(z => z.zone === "2041") === '10'){
+                if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value != '00'){
+                    if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value == '10'){
                         erreur += 'Réf mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2041") === '11'){
+                    }else if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value == '11'){
                         erreur += 'Réf mess => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur la référence message O.A
-                if(zones.find(z => z.zone === "2051") !== '00'){
-                    if(zones.find(z => z.zone === "2051") === '10'){
+                if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value != '00'){
+                    if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value == '10'){
                         erreur += 'Réf mess OA => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2051") === '11'){
+                    }else if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value == '11'){
                         erreur += 'Réf mess OA => Erreur format<br>';
                     }
                 }
@@ -2301,101 +2301,101 @@
                 var erreur = '';
 
                 //Erreur sur l'année et le mois de facturation
-                if(zones.find(z => z.zone === "3001") !== '00'){
-                    if(zones.find(z => z.zone === "3001") === '10'){
+                if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value != '00'){
+                    if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '10'){
                         erreur += 'Année mois fact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3001") === '11'){
+                    }else if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '11'){
                         erreur += 'Année mois fact => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3001") === '20'){
+                    }else if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '20'){
                         erreur += 'Année mois fact => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le n° d'envoi
-                if(zones.find(z => z.zone === "3011") !== '00'){
-                    if(zones.find(z => z.zone === "3011") === '10'){
+                if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value != '00'){
+                    if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '10'){
                         erreur += 'N° envoi => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3011") === '11'){
+                    }else if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '11'){
                         erreur += 'N° envoi => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3011") === '40'){
+                    }else if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '40'){
                         erreur += 'N° envoi => Signalisation de double fichier de facturation transmis<br>';
                     }
                 }
 
                 //Erreur sur la date de création de la facture
-                if(zones.find(z => z.zone === "3021") !== '00'){
-                    if(zones.find(z => z.zone === "3021") === '10'){
+                if(zones.find(z => z.zone === "3021")  && zones.find(z => z.zone === "3021").value != '00'){
+                    if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '10'){
                         erreur += 'Date création facture => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '11'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '11'){
                         erreur += 'Date création facture => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '20'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '20'){
                         erreur += 'Date création facture => Date > date du jour<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '21'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '21'){
                         erreur += 'Date création facture => Date invraisemblable ( date < 01/01/2002)<br>';
                     }
                 }
 
 
                 //Erreur sur le n° de version des instruction
-                if(zones.find(z => z.zone === "3041") !== '00'){
-                    if(zones.find(z => z.zone === "3041") === '10'){
+                if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value != '00'){
+                    if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '10'){
                         erreur += 'N° version instruction => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '11'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '11'){
                         erreur += 'N° version instruction => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '20'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '20'){
                         erreur += 'N° version instruction => Valeur non permise<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '21'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '21'){
                         erreur += 'N° version instruction => Incompatibilité avec valeur reprise en zone 202<br>';
                     }
                 }
 
                 //Erreur sur le nom de la personne de contact
-                if(zones.find(z => z.zone === "3051") !== '00'){
-                    if(zones.find(z => z.zone === "3051") === '10'){
+                if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value != '00'){
+                    if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value == '10'){
                         erreur += 'Nom personne de contact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3051") === '11'){
+                    }else if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value == '11'){
                         erreur += 'Nom personne de contact => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur le prenom de la personne de contact
-                if(zones.find(z => z.zone === "3061") !== '00'){
-                    if(zones.find(z => z.zone === "3061") === '10'){
+                if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value != '00'){
+                    if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value == '10'){
                         erreur += 'Prénom personne de contact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3061") === '11'){
+                    }else if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value == '11'){
                         erreur += 'Prénom personne de contact => Erreur format<br>';
                     }
                 }
 
                 //Erreru sur le n° de tel de contact
-                if(zones.find(z => z.zone === "3071") !== '00'){
-                    if(zones.find(z => z.zone === "3071") === '10'){
+                if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value != '00'){
+                    if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value == '10'){
                         erreur += 'N° téléphone => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3071") === '11'){
+                    }else if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value == '11'){
                         erreur += 'N° téléphone => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur le type de la facture
-                if(zones.find(z => z.zone === "3081") !== '00'){
-                    if(zones.find(z => z.zone === "3081") === '10'){
+                if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value != '00'){
+                    if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value == '10'){
                         erreur += 'Type de la facture => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3081") === '11'){
+                    }else if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value  == '11'){
                         erreur += 'Type de la facture => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3081") === '20'){
+                    }else if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value  == '20'){
                         erreur += 'Type de la facture => Valeur non permise en fonction du secteur qui émet la facturation';
                     }
                 }
 
                 //Erreur sur le type de facturation
-                if(zones.find(z => z.zone === "3091") !== '00'){
-                    if(zones.find(z => z.zone === "3091") === '10'){
+                if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value != '00'){
+                    if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '10'){
                         erreur += 'Type de facturation => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3091") === '11'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '11'){
                         erreur += 'Type de facturation => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3091") === '20'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '20'){
                         erreur += 'Type de facturation => Valeur non permise en fonction du secteur qui émet la facturation';
-                    }else if(zones.find(z => z.zone === "3091") === '30'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '30'){
                         erreur += 'Type de facturation => Valeur # de 1 ou 2 alors que la zone 308 = 3';
                     }
                 }
@@ -2408,100 +2408,100 @@
                 var erreur = '';
 
                 //Erreur sur le type de record
-                if(zones.find(z => z.zone === "4001") !== '00'){
-                    if(zones.find(z => z.zone === "4001") === '10'){
+                if(zones.find(z => z.zone === "4001")  && zones.find(z => z.zone === "4001").value  != '00'){
+                    if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '10'){
                         erreur +='Type de record => Zone obligatoire<br>';
-                    }else if(zones.find(z => z.zone === "4001") === '11'){
+                    }else if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '11'){
                         erreur += 'Type de record => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4001") === '20'){
+                    }else if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '20'){
                         erreur += 'Type de record => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le num de mut
-                if(zones.find(z => z.zone === "4011") !== '00'){
-                    if(zones.find(z => z.zone === "4011") === '10'){
+                if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value  != '00'){
+                    if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '10'){
                         erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '11'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '11'){
                         erreur +='N° de mutualité => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '20'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '20'){
                         erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '21'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '21'){
                         erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
                     }
                 }
 
                 //Erreur sur le num fact
-                if(zones.find(z => z.zone === "4021") !== '00'){
-                    if(zones.find(z => z.zone === "4021") === '10'){
+                if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value  != '00'){
+                    if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value == '10'){
                         erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4021") === '11'){
+                    }else if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value == '11'){
                         erreur += 'N° de facture récapitulative => Erreur de format<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a ou montant demande a
-                if(zones.find(z => z.zone === "4041") !== '00'){
-                    if(zones.find(z => z.zone === "4041") === '11'){
+                if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value != '00'){
+                    if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '11'){
                         erreur += 'Montant demandé cpt a => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '40'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '40'){
                         erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '41'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '41'){
                         erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '20'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '20'){
                         erreur += 'Montant demandé cpt a => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant b ou montant demande b
-                if(zones.find(z => z.zone === "4061") !== '00'){
-                    if(zones.find(z => z.zone === "4061") === '11'){
+                if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value != '00'){
+                    if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '11'){
                         erreur += 'Montant demandé cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '15'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '15'){
                         erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '40'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '40'){
                         erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
-                    }else if(zones.find(z => z.zone === "4061") === '41'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '41'){
                         erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '20'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '20'){
                         erreur +='Montant demandé cpt b => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a + b ou montant demande a + b
-                if(zones.find(z => z.zone === "4081") !== '00'){
-                    if(zones.find(z => z.zone === "4081") === '11'){
+                if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value != '00'){
+                    if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '11'){
                         erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4081") === '20'){
+                    }else if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '20'){
                         erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
-                    }else if(zones.find(z => z.zone === "4081") === '40'){
+                    }else if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '40'){
                         erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
                     }
                 }
 
                 //Erreur sur le nb d'enreg
-                if(zones.find(z => z.zone === "4091") !== '00'){
-                    if(zones.find(z => z.zone === "4091") === '10'){
+                if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value != '00'){
+                    if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '10'){
                         erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4091") === '11'){
+                    }else if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '11'){
                         erreur +='Nb de records détail => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4091") === '20'){
+                    }else if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '20'){
                         erreur += 'Nb de records détail => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
-                if(zones.find(z => z.zone === "4101") !== '00'){
-                    if(zones.find(z => z.zone === "400") === '95'){
-                        if(zones.find(z => z.zone === "4101") === '10'){
+                if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "400").value != '00'){
+                    if(zones.find(z => z.zone === "400") && zones.find(z => z.zone === "400").value == '95'){
+                        if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "4101") === '11'){
+                        }else if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(zones.find(z => z.zone === "400") === '96'){
-                        if(zones.find(z => z.zone === "4101") === '10'){
+                    }else if(zones.find(z => z.zone === "400") && zones.find(z => z.zone === "4101").value  == '96'){
+                        if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "4101") === '11'){
+                        }else if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '11'){
                             erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
                         }
                     }
@@ -2514,100 +2514,100 @@
                 var erreur = '';
 
                 //Erreur sur le type de record
-                if(zones.find(z => z.zone === "5001") !== '00'){
-                    if(zones.find(z => z.zone === "5001") === '10'){
+                if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value  != '00'){
+                    if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '10'){
                         erreur +='Type de record => Zone obligatoire<br>';
-                    }else if(zones.find(z => z.zone === "5001") === '11'){
+                    }else if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '11'){
                         erreur += 'Type de record => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5001") === '20'){
+                    }else if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '20'){
                         erreur += 'Type de record => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le num de mut
-                if(zones.find(z => z.zone === "5011") !== '00'){
-                    if(zones.find(z => z.zone === "5011") === '10'){
+                if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value != '00'){
+                    if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '10'){
                         erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '11'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '11'){
                         erreur +='N° de mutualité => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '20'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '20'){
                         erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '21'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '21'){
                         erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
                     }
                 }
 
                 //Erreur sur le num fact
-                if(zones.find(z => z.zone === "5021") !== '00'){
-                    if(zones.find(z => z.zone === "5021") === '10'){
+                if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value != '00'){
+                    if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value == '10'){
                         erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5021") === '11'){
+                    }else if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value == '11'){
                         erreur += 'N° de facture récapitulative => Erreur de format<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a ou montant demande a
-                if(zones.find(z => z.zone === "5041") !== '00'){
-                    if(zones.find(z => z.zone === "5041") === '11'){
+                if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value != '00'){
+                    if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '11'){
                         erreur += 'Montant demandé cpt a => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '40'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '40'){
                         erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '41'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '41'){
                         erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '20'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '20'){
                         erreur += 'Montant demandé cpt a => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant b ou montant demande b
-                if(zones.find(z => z.zone === "5061") !== '00'){
-                    if(zones.find(z => z.zone === "5061") === '11'){
+                if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value != '00'){
+                    if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '11'){
                         erreur += 'Montant demandé cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '15'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '15'){
                         erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '40'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '40'){
                         erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
-                    }else if(zones.find(z => z.zone === "5061") === '41'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '41'){
                         erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '20'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '20'){
                         erreur +='Montant demandé cpt b => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a + b ou montant demande a + b
-                if(zones.find(z => z.zone === "5081") !== '00'){
-                    if(zones.find(z => z.zone === "5081") === '11'){
+                if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value != '00'){
+                    if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '11'){
                         erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5081") === '20'){
+                    }else if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '20'){
                         erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
-                    }else if(zones.find(z => z.zone === "5081") === '40'){
+                    }else if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '40'){
                         erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
                     }
                 }
 
                 //Erreur sur le nb d'enreg
-                if(zones.find(z => z.zone === "5091") !== '00'){
-                    if(zones.find(z => z.zone === "5091") === '10'){
+                if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value != '00'){
+                    if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '10'){
                         erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5091") === '11'){
+                    }else if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '11'){
                         erreur +='Nb de records détail => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5091") === '20'){
+                    }else if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '20'){
                         erreur += 'Nb de records détail => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
-                if(zones.find(z => z.zone === "5101") !== '00'){
-                    if(zones.find(z => z.zone === "500" === '95')){
-                        if(zones.find(z => z.zone === "5101") === '10'){
+                if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value != '00'){
+                    if(zones.find(z => z.zone === "500") && zones.find(z => z.zone === "500").value === '95'){
+                        if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "5101") === '11'){
+                        }else if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(zones.find(z => z.zone === "500" === '96')){
-                        if(zones.find(z => z.zone === "5101") === '10'){
-                            erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "5101") === '11'){
+                    }else if(zones.find(z => z.zone === "500") && zones.find(z => z.zone === "500").value === '96'){
+                        if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '10'){
+                            erreur += 'N° de contrôle de l\'envoi => zone obligatoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '11'){
                             erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
                         }
                     }
@@ -2690,10 +2690,12 @@
                                 const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "400"))
                                 const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "500"))
 
-                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
+                                let globalError = _.compact(_.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
                                     zone400 && this.SEG_getErrSegment_400(zone400.zones || []),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])])
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])]))
+
+                                this.set('invoicesErrorMsg',this.invoicesErrorMsg+" "+globalError);
 
                             })
                         })
