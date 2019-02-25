@@ -1032,13 +1032,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              on-tap="clickOnRow">
                     <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <template is="dom-if" if="[[onElectron]]">
-                            <vaadin-grid-column flex-grow="0" width="5%">
+                            <vaadin-grid-column flex-grow="0" min-width="0%" max-width="5%">
                                 <template class="header">
-                                    <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+                                    <div class="cell frozen">[[localize('new-ong','New Onglet',language)]]</div>
                                 </template>
                                 <template>
-                                    <div class="cell frozen patient-photo">
-                                        <paper-icon-button icon="icon:check" on-tap="openPatientOnElectron" data-item$="[[item.id]]"></paper-icon-button>
+                                    <div class="cell frozen">
+                                        <paper-icon-button icon="icons:open-in-new" on-tap="openPatientOnElectron" data-item$="[[item.id]]"></paper-icon-button>
                                     </div>
                                 </template>
                             </vaadin-grid-column>
@@ -1106,7 +1106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell numeric">[[item.phone]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="14%">
+                    <vaadin-grid-column flex-grow="1">
                         <template class="header">
                             <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
                         </template>
