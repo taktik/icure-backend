@@ -94,7 +94,7 @@ onmessage = e => {
                         // console.log('pat > ',thisPat)
                         return iccContactXApi.newInstance(user, thisPat, {
                             groupId: message.id,
-                            created: docInfo.demandDate,
+                            created: new Date().getTime(),
                             modified: new Date().getTime(),
                             author: user.id,
                             responsible: user.healthcarePartyId,
