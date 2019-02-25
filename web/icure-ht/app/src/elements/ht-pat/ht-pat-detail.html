@@ -3294,27 +3294,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const oneWeekAgo = moment().subtract(7, 'days')
                         this.set('medications', _.sortBy(hesAsServices.filter(s =>
                             s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
-                        ).map(m =>
-                            Object.assign(m, {
-                                colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || "" })
-                        , sorter)))
-
-                        const noCodeMedications = this.medications.filter(m => !m.codes || !m.codes.length)
-
-                        Promise.all(noCodeMedications.map(m => {
-                            const medValue = this.api.contact().medicationValue(m)
-                            const id = (medValue && medValue.medicinalProduct && medValue.medicinalProduct.intendedcds || []).filter(cds => cds.type == 'CD-DRUG-CNK').map(cds => cds.code)
-                            return this.api.bedrugs().getMppInfos(id[0], this.language).then(mpp => {
-                                const atccode = {type: "CD-ATC", version: "1", code: mpp.atcCode}
-                                const codes = (medValue && medValue.medicinalProduct && medValue.medicinalProduct.intendedcds || []).map(cds => ({code: cds.code, type: cds.type, version: "1"}))
-                                return Object.assign(m, {
-                                    colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || "" ,
-                                    codes: [atccode].concat(codes)
-                                })
+                        ).map(m => {
+                            return Object.assign(m, {
+                                colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || "" 
                             })
-                        }))
-                        .then(meds => this.set('medications', this.medications.filter(m => m.codes && m.codes.length).concat(meds)))
-                        
+                        }), sorter))
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3434,6 +3418,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return acc
                             }, {})
 
+                            const noCodeMedications = this.medications.filter(m => !m.codes || !m.codes.length).map(m => {
+                                const medValue = this.api.contact().medicationValue(m)
+                                const codes = (medValue && medValue.medicinalProduct && medValue.medicinalProduct.intendedcds || []).reduce((map, cds) => (cds.code && cds.type && map.concat([{code: cds.code, type: cds.type, version: "1"}]) || map), [])
+                                return Object.assign(m, { codes })
+                            })
+
+                            if(noCodeMedications && noCodeMedications.length) {
+                                this._updateServices( {detail: {services: noCodeMedications}} )
+                            }
+
                             console.log("Before ctcs years"+(+new Date() - start))
 
                             this.set('contactYears', _.sortBy(_.values(_.reduce(this.contacts, (acc, ctc) => {
@@ -3469,6 +3463,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         pm.classList.add('iron-selected')
                                     }
                                 }), 0)
+
+                            
                         })
                     }) // icc contact then end
 
