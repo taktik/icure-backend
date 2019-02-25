@@ -655,7 +655,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
-                                    <div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
@@ -1027,10 +1027,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
                     .then(messages => {
                         this.set('unreadCount', _.filter(messages.rows, m => {
-                            return ((m.status & (1 << 1)) !== 0) && (
-								(m.assignedResults && Object.keys(m.assignedResults).length)
-								|| (m.unassignedResults && m.unassignedResults.length)
-							)
+                            return ((m.status & (1 << 1)) !== 0) && (m.assignedResults && Object.keys(m.assignedResults).length)
                         }).length)
                         this.messagesByContactId = {}
                         messages.rows && messages.rows.forEach (mes => {
