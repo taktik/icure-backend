@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-row: 1 / span 1;
                     background:var(--app-background-color);
                     float:left;
-                    padding:20px;
+                    padding: 12px 20px;
                     padding-top: 0;
                     display:flex;
                     flex-flow: column nowrap;
@@ -357,6 +357,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin-right: 0;
                     flex-grow: 1;
                     margin-bottom: 16px;
+                    transition: opacity .25s ease;
                 }
 
                 #mail-list iron-icon{
@@ -436,20 +437,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-secondary-color);
                 }
 
-                div.last-commands {
+                div.bottom-commands {
+                    border-left: 1px solid var(--app-background-color-darker);
                     display: flex;
                     width: 100%;
                     justify-content: flex-end;
                 }
 
-                div.last-commands > * {
-                    border-left: 1px solid var(--app-background-color-dark);
+                div.bottom-commands > * {
                     margin-left: 8px;
                     padding-left: 4px;
                 }
 
                 .scroll-top {
-                    cursor: pointer;
+                    background: var(--app-secondary-color);
+                    padding: 0 4px !important;
+                    height: 24px;
+                    width: 24px;
+                    box-sizing: border-box;
+                    border-radius: 50%;
                 }
 
                 @media screen and (max-width:1696px) {
@@ -685,11 +691,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid-column>
                     </template>
                 </vaadin-grid>
-                <div class="last-commands">
-                    <div>[[gridSize]] [[localize('mes','Messages',language)]]</div>
-                    <iron-icon id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_gridTop"></iron-icon>
+                <div class="bottom-commands">
+                    <template is="dom-if" if="[[!isLoadingMailList]]">
+                        <div>[[gridSize]] [[localize('mes','Messages',language)]]
+                            <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'sentbox')]]"> ([[unreadCount]] [[localize('are_not_read','Unread',language)]])</template>
+                        </div>
+                    </template>
+                    <paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button>
                 </div>
-                <paper-tooltip for="scrolltop" position="left">scroll top</paper-tooltip>
+                <paper-tooltip for="scrolltop" position="left">[[localize('scrolltop_list','Scroll to top of the list',language)]]</paper-tooltip>
             </div>
             <!-- WORK IN PROGRESS -->
             <!--<div class="pagination">-->
@@ -824,11 +834,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean
                     },
                     gridSize: {
-                        typez: Number
+                        type: Number,
+                        value: 0
                     },
                     ehealthSession: {
                         type: Boolean,
                         value: false
+                    },
+                    unreadCount: {
+                        type: Number,
+                        value: 0
                     }
                 };
             }
@@ -893,9 +908,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _messagesChanged(messages,page) {
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
-                    // pageSize = grid.getAttribute('page-size') || 30
-                    console.log('messagesChanged',grid.size)
                     this.set('gridSize',grid.size)
+                    if (this.selectList.selection.item !== 'sentbox') {
+                        const unreadMsgsCount = messages.filter(m=>this.isUnread(m))
+                        this.set('unreadCount',unreadMsgsCount.length)
+                    }
                     // if (!this.pages) {
                     //     this.set('pages',Array.apply( null, {length: Math.ceil(messages.length / grid.pageSize)} ).map(function(message, index) {
                     //         return index + 1;
@@ -907,11 +924,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid._scrollToIndex(0)
                 }
                 this._getBoxCapacity()
+                this.set('isLoadingMailList', false)
             }
 
-            _gridTop() {
+            _scrollToTop() {
                 const grid = this.shadowRoot.getElementById('mail-list')
-                if (grid) grid._scrollToIndex(0)
+                if (grid) {
+                    grid.style.opacity = 0
+                    setTimeout(()=>grid._scrollToIndex(0),250) // timeOut for css transition
+                    setTimeout(()=>grid.style.opacity = 1,500)
+                }
             }
 
             _isRefreshAllowed() {
@@ -1223,14 +1245,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             sortByDates(messages){
-                this.set('isLoadingMailList', false)
 				return messages.sort(function (a, b) {
 					return b.received - a.received ;
 				});
 			}
 
 			sortByDatesAndGUID(messages){
-                this.set('isLoadingMailList', false)
 				return messages.sort(function (a, b) {
 					if(b.received === a.received){
 						let bGuid = (b.transportGuid+'').split(":")[1] || "";
