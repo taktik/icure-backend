@@ -23,12 +23,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Group extends StoredDocument implements Cloneable, Serializable {
-	String name;
-	String password;
+	private String name;
+	private String password;
+	private List<String> servers;
 
 	public Group() {
 	}

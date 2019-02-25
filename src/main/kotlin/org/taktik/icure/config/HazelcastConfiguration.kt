@@ -22,7 +22,9 @@ package org.taktik.icure.config
 
 import com.hazelcast.config.Config
 import com.hazelcast.config.DiscoveryStrategyConfig
+import com.hazelcast.config.EvictionPolicy
 import com.hazelcast.config.MapAttributeConfig
+import com.hazelcast.config.MapConfig
 import com.hazelcast.config.MaxSizeConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -61,7 +63,16 @@ class HazelcastConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConfigurationProperties("hazelcast")
-    fun hazelcastConfig(): Config = Config()
+
+
+
+    fun hazelcastConfig(): Config = Config().apply {
+        addMapConfig(MapConfig("org.").apply {
+            timeToLiveSeconds = 18*3600
+            maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
+            evictionPolicy = EvictionPolicy.LRU
+        })
+    }
 
     @Bean
     @ConditionalOnMissingBean

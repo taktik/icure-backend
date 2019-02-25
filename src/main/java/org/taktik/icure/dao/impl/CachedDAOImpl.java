@@ -47,7 +47,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
     public CachedDAOImpl(Class<T> clazz, CouchDbICureConnector couchDb, IDGenerator idGenerator, CacheManager cacheManager) {
         super(clazz, couchDb, idGenerator);
-        this.cache = cacheManager.getCache(entityClass.getSimpleName());
+        this.cache = cacheManager.getCache(entityClass.getName());
         log.debug("Cache impl = {}", this.cache.getNativeCache());
         initStandardDesignDocument();
         Validate.notNull(cache, "No cache found for: " + entityClass);
