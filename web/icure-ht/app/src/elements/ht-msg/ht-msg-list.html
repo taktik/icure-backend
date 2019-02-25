@@ -438,10 +438,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 div.bottom-commands {
-                    border-left: 1px solid var(--app-background-color-darker);
                     display: flex;
                     width: 100%;
                     justify-content: flex-end;
+                }
+
+                div.bottom-commands > div:first-child {
+                    border-left: 1px solid var(--app-background-color-darker);
                 }
 
                 div.bottom-commands > * {
