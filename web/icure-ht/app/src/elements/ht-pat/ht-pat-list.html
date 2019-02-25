@@ -3520,6 +3520,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     .then( p => this.api.register(p, 'patient'))
                                     .then(p => {
                                         this.set('selectedPatient', p)
+                                        return this.selectedPatient
+                                    })
+                                    .then(p => {
+                                        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                                            this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                                this.cleanNiss(p.ssin), p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
+
+                                        })
                                     })
                             } else {
                                 this.searchPatientsEid()
@@ -3580,7 +3589,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('selectedPatient', p)
                             this.set('isLoadingPatient', false)
                             this.$['eidOpenPatientMessage'].classList.remove('notification');
+                            return this.selectedPatient
+                        })
+                        .then(p =>{
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                                this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                    this.cleanNiss(p.ssin), p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
 
+                            })
                         })
                 }
             }
@@ -3606,6 +3623,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then((response) => {
                         console.log(response.json())
                     })
+            }
+
+            cleanNiss(niss){
+                return niss.replace(/ /g, "").replace(/-/g,"").replace(/\./g,"").replace(/_/g,"").replace(/\//g,"")
             }
         }
 
