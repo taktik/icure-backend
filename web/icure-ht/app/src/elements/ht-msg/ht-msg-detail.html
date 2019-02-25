@@ -1560,11 +1560,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             targets.map(thisPat=>{
                 // console.log('_assignResultToSelected',selMsg, targets, docInfo, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
-                    created: new Date().getTime() ,
+                    created: docInfo.demandDate ,
                     modified: new Date().getTime() ,
                     author: this.user.id,
                     responsible: this.user.healthcarePartyId,
-                    openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                    openingDate: moment(docInfo.demandDate).format('YYYYMMDDHHmmss') || '',
                     closingDate: moment().format('YYYYMMDDHHmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
