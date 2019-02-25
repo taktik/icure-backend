@@ -405,24 +405,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 div.pagination {
-                    width: calc(100vw - 38%);
+                    height: 24px;
                     display: flex;
                     flex-direction: row;
                     padding: 0 8px;
-                }
-                div.pagination span {
-                    line-height: 40px;
+                    justify-content: flex-start;
+                    flex-grow: 1;
                 }
                 div.pagination paper-button.change-page {
                     cursor: pointer;
+                    width: 36px;
+                    min-width: 0;
                 }
                 div.pagination .selector {
-                    flex-grow: 1;
                     display: flex;
-                    justify-content: space-around;
                 }
-                div.pagination button.page-number {
-                    margin: 8px 4px;
+                div.pagination paper-button.page-number {
+                    margin: 0 4px;
                     background: var(--app-background-color-dark);
                     border: 0;
                     border-radius: 50%;
@@ -432,8 +431,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-sizing: border-box;
                     padding: 0 !important;
                     cursor: pointer;
+                    min-width: 0;
                 }
-                div.pagination button.page-number:selected {
+                div.pagination paper-button.page-number[selected] {
                     background: var(--app-secondary-color);
                 }
 
@@ -443,7 +443,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     justify-content: flex-end;
                 }
 
-                div.bottom-commands > div:first-child {
+                div.bottom-commands > div.grid-size-indicator {
                     border-left: 1px solid var(--app-background-color-darker);
                 }
 
@@ -696,25 +696,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
                 <div class="bottom-commands">
                     <template is="dom-if" if="[[!isLoadingMailList]]">
-                        <div>[[gridSize]] [[localize('mes','Messages',language)]]
+                        <div class="pagination">
+                            <span>Pages : </span>
+                            <paper-button class="change-page" on-tap="_prevPage"><iron-icon icon="chevron-left"></iron-icon></paper-button>
+                            <div class="selector">
+                                <template is="dom-repeat" items="[[pages]]">
+                                    <paper-button class="page-number" on-tap="_selectPage" data-item$="[[item]]" selected$="[[_isPage(page, item)]]">[[item]]</paper-button>
+                                </template>
+                            </div>
+                            <paper-button class="change-page" on-tap="_nextPage"><iron-icon icon="chevron-right"></iron-icon></paper-button>
+                        </div>
+                        <div class="grid-size-indicator">[[gridSize]] [[localize('mes','Messages',language)]]
                             <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'sentbox')]]"> ([[unreadCount]] [[localize('are_not_read','Unread',language)]])</template>
                         </div>
+                        <paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button>
                     </template>
-                    <paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button>
                 </div>
                 <paper-tooltip for="scrolltop" position="left">[[localize('scrolltop_list','Scroll to top of the list',language)]]</paper-tooltip>
             </div>
-            <!-- WORK IN PROGRESS -->
-            <!--<div class="pagination">-->
-                <!--<span>Pages : </span>-->
-                <!--<paper-button class="change-page" on-tap="_prevPage"><iron-icon icon="chevron-left"></iron-icon></paper-button>-->
-                <!--<div class="selector">-->
-                    <!--<template is="dom-repeat" items="[[pages]]">-->
-                        <!--<button class="page-number" on-tap="_selectPage" selected$="[[_isPage(page, item)]]">[[item]]</button>-->
-                    <!--</template>-->
-                <!--</div>-->
-                <!--<paper-button class="change-page" on-tap="_nextPage"><iron-icon icon="chevron-right"></iron-icon></paper-button>-->
-            <!--</div>-->
         </template>
     </template>
 
@@ -795,11 +794,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     page: {
                         type: Number,
-                        value: 0
+                        value: 1
                     },
                     pages: {
                         type: Array,
-                        value: [1,2,3,4]
+                        value: []
                     },
                     bufferedMsgs: {
                         type: Number,
@@ -847,6 +846,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     unreadCount: {
                         type: Number,
                         value: 0
+                    },
+                    pageStart: {
+                        type: Number,
+                        value: 0
+                    },
+                    pageEnd: {
+                        type: Number,
+                        value: 50
                     }
                 };
             }
@@ -903,30 +910,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
             }
 
-            _isPage(page,item) {return page === item -1}
-            _selectPage(e) {this.set('page',e.model.item -1)}
-            _prevPage(e) {this.set('page',Math.max(0, this.page - 1))}
-            _nextPage(e) {this.set('page',Math.min(this.pages.length - 1, this.page + 1))}
+            _isPage(page,item) {return page === item}
+            _selectPage(e) {
+                this.set('page',parseInt(e.target.dataset.item))
+            }
+            _prevPage() {
+                if (this.page > 1) this.set('page',this.page - 1)
+            }
+            _nextPage() {
+                if (this.page < this.pages.length) this.set('page',this.page + 1)
+            }
 
             _messagesChanged(messages,page) {
+                console.log('_messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
+                    const pageSize = 50
                     this.set('gridSize',grid.size)
+                    this.set('pages',[])
                     if (this.selectList.selection.item !== 'sentbox') {
-                        const unreadMsgsCount = messages.filter(m=>this.isUnread(m))
-                        this.set('unreadCount',unreadMsgsCount.length)
+                        this.set('unreadCount',messages.filter(m=>this.isUnread(m)).length)
                     }
-                    // if (!this.pages) {
-                    //     this.set('pages',Array.apply( null, {length: Math.ceil(messages.length / grid.pageSize)} ).map(function(message, index) {
-                    //         return index + 1;
-                    //     }));
-                    // }
-                    // let start = page * pageSize;
-                    // let end = (page + 1) * pageSize;
-                    // grid.items = messages.slice(start, end);
+                    // pagination starts here
+                    const numberOfPages = Math.floor(messages.length / pageSize)
+                    for (let i=0;i<numberOfPages;i++) {
+                        this.push('pages',i+1)
+                    }
+                    if (!this.pages.length) this.push('pages',1)
+                    let start = (page != 1) ? page * pageSize : 0;
+                    let end = ((page != 1) ? page + 1 : 1) * pageSize;
+                    this.set('pageStart',start ||0)
+                    this.set('pageEnd',end ||pageSize)
+                    grid.items = messages.slice(start, end);
+                    // pagination ends here
                     grid._scrollToIndex(0)
                 }
                 this._getBoxCapacity()
+                this._deselectAll()
                 this.set('isLoadingMailList', false)
             }
 
@@ -1244,6 +1264,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     hidden:             this.getHidden,
                     Refresh:            null // Fake selection to refresh binding
                 }
+                this.set('page',1)
                 return a[item] && a[item].call(this)
             }
 
@@ -1293,9 +1314,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _toggleSelectAll() {
-                this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
-                this.set('checkedMessages',this.allSelected ? this.messages.splice(0,this.gridSize) : [])
                 let mailList = this.shadowRoot.querySelector('#mail-list');
+                this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
+                this.set('checkedMessages',this.allSelected ? this.messages.slice(this.pageStart, this.pageEnd) : [])
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 const selectedState = this.allSelected
                 allCheckboxes.forEach(box=>{
