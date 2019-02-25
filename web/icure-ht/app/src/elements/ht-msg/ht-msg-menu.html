@@ -63,35 +63,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-msg-menu">
-    <template>
-        <style include="iron-flex iron-flex-alignment"></style>
-        <!--suppress CssUnusedSymbol -->
-        <style include="shared-styles">
-            :host {
-                display: block;
-            }
+	<template>
+		<style include="iron-flex iron-flex-alignment"></style>
+		<!--suppress CssUnusedSymbol -->
+		<style include="shared-styles">
+			:host {
+				display: block;
+                z-index: 1;
+			}
 
-            :host *:focus{
-                outline:0!important;
-            }
+			:host *:focus{
+				outline:0!important;
+			}
 
-            .col-left{
-                position: relative;
-                box-sizing: border-box;
-                grid-column: 1 / 1;
-                grid-row: 1 / 1;
-                background:var(--app-background-color-dark);
-                @apply --shadow-elevation-3dp;
-                padding: 24px 0;
-                display:flex;
-                flex-flow: column nowrap;
-                align-items: center;
-                height: 100%;
-                width: 100%;
-                overflow-y: auto;
-                overflow-x: hidden;
-                z-index: 25;
-            }
+			.col-left{
+				position: relative;
+				box-sizing: border-box;
+				grid-column: 1 / 1;
+    			grid-row: 1 / 1;
+				background:var(--app-background-color-dark);
+				box-shadow: var(--app-shadow-elevation-2);
+				padding: 24px 0;
+				display:flex;
+				flex-flow: column nowrap;
+				align-items: center;
+				height: 100%;
+				width: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
 
             .new-msg-btn{
                 margin: 0 24px 16px;
@@ -502,9 +502,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 overflow: hidden;
             }
-            /* .box-txt.force-ellipsis {
-                max-width: 60%;
-            } */
+            
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;
@@ -606,11 +604,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j3"><div class="one-line-menu list-title"><iron-icon icon="view-headline"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('_e_flatrateinv_listing','Export listing',language)]]</span></div></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej3"><div class="one-line-menu list-title"><iron-icon icon="markunread-mailbox"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('_e_flatrateinv_archives_listing','Archives listing',language)]]</span></div></paper-item>
                     <hr class="menuHr"/>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeCorrected"><div class="one-line-menu list-title"><iron-icon icon="error"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeCorrected','To be corrected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.error]]</span></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeSend"><div class="one-line-menu list-title"><iron-icon icon="send"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeSend','To be send',language)]]</span></div> <!--<span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.xxx]]</span>--></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_process"><div class="one-line-menu list-title"><iron-icon icon="cached"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_process','Processing',language)]]</span></div> <span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.pending]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeCorrected"><div class="one-line-menu list-title"><iron-icon icon="error"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeCorrected','To be corrected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.toBeCorrected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeSend"><div class="one-line-menu list-title"><iron-icon icon="send"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeSend','To be send',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.toBeSend]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_process"><div class="one-line-menu list-title"><iron-icon icon="cached"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_process','Processing',language)]]</span></div> <span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.processing]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_reject"><div class="one-line-menu list-title"><iron-icon icon="cancel"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_reject','Rejected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.rejected]]</span></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_accept"><div class="one-line-menu list-title"><iron-icon icon="check-circle"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_accept','Accepted',language)]]</span></div> <span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.fullyAccepted]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_accept"><div class="one-line-menu list-title"><iron-icon icon="check-circle"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_accept','Accepted',language)]]</span></div> <span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.accepted]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_archive"><div class="one-line-menu list-title"><iron-icon icon="markunread-mailbox"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_archive','Archived',language)]]</span></div> <span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></paper-item>
 
                 </paper-listbox>
@@ -701,15 +699,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     j20_batchCounter: {
                         type: Object,
                         value: () => ({
-                            archived: 0,
-                            error: 0,
-                            partiallyAccepted: 0,
-                            fullyAccepted: 0,
+                            toBeSend: 0,
+                            toBeCorrected: 0,
+                            processing: 0,
                             rejected: 0,
-                            treated: 0,
-                            acceptedForTreatment: 0,
-                            successfullySentToOA: 0,
-                            pending: 0
+                            accepted: 0,
+                            archived: 0
                         })
                     },
                     inboxSelectionIndex: {
@@ -732,15 +727,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return [
-                    '_inboxSelectionIndexChanged(inboxSelectionIndex)',
-                    '_sentboxSelectionIndexChanged(sentboxSelectionIndex)',
-                    '_invoiceSelectionIndexChanged(invoiceSelectionIndex)',
-                    '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)',
-                    '_checkForMedicalHouse(user)',
-                    '_trashSelectionIndexChanged(trashSelectionIndex)',
-                    '_updateUnreadCount(messages)'
-                ];
+                return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)'];
             }
 
             constructor() {
@@ -937,6 +924,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _flatRateInvoicingSelectionIndexChanged() {
+
                 if (this.flatRateInvoicingSelectionIndex !== null && this.flatRateInvoicingSelectionIndex !== undefined) {
                     this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.flatRateInvoicingSelectionItem.id, status: this.flatRateInvoicingSelectionItem.dataset.status } } }));
 
@@ -975,7 +963,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this._updateUnreadCount()
             }
-
             _trash(){
                 this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
                 this.set('sentboxSelectionIndex', null)
@@ -1086,10 +1073,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set("batchCounter.accepted", e.detail.accepted)
                 this.set("batchCounter.archived", e.detail.archived)
 
-            }
-
-            initializeBatchCounterJ20(e){
-                if(e && e.detail && _.size(e.detail)) _.map(e.detail, (batchCount,batchKey) => this.set("j20_batchCounter." + batchKey , parseInt(batchCount)))
             }
 
             _checkForMedicalHouse() {

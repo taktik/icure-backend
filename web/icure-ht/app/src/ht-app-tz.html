@@ -790,7 +790,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
                                 <paper-tooltip for="frontend-version">frontend: [AIV]{version}[/AIV] - backend : [[backendVersion]]</paper-tooltip>
                                 <template is="dom-if" if="[[isElectron]]">
-                                    <span class$="user-email [[_versionOk(electronVersionOk,true)]]">| e—[[electronVersion]]</span>
+                                    <span class$="user-email [[_versionOk(electronVersionOk,'true')]]">| e—[[electronVersion]]</span>
                                 </template>
                                 <span class="user-email">| [[user.login]] – </span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
@@ -817,11 +817,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </paper-tooltip>
                         </div>
-                        <template is="dom-if" if="[[isElectron]]">
-                            <div class="log-info">
-                                <p><span class="user-email">Version - Electron: [[version]]</span></p>
-                            </div>
-                        </template>
                         <div>
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
                             <svg electronVersion="1.1"

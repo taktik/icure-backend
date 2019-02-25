@@ -54,25 +54,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 outline:0!important;
             }
 
-            .users-panel{
+            .user-info-panel{
                 height: 100%;
                 width: 100%;
                 padding: 0 20px;
                 box-sizing: border-box;
                 position:relative;
-            }
-
-            #activeUsersListDiv{
-                height: 25%;
-            }
-
-            #inactiveUsersListDiv{
-                height: 25%;
-            }
-
-            #userInformationDialog{
-                height: 500px;
-                width: 900px;
             }
 
             .line {
@@ -123,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            .user-panel .panel-content {
+            .user-info-panel .panel-content {
                 padding: 0 12px;
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
@@ -157,20 +144,190 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color);
             }
 
-            .user-panel {
-                height:100%;
-                background: var(--app-background-color);
-                margin: 0;
-                width:100%;
-                grid-column: 2 / 4;
-                /*grid-template-columns: 40px 200px 200px 40px;*/
-                grid-row: 1 / 1;
+            .horizontal {
+                display: grid;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex-basis: 100%;
+                align-items: center;
             }
+
+            .horizontal paper-input {
+                @apply --padding-right-left-16;
+                height: 65px;
+            }
+
+            .horizontal .tile paper-input {
+                padding-left: initial;
+                padding-right: initial;
+                padding: 0 8px;
+            }
+
+            .horizontal paper-input-container {
+                @apply --padding-right-left-16;
+                padding:0;
+            }
+
+            .horizontal paper-menu-button{
+                padding:0;
+            }
+
+            .horizontal vaadin-date-picker {
+                @apply --padding-right-left-16;
+                padding-top: 4px;
+                height: 48px;
+            }
+
+            .col-lg-6.tile {
+                box-sizing: border-box;
+                border-radius: 4px;
+                border: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color);
+                margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
+            }
+            .tile h2 {
+                background: var(--app-background-color-dark);
+                width: 100%;
+                text-align: center;
+                margin: 0 0 8px 0;
+                padding: 8px;
+                box-sizing: border-box;;
+            }
+
 
         </style>
 
-        <div class="users-panel">
+        <div class="user-info-panel">
             <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_info', 'Informations', language)]]</h4>
+
+            <div class="horizontal" style="margin-top:10px">
+                <vaadin-form-layout>
+                    <div class="col-lg-6 tile">
+                        <h2><iron-icon icon="communication:vpn-key"></iron-icon> [[localize('login_opt','Login option',language)]]</h2>
+                        <paper-input label="Login*" value="{{user.login}}" readonly></paper-input>
+                        <div class="line">
+                            <paper-input label="[[localize('password','Password',language)]]" value="{{userPassword}}" type="password"></paper-input>
+                            <paper-input label="Confirmation" value="{{userConfirmation}}" type="password" disabled="[[!userPassword.length]]"></paper-input>
+                        </div>
+                        <template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">[[localize('pass_nomatch','Passwords do not match',language)]]</div></template>
+                        <template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">[[localize('pass_tooshort','Password must be at least 8 characters',language)]]</div></template>
+
+                        <paper-input label="[[localize('auto_logout','Auto logout delay (minutes)',language)]]" type="number" min="0" value=""></paper-input>
+                        <div id="printable">
+                            <vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox colspan="2" checked="{{showQr}}">[[localize('sho_qr','Show QR code',language)]]</vaadin-checkbox>
+                            <qrcode-printer i18n="[[i18n]]"language="[[language]]" hidden="[[!showQr]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 tile">
+                        <h2><iron-icon icon="settings"></iron-icon> [[localize('oth_opt','Other options',language)]]</h2>
+                        <paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+
+                        <div class="line p16">
+                            <span class="lang">[[localize('languages','Langues',language)]] : </span>
+                            <div class="horizontal" style="margin-top:10px">
+                                <paper-radio-group selected="{{hcp.languages.0}}">
+                                    <paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+                                    <paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+                                    <paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                        </div>
+
+                        <!--<div class="horizontal" style="margin-top:10px">
+                            <paper-radio-group selected="{{hcp.type}}">
+                                <label class="p-l-0">[[localize('accountType','Type de compte',language)]]: </label>
+                                <paper-radio-button name="persphysician">[[localize('praticien','Praticien',language)]]</paper-radio-button>
+                                <paper-radio-button name="medicalHouse">[[localize('medicalHouse','Maison médicale',language)]]</paper-radio-button>
+                            </paper-radio-group>
+                        </div>-->
+
+                        <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
+                            <div class="line" style="margin-top:10px">
+                                <paper-radio-group selected="{{hcp.billingType}}">
+                                    <label class="p-l-0">[[localize('billingType','Type de facturation',language)]]: </label>
+                                    <paper-radio-button name="serviceFee">[[localize('serviceFee','A l\'acte',language)]]</paper-radio-button>
+                                    <paper-radio-button name="flatRate">[[localize('medicalHouse','Au forfait',language)]]</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                            <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPerson}}"></paper-input>-->
+                            <!--<paper-input label="[[localize('contactPerson','Personne de contact',language)]]" value="{{hcp.contactPersonHcpId}}"></paper-input>-->
+                            <vaadin-combo-box
+                                    id="hcp-search" filtered-items="[[contactListItem]]" item-label-path="hrLabel"
+                                    item-value-path="id" on-filter-changed="_hcpSearch" on-keydown="isEnterPressed"
+                                    label="[[localize('mhContactPerson','Personne de contact pour la facturation forfait',language)]]"
+                                    value="{{hcp.contactPersonHcpId}}">
+                            </vaadin-combo-box>
+                        </template>
+
+                        <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                            <vaadin-combo-box
+                                    id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel"
+                                    item-value-path="id" on-filter-changed="_mhSearch" on-keydown="isEnterPressed"
+                                    label="[[localize('mhWhereIWork','Maison médicale où vous officiez (uniquement si d\'application)',language)]]"
+                                    value="{{hcp.parentId}}">
+                            </vaadin-combo-box>
+
+                            <vaadin-combo-box
+                                    id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
+                                    item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
+                                    label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
+                                    value="{{hcp.supervisorId}}">
+                            </vaadin-combo-box>
+                        </template>
+
+                    </div>
+
+
+                        <div class="col-lg-6 tile">
+                            <h2><iron-icon icon="social:person"></iron-icon> [[localize('gen_info','General informations',language)]]</h2>
+                            <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                                <div class="line">
+                                    <paper-input label="[[localize('lastname','Nom',language)]] *" value="{{hcp.lastName}}"></paper-input>
+                                    <paper-input label="[[localize('firstname','Prénom',language)]] *" value="{{hcp.firstName}}"></paper-input>
+                                </div>
+                                <div class="line">
+                                    <paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
+                                    <paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
+                                </div>
+                            </template>
+                            <template is="dom-if" if="[[_isMedicalHouse(hcp.type)]]">
+                                <paper-input label="[[localize('name','Nom',language)]]" value="{{hcp.name}}"></paper-input>
+                            </template>
+                            <paper-input label="[[localize('cbe','CBE',language)]]" value="{{hcp.cbe}}"></paper-input>
+                        </div>
+                        <div class="col-lg-6 tile">
+                            <h2><iron-icon icon="home"></iron-icon> [[localize('addr_pro','Work Address',language)]]</h2>
+                            <div class="line">
+                                <paper-input label="[[localize('street','Street',language)]] *" value="{{adr.street}}"></paper-input>
+                                <paper-input class="no-grow w50" label="[[localize('number','House Number',language)]] *" value="{{adr.houseNumber}}"></paper-input>
+                                <paper-input class="no-grow w150" label="[[localize('box_number','Box Number',language)]]" value="{{adr.postboxNumber}}"></paper-input>
+                            </div>
+                            <div class="line">
+                                <paper-input class="no-grow w100" label="[[localize('postalCode','Postal Code',language)]] *" value="{{adr.postalCode}}"></paper-input>
+                                <paper-input class="grow-3" label="[[localize('city','City',language)]] *" value="{{adr.city}}"></paper-input>
+                                <paper-input label="[[localize('country','Country',language)]] *" value="{{adr.country}}"></paper-input>
+                            </div>
+                            <div class="line">
+                                <paper-input label="[[localize('phone','Phone',language)]] *" value="{{adr.phoneNumber}}"></paper-input>
+                                <paper-input label="[[localize('email','Email',language)]] *" value="{{adr.proMail}}"></paper-input>
+                            </div>
+                        </div>
+                        <template is="dom-if" if="[[!_isMedicalHouse(hcp.type)]]">
+                            <div class="col-lg-6 tile">
+                                <h2><iron-icon icon="assignment"></iron-icon> [[localize('info','Informations',language)]] [[localize('inv_prest','physician',language)]]</h2>
+                                <!-- <paper-input label="[[localize('civility','Civilité',language)]]" value="{{hcp.civility}}"></paper-input> -->
+                                <paper-input label="[[localize('speciality','Spécialité',language)]]" value="{{hcp.speciality}}"></paper-input>
+                                <paper-input label="[[localize('gender','Genre',language)]]" value="{{hcp.gender}}"></paper-input>
+                            </div>
+                        </template>
+                        <!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
+                        <!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
+
+                </vaadin-form-layout>
+            </div>
+
         </div>
     </template>
 
