@@ -2973,10 +2973,37 @@
                 let mutLines = "";
                 const mutTmpl = "        [mutCode:3]         [nRecords:4]               [checkSum:2]                       [amount:8]\n";
 
+                //const props = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap);
+                let OAs = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap).filter(p => !isNaN(parseFloat(p)) && isFinite(p));
+                let oaData = OAs.map(oa => {
+                    let nRecords = flatWithMetadata.metadata.recordsCountPerOAMap[oa][0];
+                    let checkSum = this.getCheckSum(flatWithMetadata.metadata.codesPerOAMap[oa]);
+                    let amount = flatWithMetadata.metadata.amountPerOAMap[oa][0];
+                    return {
+                        OA: oa,
+                        Records: nRecords,
+                        CheckSum: checkSum,
+                        Amount: amount,
+                        Line: mutTmpl.replace("[mutCode:3]",oa).replace("[nRecords:4]",nRecords).replace("[amount:8]", amount).replace("[checkSum:2]",checkSum)
+                    }
+                })
+
+                oaData.forEach(od =>
+                    {
+                        mutLines += od.Line;
+                    }
+                )
+
+                let totRecords = flatWithMetadata.metadata.recordsCount;
+                let totCheckSum = this.getCheckSum(flatWithMetadata.metadata.codes); //flatWithMetadata.metadata.recordsCount;
+                let totAmount = flatWithMetadata.metadata.amount;
+
                 //total line
                 let totalLine = "---------------------------------------------------------------------------\n" +
                     "     Totaux         [nRecords:4]               [checkSum:2]                       [total:8]\n" +
                     "---------------------------------------------------------------------------\n";
+
+                totalLine = totalLine.replace("[nRecords:4]",totRecords).replace("[checkSum:2]",totCheckSum).replace("[total:8]",totAmount)
                 //footer
                 let footer = "Voorbehouden aan de verzekeringsinstelling :        Visa instelling    :\n" +
                     "------------------------------------------          --------------------\n" +
@@ -2986,6 +3013,14 @@
                     "Handtekening :.........................             Handtekening :......";
 
                 return title + mmInfo + oaInfo + fileInfo + columnHeaders + mutLines + totalLine + footer;
+            }
+
+            getCheckSum(codes){
+                let sumCodes = 0;
+                codes.forEach(cd =>{
+                    sumCodes += Number(cd)
+                })
+                return (sumCodes % 97) === 0 ? "97" : (sumCodes % 97).toString().padStart(2, "0");
             }
 
             getStreetAddress(address){
