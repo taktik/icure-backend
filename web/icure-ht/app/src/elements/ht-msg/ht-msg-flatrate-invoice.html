@@ -25,7 +25,6 @@
 <dom-module id="ht-msg-flatrate-invoice">
     <template>
 
-
         <custom-style>
             <style include="shared-styles vaadin-icure-theme spinner-style">
 
@@ -970,7 +969,6 @@
             </style>
         </custom-style>
 
-
         <div class="invoice-panel">
 
 
@@ -1073,7 +1071,7 @@
 
             <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_toBeCorrected')]]">
                 <div class="centerCenter">
-                    j20_toBeCorrected
+                    En cours de finalisation, disponible très prochainement.
                 </div>
             </template>
 
@@ -1101,13 +1099,12 @@
 
                         <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                             <div class="scrollBox">
-                                <vaadin-grid id="messagesGrid" class="processTable" items="[[_getBatchDataByMenuSection(flatrateMenuSection, 'flatFiles')]]" data-status$="[[_getBatchStatusByMenuSection(flatrateMenuSection)]]" active-item="{{activeGridItem}}" on-tap="_toggleBatchDetails">
+                                <vaadin-grid id="messagesGrid" class="processTable" items="[[messagesGridData]]" data-status$="[[_getBatchStatusByMenuSection(flatrateMenuSection)]]" active-item="{{activeGridItem}}" on-tap="_toggleBatchDetails">
                                     <vaadin-grid-column flex-grow="0" width="13%" class="recipient-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.hcp">[[localize('inv_prest','Physician',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.hcp]]</template>
-                                        [[_debug(item)]]
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="4%" class="oa-col">
                                         <template class="header">
@@ -1175,23 +1172,17 @@
                         </div>
 
                         <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-
                             <div id="invoiceDetailHeader" class="mb30">
-
                                 <div class="actionButtonsRight">
-
                                     <template is="dom-if" if="[[_isEqual(flatrateMenuSection, 'j20_process')]]">
                                         <paper-button class="modal-button modal-button-accepted" on-tap="_acceptBatch"><iron-icon icon="check-circle"></iron-icon> [[localize('j20_accept','Accepted batches',language)]]</paper-button>
                                         <paper-button class="modal-button modal-button-partially-accepted" on-tap="_partiallyAcceptBatch"><iron-icon icon="settings-backup-restore"></iron-icon> [[localize('inv_par_acc','Partially accepted',language)]]</paper-button>
                                         <paper-button class="modal-button modal-button-rejected" on-tap="_rejectBatch"><iron-icon icon="cancel"></iron-icon> [[localize('j20_reject','Refused batches',language)]]</paper-button>
                                     </template>
-
                                     <template is="dom-if" if="[[_isIn(flatrateMenuSection, 'j20_accept\,j20_partiallyAccepted\,j20_reject')]]">
                                         <paper-button class="modal-button" on-tap="_openArchiveDialogForBatch"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</paper-button>
                                     </template>
-
                                 </div>
-
                                 <h4>[[localize('batchDetails',"Batch details",language)]]<span class="txtcolor--redStatus">[[activeGridItem.messageInfo.batchReference]]</span> [[localize('ofOa',"of OA",language)]] <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]] - [[activeGridItem.messageInfo.parentOaLabel]]</span></h4>
                             </div>
                             <vaadin-grid id="invoiceAndBatchesGridDetail" items="[[messageDetailsData]]">
@@ -1270,7 +1261,6 @@
                                     <template><paper-button class="grid-btn-small noBg noPad" on-tap="_downloadOaPdfByMessageId" data-message-id$="[[item.id]]"><iron-icon icon="image:picture-as-pdf" class="force-left textRed" data-message-id$="[[item.id]]"></iron-icon> &nbsp; PDF</paper-button></template>
                                 </vaadin-grid-column>
                             </vaadin-grid>
-
                         </div>
 
                     </div>
@@ -1464,6 +1454,10 @@
                     messageDetailsData: {
                         type: Object,
                         value: null
+                    },
+                    messagesGridData: {
+                        type: Object,
+                        value: null
                     }
                 };
             }
@@ -1497,13 +1491,24 @@
 
                 this.set('activeGridItem', null );
                 this.set('messageDetailsData', null );
-                const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
-                const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
+                this.set('messagesGridData', null );
 
-                this._toggleBatchDetails();
+                if( this.flatrateMenuSection === "archivej3" ) { this._getListingArchives(); return; }
 
-                if( this.flatrateMenuSection === "archivej3" ) this._getListingArchives();
-                if( ['j20_toBeCorrected', 'j20_process', 'j20_reject', 'j20_accept', 'j20_partiallyAccepted', 'j20_archive'].indexOf(_.trim(this.flatrateMenuSection)) > -1  ) this._fetchJ20Messages();
+                if( ['j20_toBeCorrected', 'j20_process', 'j20_reject', 'j20_accept', 'j20_partiallyAccepted', 'j20_archive'].indexOf(_.trim(this.flatrateMenuSection)) > -1  ) {
+
+                    // Close when opened + unset objects & reset detail grid
+                    this._toggleBatchDetails();
+
+                    if(_.size(this.messagesCachedData.dataByStatus)) {
+                        this.set("messagesGridData", this._getBatchDataByMenuSection(this.flatrateMenuSection, 'flatFiles'))
+                        const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
+                        const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
+                    } else {
+                        this._fetchJ20Messages();
+                    }
+
+                }
 
             }
 
@@ -2838,7 +2843,7 @@
                                     this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
                                                 const insParent = parentInsurances.find(i => i.id === this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
-                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes)
+                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes, null, (366*2))
                                                     .then(invoices =>
                                                         !_.trim(_.get(invoices, "[0].id", "")) ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
@@ -3119,7 +3124,11 @@
 
                 if ( _.size(this.activeGridItem) && _.size(actionSettings) ) {
                     this.set('_isLoadingSmall', true );
+
+                    // TO DO - FZ : Pour définir (=concaténer) le BON status (afin de garder historique)
+                    // const newStatus = ANCIEN STATUS | this.invoiceMessageStatuses[actionSettings.newStatusKey].status
                     const newStatus = this.invoiceMessageStatuses[actionSettings.newStatusKey].status
+
                     Promise.all(
                         _.filter( this.messagesCachedData.roughData, i => {
                             return _.size(i)
@@ -3985,7 +3994,12 @@
                     })
                     .catch((e)=>console.log(e))
                     .finally(()=>{
+
+                        this.set("messagesGridData", this._getBatchDataByMenuSection(this.flatrateMenuSection, 'flatFiles'))
+                        const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
+
                         this.set('_isLoadingSmall', false )
+
                     })
 
             }
