@@ -404,23 +404,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin: 6px;
                 }
 
-                div.pagination {
-                    height: 24px;
-                    display: flex;
-                    flex-direction: row;
-                    padding: 0 8px;
-                    justify-content: flex-start;
-                    flex-grow: 1;
-                }
-                div.pagination paper-button.change-page {
+                paper-button.change-page {
                     cursor: pointer;
                     width: 36px;
+                    height: 28px;
                     min-width: 0;
+                    border: 1px solid var(--app-background-color-darker);
                 }
-                div.pagination .selector {
-                    display: flex;
+                .selector {
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    white-space: nowrap;
+                    max-width: 360px;
                 }
-                div.pagination paper-button.page-number {
+
+                paper-button.page-number {
                     margin: 0 4px;
                     background: var(--app-background-color-dark);
                     border: 0;
@@ -433,7 +431,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     cursor: pointer;
                     min-width: 0;
                 }
-                div.pagination paper-button.page-number[selected] {
+                paper-button.page-number[selected] {
                     background: var(--app-secondary-color);
                 }
 
@@ -445,6 +443,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 div.bottom-commands > div.grid-size-indicator {
                     border-left: 1px solid var(--app-background-color-darker);
+                    max-width: 208px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
                 }
 
                 div.bottom-commands > * {
@@ -583,7 +585,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]"
                              active-item="{{activeItem}}" items="[[messages]]"
                              on-tap="click" on-removed-opened="_deselectMessages"
-                             selection-mode="multi" width="100%" page-size="100">
+                             selection-mode="multi" width="100%" pageSize="50">
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="0" width="46px">
                             <template>
@@ -696,23 +698,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
                 <div class="bottom-commands">
                     <template is="dom-if" if="[[!isLoadingMailList]]">
-                        <div class="pagination">
-                            <span>Pages : </span>
-                            <paper-button class="change-page" on-tap="_prevPage"><iron-icon icon="chevron-left"></iron-icon></paper-button>
-                            <div class="selector">
-                                <template is="dom-repeat" items="[[pages]]">
-                                    <paper-button class="page-number" on-tap="_selectPage" data-item$="[[item]]" selected$="[[_isPage(page, item)]]">[[item]]</paper-button>
-                                </template>
-                            </div>
-                            <paper-button class="change-page" on-tap="_nextPage"><iron-icon icon="chevron-right"></iron-icon></paper-button>
+                        <span>[[localize('pages','Pages',language)]]&nbsp;:</span>
+                        <div><paper-button id="previous-page-change" class="change-page" on-tap="_prevPage"><iron-icon icon="chevron-left"></iron-icon></paper-button></div>
+                        <div id="page-selector" class="selector">
+                            <template is="dom-repeat" items="[[pages]]">
+                                <paper-button class="page-number" on-tap="_selectPage" data-item$="[[item]]" selected$="[[_isPage(page, item)]]">[[item]]</paper-button>
+                            </template>
                         </div>
-                        <div class="grid-size-indicator">[[gridSize]] [[localize('mes','Messages',language)]]
-                            <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'sentbox')]]"> ([[unreadCount]] [[localize('are_not_read','Unread',language)]])</template>
+                        <div><paper-button id="next-page-change" class="change-page" on-tap="_nextPage"><iron-icon icon="chevron-right"></iron-icon></paper-button></div>
+                        <div class="grid-size-indicator">[[gridSize]]&nbsp;[[localize('mes','Messages',language)]]
+                            <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'sentbox')]]"> ([[unreadCount]]&nbsp;[[localize('are_not_read','Unread',language)]])</template>
                         </div>
-                        <paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button>
+                        <div><paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button></div>
+                        <paper-tooltip for="previous-page-change" position="left" offset="5">[[localize('page_prev','Previous page',language)]]</paper-tooltip>
+                        <paper-tooltip for="next-page-change" position="right" offset="-5">[[localize('page_next','Next page',language)]]</paper-tooltip>
+                        <paper-tooltip for="scrolltop" position="left">[[localize('scrolltop_list','Scroll to top of the list',language)]]</paper-tooltip>
                     </template>
                 </div>
-                <paper-tooltip for="scrolltop" position="left">[[localize('scrolltop_list','Scroll to top of the list',language)]]</paper-tooltip>
             </div>
         </template>
     </template>
@@ -721,7 +723,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
-        import filterExParser from '../../../scripts/filterExParser';
 
         class HtMsgList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -925,25 +926,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('_messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid) {
-                    const pageSize = 50
                     this.set('gridSize',grid.size)
-                    this.set('pages',[])
                     if (this.selectList.selection.item !== 'sentbox') {
                         this.set('unreadCount',messages.filter(m=>this.isUnread(m)).length)
                     }
                     // pagination starts here
+                    const pageSize = grid.getAttribute('pageSize') || 50
+                    this.set('pages',[])
                     const numberOfPages = Math.floor(messages.length / pageSize)
-                    for (let i=0;i<numberOfPages;i++) {
-                        this.push('pages',i+1)
-                    }
+                    for (let i=0;i<numberOfPages;i++) this.push('pages',i+1)
                     if (!this.pages.length) this.push('pages',1)
-                    let start = (page != 1) ? page * pageSize : 0;
-                    let end = ((page != 1) ? page + 1 : 1) * pageSize;
-                    this.set('pageStart',start ||0)
-                    this.set('pageEnd',end ||pageSize)
+                    let start = page == 1 ?  0 : page * pageSize;
+                    let end = (page == 1 ? 1 : page + 1) * pageSize;
+                    this.set('pageStart', start ||0)
+                    this.set('pageEnd', end ||pageSize)
                     grid.items = messages.slice(start, end);
                     // pagination ends here
-                    grid._scrollToIndex(0)
+                    this._scrollToTop()
                 }
                 this._getBoxCapacity()
                 this._deselectAll()
