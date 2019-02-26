@@ -1365,7 +1365,7 @@
 
                         // Resolve for dataprovider / combobox
                         if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
-const hcpIdx = _.compact([hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId]).join(',')
+                            const hcpIdx = _.compact([hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId]).join(',')
                             Promise.all([this.api.hcparty().getHealthcareParties(hcpIdx)]).then(results => {
                                 const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
                                 const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();

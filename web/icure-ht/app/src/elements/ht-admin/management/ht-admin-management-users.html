@@ -157,6 +157,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color);
             }
 
+            .input{
+                margin: 1%;
+            }
+
 
         </style>
 
@@ -250,46 +254,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <iron-pages selected="[[tabs]]" class="panel-content">
                     <page>
+                        <h4>Informations générales</h4>
                         <div class="line">
-                            <paper-input label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
-                            <paper-input label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
+                            <paper-input class="input" label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
+                            <paper-input class="input" label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('fir_nam', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
-                            <paper-input label="[[localize('las_nam', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('login', 'Login', language)]]" value="{{selectedUser.login}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('email', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('inami', 'Nihii', language)]]" value="{{selectedUserHcp.nihii}}" readOnly></paper-input>
-                            <paper-input label="[[localize('niss', 'Niss', language)]]" value="{{selectedUserHcp.niss}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('fir_nam', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
+                            <paper-input  class="input"label="[[localize('las_nam', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('login', 'Login', language)]]" value="{{selectedUser.login}}" readOnly></paper-input>
-                            <paper-input label="[[localize('email', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('inami', 'Nihii', language)]]" value="{{selectedUserHcp.nihii}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('niss', 'Niss', language)]]" value="{{selectedUserHcp.niss}}" readOnly></paper-input>
                         </div>
+                        <h4>Statut</h4>
                         <div class="line">
                             <vaadin-checkbox checked="{{isAdministrator}}" on-checked-changed="_administratorRoleChanged">[[localize('adm','Administrator',language)]]</vaadin-checkbox>
-                            <paper-dropdown-menu label="[[localize('status','Status',language)]]">
+                            <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
+                            <paper-dropdown-menu class="input" label="[[localize('status','Status',language)]]">
                                 <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" selected-item="{{userStatus}}" on-selected-changed="_selectedUserStatusChanged">
                                     <paper-item id="ACTIVE">[[localize('stat_act','Active',language)]]</paper-item>
                                     <paper-item id="DISABLED">[[localize('ina','Disabled',language)]]</paper-item>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
+                        <h4>Type de prestataire</h4>
                         <div class="line">
-                            <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
-                            <paper-dropdown-menu label="[[localize('spe','Speciality',language)]]">
+                            <paper-dropdown-menu class="input" label="[[localize('stat','Type',language)]]">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedUserHcp.type}}" attr-for-selected="id" selected-item="{{selectedHcpType}}" on-selected-changed="_selectedHcpStatusChanged">
+                                    <paper-item id="persphysician">[[localize('prest','Prestataire',language)]]</paper-item>
+                                    <paper-item id="medicalhouse">[[localize('medical_house','Medical house',language)]]</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <paper-dropdown-menu class="input" label="[[localize('spe','Speciality',language)]]">
                                 <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
                                     <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
                                         <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
                                     </template>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                        </div>
-                        <div class="line">
-                            <paper-dropdown-menu label="[[localize('stat','Type',language)]]">
-                                <paper-listbox slot="dropdown-content" selected="{{selectedUserHcp.type}}" attr-for-selected="id" selected-item="{{selectedHcpType}}" on-selected-changed="_selectedHcpStatusChanged">
-                                    <paper-item id="persphysician">[[localize('prest','Prestataire',language)]]</paper-item>
-                                    <paper-item id="medicalhouse">[[localize('medical_house','Medical house',language)]]</paper-item>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
