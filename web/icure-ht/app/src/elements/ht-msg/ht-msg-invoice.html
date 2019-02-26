@@ -2028,17 +2028,17 @@
                         return `${dd}/${mm}/${yyyy}`;
                     case 'month' :
                         const monthStr =
-                            (mm.toString() === '01') ? this.localize('Jan',this.language) :
-                            (mm.toString() === '02') ? this.localize('Feb',this.language) :
-                            (mm.toString() === '03') ? this.localize('Mar',this.language) :
-                            (mm.toString() === '04') ? this.localize('Apr',this.language) :
-                            (mm.toString() === '05') ? this.localize('May',this.language) :
-                            (mm.toString() === '06') ? this.localize('Jun',this.language) :
-                            (mm.toString() === '07') ? this.localize('Jul',this.language) :
-                            (mm.toString() === '08') ? this.localize('Aug',this.language) :
-                            (mm.toString() === '09') ? this.localize('Sep',this.language) :
-                            (mm.toString() === '10') ? this.localize('Oct',this.language) :
-                            (mm.toString() === '11') ? this.localize('Nov',this.language) :
+                            (mm.toString() === '01')  ? this.localize('Jan',this.language) :
+                            (mm.toString() === '02')  ? this.localize('Feb',this.language) :
+                            (mm.toString() === '03')  ? this.localize('Mar',this.language) :
+                            (mm.toString() === '04')  ? this.localize('Apr',this.language) :
+                            (mm.toString() === '05')  ? this.localize('May',this.language) :
+                            (mm.toString() === '06')  ? this.localize('Jun',this.language) :
+                            (mm.toString() === '07')  ? this.localize('Jul',this.language) :
+                            (mm.toString() === '08')  ? this.localize('Aug',this.language) :
+                            (mm.toString() === '09')  ? this.localize('Sep',this.language) :
+                            (mm.toString() === '10')  ? this.localize('Oct',this.language) :
+                            (mm.toString() === '11')  ? this.localize('Nov',this.language) :
                             this.localize('Dec',this.language)
                         return `${monthStr} ${yyyy}`
                 }
