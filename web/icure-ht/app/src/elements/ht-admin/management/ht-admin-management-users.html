@@ -71,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #userInformationDialog{
-                height: 500px;
+                height: 600px;
                 width: 900px;
             }
 
@@ -128,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
-                height: 400px;
+                height: 485px;
                 overflow-y: auto;
             }
 
@@ -255,29 +255,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-input label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('first_name', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
-                            <paper-input label="[[localize('last_name', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
+                            <paper-input label="[[localize('fir_nam', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
+                            <paper-input label="[[localize('las_nam', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('nihii', 'Nihii', language)]]" value="{{selectedUserHcp.nihii}}" readOnly></paper-input>
+                            <paper-input label="[[localize('inami', 'Nihii', language)]]" value="{{selectedUserHcp.nihii}}" readOnly></paper-input>
                             <paper-input label="[[localize('niss', 'Niss', language)]]" value="{{selectedUserHcp.niss}}" readOnly></paper-input>
                         </div>
                         <div class="line">
                             <paper-input label="[[localize('login', 'Login', language)]]" value="{{selectedUser.login}}" readOnly></paper-input>
-                            <paper-input label="[[localize('mail', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
+                            <paper-input label="[[localize('email', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
                         </div>
                         <div class="line">
                             <vaadin-checkbox checked="{{isAdministrator}}" on-checked-changed="_administratorRoleChanged">[[localize('adm','Administrator',language)]]</vaadin-checkbox>
-                            <paper-dropdown-menu label="[[localize('stat','Status',language)]]">
+                            <paper-dropdown-menu label="[[localize('status','Status',language)]]">
                                 <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" selected-item="{{userStatus}}" on-selected-changed="_selectedUserStatusChanged">
-                                    <paper-item id="ACTIVE">[[localize('active','Active',language)]]</paper-item>
-                                    <paper-item id="DISABLED">[[localize('disabled','Disabled',language)]]</paper-item>
+                                    <paper-item id="ACTIVE">[[localize('stat_act','Active',language)]]</paper-item>
+                                    <paper-item id="DISABLED">[[localize('ina','Disabled',language)]]</paper-item>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
                         <div class="line">
                             <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
-                            <paper-dropdown-menu label="[[localize('usr_spec','Speciality',language)]]">
+                            <paper-dropdown-menu label="[[localize('spe','Speciality',language)]]">
                                 <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
                                     <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
                                         <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
@@ -288,8 +288,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div class="line">
                             <paper-dropdown-menu label="[[localize('stat','Type',language)]]">
                                 <paper-listbox slot="dropdown-content" selected="{{selectedUserHcp.type}}" attr-for-selected="id" selected-item="{{selectedHcpType}}" on-selected-changed="_selectedHcpStatusChanged">
-                                    <paper-item id="persphysician">[[localize('active','Prestataire',language)]]</paper-item>
-                                    <paper-item id="medicalhouse">[[localize('disabled','Medical house',language)]]</paper-item>
+                                    <paper-item id="persphysician">[[localize('prest','Prestataire',language)]]</paper-item>
+                                    <paper-item id="medicalhouse">[[localize('medical_house','Medical house',language)]]</paper-item>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
@@ -298,7 +298,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <vaadin-grid id="delegationList" class="material" items="[[selectedUserlistOfDelegations]]">
                             <vaadin-grid-column>
                                 <template class="header">
-                                    [[localize('deleg_first_name','Name',language)]]
+                                    [[localize('name','Name',language)]]
                                 </template>
                                 <template>
                                     <div>[[item.firstName]] [[item.lastName]]</div>

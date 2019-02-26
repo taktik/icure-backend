@@ -102,10 +102,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 14px;
             }
 
+            .warningMessage {
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
+
+            .warningMessageBody {
+                padding:20px 35px;
+                color:#7E0000;
+                background-color: rgba(255, 0, 0, 0.15);
+                font-weight: 700;
+                border:1px dashed #7e0000;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
         </style>
 
         <div class="facturation-flat-rate-panel">
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
+            <div class="warningMessage" id="warningMessageInvoicing">
+                <div class="warningMessageBody">
+                    Nous vous conseillons d'encoder la tarification pour les 24 derniers mois
+                </div>
+            </div>
             <div class="add_line">
                 <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
