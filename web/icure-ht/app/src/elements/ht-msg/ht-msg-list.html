@@ -923,7 +923,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _messagesChanged(messages,page) {
-                console.log('_messagesChanged')
+                // console.log('_messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid && messages && page) {
                     this.set('gridSize',messages.length)
@@ -1042,7 +1042,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getLabResult(){ // all labresult
-                console.log('Unassigned || Assigned')
+                // console.log('Unassigned || Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length >= 1 || m.unassignedResults.length >= 1)) {//status labResult
@@ -1082,7 +1082,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 //     let msgs = messages.filter(msg => !msg.transportGuid.startsWith('BIN'));
                 //     this.set('messages', msgs || [])
                 // });
-                console.log('sent labresult')
+                // console.log('sent labresult')
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         console.log(m,'sentlabres',m.status,(m.status & (1 << 0)) )
@@ -1096,9 +1096,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEInv(){
-                console.log(this.messages)
+                // console.log(this.messages)
                 this.api.message().findMessagesByTransportGuid('EFACT:OUT:*', null, null, 1000).then(messages => {
-                    console.log(messages.rows)
+                    // console.log(messages.rows)
                     return this.sortByDates(messages.rows).filter(msg => !msg.transportGuid.startsWith('BIN'));
                 }).then(messages => this.set('messages', messages || []));
             }
@@ -1123,7 +1123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
             getAssigned(){ // assigned labresult
-                console.log('Assigned')
+                // console.log('Assigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (m.assignedResults && m.unassignedResults && (Object.keys(m.assignedResults).length >= 1 && m.unassignedResults.length == 0)) acc.push(m)
@@ -1137,7 +1137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 });
             }
             getUnassigned(){ // unassigned labresult
-                console.log('Unassigned')
+                // console.log('Unassigned')
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (m.unassignedResults &&  m.unassignedResults.length >= 1) acc.push(m)
@@ -1220,7 +1220,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
-                console.log('refresh')
+                // console.log('refresh')
                 if (this.selectList && this.selectList.selection) {
                     this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
@@ -1309,7 +1309,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
                     this.set('allSelected',false)
                 }
-                console.log(this.checkedMessages)
+                // console.log(this.checkedMessages)
             }
 
             _toggleSelectAll() {
