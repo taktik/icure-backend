@@ -952,12 +952,12 @@
                     margin-right: 10px;
                 }
 
-                #archiveDialog{
+                .modalDialog{
                     height: 300px;
                     width: 500px;
                 }
 
-                .archiveDialogContent{
+                .modalDialogContent{
                     height: 250px;
                     width: auto;
                     margin: 10px;
@@ -972,6 +972,9 @@
         <div class="invoice-panel">
 
 
+            <template is="dom-if" if="[[_bodyOverlay]]">
+                <div id="loadingContainer"></div>
+            </template>
             <template is="dom-if" if="[[_isLoading]]">
                 <div id="loadingContainer">
                     <div id="loadingContentContainer">
@@ -1269,14 +1272,46 @@
 
 
 
-            <paper-dialog id="archiveDialog">
+            <paper-dialog class="modalDialog" id="archiveDialog">
                 <h2 class="modal-title"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</h2>
-                <div class="archiveDialogContent">
-                    <p>Voulez-vous vraiment archiver l'envoi <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
-                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</div>
+                <div class="modalDialogContent">
+                    <p>[[localize('archiveBatchConfirmation',"Voulez-vous vraiment archiver l'envoi",language)]] <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
+                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</p>
+                </div>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button" on-tap="_archiveBatch"><iron-icon icon="icons:save" class="mr5 smallIcon" ></iron-icon> [[localize('confirm','Confirm',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingNihiiDialog" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfile"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter"><b>[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</b></p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyAdmin"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noDataToExport" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter"><b>[[localize('noDataToExport','Incomplete user profile',language)]].</b></p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -1373,6 +1408,10 @@
                         type: Boolean,
                         value: false,
                         observer: '_loadingStatusChanged'
+                    },
+                    _bodyOverlay: {
+                        type: Boolean,
+                        value: false
                     },
                     _isLoadingSmall: {
                         type: Boolean,
@@ -1951,6 +1990,21 @@
 
             _endOfPreviousMonth() {
                 return moment().subtract(1, 'month').endOf('month').format('DD/MM/YYYY')
+            }
+
+            _closeDialogs() {
+                this.set("_bodyOverlay", false);
+                _.map( this.shadowRoot.querySelectorAll('.modalDialog'), i=> i && typeof i.close === "function" && i.close() )
+            }
+
+            _gotoMyProfile() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:1} }));
+            }
+
+            _gotoMyAdmin() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-goto-admin', { bubbles: true, composed: true, detail: {} }));
             }
 
             _isEqual(a,b) {
@@ -2823,8 +2877,7 @@
                                 accepted: false,
                                 pending: false,
                                 resent: false,
-                                // dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
-                                dateCode: moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD'),
+                                dateCode: val.type === "current" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD') ) : val.type === "previous" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format('YYYYMMDD') ) : null,
                                 id: this.api.crypto().randomUuid(),
                                 logicalId: this.api.crypto().randomUuid()
                             }))}
@@ -2843,7 +2896,7 @@
                                     this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
                                                 const insParent = parentInsurances.find(i => i.id === this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
-                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes, null, (366*2))
+                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, (365*2), pat.invoicingCodes)
                                                     .then(invoices =>
                                                         !_.trim(_.get(invoices, "[0].id", "")) ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
@@ -3009,20 +3062,20 @@
                     action === "archive" ? { newStatusKey: "archived", newInvoicesCodesKey: "archived" } :
                     {}
 
+                // FZ
+                return;
+
                 if ( _.size(this.activeGridItem) && _.size(actionSettings) ) {
                     this.set('_isLoadingSmall', true );
-
-                    // TO DO - FZ : Pour définir (=concaténer) le BON status (afin de garder historique)
-                    // const newStatus = ANCIEN STATUS | this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-                    const newStatus = this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-
+                    const newStatus = parseInt(_.get(this, "activeGridItem.status")) | parseInt(this.invoiceMessageStatuses[actionSettings.newStatusKey].status)
                     Promise.all(
                         _.filter( this.messagesCachedData.roughData, i => {
                             return _.size(i)
                                 && parseInt(_.get(i, "metas.batchExportTstamp", 0)) === parseInt( _.get( this.activeGridItem, "metas.batchExportTstamp", 0 ))
                                 && _.trim(_.get(i, "transportGuid", "")) !== "MH:FLATRATE:INVOICING-BATCH-ZIP"
                                 && _.trim(_.get(i, "metas.parentOaId", "")) === _.trim( _.get( this.activeGridItem, "metas.parentOaId", "" ))
-                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => this.api.register(msg, 'message')) )
+                        // }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => this.api.register(msg, 'message')) )
+                        }).map(message=>message)
                     ).then(messages=>{
                         this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
                             .then(invoices => invoices.map(inv => {
@@ -3125,6 +3178,26 @@
                                                                 (status == 'force-green') ? "txtcolor--greenStatus" :
                                                                     ""
                 }
+            }
+
+            _DEVELOPERS_ONLY_deleteFlatrateMessagesAndInvoices() {
+
+                this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                            .then(pl => { return {
+                                rows:_.filter(pl.rows, m => _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId ),
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done: !pl.nextKeyPair
+                            }})
+                            .catch(()=>{ return Promise.resolve(); })
+                ).then(messages=>{
+                    Promise.all(_.uniq( _.flatten(_.map(messages, i=>i.invoiceIds))).map(i => this.api.invoice().deleteInvoice(i).catch(()=>{}) ))
+                        .then(()=> this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})).catch(()=>{}) );
+                })
+                    .catch((e)=>console.log(e))
+
             }
 
             _generateJ20PdfTemplateObjects() {
@@ -3269,6 +3342,21 @@
 
             }
 
+            _showWarningNoHcpFlatrateTarification() {
+                this.set("_bodyOverlay", true);
+                this.$["missingMedicalHouseValorisations"].open()
+            }
+
+            _showWarningNoDataToExport() {
+                this.set("_bodyOverlay", true);
+                this.$["noDataToExport"].open()
+            }
+
+            _showWarningNoHcpNihii() {
+                this.set("_bodyOverlay", true);
+                this.$["missingNihiiDialog"].open()
+            }
+
             _exportFlatRateInvoicing() {
 
                 this.set('_isLoading', true );
@@ -3281,6 +3369,7 @@
                     .then(hcp => {
 
                         this.set("hcp",hcp);
+                        if(!_.trim(_.get(this, "hcp.nihii", ""))) throw new Error("no-nihii");
 
                         this.flatRateInvoicingDataObject = {
                             hcpData: {
@@ -3327,9 +3416,7 @@
                                 ]).join(" ")) + ".zip"
                             }
                         }
-
                         this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")
-
                         this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
                             phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
                             email: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "email"}), "[0].telecomNumber", "")),
@@ -3433,6 +3520,17 @@
                             )
                         )
 
+                        // HCP NIHII last 3 digits = booleans (0/1) tell us whether or not HCP has (respectively) KMI availabilities (respectively: K = physiotherapist, M = physician & I = nurse)
+                        const medicalHouseNihiiLastThreeDigits = _.trim(this.hcp.nihii).slice(-3).split("")
+                        const medicalHouseAvailableValorisationsByNihii = _.compact( _.map( ["physiotherapist", "physician", "nurse" ], (v,k) => { return !!parseInt(medicalHouseNihiiLastThreeDigits[k]) ? { flatRateType: v } : false }) )
+
+                        // At least one MH valorisation is missing
+                        if(
+                            !parseInt(_.size( medicalHouseAvailableValorisationsByNihii ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                        ) throw new Error("missing-flatrate-tarification");
+
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -3484,6 +3582,7 @@
                             })
                         )
 
+                        // Assign startOfCoverage if not set yet
                         _.map( myPatients, pat => {
                             pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
                                 pat.finalMedicalHouseContracts :
@@ -3517,7 +3616,8 @@
                             // Start of month of start cover must be BEFORE (start of export month -1 month)
                             // Ie: start of coverage began 2+ month before exported month
                             list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITHOUT tryout (double amounts / must appear twice)
@@ -3525,7 +3625,8 @@
                             // AND Start of month of cover - 1 month === Start of month of contract
                             list5: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITH tryout (double amounts / must appear twice)
@@ -3533,16 +3634,24 @@
                             // AND Start of month of cover - 1 month > Start of month of contract
                             list6: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
                         }
 
                     })
                     .then((listsData)=>{
                         this.flatRateInvoicingDataObject.listsData = listsData
+
+                        // Drop patients we couldn't find in list (no valorisation)
+                        const patientsInLists = _.uniq( _.compact( _.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
+                        this.flatRateInvoicingDataObject.patientsData = _.compact( _.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ) )
+                        if(!parseInt(_.size(this.flatRateInvoicingDataObject.patientsData)||0)) throw new Error("no-data-to-export")
+
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
-                        return this._createOrUpdateMedicalHousePatientsInvoices(this.flatRateInvoicingDataObject).then(x=>x)
+
+                        return this._createOrUpdateMedicalHousePatientsInvoices().then(x=>x)
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
@@ -3773,7 +3882,14 @@
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
                         this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
-                    .catch((e)=>{console.log(e)})
+                    .catch((e)=>{
+                        return (
+                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() :
+                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() :
+                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() :
+                            console.log(e)
+                        )
+                    })
                     .finally(()=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}

@@ -1060,7 +1060,15 @@
     "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
     "pleaseWait": "Please wait...",
     "batchDetails": "Batch details",
-    "ofOa": "of insurance"
+    "ofOa": "of insurance",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Warning",
+    "incompleteUserProfile" : "Incomplete user profile",
+    "provideNihiiNumber" : "Please mention your number",
+    "update" : "Update",
+    "configure": "Configure",
+    "provideMissingValorisations": "Please provide your flat rates",
+    "noDataToExport": "No data to export"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2206,7 +2214,15 @@
     "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
     "pleaseWait": "Veuillez patienter svp...",
     "batchDetails": "Détail de l'envoi n°",
-    "ofOa": "de l'OA"
+    "ofOa": "de l'OA",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Attention",
+    "incompleteUserProfile" : "Votre profil utilisateur semble incomplet",
+    "provideNihiiNumber" : "Veuillez s'il vous plait renseigner votre numéro",
+    "update" : "Mise à jour",
+    "configure": "Configurer",
+    "provideMissingValorisations": "Veuillez s'il vous plait renseigner vos tarifications forfaitaires",
+    "noDataToExport": "Aucune donnée à exporter n'a pu être trouvée"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3357,6 +3373,14 @@
     "mhInvoicing.spinner.step_8_done": "Fin de la création du dossier d'envoi",
     "pleaseWait": "Een ogenblik alstublieft",
     "batchDetails": "Batch details",
-    "ofOa": "of insurance"
+    "ofOa": "of insurance",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Pas op",
+    "incompleteUserProfile" : "Incomplete user profile",
+    "provideNihiiNumber" : "Please mention your number",
+    "update" : "Update",
+    "configure": "Configure",
+    "provideMissingValorisations": "Please provide your flat rates",
+    "noDataToExport": "No data to export"
   }
 }

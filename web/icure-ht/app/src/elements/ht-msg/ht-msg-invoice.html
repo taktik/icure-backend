@@ -1787,7 +1787,7 @@
                             patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
                             totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
                             doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
-                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) ==== true ? this.localize('inv_to_be_corrected','To be corrected',this.language) : this.localize('inv_to_be_send','To be send'),
+                            statut : (!!inv.invoicingCodes.find(ic => ic.resent === true)) === true ? this.localize('inv_to_be_corrected','To be corrected',this.language) : this.localize('inv_to_be_send','To be send'),
                             hasChildren : false,
                             uuid : inv.id,
                             parentUuid : ins && ins.code ? ins.code.charAt(0) : null,
@@ -1916,11 +1916,11 @@
 
             dispatchMessages() {
                 !!this.set("messagesArchived", this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0))
-                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) ==== 0 && !(m.message.status & (1<<21))))
+                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))))
                 !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))))
                 !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))))
 
-                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) ==== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
+                !!this.initializeBatchCounter(this.selectedInvoicesToBeSend.length ? this.selectedInvoicesToBeSend.length : 0, this.messagesToBeCorrected.length ? this.messagesToBeCorrected.length : 0 , this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0 && !(m.message.status & (1<<21))).length, this.allMessages.filter( m => (m.message.status & (1 << 21)) !== 0).length)
             }
 
             _toggleDataProvider(input) {
