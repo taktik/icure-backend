@@ -400,23 +400,21 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
 	}
 
-    _downloadAnnex(e){
-        const url = this.dataUrl
-        console.log('doc',this.document)
-        const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) :
-            this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'application/xml' :
-            'text/plain'
-
-        let request = new XMLHttpRequest()
-        request.onreadystatechange = (()=> {
-            if (request.readyState === 4) {
-                this.api.triggerFileDownload(request.response,type,this.document.name)
+    _downloadAnnex(){
+	    const doc = this.document
+	    if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
+            this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+            ).then(({extractedKeys: enckeys}) => {
+                const url = doc && this.api.document().getAttachmentUrl(doc.id,doc.attachmentId,enckeys,this.api.sessionId,doc.name)
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.download = doc.name // optional
+                a.setAttribute('href', url);
+                a.click();
                 window.URL.revokeObjectURL(url);
-            }
-        })
-        request.open('GET', url, true)
-        if (type === this._imageMimeType(this.document.mainUti, this.document.otherUtis, url)) request.overrideMimeType('plain/text;charset=ANSI')
-        request.send('')
+            })
+        }
     }
 
 	_imageMimeType(uti, utis, dataUrl) {

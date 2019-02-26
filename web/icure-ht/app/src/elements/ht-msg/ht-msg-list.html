@@ -497,7 +497,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </template>
                         <template is="dom-if" if="[[_isEqual(selectList.selection.item,'hidden')]]">
-                            <paper-icon-button id="show-button" icon="undo" on-tap="_hideMsg"></paper-icon-button>
+                            <paper-icon-button id="show-button" icon="undo" on-tap="_restoreMsgs"></paper-icon-button>
                             <paper-tooltip for="show-button" offset="2">[[localize('restore','Restore',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'trash')]]">
@@ -1238,8 +1238,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const checkedMsgs = this.checkedMessages
                 if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg =>{
-                        msg.status = msg.status&(0<<14)
-                        this.api.message().modifyMessage(msg).then(() => {
+                        msg.status = msg.status&0<<14
+                        this.api.message().modifyMessage(msg).then((m) => {
+                            _.assign(msg,m)
                             this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                             this._refresh()
                         })
@@ -1252,7 +1253,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(checkedMsgs.length) {
                     checkedMsgs.forEach(msg=>{
                         msg.status = msg.status|(1<<14)
-                        this.api.message().modifyMessage(msg).then(()=>{
+                        this.api.message().modifyMessage(msg).then((m)=>{
+                            _.assign(msg,m)
                             this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                             this._refresh()
                         })
@@ -1270,7 +1272,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, id, 'INBOX', 'BININBOX').then(res=>{
                                 if (res) {
                                     msg.transportGuid = 'BININBOX:' + id
-                                    this.api.message().modifyMessage(msg).then((msg)=> {
+                                    this.api.message().modifyMessage(msg).then((m)=> {
+                                        _.assign(msg,m)
                                         this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                                         this._refresh()
                                     })
@@ -1281,7 +1284,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.api.fhc().Ehboxcontroller().moveMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, id, 'SENTBOX', 'BINSENTBOX').then(res=>{
                                 if (res) {
                                     msg.transportGuid = 'BINSENTBOX:' + id
-                                    this.api.message().modifyMessage(msg).then((msg)=> {
+                                    this.api.message().modifyMessage(msg).then((m)=> {
+                                        _.assign(msg,m)
                                         this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
                                         this._refresh()
                                     })
@@ -1300,14 +1304,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
                         if (msg.transportGuid.includes('INBOX')) {
                             msg.transportGuid = 'INBOX:' + id
-                            this.api.message().modifyMessage(msg).then(()=>{
+                            this.api.message().modifyMessage(msg).then((m)=>{
+                                _.assign(msg,m)
                                 this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                                 this._refresh()
                             })
                         }
                         if (msg.transportGuid.includes('SENTBOX')) {
                             msg.transportGuid = 'SENTBOX:' + id
-                            this.api.message().modifyMessage(msg).then(()=>{
+                            this.api.message().modifyMessage(msg).then((m)=>{
+                                _.assign(msg,m)
                                 this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
                                 this._refresh()
                             })

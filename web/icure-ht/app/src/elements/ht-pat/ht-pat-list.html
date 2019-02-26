@@ -945,7 +945,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <iron-icon icon="vaadin:health-card"></iron-icon> [[localize('inv_pat','Patient',language)]]
                 </div>
                 <vaadin-grid id="eid-patients-list" class="material eid-patients-list" items="[[eidPatientsList]]"
-                             on-tap="clickOnRow" active-item="{{activeItem}}">
+                             on-tap="openWithEid" active-item="{{activeItem}}">
                     <vaadin-grid-column flex-grow="0" width="25%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
@@ -1883,9 +1883,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return a || b
             }
 
-            _hcpChanged(hcp) {
-                console.log(hcp)
-            }
 
             ready() {
                 super.ready()
@@ -3397,76 +3394,170 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             searchPatientsEid(){
-                //creation of filters
-                const firstNameFilter = this.firstName && this.firstName.length >= 2 && ({
-                    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                    'healthcarePartyId': this.user.healthcarePartyId,
-                    'searchString': this.firstName
-                })
-                const lastNameFilter = this.lastName && this.lastName.length >= 2 && ({
-                    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                    'healthcarePartyId': this.user.healthcarePartyId,
-                    'searchString': this.lastName
-                })
-                const dateOfBirthFilter = (/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)) && ({
-                    '$type': 'PatientByHcPartyDateOfBirthFilter',
-                    'healthcarePartyId': this.user.healthcarePartyId,
-                    'dateOfBirth': this.dateAsString.replace(/-/g, "")
-                })
-                const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
-                    '$type': 'PatientByHcPartyAndSsinFilter',
-                    'healthcarePartyId': this.user.healthcarePartyId,
-                    'ssin': this.ssin
-                })
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
 
-                const intersectionFilters = [firstNameFilter, lastNameFilter, dateOfBirthFilter].filter(x => !!x)
-                const unionFilters = [intersectionFilters.length > 1 ? ({
-                    '$type': 'IntersectionFilter',
-                    filters: intersectionFilters
-                }) : intersectionFilters[0], ssinFilter].filter(x => !!x)
+                    //creation of filters
+                    const firstNameFilter = this.firstName && this.firstName.length >= 2 && ({
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                        'searchString': this.firstName
+                    })
+                    const lastNameFilter = this.lastName && this.lastName.length >= 2 && ({
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                        'searchString': this.lastName
+                    })
+                    const dateOfBirthFilter = (/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)) && ({
+                        '$type': 'PatientByHcPartyDateOfBirthFilter',
+                        'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                        'dateOfBirth': this.dateAsString.replace(/-/g, "")
+                    })
+                    const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
+                        '$type': 'PatientByHcPartyAndSsinFilter',
+                        'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                        'ssin': this.ssin
+                    })
 
-                const unionFilter = unionFilters.length > 1 ? ({
-                    '$type': 'UnionFilter',
-                    filters: unionFilters
-                }) : unionFilters[0]
+                    const intersectionFilters = [firstNameFilter, lastNameFilter, dateOfBirthFilter].filter(x => !!x)
+                    const unionFilters = [(intersectionFilters.length > 1 ? ({
+                        '$type': 'IntersectionFilter',
+                        filters: intersectionFilters
+                    }) : {}), intersectionFilters[0], intersectionFilters[1], intersectionFilters[2], ssinFilter].filter(x => !!x)
 
-                if (unionFilter) {
-                    //research
-                    this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: unionFilter})
-                        .then(patients => {
-                            this.set("eidPatientsList", patients.rows)
-                            this.$['eidOpenPatientMessage'].classList.add('notification');
-                            setTimeout(() => {
-                                if (this.hasNotificationEidMessage !== 0) {
-                                    this.$['eidOpenPatientMessage'].classList.remove('notification');
-                                }
-                            }, 60000);
-                        })
-                }
+                    const unionFilter = unionFilters.length > 1 ? ({
+                        '$type': 'UnionFilter',
+                        filters: unionFilters
+                    }) : unionFilters[0]
+
+                    console.log("filters", unionFilter)
+                    if (unionFilter) {
+                        //research
+                        this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: unionFilter})
+                            .then(patients => {
+                                this.set("eidPatientsList", patients.rows)
+                                this.$['eidOpenPatientMessage'].classList.add('notification');
+                                setTimeout(() => {
+                                    if (this.hasNotificationEidMessage !== 0) {
+                                        this.$['eidOpenPatientMessage'].classList.remove('notification');
+                                    }
+                                }, 60000);
+                            })
+                    }
+                })
             }
 
             checkNiss(){
-                const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
-                    '$type': 'PatientByHcPartyAndSsinFilter',
-                    'healthcarePartyId': this.user.healthcarePartyId,
-                    'ssin': this.ssin
-                })
-                this.$['eidFound'].classList.remove('notification');
-                this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: ssinFilter})
-                    .then(patients => {
-                        if(patients.rows.length){
-                            this.set('selectedPatient', patients.rows[0])
-                        }
-                        else{
-                            this.searchPatientsEid()
-                        }
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
+                    const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
+                        '$type': 'PatientByHcPartyAndSsinFilter',
+                        'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+                        'ssin': this.ssin
                     })
+                    this.$['eidFound'].classList.remove('notification');
+                    this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: ssinFilter})
+                        .then(patients => {
+                            if (patients.rows.length) {
+                                const selected = patients.rows[0]
+                                this.api.patient().getPatientWithUser(this.user, selected.id).then(p => {
+                                    p.ssin = p.ssin || this.cardData.nationalNumber
+                                    if(!p.addresses.find(ad => ad.addressType==="home")){
+                                        let streetData = _.trim(this.cardData.street).split(" ")
+                                        const number = streetData.find(str => str.match(/\d/g))
+                                        const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+                                        const street = streetData.reduce((tot,str)=>{
+                                            if(!tot)tot="";
+                                            if(!(str===number || str===boxNumber ))
+                                                tot = tot.concat(" ",str)
+                                            return tot;
+                                        })
+
+                                        p.addresses.push({
+                                            addressType: "home",
+                                            street: street,
+                                            houseNumber: number,
+                                            postboxNumber: boxNumber,
+                                            postalCode: this.cardData.zipCode,
+                                            city: this.cardData.municipality,
+                                            country: this.cardData.country
+                                        })
+                                    }
+
+                                    p.gender = p.gender || this.cardData.gender === 'M' ? 'male' : 'female'
+                                    p.placeOfBirth = p.placeOfBirth || this.cardData.locationOfBirth
+                                    p.dateOfBirth = p.dateOfBirth || parseInt(this.api.moment(this.cardData.dateOfBirth * 1000).format('YYYYMMDD'))
+                                    p.nationality = p.nationality || this.cardData.nationality
+                                    p.picture = p.picture || this.cardData.picture
+                                    p.firstName = p.firstName || this.cardData.firstName
+                                    p.lastName = p.lastName || this.cardData.surname
+
+                                    return p
+                                })
+                                    .then( p => this.api.patient().modifyPatientWithUser(this.user,p))
+                                    .then( p => this.api.register(p, 'patient'))
+                                    .then(p => {
+                                        this.set('selectedPatient', p)
+                                    })
+                            } else {
+                                this.searchPatientsEid()
+                            }
+                        })
+                })
             }
 
             closeEidPanel(e) {
                 const target = e && e.target && e.target.getAttribute('panel') || ''
                 if (this.$[target] && this.$[target].classList.contains('notification') ){
                     this.$[target].classList.remove('notification');
+                }
+            }
+
+            openWithEid(e){
+                // Must click on a row
+                if (e.path[0].nodeName === 'TABLE') return
+                if(this.activeItem) {
+                    const selected = this.activeItem
+                    this.api.patient().getPatientWithUser(this.user, selected.id).then(p => {
+                        p.ssin = p.ssin || this.cardData.nationalNumber
+                        if(!p.addresses.find(ad => ad.addressType==="home")){
+                            let streetData = _.trim(this.cardData.street).split(" ")
+                            const number = streetData.find(str => str.match(/\d/g))
+                            const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+                            const street = streetData.reduce((tot,str)=>{
+                                if(!tot)tot="";
+                                if(!(str===number || str===boxNumber ))
+                                    tot = tot.concat(" ",str)
+                                return tot;
+                            })
+
+                            p.addresses.push({
+                                addressType: "home",
+                                street: street,
+                                houseNumber: number,
+                                postboxNumber: boxNumber,
+                                postalCode: this.cardData.zipCode,
+                                city: this.cardData.municipality,
+                                country: this.cardData.country
+                            })
+                        }
+
+                        p.gender = p.gender || this.cardData.gender === 'M' ? 'male' : 'female'
+                        p.placeOfBirth = p.placeOfBirth || this.cardData.locationOfBirth
+                        p.dateOfBirth = p.dateOfBirth || parseInt(this.api.moment(this.cardData.dateOfBirth * 1000).format('YYYYMMDD'))
+                        p.nationality = p.nationality || this.cardData.nationality
+                        p.picture = p.picture || this.cardData.picture
+                        p.firstName = p.firstName || this.cardData.firstName
+                        p.lastName = p.lastName || this.cardData.surname
+
+                        return p
+                    })
+                        .then( p => this.api.patient().modifyPatientWithUser(this.user,p))
+                        .then( p => this.api.register(p, 'patient'))
+                        .then(p => {
+                            this.set('selectedPatient', p)
+                            this.set('isLoadingPatient', false)
+                            this.$['eidOpenPatientMessage'].classList.remove('notification');
+
+                        })
                 }
             }
         }
