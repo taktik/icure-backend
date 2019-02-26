@@ -108,16 +108,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					margin: 0 auto;
 					font-size: 14px;
 					font-weight: bold;
-					text-transform: capitalize;
+					text-transform: uppercase;
 				};
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 box-shadow: var(--app-shadow-elevation-1);
 			}
-            .new-msg-btn:disabled {
+            .new-msg-btn.eh-false {
                 cursor: default;
                 box-shadow: none;
+                background: var(--app-secondary-color-dark)
             }
 			.has-unread{
 				font-weight:bold;
@@ -539,10 +540,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display:none;
             }
 
+            paper-tooltip.eh-disabled {
+                transform: scale(1.5);
+                transform-origin: top left;
+            }
+
 		</style>
 		<div class="col-left">
             <template is="dom-if" if="[[isLoadingMailList]]"><ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner></template>
-			<paper-button class="new-msg-btn" on-tap="_newMsg" disabled="[[!ehealthSession]]">[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-button id="new-msg-btn" class$="new-msg-btn eh-[[ehealthSession]]" on-tap="_newMsg">[[localize('new_mes','New Message',language)]]</paper-button>
+            <template is="dom-if" if="[[!ehealthSession]]"><paper-tooltip class="eh-disabled" for="new-msg-btn" position="bottom">[[localize('ehe_is_not_con','eHealth is not connected',language)]]</paper-tooltip></template>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>

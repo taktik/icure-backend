@@ -301,6 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display: flex;
                     flex-direction: column;
                     padding: 8px;
+                    justify-content: center;
                 }
                 .table-top > div.indicators > div > * {
                     margin: 0 auto;
@@ -463,6 +464,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     border-radius: 50%;
                 }
 
+                .warn {
+                    color: var(--app-status-color-nok);
+                }
+
                 @media screen and (max-width:1696px) {
                     .table-top paper-dropdown-menu#filterLabresult {
                         margin-left: 0;
@@ -578,16 +583,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     [[localize('mail_cap','mailbox capacity',language)]] ([[capacityPercent]]%)
                                 </template>
                                 <template is="dom-if" if="[[!ehealthSession]]">
-                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                                    <span class="warn">[[localize('ehe_is_not_con','eHealth is not connected',language)]]</span>
                                 </template>
                             </span>
                         </div>
                         <template is="dom-if" if="[[ehealthSession]]"><paper-progress value$="[[capacityPercent]]" min="0" max="100" class$="[[_mailBoxCapacityColor]]"></paper-progress></template>
                     </div>
-                    <template is="dom-if" if="[[actualCapacity]] >= 100">
-                        <template is="dom-if" if="[[ehealthSession]]">
-                            <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
-                        </template>
+                    <template is="dom-if" if="[[ehealthSession]]">
+                        <paper-tooltip for="capacity-indicator" offset="0">[[actualCapacity]]%</paper-tooltip>
                     </template>
                 </div>
 
