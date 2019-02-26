@@ -481,6 +481,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
+                @media screen and (max-width: 1025px) {
+                    div.bottom-commands {
+                        justify-content: center;
+                    }
+                }
+
                 @media screen and (max-width: 800px) {
                     .table-top paper-dropdown-menu#filterLabresult {
                         min-width: 0;
@@ -497,6 +503,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .table-top paper-dropdown-menu#filterLabresult {
                         min-width: 0;
                         margin-left: initial;
+                    }
+                }
+
+                @media screen and (max-width: 640px) {
+                    .nophone {
+                        display: none;
                     }
                 }
 
@@ -698,7 +710,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
                 <div class="bottom-commands">
                     <template is="dom-if" if="[[!isLoadingMailList]]">
-                        <span>[[localize('pages','Pages',language)]]&nbsp;:</span>
+                        <span class="nophone">[[localize('pages','Pages',language)]]&nbsp;:</span>
                         <div><paper-button id="previous-page-change" class="change-page" on-tap="_prevPage"><iron-icon icon="chevron-left"></iron-icon></paper-button></div>
                         <div id="page-selector" class="selector">
                             <template is="dom-repeat" items="[[pages]]">
@@ -706,11 +718,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </div>
                         <div><paper-button id="next-page-change" class="change-page" on-tap="_nextPage"><iron-icon icon="chevron-right"></iron-icon></paper-button></div>
-                        <div class="grid-size-indicator">[[gridSize]]&nbsp;[[localize('mes','Messages',language)]]
+                        <div class="grid-size-indicator nophone">[[gridSize]]&nbsp;[[localize('mes','Messages',language)]]
                             <template is="dom-if" if="[[!_isEqual(selectList.selection.item,'sentbox')]]"> ([[unreadCount]]&nbsp;[[localize('are_not_read','Unread',language)]])</template>
                         </div>
-                        <div><paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button></div>
-                        <paper-tooltip for="previous-page-change" position="left" offset="5">[[localize('page_prev','Previous page',language)]]</paper-tooltip>
+                        <div class="nophone"><paper-icon-button id="scrolltop" class="scroll-top" icon="arrow-upward" on-tap="_scrollToTop"></paper-icon-button></div>
+                        <paper-tooltip for="previous-page-change" position="left" offset="12">[[localize('page_prev','Previous page',language)]]</paper-tooltip>
                         <paper-tooltip for="next-page-change" position="right" offset="-5">[[localize('page_next','Next page',language)]]</paper-tooltip>
                         <paper-tooltip for="scrolltop" position="left">[[localize('scrolltop_list','Scroll to top of the list',language)]]</paper-tooltip>
                     </template>
