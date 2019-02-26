@@ -1039,7 +1039,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template>
                                     <div class="cell frozen">
                                         <paper-icon-button id="new-window-[[item.id]]" icon="icons:open-in-new" on-tap="openPatientOnElectron" data-item$="[[item.id]]"></paper-icon-button>
-                                        <paper-tooltip for="new-window-[[item.id]]" position="right">[[localize('new_win','New window',language)]]</paper-tooltip>
+                                        <paper-tooltip for="new-window-[[item.id]]" position="right" style="white-space: nowrap;">[[localize('new_win','New window',language)]]</paper-tooltip>
                                     </div>
                                 </template>
                             </vaadin-grid-column>
