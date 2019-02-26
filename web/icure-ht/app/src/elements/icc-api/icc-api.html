@@ -93,7 +93,7 @@
             this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers)
             this.authicc = new api.iccAuthApi(this.host, this.headers)
             this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers)
-            this.onlineBeMikronoicc = new api.iccBemikronoApi("https://backend.svc.icure.cloud/rest/v1", this.headers)
+            this.onlineBeMikronoicc = new api.iccBemikronoApi(this.host && this.host.match(/https:\/\/backend.(.+).icure.cloud.+/) ? this.host : "https://backend.svc.icure.cloud/rest/v1", this.headers)
             this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers)
             this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers)
             this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers)
@@ -441,7 +441,7 @@
                     return acc
                 }, {}))
                 return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))))
-            }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
+            }).then(hcps => this.set('hcParties', _.flatMap(hcps).map(hcp => this.register(hcp, 'hcp')).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
             }, {}))
@@ -507,10 +507,11 @@
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
 
-
-            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : 'a4'
             const printersPrefs = JSON.parse(localStorage.getItem('selectedPrinter') || '{}')
-            const printerName = printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null) || null
+            const stickersPrefs = printersPrefs.stickers
+
+            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : (stickersPrefs && options.paperWidth === stickersPrefs.w && options.paperHeight === stickersPrefs.h) ? 'stickers' : 'a4'
+            const printerName = options.printer ? printersPrefs[options.printer] && printersPrefs[options.printer].bw || "" : (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
 
             return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
                 return this.isElectronAvailable().then(electron =>

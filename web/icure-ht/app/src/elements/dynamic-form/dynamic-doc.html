@@ -155,28 +155,15 @@
                 text-align: right;
             }
 
-            div.line-flex {
-                display: flex;
-                flex-direction: row;
-                margin: 8px 0;
+            pre.result {
                 border: 1px solid var(--app-background-color-dark);
                 border-radius: 4px;
-            }
-            div.line-flex > * {
-                padding: 8px;
-                box-sizing: border-box;
-            }
-            div.line-flex > div.label {
-                width: 80px;
-                border-right: 1px solid var(--app-background-color-dark);
-            }
-            div.line-flex > pre.result {
                 overflow-y: auto;
                 overflow-x: auto;
                 word-break: break-word;
-                margin: 0;
+                margin: 8px 0;
+                padding: 4px;
                 max-height: 400px;
-                max-width: calc(100% - 80px); /* all width less label width */
             }
 
             .assignToPat {
@@ -189,10 +176,22 @@
             .assignToPat:hover {
                 background: var(--app-secondary-color-dark);
             }
-
+            .assign-ico {
+                position: absolute;
+                right: 8px;
+                top: 4px;
+                cursor: pointer;
+                height: 16px;
+                width: 16px;
+                box-sizing: border-box;
+            }
 		</style>
         <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
+                <template is="dom-if" if="[[!_isEqual(document.documentLocation,'body')]]">
+                    <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
+                    <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
+                </template>
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
                         <ht-spinner class="center" active></ht-spinner>
@@ -222,17 +221,17 @@
                     </template>
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
-                    <span>[[_title(document.name, title)]]</span>
                     <template is="dom-if" if="[[attachmentContent.length]]">
+                        <span>[[localize('msg_body','Message body',language)]] :</span>
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
-                    </template>
-                    <template is="dom-if" if="[[downloadable]]">
-                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                            [[localize('dl','Download',language)]]
-                            <paper-icon-button icon="file-download"></paper-icon-button>
-                        </div>
+                        <template is="dom-if" if="[[downloadable]]">
+                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]]
+                                <paper-icon-button icon="file-download"></paper-icon-button>
+                            </div>
+                        </template>
                     </template>
                 </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
@@ -248,11 +247,19 @@
 
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
+                <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
+                <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
                 <span>[[_title(document.name, title)]]</span>
                 <template is="dom-if" if="[[unassigned.length]]">
                     <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
                         [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                     </paper-button>
+                </template>
+                <template is="dom-if" if="[[downloadable]]">
+                    <hr/>
+                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                    </div>
                 </template>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
@@ -270,17 +277,18 @@
                         <ht-services-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" contacts="[[_wrap(resInfo)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-services-list>
                     </template>
                     <template is="dom-if" if="[[!_moreThan2(resInfo.services)]]">
-                        <div class="line-flex">
-                            <div class="label">[[_serviceDescription(resInfo.services.0)]]</div>
-                            <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
-                        </div>
+                        <template is="dom-if" if="[[_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <div class="label">[[_serviceDescription(resInfo.services.0)]]</div>
+                                <pre class="result">[[_serviceDescription(resInfo.services.1)]]</pre>
+                            </div>
+                        </template>
+                        <template is="dom-if" if="[[!_serviceDescription(resInfo.services.1)]]">
+                            <div class="line-flex">
+                                <pre class="result">[[_serviceDescription(resInfo.services.0)]]</pre>
+                            </div>
+                        </template>
                     </template>
-                </template>
-                <template is="dom-if" if="[[downloadable]]">
-                    <hr/>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
                 </template>
             </paper-card>
         </template>
@@ -392,24 +400,21 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
 	}
 
-    _downloadAnnex(e){
-        let url = this.dataUrl;
-
-        // const type = this._imageMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'png' :
-        //     this._pdfMimeType(this.document.mainUti, this.document.otherUtis, url) ? 'pdf' :
-        //     this._xmlMimeType(this.document.mainUti, this.document.otherUtis) ? 'xml' :
-        //     'txt'
-
-        let a = document.createElement("a");
-        document.body.appendChild(a);
-        a.style = "display: none";
-
-        a.href = url;
-        a.download = this.document.name;
-
-        a.click();
-        window.URL.revokeObjectURL(url);
-
+    _downloadAnnex(){
+	    const doc = this.document
+	    if (_.size(doc.encryptionKeys) || _.size(doc.delegations)) {
+            this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId, doc.id, _.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations
+            ).then(({extractedKeys: enckeys}) => {
+                const url = doc && this.api.document().getAttachmentUrl(doc.id,doc.attachmentId,enckeys,this.api.sessionId,doc.name)
+                let a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.download = doc.name // optional
+                a.setAttribute('href', url);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+        }
     }
 
 	_imageMimeType(uti, utis, dataUrl) {
@@ -488,6 +493,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_serviceDescription(svc) {
         return svc && this.api.contact().shortServiceDescription(svc, this.language) || ''
+    }
+
+    _isEqual(a,b) {
+	    return a === b
     }
 }
 

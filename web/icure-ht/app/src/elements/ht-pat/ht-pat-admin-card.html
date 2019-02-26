@@ -97,6 +97,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-input-container-color: var(--app-text-color);
             }
 
+            paper-textarea {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
 			paper-dropdown-menu {
 				padding-left: 5px;
 				padding-right: 5px;
@@ -437,10 +441,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-bottom:32px;
             }
 
-            .save {
+            .save, .print-vignette {
                 background: var(--app-secondary-color);
                 border-radius: 50%;
-                margin: 7px 36px;
+                margin: 7px 4px;
                 padding: 4px;
                 cursor: pointer;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
@@ -449,16 +453,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 24px;
                 text-align: center;
                 line-height: 24px;
+                background: var(--app-primary-color);
             }
-            .save iron-icon {
+            .save {
+                margin-right: 36px;
+            }
+            .save iron-icon,
+            .print-vignette iron-icon {
                 width: 20px;
                 margin-top: -3px;
+                color: white;
             }
-            .save:hover {
+            .save:hover,
+            .print-vignette:hover {
                 transform: scale(1.05);
             }
-            .save:active {
-                background: var(--app-secondary-color-dark);
+            .save:active,
+            .print-vignette:active {
+                background: var(--app-background-color-dark);
                 box-shadow: none;
                 transform: scale(.9);
             }
@@ -470,8 +482,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:edit"></iron-icon>[[localize('adm_post_it','Post-it',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="timeline"></iron-icon>[[localize('mh_timeline','Timeline',language)]]</paper-tab>
+                <div class="print-vignette">
+                    <iron-icon id="print-vignette" icon="av:recent-actors" on-tap="printMutualVignette"></iron-icon>
+                    <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
+                </div>
                 <div class="save">
-                    <iron-icon icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <iron-icon id="save-btn" icon="save" on-tap="forceSaveAdmin"></iron-icon>
+                    <paper-tooltip for="save-btn" position="left">[[localize('save','Save',language)]]</paper-tooltip>
                 </div>
                 <div class="save">
                     <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
@@ -769,8 +786,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
 
-
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
+
     static get is() {
         return 'ht-pat-admin-card';
     }
@@ -902,6 +919,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Number,
                 value: 0
             },
+            tabIndex: {
+                type: Number,
+                value: 0,
+                observer: '_tabIndexChanged'
+            },
             cardData: {
                 type: Object,
                 value: {}
@@ -923,6 +945,61 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
+
+    printMutualVignette() {
+        const insur = ((this.patient || {}).insurabilities || []).find(a => !a.endDate && a.insuranceId && a.insuranceId !== "") || null
+        if (insur) {
+            this.api.insurance().getInsurance(insur.insuranceId).then(ins=>{
+                const home = this.patient.addresses.find(a=>a.addressType === "home") || null
+                const mutName = this.localizeContent(ins.name)
+                const mutCode = this.localizeContent(ins.code)
+                const patName = this.patient.firstName+" "+this.patient.lastName+" °"+this.api.moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
+                const oa = mutCode && insur.parameters && insur.parameters.tc1 && insur.parameters.tc2 && mutName && mutName.length ? mutCode+" "+insur.parameters.tc1+"-"+insur.parameters.tc2 : "no OA"
+                const ssin = this.patient.ssin
+                const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber.length) ? (!home.postboxNumber.startsWith('/')?"/":"")+home.postboxNumber:"") : "no Addr"
+                const cp = home ? home.postalCode+" "+home.city : "no CP"
+                const sps = JSON.parse(localStorage.getItem('selectedPrinter'))
+                const paperWidth = sps && sps.stickers && sps.stickers.w || 62 // 80
+                const paperHeight = sps && sps.stickers && sps.stickers.h || 29 // 40
+                const vignetteBody =`<html><head>
+                    <style>
+                        * {margin:0;padding:0;font-size:12px;}
+                        /*div.sticker {transform:rotate(-90deg);transform-origin:bottom;}*/
+                        p.patName {font-size:14px;font-weight:bold;}
+                        p, pre {overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
+                    </style></head>
+                    <body>
+                        <div class="sticker">
+                            <p class="patName">${patName}</p>
+                            <pre class="oa"><b>OA${oa}</b> ${mutName}</pre>
+                            <pre class="ssin">   ${ssin}</pre>
+                            <pre class="addr">   ${addr}</pre>
+                            <pre class="cp">   ${cp}</pre>
+                        </div>
+                    </body></html>`
+                this.api.pdfReport(vignetteBody,{
+                    paperWidth: paperWidth,
+                    paperHeight: paperHeight,
+                    marginLeft: 0,marginRight: 0,marginTop: 0,marginBottom: 0
+                }).then(({pdf:data, printed:printed}) =>{
+                    if (!printed) {
+                        let blob = new Blob([data],{type :'application/pdf'});
+
+                        let url = window.URL.createObjectURL(blob)
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        a.href = url;
+                        a.download = this.patient.firstName+"-"+this.patient.lastName+"-"+moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    }
+                }).catch(e=>{console.log('Print error ',e)})
+            }).catch(e=>{console.log('cannot resolve insurance',e)})
+        } else {console.log('cannot find insurance')}
     }
 
     medicalPostitChanged(medical) {
@@ -1061,7 +1138,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 throw e
                             }
                         })
-                )
+                    )
             })
         }
 
@@ -1670,8 +1747,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     country: this.cardData.country
                 })
             }
+
+            this.api.patient().modifyPatientWithUser(this.user,this.patient)
+                .then(p => this.api.register(p,'patient'))
+                .then(p => {
+                    this.set('patient',p)
+                    this.patientChanged()
+                })
         }
-        else{
+        else if(Object.keys(this.cardData).length===0){
             fetch('http://127.0.0.1:16042/read')
                 .then((response) => {
                     return response.json()
@@ -1683,6 +1767,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+        else {
+            console.log("mauvaise carte inserer")
+        }
+    }
+
+    _tabIndexChanged() {
+        if(this.tabIndex >= 0 && this.tabs >= 0 && this.tabIndex != this.tabs){
+            this.set('tabs',this.tabIndex)
         }
     }
 

@@ -3036,15 +3036,11 @@
 
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
-                if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) {
-                        this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
-                        this.set('selectedInvoice.paymentType',"cash")
-                    }
-                    this.$['paymentCheckDialog'].open()
-                } else {
-                    this._validateAndPrepareInvoiceForBatchSending()
+                if (this.selectedInvoice) {
+                    this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
+                    this.set('selectedInvoice.paymentType',"cash")
                 }
+                this.$['paymentCheckDialog'].open()
             }
 
             _confirmPayment() {
@@ -3672,7 +3668,7 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template))
+                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
@@ -4171,6 +4167,7 @@
                 if(!this.activeNmclItem)return ;
                 const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
+                this._isJustifButtonDisabled()
             }
 
             _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
@@ -4495,7 +4492,7 @@
                     </body>
                 </html>`;
 
-                this.api.pdfReport(mustache.render(html, template))
+                this.api.pdfReport(mustache.render(html, template), {printer: 'regulations'})
                     .then(({pdf:data, printed:printed}) =>{
                         if (!printed) {
                             let blob = new Blob([data],{type :'application/pdf'});
@@ -4557,6 +4554,14 @@
                 return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'eattest'
             }
 
+            _isSelectedInvoiceEfact() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'efact'
+            }
+
+            _isSelectedInvoicePaper() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'paper'
+            }
+
             _isInvoiceClosedOrSelectedInvoiceEattest(){
                 return this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
             }
@@ -4611,7 +4616,8 @@
             }
 
             _switchBetweenMethodForJustifAndCreation(){
-                if(this._isSelectedInvoiceEattest()){
+                this.calculateTotalOfInvoice()
+                if(this._isSelectedInvoiceEattest() || (this._isSelectedInvoiceEfact() && Number(this.totalInvoice.patientIntervention) > 0) || (this._isSelectedInvoicePaper() && (Number(this.totalInvoice.patientIntervention) > 0 || Number(this.totalInvoice.reimbursement) > 0))){
                     this._prevalidateAndPrepareInvoiceForBatchSending();
                 }
                 else{

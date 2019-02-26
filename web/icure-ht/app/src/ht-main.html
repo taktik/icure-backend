@@ -577,13 +577,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="accessLogs" sort="access.date">[[localize('last_edi','last edit',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="consultations-patient-name">[[access.patient.lastName]] [[access.patient.firstName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
 									<div class="divider"></div>
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
@@ -608,7 +608,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="type">[[localize('type','Type',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="appointments" sort="startTime">[[localize('hour','Hour',language)]]</div>
 							</div>
@@ -616,7 +616,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<template is="dom-repeat" items="[[appointments]]" as="appointment">
 									<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
 										<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
-										<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
+										<div class="consultations-patient-name">[[appointment.patient.lastName]] [[appointment.patient.firstName]]</div>
 										<div class="consultations-patient-type">#[[appointment.type]]</div>
 										<div class="divider"></div>
 										<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
@@ -649,13 +649,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-body">
 							<div class="card-table-header row">
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.lastName">[[localize('pat_ident','Patient',language)]]</div>
 								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('sender','sender',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patientName]]</div>
+                                    <div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
@@ -679,7 +679,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="services" sort="service.valueDate">[[localize('due_dat','Due date',language)]]</div>
 								<div class="card-header-cell" on-tap="_sortList" list="services" sort="service.content.language.stringValue">[[localize('des','Description',language)]]</div>
 							</div>
@@ -689,7 +689,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<div class="row card-table-row" data-id$="[[service.service.id]]">
 											<div class="card-table-cell main-cell">
 												<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-												<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
+												<div class="consultations-patient-name">[[service.patient.lastName]] [[service.patient.firstName]]</div>
 											</div>
 											<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
 											<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
@@ -879,8 +879,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _sortList(e) {
-	    const list = e.target.getAttribute('list')
-        const sort = e.target.getAttribute('sort')
+        const list = e && e.target && e.target.getAttribute('list') || ''
+        const sort = e && e.target && e.target.getAttribute('sort') || ''
         const target =
             list == 'accessLogs' ? this.accessLogs :
             list == 'appointments' ? this.appointments :
@@ -1016,6 +1016,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 patient: pat,
                                 created: x[0].valueDate,
                                 patientName: pat.firstName + ' ' + pat.lastName,
+                                contactId: x[0].contactId,
                                 descr: (this.api.contact().preferredContent(x[0], this.language) || {}).stringValue
                             })
                         })
@@ -1031,26 +1032,21 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 								|| (m.unassignedResults && m.unassignedResults.length)
 							)
                         }).length)
-                        this.messagesByResultId = {}
+                        this.messagesByContactId = {}
                         messages.rows && messages.rows.forEach (mes => {
-                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(resid => {
-                                this.messagesByResultId[resid] = mes
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(conid => {
+                                this.messagesByContactId[conid] = mes
 							})
                         })
-						console.log("end loading mes", this.messagesByResultId)
                     })
             })
             .finally(() => {
-				//console.log("FINISHED LOAD MESSAGES")
                 this.set('isLoadingLabResults', false)
             })
     }
 
     _isUnreadResult(res) {
-	    //console.log("is unread ?", this.messagesByResultId, this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : 'read' , res)
-        //return 'unread'
-		// FIXME: WIP: no unread messages found
-	    return this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : ''
+	    return this.messagesByContactId && this.messagesByContactId[res.contactId] && ((this.messagesByContactId[res.contactId].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {
