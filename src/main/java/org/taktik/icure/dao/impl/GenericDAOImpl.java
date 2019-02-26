@@ -568,7 +568,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	private void initDesignDocInternal(String groupId, String dbInstanceUrl, int invocations, boolean forceUpdate) {
-		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl) : db;
+		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, true) : db;
 		DesignDocument designDoc;
 		if (cdb.contains(stdDesignDocumentId)) {
 			designDoc = getDesignDocumentFactory().getFromDatabase(cdb, stdDesignDocumentId);

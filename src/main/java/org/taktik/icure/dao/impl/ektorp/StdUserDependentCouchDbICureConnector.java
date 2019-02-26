@@ -41,37 +41,46 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnector {
     private CouchDbProperties couchDbProperties;
-    private LoadingCache<String[], CouchDbICureConnector> connectors = CacheBuilder.newBuilder()
+    private LoadingCache<CouchDbConnectorReference, CouchDbICureConnector> connectors = CacheBuilder.newBuilder()
             .maximumSize(10000)
             .expireAfterAccess(240, TimeUnit.MINUTES)
-            .build(new CacheLoader<String[], CouchDbICureConnector>() {
+            .build(new CacheLoader<CouchDbConnectorReference, CouchDbICureConnector>() {
                 @Override
-                public CouchDbICureConnector load(@NotNull String[] key) throws Exception {
-                    String name = StdUserDependentCouchDbICureConnector.this.databaseName.replaceAll(couchDbPrefix, "icure-" + key[1]);
+                public CouchDbICureConnector load(@NotNull CouchDbConnectorReference key) throws Exception {
+                    String name = StdUserDependentCouchDbICureConnector.this.databaseName.replaceAll(couchDbPrefix, "icure-" + key.groupId);
 
                     CouchDbInstance dbInstance;
 
-                    if (StdUserDependentCouchDbICureConnector.this.couchDbProperties.getUrl().equals(key[0])) {
+                    if (StdUserDependentCouchDbICureConnector.this.couchDbProperties.getUrl().equals(key.dbInstanceUrl)) {
                         dbInstance = StdUserDependentCouchDbICureConnector.this.dbInstance;
                     } else {
-                        dbInstance = otherInstances.get(key[0]);
+                        dbInstance = otherInstances.get(key.dbInstanceUrl);
                         if (dbInstance == null) {
-                            otherInstances.put(key[0], dbInstance = new StdCouchDbInstance(new StdHttpClient.Builder()
+                            otherInstances.put(key.dbInstanceUrl, dbInstance = new StdCouchDbInstance(new StdHttpClient.Builder()
                                     .maxConnections(couchDbProperties.getMaxConnections())
                                     .socketTimeout(couchDbProperties.getSocketTimeout())
                                     .username(couchDbProperties.getUsername())
                                     .password(couchDbProperties.getPassword())
-                                    .url(key[0])
+                                    .url(key.dbInstanceUrl)
                                     .build()));
                         }
                     }
 
-                    if (!dbInstance.checkIfDbExists(name)) { return fallbackConnector; }
+                    boolean dbExists = dbInstance.checkIfDbExists(name);
+                    if (!dbExists) {
+                        if (key.allowFallback) {
+                            return fallbackConnector;
+                        } else {
+                            throw new IllegalArgumentException("Group "+key.groupId+" does not exist on "+key.dbInstanceUrl);
+                        }
+                    }
+
                     StdCouchDbICureConnector connector = om == null ? new StdCouchDbICureConnector(name, dbInstance) : new StdCouchDbICureConnector(name, dbInstance, om);
 
                     //Might want to emit some event that can be caught by the DAOs to init the standard documents
@@ -142,7 +151,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         if (sessionLogic != null && sessionLogic.getCurrentSessionContext() != null) {
             User user = sessionLogic.getCurrentSessionContext().getUser();
             if (user != null && user.getGroupId() != null) {
-                return getCouchDbICureConnector(user.getGroupId(),  sessionLogic.getCurrentSessionContext().getDbInstanceUrl());
+                return getCouchDbICureConnector(user.getGroupId(),  sessionLogic.getCurrentSessionContext().getDbInstanceUrl(), true);
             } else {
                 return fallbackConnector;
             }
@@ -154,9 +163,10 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     }
 
     @Override
-    public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl) {
+    public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl, boolean allowFallback) {
         try {
-            return groupId==null?fallbackConnector:connectors.get(new String[] {dbInstanceUrl == null ? this.couchDbProperties.getUrl() : dbInstanceUrl, groupId});
+            if (groupId == null && allowFallback) { throw new IllegalArgumentException("Missing group id"); }
+            return groupId==null ? fallbackConnector : connectors.get(new CouchDbConnectorReference(dbInstanceUrl == null ? this.couchDbProperties.getUrl() : dbInstanceUrl, groupId, allowFallback));
         } catch (ExecutionException e) {
             throw new IllegalStateException(e);
         }
@@ -501,5 +511,31 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     @Override
     public CouchDbICureConnector getFallbackConnector() {
         return fallbackConnector;
+    }
+
+    private class CouchDbConnectorReference {
+        private final String dbInstanceUrl;
+        private final String groupId;
+        private final boolean allowFallback;
+
+        public CouchDbConnectorReference(String dbInstanceUrl, String groupId, boolean allowFallback) {
+            this.dbInstanceUrl = dbInstanceUrl;
+            this.groupId = groupId;
+            this.allowFallback = allowFallback;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CouchDbConnectorReference that = (CouchDbConnectorReference) o;
+            return Objects.equals(dbInstanceUrl, that.dbInstanceUrl) &&
+                    Objects.equals(groupId, that.groupId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(dbInstanceUrl, groupId);
+        }
     }
 }

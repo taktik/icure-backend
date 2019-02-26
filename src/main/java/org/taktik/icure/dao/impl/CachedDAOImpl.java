@@ -163,7 +163,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     public void putInCache(String groupId, String dbInstanceUrl, String key, T value) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + key;
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl, true).getUuid())) + ":" + key;
         if (value != null) { log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev()); } else {
             log.debug("Cache SAVE = {}, null placeholder", fullId);
         }
@@ -181,8 +181,8 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 	}
 
     public void evictFromCache(String groupId, String dbInstanceUrl, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + id;
-        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + ALL_ENTITIES_CACHE_KEY;
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl, true).getUuid())) + ":" + id;
+        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl, true).getUuid())) + ":" + ALL_ENTITIES_CACHE_KEY;
         log.debug("Cache EVICT= {}", fullId);
         log.debug("Cache EVICT= {}", fullId1);
         cache.evict(fullId);
@@ -195,7 +195,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     protected Cache.ValueWrapper getWrapperFromCache(String groupId, String dbInstanceUrl, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + id;
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl, true).getUuid())) + ":" + id;
         Cache.ValueWrapper value = cache.get(fullId);
         if (value != null) {
             log.debug("Cache HIT  = {}, WRAPPER", fullId);

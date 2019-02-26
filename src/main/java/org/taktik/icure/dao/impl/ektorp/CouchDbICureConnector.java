@@ -18,17 +18,14 @@
 
 package org.taktik.icure.dao.impl.ektorp;
 
-import java.util.List;
-
 import org.ektorp.CouchDbConnector;
-import org.ektorp.ViewQuery;
 
 public interface CouchDbICureConnector extends CouchDbConnector {
 	String getUuid();
 
 	CouchDbICureConnector getCurrentUserRealConnector();
 
-	CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl);
+	CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl, boolean allowFallback);
 
 	CouchDbICureConnector getFallbackConnector();
 }

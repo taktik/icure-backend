@@ -139,7 +139,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId, String dbInstanceUrl, boolean bypassCache) {
-		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl);
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, false);
 
 		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, dbInstanceUrl, userId);
 
@@ -159,7 +159,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User findUserOnUserDb(String userId, String groupId, String dbInstanceUrl, boolean bypassCache) {
-		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl);
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, false);
 
 		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, dbInstanceUrl, userId);
 
@@ -173,7 +173,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public List<User> getUsersOnDb(String groupId, String dbInstanceUrl) {
-		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl).queryView(createQueryOnDb("all", groupId, dbInstanceUrl).includeDocs(true), User.class);
+		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, false).queryView(createQueryOnDb("all", groupId, dbInstanceUrl).includeDocs(true), User.class);
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	protected ViewQuery createQueryOnDb(String viewName, String groupId, String dbInstanceUrl) {
 		return new ViewQuery()
-				.dbPath(((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl).path())
+				.dbPath(((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, false).path())
 				.designDocId(stdDesignDocumentId)
 				.viewName(viewName);
 	}

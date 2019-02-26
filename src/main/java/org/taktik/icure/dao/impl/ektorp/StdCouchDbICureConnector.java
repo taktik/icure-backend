@@ -19,34 +19,9 @@
 package org.taktik.icure.dao.impl.ektorp;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.ektorp.AttachmentInputStream;
-import org.ektorp.ComplexKey;
-import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
-import org.ektorp.DbPath;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.Options;
-import org.ektorp.Page;
-import org.ektorp.PageRequest;
-import org.ektorp.Revision;
-import org.ektorp.StreamingViewResult;
-import org.ektorp.ViewQuery;
-import org.ektorp.ViewResult;
-import org.ektorp.http.HttpResponse;
-import org.ektorp.http.HttpStatus;
-import org.ektorp.http.StdResponseHandler;
-import org.ektorp.http.URI;
 import org.ektorp.impl.ObjectMapperFactory;
 import org.ektorp.impl.StdCouchDbConnector;
-import org.ektorp.util.Assert;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by emad7105 on 16/10/2014.
@@ -75,7 +50,7 @@ public class StdCouchDbICureConnector extends StdCouchDbConnector implements Cou
 	}
 
 	@Override
-	public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl) {
+	public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl, boolean allowFallback) {
 		return this;
 	}
 
