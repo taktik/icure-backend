@@ -66,6 +66,160 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="list-of-attestations">
             <h4>[[localize('rap_att_list', 'Rapports - List of attestations', language)]]</h4>
+            <vaadin-form-layout>
+                <vaadin-form-item  colspan="1">
+                    <vaadin-date-picker id="date-picker" label="De" value="{{dateFrom}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                </vaadin-form-item >
+                <vaadin-form-item  colspan="1">
+                    <vaadin-date-picker id="date-picker" label="A" value="{{dateTo}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                </vaadin-form-item >
+                <vaadin-form-item  colspan="2">
+                    <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" on-value-changed="filterInvoiceList" selected-item="{{selectedHcpItem}}" label="Prestataire" readonly="[[readonly]]"></vaadin-combo-box>
+                </vaadin-form-item>
+            </vaadin-form-layout>
+
+            <vaadin-checkbox checked="{{invoiceType_mutualfund}}">Mutuelle</vaadin-checkbox>
+            <vaadin-checkbox checked="{{invoiceType_patient}}">Patient</vaadin-checkbox>
+            <vaadin-checkbox checked="{{invoiceType_others}}">Autres Organismes</vaadin-checkbox>
+
+            <vaadin-checkbox checked="{{sentMediumType_eattest}}">e-Attest</vaadin-checkbox>
+            <vaadin-checkbox checked="{{sentMediumType_efact}}">e-Fact</vaadin-checkbox>
+            <vaadin-checkbox checked="{{sentMediumType_mediprima}}">Mediprima</vaadin-checkbox>
+            <vaadin-checkbox checked="{{sentMediumType_paper}}">Papier</vaadin-checkbox>
+
+            <vaadin-checkbox checked="{{paymentType_cash}}">Especes</vaadin-checkbox>
+            <vaadin-checkbox checked="{{paymentType_debitcard}}">Carte debit</vaadin-checkbox>
+            <vaadin-checkbox checked="{{paymentType_creditcard}}">Carte credit</vaadin-checkbox>
+            <vaadin-checkbox checked="{{paymentType_wired}}">Virement</vaadin-checkbox>
+
+            <vaadin-grid id="invoiceGrid" class="material" items="[[filteredInvoiceItems]]" active-item="{{selectedInvoice}}">
+
+                <vaadin-grid-column flex-grow="0" width="5%">
+                    <template class="header">
+                        <vaadin-checkbox checked$="[[allSelected]]" on-tap="_toggleSelectAll"></vaadin-checkbox>
+                    </template>
+                    <template>
+                            <vaadin-checkbox data-item$="[[item]]" on-checked-changed="_itemSelected" class="list-checkbox"></vaadin-checkbox>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Prestataire
+                    </template>
+                    <template>
+                        <div>[[item.author]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Date
+                    </template>
+                    <template>
+                        <div>[[item.date]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Patient
+                    </template>
+                    <template>
+                        <div>[[item.patient]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        N° d'attestation
+                    </template>
+                    <template>
+                        <div>[[item.invoiceReference]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        O.A.
+                    </template>
+                    <template>
+                        <div>[[item.oa]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Mutuelle
+                    </template>
+                    <template>
+                        <div>[[item.insurance]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Type de facturation
+                    </template>
+                    <template>
+                        <div>[[item.invoiceType]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <!--
+                <vaadin-grid-column>
+                    <template class="header">
+                        Convention liée
+                    </template>
+                    <template>
+                        <div>[[item.linkedConvention]]</div>
+                    </template>
+                </vaadin-grid-column>
+                -->
+                <vaadin-grid-column>
+                    <template class="header">
+                        Mode facturation
+                    </template>
+                    <template>
+                        <div>[[item.paymentType]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Espèces
+                    </template>
+                    <template>
+                        <div>[[item.cash]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Carte debit
+                    </template>
+                    <template>
+                        <div>[[item.debitCard]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Carte crédit
+                    </template>
+                    <template>
+                        <div>[[item.creditCard]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Virement
+                    </template>
+                    <template>
+                        <div>[[item.wired]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        Montant total
+                    </template>
+                    <template>
+                        <div>[[item.totalAmount]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+
+            <vaadin-checkbox checked="{{isExportAnonyme}}">Export Anonyme</vaadin-checkbox>
+            <paper-button on-tap="exportToCsv" class="modal-button">Exporter</paper-button>
         </div>
 
     </template>
@@ -74,6 +228,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
+        import * as models from 'icc-api/dist/icc-api/model/models'
+
+        import '../../../../bower_components/js-xlsx/shim.js'
+
+        const XLSX = require('../../../../bower_components/js-xlsx/dist/xlsx.full.min.js')
 
         class HtAdminReportsListOfAttestations extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -89,12 +248,132 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
-                    }
+                    },
+                    invoiceItems: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+
+                    checkedInvoices: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+
+                    isExportAnonyme: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    dateFrom: {
+                        type: String,
+                        value: ""
+                    },
+
+                    dateTo: {
+                        type: String,
+                        value: ""
+                    },
+
+                    paymentTypes: {
+                        type: Array,
+                        value: () => [
+                            {
+                                id: "wired",
+                                label: {"fr": "Virement", "nl": "Overschrijving", "en": "Wired"}
+                            },
+                            {
+                                id: "cash",
+                                label: {"fr": "En espèces", "nl": "Cash", "en": "Cash"}
+                            },
+                            {
+                                id: "debitcard",
+                                label: {"fr": "Carte de débit", "nl": "Debit kaart", "en": "Debit card"}
+                            },
+                            {
+                                id: "creditcard",
+                                label: {"fr": "Carte de crédit", "nl": "Credit kaart", "en": "Credit card"}
+                            }
+                        ]
+                    },
+                    invoiceTypes: {
+                        type: Array,
+                        value: () => [
+                            {
+                                id: "mutualfund",
+                                label: {"fr": "Mutuelle", "nl": "Mutual", "en": "Mutual"}
+                            },
+                            {
+                                id: "patient",
+                                label: {"fr": "Patient", "nl": "Patient", "en": "Patient"}
+                            },
+                            {
+                                id: "payingagency",
+                                label: {"fr": "Autre organisme", "nl": "Anders", "en": "Paying agency"}
+                            }
+                        ]
+                    },
+
+
+                    invoiceType_patient: {
+                        type: Boolean,
+                        value: false
+                    },
+                    invoiceType_mutualfund: {
+                        type: Boolean,
+                        value: false
+                    },
+                    invoiceType_others: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    sentMediumType_eattest: {
+                        type: Boolean,
+                        value: false
+                    },
+                    sentMediumType_efact: {
+                        type: Boolean,
+                        value: false
+                    },
+                    sentMediumType_mediprima: {
+                        type: Boolean,
+                        value: false
+                    },
+                    sentMediumType_paper: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    paymentType_cash: {
+                        type: Boolean,
+                        value: false
+                    },
+                    paymentType_debitcard: {
+                        type: Boolean,
+                        value: false
+                    },
+                    paymentType_creditcard: {
+                        type: Boolean,
+                        value: false
+                    },
+                    paymentType_wired: {
+                        type: Boolean,
+                        value: false
+                    },
                 }
             }
 
             static get observers() {
-                return [];
+                return [
+                    'filterInvoiceList(selectedHcpItem, dateFrom, dateTo)',
+                    'filterInvoiceList(invoiceType_mutualfund, invoiceType_patient, invoiceType_others)',
+                    'filterInvoiceList(sentMediumType_eattest, sentMediumType_efact, sentMediumType_mediprima, sentMediumType_paper)',
+                    'filterInvoiceList(paymentType_cash, paymentType_debitcard, paymentType_creditcard, paymentType_wired)',
+                ];
             }
 
             constructor() {
@@ -103,10 +382,283 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+                this.refreshInvoiceList().then(x=> this.filterInvoiceList() )
             }
 
+            _hcpFilterChanged(e){
+                let latestSearchValue = e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('hcpListItem', []);
+                    return;
+                }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('hcpListItem', res.rows);
+                });
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (filterValue) {
+                        const desc = 'desc';
+                        let count = 15;
+                        return Promise.all([this.api.hcparty().findByName(filterValue, null,  null, count, desc)]).then(results => {
+                            const hcpList = results[0];
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+            refreshInvoiceList() {
+                return this.api.invoiceicc.listToPatients().then(invoices => {
+                    return Promise.all(invoices.filter(i => i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids.extractedKeys[0]])))
+                        .then(invAndIdsPat =>
+                            this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        ).then(invAndPats =>
+                            this.api.insurance().getInsurances(new models.ListOfIdsDto({ids: _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i && i.insurabilities && i.insurabilities[0] && i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => it && (it[0] && it[0].insurabilities && it[0].insurabilities[0] && i.id === it[1].insurabilities[0].insuranceId) || (it[1] && it[1].insurabilities && it[1].insurabilities.find(patIns => (it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate && it[0].invoiceDate >= patIns.startDate && it[0].invoiceDate <= patIns.endDate && patIns.insuranceId === i.id) || (!(it[0] && it[0].invoiceDate && patIns.startDate && patIns.endDate) && patIns.insuranceId === i.id))))]))
+                        )
+                        .then(invAndPats => {
+                            return Promise.all(invAndPats.map(([invoice, pat, ins]) => {
+
+                                console.log("invoice:", invoice)
+                                const invdate = invoice.invoiceDate.toString()
+                                const item = {
+                                    //author: after,
+                                    date: invdate.substr(0,4) + '-' + invdate.substr(4,2) + '-' + invdate.substr(6,2),
+                                    //patient: after
+                                    invoiceReference: invoice.invoiceReference,
+                                    //oa: after
+                                    //insurance: after
+                                    invoiceType: this.getInvoiceTypeLabel(invoice.invoiceType),
+                                    //linkedConvention: for future use
+                                    paymentType: this.getPaymentTypeLabel(invoice.paymentType),
+                                    cash: 0,
+                                    debitCard: 0,
+                                    creditCard: 0,
+                                    wired: 0,
+                                    totalAmount: 0,
+
+                                    invoice: invoice
+                                }
+
+                                const computeSum = function(paytype) {
+                                    return invoice.invoicingCodes.filter(c => c.paymentType === paytype).reduce((acc, code) => {
+                                        return acc + code.totalAmount
+                                    }, 0) || 0
+                                }
+                                item.totalAmount = invoice.invoicingCodes.reduce((acc, code) => {
+                                    return acc + code.totalAmount
+                                }, 0) || 0
+                                item.cash = computeSum('cash')
+                                item.debitCard = computeSum('debitCard')
+                                item.creditCard = computeSum('creditCard')
+                                item.wired = computeSum('wired')
+
+                                item.insurance = ins ? ins.code + ' ' + (ins.name["fr"] || ins.name["nl"]) : null
+                                item.oa = item.insurance ? item.insurance[0] + '00' : null
+                                item.patient = pat ? (pat.firstName + ' ' + pat.lastName) : null
+
+                                return this.api.user().getUser(invoice.author).then(user => {
+                                    return this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp => {
+                                        item.author = hcp.lastName + ' ' + hcp.firstName
+                                        item.authorHcpId = hcp.id
+                                        return item
+                                    })
+                                })
+                            }))
+                        }).then(invlist =>
+                            this.set('invoiceItems', invlist)
+                        )
+                })
+            }
+
+            filterInvoiceList() {
+                const invoiceTypeFilter = []
+                if(this.invoiceType_mutualfund === true) {
+                    invoiceTypeFilter.push("mutualfund")
+                }
+                if(this.invoiceType_patient === true) {
+                    invoiceTypeFilter.push("patient")
+                }
+                if(this.invoiceType_others === true) {
+                    invoiceTypeFilter.push("payingagency")
+                }
+
+                const sentMediumTypeFilter = []
+                if(this.sentMediumType_eattest === true) {
+                    sentMediumTypeFilter.push("eattest")
+                }
+                if(this.sentMediumType_efact === true) {
+                    sentMediumTypeFilter.push("efact")
+                }
+                if(this.sentMediumType_mediprima === true) {
+                    sentMediumTypeFilter.push("mediprima")
+                }
+                if(this.sentMediumType_paper === true) {
+                    sentMediumTypeFilter.push("paper")
+                }
+
+                const paymentTypeFilter = []
+                if(this.paymentType_cash === true) {
+                    paymentTypeFilter.push("cash")
+                }
+                if(this.paymentType_debitcard === true) {
+                    paymentTypeFilter.push("debitcard")
+                }
+                if(this.paymentType_creditcard === true) {
+                    paymentTypeFilter.push("creditcard")
+                }
+                if(this.paymentType_wired === true) {
+                    paymentTypeFilter.push("wired")
+                }
+
+                this.set('filteredInvoiceItems', this.invoiceItems.filter(inv => {
+                    let res = true
+                    if(invoiceTypeFilter.length === 0) {
+                        //res = true
+                        // no checkbox checked, show all
+                    } else {
+                        res = res && invoiceTypeFilter.includes(inv.invoice.invoiceType)
+                    }
+
+                    if(sentMediumTypeFilter.length === 0) {
+                        //res = true
+                        // no checkbox checked, show all
+                    } else {
+                        res = res && sentMediumTypeFilter.includes(inv.invoice.sentMediumType)
+                    }
+
+                    if(paymentTypeFilter.length === 0) {
+                        //res = true
+                        // no checkbox checked, show all
+                    } else {
+                        res = res && paymentTypeFilter.includes(inv.invoice.paymentType)
+                    }
+
+
+                    if(this.selectedHcpItem != null) {
+                        res = res && inv.authorHcpId === this.selectedHcpItem.id
+                    }
+
+                    if(this.dateFrom !== null && this.dateFrom !== "") {
+                        res = res && inv.invoice.invoiceDate >= parseInt(this.dateFrom.replace("-", "").replace("-", ""), 10)
+                    }
+
+                    if(this.dateFrom !== null && this.dateTo !== "") {
+                        res = res && inv.invoice.invoiceDate <= parseInt(this.dateTo.replace("-", "").replace("-", ""), 10)
+                    }
+
+                    return res
+                }))
+            }
+
+            exportToCsv() {
+                let items = null
+                if(this.checkedInvoices.length > 0) {
+                    items = this.checkedInvoices
+                } else {
+                    items = this.filteredInvoiceItems
+                }
+                this.generateXlsFile(items.map(inv => {
+                    const xlinv = JSON.parse(JSON.stringify(inv));
+                    if(this.isExportAnonyme) {
+                        delete xlinv.patient
+                    }
+                    delete xlinv.invoice
+                    delete xlinv.authorHcpId
+                    return xlinv
+                }))
+            }
+
+            generateXlsFile(data) {
+
+                // Create xls work book and assign properties
+                const xlsWorkBook = {SheetNames: [], Sheets: {}}
+                xlsWorkBook.Props = {Title: "Patients list", Author: "iCure"}
+
+                // Create sheet based on json data collection
+                var xlsWorkSheet = XLSX.utils.json_to_sheet(data)
+
+                // Link sheet to workbook
+                XLSX.utils.book_append_sheet(xlsWorkBook, xlsWorkSheet, 'Patients list')
+
+                // Virtual data output
+                var xlsWorkBookOutput = new Buffer(XLSX.write(xlsWorkBook, {bookType: 'xls', type: 'buffer'}))
+
+                // Put output to virtual "file"
+                var fileBlob = new Blob([xlsWorkBookOutput], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+
+                // Create download link and append to page's body
+                var downloadLink = document.createElement("a")
+                document.body.appendChild(downloadLink)
+                downloadLink.style = "display: none"
+
+                // Create url
+                var urlObject = window.URL.createObjectURL(fileBlob)
+
+                // Link to url
+                downloadLink.href = urlObject
+                downloadLink.download = "patients-list.xls"
+
+                // Trigger download and drop object
+                downloadLink.click()
+                window.URL.revokeObjectURL(urlObject)
+
+                // Free mem
+                fileBlob = false
+                xlsWorkBookOutput = false
+
+                return
+            }
+
+            getInvoiceTypeLabel(invoiceType){
+                if(!invoiceType) return;
+                const type = this.invoiceTypes.find(type => type.id === invoiceType)
+                return type && type.label && type.label[this.language]
+            }
+
+            getPaymentTypeLabel(invoiceType){
+                if(!invoiceType) return;
+                const type = this.paymentTypes.find(type => type.id === invoiceType)
+                return type && type.label && type.label[this.language]
+            }
+
+            _itemSelected(e) {
+                if (e.path[0].checked) {
+                    const checked = JSON.parse(e.target.dataset.item)
+                    if (this.checkedInvoices.length !== this.invoiceItems.length) this.push('checkedInvoices', checked)
+                } else {
+                    this.splice('checkedInvoices', this.checkedInvoices.indexOf(e.target.dataset.item))
+                    this.set('allSelected',false)
+                }
+                console.log(this.checkedInvoices.length+' checked',this.checkedInvoices)
+            }
+
+
+            _toggleSelectAll() {
+                this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
+                this.set('checkedInvoices',this.allSelected ? this.filteredInvoiceItems : [])
+                let invList = this.shadowRoot.querySelector('#invoiceGrid');
+                let allCheckboxes = invList? invList.querySelectorAll('.list-checkbox') : []
+                const selectedState = this.allSelected
+                allCheckboxes.forEach(box=>{
+                    box.checked = selectedState;
+                })
+            }
         }
 
         customElements.define(HtAdminReportsListOfAttestations.is, HtAdminReportsListOfAttestations)
+
     </script>
 </dom-module>
+
+
+
