@@ -575,6 +575,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				right: 16px;
 			}
 
+            div.panel-header {
+                background: var(--app-secondary-color-dark);
+                margin-bottom: 8px;
+                font-size: 1.5em;
+                width: 100%;
+                text-align: center;
+                padding: 8px 16px;
+                box-sizing: border-box;
+            }
+            vaadin-grid.eid-patients-list {
+                width: 448px;
+                max-height: 256px;
+                overflow-y: auto;
+                margin: 0 8px;
+            }
+            div.panel-bottom-btns {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+            }
+            div.panel-bottom-btns > paper-button {
+                flex-grow: 1;
+                height: 40px;
+                margin: 4px;
+                padding: 4px;
+                text-align: center;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: .25s ease;
+            }
+            div.panel-bottom-btns > paper-button:hover {
+                background: var(--app-secondary-color-dark);
+            }
 
 		</style>
 
