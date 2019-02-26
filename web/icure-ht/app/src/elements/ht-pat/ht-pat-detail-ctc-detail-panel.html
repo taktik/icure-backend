@@ -726,7 +726,7 @@
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
-											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true"></dynamic-doc>
+											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true" is-pat-detail="true"></dynamic-doc>
 							</template>
 						</template>
                         <template is="dom-if" if="[[dof.unmappedServices.length]]">
