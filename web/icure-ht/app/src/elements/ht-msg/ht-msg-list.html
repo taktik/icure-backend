@@ -585,7 +585,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]"
                              active-item="{{activeItem}}" items="[[messages]]"
                              on-tap="click" on-removed-opened="_deselectMessages"
-                             selection-mode="multi" width="100%" pageSize="50">
+                             selection-mode="multi" width="100%" pageSize="100">
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="0" width="46px">
                             <template>
@@ -926,18 +926,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log('_messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
                 if (grid && messages && page) {
-                    this.set('gridSize',grid.size)
+                    this.set('gridSize',messages.length)
                     if (this.selectList.selection.item !== 'sentbox') {
                         this.set('unreadCount',messages.filter(m=>this.isUnread(m)).length)
                     }
                     // pagination starts here
-                    const pageSize = grid.getAttribute('pageSize') || 50
+                    const pageSize = grid.getAttribute('pageSize') || 100
                     this.set('pages',[])
-                    const numberOfPages = Math.floor(messages.length / pageSize)
+                    const numberOfPages = Math.ceil(messages.length / pageSize)
                     for (let i=0;i<numberOfPages;i++) this.push('pages',i+1)
                     if (!this.pages.length) this.push('pages',1)
-                    let start = page == 1 ?  0 : page * pageSize;
-                    let end = (page == 1 ? 1 : page + 1) * pageSize;
+                    let start = (page-1) * pageSize;
+                    let end = page * pageSize;
                     this.set('pageStart', start ||0)
                     this.set('pageEnd', end ||pageSize)
                     grid.items = messages.slice(start, end);
