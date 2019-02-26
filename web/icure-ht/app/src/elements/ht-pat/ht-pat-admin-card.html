@@ -1238,12 +1238,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             .then(res => res.map(i => ({
                                 'codeId': i.id,
                                 'id': i.id,
-                                'name': this.localizeContent(i.name, this.language)
+                                'name': i.code + " - " + this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
                                 'codeId': i.id,
                                 'id': i.id,
-                                'name': this.localizeContent(i.name, this.language)
+                                'name': i.code + " - " + this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
                     const s = text && text.toLowerCase()
