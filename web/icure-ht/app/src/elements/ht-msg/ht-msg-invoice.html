@@ -478,9 +478,14 @@
                     text-align: center;
                 }
 
+                .invoiceGrid {
+                    overflow-y: scroll;
+                    max-height: 20vh;
+                }
+            
                 vaadin-grid.subGrid {
                     overflow-y: auto;
-                    max-height: 20vh;
+                    max-height: 35vh;
                 }
 
                 #invoiceGrid .footer{
@@ -622,6 +627,13 @@
                     cursor: pointer;
                 }
 
+                @media screen and (max-height: 500px) {
+                    vaadin-grid.subGrid {
+                        overflow-y: auto;
+                        max-height: 20vh;
+                    }
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -755,7 +767,7 @@
                                     <span class="center" style="width: 7%;">[[_formatAmount(item.sum.tot)]]€</span>
                                 </div>
                                 <div slot="collapse-content">
-                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid subGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
+                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <!--<template>[[item.invoice.sentMediumType]]</template>-->
                                         </vaadin-grid-column>
@@ -1731,10 +1743,10 @@
             activeGridItemChanged(item){
                 if(!item || item.length==0)return;
                 console.log("selected:",item)
-                //this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
-                //this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
-                //this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
-                //this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
+                // this.set("sumReimb", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement;}, 0))
+                // this.set("sumPatInter",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.patientIntervention;}, 0))
+                // this.set("sumDoctorSup", _.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.doctorSupplement;}, 0))
+                // this.set("sumTot",_.reduce(item.invoice.invoicingCodes,(sum, n)=>{return sum + n.reimbursement + n.doctorSupplement + n.patientIntervention;}, 0))
             }
 
             ready() {
@@ -1793,7 +1805,7 @@
                             parentUuid : ins && ins.code ? ins.code.charAt(0) : null,
                             patient: pat,
                             invoice: inv,
-                            toBeCorrected: !!inv.invoicingCodes.find(ic => ic.resent === true),
+                            toBeCorrected: !inv.invoicingCodes.find(ic => ic.resent === true),
                             error: inv.error || ""
                     })
                 }))
@@ -1839,38 +1851,38 @@
 
                                 return this.api.document().findByMessage(this.user.healthcarePartyId, msg)
                                     .then(docs => {
+                                        console.log(docs)
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
-                                            let b = null
                                             if (typeof a === "string"){
-                                                try { b = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
                                             } else if (typeof a === "object") {
-                                                try { b = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                             }
 
-                                            const zone200 = b && b.find(enr => enr.zones.find(z => z.zone == "200"))
-                                            const zone300 = b && b.find(enr => enr.zones.find(z => z.zone == "300"))
-                                            const zone400 = b && b.find(enr => enr.zones.find(z => z.zone == "400"))
-                                            const zone500 = b && b.find(enr => enr.zones.find(z => z.zone == "500"))
-                                            const enr10 = b && b.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
+                                            const zone200 = a && a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                            const zone300 = a && a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                            const zone400 = a && a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                            const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                            const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
                                             const st = msg.status
 
                                             const invoiceStatus =
-                                                !!(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
-                                                    !!(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
-                                                        !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
-                                                            !!(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
-                                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
-                                                                    !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
-                                                                        !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
-                                                                            !!(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
-                                                                                !!(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
+                                                !(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
+                                                    !(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
+                                                        !(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
+                                                            !(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
+                                                                !(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
+                                                                    !(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
+                                                                        !(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
+                                                                            !(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                                                !(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
 
 
-                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
+                                            const rejectionReason = !(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                !(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
 
                                             return (zone200 && zone300) ?
                                                 ({
@@ -1885,7 +1897,7 @@
                                                         invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
                                                         invoicedAmount:     msg.metas && msg.metas.totalAmount ? Number(msg.metas.totalAmount) : "0.00",
                                                         acceptedAmount:     msg.metas && msg.metas.totalAcceptedAmount ? Number(msg.metas.totalAcceptedAmount) : "0.00",
-                                                        refusedAmount:      (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(msg.metas.totalAmount) : (msg.metas && msg.metas.totalRejectedAmount) ? Number(msg.metas.totalRejectedAmount) : "0.00",
+                                                        refusedAmount:      (!(st & (1 << 17)) || !(st & (1 << 12))) ? Number(msg.metas.totalAmount) : (msg.metas && msg.metas.totalRejectedAmount) ? Number(msg.metas.totalRejectedAmount) : "0.00",
                                                         invoiceStatus:      invoiceStatus,
                                                         rejectionReason:    rejectionReason,
                                                         paymentReference:   msg.metas && msg.metas.paymentReferenceAccount1 ? msg.metas.paymentReferenceAccount1 : "",
@@ -1895,12 +1907,12 @@
                                                         paid: false,
                                                         allInvoicesIsCorrected : allInvoicesIsCorrected
                                                     }
-                                                }) : null
-                                        }) : null
+                                                }) : mm
+                                        }) : mm
                                     })
 
                             }))).then(msgsStructs => {
-                        this.set('allMessages', _.compact(msgsStructs))
+                        this.set('allMessages', msgsStructs)
                         this.dispatchMessages()
                         this.set("_isLoadingMessages",false)
                         this.set("isMessagesLoaded",true)
@@ -2029,17 +2041,17 @@
                         return `${dd}/${mm}/${yyyy}`;
                     case 'month' :
                         const monthStr =
-                            (mm.toString() === '01') ? this.localize('Jan',this.language) :
-                            (mm.toString() === '02') ? this.localize('Feb',this.language) :
-                            (mm.toString() === '03') ? this.localize('Mar',this.language) :
-                            (mm.toString() === '04') ? this.localize('Apr',this.language) :
-                            (mm.toString() === '05') ? this.localize('May',this.language) :
-                            (mm.toString() === '06') ? this.localize('Jun',this.language) :
-                            (mm.toString() === '07') ? this.localize('Jul',this.language) :
-                            (mm.toString() === '08') ? this.localize('Aug',this.language) :
-                            (mm.toString() === '09') ? this.localize('Sep',this.language) :
-                            (mm.toString() === '10') ? this.localize('Oct',this.language) :
-                            (mm.toString() === '11') ? this.localize('Nov',this.language) :
+                            (mm.toString() == '01') ? this.localize('Jan',this.language) :
+                            (mm.toString() == '02') ? this.localize('Feb',this.language) :
+                            (mm.toString() == '03') ? this.localize('Mar',this.language) :
+                            (mm.toString() == '04') ? this.localize('Apr',this.language) :
+                            (mm.toString() == '05') ? this.localize('May',this.language) :
+                            (mm.toString() == '06') ? this.localize('Jun',this.language) :
+                            (mm.toString() == '07') ? this.localize('Jul',this.language) :
+                            (mm.toString() == '08') ? this.localize('Aug',this.language) :
+                            (mm.toString() == '09') ? this.localize('Sep',this.language) :
+                            (mm.toString() == '10') ? this.localize('Oct',this.language) :
+                            (mm.toString() == '11') ? this.localize('Nov',this.language) :
                             this.localize('Dec',this.language)
                         return `${monthStr} ${yyyy}`
                 }
@@ -2224,73 +2236,73 @@
                 var erreur = '';
 
                 //Erreur sur le nom du message
-                if(zones.find(z => z.zone === "2001") !== '00'){
-                    if(zones.find(z => z.zone === "2001") === '10'){
+                if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value != '00'){
+                    if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '10'){
                         erreur += 'Nom du message => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '11'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '11'){
                         erreur += 'Nom du message => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '20'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '20'){
                         erreur += 'Nom du message => Codification inconnue<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '21'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '21'){
                         erreur += 'Nom du message => Message non autorisé pour cet émetteur<br>';
-                    }else if(zones.find(z => z.zone === "2001") === '22'){
+                    }else if(zones.find(z => z.zone === "2001") && zones.find(z => z.zone === "2001").value == '22'){
                         erreur += 'Nom du message => # de 920000<br>';
                     }
                 }
 
                 //Erreur sur le n° de version du message
-                if(zones.find(z => z.zone === "2011") !== '00'){
-                    if(zones.find(z => z.zone === "2011") === '10'){
+                if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value != '00'){
+                    if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '10'){
                         erreur += 'N° version mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '11'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '11'){
                         erreur += 'N° version mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '20'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '20'){
                         erreur += 'N° version mess => N° de version n\'est plus d\'application<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '21'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '21'){
                         erreur += 'N° version mess => N° de version pas encore d\'application<br>';
-                    }else if(zones.find(z => z.zone === "2011") === '30'){
+                    }else if(zones.find(z => z.zone === "2011") && zones.find(z => z.zone === "2011").value == '30'){
                         erreur += 'N° version mess => N° de version non autorisé pour ce flux<br>';
                     }
                 }
 
                 //Erreur sur le type de message
-                if(zones.find(z => z.zone === "2021") !== '00'){
-                    if(zones.find(z => z.zone === "2021") === '10'){
+                if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value != '00'){
+                    if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '10'){
                         erreur += 'Type de mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '11'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '11'){
                         erreur += 'Type de mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '20'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '20'){
                         erreur += 'Type de mess => Valeur non permise<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '30'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '30'){
                         erreur += 'Type de mess => Message test dans un buffer de production (1er car zone 107 = P)<br>';
-                    }else if(zones.find(z => z.zone === "2021") === '31'){
+                    }else if(zones.find(z => z.zone === "2021") && zones.find(z => z.zone === "2021").value == '31'){
                         erreur += 'Type de mess => Message de production dans un buffer de test (1er car zone 107 = T)<br>';
                     }
                 }
 
                 //Erreur sur le statut du message
-                if(zones.find(z => z.zone === "2031") !== '00'){
-                    if(zones.find(z => z.zone === "2031") === '10'){
+                if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value != '00'){
+                    if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value == '10'){
                         erreur += 'Statut mess => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "2031") === '20'){
+                    }else if(zones.find(z => z.zone === "2031") && zones.find(z => z.zone === "2031").value == '20'){
                         erreur += 'Statut mess => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur la référence message institution ou prestataire de soins
-                if(zones.find(z => z.zone === "2041") !== '00'){
-                    if(zones.find(z => z.zone === "2041") === '10'){
+                if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value != '00'){
+                    if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value == '10'){
                         erreur += 'Réf mess => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2041") === '11'){
+                    }else if(zones.find(z => z.zone === "2041") && zones.find(z => z.zone === "2041").value == '11'){
                         erreur += 'Réf mess => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur la référence message O.A
-                if(zones.find(z => z.zone === "2051") !== '00'){
-                    if(zones.find(z => z.zone === "2051") === '10'){
+                if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value != '00'){
+                    if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value == '10'){
                         erreur += 'Réf mess OA => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "2051") === '11'){
+                    }else if(zones.find(z => z.zone === "2051") && zones.find(z => z.zone === "2051").value == '11'){
                         erreur += 'Réf mess OA => Erreur format<br>';
                     }
                 }
@@ -2302,101 +2314,101 @@
                 var erreur = '';
 
                 //Erreur sur l'année et le mois de facturation
-                if(zones.find(z => z.zone === "3001") !== '00'){
-                    if(zones.find(z => z.zone === "3001") === '10'){
+                if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value != '00'){
+                    if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '10'){
                         erreur += 'Année mois fact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3001") === '11'){
+                    }else if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '11'){
                         erreur += 'Année mois fact => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3001") === '20'){
+                    }else if(zones.find(z => z.zone === "3001") && zones.find(z => z.zone === "3001").value == '20'){
                         erreur += 'Année mois fact => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le n° d'envoi
-                if(zones.find(z => z.zone === "3011") !== '00'){
-                    if(zones.find(z => z.zone === "3011") === '10'){
+                if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value != '00'){
+                    if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '10'){
                         erreur += 'N° envoi => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3011") === '11'){
+                    }else if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '11'){
                         erreur += 'N° envoi => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3011") === '40'){
+                    }else if(zones.find(z => z.zone === "3011") && zones.find(z => z.zone === "3011").value == '40'){
                         erreur += 'N° envoi => Signalisation de double fichier de facturation transmis<br>';
                     }
                 }
 
                 //Erreur sur la date de création de la facture
-                if(zones.find(z => z.zone === "3021") !== '00'){
-                    if(zones.find(z => z.zone === "3021") === '10'){
+                if(zones.find(z => z.zone === "3021")  && zones.find(z => z.zone === "3021").value != '00'){
+                    if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '10'){
                         erreur += 'Date création facture => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '11'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '11'){
                         erreur += 'Date création facture => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '20'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '20'){
                         erreur += 'Date création facture => Date > date du jour<br>';
-                    }else if(zones.find(z => z.zone === "3021") === '21'){
+                    }else if(zones.find(z => z.zone === "3021") && zones.find(z => z.zone === "3021").value == '21'){
                         erreur += 'Date création facture => Date invraisemblable ( date < 01/01/2002)<br>';
                     }
                 }
 
 
                 //Erreur sur le n° de version des instruction
-                if(zones.find(z => z.zone === "3041") !== '00'){
-                    if(zones.find(z => z.zone === "3041") === '10'){
+                if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value != '00'){
+                    if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '10'){
                         erreur += 'N° version instruction => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '11'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '11'){
                         erreur += 'N° version instruction => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '20'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '20'){
                         erreur += 'N° version instruction => Valeur non permise<br>';
-                    }else if(zones.find(z => z.zone === "3041") === '21'){
+                    }else if(zones.find(z => z.zone === "3041") && zones.find(z => z.zone === "3041").value == '21'){
                         erreur += 'N° version instruction => Incompatibilité avec valeur reprise en zone 202<br>';
                     }
                 }
 
                 //Erreur sur le nom de la personne de contact
-                if(zones.find(z => z.zone === "3051") !== '00'){
-                    if(zones.find(z => z.zone === "3051") === '10'){
+                if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value != '00'){
+                    if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value == '10'){
                         erreur += 'Nom personne de contact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3051") === '11'){
+                    }else if(zones.find(z => z.zone === "3051") && zones.find(z => z.zone === "3051").value == '11'){
                         erreur += 'Nom personne de contact => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur le prenom de la personne de contact
-                if(zones.find(z => z.zone === "3061") !== '00'){
-                    if(zones.find(z => z.zone === "3061") === '10'){
+                if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value != '00'){
+                    if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value == '10'){
                         erreur += 'Prénom personne de contact => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3061") === '11'){
+                    }else if(zones.find(z => z.zone === "3061") && zones.find(z => z.zone === "3061").value == '11'){
                         erreur += 'Prénom personne de contact => Erreur format<br>';
                     }
                 }
 
                 //Erreru sur le n° de tel de contact
-                if(zones.find(z => z.zone === "3071") !== '00'){
-                    if(zones.find(z => z.zone === "3071") === '10'){
+                if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value != '00'){
+                    if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value == '10'){
                         erreur += 'N° téléphone => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3071") === '11'){
+                    }else if(zones.find(z => z.zone === "3071") && zones.find(z => z.zone === "3071").value == '11'){
                         erreur += 'N° téléphone => Erreur format<br>';
                     }
                 }
 
                 //Erreur sur le type de la facture
-                if(zones.find(z => z.zone === "3081") !== '00'){
-                    if(zones.find(z => z.zone === "3081") === '10'){
+                if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value != '00'){
+                    if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value == '10'){
                         erreur += 'Type de la facture => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3081") === '11'){
+                    }else if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value  == '11'){
                         erreur += 'Type de la facture => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3081") === '20'){
+                    }else if(zones.find(z => z.zone === "3081") && zones.find(z => z.zone === "3081").value  == '20'){
                         erreur += 'Type de la facture => Valeur non permise en fonction du secteur qui émet la facturation';
                     }
                 }
 
                 //Erreur sur le type de facturation
-                if(zones.find(z => z.zone === "3091") !== '00'){
-                    if(zones.find(z => z.zone === "3091") === '10'){
+                if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value != '00'){
+                    if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '10'){
                         erreur += 'Type de facturation => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "3091") === '11'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '11'){
                         erreur += 'Type de facturation => Erreur format<br>';
-                    }else if(zones.find(z => z.zone === "3091") === '20'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '20'){
                         erreur += 'Type de facturation => Valeur non permise en fonction du secteur qui émet la facturation';
-                    }else if(zones.find(z => z.zone === "3091") === '30'){
+                    }else if(zones.find(z => z.zone === "3091") && zones.find(z => z.zone === "3091").value == '30'){
                         erreur += 'Type de facturation => Valeur # de 1 ou 2 alors que la zone 308 = 3';
                     }
                 }
@@ -2409,100 +2421,100 @@
                 var erreur = '';
 
                 //Erreur sur le type de record
-                if(zones.find(z => z.zone === "4001") !== '00'){
-                    if(zones.find(z => z.zone === "4001") === '10'){
+                if(zones.find(z => z.zone === "4001")  && zones.find(z => z.zone === "4001").value  != '00'){
+                    if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '10'){
                         erreur +='Type de record => Zone obligatoire<br>';
-                    }else if(zones.find(z => z.zone === "4001") === '11'){
+                    }else if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '11'){
                         erreur += 'Type de record => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4001") === '20'){
+                    }else if(zones.find(z => z.zone === "4001") && zones.find(z => z.zone === "4001").value == '20'){
                         erreur += 'Type de record => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le num de mut
-                if(zones.find(z => z.zone === "4011") !== '00'){
-                    if(zones.find(z => z.zone === "4011") === '10'){
+                if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value  != '00'){
+                    if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '10'){
                         erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '11'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '11'){
                         erreur +='N° de mutualité => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '20'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '20'){
                         erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
-                    }else if(zones.find(z => z.zone === "4011") === '21'){
+                    }else if(zones.find(z => z.zone === "4011") && zones.find(z => z.zone === "4011").value == '21'){
                         erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
                     }
                 }
 
                 //Erreur sur le num fact
-                if(zones.find(z => z.zone === "4021") !== '00'){
-                    if(zones.find(z => z.zone === "4021") === '10'){
+                if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value  != '00'){
+                    if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value == '10'){
                         erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4021") === '11'){
+                    }else if(zones.find(z => z.zone === "4021") && zones.find(z => z.zone === "4021").value == '11'){
                         erreur += 'N° de facture récapitulative => Erreur de format<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a ou montant demande a
-                if(zones.find(z => z.zone === "4041") !== '00'){
-                    if(zones.find(z => z.zone === "4041") === '11'){
+                if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value != '00'){
+                    if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '11'){
                         erreur += 'Montant demandé cpt a => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '40'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '40'){
                         erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '41'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '41'){
                         erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "4041") === '20'){
+                    }else if(zones.find(z => z.zone === "4041") && zones.find(z => z.zone === "4041").value == '20'){
                         erreur += 'Montant demandé cpt a => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant b ou montant demande b
-                if(zones.find(z => z.zone === "4061") !== '00'){
-                    if(zones.find(z => z.zone === "4061") === '11'){
+                if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value != '00'){
+                    if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '11'){
                         erreur += 'Montant demandé cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '15'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '15'){
                         erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '40'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '40'){
                         erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
-                    }else if(zones.find(z => z.zone === "4061") === '41'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '41'){
                         erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "4061") === '20'){
+                    }else if(zones.find(z => z.zone === "4061") && zones.find(z => z.zone === "4061").value == '20'){
                         erreur +='Montant demandé cpt b => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a + b ou montant demande a + b
-                if(zones.find(z => z.zone === "4081") !== '00'){
-                    if(zones.find(z => z.zone === "4081") === '11'){
+                if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value != '00'){
+                    if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '11'){
                         erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4081") === '20'){
+                    }else if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '20'){
                         erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
-                    }else if(zones.find(z => z.zone === "4081") === '40'){
+                    }else if(zones.find(z => z.zone === "4081") && zones.find(z => z.zone === "4081").value == '40'){
                         erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
                     }
                 }
 
                 //Erreur sur le nb d'enreg
-                if(zones.find(z => z.zone === "4091") !== '00'){
-                    if(zones.find(z => z.zone === "4091") === '10'){
+                if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value != '00'){
+                    if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '10'){
                         erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "4091") === '11'){
+                    }else if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '11'){
                         erreur +='Nb de records détail => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "4091") === '20'){
+                    }else if(zones.find(z => z.zone === "4091") && zones.find(z => z.zone === "4091").value == '20'){
                         erreur += 'Nb de records détail => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
-                if(zones.find(z => z.zone === "4101") !== '00'){
-                    if(zones.find(z => z.zone === "400") === '95'){
-                        if(zones.find(z => z.zone === "4101") === '10'){
+                if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "400").value != '00'){
+                    if(zones.find(z => z.zone === "400") && zones.find(z => z.zone === "400").value == '95'){
+                        if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "4101") === '11'){
+                        }else if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(zones.find(z => z.zone === "400") === '96'){
-                        if(zones.find(z => z.zone === "4101") === '10'){
+                    }else if(zones.find(z => z.zone === "400") && zones.find(z => z.zone === "4101").value  == '96'){
+                        if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "4101") === '11'){
+                        }else if(zones.find(z => z.zone === "4101") && zones.find(z => z.zone === "4101").value == '11'){
                             erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
                         }
                     }
@@ -2515,100 +2527,100 @@
                 var erreur = '';
 
                 //Erreur sur le type de record
-                if(zones.find(z => z.zone === "5001") !== '00'){
-                    if(zones.find(z => z.zone === "5001") === '10'){
+                if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value  != '00'){
+                    if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '10'){
                         erreur +='Type de record => Zone obligatoire<br>';
-                    }else if(zones.find(z => z.zone === "5001") === '11'){
+                    }else if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '11'){
                         erreur += 'Type de record => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5001") === '20'){
+                    }else if(zones.find(z => z.zone === "5001") && zones.find(z => z.zone === "5001").value == '20'){
                         erreur += 'Type de record => Valeur non permise<br>';
                     }
                 }
 
                 //Erreur sur le num de mut
-                if(zones.find(z => z.zone === "5011") !== '00'){
-                    if(zones.find(z => z.zone === "5011") === '10'){
+                if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value != '00'){
+                    if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '10'){
                         erreur += 'N° de mutualité => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '11'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '11'){
                         erreur +='N° de mutualité => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '20'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '20'){
                         erreur +='N° de mutualité => Numéro inconnu ou codification erronée<br>';
-                    }else if(zones.find(z => z.zone === "5011") === '21'){
+                    }else if(zones.find(z => z.zone === "5011") && zones.find(z => z.zone === "5011").value == '21'){
                         erreur += 'N° de mutualité => N° de mutualité non retrouvé dans le détail de la facturation<br>';
                     }
                 }
 
                 //Erreur sur le num fact
-                if(zones.find(z => z.zone === "5021") !== '00'){
-                    if(zones.find(z => z.zone === "5021") === '10'){
+                if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value != '00'){
+                    if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value == '10'){
                         erreur +='N° de facture récapitulative => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5021") === '11'){
+                    }else if(zones.find(z => z.zone === "5021") && zones.find(z => z.zone === "5021").value == '11'){
                         erreur += 'N° de facture récapitulative => Erreur de format<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a ou montant demande a
-                if(zones.find(z => z.zone === "5041") !== '00'){
-                    if(zones.find(z => z.zone === "5041") === '11'){
+                if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value != '00'){
+                    if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '11'){
                         erreur += 'Montant demandé cpt a => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '40'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '40'){
                         erreur += 'Montant demandé cpt a => Erreur code signe (# de + ou -)<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '41'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '41'){
                         erreur +='Montant demandé cpt a => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "5041") === '20'){
+                    }else if(zones.find(z => z.zone === "5041") && zones.find(z => z.zone === "5041").value == '20'){
                         erreur += 'Montant demandé cpt a => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant b ou montant demande b
-                if(zones.find(z => z.zone === "5061") !== '00'){
-                    if(zones.find(z => z.zone === "5061") === '11'){
+                if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value != '00'){
+                    if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '11'){
                         erreur += 'Montant demandé cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '15'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '15'){
                         erreur +='Montant demandé cpt b => Zone # de 0 si l\'émetteur n\est pas une institution hospitalière - Zone signe # de «blanc» et émetteur de la facturation # d’une institution hospitalière<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '40'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '40'){
                         erreur +='Montant demandé cpt b => Erreur code signe (# de + ou -)';
-                    }else if(zones.find(z => z.zone === "5061") === '41'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '41'){
                         erreur +='Montant demandé cpt b => Discordance entre montant ci-mentionné et total du fichier facturation pour la mutualité<br>';
-                    }else if(zones.find(z => z.zone === "5061") === '20'){
+                    }else if(zones.find(z => z.zone === "5061") && zones.find(z => z.zone === "5061").value == '20'){
                         erreur +='Montant demandé cpt b => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le signe montant a + b ou montant demande a + b
-                if(zones.find(z => z.zone === "5081") !== '00'){
-                    if(zones.find(z => z.zone === "5081") === '11'){
+                if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value != '00'){
+                    if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '11'){
                         erreur +='Total montant demandés cpt a + cpt b => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5081") === '20'){
+                    }else if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '20'){
                         erreur +='Total montant demandé cpt a + cpt b => Montant # somme des montants cpt a et cpt b<br>';
-                    }else if(zones.find(z => z.zone === "5081") === '40'){
+                    }else if(zones.find(z => z.zone === "5081") && zones.find(z => z.zone === "5081").value == '40'){
                         erreur +='Total montant demandé cpt a + cpt b => Erreur code signe (# de + ou -)<br>';
                     }
                 }
 
                 //Erreur sur le nb d'enreg
-                if(zones.find(z => z.zone === "5091") !== '00'){
-                    if(zones.find(z => z.zone === "5091") === '10'){
+                if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value != '00'){
+                    if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '10'){
                         erreur += 'Nb de records détail => Zone obligatoire non complétée<br>';
-                    }else if(zones.find(z => z.zone === "5091") === '11'){
+                    }else if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '11'){
                         erreur +='Nb de records détail => Erreur de format<br>';
-                    }else if(zones.find(z => z.zone === "5091") === '20'){
+                    }else if(zones.find(z => z.zone === "5091") && zones.find(z => z.zone === "5091").value == '20'){
                         erreur += 'Nb de records détail => Somme erronée<br>';
                     }
                 }
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
-                if(zones.find(z => z.zone === "5101") !== '00'){
-                    if(zones.find(z => z.zone === "500" === '95')){
-                        if(zones.find(z => z.zone === "5101") === '10'){
+                if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value != '00'){
+                    if(zones.find(z => z.zone === "500") && zones.find(z => z.zone === "500").value === '95'){
+                        if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "5101") === '11'){
+                        }else if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(zones.find(z => z.zone === "500" === '96')){
-                        if(zones.find(z => z.zone === "5101") === '10'){
-                            erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
-                        }else if(zones.find(z => z.zone === "5101") === '11'){
+                    }else if(zones.find(z => z.zone === "500") && zones.find(z => z.zone === "500").value === '96'){
+                        if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '10'){
+                            erreur += 'N° de contrôle de l\'envoi => zone obligatoire non complétée<br>';
+                        }else if(zones.find(z => z.zone === "5101") && zones.find(z => z.zone === "5101").value == '11'){
                             erreur +='N° de contrôle de l\'envoi => Erreur de format<br>';
                         }
                     }
@@ -2640,8 +2652,8 @@
                             ssin: pat && pat.ssin,
                             invoiceDate: inv.invoiceDate,
                             invoicedAmount: inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            acceptedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
-                            refusedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
+                            acceptedAmount: (!(st & (1 << 17)) || !(st & (1 << 12))) ? 0.00 : inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
+                            refusedAmount: (!(st & (1 << 17)) || !(st & (1 << 12))) ? inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
                             rejectionReason: inv.error,
                             paid: false,
                             status: this.activeGridItem.messageInfo.invoiceStatus,
@@ -2650,8 +2662,8 @@
                                 invoicingCode: code && code.code,
                                 invoiceDate: code && code.dateCode,
                                 invoicedAmount: Number(code.reimbursement),
-                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : ((code && code.paid >= 0) ? code.paid : 0.00),
-                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid >= 0) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
+                                acceptedAmount:  (!(st & (1 << 17)) || !(st & (1 << 12))) ? 0.00 : ((code && code.paid >= 0) ? code.paid : 0.00),
+                                refusedAmount:  (!(st & (1 << 17)) || !(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid >= 0) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
                                 rejectionReason: code && code.error,
                                 paid: false,
                                 accepted: code && code.accepted,
@@ -2671,7 +2683,7 @@
                                     try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                 }
 
-                                const zone1and90 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "1" || z.zone === "90"))
+                                const zone1and90 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "1" || z.zone == "90"))
                                 let errorString = ''
                                 Object.keys(zone1and90 && zone1and90.errorDetail || {}).find(key => {
                                     if(key.includes('rejectionCode')) {
@@ -2686,15 +2698,17 @@
 
                                 this.set('invoicesErrorMsg',errorString);
 
-                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "200"))
-                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "300"))
-                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "400"))
-                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "500"))
+                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
 
-                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
+                                let globalError = _.compact(_.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
                                     zone400 && this.SEG_getErrSegment_400(zone400.zones || []),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])])
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])]))
+
+                                this.set('invoicesErrorMsg',this.invoicesErrorMsg+" "+globalError);
 
                             })
                         })
@@ -2740,7 +2754,7 @@
 
             receiveInvoices() {
                 const LastGet = parseInt(localStorage.getItem('lastInvoicesGet')) ? parseInt(localStorage.getItem('lastInvoicesGet')) : -1
-                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet===-1)
+                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet==-1)
                 if (mayGet) {
                     this.set('cannotGet',true)
                     localStorage.setItem('lastInvoicesGet', Date.now())
@@ -2828,41 +2842,41 @@
 
             _getIconStatusClass(status) {
                 console.log("geticonstatus",status)
-                return (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status === this.localize('inv_to_be_send','To be send',this.language)) ? (!this.statusToBeSend)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
-                    (status === this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "invoice-status--redStatus" :
-                    (status === this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
-                    (status === this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
-                    (status === this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
-                    (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status === this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
-                    (status === this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
-                    (status === this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
-                    (status === this.localize('nmcl-rejected','Rejected',this.language)) ? "invoice-status--redStatus" :
-                    (status === this.localize('nmcl-accepted','Accepted',this.language)) ? "invoice-status--greenStatus" :
+                return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_to_be_send','To be send',this.language)) ? (!this.statusToBeSend)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
+                    (status == this.localize('nmcl-rejected','Rejected',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('nmcl-accepted','Accepted',this.language)) ? "invoice-status--greenStatus" :
                     ""
             }
             _getTxtStatusColor(status,amount) {
                 console.log("gettxtstatus",status,amount)
                 if (amount > 0) {
-                    return (status === this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
-                    (status === this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
-                    (status === this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
-                    (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
-                    (status === this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
-                    (status === this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
-                    (status === this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
-                    (status === this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
-                    (status === this.localize('nmcl-rejected','Rejected',this.language)) ? "txtcolor--redStatus" :
-                    (status === this.localize('nmcl-accepted','Accepted',this.language)) ? "txtcolor--greenStatus" :
-                    (status === 'force-red') ? "txtcolor--redStatus" :
-                    (status === 'force-green') ? "txtcolor--greenStatus" :
+                    return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
+                    (status == this.localize('nmcl-rejected','Rejected',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('nmcl-accepted','Accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == 'force-red') ? "txtcolor--redStatus" :
+                    (status == 'force-green') ? "txtcolor--greenStatus" :
                     ""
                 }
             }
 
             _isEqual(a,b) {console.log('a',a);return (a == b)}
-            _isPartiallyAccepted(test) { return (test === this.localize('inv_par_acc','Partially accepted',this.language))}
+            _isPartiallyAccepted(test) { return (test == this.localize('inv_par_acc','Partially accepted',this.language))}
             _isMoreThen(a,b,so) {return (a>b)? so : 'false'}
 
             cleanStringForJsonParsing(inputValue) {

@@ -1004,7 +1004,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
                         <div slot="suffix">
                             <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter" disabled="[[!filterValue.length]]"></paper-icon-button>
-                            <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
+                            <paper-tooltip for="save-filter" position="left">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
                         </div>
                     </paper-input>
 
@@ -1030,13 +1030,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ht-spinner class="center" active="[[isLoadingPatient]]"></ht-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="clickOnRow">
+                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
+                        <template is="dom-if" if="[[onElectron]]">
+                            <vaadin-grid-column flex-grow="0" width="64px">
+                                <template class="header">
+                                    <div class="cell frozen"></div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">
+                                        <paper-icon-button id="new-window-[[item.id]]" icon="icons:open-in-new" on-tap="openPatientOnElectron" data-item$="[[item.id]]"></paper-icon-button>
+                                        <paper-tooltip for="new-window-[[item.id]]" position="right" style="white-space: nowrap;">[[localize('new_win','New window',language)]]</paper-tooltip>
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
+                        </template>
+                    </template>
+
+
                     <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
                         <template>
                             <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                                <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
+                                <div class="cell frozen patient-photo">
+                                    <img src$="[[picture(item)]]">
+                                </div>
                             </template>
                             <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                 <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientSelected(item, patientSelected.*)]]"
@@ -1088,7 +1107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell numeric">[[item.phone]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="14%">
+                    <vaadin-grid-column flex-grow="1">
                         <template class="header">
                             <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
                         </template>
@@ -1863,6 +1882,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     eidPatientsList : {
                         type : Array,
                         value : []
+                    },
+                    onElectron : {
+                        type : Boolean,
+                        value : false
                     }
                 }
             }
@@ -1886,6 +1909,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+
+                this.api.isElectronAvailable().then(electron => this.set('onElectron',electron))
 
                 this.medicalHouseContractShadowObject = {
                     hcpId: null,
@@ -3496,6 +3521,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     .then( p => this.api.register(p, 'patient'))
                                     .then(p => {
                                         this.set('selectedPatient', p)
+                                        return this.selectedPatient
+                                    })
+                                    .then(p => {
+                                        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                                            this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                                this.cleanNiss(p.ssin), p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
+
+                                        })
                                     })
                             } else {
                                 this.searchPatientsEid()
@@ -3556,9 +3590,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('selectedPatient', p)
                             this.set('isLoadingPatient', false)
                             this.$['eidOpenPatientMessage'].classList.remove('notification');
+                            return this.selectedPatient
+                        })
+                        .then(p =>{
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                                this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                    this.cleanNiss(p.ssin), p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
 
+                            })
                         })
                 }
+            }
+
+            openPatientOnElectron(e){
+                e.stopPropagation()
+                e.preventDefault();
+
+                if (this.shareOption || this.exportOption || this.fusionOption) return
+
+                // Must click on a row
+                if (e.path[0].nodeName === 'TABLE') return
+                console.log(e.target.dataset.item)
+                fetch('http://127.0.0.1:16042/getPatient', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        "patientId": e.target.dataset.item
+                    })
+                })
+                    .then((response) => {
+                        console.log(response.json())
+                    })
+            }
+
+            cleanNiss(niss){
+                return niss.replace(/ /g, "").replace(/-/g,"").replace(/\./g,"").replace(/_/g,"").replace(/\//g,"")
             }
         }
 

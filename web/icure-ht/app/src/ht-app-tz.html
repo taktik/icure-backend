@@ -738,28 +738,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-listbox id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
                                 <paper-button name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-button>
                                 <paper-button name="pat" on-tap="doRoute">
                                     <iron-icon icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-button>
                                 <paper-button name="hcp" on-tap="doRoute">
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-button>
                                 <paper-button name="msg" on-tap="doRoute">
                                     <iron-icon icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-button>
                                 <paper-button name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    [[localize('diary','Diary',language)]]
                                 </paper-button>
-                                <paper-button name="admin" on-tap="doRoute">
-                                    <iron-icon icon="vaadin:cog-o"></iron-icon>
-                                    [[localize('admin')]]
-                                </paper-button>
+                                <template is="dom-if" if="[[isAdmin]]">
+                                    <paper-button name="admin" on-tap="doRoute">
+                                        <iron-icon icon="vaadin:cog-o"></iron-icon>
+                                        [[localize('admin')]]
+                                    </paper-button>
+                                </template>
                             </paper-listbox>
                         </div>
                         </div>
@@ -767,28 +769,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
                             <paper-tab name="main" on-tap="doRoute">
                                 <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                [[localize('sum')]]
+                                [[localize('sum','Summary',language)]]
                             </paper-tab>
                             <paper-tab name="pat" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-                                [[localize('pat')]]
+                                [[localize('pat','Patients',language)]]
                             </paper-tab>
                             <paper-tab name="hcp" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-                                [[localize('hc_par')]]
+                                [[localize('hc_par','HC parties',language)]]
                             </paper-tab>
                             <paper-tab name="msg" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
-                                [[localize('msg')]]
+                                [[localize('msg','Message',language)]]
                             </paper-tab>
                             <paper-tab name="diary" on-tap="checkAndLoadMikrono">
                                 <iron-icon icon="vaadin:calendar"></iron-icon>
-                                [[localize('diary')]]
+                                [[localize('diary','Diary',language)]]
                             </paper-tab>
-                            <paper-tab name="admin" on-tap="doRoute">
-                                <iron-icon icon="vaadin:cog-o"></iron-icon>
-                                [[localize('admin')]]
-                            </paper-tab>
+                            <template is="dom-if" if="[[isAdmin]]">
+                                <paper-tab name="admin" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:cog-o"></iron-icon>
+                                    [[localize('admin')]]
+                                </paper-tab>
+                            </template>
                         </paper-tabs>
                         <div class="log-info">
                             <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
@@ -1338,7 +1342,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-item>
                                     <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
                                         <iron-icon icon="power-settings-new"></iron-icon>
-                                        [[localize('log_out')]]
+                                        [[localize('log_out','Log out',language)]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
@@ -1351,7 +1355,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" route="{{subroute}}" socket="[[socket]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
@@ -1673,7 +1677,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     socket: {
                         type : Object,
-                        value : {}
+                        value : null
                     }
                 }
             }
@@ -2116,6 +2120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
+                    this.user.roles && this.user.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN') ? this.set('isAdmin', true) : this.set('isAdmin', false)
                     this.set('connectionTime', +new Date())
 
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {

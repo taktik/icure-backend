@@ -40,6 +40,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="../../dynamic-form/validator/ht-iban-validator.html">
+
 
 <dom-module id="ht-admin-account-bank">
 
@@ -54,7 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 outline:0!important;
             }
 
-            .users-panel{
+            .bank-panel{
                 height: 100%;
                 width: 100%;
                 padding: 0 20px;
@@ -123,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            .user-panel .panel-content {
+            .bank-panel .panel-content {
                 padding: 0 12px;
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
@@ -157,20 +159,140 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color);
             }
 
-            .user-panel {
-                height:100%;
-                background: var(--app-background-color);
-                margin: 0;
-                width:100%;
-                grid-column: 2 / 4;
-                /*grid-template-columns: 40px 200px 200px 40px;*/
-                grid-row: 1 / 1;
+            :host {
+                width: 100%!important;
             }
+
+            .financialInstitutionInformationContainer {
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                align-content: space-between;
+                width: 100%;
+                /*min-height: 620px;*/
+            }
+
+            /*.financialInstitutionInformationContainer::after { content: ""; flex: auto; flex-basis: 30% }*/
+
+
+            .singleFinancialInstitutionInformationContainer {
+                position: relative;
+                flex-basis: 30%;
+                flex-grow: 1;
+                background-color: white;
+                border-radius: 8px;
+                margin: 12px;
+                min-height: 200px;
+                overflow: hidden;
+                box-shadow: var(--app-shadow-elevation-1);
+                padding-bottom: 8px;
+                min-height:360px;
+            }
+
+            .singleFinancialInstitutionInformationContainer .header {
+                display:flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
+                text-align:center;
+                background-color: var(--app-background-color-dark);
+                padding: 16px;
+                color: var(--app-text-color);
+                font-size: 14px;
+                font-weight: 400;
+                text-transform: capitalize;
+                position: relative;
+            }
+            .singleFinancialInstitutionInformationContainer .header .delete {
+                position: absolute;
+                top: 50%;
+                right: 4px;
+                transform: translate(0, -50%);
+            }
+            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button{
+                padding: 4px;
+                height: 32px;
+                width: 32px;
+                color: var(--app-text-color-disabled);
+                transition: color .12s cubic-bezier(.075,.82,.165,1);
+            }
+            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button:hover {
+                color:var(--app-text-color);
+            }
+
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                text-transform: capitalize;
+                font-size: 14px;
+                font-weight: 400;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .modal-button--save iron-icon{
+                opacity: 0.7;
+            }
+
+            paper-input{
+                margin: 0 16px;
+                --paper-input-container-focus-color: var(--app-primary-color);
+                font-size:var(--form-font-size);
+            }
+
+            iron-icon{
+                margin-right: 8px;
+            }
+
+            @media (max-width:940px) {
+                .singleFinancialInstitutionInformationContainer { flex-basis:44%; }
+                .modal-button--save{ margin-top:30% }
+            }
+
+            .textAlignCenter { text-align: center; }
+
+            .hidden, .fii_hidden { display:none }
 
         </style>
 
-        <div class="users-panel">
+        <ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
+
+        <div class="bank-panel">
             <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_bank_info', 'Bank informations', language)]]</h4>
+
+            <div class="financialInstitutionInformationContainer" id="financialInstitutionInformationContainer">
+
+                <template is="dom-repeat" items="{{hcp.financialInstitutionInformation}}">
+
+                    <div class$="singleFinancialInstitutionInformationContainer [[_getFiiCssDisplayClass(item, index)]]" id="fiiContainer_{{index}}">
+                        <div class="header"><iron-icon icon="icons:payment" class=""></iron-icon>Compte [[_plusOne(index)]]<div class="delete"><paper-icon-button icon="delete" on-tap="_deleteFii" id="fii_{{index}}_delete"></paper-icon-button></div></div>
+                        <paper-input step="{{index}}" label="[[localize('bank_account_label','Libellé compte bancaire',language)]]" value="{{item.name}}" id="fii_{{index}}_name"></paper-input>
+                        <paper-input step="{{index}}" label="[[localize('bank_account_iban','Compta bancaire / IBAN',language)]]" value="{{item.bankAccount}}" id="fii_{{index}}_bankAccount" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"></paper-input>
+                        <paper-input step="{{index}}" label="BIC" value="{{item.bic}}" id="fii_{{index}}_bic" readonly></paper-input>
+                        <paper-input step="{{index}}" label="[[localize('bank_account_iban','IBAN (tiers de confiance / non-requis)',language)]]" value="{{item.proxyBankAccount}}" id="fii_{{index}}_proxyBankAccount" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"></paper-input>
+                        <paper-input step="{{index}}" label="[[localize('bank_account_iban','BIC (tiers de confiance / non-requis)',language)]]" value="{{item.proxyBic}}" id="fii_{{index}}_proxyBic" readonly></paper-input>
+                    </div>
+
+                </template>
+
+                <template is="dom-if" if="{{allowNewFii}}">
+                    <div class="singleFinancialInstitutionInformationContainer textAlignCenter" id="newFiiContainer">
+                        <div class="header"><iron-icon icon="icons:payment" class=""></iron-icon>Nouveau compte ?</div>
+                        <paper-button on-tap="_addNewFinancialInformation" class="modal-button--save">
+                            <iron-icon icon="icons:add-circle-outline" class=""></iron-icon>
+                            [[localize('add_an_account','Ajouter un compte',language)]]
+                        </paper-button>
+                    </div>
+                </template>
+
+            </div>
+
         </div>
     </template>
 
@@ -193,12 +315,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
+                    },
+                    fiiCount: {
+                        type: Number,
+                        value: 0
+                    },
+                    fiiMaxCount: {
+                        type: Number,
+                        value: 7
+                    },
+                    allowNewFii: {
+                        type: Boolean,
+                        value: true
+                    },
+                    visibleContainersCount: {
+                        type: Number,
+                        value: 0
                     }
                 }
             }
 
             static get observers() {
-                return [];
+                return ['build(user, hcp)'];
             }
 
             constructor() {
@@ -207,6 +345,143 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            build() {
+
+                // Make sure we're here
+                if(!this.opened || !this.user || !this.hcp) return;
+
+                // Assign
+                this.fiiCount = ( typeof this.hcp.financialInstitutionInformation !== 'object' ) ? 0 : _.size(_.filter(this.hcp.financialInstitutionInformation, 'bankAccount')) || 0;
+
+                // Happen entries should we miss some
+                if( _.size(this.hcp.financialInstitutionInformation) < this.fiiMaxCount ) for (var i = this.fiiCount; i < this.fiiMaxCount; i++) this.hcp.financialInstitutionInformation.push({});
+
+                // Can we add new ones ?
+                this.allowNewFii = this.fiiCount < this.fiiMaxCount;
+
+            }
+
+
+
+            _plusOne(inputValue) { return parseInt( inputValue ) + 1; }
+            _getFiiCssDisplayClass( item, index ) { return (typeof item.bankAccount !== 'undefined' && typeof item.bic !== 'undefined' ) ? '' : ' fii_hidden ' ; }
+
+
+
+            // Resolve and assign BIC based on IBAN
+            _evalBic( event, fieldObject ) {
+
+                // Could be a click event / we wouldn't have any value here
+                if( typeof fieldObject.value === 'undefined' ) return;
+
+                // target & save
+                var ibanFieldObject = event.path[0];
+
+                // Which one ?
+                var fiiIndex = _.chain( ibanFieldObject.getAttribute('id') ).split('_').nth(1).value() || 1
+
+                // Which one ?
+                var fiiFieldType = _.chain( ibanFieldObject.getAttribute('id') ).split('_').nth(2).value() + '' === 'bankAccount' ? 'bic' : 'proxyBic';
+
+                // Get bic based on iban
+                var bicValue = this.api.getBicByIban( fieldObject.value || '' );
+
+                // Do affect
+                _.assign( { fiiFieldType: bicValue }, this.hcp.financialInstitutionInformation[fiiIndex] );
+                this.shadowRoot.querySelector( '#fii_' + fiiIndex + '_' + fiiFieldType ).value = bicValue;
+
+            }
+
+
+
+            getVisibleFiiCount() { return _.size(this.shadowRoot.querySelectorAll('.singleFinancialInstitutionInformationContainer:not(.fii_hidden):not(#newFiiContainer)') ) || 0; }
+
+
+
+            _addNewFinancialInformation() {
+
+                // Get visible boxes we have so far
+                this.visibleContainersCount = this.getVisibleFiiCount();
+
+                // Target the one we should show
+                let targetObjectToShow = this.shadowRoot.querySelector('#fiiContainer_' + this.visibleContainersCount );
+
+                // Display new box
+                if( targetObjectToShow ) targetObjectToShow.classList.remove('fii_hidden');
+
+                // Eval again after modification
+                this.visibleContainersCount = this.getVisibleFiiCount();
+
+                // Reached max ?
+                if( parseInt( this.visibleContainersCount ) === this.fiiMaxCount ) {
+
+                    // Hide "add new"
+                    this.shadowRoot.querySelector('#newFiiContainer').classList.add('hidden');
+
+                    // Don't
+                    this.allowNewFii = false;
+
+                }
+
+            }
+
+
+
+            _deleteFii( event, fieldObject ) {
+
+                let targetContainer = _.chain(event.path).filter((item)=>{ return /(?:.*)singleFinancialInstitutionInformationContainer(?:.*)/.exec(item.className) }).head().value();
+
+                // Which one ?
+                let fiiIndex = _.chain( targetContainer.getAttribute('id') ).split('_').nth(1).value() || 1;
+
+                // Do hide
+                if( targetContainer ) targetContainer.classList.add('fii_hidden');
+
+                // Drop values
+                this.hcp.financialInstitutionInformation[fiiIndex] = {};
+
+                // Target
+                let fieldsListToReset = this.shadowRoot.querySelectorAll( 'paper-input[id^="fii_' + fiiIndex + '_"' );
+
+                // Do reset
+                _.forEach(fieldsListToReset,(item)=>item.value='');
+
+                // Allow again
+                this.shadowRoot.querySelector('#newFiiContainer').classList.remove('hidden');
+
+                // Don't
+                this.allowNewFii = true;
+
+            }
+
+            _evalBic( event, fieldObject ) {
+
+                // Could be a click event / we wouldn't have any value here
+                if( typeof fieldObject.value === 'undefined' ) return;
+
+                // target & save
+                var ibanFieldObject = event.path[0];
+
+                // Target (100,200,300,400,500,600,900)
+                var oaValue = parseInt( ibanFieldObject.getAttribute('rel') );
+
+                // Get bic based on iban
+                var bicValue = this.api.getBicByIban( fieldObject.value || '' );
+
+                // Assign bic value back, should we have any
+                if( ( bicValue+'').length ) {
+
+                    if(oaValue==100) this.userBIC_100 = bicValue;
+                    if(oaValue==200) this.userBIC_200 = bicValue;
+                    if(oaValue==300) this.userBIC_300 = bicValue;
+                    if(oaValue==400) this.userBIC_400 = bicValue;
+                    if(oaValue==500) this.userBIC_500 = bicValue;
+                    if(oaValue==600) this.userBIC_600 = bicValue;
+                    if(oaValue==900) this.userBIC_900 = bicValue;
+
+                }
             }
 
         }

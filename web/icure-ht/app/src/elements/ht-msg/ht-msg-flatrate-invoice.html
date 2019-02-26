@@ -2942,38 +2942,151 @@
                     ib.magneticInvoice = true;
                     let invoices = []
                     //loop patients of OA
-                    let iNr = 1;
                     const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
                     const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
                     oaInvoicesData.map(idt => {
-                        const invoiceNr = ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
-                        invoices.push(this.getPatientInvoice(idt, invoiceNr, OA));
-                        iNr++;
+                        if(idt.invoicingCodes.length > 0) {
+                            invoices.push(this.getPatientInvoice(idt, OA));
+                        }
                     })
 
                     //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
                     ib.invoices = invoices; //1 per patient
 
                     //end loop patients of OA
-                    return this.api.fhc().Efactcontroller().makeFlatFileUsingPOST(ib).then(flatRes => {
+                    return this.api.fhc().Efactcontroller().makeFlatFileCoreUsingPOST(ib).then(flatRes => {
                         return {
                             io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id,
-                            file: flatRes,
-                            slip: "TODO",
+                            file: flatRes.flatFile,
+                            metadata: flatRes.metadata,
+                            slip: this.slipDataFromBatchAndFlatFile(ib, flatRes),
                             msg: "",
-                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )
-                        }
+                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) ),
+                            batch: ib
+                        };
                     }).catch(err => {
                         return {
                             io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id,
                             file: "",
+                            metadata: "",
                             slip: "",
                             msg: err,
-                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )
+                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) ),
+                            batch: ib
                         }
                     });
                 })).then(x=>x)
+            }
+
+            slipDataFromBatchAndFlatFile(batch, flatWithMetadata){
+               
+                //title
+                let title= this.localize('flatrate_slipfile_01',this.language) + "\n" +
+                    "------------------------------------------------\n" +
+                    this.localize('flatrate_slipfile_02',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_03',this.language) + "\n" +
+                    "---------------------------- :\n";
+                //MM info from this.flatRateInvoicingDataObject.hcpData
+                let mmInfo = this.localize('flatrate_slipfile_04',this.language) + "[mm.name]\n" +
+                    this.localize('flatrate_slipfile_05',this.language) + "[mm.address]\n" +
+                    this.localize('flatrate_slipfile_06',this.language) + "[mm.cpCity]\n" +
+                    this.localize('flatrate_slipfile_07',this.language) + "[mm.nihii]\n" +
+                    this.localize('flatrate_slipfile_08',this.language) + "[mm.cbe]\n" +
+                    this.localize('flatrate_slipfile_09',this.language) + "[mm.BIC]\n" +
+                    this.localize('flatrate_slipfile_10',this.language) + "[mm.IBAN]\n";
+                //OA info
+                const hcp = this.flatRateInvoicingDataObject.hcpData;
+                mmInfo = mmInfo.replace("[mm.name]", hcp.name).replace("[mm.address]", this.getStreetAddress(hcp.address)).replace("[mm.cpCity]", this.getCityAddress(hcp.address)).replace("[mm.nihii]", hcp.nihii).replace("[mm.cbe]", hcp.cbe).replace("[mm.BIC]", hcp.financialInfo.bic).replace("[mm.IBAN]", hcp.financialInfo.bankAccount);
+                let oaInfo = "---------------------------------------------------------------------------\n" +
+                    this.localize('flatrate_slipfile_11',this.language) + "\n" +
+                    "--------------------------------- : \n" +
+                    this.localize('flatrate_slipfile_04',this.language) + " [oa.name]\n" +
+                    this.localize('flatrate_slipfile_05',this.language) + " [oa.address]\n" +
+                    this.localize('flatrate_slipfile_06',this.language) + " [oa.pcCity]\n" +
+                    "---------------------------------------------------------------------------\n";
+                const OA = this.flatRateInvoicingDataObject.iosData.filter(io => io.code === batch.ioFederationCode)[0];
+                oaInfo = oaInfo.replace("[oa.name]", OA.name.nl).replace("[oa.address]", this.getStreetAddress(OA.address)).replace("[oa.pcCity]", this.getCityAddress(OA.address));
+                //File info
+                let fileInfo = this.localize('flatrate_slipfile_12',this.language) + "[batch.version]\n" +
+                    this.localize('flatrate_slipfile_13',this.language) + "[batch.nr]\n" +
+                    this.localize('flatrate_slipfile_14',this.language) + "[batch.fileName]\n" +
+                    this.localize('flatrate_slipfile_15',this.language) + "[batch.yearMonth]\n" +
+                    this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
+                    this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
+                //column headers
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                let columnHeaders = "---------------------------------------------------------------------------\n" +
+                    this.localize('flatrate_slipfile_18',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_19',this.language) + "\n" +
+                    "---------------------------------------------------------------------------\n";
+                //mut lines
+                let mutLines = "";
+                const mutTmpl = "   [mutCode:3]         [nRecords:4]               [checkSum:2]                       [amount:8]\n";
+
+                //const props = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap);
+                let OAs = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap).filter(p => !isNaN(parseFloat(p)) && isFinite(p));
+                let oaData = OAs.map(oa => {
+                    let nRecords = flatWithMetadata.metadata.recordsCountPerOAMap[oa][0];
+                    let checkSum = this.getCheckSum(flatWithMetadata.metadata.codesPerOAMap[oa]);
+                    let amount = flatWithMetadata.metadata.amountPerOAMap[oa][0];
+                    return {
+                        OA: oa,
+                        Records: nRecords,
+                        CheckSum: checkSum,
+                        Amount: amount,
+                        Line: mutTmpl.replace("[mutCode:3]",oa).replace("[nRecords:4]",nRecords.toString().padStart(4, " ")).replace("[amount:8]",(amount / 100).toString().padStart(8, " ")).replace("[checkSum:2]",checkSum)
+                    }
+                })
+
+                oaData.forEach(od =>
+                    {
+                        mutLines += od.Line;
+                    }
+                )
+
+                let totRecords = flatWithMetadata.metadata.recordsCount;
+                let totCheckSum = this.getCheckSum(flatWithMetadata.metadata.codes); //flatWithMetadata.metadata.recordsCount;
+                let totAmount = flatWithMetadata.metadata.amount;
+
+                //total line
+                let totalLine = "---------------------------------------------------------------------------\n" +
+                    this.localize('flatrate_slipfile_20',this.language) + "[nRecords:4]               [checkSum:2]                       [total:8]\n" +
+                    "---------------------------------------------------------------------------\n";
+
+                totalLine = totalLine.replace("[nRecords:4]",totRecords.toString().padStart(4, " ")).replace("[checkSum:2]",totCheckSum).replace("[total:8]",(totAmount / 100).toString().padStart(8, " "))
+                //footer
+                let footer = this.localize('flatrate_slipfile_21',this.language) + "\n" +
+                    "------------------------------------------          --------------------\n" +
+                    this.localize('flatrate_slipfile_22',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_23',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_24',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_25',this.language) + "";
+
+                return title + mmInfo + oaInfo + fileInfo + columnHeaders + mutLines + totalLine + footer;
+            }
+
+            getCheckSum(codes){
+                let sumCodes = 0;
+                codes.forEach(cd =>{
+                    sumCodes += Number(cd)
+                })
+                return (sumCodes % 97) === 0 ? "97" : (sumCodes % 97).toString().padStart(2, "0");
+            }
+
+            getStreetAddress(address){
+                let arr = [];
+                if(address.street) arr.push(address.street);
+                if(address.houseNumber) arr.push(address.houseNumber);
+                if(address.postboxNumber) arr.push(address.postboxNumber);
+                return arr.join(' ')
+            }
+
+            getCityAddress(address){
+                let arr = [];
+                if(address.postalCode) arr.push(address.postalCode);
+                if(address.city) arr.push(address.city);
+                return arr.join(' ')
             }
 
             cleanNumericalString(str){
@@ -2988,7 +3101,7 @@
                 return exportedDate.substr(3,3) + OA;
             }
 
-            getPatientInvoice(patientData, iNr, OA){
+            getPatientInvoice(patientData, OA){
                 let inv = new fhcmodels.Invoice('');
                 inv.patient = {}
                 inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
@@ -2999,10 +3112,10 @@
                 ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
                 ins.parameters = {tc1 : patIns.parameters.tc1 , tc2 : patIns.parameters.tc2};
                 inv.patient.insurabilities.push(ins);
-                inv.invoiceNumber = Number(iNr);
-                patientData.invoiceNumber = iNr;
+                inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
+                patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = OA;
+                inv.ioCode = ins.insuranceCode;
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
@@ -3012,7 +3125,7 @@
                         itm.codeNomenclature = invCd.code;
                         itm.dateCode = invCd.dateCode;
                         itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
-                        itm.reimbursedAmount = invCd.reimbursement;
+                        itm.reimbursedAmount = invCd.reimbursement * 100;
                         inv.items.push(itm);
                     })
                 });

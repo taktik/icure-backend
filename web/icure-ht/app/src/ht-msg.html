@@ -379,7 +379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _newMsg() {
-                this.$['new-msg'].open()
+                if (this.ehealthSession) this.$['new-msg'].open()
             }
 
             _fwMsg(e) {
