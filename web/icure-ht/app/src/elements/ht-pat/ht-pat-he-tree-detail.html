@@ -213,6 +213,14 @@
                 color: black;
             }
 
+            .icon-code {
+                margin-top: -4px;
+                margin-right: 4px;
+                width: 14px;
+                height: 14px;
+                color: var(--app-primary-color-dark);
+            }
+
             .iron-selected .colour-code{
                 color: var(--app-light-color);
             }
@@ -250,7 +258,15 @@
         <collapse-button>
             <paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" aria-selected="[[selected]]" class$="menu-trigger menu-item [[isIronSelected(selected)]]" on-tap="select">
                 <div class="one-line-menu">
-                    <template is="dom-if" if="[[he.colour]]">
+                    <template is="dom-if" if="[[_hasIcon(he)]]">
+                        <template is="dom-if" if="[[he.colour]]">
+                            <iron-icon class$="icon-code [[he.colour]]" icon="[[_getIcon(he)]]"></iron-icon>
+                        </template>
+                        <template is="dom-if" if="[[!he.colour]]">
+                            <iron-icon class="icon-code" icon="[[_getIcon(he)]]"></iron-icon>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[_hasColor(he)]]">
                         <label class$="colour-code [[he.colour]]"><span></span></label>
                     </template>
                     [[getIcpc(he)]] <i>[[_shortDateFormat(he.openingDate, he.valueDate)]]</i>: [[he.descr]]
@@ -315,6 +331,16 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             selected: {
                 type: Boolean
+            },
+            iconsMapping: {
+                type: Object,
+                value: () => ({
+                    allergy: "image:filter-vintage",
+                    adr: "vaadin:pill",
+                    risk: "vaadin:exclamation-circle",
+                    socialrisk: "vaadin:group",
+                    professionalrisk: "icons:work"
+                })
             }
         };
     }
@@ -428,6 +454,20 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: 'unselect' }, { action: 'select', items: [this.getHeId(this.he)] }] } }));
         }
     }
+
+    _getIcon() {
+        return this.iconsMapping[(this.he.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION')) || {}).code || '']
+    }
+
+    _hasIcon() {
+        return !!this._getIcon()
+    }
+
+    _hasColor() {
+        return !!(!this._getIcon() && this.he.colour)
+    }
+
+
 }
 customElements.define(HtPatHeTreeDetail.is, HtPatHeTreeDetail);
 </script>

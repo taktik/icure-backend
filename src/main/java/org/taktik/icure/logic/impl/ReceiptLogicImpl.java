@@ -5,13 +5,10 @@ import org.apache.commons.io.IOUtils;
 import org.ektorp.AttachmentInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.taktik.icure.dao.EntityReferenceDAO;
 import org.taktik.icure.dao.ReceiptDAO;
-import org.taktik.icure.entities.EntityReference;
 import org.taktik.icure.entities.Receipt;
 import org.taktik.icure.entities.embed.ReceiptBlobType;
 import org.taktik.icure.logic.ReceiptLogic;
-import org.taktik.icure.logic.impl.GenericLogicImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +26,7 @@ public class ReceiptLogicImpl extends GenericLogicImpl<Receipt, ReceiptDAO> impl
 
 	@Override
 	public byte[] getAttachment(String receiptId, String attachmentId) throws IOException {
-		return IOUtils.toByteArray(receiptDAO.getAttachmentInputStream(receiptId, attachmentId));
+		return IOUtils.toByteArray(receiptDAO.getAttachmentInputStream(receiptId, attachmentId, null));
 	}
 
 	@Override

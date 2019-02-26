@@ -857,20 +857,9 @@
 
 			ready() {
 				super.ready()
-                // this.set("newMessage.destinations", [])
 			}
 
             open(params) {
-                // const template= {
-                //     destinations: [],
-                //     patientInss: [],
-                //     annex:[],
-                //     document: {
-                //         title: '',
-                //         textContent: ''
-                //     },
-                //     type: 'fwd' || 'replyto'
-                // }
                 this.clearField();
                 let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
                 vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
@@ -883,19 +872,25 @@
                 this.set('newMessage.useReadReceipt',false)
                 this.set('newMessage.usePublicationReceipt',false)
                 if (params) {
-                    console.log('has params',params)
-                    this.set("newMessage.annex", params.annex ? params.annex : [])
-                    this.set("newMessage.customMetas", params.customMetas)
+                    this.set("newMessage.annex", params.annex || [])
+                    this.set("newMessage.customMetas", params.customMetas || {})
                     // this.set("newMessage.delegations", params.delegations)
                     // params.destinations.forEach(d=>delete d.delegations)
-                    this.set('newMessage.destinations',params.destinations)
-                    this.set('newMessage.document.title', params.document.title)
-                    this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
+                    this.set('newMessage.destinations',params.destinations || [])
+                    this.set('newMessage.document.title', params.document.title || '')
+                    // this.set('newMessage.document.textContent',
+                    //     params.type === 'fwd' ? `\r\n\r\n====${this.localize(params.type,'',this.language)} ====\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
+                    //     : params.type === 'replyto' ? `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
+                    //     : ''
+                    // ) TODO : get msg txt
                     // this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
-                    console.log('open with params : ',this.newMessage)
-                    this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
-                    this.set('hideSendBtn',false)
+                    this.set('isForwardOrReply',
+                        params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})`
+                        : params.type === 'replyto' ? `(${this.localize('answer','Answer',this.language)})`
+                        : ''
+                    )
+                    if (this.newMessage.destinations.length) this.set('hideSendBtn',false)
                 }
                 this.$['new-msg'].open()
             }
