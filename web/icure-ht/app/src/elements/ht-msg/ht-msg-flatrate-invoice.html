@@ -2922,58 +2922,49 @@
             }
 
             slipDataFromBatchAndFlatFile(batch, flatWithMetadata){
-                let slip = {
-                    mm: {name:"", address:"", pcCity: "", nihii: "", cbe: "", BIC:"", IBAN:"", contactPerson:""},
-                    io: {name:"", address:"", pcCity:""},
-                    batch: {version:"", nr:"", fileName:"", yearMonth:"", creationDate: ""},
-                    invoiceSummaries: [],
-                    invoiceTotal: {nRecords:0, checkSum:0, amount:0}
-                };
-                //file checksum is .....CSxx
-                let invoiceSummary = {mutCode:"", nRecords:0, checkSum:0, amount:0};
-
+               
                 //title
-                let title="VERZENDINGSBORDEREL VOOR MAGNETISCHE DRAGERS\n" +
+                let title= this.localize('flatrate_slipfile_01',this.language) + "\n" +
                     "------------------------------------------------\n" +
-                    "Factureringsvorm ; 1)  1 bestand - 1 financiële rekening\n" +
-                    "Identificatie inrichting :\n" +
+                    this.localize('flatrate_slipfile_02',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_03',this.language) + "\n" +
                     "---------------------------- :\n";
                 //MM info from this.flatRateInvoicingDataObject.hcpData
-                let mmInfo = "Benaming               : [mm.name]\n" +
-                    "Adres                  : [mm.address]\n" +
-                    "Postnr. - gemeente     : [mm.cpCity]\n" +
-                    "Erkenningsnummer       : [mm.nihii]\n" +
-                    "KBO nummer             : [mm.cbe]\n" +
-                    "BIC.                   : [mm.BIC]\n" +
-                    "IBAN.                  : [mm.IBAN]\n";
+                let mmInfo = this.localize('flatrate_slipfile_04',this.language) + "[mm.name]\n" +
+                    this.localize('flatrate_slipfile_05',this.language) + "[mm.address]\n" +
+                    this.localize('flatrate_slipfile_06',this.language) + "[mm.cpCity]\n" +
+                    this.localize('flatrate_slipfile_07',this.language) + "[mm.nihii]\n" +
+                    this.localize('flatrate_slipfile_08',this.language) + "[mm.cbe]\n" +
+                    this.localize('flatrate_slipfile_09',this.language) + "[mm.BIC]\n" +
+                    this.localize('flatrate_slipfile_10',this.language) + "[mm.IBAN]\n";
                 //OA info
                 const hcp = this.flatRateInvoicingDataObject.hcpData;
                 mmInfo = mmInfo.replace("[mm.name]", hcp.name).replace("[mm.address]", this.getStreetAddress(hcp.address)).replace("[mm.cpCity]", this.getCityAddress(hcp.address)).replace("[mm.nihii]", hcp.nihii).replace("[mm.cbe]", hcp.cbe).replace("[mm.BIC]", hcp.financialInfo.bic).replace("[mm.IBAN]", hcp.financialInfo.bankAccount);
                 let oaInfo = "---------------------------------------------------------------------------\n" +
-                    "Identificatie verzekeringsinstelling : \n" +
+                    this.localize('flatrate_slipfile_11',this.language) + "\n" +
                     "--------------------------------- : \n" +
-                    "Benaming              :  [oa.name]\n" +
-                    "Adres                 :  [oa.address]\n" +
-                    "Postnummer - gemeente :  [oa.pcCity]\n" +
+                    this.localize('flatrate_slipfile_04',this.language) + " [oa.name]\n" +
+                    this.localize('flatrate_slipfile_05',this.language) + " [oa.address]\n" +
+                    this.localize('flatrate_slipfile_06',this.language) + " [oa.pcCity]\n" +
                     "---------------------------------------------------------------------------\n";
                 const OA = this.flatRateInvoicingDataObject.iosData.filter(io => io.code === batch.ioFederationCode)[0];
                 oaInfo = oaInfo.replace("[oa.name]", OA.name.nl).replace("[oa.address]", this.getStreetAddress(OA.address)).replace("[oa.pcCity]", this.getCityAddress(OA.address));
                 //File info
-                let fileInfo = "Versie bestand  (zone 4)                  : [batch.version]\n" +
-                    "Zendingsnummer (zone 7)                   : [batch.nr]\n" +
-                    "Identificatie magnetische dragers         : [batch.fileName]\n" +
-                    "Gefactureerd jaar en maand ( zones 22-23) : [batch.yearMonth]\n" +
-                    "Datum van opstelling (zone 25-26)         : [batch.creationDate]\n" +
-                    "Verantwoordelijke                         : [mm.contactPerson]\n";
+                let fileInfo = this.localize('flatrate_slipfile_12',this.language) + "[batch.version]\n" +
+                    this.localize('flatrate_slipfile_13',this.language) + "[batch.nr]\n" +
+                    this.localize('flatrate_slipfile_14',this.language) + "[batch.fileName]\n" +
+                    this.localize('flatrate_slipfile_15',this.language) + "[batch.yearMonth]\n" +
+                    this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
+                    this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
                 fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
-                    "Nr.zieken-     Aantal         Controlecijfer   Bedragen ten laste V.I.    \n" +
-                    "fonds          records        per ziekenfonds          Totaal             \n" +
+                    this.localize('flatrate_slipfile_18',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_19',this.language) + "\n" +
                     "---------------------------------------------------------------------------\n";
                 //mut lines
                 let mutLines = "";
-                const mutTmpl = "        [mutCode:3]         [nRecords:4]               [checkSum:2]                       [amount:8]\n";
+                const mutTmpl = "   [mutCode:3]         [nRecords:4]               [checkSum:2]                       [amount:8]\n";
 
                 //const props = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap);
                 let OAs = Object.getOwnPropertyNames(flatWithMetadata.metadata.codesPerOAMap).filter(p => !isNaN(parseFloat(p)) && isFinite(p));
@@ -3002,17 +2993,17 @@
 
                 //total line
                 let totalLine = "---------------------------------------------------------------------------\n" +
-                    "     Totaux         [nRecords:4]               [checkSum:2]                       [total:8]\n" +
+                    this.localize('flatrate_slipfile_20',this.language) + "[nRecords:4]               [checkSum:2]                       [total:8]\n" +
                     "---------------------------------------------------------------------------\n";
 
                 totalLine = totalLine.replace("[nRecords:4]",totRecords.toString().padStart(4, " ")).replace("[checkSum:2]",totCheckSum).replace("[total:8]",(totAmount / 100).toString().padStart(8, " "))
                 //footer
-                let footer = "Voorbehouden aan de verzekeringsinstelling :        Visa instelling    :\n" +
+                let footer = this.localize('flatrate_slipfile_21',this.language) + "\n" +
                     "------------------------------------------          --------------------\n" +
-                    "Ontvangsdatum :...........................          Datum :.............\n" +
-                    "Naam :....................................          Naam  :.............\n" +
-                    "Funktie  :................................          ....................\n" +
-                    "Handtekening :.........................             Handtekening :......";
+                    this.localize('flatrate_slipfile_22',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_23',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_24',this.language) + "\n" +
+                    this.localize('flatrate_slipfile_25',this.language) + "";
 
                 return title + mmInfo + oaInfo + fileInfo + columnHeaders + mutLines + totalLine + footer;
             }
