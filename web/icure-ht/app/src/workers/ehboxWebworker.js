@@ -98,7 +98,7 @@ onmessage = e => {
                             modified: new Date().getTime(),
                             author: user.id,
                             responsible: user.healthcarePartyId,
-                            openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                            openingDate: moment(docInfo.demandDate).format('YYYYMMDDHHmmss') || '',
                             closingDate: moment().format('YYYYMMDDHHmmss') || '',
                             encounterType: {
                                 type: docInfo.codes.type,
