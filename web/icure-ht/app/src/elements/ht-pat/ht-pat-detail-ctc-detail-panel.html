@@ -1231,10 +1231,23 @@
 				const vaadinUpload = this.$['vaadin-upload'];
 
 				Promise.all(files.filter(f => !f.attached).map(f => {
-					f.attached = true;
-					return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
+                    f.attached = true;
+                    console.log(f)
+                    return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type, f.name && f.name.replace(/.+\.(.+)/, '$1')), name: f.name })
+                    .then(d => this.api.document().createDocument(d))
+
+                    .then(createdDocument => {
+                        return this.api.crypto()
+                            .extractKeysFromDelegationsForHcpHierarchy(
+                                this.user.healthcarePartyId,
+                                createdDocument.id,
+                                _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                            )
+                            .then(({extractedKeys: enckeys}) => [createdDocument,enckeys])
+                    })
+                    .then(([d,enckeys]) => {
 						f.doc = d;
-						f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
+						f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id) + "?ts=" + new Date().getTime() + (enckeys ? "&enckeys=" + enckeys : "");
 						return f;
 					});
 				})).then(files => {
