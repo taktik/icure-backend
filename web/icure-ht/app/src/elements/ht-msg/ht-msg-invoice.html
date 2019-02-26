@@ -480,7 +480,7 @@
 
                 vaadin-grid.subGrid {
                     overflow-y: auto;
-                    max-height: 20vh;
+                    max-height: 35vh;
                 }
 
                 #invoiceGrid .footer{
@@ -620,6 +620,13 @@
 
                 .edit-invoice {
                     cursor: pointer;
+                }
+
+                @media screen and (max-height: 500px) {
+                    vaadin-grid.subGrid {
+                        overflow-y: auto;
+                        max-height: 20vh;
+                    }
                 }
 
                 @media screen and (max-width: 1024px) {
