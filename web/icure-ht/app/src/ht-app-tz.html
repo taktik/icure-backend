@@ -752,10 +752,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
                                     [[localize('diary')]]
                                 </paper-button>
-                                <paper-button name="admin" on-tap="doRoute">
-                                    <iron-icon icon="vaadin:cog-o"></iron-icon>
-                                    [[localize('admin')]]
-                                </paper-button>
+                                <template is="dom-if" if="[[isAdmin]]">
+                                    <paper-button name="admin" on-tap="doRoute">
+                                        <iron-icon icon="vaadin:cog-o"></iron-icon>
+                                        [[localize('admin')]]
+                                    </paper-button>
+                                </template>
                             </paper-listbox>
                         </div>
                         </div>
@@ -781,10 +783,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon icon="vaadin:calendar"></iron-icon>
                                 [[localize('diary')]]
                             </paper-tab>
-                            <paper-tab name="admin" on-tap="doRoute">
-                                <iron-icon icon="vaadin:cog-o"></iron-icon>
-                                [[localize('admin')]]
-                            </paper-tab>
+                            <template is="dom-if" if="[[isAdmin]]">
+                                <paper-tab name="admin" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:cog-o"></iron-icon>
+                                    [[localize('admin')]]
+                                </paper-tab>
+                            </template>
                         </paper-tabs>
                         <div class="log-info">
                             <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
@@ -1659,6 +1663,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     backendVersionOk : {
                         type : Boolean,
                         value : true
+                    },
+                    isAdmin: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -2079,6 +2087,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
+                    this.user.roles && this.user.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN') ? this.set('isAdmin', true) : this.set('isAdmin', false)
                     this.set('connectionTime', +new Date())
 
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {

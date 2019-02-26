@@ -1839,6 +1839,7 @@
 
                                 return this.api.document().findByMessage(this.user.healthcarePartyId, msg)
                                     .then(docs => {
+                                        console.log(docs)
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 

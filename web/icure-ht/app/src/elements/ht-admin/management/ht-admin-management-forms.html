@@ -242,12 +242,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-input label="Id" value="{{selectedFormData.id}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="Group form name" value="{{selectedFormData.group.name}}" readOnly></paper-input>
-                            <paper-input label="Form name" value="{{selectedFormData.name}}" readOnly></paper-input>
+                            <paper-input label="[[localize('formGroupName','Group name',language)]]" value="{{selectedFormData.group.name}}" readOnly></paper-input>
+                            <paper-input label="[[localize('formName','Form name',language)]]" value="{{selectedFormData.name}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="Speciality code" value="{{selectedFormData.specialty.code}}" readOnly></paper-input>
-                            <paper-input label="Status" value="{{selectedFormData.disabled}}" readOnly></paper-input>
+                            <paper-input label="[[localize('specialityFormName','Speciality',language)]]" value="{{selectedFormData.specialty.code}}" readOnly></paper-input>
+                            <paper-input label="[[localize('status','Status',language)]]" value="{{selectedFormData.disabled}}" readOnly></paper-input>
                         </div>
                     </page>
                     <page>
