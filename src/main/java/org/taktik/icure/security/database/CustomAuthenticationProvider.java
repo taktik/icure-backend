@@ -112,7 +112,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			String gId = userOnFallbackDb.getGroupId();
 
 			if (gId != null || authenticationProperties.getLocal()) {
-				Group g = groupLogic.findGroup(groupId);
+				Group g = gId == null ? null : groupLogic.findGroup(gId);
 				User candidate = userLogic.findUserOnUserDb(userId, gId, g != null ? g.dbInstanceUrl() : null);
 				if (candidate != null && (this.isPasswordValid(candidate, auth.getCredentials().toString()))) {
 					if (groupId == null && gId != null) {

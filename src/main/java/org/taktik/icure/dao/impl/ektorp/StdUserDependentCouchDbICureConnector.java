@@ -66,7 +66,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
                                     .socketTimeout(couchDbProperties.getSocketTimeout())
                                     .username(couchDbProperties.getUsername())
                                     .password(couchDbProperties.getPassword())
-                                    .url(couchDbProperties.getUrl())
+                                    .url(key[0])
                                     .build()));
                         }
                     }
