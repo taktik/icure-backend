@@ -1346,6 +1346,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transition: .4s cubic-bezier(0,.07,.45,.99);
             }
 
+            div.planned {
+                display: flex;
+            }
+
+            img.button_list_vaccine_history {
+                line-height: 1;
+                width: 40px;
+                height: 40px;
+                padding: 8px;
+                box-sizing: border-box;
+                cursor: pointer;
+            }
+
         </style>
 
         <div class="container">
@@ -1376,12 +1389,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template is="dom-if" if="[[leftMenuOpen]]">
                 <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
             </template>
+            <paper-tooltip for="pat-close" position="right">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
             <div class="first-panel">
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
                         <paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
                             <paper-fab id="pat-close" class="btn-pat-close" mini icon="close" on-tap="close"></paper-fab>
-                            <paper-tooltip for="pat-close" position="left">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
@@ -1575,10 +1588,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
                             <span class="contact-year" on-click="openToast">
                                 <div>[[localize('to_do','To Do',language)]]</div>
-                                <div>
+                                <div class="planned">
                                     <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
                                     <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                    <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
+                                    <!--<paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>-->
+                                    <img id="button_list_vaccine_history" class="button_list_vaccine_history" src="./svg/syringe.svg" alt="vaccine-history" on-tap="showVaccineHistory">
                                     <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
                                 </div>
                             </span>
@@ -2356,6 +2370,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     leftMenuOpen:{
                         type: Boolean,
                         value: false
+                    },
+                    socket : {
+                        type : Object,
+                        value: {}
                     }
                 };
             }
@@ -3080,7 +3098,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             filterEvents() {
                 const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
                 this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
-                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                /*const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
                 if(age>=25 && age<=65 && this.patient.gender==="female" &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
                     this.createEvent("BE-THESAURUS-PROCEDURES|X37.002|3.1.0");
@@ -3092,7 +3110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(age>=50 && age<=74 &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
                     this.createEvent("BE-THESAURUS-PROCEDURES|D36.002|3.1.0")
-                }
+                }*/
             }
 
             _lateEventCssClass(e) {
@@ -3633,16 +3651,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(!this.hubSupportsConsent){
                     this.$.hubStatus.classList.add('accessOk');
                 } else {
-                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
-                    this._getHubHcpConsent().then(consentResp => {
-                            if (consentResp) {
-                                this.set('hcpHubConsent', consentResp)
-                                hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
-                                this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-                                Polymer.updateStyles(this.$.hubStatus)
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error)).then(() => {
+                        this._getHubHcpConsent().then(consentResp => {
+                                if (consentResp) {
+                                    this.set('hcpHubConsent', consentResp)
+                                    hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
+                                    this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
+                                    Polymer.updateStyles(this.$.hubStatus)
+                                }
                             }
-                        }
-                    )
+                        )
+                    })
                 }
             }
 
@@ -4036,7 +4055,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             shortServiceDescription(svc, lng) {
                 let rawDesc
-                console.log(svc)
                 if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
                     rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
                 }else {
@@ -4500,7 +4518,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             postitChanged(value) {
-                if(value && value.length) {
+                const trimmedValue = value && value.trim()
+                if(trimmedValue && trimmedValue.length) {
                     this.$["postit-notification"].classList.add('show-postit')
                 }else {
                     this.closePostit()
@@ -4585,6 +4604,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set("cardData",e.detail.cardData)
             }
 
+            setSocket(){
+                if(!this.socket)return;
+                this.socket.on("auto-read-card-eid",cards =>{
+                    const res = JSON.parse(cards)
+                    if (res.cards[0] && this.patient.ssin===res.cards[0].nationalNumber) {
+                        this.set('cardData',res.cards[0])
+                        this.set("eidCardNumber",this.cardData.logicalNumber)
+                        if(!this.haveTherLinks){
+                            this._registerNationalAndHubTherLink();
+                        }
+                    }
+                })
+            }
         }
 
         customElements.define(HtPatDetail.is, HtPatDetail);

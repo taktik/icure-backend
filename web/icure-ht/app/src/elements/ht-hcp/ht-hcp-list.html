@@ -1014,7 +1014,7 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const mark = this.hcpSelected.find(m => m.id === targetId)
             if (!mark) {
                 this.api.hcparty().getHealthcareParty(targetId).then(hcp =>{
-                    this.push('hcpSelected', {id: targetId, check: true, hcp:hcp})
+                    this.push('hcpSelected', {id: targetId, check: true, hcp:this.api.register(hcp, 'hcp')})
                     this.set('nbHcpSelected', this.hcpSelected.filter(hcp => hcp.check).length)
                 })
 				} else {
