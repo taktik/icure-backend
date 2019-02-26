@@ -925,7 +925,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _messagesChanged(messages,page) {
                 console.log('_messagesChanged')
                 const grid = this.shadowRoot.getElementById('mail-list')
-                if (grid) {
+                if (grid && messages && page) {
                     this.set('gridSize',grid.size)
                     if (this.selectList.selection.item !== 'sentbox') {
                         this.set('unreadCount',messages.filter(m=>this.isUnread(m)).length)
@@ -1304,7 +1304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _itemSelected(e) {
                 if (e.path[0].checked) {
                     const checkedMsg = JSON.parse(e.target.dataset.item)
-                    if (this.checkedMessages.length != this.gridSize) this.push('checkedMessages', checkedMsg)
+                    if (!this.allSelected) this.push('checkedMessages', checkedMsg)
                 } else {
                     this.splice('checkedMessages', this.checkedMessages.indexOf(e.target.dataset.item))
                     this.set('allSelected',false)
@@ -1315,7 +1315,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _toggleSelectAll() {
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 this.set('allSelected',this.allSelected != null ? !this.allSelected : true)
-                this.set('checkedMessages',this.allSelected ? this.messages.slice(this.pageStart, this.pageEnd) : [])
+                this.set('checkedMessages',this.allSelected ? mailList.items : [])
                 let allCheckboxes = mailList? mailList.querySelectorAll('.checkbox') : []
                 const selectedState = this.allSelected
                 allCheckboxes.forEach(box=>{
