@@ -2884,14 +2884,13 @@
                     ib.magneticInvoice = true;
                     let invoices = []
                     //loop patients of OA
-                    let iNr = 1;
                     const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
                     const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
                     oaInvoicesData.map(idt => {
-                        //const invoiceNr = idt.invoiceReference;//ib.uniqueSendNumber + OA + String(iNr).padStart(4, '0');
-                        invoices.push(this.getPatientInvoice(idt, OA));
-                        iNr++;
+                        if(idt.invoicingCodes.length > 0) {
+                            invoices.push(this.getPatientInvoice(idt, OA));
+                        }
                     })
 
                     //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
@@ -2905,7 +2904,8 @@
                             metadata: flatRes.metadata,
                             slip: this.slipDataFromBatchAndFlatFile(ib, flatRes),
                             msg: "",
-                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )
+                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) ),
+                            batch: ib
                         };
                     }).catch(err => {
                         return {
@@ -2914,7 +2914,9 @@
                             metadata: "",
                             slip: "",
                             msg: err,
-                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) )}
+                            oaInvoiceIds: _.compact( _.map(oaInvoicesData, oaInv => _.trim( _.get( oaInv, "invoices[0].id", "" ) ) ) ),
+                            batch: ib
+                        }
                     });
                 })).then(x=>x)
             }
@@ -2984,7 +2986,7 @@
                         Records: nRecords,
                         CheckSum: checkSum,
                         Amount: amount,
-                        Line: mutTmpl.replace("[mutCode:3]",oa).replace("[nRecords:4]",nRecords).replace("[amount:8]", amount).replace("[checkSum:2]",checkSum)
+                        Line: mutTmpl.replace("[mutCode:3]",oa).replace("[nRecords:4]",nRecords.toString().padStart(4, " ")).replace("[amount:8]",(amount / 100).toString().padStart(8, " ")).replace("[checkSum:2]",checkSum)
                     }
                 })
 
@@ -3003,7 +3005,7 @@
                     "     Totaux         [nRecords:4]               [checkSum:2]                       [total:8]\n" +
                     "---------------------------------------------------------------------------\n";
 
-                totalLine = totalLine.replace("[nRecords:4]",totRecords).replace("[checkSum:2]",totCheckSum).replace("[total:8]",totAmount)
+                totalLine = totalLine.replace("[nRecords:4]",totRecords.toString().padStart(4, " ")).replace("[checkSum:2]",totCheckSum).replace("[total:8]",(totAmount / 100).toString().padStart(8, " "))
                 //footer
                 let footer = "Voorbehouden aan de verzekeringsinstelling :        Visa instelling    :\n" +
                     "------------------------------------------          --------------------\n" +
@@ -3074,7 +3076,7 @@
                         itm.codeNomenclature = invCd.code;
                         itm.dateCode = invCd.dateCode;
                         itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
-                        itm.reimbursedAmount = invCd.reimbursement;
+                        itm.reimbursedAmount = invCd.reimbursement * 100;
                         inv.items.push(itm);
                     })
                 });
