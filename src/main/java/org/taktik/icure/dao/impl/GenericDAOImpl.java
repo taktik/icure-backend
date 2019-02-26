@@ -113,8 +113,8 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public AttachmentInputStream getAttachmentInputStream(String documentId, String attachmentId) {
-		return db.getAttachment(documentId, attachmentId);
+	public AttachmentInputStream getAttachmentInputStream(String documentId, String attachmentId, String rev) {
+		return rev != null ? db.getAttachment(documentId, attachmentId, rev):db.getAttachment(documentId, attachmentId);
 	}
 
 	@Override
@@ -145,6 +145,33 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		}
 		return null;
 	}
+
+	public T get(String id, String rev) {
+		try {
+			T result = super.get(id, rev);
+
+			postLoad(result);
+
+			return result;
+		} catch (DocumentNotFoundException e) {
+			log.warn("Document not found",e);
+		}
+		return null;
+	}
+
+	public T get(String id) {
+		try {
+			T result = super.get(id);
+
+			postLoad(result);
+
+			return result;
+		} catch (DocumentNotFoundException e) {
+			log.warn("Document not found",e);
+		}
+		return null;
+	}
+
 
 	public T find(String id, Option... options) {
 		if (log.isDebugEnabled()) {

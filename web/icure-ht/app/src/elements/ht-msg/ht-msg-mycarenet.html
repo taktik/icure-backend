@@ -397,7 +397,7 @@
             ready() {
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
-                    this.set("hcp",response)
+                    this.set("hcp",this.api.register(response, 'hcp'))
                     //this.getMessages()
                 })
             }

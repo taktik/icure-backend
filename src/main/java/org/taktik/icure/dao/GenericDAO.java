@@ -34,7 +34,7 @@ public interface GenericDAO<T extends Identifiable<String>> extends LookupDAO<T>
 
 	String getAttachment(String documentId, String attachmentId);
 
-	AttachmentInputStream getAttachmentInputStream(String documentId, String attachmentId);
+	AttachmentInputStream getAttachmentInputStream(String documentId, String attachmentId, String rev);
 
 	/**
 	 * *

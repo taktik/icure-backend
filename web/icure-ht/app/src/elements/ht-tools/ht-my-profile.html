@@ -1358,19 +1358,15 @@
 
             apiReady() {
                 if (this.user && this.api && this.opened) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.register(hcp, 'hcp')).then(hcp => {
                         if (!hcp.languages || !hcp.languages.length) hcp.languages = ['en'];
                         if (!hcp.type) hcp.type='persphysician';
                         if (!hcp.billingType) hcp.billingType='flatRate';
-
-
 
                         // Resolve for dataprovider / combobox
                         if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
 
                             Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId].join(',') )]).then(results => {
-
                                 const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
                                 const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();
                                 const contactPerson = _.chain(results[0]).filter({id:hcp.contactPersonHcpId}).head().value();
@@ -1477,16 +1473,16 @@
                 const target = 'selectedPrinter.'+e.target.getAttribute('target')
                 const value = e.target.dataset.item
                 const size = e.target.value
-                if (target=='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
-                if (target=='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
-                if (target=='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
-                if (target=='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
-                if (target=='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
-                if (target=='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
-                if (target=='selectedPrinter.stickers.bw') this.set('selectedPrinter.stickers.bw',value)
-                if (target=='selectedPrinter.stickers.h') this.set('selectedPrinter.stickers.h',size)
-                if (target=='selectedPrinter.stickers.w') this.set('selectedPrinter.stickers.w',size)
-                if (target=='selectedPrinter.regulations.bw') this.set('selectedPrinter.regulations.bw',value)
+                if (target==='selectedPrinter.a4.color') this.set('selectedPrinter.a4.color',value)
+                if (target==='selectedPrinter.a5.color') this.set('selectedPrinter.a5.color',value)
+                if (target==='selectedPrinter.presc.color') this.set('selectedPrinter.presc.color',value)
+                if (target==='selectedPrinter.a4.bw') this.set('selectedPrinter.a4.bw',value)
+                if (target==='selectedPrinter.a5.bw') this.set('selectedPrinter.a5.bw',value)
+                if (target==='selectedPrinter.presc.bw') this.set('selectedPrinter.presc.bw',value)
+                if (target==='selectedPrinter.stickers.bw') this.set('selectedPrinter.stickers.bw',value)
+                if (target==='selectedPrinter.stickers.h') this.set('selectedPrinter.stickers.h',size)
+                if (target==='selectedPrinter.stickers.w') this.set('selectedPrinter.stickers.w',size)
+                if (target==='selectedPrinter.regulations.bw') this.set('selectedPrinter.regulations.bw',value)
                 if ( !_.isEqual(JSON.parse(localStorage.getItem('selectedPrinter')), this.numericSelectedPrinter)) {
                     localStorage.setItem('selectedPrinter', JSON.stringify(this.selectedPrinter))
                 }
