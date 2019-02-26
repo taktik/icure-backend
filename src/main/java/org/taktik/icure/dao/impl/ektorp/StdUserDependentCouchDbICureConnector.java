@@ -529,13 +529,14 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             CouchDbConnectorReference that = (CouchDbConnectorReference) o;
-            return Objects.equals(dbInstanceUrl, that.dbInstanceUrl) &&
+            return allowFallback == that.allowFallback &&
+                    Objects.equals(dbInstanceUrl, that.dbInstanceUrl) &&
                     Objects.equals(groupId, that.groupId);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(dbInstanceUrl, groupId);
+            return Objects.hash(dbInstanceUrl, groupId, allowFallback);
         }
     }
 }
