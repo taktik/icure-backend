@@ -38,7 +38,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
 
     protected abstract val entityType: Class<T>
 
-    protected abstract fun getAllIds(groupId: String): List<String>
+    protected abstract fun getAllIds(groupId: String, dbInstanceUrl: String): List<String>
 
     protected abstract fun prepareReplication(group: Group)
 
@@ -105,7 +105,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
     private fun replicateExistingData(group: Group): Boolean {
         val startTime = System.currentTimeMillis()
         try {
-            val allIds = this.getAllIds(group.id)
+            val allIds = this.getAllIds(group.id, group.dbInstanceUrl())
             replicate(group, allIds)
         } catch (e: Exception) {
             log.error("Exception during initial replication : {} for group {} ({}) ", e.localizedMessage, group.id, group.name)

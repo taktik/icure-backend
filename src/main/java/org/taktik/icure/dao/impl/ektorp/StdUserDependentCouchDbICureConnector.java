@@ -25,30 +25,51 @@ import org.ektorp.changes.ChangesCommand;
 import org.ektorp.changes.ChangesFeed;
 import org.ektorp.changes.DocumentChange;
 import org.ektorp.http.HttpClient;
+import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.ObjectMapperFactory;
+import org.ektorp.impl.StdCouchDbInstance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.properties.CouchDbProperties;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnector {
-    private LoadingCache<String, CouchDbICureConnector> connectors = CacheBuilder.newBuilder()
+    private CouchDbProperties couchDbProperties;
+    private LoadingCache<String[], CouchDbICureConnector> connectors = CacheBuilder.newBuilder()
             .maximumSize(10000)
-            .expireAfterAccess(120, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, CouchDbICureConnector>() {
+            .expireAfterAccess(240, TimeUnit.MINUTES)
+            .build(new CacheLoader<String[], CouchDbICureConnector>() {
                 @Override
-                public CouchDbICureConnector load(@NotNull String key) throws Exception {
-                    String name = StdUserDependentCouchDbICureConnector.this.databaseName.replaceAll(couchDbPrefix, "icure-" + key);
+                public CouchDbICureConnector load(@NotNull String[] key) throws Exception {
+                    String name = StdUserDependentCouchDbICureConnector.this.databaseName.replaceAll(couchDbPrefix, "icure-" + key[1]);
+
+                    CouchDbInstance dbInstance;
+
+                    if (StdUserDependentCouchDbICureConnector.this.couchDbProperties.getUrl().equals(key[0])) {
+                        dbInstance = StdUserDependentCouchDbICureConnector.this.dbInstance;
+                    } else {
+                        dbInstance = otherInstances.get(key[0]);
+                        if (dbInstance == null) {
+                            otherInstances.put(key[0], dbInstance = new StdCouchDbInstance(new StdHttpClient.Builder()
+                                    .maxConnections(couchDbProperties.getMaxConnections())
+                                    .socketTimeout(couchDbProperties.getSocketTimeout())
+                                    .username(couchDbProperties.getUsername())
+                                    .password(couchDbProperties.getPassword())
+                                    .url(couchDbProperties.getUrl())
+                                    .build()));
+                        }
+                    }
 
                     if (!dbInstance.checkIfDbExists(name)) { return fallbackConnector; }
                     StdCouchDbICureConnector connector = om == null ? new StdCouchDbICureConnector(name, dbInstance) : new StdCouchDbICureConnector(name, dbInstance, om);
@@ -77,6 +98,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     private String databaseName;
     private CouchDbInstance dbInstance;
     private boolean allowAnonymousAccess = false;
+    private Map<String, CouchDbInstance> otherInstances = new HashMap<>();
     private ObjectMapperFactory om;
 
     public String getBaseDatabaseName() {
@@ -91,10 +113,11 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
     }
 
-    public StdUserDependentCouchDbICureConnector(String databaseName, CouchDbInstance dbInstance, boolean allowAnonymousAccess) {
+    public StdUserDependentCouchDbICureConnector(String databaseName, CouchDbInstance dbInstance, CouchDbProperties couchDbProperties, boolean allowAnonymousAccess) {
         this.databaseName = databaseName;
         this.dbInstance = dbInstance;
         this.allowAnonymousAccess = allowAnonymousAccess;
+        this.couchDbProperties = couchDbProperties;
 
         fallbackConnector = new StdCouchDbICureConnector(databaseName, dbInstance);
         uuid = DigestUtils.sha256Hex(databaseName+':'+dbInstance.getUuid());
@@ -119,7 +142,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
         if (sessionLogic != null && sessionLogic.getCurrentSessionContext() != null) {
             User user = sessionLogic.getCurrentSessionContext().getUser();
             if (user != null && user.getGroupId() != null) {
-                return getCouchDbICureConnector(user.getGroupId());
+                return getCouchDbICureConnector(user.getGroupId(),  sessionLogic.getCurrentSessionContext().getDbInstanceUrl());
             } else {
                 return fallbackConnector;
             }
@@ -131,9 +154,9 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     }
 
     @Override
-    public CouchDbICureConnector getCouchDbICureConnector(String groupId) {
+    public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl) {
         try {
-            return groupId==null?fallbackConnector:connectors.get(groupId);
+            return groupId==null?fallbackConnector:connectors.get(new String[] {dbInstanceUrl == null ? this.couchDbProperties.getUrl() : dbInstanceUrl, groupId});
         } catch (ExecutionException e) {
             throw new IllegalStateException(e);
         }

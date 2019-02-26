@@ -176,7 +176,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 			// Get user if any
 			PermissionSetIdentifier permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
 			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
-			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId()) : null;
+			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId(), ((DatabaseUserDetails) userDetails).getDbInstanceUrl()) : null;
 			if (user != null) {
 				// Retrieve the locale from the authentication userdetails if any
 				String authLocale = userDetails.getLocale();
@@ -365,7 +365,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				String userId = getUserId();
 				String groupId = getGroupId();
 				if (groupId != null && userId != null) {
-					User u = userLogic.getUserOnUserDb(userId, groupId);
+					User u = userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUrl());
 					u.setGroupId(groupId);
 					return u;
 				}
@@ -377,6 +377,11 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				return userLogic.getUserOnFallbackDb(userId);
 			}
 			return null;
+		}
+
+		@Override
+		public String getDbInstanceUrl() {
+			return userDetails == null ? null : ((DatabaseUserDetails) userDetails).getDbInstanceUrl();
 		}
 
 		@Override

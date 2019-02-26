@@ -37,6 +37,7 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 	private boolean use2fa;
 	private String groupId;
 	private List<String> groupIdUserIdMatching;
+	private String dbInstanceUrl;
 
 	public DatabaseUserDetails(PermissionSetIdentifier permissionSetIdentifier, Set<GrantedAuthority> authorities, String passwordHash, String secret, Boolean use2fa) {
 		super(permissionSetIdentifier, authorities);
@@ -96,5 +97,13 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 
 	public List<String> getGroupIdUserIdMatching() {
 		return groupIdUserIdMatching;
+	}
+
+	public void setDbInstanceUrl(String dbInstanceUrl) {
+		this.dbInstanceUrl = dbInstanceUrl;
+	}
+
+	public String getDbInstanceUrl() {
+		return dbInstanceUrl;
 	}
 }

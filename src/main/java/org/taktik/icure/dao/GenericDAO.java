@@ -19,6 +19,7 @@
 package org.taktik.icure.dao;
 
 import org.ektorp.AttachmentInputStream;
+import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.base.Identifiable;
 
 import javax.persistence.PersistenceException;
@@ -90,7 +91,7 @@ public interface GenericDAO<T extends Identifiable<String>> extends LookupDAO<T>
 
     void initStandardDesignDocument();
 
-	void initStandardDesignDocument(String groupId);
+	void initStandardDesignDocument(Group group);
 
-	void forceInitStandardDesignDocument(String groupId);
+	void forceInitStandardDesignDocument(Group group);
 }

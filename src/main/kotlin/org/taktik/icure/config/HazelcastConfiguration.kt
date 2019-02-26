@@ -65,13 +65,18 @@ class HazelcastConfiguration {
     @ConfigurationProperties("hazelcast")
 
 
-
     fun hazelcastConfig(): Config = Config().apply {
-        addMapConfig(MapConfig("org.").apply {
-            timeToLiveSeconds = 18*3600
+        addMapConfig(MapConfig("org.taktik.icure.entities.HealthcareParty").apply {
+            timeToLiveSeconds = 5*60
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
             evictionPolicy = EvictionPolicy.LRU
         })
+        addMapConfig(MapConfig("org.taktik.icure.entities.*").apply {
+            timeToLiveSeconds = 12*3600
+            maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
+            evictionPolicy = EvictionPolicy.LRU
+        })
+
     }
 
     @Bean

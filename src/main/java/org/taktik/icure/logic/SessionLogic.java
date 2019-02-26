@@ -64,6 +64,8 @@ public interface SessionLogic {
 
 		User getUser();
 
+		String getDbInstanceUrl();
+
 		String getGroupIdUserId();
 
 		String getGroupId();

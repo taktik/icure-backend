@@ -768,13 +768,13 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public User getUserOnUserDb(String userId, String groupId) {
-		return fillGroup(userDAO.getUserOnUserDb(userId, groupId, false));
+	public User getUserOnUserDb(String userId, String groupId, String dbInstanceUrl) {
+		return fillGroup(userDAO.getUserOnUserDb(userId, groupId, dbInstanceUrl, false));
 	}
 
 	@Override
-	public User findUserOnUserDb(String userId, String groupId) {
-		return fillGroup(userDAO.findUserOnUserDb(userId, groupId, false));
+	public User findUserOnUserDb(String userId, String groupId, String dbInstanceUrl) {
+		return fillGroup(userDAO.findUserOnUserDb(userId, groupId, dbInstanceUrl,false));
 	}
 
 	@Override

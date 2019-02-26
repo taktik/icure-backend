@@ -38,6 +38,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.dao.impl.keymanagers.KeyManager;
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager;
+import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
 
@@ -46,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -142,6 +144,18 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 			log.warn("Document not found",e);
 		}
 		return null;
+	}
+
+	public T find(String id, Option... options) {
+		if (log.isDebugEnabled()) {
+			log.debug(entityClass.getSimpleName() + ".get: " + id + " [" + ArrayUtils.toString(options) + "]");
+		}
+
+		T result =  db.find(type, id, asEktorpOptions(options));
+		if (result != null) {
+			postLoad(result);
+		}
+		return result;
 	}
 
 	@Override
@@ -509,25 +523,25 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public void initStandardDesignDocument(String groupId) {
-		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
+	public void initStandardDesignDocument(Group group) {
+		if (group==null || !(db instanceof CouchDbICureConnector)) {
 			this.initStandardDesignDocument();
 		} else {
-			initDesignDocInternal(groupId,0, false);
+			(group.getServers() != null && group.getServers().size()>0 ? group.getServers() : Collections.singletonList((String)null)).forEach( db -> initDesignDocInternal(group.getId(), db, 0, false));
 		}
 	}
 
 	@Override
-	public void forceInitStandardDesignDocument(String groupId) {
-		if (groupId==null || !(db instanceof CouchDbICureConnector)) {
+	public void forceInitStandardDesignDocument(Group group) {
+		if (group.getId()==null || !(db instanceof CouchDbICureConnector)) {
 			this.forceInitStandardDesignDocument();
 		} else {
-			initDesignDocInternal(groupId, 0, true);
+			(group.getServers() != null && group.getServers().size()>0 ? group.getServers() : Collections.singletonList((String)null)).forEach( db -> initDesignDocInternal(group.getId(), db, 0, true));
 		}
 	}
 
-	private void initDesignDocInternal(String groupId, int invocations, boolean forceUpdate) {
-		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId) : db;
+	private void initDesignDocInternal(String groupId, String dbInstanceUrl, int invocations, boolean forceUpdate) {
+		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl) : db;
 		DesignDocument designDoc;
 		if (cdb.contains(stdDesignDocumentId)) {
 			designDoc = getDesignDocumentFactory().getFromDatabase(cdb, stdDesignDocumentId);
@@ -550,7 +564,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 				if (invocations == 0) {
 					backOff();
 					log.info("retrying initStandardDesignDocument for design document: {}", designDoc.getId());
-					initDesignDocInternal(groupId, 1, forceUpdate);
+					initDesignDocInternal(groupId, dbInstanceUrl, 1, forceUpdate);
 				}
 			}
 		} else {

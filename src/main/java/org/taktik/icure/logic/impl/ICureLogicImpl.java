@@ -27,11 +27,14 @@ import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.dao.ICureDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
+import org.taktik.icure.entities.Group;
+import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.logic.ICureLogic;
 
 @Service
 public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
+	GroupLogic groupLogic;
 	List<GenericDAO> allDaos;
 
 	@Override
@@ -41,10 +44,18 @@ public class ICureLogicImpl implements ICureLogic {
 
 	@Override
 	public void updateDesignDoc(String groupId, String daoEntityName) {
+		Group group = groupLogic.findGroup(groupId);
+
+		if (group == null) { throw new IllegalArgumentException("Cannot load group "+groupId); }
 		allDaos.stream()
 				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
 				.findFirst()
-				.ifPresent(dao -> dao.forceInitStandardDesignDocument(groupId));
+				.ifPresent(dao -> dao.forceInitStandardDesignDocument(group));
+	}
+
+	@Autowired
+	public void setGroupLogic(GroupLogic groupLogic) {
+		this.groupLogic = groupLogic;
 	}
 
 	@Autowired

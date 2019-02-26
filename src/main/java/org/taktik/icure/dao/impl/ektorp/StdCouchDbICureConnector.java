@@ -75,7 +75,7 @@ public class StdCouchDbICureConnector extends StdCouchDbConnector implements Cou
 	}
 
 	@Override
-	public CouchDbICureConnector getCouchDbICureConnector(String groupId) {
+	public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl) {
 		return this;
 	}
 

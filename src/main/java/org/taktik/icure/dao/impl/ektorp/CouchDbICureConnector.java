@@ -28,7 +28,7 @@ public interface CouchDbICureConnector extends CouchDbConnector {
 
 	CouchDbICureConnector getCurrentUserRealConnector();
 
-	CouchDbICureConnector getCouchDbICureConnector(String groupId);
+	CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl);
 
 	CouchDbICureConnector getFallbackConnector();
 }

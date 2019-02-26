@@ -35,6 +35,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.firewall.HttpFirewall
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.taktik.icure.logic.GroupLogic
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PermissionLogic
 import org.taktik.icure.logic.UserLogic
@@ -91,7 +92,7 @@ class SecurityConfig {
         = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
 
     @Bean
-    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
+    fun daoAuthenticationProvider(userLogic: UserLogic, groupLogic: GroupLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
     }
 

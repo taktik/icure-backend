@@ -116,7 +116,28 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         }
     }
 
-	public T getFromCache(String id) {
+    @Override
+    public T find(String id, Option... options) {
+        String fullId = getFullId(id);
+        Cache.ValueWrapper value = cache.get(fullId);
+        if (value == null) {
+            log.debug("Cache MISS = {}", fullId);
+            T e = super.find(id, options);
+            log.debug("Cache SAVE = {}, {} - {}", fullId, e.getId(), e.getRev());
+            cache.put(fullId, e);
+            return e;
+        } else {
+            T o = (T) value.get();
+            if (o != null) {
+                log.debug("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
+            } else {
+                log.debug("Cache HIT  = {}, Null value", fullId);
+            }
+            return o;
+        }
+    }
+
+    public T getFromCache(String id) {
         String fullId = getFullId(id);
         Cache.ValueWrapper value = cache.get(fullId);
         if (value == null) {
@@ -141,8 +162,8 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         cache.put(fullId, value);
     }
 
-    public void putInCache(String groupId, String key, T value) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + key;
+    public void putInCache(String groupId, String dbInstanceUrl, String key, T value) {
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + key;
         if (value != null) { log.debug("Cache SAVE = {}, {} - {}", fullId, value.getId(), value.getRev()); } else {
             log.debug("Cache SAVE = {}, null placeholder", fullId);
         }
@@ -159,9 +180,9 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         cache.evict(fullId1);
 	}
 
-    public void evictFromCache(String groupId, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + id;
-        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + ALL_ENTITIES_CACHE_KEY;
+    public void evictFromCache(String groupId, String dbInstanceUrl, String id) {
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + id;
+        String fullId1 = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + ALL_ENTITIES_CACHE_KEY;
         log.debug("Cache EVICT= {}", fullId);
         log.debug("Cache EVICT= {}", fullId1);
         cache.evict(fullId);
@@ -173,8 +194,8 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         cache.evict(id);
     }
 
-    protected Cache.ValueWrapper getWrapperFromCache(String groupId, String id) {
-        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId).getUuid())) + ":" + id;
+    protected Cache.ValueWrapper getWrapperFromCache(String groupId, String dbInstanceUrl, String id) {
+        String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl).getUuid())) + ":" + id;
         Cache.ValueWrapper value = cache.get(fullId);
         if (value != null) {
             log.debug("Cache HIT  = {}, WRAPPER", fullId);

@@ -19,7 +19,6 @@
 package org.taktik.icure.dao.impl;
 
 import com.fasterxml.uuid.Generators;
-import org.ektorp.ComplexKey;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.Filter;
@@ -95,10 +94,10 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User getOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, userId);
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, null, userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
-			putInCache(null, userId, user);
+			putInCache(null, null, userId, user);
 			if (user == null) {
 				throw new DocumentNotFoundException(userId);
 			}
@@ -112,10 +111,10 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	public User findOnFallback(String userId, boolean bypassCache) {
-		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, userId);
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : getWrapperFromCache(null, null, userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
-			putInCache(null, userId, user);
+			putInCache(null, null, userId, user);
 			return user;
 		}
 		return (User) valueWrapper.get();
@@ -139,14 +138,14 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getUserOnUserDb(String userId, String groupId, boolean bypassCache) {
-		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
+	public User getUserOnUserDb(String userId, String groupId, String dbInstanceUrl, boolean bypassCache) {
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl);
 
-		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, userId);
+		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, dbInstanceUrl, userId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
-			putInCache(groupId, userId, user);
+			putInCache(groupId, dbInstanceUrl, userId, user);
 			if (user == null) {
 				throw new DocumentNotFoundException(userId);
 			}
@@ -159,33 +158,33 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findUserOnUserDb(String userId, String groupId, boolean bypassCache) {
-		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
+	public User findUserOnUserDb(String userId, String groupId, String dbInstanceUrl, boolean bypassCache) {
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl);
 
-		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, userId);
+		Cache.ValueWrapper value = bypassCache ? null : getWrapperFromCache(groupId, dbInstanceUrl, userId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
-			putInCache(groupId, userId, user);
+			putInCache(groupId, dbInstanceUrl, userId, user);
 			return user;
 		}
 		return (User) value.get();
 	}
 
 	@Override
-	public List<User> getUsersOnDb(String groupId) {
-		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).queryView(createQueryOnDb("all", groupId).includeDocs(true), User.class);
+	public List<User> getUsersOnDb(String groupId, String dbInstanceUrl) {
+		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl).queryView(createQueryOnDb("all", groupId, dbInstanceUrl).includeDocs(true), User.class);
 	}
 
 	@Override
-	public void evictFromCache(String groupId, List<String> userIds) {
+	public void evictFromCache(String groupId, String dbInstanceUrl, List<String> userIds) {
 		userIds.forEach(u -> {
 			super.evictFromCache(u);
-			super.evictFromCache(groupId, u);
+			super.evictFromCache(groupId, dbInstanceUrl, u);
 		});
 
 		super.evictFromCache(ALL_ENTITIES_CACHE_KEY);
-		super.evictFromCache(groupId, ALL_ENTITIES_CACHE_KEY);
+		super.evictFromCache(groupId, dbInstanceUrl, ALL_ENTITIES_CACHE_KEY);
 	}
 
 	@Override
@@ -209,9 +208,9 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 				.viewName(viewName);
 	}
 
-	protected ViewQuery createQueryOnDb(String viewName, String groupId) {
+	protected ViewQuery createQueryOnDb(String viewName, String groupId, String dbInstanceUrl) {
 		return new ViewQuery()
-				.dbPath(((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).path())
+				.dbPath(((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl).path())
 				.designDocId(stdDesignDocumentId)
 				.viewName(viewName);
 	}

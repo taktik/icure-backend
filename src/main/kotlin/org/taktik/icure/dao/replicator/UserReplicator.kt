@@ -17,17 +17,17 @@ class UserReplicator(hazelcast: HazelcastInstance, private var userDAO: UserDAO?
     override val entityType: Class<User>
         get() = User::class.java
 
-    override fun getAllIds(groupId: String): List<String> {
-        return userDAO!!.getUsersOnDb(groupId).map { it.id }
+    override fun getAllIds(groupId: String, dbInstanceUrl: String): List<String> {
+        return userDAO!!.getUsersOnDb(groupId, dbInstanceUrl).map { it.id }
     }
 
     override fun prepareReplication(group: Group) {
-        userDAO!!.initStandardDesignDocument(group.id)
+        userDAO!!.initStandardDesignDocument(group)
     }
 
     override fun replicate(group: Group, entityIds: List<String>): List<String> {
         return entityIds.map { id ->
-            val from = userDAO!!.getUserOnUserDb(id, group.id, true)
+            val from = userDAO!!.getUserOnUserDb(id, group.id, group.dbInstanceUrl(), true)
             var to: User? = userDAO!!.findOnFallback(group.id+":"+id, true)
 
             if (to == null) {

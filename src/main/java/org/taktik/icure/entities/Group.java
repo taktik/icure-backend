@@ -18,6 +18,7 @@
 
 package org.taktik.icure.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredDocument;
@@ -55,5 +56,18 @@ public class Group extends StoredDocument implements Cloneable, Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public List<String> getServers() {
+		return servers;
+	}
+
+	public void setServers(List<String> servers) {
+		this.servers = servers;
+	}
+
+	@JsonIgnore
+	public String dbInstanceUrl() {
+		return this.getServers() != null && this.getServers().size() > 0 ? this.getServers().get(0) : null;
 	}
 }

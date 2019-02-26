@@ -54,9 +54,9 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
             .build())
 
     @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-config", couchdbInstance)
-    @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, true)
-    @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, true)
-    @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, true)
+    @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, couchDbProperties, true)
+    @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, couchDbProperties, true)
+    @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, couchDbProperties, true)
 
     @Bean fun entitiesCacheManager(hazelcastInstance: HazelcastInstance) = HazelcastCacheManager(hazelcastInstance)
 

@@ -141,9 +141,9 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 
 	User getUserOnFallbackDb(String userId);
 
-	User getUserOnUserDb(String userId, String groupId);
+	User getUserOnUserDb(String userId, String groupId, String dbInstanceUrl);
 
-	User findUserOnUserDb(String userId, String groupId);
+	User findUserOnUserDb(String userId, String groupId, String dbInstanceUrl);
 
 	List<User> getUsersByPartialIdOnFallbackDb(String id);
 

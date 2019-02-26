@@ -32,8 +32,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.base.StoredDocument;
+import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.logic.PermissionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.properties.AuthenticationProperties;
@@ -54,14 +56,15 @@ import java.util.stream.Collectors;
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 	private AuthenticationProperties authenticationProperties;
 
-	public CustomAuthenticationProvider(UserLogic userLogic, PermissionLogic permissionLogic) {
+	public CustomAuthenticationProvider(UserLogic userLogic, GroupLogic groupLogic, PermissionLogic permissionLogic) {
 		this.userLogic = userLogic;
+		this.groupLogic = groupLogic;
 		this.permissionLogic = permissionLogic;
 	}
 
 	private UserLogic userLogic;
+	private GroupLogic groupLogic;
 	private PermissionLogic permissionLogic;
-
 
 	private boolean isPasswordValid(User u, String password) {
 		if (u.getApplicationTokens().containsValue(password)) { return true; }
@@ -100,6 +103,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 		User user = null;
 		String groupId = null;
+		Group group = null;
 
 		List<User> matchingUsers = new LinkedList<>();
 
@@ -108,11 +112,13 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			String gId = userOnFallbackDb.getGroupId();
 
 			if (gId != null || authenticationProperties.getLocal()) {
-				User candidate = userLogic.findUserOnUserDb(userId, gId);
+				Group g = groupLogic.findGroup(groupId);
+				User candidate = userLogic.findUserOnUserDb(userId, gId, g != null ? g.dbInstanceUrl() : null);
 				if (candidate != null && (this.isPasswordValid(candidate, auth.getCredentials().toString()))) {
 					if (groupId == null && gId != null) {
 						user = candidate;
 						groupId = gId;
+						group = g;
 					}
 					matchingUsers.add(userOnFallbackDb);
 				} else {
@@ -146,6 +152,9 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		Set<GrantedAuthority> authorities = permissionSet == null ? new HashSet<>() : permissionSet.getGrantedAuthorities();
 
 		DatabaseUserDetails userDetails = new DatabaseUserDetails(permissionSetIdentifier, authorities, user.getPasswordHash(), user.getSecret(), user.isUse2fa());
+		if (group != null) {
+			userDetails.setDbInstanceUrl(group.dbInstanceUrl());
+		}
 		userDetails.setGroupId(groupId);
 		userDetails.setRev(user.getRev());
 		userDetails.setApplicationTokens(user.getApplicationTokens());
@@ -194,5 +203,10 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 	@Autowired
 	public void setAuthenticationProperties(AuthenticationProperties authenticationProperties) {
 		this.authenticationProperties = authenticationProperties;
+	}
+
+	@Autowired
+	public void setGroupLogic(GroupLogic groupLogic) {
+		this.groupLogic = groupLogic;
 	}
 }

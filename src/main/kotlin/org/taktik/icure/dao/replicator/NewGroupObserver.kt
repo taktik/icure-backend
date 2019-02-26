@@ -147,7 +147,7 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
     private fun prepareDesignDocumentsAndStartReplications(group: Group): CompletableFuture<Boolean> {
         log.info("Starting replications for " + group.id)
 
-        allDaos.forEach { d -> d.initStandardDesignDocument(group.id) }
+        allDaos.forEach { d -> d.initStandardDesignDocument(group) }
         log.info("Standard docs initialised for " + group.id)
 
         var f = CompletableFuture.completedFuture<FilteredReplicator>(null)
