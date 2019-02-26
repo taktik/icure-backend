@@ -12,6 +12,7 @@ import java.util.Set;
 public class FlatRateTarification implements Serializable {
 
     protected String code;
+    protected FlatRateType flatRateType;
     protected java.util.Map<String, String> label;
     protected Set<Valorisation> valorisations;
 
@@ -38,4 +39,8 @@ public class FlatRateTarification implements Serializable {
     public void setValorisations(Set<Valorisation> valorisations) {
         this.valorisations = valorisations;
     }
+
+    public FlatRateType getFlatRateType() { return flatRateType; }
+
+    public void setFlatRateType(FlatRateType flatRateType) { this.flatRateType = flatRateType; }
 }

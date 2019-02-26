@@ -97,17 +97,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding-top: 16px;
             }
 
+            .trashIcon{
+                height: 14px;
+                width: 14px;
+            }
+
+            .warningMessage {
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
+
+            .warningMessageBody {
+                padding:20px 35px;
+                color:#7E0000;
+                background-color: rgba(255, 0, 0, 0.15);
+                font-weight: 700;
+                border:1px dashed #7e0000;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
         </style>
 
         <div class="facturation-flat-rate-panel">
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
-            <div class="add_line">
-                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button id="" class="" icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+            <div class="warningMessage" id="warningMessageInvoicing">
+                <div class="warningMessageBody">
+                    Nous vous conseillons d'encoder la tarification pour les 24 derniers mois
+                </div>
             </div>
-            <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]">
+            <div class="add_line">
+                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+            </div>
+            <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]" active-item="{{selectedPrice}}">
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_type','Start of valididy',language)]]
+                        [[localize('startOfValidity','Start of valididy',language)]]
                     </template>
                     <template>
                         <div>[[_getDateAsString(item.valorisation.startOfValidity)]]</div>
@@ -115,23 +140,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('Id','End of validity',language)]]
+                        [[localize('type','Type',language)]]
                     </template>
                     <template>
-                        <div>[[_getDateAsString(item.valorisation.endOfValidity)]]</div>
+                        <div>[[item.flatRateType]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_first_name','Code',language)]]
+                        [[localize('co','Code',language)]]
                     </template>
                     <template>
-                        <div>[[item.firstName]] [[item.code]]</div>
+                        <div>[[item.code]]</div>
                     </template>
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('deleg_user_type','Label',language)]]
+                        [[localize('lab','Label',language)]]
                     </template>
                     <template>
                         <div>[[_getCodeLabel(item.label)]]</div>
@@ -139,10 +164,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        [[localize('Id','Reimbursement',language)]]
+                        [[localize('presc_reimb','Reimbursement',language)]]
                     </template>
                     <template>
                         <div>[[item.valorisation.reimbursement]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                    </template>
+                    <template>
+                        <div>
+                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice" data-item$="[[item]]"></iron-icon>
+                        </div>
                     </template>
                 </vaadin-grid-column>
 
@@ -208,8 +242,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             reimbursement : Number(0.00),
                             monthValidity: null,
                             yearValidity: null,
-                            startOfValidity: null,
-                            endOfValidity: null
+                            startOfValidity: null
                         }
                     },
                     flatRateNmclSelectedItemIdx:{
@@ -229,21 +262,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 fr : 'Forfait soins médicaux dans les centres de santé',
                                 en: 'Medical care package in health centers',
                                 nl : 'Zorgpakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType: 'physician'
                         },{
                             code: '409614',
                             label: {
                                 fr : 'Forfait soins infirmiers dans les centres de santé',
                                 en: 'Nursing package at health centers',
                                 nl : 'Verpleegpakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType : 'nurse'
                         },{
                             code: '509611',
                             label: {
                                 fr : 'Forfait soins kiné dans les centres de santé',
                                 en: 'Physiotherapy package in health centers',
                                 nl : 'Fysiotherapie pakket in gezondheidscentra'
-                            }
+                            },
+                            flatRateType: 'physiotherapist'
                         }]
                    },
                     hcpParent: {
@@ -263,13 +299,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Object,
                         value: () => {},
                         observer: '_selectedTarificationYearValueChanged'
+                    },
+                    selectedPrice:{
+                        type: Object,
+                        value: () => {}
                     }
 
                 }
             }
 
             static get observers() {
-                return ['_flatRateTarificationDataProvider(user)'];
+                return ['_flatRateTarificationDataProvider(user)', '_selectedPriceChanged(selectedPrice)'];
             }
 
             constructor() {
@@ -281,14 +321,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _flatRateTarificationDataProvider(){
+
+
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp => this.api.hcparty().getHealthcareParty(hcp.parentId))
+                    .then(hcp => hcp.parentId ? this.api.hcparty().getHealthcareParty(hcp.parentId) : Promise.resolve(hcp))
                     .then(hcpParent => {
                         this.set('hcpParent', hcpParent)
 
-                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || null
+                        const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
 
-                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label})))))
+                        this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
 
                 })
             }
@@ -301,7 +343,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 console.log(this.flatRateTarification)
 
                 const startOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').startOf('month').format('YYYYMMDD') : null
-                const endOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').endOf('month').format('YYYYMMDD') : null
 
                 if(!this.hcpParent.flatRateTarifications){
                     _.assign(this.hcpParent, {flatRateTarifications : []})
@@ -310,22 +351,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selectedTar = this.hcpParent.flatRateTarifications.find(t => t.code === this.flatRateTarification.code) || null
 
                 if(selectedTar){
-                    selectedTar ? selectedTar.valorisations.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
+                    selectedTar ? selectedTar.valorisations.push({startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')}) : null
                 }else{
                     const valorisation = []
-                    valorisation.push({endOfValidity : parseInt(endOfValidity), startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
+                    valorisation.push({startOfValidity: parseInt(startOfValidity), reimbursement: this.flatRateTarification.reimbursement.replace(',', '.')})
 
                     this.hcpParent.flatRateTarifications.push({
                         code: this.flatRateTarification.code || null,
                         label: this.flatRateTarification.label || null,
+                        flatRateType : this.flatRateTarification.flatRateType || null,
                         valorisations: valorisation || []
-                    })
+                     })
                 }
 
-                this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
-                    this.set('hcpParent', hcp)
-                    this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
-                }).finally(() => this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null}))
+                this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                    .then(hcp => this.set('hcpParent', hcp))
+                    .finally(() => {
+                    const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                    this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                    this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null})
+                })
 
 
             }
@@ -371,6 +416,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return date ? this.api.moment(date).format('DD/MM/YYYY') : null
             }
 
+            _deleteFalRatePrice(e){
+                e.stopPropagation()
+                if(e.target.dataset && e.target.dataset.item){
+                    const dataToBeDeleted = JSON.parse(e.target.dataset.item)
+                    const tarification = this.hcpParent.flatRateTarifications.find(t => t.code === dataToBeDeleted.code)
+                    const valorisationsOfTarification = tarification.valorisations
+                    const valorisationToBeDeleted = tarification.valorisations.findIndex(val => val.startOfValidity === dataToBeDeleted.valorisation.startOfValidity && val.reimbursement === dataToBeDeleted.valorisation.reimbursement)
+                    valorisationsOfTarification.splice(valorisationToBeDeleted, 1)
+
+                    this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                        .then(hcp => this.set('hcpParent', hcp))
+                        .finally(() => {
+                            const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                            this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                        })
+                }
+            }
+
+            _selectedPriceChanged(e){
+               //this.$['addedFlatRateTarificationDialog'].open()
+            }
         }
 
         customElements.define(HtAdminManagementFacturationFlatRate.is, HtAdminManagementFacturationFlatRate)

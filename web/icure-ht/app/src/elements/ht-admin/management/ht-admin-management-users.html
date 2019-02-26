@@ -71,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #userInformationDialog{
-                height: 500px;
+                height: 600px;
                 width: 900px;
             }
 
@@ -128,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
-                height: 400px;
+                height: 485px;
                 overflow-y: auto;
             }
 
@@ -157,15 +157,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color);
             }
 
-            .user-panel {
-                height:100%;
-                background: var(--app-background-color);
-                margin: 0;
-                width:100%;
-                grid-column: 2 / 4;
-                /*grid-template-columns: 40px 200px 200px 40px;*/
-                grid-row: 1 / 1;
+            .input{
+                margin: 1%;
             }
+
 
         </style>
 
@@ -259,19 +254,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <iron-pages selected="[[tabs]]" class="panel-content">
                     <page>
+                        <h4>Informations générales</h4>
                         <div class="line">
-                            <paper-input label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
-                            <paper-input label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
+                            <paper-input class="input" label="Id" value="{{selectedUser.id}}" readOnly></paper-input>
+                            <paper-input class="input" label="Hcp id" value="{{selectedUser.healthcarePartyId}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-input label="[[localize('first_name', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
-                            <paper-input label="[[localize('last_name', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('login', 'Login', language)]]" value="{{selectedUser.login}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('email', 'Email', language)]]" value="{{selectedUser.email}}" readOnly></paper-input>
                         </div>
                         <div class="line">
-                            <paper-dropdown-menu label="[[localize('stat','Status',language)]]">
-                                <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" on-selected-changed="_selectedUserStatusChanged">
-                                    <paper-item id="ACTIVE">[[localize('active','Active',language)]]</paper-item>
-                                    <paper-item id="DISABLED">[[localize('disabled','Disabled',language)]]</paper-item>
+                            <paper-input class="input" label="[[localize('fir_nam', 'First name', language)]]" value="{{selectedUserHcp.firstName}}" readOnly></paper-input>
+                            <paper-input  class="input"label="[[localize('las_nam', 'Last name', language)]]" value="{{selectedUserHcp.lastName}}" readOnly></paper-input>
+                        </div>
+                        <div class="line">
+                            <paper-input class="input" label="[[localize('inami', 'Nihii', language)]]" value="{{selectedUserHcp.nihii}}" readOnly></paper-input>
+                            <paper-input class="input" label="[[localize('niss', 'Niss', language)]]" value="{{selectedUserHcp.niss}}" readOnly></paper-input>
+                        </div>
+                        <h4>Statut</h4>
+                        <div class="line">
+                            <vaadin-checkbox checked="{{isAdministrator}}" on-checked-changed="_administratorRoleChanged">[[localize('adm','Administrator',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
+                            <paper-dropdown-menu class="input" label="[[localize('status','Status',language)]]">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" selected-item="{{userStatus}}" on-selected-changed="_selectedUserStatusChanged">
+                                    <paper-item id="ACTIVE">[[localize('stat_act','Active',language)]]</paper-item>
+                                    <paper-item id="DISABLED">[[localize('ina','Disabled',language)]]</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                        </div>
+                        <h4>Type de prestataire</h4>
+                        <div class="line">
+                            <paper-dropdown-menu class="input" label="[[localize('stat','Type',language)]]">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedUserHcp.type}}" attr-for-selected="id" selected-item="{{selectedHcpType}}" on-selected-changed="_selectedHcpStatusChanged">
+                                    <paper-item id="persphysician">[[localize('prest','Prestataire',language)]]</paper-item>
+                                    <paper-item id="medicalhouse">[[localize('medical_house','Medical house',language)]]</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <paper-dropdown-menu class="input" label="[[localize('spe','Speciality',language)]]">
+                                <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
+                                    <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
+                                        <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
+                                    </template>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
@@ -280,7 +303,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <vaadin-grid id="delegationList" class="material" items="[[selectedUserlistOfDelegations]]">
                             <vaadin-grid-column>
                                 <template class="header">
-                                    [[localize('deleg_first_name','Name',language)]]
+                                    [[localize('name','Name',language)]]
                                 </template>
                                 <template>
                                     <div>[[item.firstName]] [[item.lastName]]</div>
@@ -316,6 +339,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </iron-pages>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_saveUser">[[localize('save','Save',language)]]</paper-button>
                 </div>
             </div>
         </paper-dialog>
@@ -365,6 +389,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     selectedUserlistOfDelegations:{
                         type: Object,
                         value: () => []
+                    },
+                    userStatus:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    agendaCreated:{
+                        type: Boolean,
+                        value : false
+                    },
+                    agendaType:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    isAdministrator:{
+                        type: Boolean,
+                        value : false
+                    },
+                    selectedHcpSpeciality:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    hcpartyList:{
+                        type: Object,
+                        value: () => []
+                    },
+                    selectedHcpSpecialityIdx : {
+                        type: Number,
+                        value: 0
+                    },
+                    selectedHcpType:{
+                        type: Object,
+                        value: () => {}
                     }
                 }
             }
@@ -382,17 +438,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _usersDataProvider(){
-                this.api.user().listUsers().then(users => {
-                    this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
-                    this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
-                })
+                this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', null, null, 1000)
+                    .then(hcpList => this.set('hcpartyList', _.uniqBy(_.orderBy(hcpList.rows, ['label.fr'], ['asc']), 'code')))
+                    .then(() =>  this.api.user().listUsers())
+                    .then(users => {
+                        this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
+                        this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
+                    })
             }
 
             _selectedUserChanged(){
                 if(this.selectedUser && this.selectedUser.healthcarePartyId){
                     this.set('selectedUserlistOfDelegations', [])
                     this.set('selectedUserHcp', {})
-                    this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId).then(hcp => this.set('selectedUserHcp', hcp))
+                    this.set('agendaCreated', false)
+                    this.set('isAdministrator', false)
+                    this.set('selectedHcpSpecialityIdx', null)
+                    this.set('selectedHcpType', {})
+
+                    const applicationTokens = _.get(this.selectedUser, "applicationTokens", "" )
+                    const mikronoUrl = this.selectedUser && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url") && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.url").typedValue.stringValue || null
+                    const mikronoUser = this.selectedUser && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user") && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.user").typedValue.stringValue || null
+                    const mikronoPassword = this.selectedUser && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password") && this.selectedUser.properties.find(p => p.type.identifier === "org.taktik.icure.be.plugins.mikrono.password").typedValue.stringValue || null
+
+                    mikronoUrl && mikronoUser && mikronoPassword && applicationTokens && applicationTokens.MIKRONO ?  this.set('agendaCreated', true) :  this.set('agendaCreated', false)
+
+                    this.selectedUser.roles && this.selectedUser.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN') ? this.set('isAdministrator', true) : this.set('isAdministrator', false)
+
+
+                    this.api.hcparty().getHealthcareParty(this.selectedUser.healthcarePartyId)
+                        .then(hcp => this.set('selectedUserHcp', hcp))
                         .then(() => Object.keys(this.selectedUser.autoDelegations).length > 0 ? this.api.hcparty().getHealthcareParties(_(_.flatten(Object.keys(this.selectedUser.autoDelegations).map(key => this.selectedUser.autoDelegations[key]))).uniq().value().map(del => del).join(',')) : Promise.resolve([]))
                         .then(delegatesHcp => {
                             Object.keys(this.selectedUser.autoDelegations).forEach(key => {
@@ -400,6 +475,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         })
                         .finally(() => {
+                            const specilityCode = this.selectedUserHcp && this.selectedUserHcp.specialityCodes || []
+                            const hcpartyType = specilityCode && specilityCode.find(spec => spec.type === "CD-HCPARTY") || null
+
+                            hcpartyType ? this.set('selectedHcpSpecialityIdx', hcpartyType && this.hcpartyList && this.hcpartyList.findIndex(hcp => hcp.id === hcpartyType.id) || null) : null
+
                             this.$['userInformationDialog'].open()
                             this.set('tabs',tab>0?tab:0)
                         })
@@ -409,6 +489,68 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _getDateAsString(date){
                 return date ? this.api.moment(date).format('DD/MM/YYYY') : null
             }
+
+            _selectedUserStatusChanged(){
+                this.selectedUser && this.userStatus && this.this.userStatus.id ?  this.set('selectedUser.status', this.userStatus.id) : null
+            }
+
+            _saveUser(){
+                this.api.user().modifyUser(this.selectedUser)
+                    .then(selectedUser => this.set('selectedUser', selectedUser))
+                    .then(() => this.api.hcparty().modifyHealthcareParty(this.selectedUserHcp))
+                    .then(hcp => this.set('selectedUserHcp', hcp))
+                    .then(() => this.api.user().listUsers())
+                    .then(users => {
+                        this.set('listOfActiveUsers', users.rows.filter(usr => usr.status === 'ACTIVE'))
+                        this.set('listOfInactiveUsers', users.rows.filter(usr => usr.status === 'DISABLED'))
+                        this.$['userInformationDialog'].close()
+                    })
+            }
+
+            _hcpSpecialityChanged(){
+                if(this.selectedUserHcp && this.selectedHcpSpeciality && this.selectedHcpSpeciality.id){
+
+                    const selectedSpeciality = this.hcpartyList.find(hcp => hcp.id === this.selectedHcpSpeciality.id) || null
+
+                    const specialityCodes = this.selectedUserHcp.specialityCodes || []
+
+                    specialityCodes.length === 0 ? _.assign(this.selectedUserHcp, {specialityCodes: []}) : null
+
+                    const hcpartySpeciality = specialityCodes.find(sc => sc.type === 'CD-HCPARTY') || null
+
+                    if(hcpartySpeciality){
+                        this.splice('selectedUserHcp.specialityCodes', _.indexOf(specialityCodes, hcpartySpeciality), 1)
+                        this.push('selectedUserHcp.specialityCodes', _.omit(selectedSpeciality, 'rev'))
+                    }else{
+                        this.push('selectedUserHcp.specialityCodes', _.omit(selectedSpeciality, 'rev'))
+                    }
+
+                    console.log(this.selectedUserHcp)
+
+                }
+            }
+
+            _administratorRoleChanged(e){
+                if(this.selectedUser && e.detail){
+                    if(e.detail.value === true){
+                        this.push('selectedUser.roles', 'ADMIN')
+                    }else{
+                        const idx = this.selectedUser.roles && _.indexOf(this.selectedUser.roles, this.selectedUser.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN')) || null
+                        this.splice('selectedUser.roles', idx, 1)
+                    }
+                }
+            }
+
+            _getLabel(label){
+                return label[this.language]
+            }
+
+            _selectedHcpStatusChanged(){
+                if(this.selectedUserHcp && this.selectedHcpType && this.selectedHcpType.id){
+                    this.set('selectedUserHcp.type', this.selectedHcpType.id)
+                }
+            }
+
 
         }
 

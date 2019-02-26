@@ -826,7 +826,7 @@
                 }
 
                 .exportMonthPicker {
-                    padding:20px 0 10px 0;
+                    padding:0px 0 10px 0;
                     border:1px solid #ddd;
                     margin:40px auto;
                     max-width:520px;
@@ -834,8 +834,17 @@
                     box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.2);
                 }
 
-                vaadin-combo-box{
-                    margin:10px 20px 0 20px;
+                vaadin-combo-box {
+                    margin:10px 30px 0 30px;
+                    width:130px;
+                }
+
+                .exportMonthPickerTitle {
+                    text-transform: uppercase;
+                    margin-bottom:20px;
+                    padding:10px 0 13px 0;
+                    background-color:var(--app-secondary-color);
+                    font-weight: 700;
                 }
 
             </style>
@@ -946,6 +955,7 @@
                 <div class="textAlignCenter">
 
                     <div class="exportMonthPicker">
+                        <div class="exportMonthPickerTitle"><iron-icon icon="vaadin:calendar" style="max-width:20px; max-height:20px; margin-right:7px;"></iron-icon> Mois à générer</div>
                         <vaadin-combo-box id="exportedMonth" filtered-items="[[_getExportMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getExportCurrentMonth()]]"></vaadin-combo-box>
                         <vaadin-combo-box id="exportedYear" filtered-items="[[_getExportYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getExportCurrentYear()]]"></vaadin-combo-box>
                     </div>
@@ -1113,6 +1123,10 @@
                             archived: 0
                         })
                     },
+                    flatRateInvoicingDataObject: {
+                        type: Object,
+                        value: null
+                    }
                 };
             }
 
@@ -1130,7 +1144,7 @@
                     this.set("hcp",response)
                     if(response.contactPersonHcpId){
                     this.api.hcparty().getHealthcareParty(response.contactPersonHcpId).then(hcpCt => {
-                        this.set("contactPerson", hcpCt.lastName + " " + hcpCt.firstName);
+                        this.set("contactPerson", _.trim( _.trim(_.get(hcpCt, "lastName", "")) + " " + _.trim(_.get(hcpCt, "firstName", "")) ));
                     })}
                 })
             }
@@ -1589,17 +1603,18 @@
                 return a === b
             }
 
-            _getInsuranceTitularyInfo() {
+            _getInsuranceTitularyInfo(inputPatientsList=false) {
                 return new Promise(resolve =>{
-                    const insuranceTitularyIds = _.uniq(_.filter( this.flatRateAllPatients, (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
+                    const insuranceTitularyIds = _.uniq(_.filter( (inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
                     return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
-                        _.map(this.flatRateAllPatients, (i=>{
-                            if(!_.trim(_.get(i,"titularyId", "" ))) return i
-                            let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
-                            i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
-                            return i
-                        }))
-                        resolve(null)
+                        return resolve(
+                            _.map((inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i=>{
+                                if(!_.trim(_.get(i,"titularyId", "" ))) return i
+                                let titularyRecord = _.head(_.filter(results,(j=>{ return _.trim(j.id) === _.get(i,"titularyId", "" ) })))
+                                i.titularyLabel = _.upperCase(_.get(titularyRecord, "firstName", "" )) + ' ' + _.upperCase(_.get(titularyRecord, "lastName", "" ))
+                                return i
+                            }))
+                        )
                     })
                 })
             }
@@ -1632,7 +1647,11 @@
                                     if(!!hcpPat.length) _.forEach(hcpPat, ((singleHcpPat)=>this.flatRateAllPatients.push(singleHcpPat)));
                                     if(totalHcpPatientToResolve===resolvedHcpPatients){
                                         this.flatRateAllPatients = _.chain(this.flatRateAllPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value();
-                                        this._getInsuranceTitularyInfo().then( data => { this._getInsurancesData(); })
+                                        this._getInsuranceTitularyInfo().then( data => {
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                                            this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
+                                            this._getInsurancesData();
+                                        })
                                     }
                                 })
                                 .catch(()=>{this.set('_isLoading', false );})
@@ -1996,7 +2015,25 @@
                                         && !!i.dateOfBirth
                                         && !!i.ssin
                                         && !!i.insurabilities.length
-                                        && !!_.chain(i.insurabilities).filter((i)=>{return(i && i.identificationNumber && i.insuranceId && ( moment(i.startDate||0, 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') || !i.startDate ) && ( moment(i.endDate||0, 'YYYYMMDD').isAfter(this.reportCurrentDateMomentObject, 'date') || !i.endDate ) )}).value().length
+                                        && !!_.size(
+                                            _.chain(i.insurabilities)
+                                                .filter(i=>{return(
+                                                    i
+                                                    && i.identificationNumber
+                                                    && i.insuranceId
+                                                    && (
+                                                        moment(_.get(i, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
+                                                        moment(_.get(i, "startDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
+                                                        !parseInt(_.get(i, "startDate", 0))
+                                                    )
+                                                    && (
+                                                        moment(_.get(i, "endDate"+"", 0), 'YYYYMMDD').isAfter(this.reportCurrentDateMomentObject, 'date') ||
+                                                        moment(_.get(i, "endDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
+                                                        !parseInt(_.get(i, "endDate", 0))
+                                                    )
+                                                )})
+                                            .value()
+                                        )
                                         && parseInt( _.size( _.get(i, "medicalHouseContracts", [] ) ) )
                                         && parseInt( _.size( _.filter( _.get(i, "medicalHouseContracts", [] ), (i)=>{return i && i.hcpId === this.user.healthcarePartyId}) ) )
                                     )})
@@ -2014,8 +2051,16 @@
                                                     _.size(ins) &&
                                                     !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
                                                     !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
-                                                    ( moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isBefore(moment(), 'date') || !parseInt(_.get(ins, "startDate", 0)) ) &&
-                                                    ( moment(_.get(ins, "endDate"+"", 0), 'YYYYMMDD').isAfter(moment(), 'date') || !parseInt(_.get(ins, "endDate", 0)) )
+                                                    (
+                                                        moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
+                                                        moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
+                                                        !parseInt(_.get(ins, "startDate", 0))
+                                                    ) &&
+                                                    (
+                                                        moment(_.get(ins, "endDate"+"", 0), 'YYYYMMDD').isAfter(this.reportCurrentDateMomentObject, 'date') ||
+                                                        moment(_.get(ins, "endDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
+                                                        !parseInt(_.get(ins, "endDate", 0))
+                                                    )
                                                 }
                                             ), "[0]", {}
                                         )
@@ -2038,13 +2083,8 @@
 
             _getInsurancesData() {
 
-                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
-
                 this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(this.flatRateAllPatients).map((i)=>{return (i && i.insurabilities && i.insurabilities.length && i.insurabilities[0].insuranceId) ? i.insurabilities[0].insuranceId : false }).uniq().value()}))
                     .then((ins) => {
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
-                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
                         this.oaData = _
                           .chain(ins)
                           .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
@@ -2056,7 +2096,23 @@
 
             }
 
+            _getInsurancesDataByPatientsList(inputPatientsList) {
+                return new Promise(resolve => {
+                    this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.chain(inputPatientsList).map(i=>_.trim(_.get(i, "insurabilities[0].insuranceId"))).uniq().compact().value()}))
+                        .then(insurancesData => resolve(
+                            _
+                                .chain(insurancesData)
+                                .map((i)=>{ i.finalName = (i && i.name && i.name[this.language]) ? i.name[this.language] : i.name[(this.language==='fr' ? 'nl' : 'fr')]; return i; })
+                                .sortBy((i)=>{ return i.code; })
+                            .value()
+                        ))
+                })
+            }
+
             _generateJ3FileAndDownload() {
+
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
 
                 let pdfData = {};
 
@@ -2261,9 +2317,325 @@
                 return parseInt(moment().format('YYYY'))
             }
 
-            _exportFlatRateInvoicing() {
+            _sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }            
 
-                console.log("_exportFlatRateInvoicing");
+            _createOrUpdateMedicalHousePatientsInvoices( inputData ) {
+                return Promise.all(_.toPairs(this.flatRateInvoicingDataObject.listsData).map(list => {
+                    const typeList = list[0]
+                    const patientList = list[1]
+                    const codesList = typeList === "list5" || typeList === "list6" ? _.concat(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth) : this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth
+
+                    return patientList.map(pat => _.assign(pat, {invoicingCodes: codesList.filter(code => (code.flatRateType === "physician" && pat.finalMedicalHouseContracts.gp === true) || (code.flatRateType === "nurse" && pat.finalMedicalHouseContracts.nurse === true) || (code.flatRateType === "physiotherapist" && pat.finalMedicalHouseContracts.kine === true)).map(val => ({
+                                code: val.code,
+                                tarificationId: "INAMI-RIZIV|" + val.code + "|1.0",
+                                label: val.label[this.language],
+                                totalAmount: Number(val.price),
+                                reimbursement: Number(val.price),
+                                patientIntervention: Number(0.00).toFixed(2),
+                                doctorSupplement: Number(0.00).toFixed(2),
+                                units: 1,
+                                canceled: false,
+                                accepted: false,
+                                pending: false,
+                                resent: false,
+                                dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
+                                id: this.api.crypto().randomUuid(),
+                                logicalId: this.api.crypto().randomUuid()
+                            }))}
+                        ))
+                    })
+                ).then(pats => {
+                    let prom = Promise.resolve([])
+
+                    const allPats = _.flatten(pats)
+                    const parentInsuranceIds = allPats.reduce((acc,pat) => { const parentId = this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent; if (!acc.includes(parentId)) { acc.push(parentId) }; return acc}, [])
+
+                    return this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : parentInsuranceIds})).then(
+                        parentInsurances => {
+                            allPats.forEach(pat => {
+                                prom = prom.then(pats =>
+                                    this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)
+                                        .then(secretForeignKeys => {
+                                                const insParent = parentInsurances.find(i => i.id === this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
+                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes)
+                                                    .then(invoices =>
+                                                        !invoices[0].id ? this.api.invoice().newInstance(this.user, pat, invoices[0])
+                                                            .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
+                                                            .then(inv => {console.log(inv); return inv}) : Promise.resolve(invoices[0]))
+                                                    .then(newInvoice => {
+                                                        pat.invoices = [newInvoice]
+                                                        return _.concat(pats, [pat])
+                                                    })
+                                            }
+                                        ))
+                            })
+                            return prom
+                        }
+                    )
+                })
+            }
+
+            _exportFlatRateInvoicing() {
+                this.set('_isLoading', true );
+                this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1',this.language), icon:"arrow-forward"});
+
+                // Force refresh - could be new "valorisation" was just set
+                if(_.size(_.get(this.api.hcparty().cache, _.get(this.user, "healthcarePartyId", "" )))) delete this.api.hcparty().cache[_.get(this.user, "healthcarePartyId", "" )];
+
+                this.api.hcparty().getHealthcareParty(_.get(this.user, "healthcarePartyId", "" ))
+                    .then(hcp => {
+
+                        this.set("hcp",hcp);
+
+                        this.flatRateInvoicingDataObject = {
+                            hcpData: {
+                                id: _.trim(_.get(this.hcp, "id")),
+                                name: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
+                                address: _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"work"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).filter({addressType:"home"}).head().value() || _.chain(_.get(this.hcp,"addresses",{})).head().value() || {},
+                                nihii: _.trim(_.get(this.hcp, "nihii", "")),
+                                nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
+                                contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
+                                contactPerson: _.trim(_.get(this, "contactPerson", "")),
+                                financialInfo: _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) )
+                            },
+                            patientsData: [],
+                            insurancesData: [],
+                            listsData: [],
+                            invoicesData: [],
+                            exportDate: _.trim(
+                                parseInt(_.get(this.shadowRoot.getElementById("exportedYear"), "value", this._getExportCurrentYear())) +
+                                ( ( _.trim(_.get(this.shadowRoot.getElementById("exportedMonth"), "value", this._getExportCurrentMonth())).length === 1 ? "0" : "" ) + parseInt(_.get(this.shadowRoot.getElementById("exportedMonth"), "value", this._getExportCurrentMonth())) ) +
+                                "01"
+                            )
+                        }
+
+                        this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")
+
+                        this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
+                            phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
+                            email: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "email"}), "[0].telecomNumber", "")),
+                            financialInfo: {
+                                bankAccount: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", "")),
+                                bankAccountFormated: this.api.formatBankAccount( _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", "")) ),
+                                bic: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bic", "")) || this.api.getBicByIban(_.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.bankAccount", ""))),
+                                name: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.name", "")),
+                            }
+                        })
+
+                        this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth = _.merge(
+                            [
+                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
+                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                            ],
+                            _.compact(
+                                _.chain(_.get(this.hcp, "flatRateTarifications", []))
+                                    .map(singleNomenclature => {
+                                        const valorisationPrice = parseFloat(
+                                            _.get(
+                                                _.head(
+                                                    _.orderBy(
+                                                        _
+                                                            .chain(singleNomenclature.valorisations)
+                                                            .filter(singleValorisation => {
+                                                                return (
+                                                                    !!singleValorisation
+                                                                    && parseFloat(_.get(singleValorisation, "reimbursement", 0))
+                                                                    && (
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').subtract(1, 'month') ) ||
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format("YYYYMMDD")
+                                                                    )
+                                                                )
+
+                                                            })
+                                                        .value(),
+                                                        ["startOfValidity"],
+                                                        ["desc"]
+                                                    )
+                                                ),
+                                                "reimbursement"
+                                            )
+                                        )
+                                        return parseFloat(valorisationPrice) ? {
+                                            code: _.trim(_.get(singleNomenclature, "code")),
+                                            label: _.get(singleNomenclature, "label"),
+                                            flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
+                                            price: valorisationPrice,
+                                            type: 'previous'
+                                        } : false
+                                    })
+                                .value()
+                            )
+                        )
+
+                        this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth = _.merge(
+                            [
+                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
+                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                            ],
+                            _.compact(
+                                _.chain(_.get(this.hcp, "flatRateTarifications", []))
+                                    .map(singleNomenclature => {
+                                        const valorisationPrice = parseFloat(
+                                            _.get(
+                                                _.head(
+                                                    _.orderBy(
+                                                        _
+                                                            .chain(singleNomenclature.valorisations)
+                                                            .filter(singleValorisation => {
+                                                                return (
+                                                                    !!singleValorisation
+                                                                    && parseFloat(_.get(singleValorisation, "reimbursement", 0))
+                                                                    && (
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month') ) ||
+                                                                        (moment(_.trim(_.get(singleValorisation, "startOfValidity", "0")), "YYYYMMDD").startOf('month')).format("YYYYMMDD") === moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf('month').format("YYYYMMDD")
+                                                                    )
+                                                                )
+
+                                                            })
+                                                        .value(),
+                                                        ["startOfValidity"],
+                                                        ["desc"]
+                                                    )
+                                                ),
+                                                "reimbursement"
+                                            )
+                                        )
+                                        return parseFloat(valorisationPrice) ? {
+                                            code: _.trim(_.get(singleNomenclature, "code")),
+                                            label: _.get(singleNomenclature, "label"),
+                                            flatRateType: _.trim(_.get(singleNomenclature, "flatRateType")),
+                                            price: valorisationPrice,
+                                            type: 'current'
+                                        } : false
+                                    })
+                                    .value()
+                            )
+                        )
+
+                    })
+                    .then(()=>{
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_2',this.language), icon:"arrow-forward"});
+                        return this._getPatientsByHcp(_.get(this.hcp, "id")).then(myPatients=>_.chain(myPatients).uniqBy('ssin').sortBy(['lastName', 'firstName'],['asc','asc']).value())
+                    })
+                    .then((myPatients)=>{
+
+                        // Find valid MHContract or drop entry
+                        myPatients = _.compact(
+                            _.map( myPatients, pat => {
+                                pat.finalMedicalHouseContracts = _.get(
+                                    _.orderBy(
+                                        _
+                                            .chain(pat.medicalHouseContracts||[])
+                                            .filter(mhc => {
+                                                return (
+                                                    !!mhc &&
+                                                    !!_.size(mhc) &&
+
+                                                    // Has to begin in the past
+                                                    moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) &&
+                                                    (
+                                                        // Either end of contract is in the future or is not set
+                                                        moment(_.trim(_.get(mhc, "endOfContract", "0")), "YYYYMMDD").endOf('month').isAfter(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD")) ||
+                                                        !parseInt(_.get(mhc, "endOfContract", 0))
+                                                    ) &&
+                                                    (
+                                                        // Either start of coverage is before this month AND set OR
+                                                        // Start of coverage isn't set and start of contract is two month in the past (start of coverage = start of contract + 1 month when no trial period)
+                                                        (
+                                                            parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfCoverage", "0")), "YYYYMMDD").endOf('month').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        ) ||
+                                                        (
+                                                            !parseInt(_.get(mhc, "startOfCoverage", 0)) &&
+                                                            moment(_.trim(_.get(mhc, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').isBefore(moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD"))
+                                                        )
+                                                    )
+                                                )
+                                            })
+                                            .value(),
+                                        ["startOfContract"],
+                                        ["desc"]
+                                    ),
+                                    "[0]", []
+                                )
+                                return _.size( pat.finalMedicalHouseContracts ) ? pat : false
+                            })
+                        )
+
+                        _.map( myPatients, pat => {
+                            pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
+                                pat.finalMedicalHouseContracts :
+                                _.merge(
+                                    pat.finalMedicalHouseContracts,
+                                    {startOfCoverage: parseInt(moment(_.trim(_.get(pat.finalMedicalHouseContracts, "startOfContract", 0)), "YYYYMMDD").startOf('month').add(1, 'months').format("YYYYMMDD"))}
+                                )
+                        })
+
+                        this.flatRateInvoicingDataObject.patientsData = myPatients
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_3',this.language), icon:"arrow-forward"});
+                        return this._getInsuranceTitularyInfo(myPatients).then(x=>x)
+                    })
+                    .then((myPatientsWithInsuranceTitularyInfo)=>{
+                        this.flatRateInvoicingDataObject.patientsData = myPatientsWithInsuranceTitularyInfo
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_3_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4',this.language), icon:"arrow-forward"});
+                        return this._getInsurancesDataByPatientsList(myPatientsWithInsuranceTitularyInfo).then(x=>x)
+                    })
+                    .then((insurancesData)=>{
+                        this.flatRateInvoicingDataObject.insurancesData = insurancesData
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5',this.language), icon:"arrow-forward"});
+                        return {
+
+                            // "Old" patients
+                            // Start of month of start cover must be BEFORE (start of export month -1 month)
+                            // Ie: start of coverage began 2+ month before exported month
+                            list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
+                            )}),
+
+                            // New patients WITHOUT tryout (double amounts / must appear twice)
+                            // Start of month of start cover must be EQUAL TO (start of export month -1 month)
+                            // AND Start of month of cover - 1 month === Start of month of contract
+                            list5: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                            )}),
+
+                            // New patients WITH tryout (double amounts / must appear twice)
+                            // Start of month of start cover must be EQUAL TO (start of export month -1 month)
+                            // AND Start of month of cover - 1 month > Start of month of contract
+                            list6: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                            )}),
+                        }
+
+                    })
+                    .then((listsData)=>{
+                        this.flatRateInvoicingDataObject.listsData = listsData
+                        this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
+                        return this._createOrUpdateMedicalHousePatientsInvoices(this.flatRateInvoicingDataObject).then(x=>x)
+                    })
+                    .then(invoicesData=>{
+                        this.flatRateInvoicingDataObject.invoicesData = invoicesData
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
+                        this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
+
+                        console.log("Generate flat files + bordereaux + pdf here");
+                        console.log(this.flatRateInvoicingDataObject)
+
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(()=>{this.set('_isLoading', false );})
+
 
                 // Flat files
                 // Bordereaux
