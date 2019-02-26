@@ -1165,7 +1165,7 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)','_hcpChanged(hcp)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
+                return ['apiReady(api,user,opened)', '_userChanged(user)','addressProChanged(adr,adr.*)', '_autoMailChanged(receiveMailAuto)', '_selectedPrinterChanged(selectedPrinter.*)'];
             }
 
             ready() {
@@ -1358,8 +1358,7 @@
 
             apiReady() {
                 if (this.user && this.api && this.opened) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.register(hcp, 'hcp',null,true)).then(hcp => {
-
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.hcp = this.api.register(hcp, 'hcp',null,true)).then(hcp => {
                         if (!hcp.languages || !hcp.languages.length) hcp.languages = ['en'];
                         if (!hcp.type) hcp.type='persphysician';
                         if (!hcp.billingType) hcp.billingType='flatRate';
@@ -1402,17 +1401,11 @@
                                         ''
                                 }] : [];
 
-                                // Only affect when computed
-                                this.set('hcp', hcp);
-
                             });
 
-                        } else {
-
-                            // Affect directly
-                            this.set('hcp', hcp);
-                            
                         }
+
+                        this._hcpChanged()
                     });
 
                     this.api.isElectronAvailable().then(isit=>this.set('electronAvailable',isit))
@@ -1445,7 +1438,7 @@
 
             _hcpChanged() {
                 if(this.api && this.hcp) {
-                    this.api.getRegistry('hcp').listeners['hcp-profile'] = {target: this, paths: ['hcp'], pool: [this.hcp.id]}
+                    this.api.getRegistry('hcp').listeners['hcp-profile'] = {target: this, callbacks: [() => this._hcpChanged()], pool: [this.hcp.id]}
 
                     if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
                     let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
@@ -1546,7 +1539,7 @@
                     //     .finally(() => this.$.dialog.close())
                     Promise.all([this.api.user().modifyUser(this.user), this.api.hcparty().modifyHealthcareParty(this.hcp)])
                     .then(([user,hcp]) => {
-                        this.hcp = this.api.register(hcp,'hcp');
+                        this.api.register(hcp,'hcp');
                         this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
                         this.$.dialog.close()
                     })
