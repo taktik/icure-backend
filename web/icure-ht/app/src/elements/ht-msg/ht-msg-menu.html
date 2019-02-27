@@ -197,7 +197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			collapse-button .menu-item.iron-selected,
             collapse-button paper-item.iron-selected{
-				@apply --padding-right-left-16;
+				@apply --padding-menu-item;
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
@@ -227,6 +227,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 20px;
 				padding:4px;
 				color: var(--app-text-color);
+				opacity: .5;
 			}
 
 			collapse-button paper-icon-button{
@@ -256,7 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.menu-item{
-				@apply --padding-right-left-16;
+				@apply --padding-menu-item;
 				height:48px;
 				@apply --paper-font-button;
 				text-transform: inherit;
@@ -269,6 +270,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-size: 13px;
 				min-height:32px;
 				height:32px;
+				padding-left: 8px;
 			}
 			.sublist .menu-item.flex-start {
                 justify-content: flex-start;
@@ -495,8 +497,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow: hidden;
 				align-items: center;
 				display: flex;
-				flex-flow: row wrap;
+				flex-flow: row nowrap;
 				justify-content: flex-start;
+			}
+
+			.one-line-menu.list-title > div {
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
             #inbox {
@@ -558,7 +566,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template is="dom-if" if="[[!ehealthSession]]"><paper-tooltip class="eh-disabled" for="new-msg-btn" position="bottom">[[localize('ehe_is_not_con','eHealth is not connected',language)]]</paper-tooltip></template>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
-					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
+					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
