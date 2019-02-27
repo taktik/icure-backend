@@ -1238,39 +1238,27 @@
                         {moment:this.localize('aftermeal','after meal')  , regimens: afterMeal , morning: afterMealRegimens.morning , midday: afterMealRegimens.midday , evening: afterMealRegimens.evening }
                     ]
 
-                    const extraLinesByIndexPlacement = []
+                    const extraLines = {before: [], after: []}
 
-                    ;[[0,scores.beforebreakfast-1,scores.duringbreakfast,scores.afterbreakfast+1,105959], [110000,scores.beforelunch-1,scores.duringlunch,scores.afterlunch+1,155959], [160000,scores.beforedinner-1,scores.duringdinner,scores.afterdinner+1,240000]].forEach((quad,idx) => {
+                    ;[[0,scores.duringbreakfast,scores.duringbreakfast + 1,105959], [110000,scores.duringlunch,scores.duringlunch+1,155959], [160000,scores.duringdinner,scores.duringdinner+1,240000]].forEach((quad,idx) => {
 
                         const extraBefore = extras.filter(r => this.selectRegimen(scores, r, quad[0],  quad[1]))
-                        const extraAfter  = extras.filter(r => this.selectRegimen(scores, r, quad[3],  quad[4]))
-                        extraLinesByIndexPlacement[idx] = null
+                        const extraAfter  = extras.filter(r => this.selectRegimen(scores, r, quad[2],  quad[3]))
 
                         if(extraBefore.length || extraAfter.length) {
 
                             const createGridObject = (rg) => ({moment:this.localize(rg.dayPeriod && rg.dayPeriod.code || null, rg.dayPeriod && rg.dayPeriod.code || this._formatTime(rg.timeOfDay)), regimens: [rg], morning: idx === 0 && rg || null, midday: idx === 1 && rg || null, evening: idx === 2 && rg || null })
 
-                            extraLinesByIndexPlacement[idx] = {}
-                            extraLinesByIndexPlacement[idx].before = extraBefore.length && _.sortBy(extraBefore.filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0).map( createGridObject ) || []
-                            extraLinesByIndexPlacement[idx].after  = extraAfter.length  && _.sortBy(extraAfter .filter(x => !!x), rg => rg.timeOfDay || rg.dayPeriod && rg.dayPeriod.code && scores[rg.dayPeriod.code] || 0).map( createGridObject ) || []
+                            extraBefore.length && extraLines.before.push(...extraBefore.map(createGridObject))
+                            extraAfter.length  && extraLines.after.push(...extraAfter.map(createGridObject))
 
                         }
                     })
 
                     const tempRegimenTableWithExtras = []
-
-                    tempRegimenTable.forEach( (baseRegimen, idx) => {
-                        const extra = extraLinesByIndexPlacement[idx]
-                        if(extra && extra.before && extra.before.length) {
-                            tempRegimenTableWithExtras.push(...extra.before)
-                        }
-
-                        tempRegimenTableWithExtras.push(baseRegimen)
-
-                        if(extra && extra.after && extra.after.length) {
-                            tempRegimenTableWithExtras.push(...extra.after)
-                        }
-                    })
+                    tempRegimenTableWithExtras.push(...(_.sortBy(extraLines.before.filter(x => !!x.regimens), rg => rg.regimens[0].timeOfDay || rg.regimens[0].dayPeriod && rg.regimens[0].dayPeriod.code && scores[rg.regimens[0].dayPeriod.code] || 0)))
+                    tempRegimenTableWithExtras.push(...tempRegimenTable)
+                    tempRegimenTableWithExtras.push(...(_.sortBy(extraLines.after.filter( x => !!x.regimens), rg => rg.regimens[0].timeOfDay || rg.regimens[0].dayPeriod && rg.regimens[0].dayPeriod.code && scores[rg.regimens[0].dayPeriod.code] || 0)))
 
                     this.regimenTable = tempRegimenTableWithExtras
 
