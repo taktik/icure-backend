@@ -245,7 +245,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
-            .ehbox-notification-panel {
+            .ehbox-notification-panel,
+            .electron-notification-panel{
                 position: fixed;
                 top: 50%;
                 right: 0;
@@ -701,23 +702,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-listbox id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
                                 <paper-button name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-button>
                                 <paper-button name="pat" on-tap="doRoute">
                                     <iron-icon icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-button>
                                 <paper-button name="hcp" on-tap="doRoute">
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-button>
                                 <paper-button name="msg" on-tap="doRoute">
                                     <iron-icon icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-button>
                                 <paper-button name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    [[localize('diary','Diary',language)]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -767,23 +768,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
                                 <paper-tab name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-tab>
                                 <paper-tab name="pat" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-tab>
                                 <paper-tab name="hcp" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-tab>
                                 <paper-tab name="msg" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-tab>
                                 <paper-tab name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    [[localize('diary','Diary',language)]]
                                 </paper-tab>
                             </paper-tabs>
                         </div>
@@ -867,7 +868,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-item>
                                     <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
                                         <iron-icon icon="power-settings-new"></iron-icon>
-                                        [[localize('log_out')]]
+                                        [[localize('log_out','Log out',language)]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
@@ -882,11 +883,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" route="{{subroute}}" socket="[[socket]]">
                         <splash-screen></splash-screen>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved" on-idle="resetTimer">
+                            socket="[[socket]]" on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen></splash-screen>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
@@ -959,6 +960,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             [[ehboxWebWorkerMessage]]
         </paper-item>
 
+        <paper-item id="electronMessage" class="electron-notification-panel">
+            <iron-icon icon="icons:warning"></iron-icon>
+            [[localize('electron_update_available','New electron version available',language)]]
+        </paper-item>
+
         <paper-dialog id="mikronoErrorDialog">
             <h3>Erreur lors de la création de votre compte agenda</h3>
             <div class="errorMikrono">
@@ -993,6 +999,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
         const runtime = require('offline-plugin/runtime');
+
+        import io from 'socket.io-client';
 
         class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1188,6 +1196,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     backendVersionOk : {
                         type : Boolean,
                         value : true
+                    },
+                    socket: {
+                        type : Object,
+                        value : null
                     }
                 }
             }
@@ -1287,6 +1299,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
+                //init socket io
+                this.api.isElectronAvailable().then(electron => {
+                    if (this.electron) {
+                        this.set("socket",io('http://localhost:16042'))
+
+                        this.socket.on("connect", () => {
+                            console.log("connection avec le socket de electron")
+                        })
+
+                        this.socket.on("update-downloaded", msg => {
+                            console.log(msg)
+                            this.$['electronMessage'].classList.add('notification');
+                            setTimeout(() => {
+                                this.$['electronMessage'].classList.remove('notification');
+                            }, 7500);
+                        })
+
+                        this.notifyPath("socket")
+                    }
+
+                })
+
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
@@ -1320,9 +1354,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return response.json()
                             })
                             .then(res => {
-                                if (res.electronVersion) {
-                                    this.set("electronVersion", res.electronVersion)
-                                    this.set("electronVersionOk",this.versions.electron.includes(res.electronVersion))
+                                if (res.version) {
+                                    this.set("electronVersion", res.version)
+                                    this.set("electronVersionOk",this.versions.electron.includes(res.version))
                                 }
                             })
                     } else {
@@ -1568,9 +1602,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then(hcpMH => {
                         this.set('hasMHCertificate', hcpMH && this.api.keystoreIdMH)
                         return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpasswordMH, hcpMH.nihii.substr(0, 8), this.api.keystoreIdMH, true).then(res => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('disconnected')
-                        this.$.eHealthMHStatus.classList.add('connected')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('disconnected')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('connected')
 
                         this.set('api.tokenIdMH', res.tokenId)
                         this.set('api.tokenMH', res.token)
@@ -1578,9 +1612,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         return res.tokenId
                         })
                     }).catch((e) => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('connected')
-                        this.$.eHealthMHStatus.classList.add('disconnected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                         throw(e)
                     })
             }
@@ -1767,23 +1801,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 this.$.api.keystoreIdMH = res.uuid
                                                 return this._getMHToken()
                                             }).catch((e) => {
-                                                this.$.eHealthMHStatus.classList.remove('pending')
-                                                this.$.eHealthMHStatus.classList.remove('connected')
-                                                this.$.eHealthMHStatus.classList.add('disconnected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                                 throw(e)
                                             })
                                         } else {
                                             //TODO: notif for no MH session
                                             //this.$.noehealth.classList.add("notification")
-
-                                            this.$.eHealthMHStatus.classList.remove('pending')
-                                            this.$.eHealthMHStatus.classList.remove('connected')
-                                            this.$.eHealthMHStatus.classList.add('disconnected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                         }
                                     } else {
-                                        this.$.eHealthMHStatus.classList.remove('pending')
-                                        this.$.eHealthMHStatus.classList.remove('connected')
-                                        this.$.eHealthMHStatus.classList.add('disconnected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                     }
                                     return Promise.resolve(null);
                                 });

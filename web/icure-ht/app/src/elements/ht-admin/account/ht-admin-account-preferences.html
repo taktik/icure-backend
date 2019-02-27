@@ -62,17 +62,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position:relative;
             }
 
-            #activeUsersListDiv{
-                height: 25%;
+            .col-lg-6.tile {
+                box-sizing: border-box;
+                border-radius: 4px;
+                border: 1px solid var(--app-background-color-darker);
+                background: var(--app-background-color);
+                margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
             }
-
-            #inactiveUsersListDiv{
-                height: 25%;
-            }
-
-            #userInformationDialog{
-                height: 500px;
-                width: 900px;
+            .tile h2 {
+                background: var(--app-background-color-dark);
+                width: 100%;
+                text-align: center;
+                margin: 0 0 8px 0;
+                padding: 8px;
+                box-sizing: border-box;;
             }
 
             .line {
@@ -108,6 +111,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .line span.lang {
                 padding-top: 20px;
                 width: 80px !important;
+            }
+
+            .flex-horizontal, .flex-horizontal .format {
+                display: flex;
+                flex-direction: row;
+                flex-grow: 1;
+            }
+            .flex-horizontal .format {
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+            .flex-horizontal .format.regulations {
+                border-bottom: 0;
+            }
+
+            .flex-horizontal > div {
+                flex-grow: 1;
+                box-sizing: border-box;
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+            .flex-horizontal > div.col {
+                border: 0;
+                margin: initial;
+                border-radius: 0;
+            }
+            .flex-horizontal div.print-tile {
+                border: 1px solid var(--app-background-color-darker);
+                margin: 16px 8px;
+                border-radius: 4px;
+            }
+
+            .flex-horizontal h2 {
+                background: var(--app-background-color-dark);
+                padding: 8px;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+                margin: 0;
+            }
+            .flex-horizontal .format {
+                flex-direction: row;
+            }
+            .flex-horizontal .format .left {
+                flex-grow: initial;
+                width: 128px;
+                line-height: 64px;
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .flex-horizontal .format .right {
+                flex-grow: 1;
+                padding: 0 16px;
+            }
+            .flex-horizontal .format .right paper-dropdown-menu {
+                width: 100%;
+            }
+
+            .flex-horizontal paper-listbox {
+                max-height: 256px;
+                max-width: 256px;
+            }
+            .flex-horizontal paper-item {
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+            .flex-horizontal paper-item:hover {
+                background: var(--app-background-color-dark);
+            }
+            .flex-horizontal paper-item:active,
+            .flex-horizontal paper-item:focus {
+                background: var(--app-background-color-darker);
             }
 
             .marginRight10 {
@@ -157,21 +233,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-text-color);
             }
 
-            .user-panel {
-                height:100%;
-                background: var(--app-background-color);
-                margin: 0;
-                width:100%;
-                grid-column: 2 / 4;
-                /*grid-template-columns: 40px 200px 200px 40px;*/
-                grid-row: 1 / 1;
+            .flex{
+                flex: 1;
+            }
+
+            .line {
+                display: flex;
             }
 
         </style>
 
         <div class="users-panel">
             <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_prefs', 'Preferences', language)]]</h4>
+
+            <div>
+                <h5>Dossier patient</h5>
+                <vaadin-checkbox checked="{{openPostItAuto}}">[[localize('open_post_it','Open post-it with patient folder',language)]]</vaadin-checkbox>
+            </div>
+
+
+            <div>
+                <h5>Ehbox</h5>
+                <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
+                <vaadin-checkbox checked="{{assignMailAuto}}">[[localize('','Assign mails automatically',language)]]</vaadin-checkbox>
+            </div>
+
+            <div>
+                <h5>Hubs</h5>
+                <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+                        <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                        <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                        <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+
+                <paper-radio-group selected="{{userEHealthEnv}}">
+                    <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+                    <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+
+            <div>
+                <h5>Facturation</h5>
+                <h5>Gestion des numéros d'envois</h5>
+                <paper-input label="OA 100" value="{{_getBatchNumber(100)}}"></paper-input>
+                <paper-input label="OA 200" value="{{_getBatchNumber(200)}}"></paper-input>
+                <paper-input label="OA 300" value="{{_getBatchNumber(300)}}"></paper-input>
+                <paper-input label="OA 400" value="{{_getBatchNumber(400)}}"></paper-input>
+                <paper-input label="OA 500" value="{{_getBatchNumber(500)}}"></paper-input>
+                <paper-input label="OA 600" value="{{_getBatchNumber(600)}}"></paper-input>
+                <paper-input label="OA 900" value="{{_getBatchNumber(900)}}"></paper-input>
+            </div>
+
         </div>
+
+
+
     </template>
 
     <script>
@@ -193,12 +311,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object,
                         noReset: true
+                    },
+                    openPostItAuto: {
+                        type: Boolean,
+                        value: false
+                    },
+                    receiveMailAuto: {
+                        type: Boolean,
+                        value: false
+                    },
+                    assignMailAuto:{
+                        type: Boolean,
+                        value: false
+                    },
+                    listOfEfactBatchNumbers:{
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
 
             static get observers() {
-                return [];
+                return ['_preferencesDataProvider(user)'];
             }
 
             constructor() {
@@ -207,6 +341,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            _preferencesDataProvider(){
+                const prefixTab = [
+                    'efact:'+this.user.healthcarePartyId+':100:',
+                    'efact:'+this.user.healthcarePartyId+':200:',
+                    'efact:'+this.user.healthcarePartyId+':300:',
+                    'efact:'+this.user.healthcarePartyId+':400:',
+                    'efact:'+this.user.healthcarePartyId+':500:',
+                    'efact:'+this.user.healthcarePartyId+':600:',
+                    'efact:'+this.user.healthcarePartyId+':900:'
+                ]
+
+                Promise.all(prefixTab.map(prefix => ({
+                    nextBatchNumber: this.api.invoice().getNextInvoiceReference(prefix, this.api.entityRef()),
+                    prefix: prefix
+
+                }))).then(batchNumbers => this.set('listOfEfactBatchNumbers', batchNumbers))
+                    .finally(() => console.log(this.listOfEfactBatchNumbers))
+
+            }
+
+            _getBatchNumber(oa){
+                const batchNumber = this.listOfEfactBatchNumbers.find(batch => batch.prefix === 'efact:'+this.user.healthcarePartyId+':'+oa+':')
+                //return batchNumber.nextBatchNumber
+            }
+
+            _getValueLabel(label){
+                return label[this.language]
             }
 
         }

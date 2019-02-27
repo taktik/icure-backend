@@ -1233,7 +1233,7 @@
 
                         <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
                             <paper-input id="invoice-nihiiTrainee"
-                                         label="[[localize('train_nihii','NIHII trainee',language)]]"
+                                         label="[[getLabel(selectedInvoice.careProviderType)]]"
                                          value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"
                                          validator="ht-inami-validator" auto-validate></paper-input>
                         </template>
@@ -3036,15 +3036,11 @@
 
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
-                if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) {
-                        this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
-                        this.set('selectedInvoice.paymentType',"cash")
-                    }
-                    this.$['paymentCheckDialog'].open()
-                } else {
-                    this._validateAndPrepareInvoiceForBatchSending()
+                if (this.selectedInvoice) {
+                    this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot,c)=>tot + (Number(c.reimbursement) || 0) + (Number(c.patientIntervention) || 0) + (Number(c.doctorSupplement) || 0), 0).toFixed(2)))
+                    this.set('selectedInvoice.paymentType',"cash")
                 }
+                this.$['paymentCheckDialog'].open()
             }
 
             _confirmPayment() {
@@ -4018,7 +4014,7 @@
                         }
                     }
 
-                    if(this.selectedInvoice.internshipNihii){
+                    if(this.selectedInvoice.internshipNihii && this.selectedInvoice.careProviderType==="trainee"){
                         newCode.internship={
                             cdHcParty: "trainee",
                             firstName: null,
@@ -4027,6 +4023,17 @@
                             lastName: null
                         }
                     }
+
+                    if(this.selectedInvoice.internshipNihii && this.selectedInvoice.careProviderType==="traineesupervised"){
+                        newCode.internship={
+                            cdHcParty: "trainee",
+                            firstName: null,
+                            idHcParty: this.hcp.nihii,
+                            idSsin: null,
+                            lastName: null
+                        }
+                    }
+
 
                     if(this.selectedInvoice.encounterLocationNorm && this.selectedInvoice.encounterLocationNorm!=="" && this.selectedInvoice.encounterLocationNorm!==0){
                         newCode.location={
@@ -4058,7 +4065,9 @@
                 console.log("envoie")
 
                 const sentDate=moment().format("YYYYMMDD")
-                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe, this.patient.firstName, this.patient.lastName, this.patient.gender, eattest,sentDate)
+                (this.selectedInvoice.careProviderType === "traineesupervised" ?
+                    this.api.hcparty().findBySsinOrNihii(this.selectedInvoice.internshipNihii,0,0,1000,'asc') : Promise.resolve({rows:[]}))
+                    .then(hcps => this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,(hcps.rows && hcps.rows.length && hcps.rows[0].nihii) ||this.hcp.nihii,(hcps.rows && hcps.rows.length && hcps.rows[0].ssin) || this.hcp.ssin, (hcps.rows && hcps.rows.length && hcps.rows[0].firstName) || this.hcp.firstName,(hcps.rows && hcps.rows.length && hcps.rows[0].lastName) || this.hcp.lastName,(hcps.rows && hcps.rows.length && hcps.rows[0].cbe) || this.hcp.cbe, this.patient.firstName, this.patient.lastName, this.patient.gender, eattest,sentDate))
                     .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))
                     .then(fhcEattest => {
                         if(fhcEattest.acknowledge.errors.length===0 && fhcEattest.attest!==null) {
@@ -4171,6 +4180,7 @@
                 if(!this.activeNmclItem)return ;
                 const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
+                this._isJustifButtonDisabled()
             }
 
             _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
@@ -4557,6 +4567,14 @@
                 return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'eattest'
             }
 
+            _isSelectedInvoiceEfact() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'efact'
+            }
+
+            _isSelectedInvoicePaper() {
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'paper'
+            }
+
             _isInvoiceClosedOrSelectedInvoiceEattest(){
                 return this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
             }
@@ -4611,7 +4629,8 @@
             }
 
             _switchBetweenMethodForJustifAndCreation(){
-                if(this._isSelectedInvoiceEattest()){
+                this.calculateTotalOfInvoice()
+                if(this._isSelectedInvoiceEattest() || (this._isSelectedInvoiceEfact() && Number(this.totalInvoice.patientIntervention) > 0) || (this._isSelectedInvoicePaper() && (Number(this.totalInvoice.patientIntervention) > 0 || Number(this.totalInvoice.reimbursement) > 0))){
                     this._prevalidateAndPrepareInvoiceForBatchSending();
                 }
                 else{
@@ -4704,6 +4723,16 @@
                     this.set('isLoading',false)
                     this.set('consultDmgResp', edmgResp);
                 });
+            }
+
+            getLabel(){
+                if(this.selectedInvoice.careProviderType==="trainee"){
+                    return this.localize('train_nihii','NIHII trainee',this.language)
+                }
+                else{
+                    return this.localize('sup_train_nihii','NIHII supervisor',this.language)
+                }
+
             }
         }
 

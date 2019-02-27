@@ -338,7 +338,22 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_selectedTemporalityItemChanged(temporalityItem)','_filterChanged(filterValue)', '_selectedItemChanged(selectedItem)', '_selectSurgerySelectedItem(surgerySelectedItem)', '_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem, drugSelectedItem)', '_ehDateChanged(entity.openingDate, entity.closingDate)','_openingDateChanged(entity.openingDate)', '_closingDateChanged(entity.closingDate)', '_openingDateAsStringChanged(_openingDateAsString)', '_closingDateAsStringChanged(_closingDateAsString)','_checkValidity(entity.codes)'];
+		return [
+		    '_selectedTemporalityItemChanged(temporalityItem)',
+			'_filterChanged(filterValue)',
+			'_selectedItemChanged(selectedItem)',
+            '_allergenItemChanged(allergenSelectedItem)',
+            '_familyRiskItemChanged(familyRiskSelectedItem)',
+            '_drugChanged(drugSelectedItem)',
+			'_selectSurgerySelectedItem(surgerySelectedItem)',
+			'_updateDescription(selectedItem, allergenSelectedItem, familyRiskSelectedItem, surgerySelectedItem, drugSelectedItem)',
+			'_ehDateChanged(entity.openingDate, entity.closingDate)',
+			'_openingDateChanged(entity.openingDate)',
+			'_closingDateChanged(entity.closingDate)',
+			'_openingDateAsStringChanged(_openingDateAsString)',
+			'_closingDateAsStringChanged(_closingDateAsString)',
+			'_checkValidity(entity.codes)'
+		];
 	}
 
 	constructor() {
@@ -374,16 +389,81 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.selectedItem) {
 			this.set('entity.plansOfAction', this.selectedItem.plansOfAction || []);
 			this.api.code().getCodes(this.selectedItem.codes.join(',')).then(codes => {
-				this.set('entity.codes', codes);
+				this.set('entity.codes', _.union(this._stripCodesByTypes(this.entity.codes, ["ICD", "ICPC", "BE-THESAURUS"]), codes));
 			});
 		}
 	}
+
+    _allergenItemChanged() {
+        if (this.allergenSelectedItem) {
+            this.api.code().getCodes(this.allergenSelectedItem.codes.join(',')).then(codes => {
+                this.set('entity.codes', _.union(this._stripCodesByTypes(this.entity.codes, ["CD-ATC"]), codes));
+            });
+        }
+    }
+
+    _familyRiskItemChanged() {
+        if (this.familyRiskSelectedItem) {
+            this.api.code().getCodes(this.familyRiskSelectedItem.codes.join(',')).then(codes => {
+                this.set('entity.codes', _.union(this._stripCodesByTypes(this.entity.codes, ["BE-FAMILY-LINK"]), codes));
+            });
+        }
+    }
+
+    _drugChanged() {
+        if (this.drugSelectedItem) {
+            this._fillMedecineCodes(this.drugSelectedItem).then(() => {
+                this.api.code().getCodes(this.drugSelectedItem.codes.map(c => this.api.code().normalize(c).id).join(',')).then(codes => {
+                    this.set('entity.codes', _.union(this._stripCodesByTypes(this.entity.codes, ["CD-ATC", "CD-DRUG-CNK"]), codes));
+                });
+            })
+        }
+    }
+
+    _fillMedecineCodes(med) {
+        return Promise.resolve([]).then(()=> {
+            //med.codes = [{type: "CD-ATC", code: 123213}];
+            if (med.id && med.id.id) {
+                //by productName
+                return this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
+
+                    med.id.id && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-DRUG-CNK') || (med.codes[med.codes.length] = {
+                        type: 'CD-DRUG-CNK',
+                        version: '0.0.1'
+                    })).code = med.id.id)
+                    mppInfos.atcCode && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-ATC') || (med.codes[med.codes.length] = {
+                        type: 'CD-ATC',
+                        version: '0.0.1'
+                    })).code = mppInfos.atcCode)
+
+                })
+            } else {
+                //by molecule
+                if (med.inncluster) {
+
+                    med.inncluster && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (med.codes[med.codes.length] = {
+                        type: 'CD-INNCLUSTER',
+                        version: '0.0.1'
+                    })).code = med.inncluster)
+                    med.atcCode && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-ATC') || (med.codes[med.codes.length] = {
+                        type: 'CD-ATC',
+                        version: '0.0.1'
+                    })).code = med.atcCode)
+                } else {
+                    //Compound prescription
+
+                }
+            }
+            return med
+        })
+
+    }
 
     _selectSurgerySelectedItem(){
         if (this.surgerySelectedItem) {
             this.set('entity.plansOfAction', this.surgerySelectedItem.plansOfAction || []);
             this.api.code().getCodes(this.surgerySelectedItem.codes.join(',')).then(codes => {
-                this.set('entity.codes', codes);
+                this.set('entity.codes', codes); // no need for additional codes, can replace all codes
             });
         }
 	}
@@ -635,7 +715,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				const type = this.entity.tags.find(t => t.type === "CD-ITEM")
 				type && type.code === "allergy" ? this.set("searchAllergen", true) : this.set("searchAllergen", false)
                 type && type.code === "familyrisk" ? this.set("searchFamilyLink", true) : this.set("searchFamilyLink", false)
-				type && type.code === "dra" ? this.set("searchDrug", true) : this.set("searchDrug", false)
+				type && type.code === "adr" ? this.set("searchDrug", true) : this.set("searchDrug", false)
                 type && type.code === "surgery" ? this.set("searchSurgery", true) :  this.set("searchSurgery", false)
 
 				this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
@@ -735,6 +815,10 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _getTpLabel(item){
 	    return item.label[this.language] ? item.label[this.language] : item.label.en
+	}
+
+	_stripCodesByTypes(codes, types) {
+	    return (codes || []).filter(c=> !types.includes(c.type))
 	}
 
     _checkValidity(){

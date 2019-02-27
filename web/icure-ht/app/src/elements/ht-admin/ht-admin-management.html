@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="management/ht-admin-management-parent.html">
 <link rel="import" href="management/ht-admin-management-facturation-flat-rate.html">
 <link rel="import" href="management/ht-admin-management-facturation-service-fee.html">
+<link rel="import" href="management/ht-admin-management-forms.html">
 
 
 <dom-module id="ht-admin-management">
@@ -108,6 +109,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <ht-admin-management-facturation-flat-rate id="admin-management-facturation-flat-rate" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-facturation-flat-rate>
         </template>
 
+        <template is="dom-if" if="[[formsManagementLayout]]">
+            <ht-admin-management-forms id="admin-management-forms" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-management-forms>
+        </template>
+
     </template>
 
     <script>
@@ -157,7 +162,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     facturationFlatRateManagementLayout:{
                         type: Boolean,
                         value: false
+                    },
+                    formsManagementLayout:{
+                        type: Boolean,
+                        value: false
                     }
+
                 }
             }
 
@@ -182,6 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', false)
                     this.set('facturationServiceFeeManagementLayout', false)
                     this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', false)
                 }else if(this.selectedSubMenu === "usersManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', true)
@@ -189,6 +200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', false)
                     this.set('facturationServiceFeeManagementLayout', false)
                     this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', false)
                 }else if(this.selectedSubMenu === "parentManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
@@ -196,6 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', false)
                     this.set('facturationServiceFeeManagementLayout', false)
                     this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', false)
                 }else if(this.selectedSubMenu === "delegationsManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
@@ -203,6 +216,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', true)
                     this.set('facturationServiceFeeManagementLayout', false)
                     this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', false)
                 }else if(this.selectedSubMenu === "facturationServiceFeeManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
@@ -210,6 +224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', false)
                     this.set('facturationServiceFeeManagementLayout', true)
                     this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', false)
                 }else if(this.selectedSubMenu === "facturationFlatRateManagementSubMenu"){
                     this.set('groupsManagementLayout', false)
                     this.set('usersManagementLayout', false)
@@ -217,6 +232,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('delegationsManagementLayout', false)
                     this.set('facturationServiceFeeManagementLayout', false)
                     this.set('facturationFlatRateManagementLayout', true)
+                    this.set('formsManagementLayout', false)
+                }else if(this.selectedSubMenu === "formsManagementSubMenu"){
+                    this.set('groupsManagementLayout', false)
+                    this.set('usersManagementLayout', false)
+                    this.set('parentManagementLayout', false)
+                    this.set('delegationsManagementLayout', false)
+                    this.set('facturationServiceFeeManagementLayout', false)
+                    this.set('facturationFlatRateManagementLayout', false)
+                    this.set('formsManagementLayout', true)
                 }
 
             }
