@@ -1339,6 +1339,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		if((index + 1)) {
 
+			if(!this.widgets[index].nrRows || !this.widgets[index].nrCols) {
+				return
+			}
+
 			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
 
 			const currentWidget = this.widgets[index];
