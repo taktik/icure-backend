@@ -2115,8 +2115,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this._selectEntities()
                     }
 
-                    console.log("test")
-
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
