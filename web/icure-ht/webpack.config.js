@@ -1,5 +1,6 @@
 /* webpack.config.js */
 
+var WebpackAutoInject = require('webpack-auto-inject-version')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var OfflinePlugin = require('offline-plugin')
@@ -41,7 +42,7 @@ module.exports = {
 
 				        options: {
 				        	/*presets: ['es2015'],*/
-					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
 				        }
 			        },
 			        {
@@ -75,27 +76,32 @@ module.exports = {
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
+        new WebpackAutoInject({
+            components: {
+                AutoIncreaseVersion: false
+            }
+        }),
+        new HtmlWebpackPlugin({
+            inject: false,
+            debug: true,
+            template: path.resolve(__dirname, 'app/index.ejs')
+        }),
         new OfflinePlugin({
             // Unless specified in webpack's configuration itself
             publicPath: '/',
-
+            autoUpdate: 1000*60*30,
             appShell: '/',
             externals: [
                 '/'
             ],
             excludes: [
                 'docs/*.pdf','app/docs/*.pdf'
-            ]
+            ],
+            ServiceWorker: {
+                events: true
+            }
         })
         ,
-        // This plugin will generate an index.html file for us that can be use
-        // by the Webpack dev server. We can give it a template file (written in EJS)
-        // and it will handle injecting our bundle for us.
-        new HtmlWebpackPlugin({
-            inject: false,
-            debug: true,
-            template: path.resolve(__dirname, 'app/index.ejs')
-        }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST
         // remain in ES2015. We’ll talk about this a bit later :)

@@ -22,13 +22,28 @@
             paper-dialog {
                 width: 60%;
                 height: 50%;
+                max-height: none !important;
+                display: flex;
+                flex-direction: column;
+            }
+
+            h3.modal-title {
+                margin: 0;
             }
 
             div {
                 width : 100%;
             }
+
+            div.content {
+                display: flex;
+                flex-direction: column;
+            }
+
             vadin-grid {
                 width : 100%;
+                flex-grow: 1 !important;
+                height: auto !important;
             }
 
             paper-input{
@@ -147,7 +162,7 @@
 
                 console.log(filter)
 
-                Promise.all([this.api.patient().filterByWithUser(this.api.user, null, null, 1000, 0, 'lastName', true, {filter: filter}), this.api.user().listUsers()]).then(([patients,users]) => {
+                Promise.all([this.api.patient().filterByWithUser(this.user, null, null, 1000, 0, 'lastName', true, {filter: filter}), this.api.user().listUsers()]).then(([patients,users]) => {
                     let promises = [];
                     let logListTemp = [];
                     let listIdUser =[];

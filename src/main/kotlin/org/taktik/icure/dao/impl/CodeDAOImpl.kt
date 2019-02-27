@@ -28,6 +28,7 @@ import org.springframework.stereotype.Repository
 import org.taktik.icure.dao.CodeDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
+import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
@@ -196,7 +197,55 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                              )
     }
 
-	override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
+    @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
+    override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): List<String> {
+        var sanitizedLabel = label
+        sanitizedLabel = if (sanitizedLabel != null) StringUtils.sanitizeString(sanitizedLabel) else null
+        val from =
+            ComplexKey.of(
+                region ?: "\u0000",
+                language ?: "\u0000",
+                if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                         )
+
+        val to = ComplexKey.of(
+            if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
+            if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
+            if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
+                              )
+
+        return db.queryView(createQuery("by_language_label")
+            .includeDocs(false)
+            .startKey(from)
+            .endKey(to), String::class.java)
+    }
+
+    @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
+    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
+        var sanitizedLabel = label
+        sanitizedLabel = if (sanitizedLabel != null) StringUtils.sanitizeString(sanitizedLabel) else null
+        val from =
+            ComplexKey.of(
+                region ?: "\u0000",
+                language ?: "\u0000",
+                type ?: "\u0000",
+                if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                         )
+        val to = ComplexKey.of(
+            if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
+            language ?: ComplexKey.emptyObject(),
+            type ?: ComplexKey.emptyObject(),
+            if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
+                              )
+
+        return db.queryViewWithKeys(createQuery("by_language_type_label")
+                                .includeDocs(false)
+                                .startKey(from)
+                                .endKey(to), String::class.java)?.mapNotNull { ckv -> ckv.id } ?: listOf()
+
+    }
+
+    override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
 		if (ofType != null && code.type != ofType) {
 			return orDefault ?: throw IllegalArgumentException("code ($code) has not the expected type $ofType")
 		}

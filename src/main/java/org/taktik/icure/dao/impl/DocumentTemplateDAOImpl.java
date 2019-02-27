@@ -165,7 +165,7 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 		super.postLoad(entity);
 
 		if (entity != null && entity.getAttachmentId() != null) {
-			AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getAttachmentId());
+			AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getAttachmentId(), entity.getRev());
 			try {
 				byte[] layout = ByteStreams.toByteArray(attachmentIs);
 				entity.setAttachment(layout);

@@ -149,11 +149,10 @@
             }
 
             .end-buttons {
+                display: flex;
                 position: absolute;
-                right: 15px;
-                bottom: 15px;
-                margin: 0;
-                padding: 0;
+                right: 0;
+                bottom: 0;
             }
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
@@ -165,7 +164,11 @@
                 padding: 10px 1.2em;
                 text-transform: capitalize;
             }
-
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
             .modal-button--save {
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
@@ -175,7 +178,6 @@
 
             ht-spinner {
                 position: relative;
-                top: 10px;
                 height: 42px;
                 width: 42px;
             }
@@ -187,7 +189,7 @@
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <h2 class="modal-title">[[localize('hub','Hubs',language)]]<ht-spinner active="[[isLoading]]"></ht-spinner></h2>
+            <h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
             <div>
                 <paper-dropdown-menu id="preferredHub" label="[[localize('cur_hub','Current hub',language)]]">
                     <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{curHub}}">
@@ -281,9 +283,9 @@
                 <div class="buttons">
                     <!--<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
                     <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
-                        <paper-button on-tap="_registerHubPatientConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
-                        <paper-button on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
-                        <paper-button on-tap="_runRegisterHubPatient" dialog-confirm>[[localize('register','Register',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_registerHubPatientConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
+                        <paper-button class="modal-button" on-tap="_runRegisterHubPatient" dialog-confirm>[[localize('register','Register',language)]]</paper-button>
                     </template>
                     <!--<template is="dom-if" if="[[_enableRevokeConsent(patientHubConsent, hubSupportsConsent)]]">-->
                         <!--<paper-button on-tap="_revokeHubPatientConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
@@ -291,8 +293,9 @@
                     <!--</template>-->
                 </div>
             </template>
-            <div class="buttons">
-                <paper-button class="modal-button--save" dialog-dismiss autofocus >[[localize('can','Cancel',language)]]</paper-button>
+            <div class="end-buttons">
+                <ht-spinner active="[[isLoading]]"></ht-spinner>
+                <paper-button class="modal-button--cancel" dialog-dismiss autofocus >[[localize('can','Cancel',language)]]</paper-button>
             </div>
 
         </paper-dialog>

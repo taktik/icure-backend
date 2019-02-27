@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.taktik.icure.entities.embed.FlatRateTarification;
 import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyStatus;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
@@ -81,6 +82,8 @@ public class HealthcarePartyDto extends StoredDto {
     protected String billingType;                       // "serviceFee" (à l'acte) or "flatRate" (forfait)
     protected String type;                              // "persphysician" or "medicalHouse"
     protected String contactPerson;
+    protected String contactPersonHcpId;
+    protected List<FlatRateTarification> flatRateTarifications;
 
 
 	public String getName() {
@@ -342,5 +345,21 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setContactPerson(String contactPerson) {
         this.contactPerson = contactPerson;
+    }
+
+    public String getContactPersonHcpId() {
+        return contactPersonHcpId;
+    }
+
+    public void setContactPersonHcpId(String contactPersonHcpId) {
+        this.contactPersonHcpId = contactPersonHcpId;
+    }
+
+    public List<FlatRateTarification> getFlatRateTarifications() {
+        return flatRateTarifications;
+    }
+
+    public void setFlatRateTarifications(List<FlatRateTarification> flatRateTarifications) {
+        this.flatRateTarifications = flatRateTarifications;
     }
 }

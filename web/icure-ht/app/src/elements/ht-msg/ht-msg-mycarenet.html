@@ -86,6 +86,7 @@
                 }
 
                 .invoice-panel .btns-container{
+                    display: flex;
                     padding: 0;
                     flex-basis: 60px;
                     position: fixed;
@@ -151,7 +152,9 @@
                     width: 42px;
                 }
                 ht-spinner.loading-req {
-                    transform: translateY(12px);
+                    padding-top: 4px;
+                    height: 36px;
+                    width: 36px;
                 }
 
                 paper-button[disabled] {
@@ -394,7 +397,7 @@
             ready() {
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
-                    this.set("hcp",response)
+                    this.set("hcp",this.api.register(response, 'hcp'))
                     //this.getMessages()
                 })
             }

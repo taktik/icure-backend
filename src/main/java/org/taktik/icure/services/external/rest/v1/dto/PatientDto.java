@@ -72,7 +72,7 @@ public class PatientDto extends IcureDto {
     //No guarantee of unicity
     protected String externalId;
 
-    protected SortedSet<AddressDto> addresses = new TreeSet<>();
+    protected List<AddressDto> addresses = new ArrayList<>();
 	protected List<InsurabilityDto> insurabilities = new ArrayList<>();
 	protected List<String> languages = new ArrayList<>(); //http://www.loc.gov/standards/iso639-2/ascii_8bits.html
     protected List<PartnershipDto> partnerships = new ArrayList<>();
@@ -287,11 +287,11 @@ public class PatientDto extends IcureDto {
         this.externalId = externalId;
     }
 
-    public SortedSet<AddressDto> getAddresses() {
+    public List<AddressDto> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(SortedSet<AddressDto> addresses) {
+    public void setAddresses(List<AddressDto> addresses) {
         this.addresses = addresses;
     }
 

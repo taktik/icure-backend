@@ -85,6 +85,8 @@
 				border-radius:2px;
 				z-index:99;
 				padding:8px 2px 0 0;
+                max-height: 200px;
+                overflow-y: auto;
 			}
 
 			.above {
@@ -152,7 +154,9 @@
 		<div class="subform-container">
 			<template id="subforms-repeat" is="dom-repeat" items="[[subContexts]]" as="subContext">
 				<div class="relative">
-					<paper-fab id="remove" icon="close" on-tap="_delete"></paper-fab>
+                    <template is="dom-if" if="[[!readOnly]]">
+					    <paper-fab id="remove" icon="close" on-tap="_delete"></paper-fab>
+                    </template>
 					<dynamic-form id="sf-[[index]]" api="[[api]]" user="[[user]]" template="[[_getTemplate(subContext)]]" data-map="[[subContext.dataMap]]" data-provider="[[subContext.dataProvider]]" reports="[[formReports]]" read-only="[[readOnly]]" is-sub-form i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print="[[noPrint]]"></dynamic-form>
 				</div>
 			</template>
@@ -258,13 +262,14 @@ class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_delete(e) {
-		const subContext = this.$['subforms-repeat'].itemForElement(e.target);
-		this.dispatchEvent(new CustomEvent('delete-subform', { detail: { id: subContext.dataProvider.getId() }, composed: true }));
+		const model = this.$['subforms-repeat'].modelForElement(e.target);
+		const subContext = model.subContext;
+		const index = model.index;
+		this.dispatchEvent(new CustomEvent('delete-subform', { detail: { id: subContext.dataProvider.getId(), index }, composed: true }));
 	}
 
 	_add(e) {
 		this.set('isAdding', false);
-
 		const guid = e.target.id || this._allGuids()[0];
 		if (guid) {
 			this.dispatchEvent(new CustomEvent('add-subform', { detail: { guid: guid }, composed: true }));

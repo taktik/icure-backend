@@ -48,6 +48,7 @@ public class QueryResultWithKeysParser<T> {
 
 	private int totalRows = -1;
 	private int offset = -1;
+	private List<String> ids;
 	private List<ComplexKey> keys;
 	private List<T> rows;
 	private Long updateSequence;
@@ -92,7 +93,8 @@ public class QueryResultWithKeysParser<T> {
 				totalRows = jp.getIntValue();
 			} else if (ROWS_FIELD_NAME.equals(currentName)) {
 				rows = new ArrayList<T>();
-				keys = new ArrayList<ComplexKey>();
+				ids = new ArrayList<>();
+				keys = new ArrayList<>();
 				parseRows(jp);
 			} else if (UPDATE_SEQUENCE_NAME.equals(currentName)) {
 				updateSequence = jp.getLongValue();
@@ -133,6 +135,7 @@ public class QueryResultWithKeysParser<T> {
 				rKeys[i] = mapper.readValue(it.next().traverse(), String.class);
 				i++;
 			}
+			ids.add(row.id);
 			keys.add(ComplexKey.of(rKeys));
 
 			if (row.doc != null) {
@@ -193,6 +196,7 @@ public class QueryResultWithKeysParser<T> {
 					rKeys[i] = mapper.readValue(it.next().traverse(), String.class);
 					i++;
 				}
+				ids.add(currentId);
 				keys.add(ComplexKey.of(rKeys));
 			}
 		}
@@ -216,6 +220,10 @@ public class QueryResultWithKeysParser<T> {
 
 	public List<ComplexKey> getKeys() {
 		return keys;
+	}
+
+	public List<String> getIds() {
+		return ids;
 	}
 
 	public String getLastId() {

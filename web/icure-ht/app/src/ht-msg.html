@@ -71,6 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-direction: column;
                 border-left: 1px solid var(--app-background-color-dark);
                 background-color: var(--app-background-color-light);
+                padding: 0;
             }
 
             .display-left-menu{
@@ -82,14 +83,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-background-color-dark);
                 transform:translateY(-50%) rotate(0);
                 border-radius:0 50% 50% 0;
-                transition: transform 0.2s ease-in;
-
+                /*transition: .5s ease;*/
+                box-shadow: var(--app-shadow-elevation-1);
             }
             .display-left-menu.open{
                 left:50vw;
-                border-radius:50% 0 0  50% ;
-                transform:translateY(-50%) rotate(180deg);
-                transition: transform 0.2s ease-in;
+                border-radius: 0 50% 50% 0;
+                transform: translateY(-50%);
             }
 
             paper-dialog {
@@ -99,6 +99,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ht-msg-list.selected {
                 width: 152vw;
+            }
+
+            ht-msg-menu{
+                z-index : 1;
+            }
+
+            ht-msg-invoice#invoicingForm {
+                z-index : 10;
             }
 
             @media screen and (max-width:1025px){
@@ -116,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ht-msg-menu{
                     display:none;
                     width: 50vw;
+                    z-index: 150;
                 }
                 .container.expanded ht-msg-menu {
                     display: block;
@@ -155,12 +164,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ht-msg-detail.selected {
                     transform: none;
                     opacity: 1;
+                    border-top: 1px solid var(--app-background-color-darker);
                 }
             }
         </style>
 
         <div class="container">
-            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            <template is="dom-if" if="[[!leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
+            </template>
             <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                          on-selection-change="handleMenuChange" on-new-msg="_newMsg" on-fw-msg="_fwMsg" on-re-msg="_reMsg"></ht-msg-menu>
             <template is="dom-if" if="[[otherLayout]]">
@@ -169,11 +184,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  on-selection-messages-change="handleMessageChange"
-                                 class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-list>
+                                 id="msg-list" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
-                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" selected-message="[[selectedMessage]]" on-msg-detail-closed="_updateListElementsSize" on-item-delete="handleRefreshlist"
+                                   on-item-restore="handleRefreshlist" class$="[[_selectedElem(selectedMessage)]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -187,7 +202,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
             <template is="dom-if" if="[[flatrateinvoicesLayout]]">
-                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" flatrate-menu-section="[[flatrateMenuSection]]"></ht-msg-flatrate-invoice>
+                    <ht-msg-flatrate-invoice
+                        id="msg-flatrate-invoice"
+                        api="[[api]]"
+                        i18n="[[i18n]]"
+                        language="[[language]]"
+                        resources="[[resources]]"
+                        user="[[user]]"
+                        flatrate-menu-section="[[flatrateMenuSection]]"
+                        on-selection-messages-change="handleMessageChange"
+                        on-initialize-batch-counter-j20="callInitializeBatchCounterJ20"
+                    ></ht-msg-flatrate-invoice>
             </template>
 
             <template is="dom-if" if="[[mycarenetLayout]]">
@@ -250,9 +275,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     otherLayout:{
                         type: Boolean,
                         value : false
+                    },
+                    leftMenuOpen:{
+                        type: Boolean,
+                        value: false
+                    },
+                    ehealthSession: {
+                        type: Boolean
                     }
-
                 }
+            }
+
+            static get observers() {
+                return ['_isConnectedToEhbox(api.tokenId)'];
             }
 
             constructor() {
@@ -266,10 +301,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+                this._inbox()
+            }
+
+            _isConnectedToEhbox() {
+                this.set("ehealthSession", this.api.tokenId ? true : false)
             }
 
             _selectedElem(e) {
                 return (e) ? 'selected' : ''
+            }
+
+            _inbox() {
+                this.$['msg-menu'].dispatchEvent(new CustomEvent('selection-change',{detail:{selection:{item:'inbox'}}})) // select inbox
             }
 
             handleMenuChange(e) {
@@ -279,7 +323,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',false)
                     this.set('invoicesStatus', e.detail.selection.status)
-                    setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
+                    setTimeout(() =>{
+                        this.shadowRoot.querySelector("#msg-invoice").reset()
+                        this.shadowRoot.querySelector("#msg-invoice").getMessage()
+                    },0)
 
                 } else if (e.detail && e.detail.selection.item === 'e_flatrateinvOut') {
                     this.set('invoicesLayout', false)
@@ -304,7 +351,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleMessageChange(e) {
-                this.set('selectMessage', e.detail)
+                this.set('selectedMessage', e.detail && e.detail.selection && e.detail.selection.item)
+                this._updateListElementsSize()
+            }
+
+            _updateListElementsSize() {
+                const msgList = this.shadowRoot.querySelector('#msg-list')
+                msgList && msgList.updateGridElementsSize()
             }
 
 			handleRefreshlist(e) {
@@ -317,27 +370,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _expandColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.toggle('open');
-                this.root.querySelector('.container').classList.toggle('expanded');
+                this.set('leftMenuOpen',true)
+                this.root.querySelector('.container').classList.add('expanded');
             }
             _closeColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.set('leftMenuOpen',false)
                 this.root.querySelector('.container').classList.remove('expanded');
             }
 
             _newMsg() {
-                this.$['new-msg'].open()
+                if (this.ehealthSession) this.$['new-msg'].open()
             }
 
             _fwMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
             _reMsg(e) {
-                this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
+                if (this.ehealthSession) this.$['new-msg'].open(e.detail.params ? e.detail.params : null)
             }
 
             callInitializeBatchCounter(e){
                 this.shadowRoot.querySelector("#msg-menu").initializeBatchCounter(e)
+            }
+
+            callInitializeBatchCounterJ20(e){
+                this.shadowRoot.querySelector("#msg-menu").initializeBatchCounterJ20(e)
             }
 
         }

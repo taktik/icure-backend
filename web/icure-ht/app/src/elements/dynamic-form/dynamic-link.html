@@ -64,9 +64,10 @@
 
 
         <template is="dom-if" if="[[_display(linkables, initialised)]]">
-
+        <template is="dom-if" if="[[!readOnly]]">
             <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" opened="{{opened}}" allow-outside-scroll>
                 <paper-icon-button id="hc_menu" class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
+                <paper-tooltip for="subctc-type">[[localize('contact_type','Contact type',language)]]</paper-tooltip>
                 <paper-listbox slot="dropdown-content">
                     <template is="dom-repeat" items="[[_linkables(linkables, openedOnce)]]" as="he">
                         <paper-item id="[[getHeId(he)]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
@@ -103,6 +104,7 @@
                 </paper-listbox>
             </paper-menu-button>
             </template>
+        </template>
         </template>
     </template>
     <script>

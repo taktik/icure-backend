@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,12 +31,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.db.Sorting;
+import org.taktik.icure.dto.filter.predicate.Predicate;
+import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.logic.CodeLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 import org.taktik.icure.services.external.rest.v1.dto.CodePaginatedList;
+import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
+import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain;
 import org.taktik.icure.utils.ResponseUtils;
 
+import javax.security.auth.login.LoginException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -90,8 +97,8 @@ public class CodeFacade implements OpenApiFacade {
 		PaginatedList<Code> codesList;
 		if (types != null) {
 			List<String> typesList = Arrays.asList(types.split(","));
-
-			if (typesList.size()>1) {
+			List<String> wordsList = Arrays.asList(label.split(" "));
+			if (typesList.size()>1 || wordsList.size()>1) {
 				List<Code> codes = typesList.stream()
 						.flatMap(type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset).getRows().stream())
 						.collect(Collectors.toList());
@@ -344,7 +351,65 @@ public class CodeFacade implements OpenApiFacade {
 	    return Response.ok().entity(mapper.map(modifiedCode, CodeDto.class)).build();
     }
 
-    @Context
+	@ApiOperation(
+			value = "Filter codes ",
+			response = org.taktik.icure.services.external.rest.v1.dto.CodePaginatedList.class,
+			httpMethod = "POST",
+			notes = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page."
+	)
+	@POST
+	@Path("/filter")
+	public Response filterBy(
+			@ApiParam(value = "The start key for pagination, depends on the filters used") @QueryParam("startKey") String startKey,
+			@ApiParam(value = "A patient document ID") @QueryParam("startDocumentId") String startDocumentId,
+			@ApiParam(value = "Number of rows") @QueryParam("limit") Integer limit,
+			@ApiParam(value = "Skip rows") @QueryParam("skip") Integer skip,
+			@ApiParam(value = "Sort key") @QueryParam("sort") String sort,
+			@ApiParam(value = "Descending") @QueryParam("desc") Boolean desc,
+			FilterChain filterChain) {
+
+		Response response;
+
+		ArrayList startKeyList = null;
+		if (startKey != null && startKey.length()>0) {
+			startKeyList = new ArrayList<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKey));
+		}
+
+		@SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyList, startDocumentId, skip, limit);
+
+
+		PaginatedList<Code> codes = null;
+		long timing = System.currentTimeMillis();
+		if (filterChain != null) {
+			codes = codeLogic.listCodes(paginationOffset, new org.taktik.icure.dto.filter.chain.FilterChain(filterChain.getFilter(), mapper.map(filterChain.getPredicate(), Predicate.class)), sort, desc);
+		}
+		logger.info("Filter codes in "+(System.currentTimeMillis() - timing) + " ms.");
+		if (codes != null) {
+			response = buildPaginatedListResponse(codes);
+		} else {
+			response = ResponseUtils.internalServerError("Listing codes failed.");
+		}
+
+		return response;
+	}
+
+	private Response buildPaginatedListResponse(PaginatedList<Code> codes) {
+		Response response;
+		if (codes.getRows() == null) {
+			codes.setRows(new ArrayList<>());
+		}
+
+		org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> paginatedCodeDtoList =
+				new org.taktik.icure.services.external.rest.v1.dto.PaginatedList<>();
+		mapper.map(codes, paginatedCodeDtoList, new TypeBuilder<PaginatedList<Code>>() {
+				}.build(),
+				new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto>>() {
+				}.build());
+		response = ResponseUtils.ok(paginatedCodeDtoList);
+		return response;
+	}
+
+	@Context
     public void setMapper(MapperFacade mapper) {
         this.mapper = mapper;
     }

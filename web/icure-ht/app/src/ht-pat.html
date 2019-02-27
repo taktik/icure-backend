@@ -40,10 +40,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-route route="{{route}}" pattern="/:selectedPatientId" data="{{routeData}}"></app-route>
 
         <template is="dom-if" if="[[selectedPatient]]">
-            <ht-pat-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" patient="{{selectedPatient}}"></ht-pat-detail>
+            <ht-pat-detail id="pat-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" patient="{{selectedPatient}}" socket="[[socket]]"></ht-pat-detail>
         </template>
         <template is="dom-if" if="[[!selectedPatient]]">
-            <ht-pat-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
+            <ht-pat-list id="pat-list" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-patient="{{selectedPatient}}" socket="[[socket]]"></ht-pat-list>
         </template>
 
     </template>
@@ -75,6 +75,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     type: Object,
                     value: null,
                     observer: '_patientChanged'
+                },
+                socket : {
+                    type : Object,
+                    value : null
                 }
             };
         }
@@ -97,22 +101,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         _patientChanged() {
-            if (this.selectedPatient === null) {
+            if (!this.selectedPatient || this.selectedPatient === null) {
                 if (this.routeData && this.routeData.selectedPatientId) {
                     this.set('routeData.selectedPatientId', '');
                 }
+                setTimeout(() => {
+                    this.shadowRoot.querySelector('#pat-list').setSocket()
+                }, 0);
             } else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
                 this.set('routeData.selectedPatientId', this.selectedPatient.id);
+                setTimeout(() => {
+                    this.shadowRoot.querySelector('#pat-detail').setSocket()
+                }, 0);
             }
         }
 
         _routeChanged() {
+            if(this.socket) {
+                this.socket.removeAllListeners("auto-read-card-eid")
+                this.notifyPath("socket")
+            }
             if (!this.routeData || !this.routeData.selectedPatientId || this.routeData.selectedPatientId.length === 0) {
                 if (this.selectedPatient) {
                     this.set('selectedPatient', null);
                 }
             } else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
-                this.api.patient().getPatientWithUser(this.api.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
+                this.api.patient().getPatientWithUser(this.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
             }
         }
 

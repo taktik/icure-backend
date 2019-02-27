@@ -261,6 +261,9 @@
                 margin: 8px 12px 8px 0;
                 font-weight: bold;
             }
+            .patLabel {
+                padding-top: 12px;
+            }
 
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
@@ -584,6 +587,12 @@
                 animation: displaySent 7.5s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             @keyframes displaySent {
                 0% {transform: translate(100vw,-50%);}
                 10% {transform: translate(0,-50%);}
@@ -593,10 +602,10 @@
 
             @media screen and (max-width: 1030px) {
                 #new-msg {
-                    right: initial !important;
-                    left: 50% !important;
-                    transform: translateX(-50%);
-                    width: 98vw;
+                    top: 64px !important;
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: calc(100vh - 64px) !important;
                 }
             }
 
@@ -632,7 +641,7 @@
                                 </div>
                             </div>
                             <div class="cell">
-                                <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                                <div class="modal-subtitle patLabel">[[localize('pati','Patient',language)]]</div>
                                 <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
                                                   allow-custom-value on-change="_AddSSIN">
                                     <template>[[item.displayName]]</template>
@@ -700,7 +709,7 @@
                     <paper-button class="modal-button" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
                 </div>
                 <div class="fright">
-                    <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--cancel" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage" hidden="[[hideSendBtn]]">[[localize('send','Send',language)]]</paper-button>
                     <template is="dom-if" if="[[isSendingMsg]]">
                         <ht-spinner class="sendingSpinner" active="[[isSendingMsg]]"></ht-spinner>
@@ -839,7 +848,8 @@
             static get observers() {
                 return ['_recipientFilterChanged(recipientType, recipientFilter)',
                     '_patientFilterChanged(patientFilter)',
-                    '_filesChanged(files.*)'];
+                    '_filesChanged(files.*)',
+                    '_destinationsChanged(newMessage.destinations)'];
             }
 
             constructor() {
@@ -848,20 +858,9 @@
 
 			ready() {
 				super.ready()
-                // this.set("newMessage.destinations", [])
 			}
 
             open(params) {
-                // const template= {
-                //     destinations: [],
-                //     patientInss: [],
-                //     annex:[],
-                //     document: {
-                //         title: '',
-                //         textContent: ''
-                //     },
-                //     type: 'fwd' || 'replyto'
-                // }
                 this.clearField();
                 let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload')
                 vaadinUpload.set('i18n.addFiles.many', this.localize('upl_fil','Upload file',this.language))
@@ -874,21 +873,44 @@
                 this.set('newMessage.useReadReceipt',false)
                 this.set('newMessage.usePublicationReceipt',false)
                 if (params) {
-                    console.log('has params',params)
-                    this.set("newMessage.annex", params.annex ? params.annex : [])
-                    this.set("newMessage.customMetas", params.customMetas)
+                    let msgFrom = ''
+                    let msgNewTxt = ''
+                    if (params.destinations && params.destinations.length && params.received) {
+                        msgFrom = `> [${params.received}] ${params.destinations[0].lastName} ${params.destinations[0].firstName}`
+                    }
+                    if (params.document && params.document.textContent) {
+                        const lines = params.document.textContent.split('\n')
+                        lines.forEach(l=>{
+                            if (l.length) msgNewTxt += "> "+l+"\n"
+                        })
+                    } else {
+                        msgNewTxt = this.localize('empty','Empty',this.language)
+                    }
+                    this.set("newMessage.annex", params.annex || [])
+                    this.set("newMessage.customMetas", params.customMetas || {})
                     // this.set("newMessage.delegations", params.delegations)
                     // params.destinations.forEach(d=>delete d.delegations)
-                    this.set('newMessage.destinations',params.destinations)
-                    this.set('newMessage.document.title', params.document.title)
-                    this.set('newMessage.document.textContent', params.type === 'fwd' ? `\r\n\r\n==== ${this.localize(params.type,'',this.language)} ====\r\n${params.document.textContent}` : `\r\n\r\n${this.localize('last_msgs','Last messages',this.language)} :\r\n${params.document.textContent}`)
+                    this.set('newMessage.destinations',params.destinations || [])
+                    this.set('newMessage.document.title', params.document.title || '')
+                    this.set('newMessage.document.textContent',
+                        params.type === 'fwd' ? `\r\n\r\n====${this.localize(params.type,'',this.language)} ====\r\n${params && params.document && params.document.textContent || this.localize('empty','Empty',this.language)}`
+                        : params.type === 'replyto' ? `\r\n\r\n${msgFrom} :\r\n${msgNewTxt}`
+                        : ''
+                    )
                     // this.set("newMessage.patientInss", params.patientInss)
                     vaadinUpload.files = this.newMessage.annex
-                    console.log('open with params : ',this.newMessage)
-                    this.set('isForwardOrReply', params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})` : `(${this.localize('answer','Answer',this.language)})`)
-                    this.set('hideSendBtn',false)
+                    this.set('isForwardOrReply',
+                        params.type === 'fwd' ? `(${this.localize(params.type,'',this.language)})`
+                        : params.type === 'replyto' ? `(${this.localize('answer','Answer',this.language)})`
+                        : ''
+                    )
                 }
                 this.$['new-msg'].open()
+            }
+
+            _destinationsChanged(dests) {
+                console.log('_destinationsChanged',this.newMessage.destinations)
+                this.set('hideSendBtn',dests.length ? false : true)
             }
 
             _cancel() {
@@ -897,25 +919,29 @@
 			}
 
 			_recipientFilterChanged(type, filter) {
-                setTimeout(()=>{
-                    if(filter && filter.length >2) {
-                        this.set('isLoadingDestinations',true)
-                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,filter+'*')
+                if(filter && filter.length >2) {
+                    const reqIdx = (this.recipientReqIdx = (this.recipientReqIdx || 0) + 1)
+                    setTimeout(() => {
+                        if (reqIdx !== this.recipientReqIdx) {
+                            return
+                        }
+                        this.set('isLoadingDestinations', true)
+                        this.api.fhc().Addressbookcontroller().searchHcpUsingGET(this.api.keystoreId, this.api.tokenId, this.credentials.ehpassword, filter + '*')
                             .then(hcps => {
-                            let setList = []
-                            hcps.map(hcp=>{
-                                hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
-                                setList.push(hcp)
-                            })
-                            this.set("hcpList", setList)
-                            this.set('isLoadingDestinations',false)
-                        })
-                    }
-                    else{
-                        this.set("hcpList",[]);
-                        this.set('isLoadingDestinations',false)
-                    }
-                },1500)
+                                if (reqIdx === this.recipientReqIdx) {
+                                    let setList = []
+                                    hcps.map(hcp => {
+                                        hcp.displayName = `${hcp.lastName} ${hcp.firstName} [${hcp.nihii}]`
+                                        setList.push(hcp)
+                                    })
+                                    this.set("hcpList", setList)
+                                }
+                            }).finally(() => this.set('isLoadingDestinations', false))
+                    }, 300)
+                } else{
+                    this.set("hcpList",[]);
+                    this.set('isLoadingDestinations',false)
+                }
             }
 
 			getHcpLight(hcp, type){
@@ -946,22 +972,27 @@
 				}
             }
 
-			_patientFilterChanged(filter){
-                if(filter && filter.length > 1) {
-					this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, filter, null, null, 100, "asc")
-						.then(patients => {
-							console.log(patients);
-							let filtredpatients = patients.rows.filter(pat => pat.ssin)
-								.map(pat => {
-									let newPat = {};
-									newPat.firstName = pat.firstName ? pat.firstName : "";
-									newPat.lastName = pat.lastName ? pat.lastName : "";
-									newPat.ssin = pat.ssin ? pat.ssin : "";
-									newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
-									return newPat
-								})
-							this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
-						})
+			_patientFilterChanged(filter) {
+                if(filter && filter.length > 3) {
+                    const reqIdx = (this.patientReqIdx = (this.patientReqIdx || 0) + 1)
+                    setTimeout(() => {
+                        reqIdx === this.patientReqIdx && this.api.patient().findByNameBirthSsinAutoWithUser(this.user,this.user.healthcarePartyId, filter, null, null, 100, "asc")
+                            .then(patients => {
+                                if (reqIdx === this.patientReqIdx) {
+                                    console.log(patients);
+                                    let filtredpatients = patients.rows.filter(pat => pat.ssin)
+                                        .map(pat => {
+                                            let newPat = {};
+                                            newPat.firstName = pat.firstName ? pat.firstName : "";
+                                            newPat.lastName = pat.lastName ? pat.lastName : "";
+                                            newPat.ssin = pat.ssin ? pat.ssin : "";
+                                            newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+                                            return newPat
+                                        })
+                                    this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
+                                }
+                            })
+                    }, 300)
 				}
 				else{
 					this.set("patientList", [])
@@ -979,7 +1010,7 @@
                 //     return;
                 // }
                 const files = _.clone(this.files);
-                console.log('cloned files',files)
+                // console.log('cloned files',files)
                 const vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
@@ -996,13 +1027,13 @@
                         fr.onload = function (se) {
                             let fileByteArray = [];
                             new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
-                            this.push('newMessage.annex',{
+                            this.set('newMessage.annex',[{
                                 "content": fileByteArray,
                                 "filename": file.name,
                                 "mimeType": file.type ? file.type : 'text/plain',
                                 "title": file.name,
                                 "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-                            });
+                            }]);
                             console.log('annexes',this.newMessage.annex)
                             this.dispatchEvent(new CustomEvent('file-received', file));
                         }.bind(this);
@@ -1013,6 +1044,9 @@
             }
 
             saveCurrentContact() {
+                if(!this.currentContact.id ) {
+                    this.currentContact.id = this.api.crypto().randomUuid()
+                }
                 return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
             }
 
@@ -1084,6 +1118,7 @@
 				this.newMessage.destinations.splice(index, 1);
 				let destinationsList = this.shadowRoot.querySelector('#destinationsList')
 				destinationsList.render();
+				this._destinationsChanged(this.newMessage.destinations)
             }
 
 			_AddSSIN(e){
@@ -1195,6 +1230,8 @@
                         	if(response) {
 								this.clearField();
                                 this.set('isSendingMsg',false)
+                                this.set('newMessage.annex',[]);
+                                this.set('uploadFiles',[])
                                 this.$['success'].classList.add('displayNotif')
 								this.$['new-msg'].close()
 							}

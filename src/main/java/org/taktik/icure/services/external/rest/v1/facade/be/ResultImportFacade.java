@@ -47,6 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Component
 @Path("/be_result_import")
 @Api(tags = { "be_result_import" } )
@@ -82,8 +84,8 @@ public class ResultImportFacade implements OpenApiFacade {
     )
     @Path("/canhandle/{id}")
     @GET
-    public Boolean canHandle(@PathParam("id") String id) throws IOException {
-        return multiFormatLogic.canHandle(documentLogic.get(id));
+    public Boolean canHandle(@PathParam("id") String id, @QueryParam("enckeys") String enckeys) throws IOException {
+        return multiFormatLogic.canHandle(documentLogic.get(id), isBlank(enckeys) ? null : Arrays.asList(enckeys.split(",")));
     }
 
     @ApiOperation(
@@ -95,8 +97,8 @@ public class ResultImportFacade implements OpenApiFacade {
     )
     @Path("/infos/{id}")
     @GET
-    public List<ResultInfoDto> getInfos(@PathParam("id") String id) throws IOException {
-        return multiFormatLogic.getInfos(documentLogic.get(id)).stream().map(i->mapper.map(i,ResultInfoDto.class)).collect(Collectors.toList());
+    public List<ResultInfoDto> getInfos(@PathParam("id") String id, @QueryParam("full") Boolean full, @QueryParam("language") String language, @QueryParam("enckeys") String enckeys) throws IOException {
+        return multiFormatLogic.getInfos(documentLogic.get(id), full == null ? false : full, language, isBlank(enckeys) ? null : Arrays.asList(enckeys.split(","))).stream().map(i->mapper.map(i,ResultInfoDto.class)).collect(Collectors.toList());
     }
 
     @ApiOperation(
@@ -107,8 +109,8 @@ public class ResultImportFacade implements OpenApiFacade {
     )
     @Path("/import/{documentId}/{hcpId}/{language}")
     @POST
-    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @QueryParam("protocolIds") String protocolIds, @QueryParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, ContactDto ctc) throws IOException {
-        return mapper.map(multiFormatLogic.doImport(language, documentLogic.get(documentId), hcpId, Arrays.asList(protocolIds.split(",")), Arrays.asList(formIds.split(",")), planOfActionId, mapper.map(ctc, Contact.class)), ContactDto.class);
+    public ContactDto doImport(@PathParam("documentId") String documentId, @PathParam("hcpId") String hcpId, @PathParam("language") String language, @QueryParam("protocolIds") String protocolIds, @QueryParam("formIds") String formIds, @QueryParam("planOfActionId") String planOfActionId, @QueryParam("enckeys") String enckeys, ContactDto ctc) throws IOException {
+        return mapper.map(multiFormatLogic.doImport(language, documentLogic.get(documentId), hcpId, Arrays.asList(protocolIds.split(",")), Arrays.asList(formIds.split(",")), planOfActionId, mapper.map(ctc, Contact.class), isBlank(enckeys) ? null : Arrays.asList(enckeys.split(","))), ContactDto.class);
     }
 
     @ExceptionHandler(Exception.class)

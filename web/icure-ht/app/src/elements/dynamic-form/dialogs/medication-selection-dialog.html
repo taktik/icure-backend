@@ -15,11 +15,12 @@
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
 <link rel="import" href="../../../atc-styles.html">
+<link rel="import" href="../../../dialog-style.html">
 <link rel="import" href="../../ht-spinner/ht-spinner.html">
 
 <dom-module id="medication-selection-dialog">
     <template>
-        <style include="atc-styles">
+        <style include="dialog-style atc-styles">
             paper-dialog {
                 width: 80%;
             }
@@ -35,14 +36,17 @@
                 };
             }
 
+            vaadin-combo-box {
+                display: block;
+                width: auto;
+            }
+
             paper-input {
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
-            .modal-title {
-                background: var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
+            paper-input-container {
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
             #entities-list {
@@ -151,6 +155,12 @@
                 text-transform: capitalize;
             }
 
+            .modal-button--cancel {
+                background: transparent;
+                color: black;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
             .modal-button--save{
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
@@ -173,78 +183,79 @@
         <paper-dialog id="medication-selection" always-on-top="true">
             <ht-spinner class="center" active="[[isLoadingEntities]]"></ht-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
-            <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
-                <paper-tab name="chronical" on-tap="setMedicationType">
-                    [[localize('medication-chronical','Chronical medication',language)]]
-                </paper-tab>
-                <paper-tab name="medicinalProduct" on-tap="setMedicationType">
-                    [[localize('medication-by-product-name','By product name',language)]]
-                </paper-tab>
-                <paper-tab name="substanceProduct" on-tap="setMedicationType">
-                    [[localize('medication-by-molecule','By molecule',language)]]
-                </paper-tab>
-                <paper-tab name="compoundPrescription" on-tap="setMedicationType">
-                    [[localize('medication-compound','Compound prescription',language)]]
-                </paper-tab>
-            </paper-tabs>
-            <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
-                <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
-                    <vaadin-grid-column>
-                        <template class="header">
-                            <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
-                        </template>
-                        <template>
+                <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
+                    <paper-tab name="chronical" on-tap="setMedicationType">
+                        [[localize('medication-chronical','Chronical medication',language)]]
+                    </paper-tab>
+                    <paper-tab name="medicinalProduct" on-tap="setMedicationType">
+                        [[localize('medication-by-product-name','By product name',language)]]
+                    </paper-tab>
+                    <paper-tab name="substanceProduct" on-tap="setMedicationType">
+                        [[localize('medication-by-molecule','By molecule',language)]]
+                    </paper-tab>
+                    <paper-tab name="compoundPrescription" on-tap="setMedicationType">
+                        [[localize('medication-compound','Compound prescription',language)]]
+                    </paper-tab>
+                </paper-tabs>
+                    <template is="dom-if" if="[[_isChronicalView(medicationType)]]">
+                        <vaadin-grid id="entities-list" active-item="{{selectedChronicalMedicationFromList}}" items="[[medications]]" on-tap="selectChronicalMedication">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <vaadin-grid-sorter path="[[column.key]]">[[localize('atc-categ','Atc category',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
                             <div>[[atcCat(item.atcCat)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">
-                            <vaadin-grid-sorter path="[[column.key]]">[[localize('med','Medication',language)]]</vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div>[[_serviceDescription(item)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">
-                            <vaadin-grid-sorter path="[[column.key]]">[[localize('pos','Posology',language)]]</vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div>[[_servicePosology(item)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </template>
-            <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                <paper-input value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></paper-input>
-                <paper-input-container always-float-label="true">
-                    <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
-                    <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
-                </paper-input-container>
-            </template>
-            <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-                <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
-                    <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
-                        <vaadin-grid-column width="[[_columnWidth(column)]]">
-                            <template class="header">
-                                <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
-                            </template>
-                            <template>
-                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
-                            </template>
-                        </vaadin-grid-column>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <vaadin-grid-sorter path="[[column.key]]">[[localize('med','Medication',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div>[[_serviceDescription(item)]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <vaadin-grid-sorter path="[[column.key]]">[[localize('pos','Posology',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div>[[_servicePosology(item)]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
                     </template>
-                    <vaadin-grid-column>
-                        <template class="header">
-                            <div></div>
-                        </template>
-                        <template>
-                            <div class$="cell frozen [[item.cheap]]"><img src$="[[drugPicture(item)]]"></div>
-                        </template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </div>
+                    <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+                            <!--<vaadin-combo-box-dropdown value="{{compoundName}}" label="[[localize('compound_name','Compound name',language)]]"></vaadin-combo-box-dropdown>-->
+                            <vaadin-combo-box filtered-items="[[compoundListItems]]" item-label-path="descr" item-value-path="id" id="procedures-list" on-filter-changed="_compoundFilterChanged" on-value-changed="_compoundChanged" label="[[localize('compound_name','Compound name',language)]]" filter="{{compoundFilterString}}" value="{{compound}}" readonly="[[readonly]]"></vaadin-combo-box>
+                            <paper-input-container>
+                                <label slot="label">[[localize('medication-compound','Compound Prescription',language)]]</label>
+                                <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
+                            </paper-input-container>
+                    </template>
+                    <div class$="grid-container [[_noGridClass(medicationType)]]">
+                        <paper-input id="filter" label="[[localize('search_med','Search a medicine',language)]]" autofocus value="{{filterValue}}" on-keydown="refresh"></paper-input>
+                        <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
+                            <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
+                                <vaadin-grid-column width="[[_columnWidth(column)]]">
+                                    <template class="header">
+                                        <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
+                                    </template>
+                                    <template>
+                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                            </template>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <div></div>
+                                </template>
+                                <template>
+                                   <div class$="cell frozen [[item.cheap]]"><img src$="[[drugPicture(item)]]"></div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
             <div class="buttons">
                 <paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
                 <template is="dom-if" if="[[!_isChronicalView(medicationType)]]">
@@ -267,6 +278,9 @@
                 return {
                     api: {
                         type: Object
+                    },
+                    labguage: {
+                        type: String
                     },
                     medicationType: {
                         type: String,
@@ -317,9 +331,9 @@
                         type: Array,
                         value: () => []
                     },
-                    compoundName:{
-                        type: String,
-                        value: ""
+                    compoundListItems: {
+                        type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -337,15 +351,7 @@
                 return {
                     id: m.id,
                     codes: m.codes,
-                    medicationValue:
-                    (
-                        this.api.localize(m.content, this.language)  ||
-                        ( m.content[this.language] =
-                                {
-                                    medicationValue: { regimen: [] }
-                                }
-                        )
-                    ).medicationValue,
+                    medicationValue: ( this.api.contact().preferredContent(m, this.language)  || ( m.content[this.language] = { medicationValue: { regimen: [] } }) ).medicationValue,
                     isNew: isNew || false };
             }
 
@@ -354,6 +360,11 @@
                     this.set('newMedication', medication);
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId || this.extractContentWithIdFromMedicationService(m, false))
                 }
+
+                this.set('compoundFilterString', '')
+                this.set('compound','')
+                this.set('compoundPrescriptionText', '')
+
                 this.$['medication-selection'].open()
 
                 this.medications.map(m => {
@@ -482,9 +493,9 @@
                         mppInfos.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = mppInfos.atcCode)
 
                         if (this.selectedMedicationContentWithId.isNew) {
-                            this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                            this.dispatchEvent(new CustomEvent('new-medication', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
                         } else {
-                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:this.newMedication, bubbles: true, composed: true}))
+                            this.dispatchEvent(new CustomEvent('display-medication-details', {detail:{ medication: this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription }, bubbles: true, composed: true}))
                         }
                     })
                 } else {
@@ -498,29 +509,18 @@
 
                         med.inncluster && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-INNCLUSTER', version:'1'})).code = med.inncluster)
                         med.atcCode && (((this.newMedication.codes || (this.newMedication.codes = [])).find(c => c.type === 'CD-ATC') || (this.newMedication.codes[this.newMedication.codes.length] = {type:'CD-ATC', version:'1'})).code = med.atcCode)
+
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
                     } else {
-                        //Compound prescription
-                        this.set('selectedMedicationContentWithId.medicationValue', {
-                            medicinalProduct: {
-                                intendedname: this.compoundName,
-                                beginMoment: 0,
-                                endMoment: 0,
-                                priority: "low",
-                                intendedcds: [{type: "CD-DRUG-CNK", code: "0000000"}]
-                            },
-                            compoundPrescription: med.name
-                        })
-
+                        //compound
                         this.set('newMedication.content.'+this.language, {medicationValue: this.selectedMedicationContentWithId.medicationValue})
-
-
+                        this.set('newMedication.content.'+ this.language + '.compoundPrescription',this.compoundPrescriptionText)
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}])
 
                     if (this.selectedMedicationContentWithId.isNew) {
-                        this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                        this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                     } else {
-                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:{medication:this.newMedication, isPrescription: this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                     }
                 }
             }
@@ -530,7 +530,7 @@
                     const selected = this.selectedChronicalMedicationFromList
                     console.log('selected ',selected);
                     this.$['medication-selection'].close();
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:selected, bubbles: true, composed: true}))
+                    this.dispatchEvent(new CustomEvent('new-medication', {detail:{medication:_.cloneDeep(_.omit(selected, ['id'])), isPrescription:this.selectedMedicationContentWithId.isPrescription}, bubbles: true, composed: true}))
                 }
             }
 
@@ -603,8 +603,8 @@
             }
 
             confirm() {
-                if (this.medicationType === 'compoundPrescription' && this.compoundPrescriptionText) {
-                    this.select({name: this.compoundPrescriptionText})
+                if (this.medicationType === 'compoundPrescription') {
+                    this.select('placeholder')
                 } else if (this.selectedMedicationFromList) {
                     this.select(this.selectedMedicationFromList);
                 }
@@ -729,6 +729,38 @@
             _servicePosology(s) {
                 return this.api.contact().medication().posologyToString((this.api.contact().preferredContent(s, this.language) || {}).medicationValue, this.language)
             }
+
+            _compoundFilterChanged(e) {
+                const searchString = e.detail.value || ''
+
+                this.compoundSearchString = searchString;
+                if (!searchString || searchString.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('compoundListItems', []);
+                    return;
+                }
+
+                this.api.entitytemplate().findAllEntityTemplates('org.taktik.icure.entities.embed.Medication',searchString,true).then(res => {
+                    if (searchString !== this.compoundSearchString) {
+                        console.log("Cancelling obsolete search");
+                        this.set('compoundListItems', []);
+                    }
+                    this.set('compoundListItems', res);
+                })
+            }
+
+            _compoundChanged(e) {
+                const compound = this.compoundListItems.find(c => c.id === e.detail.value)
+                if(compound) {
+                    const medication = compound.entity.find(e => e.compoundPrescription)
+                    this.set('selectedMedicationContentWithId.medicationValue', medication )
+                    this.set('compoundPrescriptionText', medication.compoundPrescription )
+                }else {
+                    this.set('compoundPrescriptionText','')
+                }
+            }
+
+
         }
 
         customElements.define(MedicationSelectionDialog.is, MedicationSelectionDialog)

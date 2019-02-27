@@ -5,6 +5,9 @@
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="./ht-app-server-dialog.html">
 
+<link rel="import" href="../ht-spinner/ht-spinner.html">
+
+
 <dom-module id="ht-app-login-dialog">
 	<template>
 		<style>
@@ -150,6 +153,17 @@
             .login-options.visible-true {
                 display: block;
             }
+            div.in-place-of-btn {
+                display: flex;
+                color: red;
+                width: 60%;
+                margin: 2em auto 0 auto;
+                justify-content: space-evenly;
+            }
+            ht-spinner {
+                width: 36px;
+                height: 24px;
+            }
 
 		</style>
 
@@ -168,6 +182,8 @@
 								 value="{{credentials.username}}" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="Password" name="password" type="password" always-float-label="true"
 								 value="{{credentials.password}}" on-keydown="checkForEnter" invalid$={{credentials.error}}></paper-input>
+                    <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
+                                 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
 					<!-- <paper-dropdown-menu  label="Database server" vertical-align="bottom" horizontal-align="left">
@@ -200,8 +216,6 @@
                     <!--<template is="dom-if" if="[[showMoreOption]]">-->
                     <div class$="login-options-container visible-[[showMoreOption]]">
                         <div class$="login-options visible-[[showMoreOption]]">
-                            <paper-input label="2FA (optional)" name="twofa" always-float-label="true"
-                                         value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
                             <ht-app-server-dialog id="icure-servers-list" title="iCure [[localize('server', 'server', language)]]" server-name="icure"
                                 local-url="[[defaultIcureUrl]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]"></ht-app-server-dialog>
 
@@ -211,7 +225,14 @@
                         </div>
                     </div>
                     <!--</template>-->
-                    <paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
+                    <template is="dom-if" if="[[!disabled]]">
+                        <paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[disabled]]">
+                        <div class="in-place-of-btn">
+                            <ht-spinner active="[[disabled]]"></ht-spinner> [[localize('please_wait','Please wait ...',language)]]
+                        </div>
+                    </template>
 				</div>
 			</form>
 			<div class="taktik">
@@ -324,13 +345,13 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	disable() {
-		this.$["submitButton"].disabled = true
-		this.disabled = true
+		// this.$["submitButton"].disabled = true
+		this.set('disabled', true)
 	}
 
 	enable() {
-		this.$["submitButton"].disabled = false
-		this.disabled = false
+		// this.$["submitButton"].disabled = false
+		this.set('disabled', false)
 	}
 
 }

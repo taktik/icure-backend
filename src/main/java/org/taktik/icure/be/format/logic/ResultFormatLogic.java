@@ -31,8 +31,8 @@ import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Patient;
 
 public interface ResultFormatLogic {
-	boolean canHandle(Document doc) throws IOException;
-	List<ResultInfo> getInfos(Document doc) throws IOException;
-	Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc) throws IOException;
+	boolean canHandle(Document doc, List<String> enckeys) throws IOException;
+	List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException;
+	Contact doImport(String language, Document doc, String hcpId, List<String> protocolIds, List<String> formIds, String planOfActionId, Contact ctc, List<String> enckeys) throws IOException;
 	void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output);
 }
