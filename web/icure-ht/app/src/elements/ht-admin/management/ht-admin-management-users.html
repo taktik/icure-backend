@@ -48,6 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <style include="shared-styles">
             :host {
                 display: block;
+                height: 100%;
             }
 
             :host *:focus{
@@ -60,14 +61,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 0 20px;
                 box-sizing: border-box;
                 position:relative;
+
+                display: flex;
+                flex-direction: column;
             }
 
-            #activeUsersListDiv{
-                height: 25%;
+            .panel-title {
+                margin-bottom: 0;
             }
 
-            #inactiveUsersListDiv{
-                height: 25%;
+            .grid {
+                min-height: 0;
+            }
+
+            .grids-section {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
             }
 
             #userInformationDialog{
@@ -165,11 +175,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
         <div class="users-panel">
-            <h4>[[localize('man_usr', 'Management - Users', language)]]</h4>
+            <h4 class="panel-title">[[localize('man_usr', 'Management - Users', language)]]</h4>
 
-            <div id="activeUsersListDiv">
+            <div id="activeUsersListDiv" class="grids-section">
                 <h4>[[localize('usr_act', 'Active users', language)]]</h4>
-                <vaadin-grid id="activeUsersList" class="material" items="[[listOfActiveUsers]]" active-item="{{selectedUser}}">
+                <vaadin-grid id="activeUsersList" class="material grid" items="[[listOfActiveUsers]]" active-item="{{selectedUser}}">
                     <vaadin-grid-column>
                         <template class="header">
                             [[localize('Id','Id',language)]]
@@ -205,9 +215,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
             </div>
 
-            <div id="inactiveUsersListDiv">
+            <div id="inactiveUsersListDiv" class="grids-section">
                 <h4>[[localize('usr_in', 'inactive users', language)]]</h4>
-                <vaadin-grid id="inactiveUsersList" class="material" items="[[listOfInactiveUsers]]" active-item="{{selectedUser}}">
+                <vaadin-grid id="inactiveUsersList" class="material grid" items="[[listOfInactiveUsers]]" active-item="{{selectedUser}}">
                     <vaadin-grid-column>
                         <template class="header">
                             [[localize('Id','Id',language)]]
