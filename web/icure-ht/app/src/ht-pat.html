@@ -105,26 +105,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.routeData && this.routeData.selectedPatientId) {
                     this.set('routeData.selectedPatientId', '');
                 }
-                setTimeout(() => {
-                    this.shadowRoot.querySelector('#pat-list').setSocket()
-                }, 0);
+                if(this.socket && this.route.prefix==="/pat")
+                {
+                    setTimeout(() => {
+                        this.shadowRoot.querySelector('#pat-list').setSocket()
+                    }, 0);
+                }
             } else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
                 this.set('routeData.selectedPatientId', this.selectedPatient.id);
-                setTimeout(() => {
-                    this.shadowRoot.querySelector('#pat-detail').setSocket()
-                }, 0);
+            } else if(this.selectedPatient.id === this.routeData.selectedPatientId){
+                if(this.socket && this.route.prefix==="/pat"){
+                    setTimeout(() => {
+                        this.shadowRoot.querySelector('#pat-detail').setSocket()
+                    }, 0);
+                }
             }
         }
 
         _routeChanged() {
-            if(this.socket) {
+            if(this.socket && this.route.prefix==="/pat") {
                 this.socket.removeAllListeners("auto-read-card-eid")
                 this.notifyPath("socket")
             }
             if (!this.routeData || !this.routeData.selectedPatientId || this.routeData.selectedPatientId.length === 0) {
-                if (this.selectedPatient) {
-                    this.set('selectedPatient', null);
-                }
+                this.set('selectedPatient', null);
             } else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
                 this.api.patient().getPatientWithUser(this.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
             }
