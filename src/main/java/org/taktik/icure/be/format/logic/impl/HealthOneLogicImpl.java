@@ -303,6 +303,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 					|| lrl.severity.equals("HH")
 					|| lrl.severity.equals("L")
 					|| lrl.severity.equals("LL")
+					|| lrl.severity.equals("*")
 			) {
 				m.setSeverity(1);
 			}
