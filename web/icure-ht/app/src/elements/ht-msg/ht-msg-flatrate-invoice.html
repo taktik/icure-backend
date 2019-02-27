@@ -1384,12 +1384,6 @@
                             return [];
                         }
                     },
-                    lastActiveGridItem:{
-                        type: Object,
-                        value: function () {
-                            return [];
-                        }
-                    },
                     displayedYear: {
                         type: Number,
                         value: () => Number(moment().format('YYYY'))
@@ -2027,7 +2021,7 @@
             _getInsuranceTitularyInfo(inputPatientsList=false) {
                 return new Promise(resolve =>{
                     const insuranceTitularyIds = _.uniq(_.filter( (inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
-                    return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
+                    return !_.size(insuranceTitularyIds) ? resolve((inputPatientsList?inputPatientsList:this.flatRateAllPatients)) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
                         return resolve(
                             _.map((inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i=>{
                                 if(!_.trim(_.get(i,"titularyId", "" ))) return i
@@ -4136,15 +4130,12 @@
 
             _toggleBatchDetails(e) {
 
-                // if ( _.size(this.activeGridItem) && this.activeGridItem.id === _.get(this, "lastActiveGridItem.id" ) ) {
-                //     this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
-                //     this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
-                //     return;
-                // }
+                if( _.get(e, "path", false) ) {
+                    var paths = _.map( e.path, (pathNode,index)=> { return { index:index, nodeName:_.get( pathNode, "nodeName", "" ), target: _.get( pathNode, "id", "" ).toLowerCase()==="messagesgrid" } })
+                    if( !parseInt(_.size(_.compact(_.map( paths.slice( 0, _.get( _.filter(paths,"target"), "[0].index", 0 ) ), (path, index) => { return ["vaadin-grid-cell-content", "slot", "td", "tr" ].indexOf( _.trim(path.nodeName).toLowerCase() ) > -1 } )))) ) return;
+                }
 
-                if ( _.size(this.activeGridItem) /*&& this.activeGridItem.id !== _.get(this, "lastActiveGridItem.id" )*/ ) {
-
-                    this.lastActiveGridItem = this.activeGridItem
+                if ( _.size(this.activeGridItem) ) {
 
                     this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
