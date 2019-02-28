@@ -26,6 +26,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.DocumentDAO;
+import org.taktik.icure.dao.Option;
+import org.taktik.icure.entities.Contact;
 import org.taktik.icure.entities.Document;
 import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.logic.DocumentLogic;
@@ -35,8 +37,11 @@ import org.taktik.icure.validation.aspect.Check;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.validation.constraints.NotNull;
@@ -88,7 +93,7 @@ public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> i
 
 	@Override
 	public InputStream readAttachment(String documentId, String attachmentId) {
-		return documentDAO.readAttachment(documentId, attachmentId);
+		return documentDAO.readAttachment(documentId, attachmentId, null);
 	}
 
 	@Override
@@ -124,6 +129,22 @@ public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> i
 	@Override
 	public List<Document> updateDocuments(List<Document> documents) {
 		return documentDAO.save(documents);
+	}
+
+	@Override
+	public void solveConflicts(List<String> ids) {
+		List<Document> documentsInConflict = ids == null ? documentDAO.listConflicts().stream().map(it -> documentDAO.get(it.getId(), Option.CONFLICTS)).collect(Collectors.toList()) : ids.stream().map(it -> documentDAO.get(it, Option.CONFLICTS)).collect(Collectors.toList());
+		documentsInConflict.forEach(doc -> {
+			List<Document> conflicted = Arrays.stream(doc.getConflicts()).map(c -> documentDAO.get(doc.getId(), c)).collect(Collectors.toList());
+			conflicted.forEach(cp -> {
+				doc.solveConflictWith(cp);
+			});
+			documentDAO.save(doc);
+			conflicted.forEach(cp -> {
+				documentDAO.purge(cp);
+			});
+		});
+
 	}
 
 	@Override

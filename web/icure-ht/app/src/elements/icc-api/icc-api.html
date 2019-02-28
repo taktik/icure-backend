@@ -441,7 +441,7 @@
                     return acc
                 }, {}))
                 return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))))
-            }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
+            }).then(hcps => this.set('hcParties', _.flatMap(hcps).map(hcp => this.register(hcp, 'hcp')).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
             }, {}))
@@ -511,7 +511,7 @@
             const stickersPrefs = printersPrefs.stickers
 
             const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : (stickersPrefs && options.paperWidth === stickersPrefs.w && options.paperHeight === stickersPrefs.h) ? 'stickers' : 'a4'
-            const printerName = options.printer || (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
+            const printerName = options.printer ? printersPrefs[options.printer] && printersPrefs[options.printer].bw || "" : (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
 
             return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
                 return this.isElectronAvailable().then(electron =>
@@ -736,7 +736,7 @@
         }
 
         _powRoundFloatByPrecision(inputNumber,decimalPlaces=2){
-            return parseFloat(Math.round(parseFloat(inputNumber) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+            return parseFloat(Math.round(parseFloat( _.trim(inputNumber).replace(',','.') ) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
         }
 
 

@@ -23,7 +23,6 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
-<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 
@@ -33,6 +32,7 @@
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
+<link rel="import" href="dialogs/ht-pat-prescription-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
 <link rel="import" href="../dynamic-form/ht-services-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
@@ -86,10 +86,6 @@
 					width: 0;
 					opacity: 0;
 				}
-			}
-
-			.prescription-progress-bar {
-				width: calc( 100% - 40px );
 			}
 
 			.details-panel {
@@ -187,20 +183,11 @@
 				border: none;
 				width: 100%;
 			}
-
-			paper-dialog {
-				margin: 0;
-			}
-
 			.contact-card-container {
 				position: relative;
 				overflow-y: auto;
 				height: calc(100% - 80px);
 				padding-bottom: 32px;
-			}
-
-			paper-dialog {
-				min-width:30%;
 			}
 
 			.extra-info{
@@ -243,19 +230,8 @@
 
 			paper-dialog {
 				width: 80%;
-			}
-
-			vaadin-grid {
-				max-height:100%;
-				border: none;
-				--vaadin-grid-body-row-hover-cell: {
-					/* background-color: var(--app-primary-color); */
-					color: white;
-				};
-				--vaadin-grid-body-row-selected-cell: {
-					background-color: var(--app-primary-color);
-					color: white;
-				};
+                min-width:30%;
+                margin: 0;
 			}
 
 			paper-input{
@@ -444,41 +420,6 @@
 				margin: 0;
 			}
 
-            .warning {
-                display: block;
-                font-size: 1.1em;
-                color: var(--app-status-color-nok);
-                text-align: left;
-                margin: 16px auto;
-                background: rgba(252,0,0,.2);
-                border-radius: 4px;
-                padding: 8px;
-                cursor: pointer;
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                width: 80%;
-            }
-            .warning.ehbox {
-                color: white;
-                background: var(--app-status-color-pending);
-            }
-
-			.endline {
-				display: flex;
-				flex-direction: row;
-				margin: 0;
-				border-top: 1px solid var(--app-background-color-dark);
-			}
-
-			paper-radio-group {
-				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
-			}
-
-			paper-radio-group paper-radio-button {
-				line-height: 48px;
-			}
-
 			.buttons{
 				display: flex;
 				flex-grow: 1;
@@ -517,21 +458,6 @@
                 }
                 .mobile-only {
                     display: initial;
-                }
-            }
-
-			@media screen and (max-width: 800px) {
-				.endline {
-					padding-bottom: 16px;
-				}
-				paper-radio-group paper-radio-button {
-					line-height: normal;
-				}
-			}
-
-            @media screen and (max-width: 664px) {
-                paper-radio-group, .buttons {
-                    flex-direction: column;
                 }
             }
 
@@ -597,32 +523,6 @@
                     flex-grow: 1;
                     height: auto !important;
                 }
-
-                @media screen and (max-width: 952px) {
-                    .endline {
-                        position: fixed;
-                        bottom: 0;
-                        width: 100%;
-                        height: 64px;
-                        box-sizing: border-box;
-                    }
-                    .warning.ehbox {
-                        position: absolute;
-                        width: 80%;
-                        bottom: 65px;
-                        left: 50vw;
-                        transform: translateX(-50%);
-                    }
-
-                    @media screen and (max-width: 672px) {
-                        .endline {
-                            height: 128px;
-                        }
-                        .warning.ehbox {
-                            bottom: 128px;
-                        }
-                    }
-                }
             }
 		</style>
 
@@ -635,7 +535,7 @@
 
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="layout horizontal">
-				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
+				<filter-panel id="serviceFilterPanel" selected-filters="{{serviceFilters}}" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
 					<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="icons:view-list" on-tap="_list"></paper-icon-button>
 					<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
@@ -703,7 +603,7 @@
 					<div class="contact-card-frame">
 					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 						<div class="ctc-header">
-                            <span class="contact-title">[[currentContactTypeLabel]][[currentContact.descr]] ([[_dateFormat(currentContact.openingDate)]])
+                            <span class="contact-title">[[currentContactTypeLabel]][[dof.ctc.userDescr]] ([[_dateFormat(dof.ctc.openingDate)]])
 								<template is="dom-if" if="[[!dof.ctc.closingDate]]">
                                     <dynamic-subcontact-type-selector id="subctc-type-d" subcontact-type="[[contactTypeList]]" language="[[language]]" resources="[[resources]]" on-link-to-subcontact-type="_contactTypeChange"></dynamic-subcontact-type-selector>
 								</template>
@@ -726,7 +626,7 @@
 							</template>
 							<template is="dom-repeat" items="[[form.docs]]">
 								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" document-id="[[_documentId(item)]]" i18n="[[i18n]]" language="[[language]]"
-											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true"></dynamic-doc>
+											 resources="[[resources]]" title="[[item.label]]" downloadable="true" preview="true" is-pat-detail="true"></dynamic-doc>
 							</template>
 						</template>
                         <template is="dom-if" if="[[dof.unmappedServices.length]]">
@@ -808,65 +708,7 @@
 			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml,text/plain" target="[[api.host]]/document/{documentId}/attachment/multipart;jsessionid=[[api.sessionId]]" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
 
-		<paper-dialog id="loadingPrescriptionDialog">
-			<h2>[[localize('loa_pre','Loading prescription...',language)]]</h2>
-			<paper-progress class="prescription-progress-bar" indeterminate></paper-progress>
-		</paper-dialog>
-
-		<paper-dialog id="prescriptionDialog">
-			<h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
-			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions.*,servicesMap.*,_drugsRefresher)]] active-item="{{activeDrug}}">
-				<vaadin-grid-column width="100px">
-					<template class="header">
-						<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
-					</template>
-					<template>
-						<div class="cell frozen">[[_drugDescription(item)]]</div>
-					</template>
-				</vaadin-grid-column>
-				<vaadin-grid-column width="200px">
-					<template class="header">
-						[[localize('pos','Posology',language)]]
-					</template>
-					<template>
-						<div class="cell frozen">[[_drugPosology(item)]]</div>
-					</template>
-				</vaadin-grid-column>
-				<template is="dom-repeat" items="[[_splitColumns(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*, servicesMap.*)]]" as="column" index-as="columnIndex">
-					<vaadin-grid-column flex-grow="0" width="50px">
-						<template class="header">
-							[[_columnName(columnIndex)]]
-						</template>
-						<template>
-							<vaadin-checkbox id="[[item.id]]:[[columnIndex]]" disabled="[[!_enabled(columnIndex,index,_drugsOnPrescriptions,_drugsOnPrescriptions.*)]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
-						</template>
-					</vaadin-grid-column>
-				</template>
-			</vaadin-grid>
-            <template is="dom-if" if="[[!ehealthSession]]">
-                <paper-button class="warning ehbox" on-tap="_importKeychain">
-                    <iron-icon icon="warning"></iron-icon> [[localize('ehe_is_not_con','eHealth is not connected',language)]]
-                </paper-button>
-            </template>
-            <template is="dom-if" if="[[!fullProfile]]">
-                <paper-button class="warning" on-tap="_myProfile">
-                    <iron-icon icon="warning"></iron-icon> [[localize('recipe_warning','To print recip-e, you HAVE to inquire your ADRESS and PHONE NUMBER in your profile !',language)]]
-                </paper-button>
-            </template>
-			<div class="endline">
-				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
-				<template is="dom-if" if="[[patient.ssin]] && [[api.tokenId]]">
-					<paper-radio-group selected="{{selectedFormat}}">
-						<paper-radio-button name="A4">Format A4</paper-radio-button>
-						<paper-radio-button name="presc">Format prescription</paper-radio-button>
-					</paper-radio-group>
-				</template>
-				<div class="buttons">
-					<paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-					<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
-				</div>
-			</div>
-		</paper-dialog>
+        <ht-pat-prescription-dialog id="prescriptionDialog" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" global-hcp=[[globalHcp]] on-save-document-as-service="[[_handleSaveDocumentAsService]]" on-pdf-report="_handlePdfReport"></ht-pat-prescription-dialog>
 
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 
@@ -915,16 +757,12 @@
         </paper-dialog>
 
 		<template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
-
-		<canvas id="barCode"></canvas>
 	</template>
 	<script>
 
         import _ from 'lodash/lodash';
-        import JsBarcode from 'JsBarcode';
         import moment from 'moment/src/moment';
         import '../prose-editor/prose-editor/prose-editor';
-        import mustache from "mustache/mustache.js";
         import * as evaljs from "evaljs";
         import * as models from 'icc-api/dist/icc-api/model/models';
 
@@ -940,7 +778,7 @@
 						value: function () {
 							return [];
 						},
-						observer: '_contactsChanged'
+						observer: '_servicesFilter'
 					},
 					allContacts: {
 						type: Array,
@@ -1022,16 +860,9 @@
 			files: {
 				type: Array
 			},
-			_drugsOnPrescriptions: {
-				type: Array
-			},
 			showAddFormsContainer: {
 				type: Boolean,
 				value: false
-			},
-			deliveryDateString: {
-				type: String,
-				value: moment().format("YYYY-MM-DD")
 			},
 			_drugsRefresher: {
 			    type: Number,
@@ -1055,7 +886,7 @@
             },
             selectedFormat: {
 			    type: String,
-                value: 'A4'
+                value: 'presc'
             },
             subcontactType: {
                 type: Array,
@@ -1087,12 +918,20 @@
             linkingLetterDpData :{
                 type: Object,
                 value: {}
+            },
+            serviceFilters: {
+                type: Array,
+                value: () => ([])
+            },
+            filteredServiceIds: {
+                type: Array,
+                value: () => ([])
             }
 		};
 	}
 
 			static get observers() {
-				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_setPrintSize(selectedFormat)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_servicesFilter(serviceFilters)'];
 			}
 
 			constructor() {
@@ -1104,8 +943,38 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(tempHcp => {
                     this.set('globalHcp',tempHcp)
                 })
-                this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
-			}
+            }
+            
+            _servicesFilter() {
+                if(!this.contacts) {
+                    return;
+                }
+
+                if(!this.serviceFilters || !this.serviceFilters.length) {
+                    this.set('filteredServiceIds',[]);
+                    this._contactsChanged()
+                    return 
+                }
+                
+                const filterCodesByType = {}
+                _.flatten(this.serviceFilters).forEach( filter => {
+                    const codesArray = filterCodesByType[filter.type] || []
+                    filterCodesByType[filter.type] = codesArray.concat(filter.code)
+                })
+                
+                this.set('filteredServiceIds',_.flatten(this.contacts.map( contact => 
+                    (contact.services.filter( service => 
+                        service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code) ) && 
+                        Object.values( this.api.contact().preferredContent(service, this.language) || {} ).some(value => value)
+                    ) || []).map(service => 
+                        service.id
+                    )
+                )))
+
+                this._contactsChanged()
+
+
+            }
 
 			ifRecipeAvailable(){
                 this.user && this.user.healthcarePartyId && this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
@@ -1192,10 +1061,23 @@
 				const vaadinUpload = this.$['vaadin-upload'];
 
 				Promise.all(files.filter(f => !f.attached).map(f => {
-					f.attached = true;
-					return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
+                    f.attached = true;
+                    console.log(f)
+                    return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type, f.name && f.name.replace(/.+\.(.+)/, '$1')), name: f.name })
+                    .then(d => this.api.document().createDocument(d))
+
+                    .then(createdDocument => {
+                        return this.api.crypto()
+                            .extractKeysFromDelegationsForHcpHierarchy(
+                                this.user.healthcarePartyId,
+                                createdDocument.id,
+                                _.size(createdDocument.encryptionKeys) ? createdDocument.encryptionKeys : createdDocument.delegations
+                            )
+                            .then(({extractedKeys: enckeys}) => [createdDocument,enckeys])
+                    })
+                    .then(([d,enckeys]) => {
 						f.doc = d;
-						f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
+						f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id) + "?ts=" + new Date().getTime() + (enckeys ? "&enckeys=" + enckeys : "");
 						return f;
 					});
 				})).then(files => {
@@ -1319,7 +1201,21 @@
 			_prescribe(e) {
 				e.stopPropagation();
 				this.$.prescriptionDialog.open();
-			}
+            }
+
+            _handlePdfReport(e) {
+                if(!e.detail) {
+                    if(e.detail.loading) {
+                        this.busySpinner = true;
+                    }else if(e.detail.success) {
+                        this.saveCurrentContact().then(() => { // event here
+                            this._refreshFromServices()
+                            this.busySpinner=false;
+                        })
+                    }
+                }
+                
+            }
 
 			hideAll() {
 				this.set('list', false);
@@ -1346,124 +1242,17 @@
 			_default(e) {
 				this.hideAll();
 				this.set('doc', true);
+
+				setTimeout(()=>this._setPdfSizes(),2000)
 			}
 
-			_drugDescription(svc) {
-				return svc && this.api.contact().medication().medicationNameToString(this.api.contact().medicationValue(svc, this.language), this.language) || "N/A";
-			}
-
-			_drugPosology(svc) {
-				return svc && this.api.contact().medication().posologyToString(this.api.contact().medicationValue(svc, this.language), this.language) || "N/A";
-			}
-
-			_safeDrugsOnPrescriptions() {
-				return this._drugsOnPrescriptions ||
-				this._drugsToBePrescribed().reduce((accu, s) => {
-					const availableSpace = accu.reduce((acc,drug) => {
-						acc[drug.column] >= 0 ? acc[drug.column]-- : acc[drug.column] = 4;
-						return acc
-					}, []);
-					availableSpace.push(5);
-					let codes = s.codes && s.codes.map(c => c.code + '|' + c.type + '|' + c.version);
-					let sameDrugColumnIndex = 0
-					let compound = null
-					if(!codes || !codes.length) {
-						codes = null
-						const content = this.api.contact().preferredContent(s,this.language)
-						compound = content && content.medicationValue && content.medicationValue.compoundPrescription
-						sameDrugColumnIndex = (accu.slice(0).reverse().find( drug => drug.compound == compound ) || {}).column
-					}else {
-						sameDrugColumnIndex = (accu.slice(0).reverse().find(drug => codes.filter( c => drug.codes.join(',').includes(c)).length === codes.length) || {}).column;
-					}
-					const column = _.findIndex(availableSpace, (s, idx) => sameDrugColumnIndex >= 0 ? (idx === sameDrugColumnIndex + 1) && s : s );
-					accu.push({
-						id: s.id,
-						codes,
-						column,
-						compound
-					})
-					return accu
-				}, [] );
-			}
-
-			_splitColumns() {
-				const drugs = this._drugsToBePrescribed();
-				const drugs2 = this._drugsAlreadyPrescribed();
-				//create fixed set of columns: 1 for each rid already present
-				const mvWithRid = drugs2 ? drugs2.map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID): []
-				let ridList = []
-				mvWithRid ? ridList = _.uniq(mvWithRid.map(mv => mv.prescriptionRID)):{}
-				if(ridList.length > 0) {
-					let columns = [];
-					columns = ridList.map(rid=>drugs2.filter(s=>this.api.contact().medicationValue(s, this.language).prescriptionRID === rid).map(s => s.id))
-					return columns;
-				}
-				else
-				{
-					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
-						const id = mark.id;
-                        const column = mark.column;
-                        (columns[column] || (columns[column] = [])).push(id)
-                        return columns;
-						}, [[]]);
-					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
-						columns.push([]);
-					}
-					return columns;
-				}
-			}
-
-			_drugOnPrescription(svc, index) {
-				const col = this._splitColumns()[index];
-				return svc && col && col.includes(svc.id);
-			}
-
-			_setDrugOnPrescription(e) {
-				const id = e.target.id.split(':')[0];
-				const column = parseInt(e.target.id.split(':')[1]);
-
-				if (!id || id.length === 0 || !column && column !== 0) {
-					return;
-				}
-
-				const current = this._safeDrugsOnPrescriptions().map(x => ({ id: x.id, column: x.column, codes: x.codes, compound: x.compound }));
-
-				const mark = current.find(m => m.id === id);
-
-				if (mark) {
-					mark.column = column;
-				} else {
-					current.push({ id: id, column: column });
-				}
-
-				if (!_.isEqual(current, this._drugsOnPrescriptions)) {
-					this.set('_drugsOnPrescriptions', current);
-				}
-			}
-
-			_enabled(column, line) {
-				if (line === undefined) {
-					return true;
-				}
-
-				const dop = this._safeDrugsOnPrescriptions();
-				if (dop.length < 5) {
-					return true;
-				}
-
-				const sums = dop.reduce((sums, i) => {
-					sums[i.column] = (sums[i.column] || 0) + 1;
-					return sums;
-				}, []);
-
-				if ((sums[column] || 0) < 5) {
-					return true;
-				}
-
-				const ids = this._drugsToBePrescribed().map(d => d.id);
-				const id = ids[line];
-				return dop.find(x => x.id === id && x.column === column) || false;
-			}
+			_setPdfSizes() {
+			    if (this.doc) this.root.querySelectorAll('.contact-card-container').forEach(card=>{ // get contact cards
+                    card.querySelectorAll('dynamic-doc').forEach(dynas=>{ // get dynamic-doc
+                        dynas.root.querySelectorAll('pdf-element').forEach(pdf=>pdf.dispatchEvent(new CustomEvent('iron-resize', {detail: {}}))) // force resize
+                    })
+                })
+            }
 
 			_displayPrescriptionError() {
 				this.$.prescriptionError.classList.add("notification");
@@ -1472,398 +1261,6 @@
 
 			isAuth() {
 				return (this.patient.ssin && this.api.tokenId)
-			}
-
-			_pdfReport(drugsToBePrescribed,toPrint,size) {
-
-			    this.busySpinner=true;
-
-			    const pdfPrintingData = {
-			        downloadFileName: _.kebabCase([ "prescription", _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", ""), +new Date()].join(" ")) + ".pdf",
-                    documentMetas : {
-                        title : "Prescription",
-                        contactId : _.get(this.currentContact, "id", ""),
-                        created: ""+ +new Date(),
-                        patientId : _.trim(_.get(this.patient, "id", "")),
-                        patientName : _.compact([ _.get(this.patient, "lastName", ""), _.get(this.patient, "firstName", "") ]).join(" ")
-                    }
-                }
-
-				this.api.pdfReport(mustache.render(toPrint, null), {
-					paperWidth: this.patient.ssin && this.api.tokenId && size == 'A4' ? 210 : 105,
-					paperHeight: this.patient.ssin && this.api.tokenId && size == 'A4' ? 297 : 210,
-					marginLeft: 5,
-					marginRight: 5,
-					marginTop: 5,
-					marginBottom: 5
-				})
-				.then(({pdf:pdfFileContent, printed:wasPrinted}) => _.assign({pdfFileContent:pdfFileContent, printed:wasPrinted}, pdfPrintingData))
-                .then(pdfPrintingData => this.api.message().newInstanceWithPatient(this.user, this.patient)
-                    .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, pdfPrintingData))
-                    .then(pdfPrintingData=>this.api.message().createMessage(
-                            _.merge(
-                                pdfPrintingData.newMessageInstance,
-                                {
-                                    transportGuid: "PRESCRIPTION:PHARMACEUTICALS:ARCHIVE",
-                                    recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
-                                    metas: pdfPrintingData.documentMetas,
-                                    toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
-                                    subject: pdfPrintingData.documentMetas.title
-                                }
-                            )
-                        ).then(createMessageResponse=>_.assign({createMessageResponse: createMessageResponse}, pdfPrintingData)))
-                )
-                .then(pdfPrintingData=>this.api.document().newInstance(
-                        this.user,pdfPrintingData.createMessageResponse,
-                        {
-                            documentType: 'report',
-                            mainUti: this.api.document().uti("application/pdf"),
-                            name: pdfPrintingData.documentMetas.title + " - " + pdfPrintingData.documentMetas.patientName
-                        }
-                    ).then(newDocumentInstance=>_.assign({newDocumentInstance:newDocumentInstance},pdfPrintingData))
-                )
-                .then(pdfPrintingData=>this.api.document().createDocument(pdfPrintingData.newDocumentInstance).then(createDocumentResponse=>_.assign({createDocumentResponse:createDocumentResponse},pdfPrintingData)))
-                .then(pdfPrintingData=>this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, pdfPrintingData.createDocumentResponse, pdfPrintingData.pdfFileContent).then(encryptedFileContent=>_.assign({encryptedFileContent:encryptedFileContent},pdfPrintingData)))
-                .then(pdfPrintingData=>this.api.document().setAttachment(pdfPrintingData.createDocumentResponse.id, null, pdfPrintingData.encryptedFileContent).then(setAttachmentResponse=>_.assign({setAttachmentResponse:setAttachmentResponse},pdfPrintingData)))
-                .then(pdfPrintingData=>{
-                    this._saveDocumentAsService({
-                        documentId: _.trim(_.get(pdfPrintingData, "createDocumentResponse.id", "")),
-                        stringValue: pdfPrintingData.documentMetas.title,
-                        contactId: pdfPrintingData.documentMetas.contactId,
-                    })
-                    return pdfPrintingData
-                })
-                .then(pdfPrintingData => !pdfPrintingData.printed && this.api.triggerFileDownload( pdfPrintingData.pdfFileContent, "application/pdf", pdfPrintingData.downloadFileName ))
-                .catch(e=>{console.log(e)})
-                .finally(()=>{
-					drugsToBePrescribed.forEach(s => {
-						const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
-						if (tag) {
-							tag.id = 'CD-LIFECYCLE|ordered|1';
-							tag.code = 'ordered'
-						} else {
-							s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
-						}
-					})
-					this.saveCurrentContact().then(() => {
-					    this._refreshFromServices()
-					    this.busySpinner=false;
-					})
-				})
-			}
-
-			_printPrescriptions(e) {
-				this.$.loadingPrescriptionDialog.open();
-				const drugsToBePrescribed = this._drugsToBePrescribed();
-				const splitColumns = this._splitColumns().filter(c => c && c.length > 0)
-				const element = this.root.querySelector("#barCode");
-				let rid = [] //this must be an array
-				let toPrint = undefined
-				this.set('selectedFormat', (this.patient.ssin && this.api.tokenId) ? this.selectedFormat : 'presc')
-				let printed = false;
-				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => {
-					//TODO: 1. don't get them by the columns, but group them by the rids
-					//TODO: 2. Changes in _split columns can be reverted
-					//TODO: 3. Even better: if rids are found, change the button name to 'reprint'
-					//filter drugs that already have rid
-					let mvWithRid = drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).filter(mv => mv.prescriptionRID)
-					if(mvWithRid.length > 0) {
-						rid.push(mvWithRid[0].prescriptionRID) // all medications should have same RID because same column
-						printed = true;
-					}
-				}))).finally(()=>{
-					// toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString).format("YYYYMMDD"),element,rid)
-					// this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
-
-
-				if (!printed && this.patient.ssin && this.api.tokenId){ // if ehealth connected
-					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
-						patient: this.patient,
-						hcp: hcp,
-						feedback: false,
-						medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
-						deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
-					}).then(prescri => {
-						rid.push(prescri.rid)
-						drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)).map(mv => mv.prescriptionRID = prescri.rid)
-					} )))) //push the presci.rid to the rid array
-							.finally(()=>{
-								toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString+"").format("DD/MM/YYYY"),element,rid)
-								this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
-							})
-				} else {
-					console.log("no recip-e")
-					toPrint = this._formatPrescriptionsBody(splitColumns,drugsToBePrescribed,this.patient,this.globalHcp,moment(this.deliveryDateString+"").format("DD/MM/YYYY"),element,rid)
-					this._pdfReport(drugsToBePrescribed,toPrint,this.selectedFormat)
-				}
-				})
-				this.$.loadingPrescriptionDialog.close();
-			} // print end
-
-			_formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
-				// console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
-				let prescriToPrint = [], allPages = []
-				let prescNum = 0, pageNum = 1
-
-				splitColumns.forEach((c, idx) => {
-					const prescRid = rid[idx] ? rid[idx] : hcp.nihii;
-					JsBarcode(element, prescRid, {format: "CODE128A", displayValue: false, height: 75});
-					const jpegUrl = element.toDataURL("image/jpeg");
-					const ridLabel = prescRid.split('').join('&nbsp;')
-					prescNum += 1
-					const prescriByPage = this.selectedFormat == 'A4' ? 2 : 1
-					if (prescNum > prescriByPage * pageNum) { // if doesn't fit in page
-						pageNum += 1 // add a page
-					} // will be set on next page
-
-					let prescArray = [], posology = {}
-					_.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
-						const medicationApi = this.api.contact().medication();
-						const med = this.api.contact().medicationValue(s, this.language);
-						const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
-						const medR = medicationApi.medicationNameToString(med, this.language)
-						const medS = medicationApi.posologyToString(med, this.language)
-						const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
-						prescArray.push(thisMed) // add to the medications list
-					}) // flatmap end
-					// console.log("prescArray",prescArray)
-
-					let prescriContent = ""
-					let articlePoso = []
-					let articleMedWithPoso = []
-					let medicName = ""
-					prescArray.map(onePrescri => { // create prescription content
-						prescriContent += `<article>
-                    <p class="bigtxt"><span class="bold bigtxt">R/</span> ${onePrescri.R}</p>
-                    <p class="bigtxt"><span class="bold bigtxt">S/</span> ${onePrescri.S}</p>
-                </article>`;
-						articlePoso.push(onePrescri.poso) // add posology to the list
-						articleMedWithPoso.push({medR: onePrescri.R, poso: onePrescri.poso})//add medication with posology to the list
-						medicName = onePrescri.R
-					}) // map end
-					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
-                <header>
-                    <img src="${jpegUrl}" alt="code-bar">
-                    <div class="barcode-num">${ridLabel}</div>
-                    <hr>
-                    <h2>Preuve de prescription électronique</h2>
-                    <hr>
-                    <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
-                    <hr>
-                    <div class="profile">
-                        <small>Nom et prénom du prescripteur&nbsp;:</small>
-                        <ul class="prescripteur-details">
-                            <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
-                            <li><b>`+ this.localize('inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
-                        </ul>
-                    </div>
-                    <hr>
-                    <div class="profile">
-                        <small>Nom et prénom du patient&nbsp;:</small>
-                        <ul class="patient-details">
-                            <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
-                            <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
-                        </ul>
-                    </div>
-                    <hr>
-                </header>
-                <h2>Contenu de la prescription électronique</h2>
-                <hr>
-                <div class="prescription-content">
-                    ${prescriContent}
-                </div>
-                <footer>
-                    <hr>
-                    <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
-                    <hr>
-                    <small class="center">Date&nbsp;:</small>
-                    <p class="center">${deliveryDate}</p>
-                    <hr>
-                    <small class="center">Délivrable à partir du&nbsp;:</small>
-                    <p class="center">${deliveryDate}</p>
-                </footer>
-            </article>` : prescriContent; // create single prescription body
-					prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso, 'medWithPosology': articleMedWithPoso,'myRid':ridLabel, 'myJpegUrl':jpegUrl}) // add a prescription with its datas
-				}) // splitCol forEach end
-				// console.log("prescriToPrint",prescriToPrint)
-
-				// console.log("allPages before map",allPages)
-				prescriToPrint.map((prescri)=>{ // for every prescription found in list
-					let singlePage = {body:'',poso:[],rid:'',jpegUrl: ''}
-					singlePage.body += (prescri.prescriBody) // get the body
-					singlePage.name = prescri.name
-					singlePage.rid = prescri.myRid
-					singlePage.jpegUrl = prescri.myJpegUrl
-					prescri.medWithPosology.map((poso)=>{ // check if there's posology
-						singlePage.poso.push(poso)
-					})
-					if (!allPages[prescri.page-1]) {
-						allPages.push([singlePage]) // assign posology to prescription
-					} else {
-						allPages[prescri.page-1].push(singlePage)
-					}
-				})
-				// console.log("allPages after map",allPages)
-
-                const hcpAddress = _.chain(_.get(hcp, "addresses", {})).filter({addressType:"work"}).head().value() ||
-                    _.chain(_.get(hcp, "addresses", {})).filter({addressType:"home"}).head().value() ||
-                    _.chain(_.get(hcp, "addresses", {})).head().value() ||
-                    {}
-                ;
-
-                const hcpTel = _.trim( _.get( _.filter(_.get(hcpAddress, "telecoms", {}), {telecomType:"phone"}), "[0].telecomNumber", "" ) ) ||
-                    _.trim( _.get( _.filter(_.get(hcpAddress, "telecoms", {}), {telecomType:"mobile"}), "[0].telecomNumber", "" ) )
-
-
-                let allPagesBody = ""
-				allPages.map((onePage)=>{
-					let posoByDay = { // make the arrays that will receive sorted posologies
-								'byMoment':[],
-								'byHour':[]
-							},
-							posoByWeek = [],
-							posoByMonth = []
-					if (typeof onePage == 'object') {
-						let posoTable = ''
-						let thatBody = ''
-						onePage.map((onePrescription)=>{
-							let singleName = onePrescription.name
-							if (this.patient.ssin && this.api.tokenId && rid && rid.length>0) {
-								thatBody += onePrescription.body
-								onePrescription.poso.map((singlePoso)=>{posoTable += "<tr><td><b>"+singlePoso.medR+"</b></td><td>"+singlePoso.poso.toString()+"</td></tr>"}) // construct the posology body
-							}else{
-								thatBody += `
-								<div id="prescription">
-									<header id="header" class="flexbox vert bt center">
-										<div class="horiz">
-											<div class="cell br w50 p1025">
-												<img class="codbar" src="${onePrescription.jpegUrl}" alt="code-bar">
-												<span>${onePrescription.rid}</span>
-											</div>
-											<div class="cell w50">
-												<p>Nom et prénom du prescripteur</p>
-												<p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
-											</div>
-										</div>
-									</header>
-									<div class="horiz w100">
-										<div class="vert bt bb flex1 cell">
-											<p class="uppercase">À remplir par le prescripteur</p>
-											<p>Nom et prénom du bénéfiniciaire : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
-										</div>
-									</div>
-									<main id="main" class="flexbox flex1 horiz bb">
-										<div class="cell br w33">
-											<p>Réservé à la vignette de conditionnement</p>
-										</div>
-										<div class="cell">
-											${onePrescription.body}
-										</div>
-									</main>
-									<footer id="footer" class="flex horiz bb">
-										<div class="flex1 cell br w50">
-											<p class="title bold center w100">Cachet du prescripteur</p>
-											<ul>
-												<li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
-
-												"<li>" + _.get(hcpAddress, "street", "") + ", " + _.get(hcpAddress, "houseNumber", "") + ( _.trim(_.get(hcpAddress, "postboxNumber", "")) ? " / " + _.trim(_.get(hcpAddress, "postboxNumber", "")) : "" ) + "</li>" +
-												"<li class='uppercase'>" + _.get(hcpAddress, "postalCode", "") + " - " + _.get(hcpAddress, "city", "") + "</li>" +
-												( _.trim(hcpTel) ? "<li>Tel: " + _.trim(hcpTel) + "</li>" : "" ) + `
-
-												<li><span class="uppercase">`+ this.localize('inami',this.language) +`</span>&nbsp;: ${hcp.nihii}</li>
-											</ul>
-										</div>
-										<div class="w50">
-											<div class="vert w100">
-												<div class="cell bb center">
-													<p class="mt0">Date et signature du prescripteur</p>
-													<p>${deliveryDate}</p>
-												</div>
-												<div class="cell">
-													<p class="center">Délivrable à partir de la date précisée ou à partir du&nbsp;:</p>
-													<p class="signdate center bold w100">${deliveryDate}</p>
-												</div>
-											</div>
-										</div>
-									</footer>
-									<aside>
-										<div class="horiz">
-											<p class="big uppercase center w100 bold fs1">Prescription de medicaments</p>
-										</div>
-									</aside>
-								</div>`
-							}
-						})
-						if (this.patient.ssin && this.api.tokenId && rid && rid.length>0) {
-							const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
-							const onepageBodyBottom = `</tbody></table></footer></div>`;
-							allPagesBody += onePageBodyTop+posoTable+onepageBodyBottom;
-						} else {
-							allPagesBody += `<div class="page">
-                        		${thatBody}
-							</div>`;
-						} // elif end
-
-					}
-				}) // allPage map end
-				const toPrint = (this.patient.ssin && this.api.tokenId && rid && rid.length >0) ?
-						`<html>
-            <head><style>
-            body {margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};}
-            body > div.page {display:block;size: A4;margin: 0;width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height: ${this.selectedFormat == 'A4' ? '297mm' : '210mm'};page-break-after: always;display:flex;flex-direction:column;}
-            body > div.page:last-child {page-break-after: avoid;}
-            body > div.page >main {display: flex;width: 100%;}
-            body > div.page > main > article.prescription {padding-top: 15px;width: ${this.selectedFormat == 'A4' ? '105mm' : '100%'};height: ${this.selectedFormat == 'A4' ? '200mm' : '210mm'};overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
-            body > div.page > main > article.prescription:first-child{border-right: ${this.selectedFormat == 'A4' ? '.5px dashed lightgrey' : 'none'};}
-            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
-            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
-            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
-            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
-            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
-            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
-            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
-            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
-            body > div.page > main > article div.profile {margin: 0 25px;}
-            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
-            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
-            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
-            body > div.page > footer {${this.selectedFormat != 'A4' ? 'display:none;' : ''}border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
-            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
-            body > div.page > footer table:first-child {border-top:none;}
-            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
-            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
-            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
-            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
-            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
-        </style></head><body>${allPagesBody}</body></html>`
-						: // no eHe connection =
-						`<html><head><style>
-            /* body */
-            body {margin: 0;padding: 0;}
-            div.page {display:flex;flex-direction: row;margin: 0;padding:0;${/*padding-top:20mm;*/""}width: ${this.selectedFormat == 'A4' ? '210mm' : '105mm'};height:200mm;overflow:hidden;page-break-after:always;}
-            div.page:last-child {page-break-after: avoid;}
-            div#prescription {display:flex;flex-direction:column;${this.selectedFormat == 'A4' && "width: 50%;border-left: .25px solid black; border-right: .25px solid black; border-bottom: .25px solid black;" || ""}}
-            div#prescription:first-child {${this.selectedFormat == 'A4' ? "margin-right: 1px" : "margin: 0"}}
-            * {font-size:10px;font-family: Arial,sans-serif;}
-            *.bigtxt {font-size:13px;}
-            /* flex */
-            *.flexbox, *.horiz, *.vert {display: flex;} *.horiz {flex-direction: row;} *.vert {flex-direction: column;} *.flex1 {flex:1;}
-            /* elems */
-            img.codbar {height:auto;width:100%;background: black;margin-bottom: 5px;} *.signdate {border-bottom: .25px dotted grey;} *.cell {padding: 5px; overflow: hidden;} article {margin-bottom: 15px;} article > p {margin: 0;}
-            /* style */
-            *.w100 {width:100%} *.w50 {width: 50%;} *.w40 {width:40%;} *.w33 {width: 33%;min-width:33%;} *.w20 {width: 20%;}
-            *.bold {font-weight: bold;} *.p1025 {padding: 10px 25px;} *.mt0 {margin-top: 0;}
-            *.br {border-right: .25px solid black;} *.bt {border-top: .25px solid black} *.bb {border-bottom: .25px solid black}
-            *.center {text-align: center;} *.capitalize {text-transform: capitalize;} *.uppercase{text-transform: uppercase;e}
-            *.right {text-align: right;} *.fs1 {font-size: 1em;} ul {list-style: none; padding-left: 0}
-        </style></head><body>${allPagesBody}</body></html>`; // finalize PDF body
-				// console.log("toPrint",toPrint)
-				return toPrint
-			}
-
-			_columnName(idx) {
-				return `#${idx + 1}`;
 			}
 
 			saveCurrentContact() {
@@ -2007,27 +1404,43 @@
 
             _contactsChanged() {
                 this.set('contactsFormsAndDocuments', [])
-                if (!this.contacts) {
+                if (!this.contacts || (this.serviceFilters && this.serviceFilters.length && !(this.filteredServiceIds && this.filteredServiceIds.length))) {
                     return
                 }
 
                 this.set('isLoadingDoc', true)
 
                 const seenForms = {}
-                const formGroups = this.contacts.map(contact => {
-                    const forms = (contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) /*&& !(sc.id && this.hiddenSubContactsId[sc.id])*/) || []).map(sc => {
+                const formGroups = this.contacts.reduce((contacts, contact) => {
+                    
+                    const forms = ((this.serviceFilters && this.serviceFilters.length ? 
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && sc.services.some( s => this.filteredServiceIds.find(fsId => fsId === s.serviceId))):
+                    contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) ))|| [])
+                    .map(sc => {
                         const serviceIds = sc.services.map(s => s.serviceId)
                         return {
                             id: sc.formId,
                             docs: contact.services.filter(s => serviceIds.includes(s.id) && ((this.api.contact().preferredContent(s,this.language)|| {}).documentId || []).length)
                         }
                     })
-					const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
-					return {
-                    ctc: contact,
-                    forms: _.sortBy(forms, f => -f.created),
-                    unmappedServices: _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id))), 'created')
-                }})
+
+                    const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
+
+                    const unmappedServices = this.serviceFilters && this.serviceFilters.length ? 
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) && this.filteredServiceIds.some(fsId => fsId === svc.id) ), 'created'):
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) ), 'created')  
+
+                    if((forms && forms.length) || (unmappedServices && unmappedServices.length)) {
+                        contacts.push({
+                            ctc: contact,
+                            forms: _.sortBy(forms, f => -f.created),
+                            unmappedServices
+                        })
+                    }
+
+                    return contacts
+
+                }, [])
 
                 const climbFormHierarchy = function (formIds, formsCache) {
 					return (formIds.length ? this.api.form().getForms({ ids: formIds }) : Promise.resolve([])).then(forms => {
@@ -2425,6 +1838,12 @@
                     .catch((e)=>{console.log(e)})
                     .finally(()=>{ this.busySpinner = false; this._closeReportMenu(); this.confirmSaved(); })
 
+            }
+
+            _handleSaveDocumentAsService(e) {
+                if(e.detail) {
+                    this._saveDocumentAsService(e.detail)
+                }
             }
 
             _saveDocumentAsService(inputConfig) {

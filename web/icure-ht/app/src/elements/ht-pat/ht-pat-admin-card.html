@@ -97,6 +97,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-input-container-color: var(--app-text-color);
             }
 
+            paper-textarea {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
 			paper-dropdown-menu {
 				padding-left: 5px;
 				padding-right: 5px;
@@ -453,6 +457,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             .save {
                 margin-right: 36px;
+                margin-left: 16px;
             }
             .save iron-icon,
             .print-vignette iron-icon {
@@ -482,12 +487,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <iron-icon id="print-vignette" icon="av:recent-actors" on-tap="printMutualVignette"></iron-icon>
                     <paper-tooltip for="print-vignette" position="left">[[localize('print_mutual_vignette','Print mutual vignette',language)]]</paper-tooltip>
                 </div>
+                <div class="print-vignette">
+                    <iron-icon id="fill-with-card" icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
+                    <paper-tooltip for="fill-with-card" position="left">[[localize('fill_with_eid','Fill with eid',language)]]</paper-tooltip>
+                </div>
                 <div class="save">
                     <iron-icon id="save-btn" icon="save" on-tap="forceSaveAdmin"></iron-icon>
                     <paper-tooltip for="save-btn" position="left">[[localize('save','Save',language)]]</paper-tooltip>
-                </div>
-                <div class="save">
-                    <iron-icon icon="vaadin:health-card" on-tap="fillWithCard"></iron-icon>
                 </div>
             </paper-tabs>
 
@@ -782,8 +788,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         import moment from 'moment/src/moment';
 
-
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
+
     static get is() {
         return 'ht-pat-admin-card';
     }
@@ -949,26 +955,26 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.api.insurance().getInsurance(insur.insuranceId).then(ins=>{
                 const home = this.patient.addresses.find(a=>a.addressType === "home") || null
                 const mutName = this.localizeContent(ins.name)
+                const mutCode = this.localizeContent(ins.code)
                 const patName = this.patient.firstName+" "+this.patient.lastName+" °"+this.api.moment(this.patient.dateOfBirth).format('DD/MM/YYYY')
-                const oa = insur.parameters && insur.parameters.tc1 && mutName && mutName.length ? insur.parameters.tc1+" - "+mutName : "no OA"
+                const oa = mutCode && insur.parameters && insur.parameters.tc1 && insur.parameters.tc2 && mutName && mutName.length ? mutCode+" "+insur.parameters.tc1+"-"+insur.parameters.tc2 : "no OA"
                 const ssin = this.patient.ssin
-                const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber).length ? "/"+home.postboxNumber : "") : "no Addr"
+                const addr = home ? home.street+" "+home.houseNumber+((home.postboxNumber && home.postboxNumber.length) ? (!home.postboxNumber.startsWith('/')?"/":"")+home.postboxNumber:"") : "no Addr"
                 const cp = home ? home.postalCode+" "+home.city : "no CP"
                 const sps = JSON.parse(localStorage.getItem('selectedPrinter'))
-                const paperWidth = sps && sps.stickers && sps.stickers.w || 80
-                const paperHeight = sps && sps.stickers && sps.stickers.h || 40
+                const paperWidth = sps && sps.stickers && sps.stickers.w || 62 // 80
+                const paperHeight = sps && sps.stickers && sps.stickers.h || 29 // 40
                 const vignetteBody =`<html><head>
                     <style>
-                        * {margin:0;padding:0;}
-                        html,body {height: ${paperHeight}mm;width: ${paperWidth}mm}
-                        div.sticker {}
-                        p.patName {font-size: 1.1em;font-weight:bold;}
-                        p, pre {width: ${paperWidth}mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
+                        * {margin:0;padding:0;font-size:12px;}
+                        /*div.sticker {transform:rotate(-90deg);transform-origin:bottom;}*/
+                        p.patName {font-size:14px;font-weight:bold;}
+                        p, pre {overflow: hidden; text-overflow: ellipsis; white-space: nowrap;} /* inverted size for rotation */
                     </style></head>
                     <body>
                         <div class="sticker">
                             <p class="patName">${patName}</p>
-                            <pre class="oa">OA ${oa}</pre>
+                            <pre class="oa"><b>OA${oa}</b> ${mutName}</pre>
                             <pre class="ssin">   ${ssin}</pre>
                             <pre class="addr">   ${addr}</pre>
                             <pre class="cp">   ${cp}</pre>
@@ -1232,12 +1238,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             .then(res => res.map(i => ({
                                 'codeId': i.id,
                                 'id': i.id,
-                                'name': this.localizeContent(i.name, this.language)
+                                'name': i.code + " - " + this.localizeContent(i.name, this.language)
                             }))) : id ? this.api.insurance().getInsurance(id)
                             .then(i => ({
                                 'codeId': i.id,
                                 'id': i.id,
-                                'name': this.localizeContent(i.name, this.language)
+                                'name': i.code + " - " + this.localizeContent(i.name, this.language)
                             })) : Promise.resolve([]);
                 } else if (data.source === 'users') {
                     const s = text && text.toLowerCase()
@@ -1743,8 +1749,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     country: this.cardData.country
                 })
             }
+
+            this.api.patient().modifyPatientWithUser(this.user,this.patient)
+                .then(p => this.api.register(p,'patient'))
+                .then(p => {
+                    this.set('patient',p)
+                    this.patientChanged()
+                })
         }
-        else{
+        else if(Object.keys(this.cardData).length===0){
             fetch('http://127.0.0.1:16042/read')
                 .then((response) => {
                     return response.json()
@@ -1756,6 +1769,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.dispatchEvent(new CustomEvent('card-changed', {detail: {cardData: this.cardData}, composed: true, bubbles: true}));
                     }
                 })
+        }
+        else {
+            console.log("mauvaise carte inserer")
         }
     }
 

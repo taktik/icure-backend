@@ -39,6 +39,7 @@ import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.EntityTemplate;
@@ -247,7 +248,7 @@ public class EntityTemplateFacade implements OpenApiFacade{
 		}
 	}
 
-	@Context
+	@Autowired
 	public void setMapper(MapperFacade mapper) {
 		this.mapper = mapper;
 	}

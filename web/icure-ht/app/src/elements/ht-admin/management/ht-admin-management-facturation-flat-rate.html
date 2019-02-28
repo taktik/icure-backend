@@ -102,10 +102,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 14px;
             }
 
+            .warningMessage {
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
+
+            .warningMessageBody {
+                padding:20px 35px;
+                color:#7E0000;
+                background-color: rgba(255, 0, 0, 0.15);
+                font-weight: 700;
+                border:1px dashed #7e0000;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
         </style>
 
         <div class="facturation-flat-rate-panel">
             <h4>[[localize('man_fla_rat', 'Management - Flat rate facturation', language)]]</h4>
+            <div class="warningMessage" id="warningMessageInvoicing">
+                <div class="warningMessageBody">
+                    Nous vous conseillons d'encoder la tarification pour les 24 derniers mois
+                </div>
+            </div>
             <div class="add_line">
                 <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
@@ -155,7 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                     <template>
                         <div>
-                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice"></iron-icon>
+                            <iron-icon icon="vaadin:trash" class="trashIcon" on-tap="_deleteFalRatePrice" data-item$="[[item]]"></iron-icon>
                         </div>
                     </template>
                 </vaadin-grid-column>
@@ -344,10 +364,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      })
                 }
 
-                this.api.hcparty().modifyHealthcareParty(this.hcpParent).then(hcp => {
-                    this.set('hcpParent', hcp)
-                    this.set('flatRateTarificationTab', this.hcpParent && this.hcpParent.flatRateTarifications)
-                }).finally(() => this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null}))
+                this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                    .then(hcp => this.set('hcpParent', hcp))
+                    .finally(() => {
+                    const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                    this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                    this.set('flatRateTarification', { code: null, label: null, reimbursement : Number(0.00), startOfValidity: null})
+                })
 
 
             }
@@ -395,12 +418,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _deleteFalRatePrice(e){
                 e.stopPropagation()
+                if(e.target.dataset && e.target.dataset.item){
+                    const dataToBeDeleted = JSON.parse(e.target.dataset.item)
+                    const tarification = this.hcpParent.flatRateTarifications.find(t => t.code === dataToBeDeleted.code)
+                    const valorisationsOfTarification = tarification.valorisations
+                    const valorisationToBeDeleted = tarification.valorisations.findIndex(val => val.startOfValidity === dataToBeDeleted.valorisation.startOfValidity && val.reimbursement === dataToBeDeleted.valorisation.reimbursement)
+                    valorisationsOfTarification.splice(valorisationToBeDeleted, 1)
 
+                    this.api.hcparty().modifyHealthcareParty(this.hcpParent)
+                        .then(hcp => this.set('hcpParent', hcp))
+                        .finally(() => {
+                            const flatRateTarifications = this.hcpParent && this.hcpParent.flatRateTarifications || []
+                            this.set('flatRateTarificationTab', _.flatten(flatRateTarifications.map(tar => tar.valorisations.map(val => ({valorisation: val, code: tar.code, label: tar.label, flatRateType: tar.flatRateType})))) )
+                        })
+                }
             }
 
             _selectedPriceChanged(e){
-
-                this.$['addedFlatRateTarificationDialog'].open()
+               //this.$['addedFlatRateTarificationDialog'].open()
             }
         }
 
