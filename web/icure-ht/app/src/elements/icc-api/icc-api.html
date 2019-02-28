@@ -425,13 +425,77 @@
             return (cache[key] = {ttl:+new Date() + 30000, promise:loader()}).promise
         }
 
-        getRowsUsingPagination(paginator) {
-            const executePaginator = (latestResult, acc) =>
-                paginator(latestResult.nextKey,latestResult.nextDocId).then((newResult) => {
-                    acc.push(...newResult.rows)
-                    return newResult.done ? acc : executePaginator(newResult, acc)
+        getRowsUsingPagination(paginator, filter, startIdx, endIdx, cache) {
+            const executePaginator = (latestResult, acc, limit) =>
+                paginator(latestResult.nextKey, latestResult.nextDocId, endIdx ? endIdx - startIdx : undefined).then((newResult) => {
+                    const rows = filter ? newResult.rows.filter(filter) : newResult.rows
+                    acc.push(...rows)
+                    return newResult.done || (limit && (acc.length >= limit)) ? ({rows: acc, nextKey: newResult.nextKey, nextDocId: newResult.nextDocId}) : executePaginator(newResult, acc, limit)
                 })
-            return executePaginator({nextKey: null, nextDocId: null}, [])
+
+
+            if (cache) {
+                const [rows, lastKey, lastDocId, lastEndIdx, lastTreatedIdx] = cache.reduce(([rows, lastKey, lastDocId, lastEndIdx, lastTreatedIdx], chunk)  => {
+                    if (chunk.endIdx <= lastTreatedIdx) {
+                        //               [--zoi--]
+                        // [-chunk-]
+                        //Doesn't look like anything to me
+                    } else if (chunk.startIdx >= endIdx) {
+                        // [--zoi--]
+                        //               [-chunk-]
+                        if(lastTreatedIdx<endIdx){
+                            rows.push({missing:[lastTreatedIdx, endIdx], lastEndIdx, lastKey, lastDocId})
+                            lastTreatedIdx = endIdx
+                        }
+                    } else {
+                        if (chunk.startIdx <= lastTreatedIdx) {
+                            if (chunk.endIdx <= endIdx) {
+                                //       [--zoi--]
+                                // [-chunk-]
+                                rows.push({startIdx:lastTreatedIdx, rows:chunk.rows.slice(lastTreatedIdx - chunk.startIdx, chunk.endIdx - chunk.startIdx)})
+                                lastTreatedIdx = chunk.endIdx
+                            } else {
+                                //       [--zoi--]
+                                // [------chunk------]
+                                rows.push({startIdx:lastTreatedIdx, rows:chunk.rows.slice(lastTreatedIdx - chunk.startIdx, endIdx - chunk.startIdx)})
+                                lastTreatedIdx = endIdx
+                            }
+                        } else {
+                            if (chunk.endIdx >= endIdx) {
+                                //  [--zoi--]
+                                //        [-chunk-]
+                                rows.push({missing:[lastTreatedIdx, chunk.startIdx], lastEndIdx, lastKey, lastDocId})
+                                rows.push({startIdx:chunk.startIdx, rows:chunk.rows.slice(0, endIdx - chunk.startIdx)})
+                                lastTreatedIdx = endIdx
+                            } else {
+                                //  [-------zoi-------]
+                                //        [-chunk-]
+                                rows.push({missing:[lastTreatedIdx, chunk.startIdx], lastEndIdx, lastKey, lastDocId})
+                                rows.push({startIdx:chunk.startIdx, rows:chunk.rows.slice(0, chunk.endIdx - chunk.startIdx)})
+                                lastTreatedIdx = chunk.endIdx
+                            }
+                        }
+                    }
+                    return [rows, chunk.nextKey, chunk.nextDocId, chunk.endIdx, lastTreatedIdx]
+                } , [[], null, null, 0, startIdx])
+
+
+                if (!rows.length) {
+                    rows.push({missing:[startIdx,endIdx], lastKey: lastKey, lastDocId: lastDocId, lastEndIdx:lastEndIdx})
+                } else {
+                    const lastRow = _.last(rows)
+                    if (lastRow.rows && lastRow.startIdx+lastRow.rows.length < endIdx) {
+                        rows.push({missing:[lastRow.startIdx+lastRow.rows.length, endIdx], lastKey: lastKey, lastDocId: lastDocId, lastEndIdx:lastEndIdx})
+                    }
+                }
+
+                return Promise.all(rows.filter(r => r.missing).map(r => executePaginator({nextKey: r.lastKey, nextDocId: r.lastDocId}, [], r.missing[1] - r.lastEndIdx).then(({rows, nextKey, nextDocId}) => {
+                    r.rows = rows.slice(r.missing[0] - r.lastEndIdx, r.missing[1] - r.lastEndIdx)
+                    cache[r.lastEndIdx] = {rows, startIdx:r.missing[0], endIdx:r.missing[1], nextKey, nextDocId}
+                }))).then(() => _.flatMap(rows, r => r.rows))
+            } else {
+                return executePaginator({nextKey: null, nextDocId: null}, []).then(({rows}) => rows)
+            }
         }
 
         loadUsersAndHcParties() {
