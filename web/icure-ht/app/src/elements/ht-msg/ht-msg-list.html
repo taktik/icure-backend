@@ -602,7 +602,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]"
                              active-item="{{activeItem}}" items="[[messages]]"
                              on-tap="click" on-removed-opened="_deselectMessages"
-                             selection-mode="multi" width="100%" pageSize="6">
+                             selection-mode="multi" width="100%" pageSize="50">
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="0" width="46px">
                             <template>
