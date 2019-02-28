@@ -810,12 +810,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <iron-icon icon="date-range"></iron-icon>
                                 [[localize('diary','Diary',language)]]
                             </paper-tab>
-                            <!-- <template is="dom-if" if="[[isAdmin]]"> -->
+                             <template is="dom-if" if="[[isAdmin]]">
                                 <paper-tab name="admin" on-tap="doRoute">
                                     <iron-icon icon="settings"></iron-icon>
                                     [[localize('admin')]]
                                 </paper-tab>
-                            <!-- </template> -->
+                            </template>
                         </paper-tabs>
                         
                         <div>
