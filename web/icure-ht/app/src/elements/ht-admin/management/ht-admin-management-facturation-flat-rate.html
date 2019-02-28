@@ -336,7 +336,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _addFlatRateTarification(){
+                this.set('flatRateTarification', {})
+                this.set('flatRateNmclSelectedItemIdx', 0)
+                this.set('flatRateTarification.monthValidity', parseInt(parseInt(moment().format('MM'))))
+                this.set('flatRateTarification.yearValidity', parseInt(parseInt(moment().format('YYYY'))))
                 this.$['addedFlatRateTarificationDialog'].open()
+
             }
 
             _addTarification(){

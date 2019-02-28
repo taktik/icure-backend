@@ -965,6 +965,9 @@
 
                 .mr5 {margin-right:5px}
                 .smallIcon { width:16px; height:16px; }
+                .displayNone {
+                    display:none!important
+                }
 
             </style>
         </custom-style>
@@ -1245,7 +1248,7 @@
                                         <template><span class$="invoice-status [[_getTxtStatusColor('force-red',item.refusedAmount)]]">[[item.refusedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                 </vaadin-grid-column-group>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
+                                <vaadin-grid-column flex-grow="1" class="recipient-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="invoiceStatusHr">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
                                     </template>
@@ -1253,9 +1256,12 @@
                                         <span class$="invoice-status [[_getIconStatusClass(item.invoiceStatusHr)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.invoiceStatusHr)]]"></iron-icon> [[item.invoiceStatusHr]]</span>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
                                     <template class="header"><vaadin-grid-sorter path="id">[[localize('download',"Télécharger",language)]] PDF</vaadin-grid-sorter></template>
                                     <template><paper-button class="grid-btn-small noBg noPad" on-tap="_downloadOaPdfByMessageId" data-message-id$="[[item.id]]"><iron-icon icon="image:picture-as-pdf" class="force-left textRed" data-message-id$="[[item.id]]"></iron-icon> &nbsp; PDF</paper-button></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
+                                    <template><paper-button class$="grid-btn-small modal-button-rejected [[_showRejectInvoiceButton(item.messageOriginalStatus, item.invoiceFinalStatus)]]" on-tap="_rejectInvoice" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]" ><iron-icon icon="cancel" class="force-left" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]"></iron-icon> &nbsp; [[localize('rejectVerb',"Reject",language)]]</paper-button></template>
                                 </vaadin-grid-column>
                             </vaadin-grid>
                         </div>
@@ -1999,6 +2005,12 @@
             _gotoMyAdmin() {
                 this._closeDialogs()
                 this.dispatchEvent(new CustomEvent('trigger-goto-admin', { bubbles: true, composed: true, detail: {} }));
+            }
+
+            _showRejectInvoiceButton(messageOriginalStatus, invoiceFinalStatus) {
+                return _.trim(messageOriginalStatus) !== "partiallyAccepted" ? "displayNone" :
+                    ( _.trim(invoiceFinalStatus) === "fullyAccepted" ) ? "" :
+                        "displayNone"
             }
 
             _isEqual(a,b) {
@@ -3179,13 +3191,31 @@
                                 && parseInt(_.get(i, "metas.batchExportTstamp", 0)) === parseInt( _.get( this.activeGridItem, "metas.batchExportTstamp", 0 ))
                                 && _.trim(_.get(i, "transportGuid", "")) !== "MH:FLATRATE:INVOICING-BATCH-ZIP"
                                 && _.trim(_.get(i, "metas.parentOaId", "")) === _.trim( _.get( this.activeGridItem, "metas.parentOaId", "" ))
-                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => this.api.register(msg, 'message')) )
+                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => { this.api.register(msg, 'message'); return msg; }) )
                     ).then(messages=>{
                         return ( !_.trim(actionSettings.newInvoicingCodeStatus) ) ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
                             .then(invoices => invoices.map(inv => {
                                 inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicingCodeStatus] = true)
-                                this.api.invoice().modifyInvoice(inv).then(inv => this.api.register(inv,'invoice'))
+                                return this.api.invoice().modifyInvoice(inv).then(inv => { this.api.register(inv,'invoice'); return inv; })
                             }))
+                            .then(() => {
+                                return (actionSettings.newStatusKey!=="rejected") ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
+                                    .then(invoices => {
+                                        const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                        const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                        this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                        console.log("---invoices---");
+                                        console.log(invoices);
+                                        console.log("---activeGridItem---");
+                                        console.log(this.activeGridItem);
+                                        console.log("---acceptedAmount---");
+                                        console.log(acceptedAmount);
+                                        console.log("---refusedAmount---");
+                                        console.log(refusedAmount);
+                                        // FZ: Alors que put avec status canceled ok => inv reviennent en status canceled = false :/ Investigate here
+                                        // return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); })
+                                    })
+                            })
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(() => {
@@ -3195,6 +3225,38 @@
                     })
                 }
 
+            }
+
+            _rejectInvoice(e) {
+
+                this.set('_isLoadingSmall', true );
+                const invoiceId = _.get(e, "target.dataset.invoiceId", "")
+                let oldActiveGridItem = {}
+
+                this.api.invoice().getInvoice(invoiceId)
+                    .then(invoice => {
+                        invoice.invoicingCodes.map(ic => { ic.accepted = false; ic.resent = true; return ic;  })
+                        try{ delete(invoice.sentDate); } catch(e){}
+                        return this.api.invoice().modifyInvoice(invoice).then(invoice => this.api.register(invoice,'invoice'))
+                    })
+                    .then(() => {
+                        return this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
+                            .then(invoices => {
+                                const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); oldActiveGridItem = msg; })
+                            })
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(() => {
+                        this.set('_isLoadingSmall', false );
+                        this.set('activeGridItem', null )
+                        this._fetchJ20Messages(true).then(()=>{
+                            _.size(oldActiveGridItem) && this.set('activeGridItem', oldActiveGridItem );
+                            _.size(this.activeGridItem) && this._toggleBatchDetails({currentTarget:{dataset:{status:"partiallyAccepted"}}})
+                        })
+                    })
             }
 
             _downloadParentOaArchive(e) {
@@ -3998,14 +4060,18 @@
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
-                        this._fetchJ20Messages(true);
+                        this.set('activeGridItem', null );
+                        this.set('messagesCachedData', null );
+                        this._fetchJ20Messages(true).then(()=>{ this.set('flatrateMenuSection', "j20_process" ); })
                     })
 
             }
 
             _fetchJ20Messages( forceRefresh = false ) {
 
-                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return;
+                let prom = Promise.resolve(null)
+
+                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return prom;
 
                 this.set('_isLoadingSmall', true );
 
@@ -4016,7 +4082,7 @@
 
                 let dataObject = {}
 
-                this._getPatientsByHcp(_.get(this.hcp, "id"))
+                return this._getPatientsByHcp(_.get(this.hcp, "id"))
                     .then(myPatients=>{
                         dataObject = _.merge(dataObject, { patients: _.chain(myPatients).uniqBy('ssin').orderBy(['lastName', 'firstName'],['asc','asc']).value() })
                         return this._getInsurancesDataByPatientsList(dataObject.patients).then(x=>x)
@@ -4068,6 +4134,22 @@
                                                                 !!(st & (1 << 9))  ? { hrLabel: this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language), finalStatus:"successfullySentToOA" }:
                                                                     !!(st & (1 << 8))  ? { hrLabel: this.localize('inv_pen','Pending',this.language), finalStatus:"pending" }: ""
 
+                                const acceptedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    "0,00"
+
+                                const refusedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))) :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00":
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    "0,00"
+
                                 return _.merge(message, {
                                     messageInfo: {
                                         hcp: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
@@ -4079,10 +4161,8 @@
                                         invoicedMonth: this.localize('month_' + parseInt(moment(_.get(message, "metas.exportedDate", 0), "YYYYMMDD").format('M')), this.language) + " " + _.trim(_.get(message, "metas.exportedDate", _.get(message, "metas.exportDate", ""))).slice(0, 4),
                                         generationDate: moment(parseInt(_.get(message, "created", 0))).format("DD/MM/YYYY"),
                                         invoicedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))),
-
-                                        acceptedAmount: (["rejected", "pending"].indexOf(_.get(invoiceStatus, "finalStatus")) > -1) ? "0,00" : this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))),
-                                        refusedAmount: (["rejected"].indexOf(_.get(invoiceStatus, "finalStatus")) === -1) ? "0,00" : this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))),
-
+                                        acceptedAmount: acceptedAmount,
+                                        refusedAmount: refusedAmount,
                                         invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
                                         invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
                                         rejectionReason: "-",
@@ -4118,12 +4198,10 @@
                     })
                     .catch((e)=>console.log(e))
                     .finally(()=>{
-
                         this.set("messagesGridData", this._getBatchDataByMenuSection(this.flatrateMenuSection, 'flatFiles'))
                         const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
-
                         this.set('_isLoadingSmall', false )
-
+                        return prom
                     })
 
             }
@@ -4156,7 +4234,7 @@
                                         invoiceData = _.merge(invoiceData, {invoiceDate:_.trim(_.get(invoiceData, "invoiceDate","")) || moment(_.get(invoiceData, "created","0")).startOf('month').format("YYYYMMDD") })
 
                                         const st = message.status
-                                        const invoiceStatus =
+                                        let invoiceStatus =
                                             !!(st & (1 << 21)) ? { hrLabel: this.localize('inv_arch','Archived',this.language), finalStatus:"archived" }:
                                                 !!(st & (1 << 17)) ? { hrLabel: this.localize('inv_err','Error',this.language), finalStatus:"error" }:
                                                     !!(st & (1 << 16)) ? { hrLabel: this.localize('inv_par_acc','Partially accepted',this.language), finalStatus:"partiallyAccepted" }:
@@ -4172,7 +4250,7 @@
                                             _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
                                             _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ):
                                             _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent ? parseFloat(i.totalAmount) : 0) ):
-                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent&&!i.canceled ? parseFloat(i.totalAmount) : 0) ):
                                             "0,00"
 
                                         const refusedAmount =
@@ -4180,8 +4258,14 @@
                                             _.get(invoiceStatus, "finalStatus") === "rejected" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) :
                                             _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00" :
                                             _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent ? parseFloat(i.totalAmount) : 0) ):
-                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent||!!i.canceled ? parseFloat(i.totalAmount) : 0) ):
                                             "0,00"
+
+                                        const messageOriginalStatus = invoiceStatus
+
+                                        invoiceStatus = _.get(invoiceStatus, "finalStatus")!=="partiallyAccepted" ? invoiceStatus :
+                                            (_.size(_.compact(_.map( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>!!i.resent )))) ?
+                                                { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" } : { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }
 
                                         return {
                                             id: _.get(message, "id", ""),
@@ -4194,12 +4278,11 @@
                                             invoiceData: invoiceData,
                                             patientData: _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][1]", {} ),
                                             invoicedAmount: this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) ) ),
-
                                             acceptedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(acceptedAmount)),
                                             refusedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(refusedAmount)),
-
                                             invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
                                             invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
+                                            messageOriginalStatus: _.get(messageOriginalStatus, "finalStatus"),
                                             messageData: message
                                         }
                                     })
