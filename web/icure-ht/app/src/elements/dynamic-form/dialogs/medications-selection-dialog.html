@@ -413,7 +413,9 @@
             </div>
         </paper-dialog>
         <paper-dialog id="checkintol" always-on-top="true">
-            <div>Le patient possède une contre-indication pour la médication <em>[[medicationToBeAdded_label]]</em>. Continuer ?</div>
+            <div>
+                [[localize('patient_has_adr','Le patient possède une contre-indication pour la médication',language)]]
+                 <em>[[medicationToBeAdded_label]]</em>. [[localize('continue','Continuer ?',language)]]</div>
             <template is="dom-repeat" items="[[intolItems]]" as="intol">
                 <div> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
 
