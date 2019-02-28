@@ -3064,7 +3064,7 @@
                     this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
                     this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
-                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flat-file-oa-"+OA.code+".txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
                     this.localize('flatrate_slipfile_18',this.language) + "\n" +
                     this.localize('flatrate_slipfile_19',this.language) + "\n" +
@@ -3578,7 +3578,7 @@
                 this.set('_isLoading', true );
                 this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1',this.language), icon:"arrow-forward"});
 
-                // Force refresh - could be new "valorisation" was just set
+                // Force refresh - could be new "valorisation" / bce / bank account / contact person / ... was just set
                 if(_.size(_.get(this.api.hcparty().cache, _.get(this.user, "healthcarePartyId", "" )))) delete this.api.hcparty().cache[_.get(this.user, "healthcarePartyId", "" )];
 
                 this.api.hcparty().getHealthcareParty(_.get(this.user, "healthcarePartyId", "" ))
@@ -3883,13 +3883,16 @@
                         this.flatRateInvoicingDataObject.listsData = listsData
 
                         // Drop patients we couldn't find in list (no valorisation)
-                        const patientsInLists = _.uniq( _.compact( _.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
-                        this.flatRateInvoicingDataObject.patientsData = _.compact( _.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ) )
+                        const patientsInLists = _.uniq(_.compact(_.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
+                        this.flatRateInvoicingDataObject.patientsData = _.compact(_.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ))
                         if(!parseInt(_.size(this.flatRateInvoicingDataObject.patientsData)||0)) throw new Error("no-data-to-export")
+
+                        // Drop when not in use
+                        this.flatRateInvoicingDataObject.insurancesData = _.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.patientsData, pat => _.get(pat, "finalInsurability.insuranceId", "")))) ||[]).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
+                        this.flatRateInvoicingDataObject.iosData = _.compact(_.map( this.flatRateInvoicingDataObject.iosData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, oa => _.get(oa, "parent", ""))))).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
 
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
-
                         return this._createOrUpdateMedicalHousePatientsInvoices().then(x=>x)
                     })
                     .then(invoicesData=>{
