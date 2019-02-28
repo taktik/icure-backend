@@ -1805,7 +1805,7 @@
                             parentUuid : ins && ins.code ? ins.code.charAt(0) : null,
                             patient: pat,
                             invoice: inv,
-                            toBeCorrected: !inv.invoicingCodes.find(ic => ic.resent === true),
+                            toBeCorrected: !!inv.invoicingCodes.find(ic => ic.resent === true),
                             error: inv.error || ""
                     })
                 }))
@@ -1870,19 +1870,19 @@
                                             const st = msg.status
 
                                             const invoiceStatus =
-                                                !(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
-                                                    !(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
-                                                        !(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
-                                                            !(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
-                                                                !(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
-                                                                    !(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
-                                                                        !(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
-                                                                            !(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
-                                                                                !(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
+                                                !!(st & (1 << 21)) ? this.localize('inv_arch','Archived',this.language):
+                                                    !!(st & (1 << 17)) ? this.localize('inv_err','Error',this.language):
+                                                        !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
+                                                            !!(st & (1 << 15)) ? this.localize('inv_full_acc','Fully accepted',this.language):
+                                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
+                                                                    !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
+                                                                        !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
+                                                                            !!(st & (1 << 9))  ? this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                                                !!(st & (1 << 8))  ? this.localize('inv_pen','Pending',this.language): ""
 
 
-                                            const rejectionReason = !(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                !(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
+                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
 
                                             return (zone200 && zone300) ?
                                                 ({
@@ -1897,7 +1897,7 @@
                                                         invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
                                                         invoicedAmount:     msg.metas && msg.metas.totalAmount ? Number(msg.metas.totalAmount) : "0.00",
                                                         acceptedAmount:     msg.metas && msg.metas.totalAcceptedAmount ? Number(msg.metas.totalAcceptedAmount) : "0.00",
-                                                        refusedAmount:      (!(st & (1 << 17)) || !(st & (1 << 12))) ? Number(msg.metas.totalAmount) : (msg.metas && msg.metas.totalRejectedAmount) ? Number(msg.metas.totalRejectedAmount) : "0.00",
+                                                        refusedAmount:      (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(msg.metas.totalAmount) : (msg.metas && msg.metas.totalRejectedAmount) ? Number(msg.metas.totalRejectedAmount) : "0.00",
                                                         invoiceStatus:      invoiceStatus,
                                                         rejectionReason:    rejectionReason,
                                                         paymentReference:   msg.metas && msg.metas.paymentReferenceAccount1 ? msg.metas.paymentReferenceAccount1 : "",
@@ -2652,8 +2652,8 @@
                             ssin: pat && pat.ssin,
                             invoiceDate: inv.invoiceDate,
                             invoicedAmount: inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            acceptedAmount: (!(st & (1 << 17)) || !(st & (1 << 12))) ? 0.00 : inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
-                            refusedAmount: (!(st & (1 << 17)) || !(st & (1 << 12))) ? inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
+                            acceptedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0),
+                            refusedAmount: (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0) : (Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0)) -  Number(inv.invoicingCodes && inv.invoicingCodes.reduce((t,c) => t + (c.paid || 0), 0))),
                             rejectionReason: inv.error,
                             paid: false,
                             status: this.activeGridItem.messageInfo.invoiceStatus,
@@ -2662,8 +2662,8 @@
                                 invoicingCode: code && code.code,
                                 invoiceDate: code && code.dateCode,
                                 invoicedAmount: Number(code.reimbursement),
-                                acceptedAmount:  (!(st & (1 << 17)) || !(st & (1 << 12))) ? 0.00 : ((code && code.paid >= 0) ? code.paid : 0.00),
-                                refusedAmount:  (!(st & (1 << 17)) || !(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid >= 0) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
+                                acceptedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? 0.00 : ((code && code.paid >= 0) ? code.paid : 0.00),
+                                refusedAmount:  (!!(st & (1 << 17)) || !!(st & (1 << 12))) ? Number(code.reimbursement) : (code && code.paid >= 0) ? (Number(code.reimbursement) - Number(code.paid)) : 0.00,
                                 rejectionReason: code && code.error,
                                 paid: false,
                                 accepted: code && code.accepted,
