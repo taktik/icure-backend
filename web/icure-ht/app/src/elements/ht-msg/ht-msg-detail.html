@@ -954,10 +954,12 @@
                 <div class="action-buttons">
                     <div class="buttons">
                         <template is="dom-if" if="[[ehealthSession]]">
-                            <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
-                                <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
-                                <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
-                            </paper-button>
+                            <template is="dom-if" if="[[!isSentbox]]">
+                                <paper-button class="msg-detail-btn" on-tap="_replyMsgs" msgId$='[[msg.id]]'><iron-icon id="reply-msg" icon="reply"></iron-icon>
+                                    <span class="nomobile-wide">[[localize('reply','Reply',language)]]</span>
+                                    <paper-tooltip class="wide-only" for="reply-msg">[[localize('reply','Reply',language)]]</paper-tooltip>
+                                </paper-button>
+                            </template>
                             <!--<paper-button class="msg-detail-btn" on-tap="_forwardMsgs"  msgId$='[[msg.id]]'><iron-icon id="forward-msg" icon="forward"></iron-icon>-->
                                 <!--<span class="nomobile-wide">[[localize('fw','Forward',language)]]</span>-->
                                 <!--<paper-tooltip class="wide-only" for="forward-msg">[[localize('fw','Forward',language)]]</paper-tooltip>-->
@@ -1290,7 +1292,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Boolean
             },
             docTxt: {
-			    type: Object
+			    type: Object,
+                value: null
             },
             ehealthSession: {
                 type: Boolean
@@ -1299,7 +1302,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)','_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)','_isConnectedToEhbox(api.tokenId)'];
+		return ['_focusChanged(selectedMessage)','_hasLabResult(selectedMessage)','_updateSuggestions(selectedProtocol)',
+            '_updatePatSearch(searchPatValue)','_patsLngChanged(toImportPatsSuggestions,toImportPatsSearch)',
+            '_isConnectedToEhbox(api.tokenId)','_isSentbox(selectedMessage)'];
 	}
 
 	constructor() {
@@ -1389,7 +1394,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return this.messages[0].transportGuid.startsWith("BIN")
     }
     _isHidden() {
-        return this.messages[0].transportGuid.startsWith("HIDDEN")
+        return this.messages && this.messages[0] && this.messages[0].status && ((this.messages[0].status & 1<<14) !== 0)
     }
 
     _sorted(docs) {
@@ -1409,7 +1414,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set('selectName','')
             this.set('toImportPatsSearch',[])
             this.set('isDeleted',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("BIN"))
-            this.set('isHidden',this.selectedMessage && this.selectedMessage.transportGuid && this.selectedMessage.transportGuid.startsWith("HIDDEN"))
+            this.set('isHidden',this.selectedMessage && this.selectedMessage.status && ((this.selectedMessage.status & 1<<14) !== 0))
             this.set('unassignedResults',selMsg.unassignedResults)
             this.set('assignedResults',selMsg.assignedResults)
 			this.set('hasUnassignedResults',selMsg.unassignedResults ? selMsg.unassignedResults.length ? true : false : false)
@@ -1435,6 +1440,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.set('messages', [selMsg])
                         this.set("selectedDocuments", docs)
                         this.set('attachmentQuantity', this.selectedDocuments.length - 1)
+                        this._getMsgTxt()
                     } else {
                         this.set('isLoadingMessage', false)
                         this.set('messages', [selMsg])
@@ -1560,11 +1566,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             targets.map(thisPat=>{
                 // console.log('_assignResultToSelected',selMsg, targets, docInfo, document,thisPat)
                 this.api.contact().newInstance(this.user, thisPat, {
-                    created: new Date().getTime() ,
+                    created: new Date().getTime(),
                     modified: new Date().getTime() ,
                     author: this.user.id,
                     responsible: this.user.healthcarePartyId,
-                    openingDate: moment().format('YYYYMMDDHHmmss') || '',
+                    openingDate: moment(docInfo.demandDate).format('YYYYMMDDHHmmss') || '',
                     closingDate: moment().format('YYYYMMDDHHmmss') || '',
                     encounterType: {type: docInfo.codes.type, version: docInfo.codes.version, code: docInfo.codes.code},
                     descr: docInfo.labo,
@@ -1680,66 +1686,86 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	_forwardMsgs(e) {
-	    const origMsg = this.messages[0]
-        const msgToFw = {
-	        destinations: [],
-            patientInss: origMsg.patientINSS,
-            annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
-            document: {
-	            title: 'Fw: '+origMsg.subject,
-                textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
-            },
-            customMetas: origMsg.metas,
-            type: 'fwd'
-        }
-        const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
-        target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
+        if (this.docTxt != null) {
+            const origMsg = this.messages[0]
+            const msgToFw = {
+                destinations: [],
+                patientInss: origMsg.patientINSS,
+                annex: this.selectedDocuments.filter(doc=>doc.documentLocation !== "body"),
+                document: {
+                    title: 'Fw: '+origMsg.subject,
+                    textContent: this.docTxt != undefined && this.docTxt.length ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+                },
+                customMetas: origMsg.metas,
+                type: 'fwd'
+            }
+            const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
+            target.dispatchEvent(new CustomEvent('fw-msg', {detail: {bubbles: true, composed: true, params:msgToFw}}))
+        } else setTimeout(()=>{this._forwardMsgs()},2500)
     }
 
     _replyMsgs(e) {
-	    const origMsg = this.messages[0]
-        let dest = []
-        this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
-        .then(paginated=>{
-            if(paginated.rows && paginated.rows[0] && !paginated.rows[0].name.startsWith('Noreply') && paginated.rows[0].ssin !== "12345678912") {
-                let hcp = paginated.rows[0]
-                hcp.type = 'NIHII'
-                hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
-                // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
-                dest.push(hcp)
-                console.log('hcp to re',hcp)
-                const msgToRe = {
-                    // delegations: origMsg.delegations,
-                    destinations: dest,
-                    patientInss: origMsg.patientInss,
-                    annex: undefined,
-                    document: {
-                        title: 'Re: ' + origMsg.subject,
-                        textContent: '' // this.docTxt != '' ? this.docTxt : this.localize('no_msg_content','No message',this.language) // TODO : get msg txt
-                    },
-                    customMetas: origMsg.metas,
-                    type: 'replyto'
-                }
-                const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
-                target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true,composed: true,params: msgToRe}}))
-            } else console.log('cannot find ssin or nihii : '+origMsg.fromHealthcarePartyId)
-        }).catch(e=>console.log(e))
+	    if (this.docTxt != null) {
+            const origMsg = this.messages[0]
+            let dest = []
+            this.api.hcparty().findBySsinOrNihii(origMsg.fromHealthcarePartyId)
+                .then(paginated=>{
+                    if(paginated.rows && paginated.rows[0]) {
+                        let hcp = paginated.rows[0]
+                        if (hcp.name && !hcp.name.startsWith('Noreply') || hcp.ssin !== "12345678912") {
+                            hcp.type = 'NIHII'
+                            hcp.displayName = `${hcp.firstName} ${hcp.lastName} [${hcp.nihii}]`
+                            // this.api.contact().getContactWithUser(this.user, origMsg.author).then(c=>dest=c)
+                            dest.push(hcp)
+                            console.log('hcp to re',hcp)
+                            const msgToRe = {
+                                // delegations: origMsg.delegations,
+                                destinations: dest,
+                                received: this.api.moment(origMsg.received).format('DD/MM/YYYY hh:mm'),
+                                patientInss: origMsg.patientInss,
+                                annex: undefined,
+                                document: {
+                                    title: 'Re: ' + origMsg.subject,
+                                    textContent: this.docTxt != undefined && this.docTxt.length ? this.docTxt : this.localize('no_msg_content','No message',this.language)
+                                },
+                                customMetas: origMsg.metas,
+                                type: 'replyto'
+                            }
+                            const target = this.parentElement.parentNode.querySelector('ht-msg-menu')
+                            target.dispatchEvent(new CustomEvent('re-msg', {detail: {bubbles: true,composed: true,params: msgToRe}}))
+                        } else console.log('cannot reply to Noreply : '+origMsg.fromHealthcarePartyId)
+                    } else console.log('cannot find ssin or nihii : '+origMsg.fromHealthcarePartyId)
+                }).catch(e=>console.log(e))
+        } else setTimeout(()=>{this._replyMsgs()},2500)
     }
 
     _hideMsg() {
         let msg = this.messages[0]
         if (msg) {
-            if ((msg.status&(1<<14)) !== 0){
-                msg.status = msg.status & 0<<14
+            if ((msg.status&(1<<14)) !== 0){ // if hidden
+                msg.status = msg.status & 0<<14 // unhide
             } else {
-                msg.status = msg.status | 1<<14
+                msg.status = msg.status | 1<<14 // else hide
             }
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
 
+    _getMsgTxt() { // TODO : make it async
+	    if (this.selectedDocuments && this.selectedDocuments.length) {
+	        const doc = this.selectedDocuments.find(d=>d.documentLocation === 'body') || {}
+            this.api.crypto()
+                .extractKeysFromDelegationsForHcpHierarchy(this.user.healthcarePartyId,doc.id,_.size(doc.encryptionKeys) ? doc.encryptionKeys : doc.delegations)
+                .then(({extractedKeys: enckeys}) =>this.api.beresultimport().canHandle(doc.id, enckeys.join(',')).then(()=> {
+                    const dataUrl = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys, this.api.sessionId)
+                    this.api.shortLivedCache(dataUrl, () => fetch(dataUrl, {credentials: 'include'})
+                        .then(response => response.text())).then(text =>this.set('docTxt',text))
+                }))
+        }
+    }
+
     _msgToBin(param){
-        let msg = param ? param : this.messages[0]
+        let msg = this.messages[0]
         if (msg) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
             if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'BININBOX:'+id
@@ -1750,10 +1776,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _restoreMsgs(){
         let msg = this.messages[0]
-        if (msg) {
+        if (msg && msg.transportGuid && msg.status) {
             const id = msg.transportGuid.substring(msg.transportGuid.indexOf(':') + 1)
-            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id
-            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id
+            if (msg.transportGuid.includes('INBOX')) msg.transportGuid = 'INBOX:'+id // legacy
+            if (msg.transportGuid.includes('SENTBOX')) msg.transportGuid = 'SENTBOX:'+id // legacy
+            msg.status = msg.status&0<<14 // unhide
             this.api.message().modifyMessage(msg).then((m)=>{_.assign(msg,m);this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))})
         }
     }
@@ -1773,6 +1800,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             })
 
         }
+    }
+
+    _isSentbox(msg) {
+	    this.set('isSentbox',msg && msg.transportGuid && msg.transportGuid.startsWith('SENT'))
     }
 
 	_isEqualTo(title, string) {

@@ -511,9 +511,9 @@
                     }
                     return this.api.code().getCodes(res.rows.map(code => code.id))
                 })
-                .then(codes =>{
-                    this.set('proceduresListItem', codes);
-                });
+                    .then(codes =>{
+                        this.set('proceduresListItem', codes);
+                    });
             }
 
             _drugsFilterChanged(e){
@@ -904,7 +904,7 @@
 
             vaccineItemChanged(){
                 if(!(this.drugsListItem && this.drugsListItem.length))return;
-                this.set("plannedAction.VaccineCommercialNameId",this.selectedVaccineItem && this.selectedVaccineItem.id || "")
+                this.set("plannedAction.VaccineCommercialNameId",this.selectedVaccineItem && this.selectedVaccineItem.id || "")
             }
 
             hcpItemChanged(){
@@ -932,4 +932,3 @@
         customElements.define(HtPatActionPlanDialog.is, HtPatActionPlanDialog);
     </script>
 </dom-module>
-

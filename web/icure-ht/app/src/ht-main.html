@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
 			}
 
-			.card-title-container:hover paper-icon-button, .card-title-container:focus-within paper-icon-button{
+			.card:hover .card-title-container paper-icon-button{
 				color: var(--app-text-color-disabled);
 				padding: 0;
 			}
@@ -551,7 +551,74 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+			.eid-notification-panel{
+				display: flex;
+				flex-direction: column;
+				position: fixed;
+				top: 84px;
+				right: -264px;
+				padding: 0;
+				background: var(--app-background-color);
+				color: var(--app-text-color);
+				font-size: 13px;
+				min-width: 208px;
+				opacity: 0;
+				z-index: 1000;
+				border-radius: 3px 0 0 3px;
+				box-shadow: var(--app-shadow-elevation-1);
+				overflow: hidden;
+				transition: all .5s ease-in;
+			}
+
+			.notification {
+				opacity: 1;
+				right: 16px;
+			}
+
+            div.panel-header {
+                background: var(--app-secondary-color-dark);
+                margin-bottom: 8px;
+                font-size: 1.5em;
+                width: 100%;
+                text-align: center;
+                padding: 8px 16px;
+                box-sizing: border-box;
+            }
+            vaadin-grid.eid-patients-list {
+                width: 448px;
+                max-height: 256px;
+                overflow-y: auto;
+                margin: 0 8px;
+            }
+            div.panel-bottom-btns {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+            }
+            div.panel-bottom-btns > paper-button {
+                flex-grow: 1;
+                height: 40px;
+                margin: 4px;
+                padding: 4px;
+                text-align: center;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: .25s ease;
+            }
+            div.panel-bottom-btns > paper-button:hover {
+                background: var(--app-secondary-color-dark);
+            }
+
 		</style>
+
+		<paper-item id="eidFound" class="eid-notification-panel">
+			<div class="panel-header"><iron-icon icon="vaadin:health-card"></iron-icon> [[localize('eid_found','eid found',language)]], [[localize('open_pat','open patient',language)]] ?</div>
+			<div class="panel-bottom-btns">
+				<paper-button on-tap="closeEidPanel" panel="eidFound"><iron-icon icon="cancel" panel="eidFound"></iron-icon>[[localize('no','No',language)]]</paper-button>
+				<paper-button on-tap="checkNiss"><iron-icon icon="check-circle"></iron-icon> [[localize('yes','Yes',language)]]</paper-button>
+			</div>
+		</paper-item>
 
 		<div class="layout-buttons">
 			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
@@ -565,7 +632,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<div id="[[widget.id]]" class="card latest-patients-card" style="--area:latestPatientsWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
-							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
@@ -655,7 +722,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
-                                    <div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
@@ -852,12 +919,24 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             unreadCount: {
 			    type: Number,
                 value: 0
-            }
+            },
+			route: {
+				type: Object,
+				notify: true
+			},
+			socket: {
+				type: Object,
+				value : null
+			},
+			cardData : {
+				type: Object,
+				value : {}
+			}
 		};
 	}
 
     static get observers() {
-        return ['apiReady(user,api)', 'widgetsChanged(widgets.*)'];
+        return ['apiReady(user,api)', 'widgetsChanged(widgets.*)','_routeChanged(route,route.*,socket,socket.*)'];
     }
 
     constructor() {
@@ -868,6 +947,26 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const props = HtMain.properties
         Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
     }
+
+	_routeChanged(){
+		if(this.route.prefix==="/main" && this.socket){
+			if(this.socket) {
+				this.socket.removeAllListeners("auto-read-card-eid")
+				this.notifyPath("socket")
+			}
+			this.setSocket();
+		}
+	}
+
+	setSocket(){
+		this.socket.on("auto-read-card-eid",cards =>{
+			const res = JSON.parse(cards)
+			if (res.cards[0]) {
+				this.set('cardData',res.cards[0])
+				this.$['eidFound'].classList.add('notification');
+			}
+		})
+	}
 
     ready() {
 
@@ -1027,10 +1126,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
                     .then(messages => {
                         this.set('unreadCount', _.filter(messages.rows, m => {
-                            return ((m.status & (1 << 1)) !== 0) && (
-								(m.assignedResults && Object.keys(m.assignedResults).length)
-								|| (m.unassignedResults && m.unassignedResults.length)
-							)
+                            return ((m.status & (1 << 1)) !== 0) && (m.assignedResults && Object.keys(m.assignedResults).length)
                         }).length)
                         this.messagesByContactId = {}
                         messages.rows && messages.rows.forEach (mes => {
@@ -1243,6 +1339,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		if((index + 1)) {
 
+			if(!this.widgets[index].nrRows || !this.widgets[index].nrCols) {
+				return
+			}
+
 			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
 
 			const currentWidget = this.widgets[index];
@@ -1264,6 +1364,80 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 	}
+
+
+	checkNiss(){
+		this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
+			const ssinFilter = /^[0-9]{11}$/.test(this.cardData.nationalNumber) && ({
+				'$type': 'PatientByHcPartyAndSsinFilter',
+				'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+				'ssin': this.cardData.nationalNumber
+			})
+			this.$['eidFound'].classList.remove('notification');
+			this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: ssinFilter})
+					.then(patients => {
+						if (patients.rows.length) {
+							const selected = patients.rows[0]
+							this.api.patient().getPatientWithUser(this.user, selected.id).then(p => {
+								p.ssin = p.ssin || this.cardData.nationalNumber
+								if(!p.addresses.find(ad => ad.addressType==="home")){
+									let streetData = _.trim(this.cardData.street).split(" ")
+									const number = streetData.find(str => str.match(/\d/g))
+									const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+									const street = streetData.reduce((tot,str)=>{
+										if(!tot)tot="";
+										if(!(str===number || str===boxNumber ))
+											tot = tot.concat(" ",str)
+										return tot;
+									})
+
+									p.addresses.push({
+										addressType: "home",
+										street: street,
+										houseNumber: number,
+										postboxNumber: boxNumber,
+										postalCode: this.cardData.zipCode,
+										city: this.cardData.municipality,
+										country: this.cardData.country
+									})
+								}
+
+								p.gender = p.gender || this.cardData.gender === 'M' ? 'male' : 'female'
+								p.placeOfBirth = p.placeOfBirth || this.cardData.locationOfBirth
+								p.dateOfBirth = p.dateOfBirth || parseInt(this.api.moment(this.cardData.dateOfBirth * 1000).format('YYYYMMDD'))
+								p.nationality = p.nationality || this.cardData.nationality
+								p.picture = p.picture || this.cardData.picture
+								p.firstName = p.firstName || this.cardData.firstName
+								p.lastName = p.lastName || this.cardData.surname
+
+								return p
+							})
+									.then( p => this.api.patient().modifyPatientWithUser(this.user,p))
+									.then( p => this.api.register(p, 'patient'))
+									.then(p => {
+										location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${p.id}`));
+										return p
+									})
+									.then(p => {
+										this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+											this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+													hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+													p.ssin, p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
+
+										})
+									})
+						}
+					})
+		})
+	}
+
+	closeEidPanel(e) {
+		const target = e && e.target && e.target.getAttribute('panel') || ''
+		if (this.$[target] && this.$[target].classList.contains('notification') ){
+			this.$[target].classList.remove('notification');
+		}
+	}
+
 
 }
 

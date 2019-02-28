@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredDocument;
@@ -33,14 +32,13 @@ import org.taktik.icure.entities.embed.HealthcarePartyStatus;
 import org.taktik.icure.entities.embed.TelecomType;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.ValidCode;
+import org.taktik.icure.entities.embed.FlatRateTarification;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -101,6 +99,7 @@ public class HealthcareParty extends StoredDocument implements Person {
     protected String type;                              // "persphysician" or "medicalHouse" or "perstechnician"
     protected String contactPerson;
     protected String contactPersonHcpId;
+    protected List<FlatRateTarification> flatRateTarifications;
 
 
 	public HealthcareParty() {
@@ -387,4 +386,8 @@ public class HealthcareParty extends StoredDocument implements Person {
     public void setContactPersonHcpId(String contactPersonHcpId) {
         this.contactPersonHcpId = contactPersonHcpId;
     }
+
+    public List<FlatRateTarification> getFlatRateTarifications() { return flatRateTarifications; }
+
+    public void setFlatRateTarifications(List<FlatRateTarification> flatRateTarifications) { this.flatRateTarifications = flatRateTarifications; }
 }
