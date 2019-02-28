@@ -287,7 +287,7 @@
                     color: var(--paper-amber-800);
                 }
                 *.txtcolor--greenStatus {
-                    color: var(--app-secondary-color-dark);
+                    color: #36a201;
                 }
                 *.txtcolor--blueStatus {
                     color: var(--paper-blue-400);
@@ -952,12 +952,12 @@
                     margin-right: 10px;
                 }
 
-                #archiveDialog{
+                .modalDialog{
                     height: 300px;
                     width: 500px;
                 }
 
-                .archiveDialogContent{
+                .modalDialogContent{
                     height: 250px;
                     width: auto;
                     margin: 10px;
@@ -965,6 +965,9 @@
 
                 .mr5 {margin-right:5px}
                 .smallIcon { width:16px; height:16px; }
+                .displayNone {
+                    display:none!important
+                }
 
             </style>
         </custom-style>
@@ -972,6 +975,9 @@
         <div class="invoice-panel">
 
 
+            <template is="dom-if" if="[[_bodyOverlay]]">
+                <div id="loadingContainer"></div>
+            </template>
             <template is="dom-if" if="[[_isLoading]]">
                 <div id="loadingContainer">
                     <div id="loadingContentContainer">
@@ -1100,68 +1106,62 @@
                         <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                             <div class="scrollBox">
                                 <vaadin-grid id="messagesGrid" class="processTable" items="[[messagesGridData]]" data-status$="[[_getBatchStatusByMenuSection(flatrateMenuSection)]]" active-item="{{activeGridItem}}" on-tap="_toggleBatchDetails">
-                                    <vaadin-grid-column flex-grow="0" width="13%" class="recipient-col">
-                                        <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.hcp">[[localize('inv_prest','Physician',language)]]</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.messageInfo.hcp]]</template>
-                                    </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="4%" class="oa-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.parentOaCode">[[localize('inv_oa','Oa',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.parentOaCode]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="18%" class="ref-col">
+                                    <vaadin-grid-column flex-grow="0" width="24%" class="ref-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.parentOaLabel">[[localize('name','Name',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.parentOaLabel]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="7%" class="invoice-col">
+                                    <vaadin-grid-column flex-grow="0" width="8%" class="invoice-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.batchReference">[[localize('inv_batch_num','Batch reference',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.batchReference]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="7%" class="month-col">
+                                    <vaadin-grid-column flex-grow="0" width="8%" class="month-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.invoicedMonth">[[localize('inv_batch_month','Billed month',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.invoicedMonth]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="9%" class="invoiceDate-col">
+                                    <vaadin-grid-column flex-grow="0" width="10%" class="invoiceDate-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.generationDate">[[localize('inv_date_fact','Invoice date',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.generationDate]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="invAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="invAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.invoicedAmount"> [[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_invoiced','Invoiced',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.invoicedAmount)]]">[[item.messageInfo.invoicedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.messageInfo.invoiceStatusHr,item.messageInfo.invoicedAmount)]]">[[item.messageInfo.invoicedAmount]]€</span></template>
                                         <template class="footer">[[_invoicedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="accAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.acceptedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_acc','Accepted',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template><span class$="[[_getTxtStatusColor('force-green',item.messageInfo.acceptedAmount)]]">[[item.messageInfo.acceptedAmount]]€</span></template>
                                         <template class="footer">[[_acceptedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.refusedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_rej','Rejected',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template><span class$="[[_getTxtStatusColor('force-red',item.messageInfo.refusedAmount)]]">[[item.messageInfo.refusedAmount]]€</span></template>
                                         <template class="footer">[[_rejectedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="stat-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="stat-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.refusedAmount">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
+                                        <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatusHr)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatusHr)]]"></iron-icon> [[item.messageInfo.invoiceStatusHr]]</span></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
                                         <template class="header"><vaadin-grid-sorter path="id">[[localize('downloadArchive',"Télécharger l'archive",language)]]</vaadin-grid-sorter></template>
@@ -1233,32 +1233,35 @@
                                         <template class="header">
                                             <vaadin-grid-sorter path="invoicedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_invoiced','Invoiced',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.invoicedAmount)]]">[[item.invoicedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceStatusHr,item.invoicedAmount)]]">[[item.invoicedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="acceptedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_acc','Accepted',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.acceptedAmount)]]">[[item.acceptedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor('force-green',item.acceptedAmount)]]">[[item.acceptedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="refusedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_rej','Rejected',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.refusedAmount)]]">[[item.refusedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor('force-red',item.refusedAmount)]]">[[item.refusedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                 </vaadin-grid-column-group>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
+                                <vaadin-grid-column flex-grow="1" class="recipient-col">
                                     <template class="header">
-                                        <vaadin-grid-sorter path="invoiceHrStatus">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
+                                        <vaadin-grid-sorter path="invoiceStatusHr">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
                                     </template>
                                     <template>
-                                        <span class$="invoice-status [[_getIconStatusClass(item.invoiceHrStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.invoiceHrStatus)]]"></iron-icon> [[item.invoiceHrStatus]]</span>
+                                        <span class$="invoice-status [[_getIconStatusClass(item.invoiceStatusHr)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.invoiceStatusHr)]]"></iron-icon> [[item.invoiceStatusHr]]</span>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
                                     <template class="header"><vaadin-grid-sorter path="id">[[localize('download',"Télécharger",language)]] PDF</vaadin-grid-sorter></template>
                                     <template><paper-button class="grid-btn-small noBg noPad" on-tap="_downloadOaPdfByMessageId" data-message-id$="[[item.id]]"><iron-icon icon="image:picture-as-pdf" class="force-left textRed" data-message-id$="[[item.id]]"></iron-icon> &nbsp; PDF</paper-button></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
+                                    <template><paper-button class$="grid-btn-small modal-button-rejected [[_showRejectInvoiceButton(item.messageOriginalStatus, item.invoiceFinalStatus)]]" on-tap="_rejectInvoice" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]" ><iron-icon icon="cancel" class="force-left" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]"></iron-icon> &nbsp; [[localize('rejectVerb',"Reject",language)]]</paper-button></template>
                                 </vaadin-grid-column>
                             </vaadin-grid>
                         </div>
@@ -1269,14 +1272,46 @@
 
 
 
-            <paper-dialog id="archiveDialog">
+            <paper-dialog class="modalDialog" id="archiveDialog">
                 <h2 class="modal-title"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</h2>
-                <div class="archiveDialogContent">
-                    <p>Voulez-vous vraiment archiver l'envoi <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
-                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</div>
+                <div class="modalDialogContent">
+                    <p>[[localize('archiveBatchConfirmation',"Voulez-vous vraiment archiver l'envoi",language)]] <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
+                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</p>
+                </div>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button" on-tap="_archiveBatch"><iron-icon icon="icons:save" class="mr5 smallIcon" ></iron-icon> [[localize('confirm','Confirm',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingNihiiDialog" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfile"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter"><b>[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</b></p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyAdmin"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noDataToExport" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter"><b>[[localize('noDataToExport','Incomplete user profile',language)]].</b></p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -1373,6 +1408,10 @@
                         type: Boolean,
                         value: false,
                         observer: '_loadingStatusChanged'
+                    },
+                    _bodyOverlay: {
+                        type: Boolean,
+                        value: false
                     },
                     _isLoadingSmall: {
                         type: Boolean,
@@ -1953,6 +1992,27 @@
                 return moment().subtract(1, 'month').endOf('month').format('DD/MM/YYYY')
             }
 
+            _closeDialogs() {
+                this.set("_bodyOverlay", false);
+                _.map( this.shadowRoot.querySelectorAll('.modalDialog'), i=> i && typeof i.close === "function" && i.close() )
+            }
+
+            _gotoMyProfile() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:1} }));
+            }
+
+            _gotoMyAdmin() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-goto-admin', { bubbles: true, composed: true, detail: {} }));
+            }
+
+            _showRejectInvoiceButton(messageOriginalStatus, invoiceFinalStatus) {
+                return _.trim(messageOriginalStatus) !== "partiallyAccepted" ? "displayNone" :
+                    ( _.trim(invoiceFinalStatus) === "fullyAccepted" ) ? "" :
+                        "displayNone"
+            }
+
             _isEqual(a,b) {
                 return a === b
             }
@@ -1973,7 +2033,7 @@
             _getInsuranceTitularyInfo(inputPatientsList=false) {
                 return new Promise(resolve =>{
                     const insuranceTitularyIds = _.uniq(_.filter( (inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
-                    return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
+                    return !_.size(insuranceTitularyIds) ? resolve((inputPatientsList?inputPatientsList:this.flatRateAllPatients)) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
                         return resolve(
                             _.map((inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i=>{
                                 if(!_.trim(_.get(i,"titularyId", "" ))) return i
@@ -2476,7 +2536,7 @@
                                             _.chain(i.insurabilities)
                                                 .filter(i=>{return(
                                                     i
-                                                    && i.identificationNumber
+                                                    // && i.identificationNumber
                                                     && i.insuranceId
                                                     && (
                                                         moment(_.get(i, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
@@ -2507,7 +2567,7 @@
                                                     return ins &&
                                                     _.size(ins) &&
                                                     !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
-                                                    !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
+                                                    // !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
                                                     (
                                                         moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
                                                         moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
@@ -2802,7 +2862,7 @@
 
             _sleep (time) {
                 return new Promise((resolve) => setTimeout(resolve, time));
-            }            
+            }
 
             _createOrUpdateMedicalHousePatientsInvoices() {
                 return Promise.all(_.toPairs(this.flatRateInvoicingDataObject.listsData).map(list => {
@@ -2823,8 +2883,7 @@
                                 accepted: false,
                                 pending: false,
                                 resent: false,
-                                // dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
-                                dateCode: moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD'),
+                                dateCode: val.type === "current" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD') ) : val.type === "previous" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format('YYYYMMDD') ) : null,
                                 id: this.api.crypto().randomUuid(),
                                 logicalId: this.api.crypto().randomUuid()
                             }))}
@@ -2843,7 +2902,7 @@
                                     this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
                                                 const insParent = parentInsurances.find(i => i.id === this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
-                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes, null, (366*2))
+                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, (365*2), pat.invoicingCodes)
                                                     .then(invoices =>
                                                         !_.trim(_.get(invoices, "[0].id", "")) ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
@@ -2927,7 +2986,7 @@
             }
 
             slipDataFromBatchAndFlatFile(batch, flatWithMetadata){
-               
+
                 //title
                 let title= this.localize('flatrate_slipfile_01',this.language) + "\n" +
                     "------------------------------------------------\n" +
@@ -2962,7 +3021,8 @@
                     this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
                     this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
-                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                let fileName = "flat-file-oa-" + batch.ioFederationCode + ".txt"
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]",fileName).replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
                     this.localize('flatrate_slipfile_18',this.language) + "\n" +
                     this.localize('flatrate_slipfile_19',this.language) + "\n" +
@@ -3062,7 +3122,7 @@
                 inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
                 patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = ins.insuranceCode;
+                inv.ioCode = ins.insuranceCode.padEnd(3," ").substr(0,3);
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
@@ -3116,32 +3176,47 @@
 
             _updateBatchStatus( action ) {
 
-                const actionSettings = action === "reject" ? { newStatusKey: "rejected", newInvoicesCodesKey: "canceled" } :
-                    action === "accept" ? { newStatusKey: "fullyAccepted", newInvoicesCodesKey: "accepted" } :
-                    action === "partialAccept" ? { newStatusKey: "partiallyAccepted", newInvoicesCodesKey: "accepted" } :
-                    action === "archive" ? { newStatusKey: "archived", newInvoicesCodesKey: "archived" } :
+                const actionSettings = action === "reject" ? { newStatusKey: "rejected", newInvoicingCodeStatus: "canceled" } :
+                    action === "accept" ? { newStatusKey: "fullyAccepted", newInvoicingCodeStatus: "accepted" } :
+                    action === "partialAccept" ? { newStatusKey: "partiallyAccepted", newInvoicingCodeStatus: "accepted" } :
+                    // action === "archive" ? { newStatusKey: "archived", newInvoicingCodeStatus: "archived" } :
+                    action === "archive" ? { newStatusKey: "archived", newInvoicingCodeStatus: "" } :
                     {}
 
                 if ( _.size(this.activeGridItem) && _.size(actionSettings) ) {
                     this.set('_isLoadingSmall', true );
-
-                    // TO DO - FZ : Pour définir (=concaténer) le BON status (afin de garder historique)
-                    // const newStatus = ANCIEN STATUS | this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-                    const newStatus = this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-
+                    const newStatus = parseInt(_.get(this, "activeGridItem.status")) | parseInt(this.invoiceMessageStatuses[actionSettings.newStatusKey].status)
                     Promise.all(
                         _.filter( this.messagesCachedData.roughData, i => {
                             return _.size(i)
                                 && parseInt(_.get(i, "metas.batchExportTstamp", 0)) === parseInt( _.get( this.activeGridItem, "metas.batchExportTstamp", 0 ))
                                 && _.trim(_.get(i, "transportGuid", "")) !== "MH:FLATRATE:INVOICING-BATCH-ZIP"
                                 && _.trim(_.get(i, "metas.parentOaId", "")) === _.trim( _.get( this.activeGridItem, "metas.parentOaId", "" ))
-                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => this.api.register(msg, 'message')) )
+                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => { this.api.register(msg, 'message'); return msg; }) )
                     ).then(messages=>{
-                        this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
+                        return ( !_.trim(actionSettings.newInvoicingCodeStatus) ) ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
                             .then(invoices => invoices.map(inv => {
-                                inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicesCodesKey] = true)
-                                this.api.invoice().modifyInvoice(inv).then(inv => this.api.register(inv,'invoice'))
+                                inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicingCodeStatus] = true)
+                                return this.api.invoice().modifyInvoice(inv).then(inv => { this.api.register(inv,'invoice'); return inv; })
                             }))
+                            .then(() => {
+                                return (actionSettings.newStatusKey!=="rejected") ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
+                                    .then(invoices => {
+                                        const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                        const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                        this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                        console.log("---invoices---");
+                                        console.log(invoices);
+                                        console.log("---activeGridItem---");
+                                        console.log(this.activeGridItem);
+                                        console.log("---acceptedAmount---");
+                                        console.log(acceptedAmount);
+                                        console.log("---refusedAmount---");
+                                        console.log(refusedAmount);
+                                        // FZ: Alors que put avec status canceled ok => inv reviennent en status canceled = false :/ Investigate here
+                                        // return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); })
+                                    })
+                            })
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(() => {
@@ -3151,6 +3226,38 @@
                     })
                 }
 
+            }
+
+            _rejectInvoice(e) {
+
+                this.set('_isLoadingSmall', true );
+                const invoiceId = _.get(e, "target.dataset.invoiceId", "")
+                let oldActiveGridItem = {}
+
+                this.api.invoice().getInvoice(invoiceId)
+                    .then(invoice => {
+                        invoice.invoicingCodes.map(ic => { ic.accepted = false; ic.resent = true; return ic;  })
+                        try{ delete(invoice.sentDate); } catch(e){}
+                        return this.api.invoice().modifyInvoice(invoice).then(invoice => this.api.register(invoice,'invoice'))
+                    })
+                    .then(() => {
+                        return this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
+                            .then(invoices => {
+                                const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); oldActiveGridItem = msg; })
+                            })
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(() => {
+                        this.set('_isLoadingSmall', false );
+                        this.set('activeGridItem', null )
+                        this._fetchJ20Messages(true).then(()=>{
+                            _.size(oldActiveGridItem) && this.set('activeGridItem', oldActiveGridItem );
+                            _.size(this.activeGridItem) && this._toggleBatchDetails({currentTarget:{dataset:{status:"partiallyAccepted"}}})
+                        })
+                    })
             }
 
             _downloadParentOaArchive(e) {
@@ -3238,6 +3345,26 @@
                                                                 (status == 'force-green') ? "txtcolor--greenStatus" :
                                                                     ""
                 }
+            }
+
+            _DEVELOPERS_ONLY_deleteFlatrateMessagesAndInvoices() {
+
+                this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                            .then(pl => { return {
+                                rows:_.filter(pl.rows, m => _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId ),
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done: !pl.nextKeyPair
+                            }})
+                            .catch(()=>{ return Promise.resolve(); })
+                ).then(messages=>{
+                    Promise.all(_.uniq( _.flatten(_.map(messages, i=>i.invoiceIds))).map(i => this.api.invoice().deleteInvoice(i).catch(()=>{}) ))
+                        .then(()=> this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})).catch(()=>{}) );
+                })
+                    .catch((e)=>console.log(e))
+
             }
 
             _generateJ20PdfTemplateObjects() {
@@ -3359,15 +3486,15 @@
 
                     zipArchive
                         .folder(parentOaFolderName)
-                            .file("slipFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.slips, {parentOaId:parentOa.id}),"[0].fileContent", ""))
-                            .file("flatFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.flatFiles, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("bordereau-oa-"+_.trim(_.get(parentOa, "code", ""))+".txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.slips, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("flat-file-oa-"+_.trim(_.get(parentOa, "code", ""))+".txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.flatFiles, {parentOaId:parentOa.id}),"[0].fileContent", ""))
 
                     _.map(_.filter(this.flatRateInvoicingDataObject.insurancesData, {parent:parentOa.id}), oa => {
                         zipArchive
                             .folder(parentOaFolderName)
                                 // .folder(_.kebabCase( _.compact([ _.trim(_.get(oa, "code", "")), _.trim(_.get(oa, "finalName", "")) ]).join(" ")))
-                                .folder( _.trim(_.get(oa, "code", "")))
-                                    .file("lists-A4-export.pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
+                                .folder(_.trim(_.get(oa, "code", "")))
+                                    .file("listes-A4-oa-"+_.trim(_.get(oa, "code", ""))+".pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
                     })
 
                 })
@@ -3382,6 +3509,21 @@
 
             }
 
+            _showWarningNoHcpFlatrateTarification() {
+                this.set("_bodyOverlay", true);
+                this.$["missingMedicalHouseValorisations"].open()
+            }
+
+            _showWarningNoDataToExport() {
+                this.set("_bodyOverlay", true);
+                this.$["noDataToExport"].open()
+            }
+
+            _showWarningNoHcpNihii() {
+                this.set("_bodyOverlay", true);
+                this.$["missingNihiiDialog"].open()
+            }
+
             _exportFlatRateInvoicing() {
 
                 this.set('_isLoading', true );
@@ -3394,6 +3536,7 @@
                     .then(hcp => {
 
                         this.set("hcp",hcp);
+                        if(!_.trim(_.get(this, "hcp.nihii", ""))) throw new Error("no-nihii");
 
                         this.flatRateInvoicingDataObject = {
                             hcpData: {
@@ -3440,9 +3583,7 @@
                                 ]).join(" ")) + ".zip"
                             }
                         }
-
                         this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")
-
                         this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
                             phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
                             email: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "email"}), "[0].telecomNumber", "")),
@@ -3546,6 +3687,17 @@
                             )
                         )
 
+                        // HCP NIHII last 3 digits = booleans (0/1) tell us whether or not HCP has (respectively) KMI availabilities (respectively: K = physiotherapist, M = physician & I = nurse)
+                        const medicalHouseNihiiLastThreeDigits = _.trim(this.hcp.nihii).slice(-3).split("")
+                        const medicalHouseAvailableValorisationsByNihii = _.compact( _.map( ["physiotherapist", "physician", "nurse" ], (v,k) => { return !!parseInt(medicalHouseNihiiLastThreeDigits[k]) ? { flatRateType: v } : false }) )
+
+                        // At least one MH valorisation is missing
+                        if(
+                            !parseInt(_.size( medicalHouseAvailableValorisationsByNihii ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                        ) throw new Error("missing-flatrate-tarification");
+
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -3597,6 +3749,7 @@
                             })
                         )
 
+                        // Assign startOfCoverage if not set yet
                         _.map( myPatients, pat => {
                             pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
                                 pat.finalMedicalHouseContracts :
@@ -3630,7 +3783,8 @@
                             // Start of month of start cover must be BEFORE (start of export month -1 month)
                             // Ie: start of coverage began 2+ month before exported month
                             list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITHOUT tryout (double amounts / must appear twice)
@@ -3638,7 +3792,8 @@
                             // AND Start of month of cover - 1 month === Start of month of contract
                             list5: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITH tryout (double amounts / must appear twice)
@@ -3646,16 +3801,24 @@
                             // AND Start of month of cover - 1 month > Start of month of contract
                             list6: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
                         }
 
                     })
                     .then((listsData)=>{
                         this.flatRateInvoicingDataObject.listsData = listsData
+
+                        // Drop patients we couldn't find in list (no valorisation)
+                        const patientsInLists = _.uniq( _.compact( _.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
+                        this.flatRateInvoicingDataObject.patientsData = _.compact( _.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ) )
+                        if(!parseInt(_.size(this.flatRateInvoicingDataObject.patientsData)||0)) throw new Error("no-data-to-export")
+
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
-                        return this._createOrUpdateMedicalHousePatientsInvoices(this.flatRateInvoicingDataObject).then(x=>x)
+
+                        return this._createOrUpdateMedicalHousePatientsInvoices().then(x=>x)
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
@@ -3886,19 +4049,30 @@
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
                         this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
-                    .catch((e)=>{console.log(e)})
+                    .catch((e)=>{
+                        return (
+                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() :
+                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() :
+                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() :
+                            console.log(e)
+                        )
+                    })
                     .finally(()=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
-                        this._fetchJ20Messages(true);
+                        this.set('activeGridItem', null );
+                        this.set('messagesCachedData', null );
+                        this._fetchJ20Messages(true).then(()=>{ this.set('flatrateMenuSection', "j20_process" ); })
                     })
 
             }
 
             _fetchJ20Messages( forceRefresh = false ) {
 
-                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return;
+                let prom = Promise.resolve(null)
+
+                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return prom;
 
                 this.set('_isLoadingSmall', true );
 
@@ -3909,7 +4083,7 @@
 
                 let dataObject = {}
 
-                this._getPatientsByHcp(_.get(this.hcp, "id"))
+                return this._getPatientsByHcp(_.get(this.hcp, "id"))
                     .then(myPatients=>{
                         dataObject = _.merge(dataObject, { patients: _.chain(myPatients).uniqBy('ssin').orderBy(['lastName', 'firstName'],['asc','asc']).value() })
                         return this._getInsurancesDataByPatientsList(dataObject.patients).then(x=>x)
@@ -3942,44 +4116,75 @@
                     })
                     .then(messages => {
 
-                        // this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})); this.stopHere();
-
                         let dataByStatus = {}
                         let countByStatus = {}
                         this.messagesCachedData = _.merge( this.messagesCachedData, {
                             cachedTstamp: +new Date(),
                             insurancesData: dataObject.insurancesData,
                             parentInsurancesData: dataObject.parentInsurancesData,
-                            roughData: _.chain(messages).uniqBy('id').value().map(message=> _.merge(message, {
-                                messageInfo: {
-                                    hcp:                    _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
-                                    parentOaId:             _.get(message, "metas.parentOaId", "" ),
-                                    parentOaCode:           _.get(_.filter(dataObject.parentInsurancesData, {id:_.get(message, "metas.parentOaId", "" )}), "[0].code"),
-                                    parentOaLabel:          _.get(_.filter(dataObject.parentInsurancesData, {id:_.get(message, "metas.parentOaId", "" )}), "[0].finalName"),
-                                    hcpReference:           "-",
-                                    batchReference:         _.get(message, "metas.batchExportTstamp", "" ),
-                                    invoicedMonth:          this.localize('month_' + parseInt(moment( _.get(message, "metas.exportedDate", 0 ), "YYYYMMDD" ).format('M')), this.language) + " " + _.trim(_.get(message, "metas.exportedDate", _.get(message, "metas.exportDate", "" ) )).slice(0,4),
-                                    generationDate:         moment( parseInt(_.get(message, "created", 0 )) ).format("DD/MM/YYYY"),
-                                    invoicedAmount:         this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    acceptedAmount:         ( ["j20_reject", "j20_process"].indexOf(_.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" )) > -1 ) ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    refusedAmount:          _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" ) !== "j20_reject" ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    invoiceStatus:          this.localize( _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].llKey", "" ), this.language),
-                                    rejectionReason:        "-",
-                                    paymentReference:       "-",
-                                    paymentDate:            "-",
-                                    amountPaid:             "-",
-                                    paymentAccount:         this.api.formatBankAccount( _.get( _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) ),"bankAccount", "")),
-                                    paid: false,
-                                },
-                            }))
+                            roughData: _.chain(messages).uniqBy('id').value().map(message=> {
+                                const st = message.status
+                                const invoiceStatus =
+                                    !!(st & (1 << 21)) ? { hrLabel: this.localize('inv_arch','Archived',this.language), finalStatus:"archived" }:
+                                        !!(st & (1 << 17)) ? { hrLabel: this.localize('inv_err','Error',this.language), finalStatus:"error" }:
+                                            !!(st & (1 << 16)) ? { hrLabel: this.localize('inv_par_acc','Partially accepted',this.language), finalStatus:"partiallyAccepted" }:
+                                                !!(st & (1 << 15)) ? { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }:
+                                                    !!(st & (1 << 12)) ? { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" }:
+                                                        !!(st & (1 << 11)) ? { hrLabel: this.localize('inv_tre','Treated',this.language), finalStatus:"treated" }:
+                                                            !!(st & (1 << 10)) ? { hrLabel: this.localize('inv_acc_tre','Accepted for treatment',this.language), finalStatus:"acceptedForTreatment" }:
+                                                                !!(st & (1 << 9))  ? { hrLabel: this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language), finalStatus:"successfullySentToOA" }:
+                                                                    !!(st & (1 << 8))  ? { hrLabel: this.localize('inv_pen','Pending',this.language), finalStatus:"pending" }: ""
+
+                                const acceptedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    "0,00"
+
+                                const refusedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))) :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00":
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    "0,00"
+
+                                return _.merge(message, {
+                                    messageInfo: {
+                                        hcp: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
+                                        parentOaId: _.get(message, "metas.parentOaId", ""),
+                                        parentOaCode: _.get(_.filter(dataObject.parentInsurancesData, {id: _.get(message, "metas.parentOaId", "")}), "[0].code"),
+                                        parentOaLabel: _.get(_.filter(dataObject.parentInsurancesData, {id: _.get(message, "metas.parentOaId", "")}), "[0].finalName"),
+                                        hcpReference: "-",
+                                        batchReference: _.get(message, "metas.batchExportTstamp", ""),
+                                        invoicedMonth: this.localize('month_' + parseInt(moment(_.get(message, "metas.exportedDate", 0), "YYYYMMDD").format('M')), this.language) + " " + _.trim(_.get(message, "metas.exportedDate", _.get(message, "metas.exportDate", ""))).slice(0, 4),
+                                        generationDate: moment(parseInt(_.get(message, "created", 0))).format("DD/MM/YYYY"),
+                                        invoicedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))),
+                                        acceptedAmount: acceptedAmount,
+                                        refusedAmount: refusedAmount,
+                                        invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
+                                        invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
+                                        rejectionReason: "-",
+                                        paymentReference: "-",
+                                        paymentDate: "-",
+                                        amountPaid: "-",
+                                        paymentAccount: this.api.formatBankAccount(_.get(_.head(_.filter(_.get(this.hcp, "financialInstitutionInformation", []), i => {
+                                            return !!i && _.trim(_.get(i, "bankAccount", ""))
+                                        })), "bankAccount", "")),
+                                        paid: false,
+                                    }
+                                })
+                            })
                         });
 
                         _.map( this.invoiceMessageStatuses, (invMsgStatus,statusKey) =>{
                             dataByStatus[statusKey] = {
-                                batches : _.orderBy(_.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-BATCH-ZIP" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                flatFiles : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-FLATFILE" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                slips : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-SLIP" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                pdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-PDF" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc'])
+                                batches : _.orderBy(_.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-BATCH-ZIP" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                flatFiles : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-FLATFILE" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                slips : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-SLIP" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                pdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-PDF" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc'])
                             }
                             countByStatus[statusKey] = parseInt(_.size(dataByStatus[statusKey].flatFiles))
                         })
@@ -3994,17 +4199,20 @@
                     })
                     .catch((e)=>console.log(e))
                     .finally(()=>{
-
                         this.set("messagesGridData", this._getBatchDataByMenuSection(this.flatrateMenuSection, 'flatFiles'))
                         const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
-
                         this.set('_isLoadingSmall', false )
-
+                        return prom
                     })
 
             }
 
             _toggleBatchDetails(e) {
+
+                if( _.get(e, "path", false) ) {
+                    var paths = _.map( e.path, (pathNode,index)=> { return { index:index, nodeName:_.get( pathNode, "nodeName", "" ), target: _.get( pathNode, "id", "" ).toLowerCase()==="messagesgrid" } })
+                    if( !parseInt(_.size(_.compact(_.map( paths.slice( 0, _.get( _.filter(paths,"target"), "[0].index", 0 ) ), (path, index) => { return ["vaadin-grid-cell-content", "slot", "td", "tr" ].indexOf( _.trim(path.nodeName).toLowerCase() ) > -1 } )))) ) return;
+                }
 
                 if ( _.size(this.activeGridItem) ) {
 
@@ -4022,8 +4230,44 @@
                             _.flatMap(
                                 _.map(batchExportPdfs, message => {
                                     return _.map(_.get(message, "invoiceIds", []), invoiceId => {
+
                                         let invoiceData = _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} )
                                         invoiceData = _.merge(invoiceData, {invoiceDate:_.trim(_.get(invoiceData, "invoiceDate","")) || moment(_.get(invoiceData, "created","0")).startOf('month').format("YYYYMMDD") })
+
+                                        const st = message.status
+                                        let invoiceStatus =
+                                            !!(st & (1 << 21)) ? { hrLabel: this.localize('inv_arch','Archived',this.language), finalStatus:"archived" }:
+                                                !!(st & (1 << 17)) ? { hrLabel: this.localize('inv_err','Error',this.language), finalStatus:"error" }:
+                                                    !!(st & (1 << 16)) ? { hrLabel: this.localize('inv_par_acc','Partially accepted',this.language), finalStatus:"partiallyAccepted" }:
+                                                        !!(st & (1 << 15)) ? { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }:
+                                                            !!(st & (1 << 12)) ? { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" }:
+                                                                !!(st & (1 << 11)) ? { hrLabel: this.localize('inv_tre','Treated',this.language), finalStatus:"treated" }:
+                                                                    !!(st & (1 << 10)) ? { hrLabel: this.localize('inv_acc_tre','Accepted for treatment',this.language), finalStatus:"acceptedForTreatment" }:
+                                                                        !!(st & (1 << 9))  ? { hrLabel: this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language), finalStatus:"successfullySentToOA" }:
+                                                                            !!(st & (1 << 8))  ? { hrLabel: this.localize('inv_pen','Pending',this.language), finalStatus:"pending" }: ""
+
+                                        const acceptedAmount =
+                                            _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ):
+                                            _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent&&!i.canceled ? parseFloat(i.totalAmount) : 0) ):
+                                            "0,00"
+
+                                        const refusedAmount =
+                                            _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "rejected" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) :
+                                            _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent||!!i.canceled ? parseFloat(i.totalAmount) : 0) ):
+                                            "0,00"
+
+                                        const messageOriginalStatus = invoiceStatus
+
+                                        invoiceStatus = _.get(invoiceStatus, "finalStatus")!=="partiallyAccepted" ? invoiceStatus :
+                                            (_.size(_.compact(_.map( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>!!i.resent )))) ?
+                                                { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" } : { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }
+
                                         return {
                                             id: _.get(message, "id", ""),
                                             oaId: _.get(message, "metas.oaId", ""),
@@ -4035,9 +4279,11 @@
                                             invoiceData: invoiceData,
                                             patientData: _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][1]", {} ),
                                             invoicedAmount: this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) ) ),
-                                            acceptedAmount: ( ["j20_reject", "j20_process"].indexOf(_.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" )) > -1 ) ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) )) ),
-                                            refusedAmount: _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" ) !== "j20_reject" ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) ) ),
-                                            invoiceHrStatus: this.localize( _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].llKey", "" ), this.language),
+                                            acceptedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(acceptedAmount)),
+                                            refusedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(refusedAmount)),
+                                            invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
+                                            invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
+                                            messageOriginalStatus: _.get(messageOriginalStatus, "finalStatus"),
                                             messageData: message
                                         }
                                     })

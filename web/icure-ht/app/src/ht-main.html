@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
 			}
 
-			.card-title-container:hover paper-icon-button, .card-title-container:focus-within paper-icon-button{
+			.card:hover .card-title-container paper-icon-button{
 				color: var(--app-text-color-disabled);
 				padding: 0;
 			}
@@ -632,7 +632,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<div id="[[widget.id]]" class="card latest-patients-card" style="--area:latestPatientsWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
-							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
@@ -1338,6 +1338,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const index = parseInt(path.split('.')[1])
 
 		if((index + 1)) {
+
+			if(!this.widgets[index].nrRows || !this.widgets[index].nrCols) {
+				return
+			}
 
 			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
 
