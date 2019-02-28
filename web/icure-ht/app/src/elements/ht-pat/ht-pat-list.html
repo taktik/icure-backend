@@ -1030,20 +1030,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ht-spinner class="center" active="[[isLoadingPatient]]"></ht-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="clickOnRow">
-                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <template is="dom-if" if="[[onElectron]]">
-                            <vaadin-grid-column flex-grow="0" width="64px">
-                                <template class="header">
-                                    <div class="cell frozen"></div>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">
+                    <template is="dom-if" if="[[onElectron]]">
+                        <vaadin-grid-column flex-grow="0" width="64px">
+                            <template class="header">
+                                <div class="cell frozen"></div>
+                            </template>
+                            <template>
+                                <div class="cell frozen">
+                                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                         <paper-icon-button id="new-window-[[item.id]]" icon="icons:open-in-new" on-tap="openPatientOnElectron" data-item$="[[item.id]]"></paper-icon-button>
                                         <paper-tooltip for="new-window-[[item.id]]" position="right" style="white-space: nowrap;">[[localize('new_win','New window',language)]]</paper-tooltip>
-                                    </div>
-                                </template>
-                            </vaadin-grid-column>
-                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </vaadin-grid-column>
                     </template>
 
 
