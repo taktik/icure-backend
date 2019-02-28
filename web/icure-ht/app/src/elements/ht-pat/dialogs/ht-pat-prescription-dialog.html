@@ -252,9 +252,6 @@
                     },
                     globalHcp: {
                         type: Object
-                    },
-                    _drugsOnPrescriptions: {
-                        type: Array
                     }
                 };
             }
@@ -269,7 +266,7 @@
 
             ready() {
                 super.ready();
-                this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'A4')
             }
 
             open() {
@@ -727,7 +724,10 @@
             }
 
             _safeDrugsOnPrescriptions() {
-				return this._drugsOnPrescriptions ||
+
+                const drugsToBePrescribed = this._drugsToBePrescribed()
+
+				return this.drugsOnPrescriptions && this.drugsOnPrescriptions.filter((d,idx) => drugsToBePrescribed[idx] && d.id === drugsToBePrescribed[idx].id ).length === drugsToBePrescribed.length ? this.drugsOnPrescriptions :
 				this._drugsToBePrescribed().reduce((accu, s) => {
 					const availableSpace = accu.reduce((acc,drug) => {
 						acc[drug.column] >= 0 ? acc[drug.column]-- : acc[drug.column] = 4;
@@ -774,8 +774,8 @@
 					current.push({ id: id, column: column });
 				}
 
-				if (!_.isEqual(current, this._drugsOnPrescriptions)) {
-					this.set('_drugsOnPrescriptions', current);
+				if (!_.isEqual(current, this.drugsOnPrescriptions)) {
+					this.set('drugsOnPrescriptions', current);
 				}
             }
             
