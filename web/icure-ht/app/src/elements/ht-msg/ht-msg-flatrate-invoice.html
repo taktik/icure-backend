@@ -2979,8 +2979,8 @@
                     ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportedDate);
                     ib.sender = {};
                     ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.cbe.replace(/[^\d]/g, '');
-                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(' ', '').replace('-', '');
-                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/[^\d]/g, '');
+                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(/ /g, '').replace(/-/g, '');
+                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/ /g, '').replace(/-/g, '');
                     ib.sender.firstName = ''
                     ib.sender.lastName = this.flatRateInvoicingDataObject.hcpData.name;
                     ib.sender.nihii = this.flatRateInvoicingDataObject.hcpData.nihii;
@@ -3157,6 +3157,7 @@
                 inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
                 inv.patient.ssin = patientData.ssin;
                 inv.patient.insurabilities = [];
+                inv.patient.gender = patientData.gender;
                 let ins = new fhcmodels.Insurability('');
                 const patIns = patientData.insurabilities[0];
                 ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
