@@ -234,7 +234,7 @@
                         </div>
                     </template>
                     <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[_title(document.name, title)]]</span>
+                        <span class="title">[[_title(document.name, title)]]</span>
                         <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
                     </template>
                     <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
@@ -255,7 +255,12 @@
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
                     <template is="dom-if" if="[[attachmentContent.length]]">
-                        <span class="title">[[localize('msg_body','Message body',language)]] :</span>
+                        <template is="dom-if" if="[[_isEqual(document.documentLocation,'body')]]">
+                            <span class="title">[[localize('msg_body','Message body',language)]] :</span>
+                        </template>
+                        <template is="dom-if" if="[[!_isEqual(document.documentLocation,'body')]]">
+                            <span class="title">[[_title(document.name, title)]]</span>
+                        </template>
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
