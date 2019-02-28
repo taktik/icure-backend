@@ -3255,7 +3255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
-                this.set('refPeriods', this._myReferralPeriods(patient.patientHealthCareParties) || [])
+                this.set('refPeriods', patient && this._myReferralPeriods(patient.patientHealthCareParties) || [])
             }
 
 
@@ -3337,7 +3337,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
                         ).map(m => {
                             return Object.assign(m, {
-                                colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || "" 
+                                colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || ""
                             })
                         }), sorter))
 
@@ -3505,7 +3505,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     }
                                 }), 0)
 
-                            
+
                         })
                     }) // icc contact then end
 
