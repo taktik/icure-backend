@@ -3122,7 +3122,7 @@
                 inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
                 patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = ins.insuranceCode;
+                inv.ioCode = ins.insuranceCode.padEnd(3," ").substr(0,3);
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
