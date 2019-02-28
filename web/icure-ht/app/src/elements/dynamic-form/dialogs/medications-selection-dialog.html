@@ -242,6 +242,55 @@
                 display: initial;
             }
 
+            #checkintol {
+                display: flex;
+                flex-direction: column;
+                max-height: 50vh;
+            }
+
+            #checkintol em {
+                font-weight: bold;
+            }
+
+            #checkintol div.warn {
+                color: var(--app-status-color-nok);
+                font-size: 1.2em;
+            }
+
+            #checkintol div.con {
+                margin: 16px 0 8px 0;
+            }
+
+            #checkintol div.list {
+                flex-grow: 1;
+                margin: 8px 32px;
+                padding: 0;
+                overflow-y: auto;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
+            #checkintol div.list > div {
+                padding: 4px 16px;
+                height: 32px;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+            }
+            #checkintol div.list > div:nth-child(2n) {
+                background-color: var(--app-background-color-dark);
+            }
+
+            #checkintol div.endline {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                margin: 8px 0;
+                padding: 0 8px;
+            }
+            #checkintol div.endline span {
+                line-height: 40px;
+                padding: 0 24px;
+            }
+
             @media screen and (max-width: 936px) {
                 paper-dialog#medication-selection {
                     position: fixed;
@@ -413,15 +462,21 @@
             </div>
         </paper-dialog>
         <paper-dialog id="checkintol" always-on-top="true">
-            <div>
+            <div class="warn">
                 [[localize('patient_has_adr','Le patient possède une contre-indication pour la médication',language)]]
-                 <em>[[medicationToBeAdded_label]]</em>. [[localize('continue','Continuer ?',language)]]</div>
-            <template is="dom-repeat" items="[[intolItems]]" as="intol">
-                <div> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
-
-            </template>
-            <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-            <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="continueAddMedication">[[localize('valid','Validate',language)]]</paper-button>
+                 <em>[[medicationToBeAdded_label]]</em>.
+            </div>
+            <div class="con">[[localize('con_list','Contraindication list',language)]] :</div>
+            <div class="list">
+                <template is="dom-repeat" items="[[intolItems]]" as="intol">
+                    <div> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
+                </template>
+            </div>
+            <div class="endline">
+                <span>[[localize('continue','Continue',language)]] ?</span>
+                <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('no','no',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="continueAddMedication">[[localize('yes','Yes',language)]]</paper-button>
+            </div>
         </paper-dialog>
 
     </template>
