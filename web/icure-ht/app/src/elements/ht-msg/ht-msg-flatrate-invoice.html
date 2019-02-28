@@ -3425,19 +3425,6 @@
                     };
                 }); // Loop OA
 
-
-
-                // <NOT FOR PROD, just to test page breaks with large records amount>
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // </NOT FOR PROD, just to test page breaks with large records amount>
-
-
-
                 const maxEntriesPerPage = 47;
 
                 const pdfDataToPrint = _.compact(
@@ -3536,19 +3523,6 @@
                 console.log("_generateJ20PdfTemplateParentOaObjects");
                 console.log(pdfData);
                 this.bug();
-
-
-
-                // <NOT FOR PROD, just to test page breaks with large records amount>
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // </NOT FOR PROD, just to test page breaks with large records amount>
-
-
 
                 const maxEntriesPerPage = 47;
 
@@ -4012,6 +3986,13 @@
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
+
+                        // return this._generateJ20PdfTemplateParentOaObjects().then(parentOaPdfTemplateObjects=>{
+                        //     console.log("RETURN OF _generateJ20PdfTemplateParentOaObjects" );
+                        //     console.log(parentOaPdfTemplateObjects);
+                        //     this.bug();
+                        // })
+
                         return this._generateJ20FlatFiles().then(x=>x)
                     })
                     .then(flatFileObjects=>{
@@ -4194,15 +4175,17 @@
                                 .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
                         })).then(x=>x)
                     })
-                    .then(()=>{
-                        return this._generateJ20PdfTemplateParentOaObjects().then(x=>x)
-                    })
-                    .then((parentOaPdfTemplateObjects)=>{
-                        console.log(parentOaPdfTemplateObjects);
-                        this.bug();
-                        // FZ: insert next "then" to actually generate PARENT OA pdf files
-                        // FZ: insert next "then" to archive (message + document + encrypt PARENT OA pdf files)
-                    })
+
+                    // .then(()=>{
+                    //     return this._generateJ20PdfTemplateParentOaObjects().then(x=>x)
+                    // })
+                    // .then((parentOaPdfTemplateObjects)=>{
+                    //     console.log(parentOaPdfTemplateObjects);
+                    //     this.bug();
+                    // })
+                    // Next = generate PARENT OA pdf files
+                    // Next = archive (message + document + encrypt PARENT OA pdf files)
+
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_8',this.language), icon:"arrow-forward"})
@@ -4248,16 +4231,16 @@
                     })
                     .catch((e)=>{
                         return (
-                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() :
-                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() :
-                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() :
-                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() :
-                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() :
-                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() :
-                            console.log(e)
+                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() && e :
+                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() && e :
+                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() && e :
+                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() && e :
+                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() && e :
+                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() && e :
+                            e
                         )
                     })
-                    .finally((e)=>{
+                    .finally(()=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
@@ -4266,7 +4249,7 @@
                         this.set('messagesGridData', null );
                         const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
                         const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
-                        this._fetchJ20Messages(true).then(()=>{ this.set('flatrateMenuSection', "j20_process" ); })
+                        this._fetchJ20Messages(true).then(()=>{ this.dispatchEvent(new CustomEvent('do-route', { bubbles: true, composed: true, detail: { selection : { item : "e_flatrateinvOut", status: "j20_process" }}})); })
                     })
 
             }
