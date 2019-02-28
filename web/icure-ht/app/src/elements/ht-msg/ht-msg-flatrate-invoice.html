@@ -3021,7 +3021,8 @@
                     this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
                     this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
-                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                let fileName = "flat-file-oa-" + batch.ioFederationCode + ".txt"
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]",fileName).replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
                     this.localize('flatrate_slipfile_18',this.language) + "\n" +
                     this.localize('flatrate_slipfile_19',this.language) + "\n" +
@@ -3121,7 +3122,7 @@
                 inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
                 patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = ins.insuranceCode;
+                inv.ioCode = ins.insuranceCode.padEnd(3," ").substr(0,3);
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
