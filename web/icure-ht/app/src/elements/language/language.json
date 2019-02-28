@@ -1119,7 +1119,17 @@
     "flatrate_slipfile_22":"Date de réception :.................                Date :..............",
     "flatrate_slipfile_23":"Nom :...............................                Nom  :..............",
     "flatrate_slipfile_24":"Fonction :..........................                ....................",
-    "flatrate_slipfile_25":"Signature :.........................                Signature :........."
+    "flatrate_slipfile_25":"Signature :.........................                Signature :.........",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Warning",
+    "incompleteUserProfile" : "Incomplete user profile",
+    "provideNihiiNumber" : "Please mention your number",
+    "update" : "Update",
+    "configure": "Configure",
+    "provideMissingValorisations": "Please provide your flat rates",
+    "noDataToExport": "No data to export",
+    "rejectInvoice" : "Reject invoice",
+    "rejectVerb" : "Reject"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2270,7 +2280,7 @@
     "month": "Mois",
     "year": "Année",
     "week": "semaine",
-    "old": "Ancien",
+    "old": " ",
     "j20_monthToGenerate": "Mois à générer",
     "bankAccountNumber": "Numéro de compte bancaire",
     "flatrate_invoicing_5_header": "ANNEXE 5: PAIEMENT FORFAITAIRE",
@@ -2302,6 +2312,14 @@
     "pleaseWait": "Veuillez patienter svp...",
     "batchDetails": "Détail de l'envoi n°",
     "ofOa": "de l'OA",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Attention",
+    "incompleteUserProfile" : "Votre profil utilisateur semble incomplet",
+    "provideNihiiNumber" : "Veuillez s'il vous plait renseigner votre numéro",
+    "update" : "Mise à jour",
+    "configure": "Configurer",
+    "provideMissingValorisations": "Veuillez s'il vous plait renseigner vos tarifications forfaitaires",
+    "noDataToExport": "Aucune donnée à exporter n'a pu être trouvée",
     "flatrate_slipfile_01":"BORDEREAU D'EXPEDITION POUR SUPPORTS MAGNETIQUES",
     "flatrate_slipfile_02":"Mode de facturation ;  1)  1 fichier - 1 compte bancaire",
     "flatrate_slipfile_03":"Identification établissement :",
@@ -2326,7 +2344,9 @@
     "flatrate_slipfile_22":"Date de réception :.................                Date :..............",
     "flatrate_slipfile_23":"Nom :...............................                Nom  :..............",
     "flatrate_slipfile_24":"Fonction :..........................                ....................",
-    "flatrate_slipfile_25":"Signature :.........................                Signature :........."
+    "flatrate_slipfile_25":"Signature :.........................                Signature :.........",
+    "rejectInvoice" : "Rejeter la facture",
+    "rejectVerb" : "Rejeter"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3514,6 +3534,14 @@
     "pleaseWait": "Een ogenblik alstublieft",
     "batchDetails": "Batch details",
     "ofOa": "of insurance",
+    "archiveBatchConfirmation" : "Voulez-vous vraiment archiver l'envoi",
+    "warning" : "Pas op",
+    "incompleteUserProfile" : "Incomplete user profile",
+    "provideNihiiNumber" : "Please mention your number",
+    "update" : "Update",
+    "configure": "Configure",
+    "provideMissingValorisations": "Please provide your flat rates",
+    "noDataToExport": "No data to export",
     "flatrate_slipfile_01":"VERZENDINGSBORDEREL VOOR MAGNETISCHE DRAGERS",
     "flatrate_slipfile_02":"Factureringsvorm ; 1)  1 bestand - 1 financiële rekening",
     "flatrate_slipfile_03":"Identificatie inrichting :",
@@ -3538,6 +3566,8 @@
     "flatrate_slipfile_22":"Datum ontvangst :.........................          Datum :.............",
     "flatrate_slipfile_23":"Naam :....................................          Naam  :.............",
     "flatrate_slipfile_24":"Functie  :................................          ....................",
-    "flatrate_slipfile_25":"Handtekening :............................          Handtekening :......"
+    "flatrate_slipfile_25":"Handtekening :............................          Handtekening :......",
+    "rejectInvoice" : "Reject invoice",
+    "rejectVerb" : "Reject"
   }
 }

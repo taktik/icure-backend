@@ -1365,7 +1365,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]" on-trigger-open-my-profile="_triggerOpenMyProfile" on-trigger-goto-admin="_triggerOpenAdminGroupsManagementSubMenu">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
                     <ht-diary id="htDiary" name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
@@ -2115,8 +2115,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this._selectEntities()
                     }
 
-                    console.log("test")
-
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
@@ -2672,6 +2670,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }).catch((e)=>{this.busySpinner = false;})
                 }
 
+            }
+
+            _triggerOpenMyProfile(e) {
+                this._myProfile(parseInt(_.get(e,"detail.tabIndex",1)));
+            }
+
+            _triggerOpenAdminGroupsManagementSubMenu(e) {
+                this.set('routeData.page', "admin"); this._triggerMenu();
+                this.$['htAdmin'] && typeof this.$['htAdmin'].handleMenuChange === "function" && this.$['htAdmin'].handleMenuChange({detail:{selection:{item: 'management',submenu:'facturationFlatRateManagementSubMenu'}}});
             }
 
         }

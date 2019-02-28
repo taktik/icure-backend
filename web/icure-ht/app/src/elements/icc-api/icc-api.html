@@ -736,7 +736,7 @@
         }
 
         _powRoundFloatByPrecision(inputNumber,decimalPlaces=2){
-            return parseFloat(Math.round(parseFloat(inputNumber) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+            return parseFloat(Math.round(parseFloat( _.trim(inputNumber).replace(',','.') ) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
         }
 
 

@@ -63,129 +63,123 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../ht-spinner/ht-spinner.html">
 
 <dom-module id="ht-msg-menu">
-	<template>
-		<style include="iron-flex iron-flex-alignment"></style>
-		<!--suppress CssUnusedSymbol -->
-		<style include="shared-styles">
-			:host {
-				display: block;
-                z-index: 1;
-			}
+    <template>
+        <style include="iron-flex iron-flex-alignment"></style>
+        <!--suppress CssUnusedSymbol -->
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
 
-			:host *:focus{
-				outline:0!important;
-			}
+            :host *:focus{
+                outline:0!important;
+            }
 
-			.col-left{
-				position: relative;
-				box-sizing: border-box;
-				grid-column: 1 / 1;
-    			grid-row: 1 / 1;
-				background:var(--app-background-color-dark);
-				box-shadow: var(--app-shadow-elevation-2);
-				padding: 24px 0;
-				display:flex;
-				flex-flow: column nowrap;
-				align-items: center;
-				height: 100%;
-				width: 100%;
-				overflow-y: auto;
-				overflow-x: hidden;
-			}
+            .col-left{
+                position: relative;
+                box-sizing: border-box;
+                grid-column: 1 / 1;
+                grid-row: 1 / 1;
+                background:var(--app-background-color-dark);
+                @apply --shadow-elevation-3dp;
+                padding: 24px 0;
+                display:flex;
+                flex-flow: column nowrap;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                z-index: 25;
+            }
 
-			.new-msg-btn{
-				margin: 0 24px 16px;
-				box-sizing: border-box;
-				--paper-button-ink-color: var(--app-secondary-color-dark);
+            .new-msg-btn{
+                margin: 0 24px 16px;
+                box-sizing: border-box;
+                --paper-button-ink-color: var(--app-secondary-color-dark);
                 height: 40px !important;
                 display: block;
-				text-align: center;
-				min-height: 40px;
-				--paper-button: {
-					background: var(--app-secondary-color);
-					color: var(--app-text-color);
-					width: calc(100% - 48px);
-					margin: 0 auto;
-					font-size: 14px;
-					font-weight: bold;
-					text-transform: uppercase;
-				};
+                text-align: center;
+                min-height: 40px;
+                --paper-button: {
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    width: calc(100% - 48px);
+                    margin: 0 auto;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-transform: capitalize;
+                };
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-                box-shadow: var(--app-shadow-elevation-1);
-			}
-            .new-msg-btn.eh-false {
-                cursor: default;
-                box-shadow: none;
-                background: var(--app-secondary-color-dark)
             }
-			.has-unread{
-				font-weight:bold;
-			}
+            .has-unread{
+                font-weight:bold;
+            }
 
-			.unreadNumber{
-				display: block;
-				padding: 2px 5px;
-				font-size: 11px;
-				background: var(--app-secondary-color);
-				color: var(--app-text-color);
-				border-radius: 10px;
-				line-height: 11px;
-				margin-left: 8px;
+            .unreadNumber{
+                display: block;
+                padding: 2px 5px;
+                font-size: 11px;
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                border-radius: 10px;
+                line-height: 11px;
+                margin-left: 8px;
                 max-width: 30px;
-			}
+            }
 
-			paper-listbox{
-				background:transparent;
-				padding: 0;
-			}
+            paper-listbox{
+                background:transparent;
+                padding: 0;
+            }
 
-			paper-item{
-				background:transparent;
-				outline:0;
+            paper-item{
+                background:transparent;
+                outline:0;
                 height: 32px;
-				align-items: center;
-				--paper-item-selected:{
+                align-items: center;
+                --paper-item-selected:{
 
-				};
+                };
 
-				--paper-item-disabled-color:{
-					color: red;
-				};
+                --paper-item-disabled-color:{
+                    color: red;
+                };
 
-				--paper-item-focused: {
-					background:transparent;
-				};
-				--paper-item-focused-before: {
-					background:transparent;
-				};
+                --paper-item-focused: {
+                    background:transparent;
+                };
+                --paper-item-focused-before: {
+                    background:transparent;
+                };
 
-			}
+            }
 
-			paper-listbox {
-				outline:0;
-				--paper-listbox-selected-item: {
-					color:var(--app-text-color-light);
-					background:var(--app-primary-color);
-				};
-				--paper-listbox-disabled-color:{
-					color: red;
-				};
-			}
+            paper-listbox {
+                outline:0;
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primary-color);
+                };
+                --paper-listbox-disabled-color:{
+                    color: red;
+                };
+            }
 
-			collapse-button {
-				outline:0;
-				width: 100%;
-				user-select: none;
-				--paper-listbox-selected-item: {
-					color:var(--app-text-color-light);
-					background:var(--app-primar y-color);
-				};
+            collapse-button {
+                outline:0;
+                width: 100%;
+                user-select: none;
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primar y-color);
+                };
                 margin-bottom: 15px;
                 transition: var(--transition_-_transition);
                 background: var(--app-background-color-dark);
-			}
+            }
             collapse-button paper-item {
                 font-size: 13px;
                 font-weight: bold;
@@ -195,13 +189,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: white;
             }
 
-			collapse-button .menu-item.iron-selected,
+            collapse-button .menu-item.iron-selected,
             collapse-button paper-item.iron-selected{
-				@apply --padding-right-left-16;
-				color:var(--app-text-color-light);
-				background:var(--app-primary-color);
-				@apply --text-shadow;
-			}
+                @apply --padding-right-left-16;
+                color:var(--app-text-color-light);
+                background:var(--app-primary-color);
+                @apply --text-shadow;
+            }
 
             collapse-button paper-item.iron-selected{
                 background: var(--app-background-color-dark);
@@ -210,228 +204,228 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             collapse-button paper-item.opened{
                 background: #fff;
-			}
+            }
 
-			collapse-button paper-item.iron-selected iron-icon{
-				color: var(--app-secondary-color) !important;
-				opacity: 1;
-			}
+            collapse-button paper-item.iron-selected iron-icon{
+                color: var(--app-secondary-color) !important;
+                opacity: 1;
+            }
 
             collapse-button paper-item.iron-selected {
                 color: white;
                 background: var(--app-primary-color);
-			}
+            }
 
-			collapse-button paper-item iron-icon, paper-item iron-icon{
-				height: 20px;
-				width: 20px;
-				padding:4px;
-				color: var(--app-text-color);
-			}
+            collapse-button paper-item iron-icon, paper-item iron-icon{
+                height: 20px;
+                width: 20px;
+                padding:4px;
+                color: var(--app-text-color);
+            }
 
-			collapse-button paper-icon-button{
-				min-width: 40px;
-				min-height: 40px;
-			}
+            collapse-button paper-icon-button{
+                min-width: 40px;
+                min-height: 40px;
+            }
 
-			.opened{
-				color:var(--app-text-color);
-				background:var(--app-text-color-light);
-				border-radius:2px 2px 0 0;
+            .opened{
+                color:var(--app-text-color);
+                background:var(--app-text-color-light);
+                border-radius:2px 2px 0 0;
 
-			}
+            }
 
-			.sublist{
-				background:var(--app-light-color);
-				margin:0 0 8px -30px;
-				padding:0;
-				padding-bottom:4px;
-				border-radius:0 0 2px 2px;
-			}
+            .sublist{
+                background:var(--app-light-color);
+                margin:0 0 8px -30px;
+                padding:0;
+                padding-bottom:4px;
+                border-radius:0 0 2px 2px;
+            }
 
-			paper-item.list-info {
-				font-weight: lighter;
-				font-style: italic;
-				height:48px;
-			}
+            paper-item.list-info {
+                font-weight: lighter;
+                font-style: italic;
+                height:48px;
+            }
 
-			.menu-item{
-				@apply --padding-right-left-16;
-				height:48px;
-				@apply --paper-font-button;
-				text-transform: inherit;
-				justify-content: space-between;
-				cursor: pointer;
-				@apply --transition;
-			}
+            .menu-item{
+                @apply --padding-right-left-16;
+                height:48px;
+                @apply --paper-font-button;
+                text-transform: inherit;
+                justify-content: space-between;
+                cursor: pointer;
+                @apply --transition;
+            }
 
-			.sublist .menu-item {
-				font-size: 13px;
-				min-height:32px;
-				height:32px;
-			}
-			.sublist .menu-item.flex-start {
+            .sublist .menu-item {
+                font-size: 13px;
+                min-height:32px;
+                height:32px;
+            }
+            .sublist .menu-item.flex-start {
                 justify-content: flex-start;
             }
 
-			.menu-item:hover{
-				/*background: var(--app-dark-color-faded);*/
-				@apply --transition;
-			}
+            .menu-item:hover{
+                /*background: var(--app-dark-color-faded);*/
+                @apply --transition;
+            }
 
-			.menu-item .iron-selected{
-				background:var(--app-primary-color);
-			}
+            .menu-item .iron-selected{
+                background:var(--app-primary-color);
+            }
 
-			.menu-item .opened{
-				background:white!important;
-				width:80%;
-				border-radius:2px;
-			}
+            .menu-item .opened{
+                background:white!important;
+                width:80%;
+                border-radius:2px;
+            }
 
-			.menu-item-icon--selected{
-				width:0;
-			}
+            .menu-item-icon--selected{
+                width:0;
+            }
 
-			.opened .menu-item-icon--selected{
-				width: 18px;
-			}
+            .opened .menu-item-icon--selected{
+                width: 18px;
+            }
 
-			.opened > .menu-item-icon{
-				transform: scaleY(-1);
-			}
+            .opened > .menu-item-icon{
+                transform: scaleY(-1);
+            }
 
-			paper-item.menu-item.opened {
-				/*@apply --padding-right-left-16;*/
-			}
+            paper-item.menu-item.opened {
+                /*@apply --padding-right-left-16;*/
+            }
 
-			.submenu-item{
-				cursor:pointer;
-			}
+            .submenu-item{
+                cursor:pointer;
+            }
 
-			.submenu-item.iron-selected{
-				background:var(--app-primary-color-light);
-				color:var(--app-text-color-light);
-				@apply --text-shadow;
-			}
+            .submenu-item.iron-selected{
+                background:var(--app-primary-color-light);
+                color:var(--app-text-color-light);
+                @apply --text-shadow;
+            }
 
-			.submenu-item-icon{
-				height:14px;
-				width:14px;
-				color:var(--app-text-color-light);
-				margin-right:10px;
-			}
+            .submenu-item-icon{
+                height:14px;
+                width:14px;
+                color:var(--app-text-color-light);
+                margin-right:10px;
+            }
 
-			vaadin-grid.material {
-				outline: 0!important;
-				font-family: Roboto, sans-serif;
-				background:rgba(0,0,0,0);
-				border:none;
-				--divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+            vaadin-grid.material {
+                outline: 0!important;
+                font-family: Roboto, sans-serif;
+                background:rgba(0,0,0,0);
+                border:none;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
 
-				--vaadin-grid-cell: {
-					padding: 8px;
-				};
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
 
-				--vaadin-grid-header-cell: {
-					height: 48px;
-					padding:11.2px;
-					color: rgba(0, 0, 0, var(--dark-secondary-opacity));
-					font-size: 12px;
-					background:rgba(0,0,0,0);
-					border-top:0;
-				};
+                --vaadin-grid-header-cell: {
+                    height: 48px;
+                    padding:11.2px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                    background:rgba(0,0,0,0);
+                    border-top:0;
+                };
 
-				--vaadin-grid-body-cell: {
-					height: 48px;
-					color: rgba(0, 0, 0, var(--dark-primary-opacity));
-					font-size: 13px;
-				};
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
 
-				--vaadin-grid-body-row-hover-cell: {
-					background-color: var(--paper-grey-200);
-				};
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
 
-				--vaadin-grid-body-row-selected-cell: {
-					background-color: var(--paper-grey-100);
-				};
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
 
-				--vaadin-grid-focused-cell: {
-					box-shadow: none;
-					font-weight: bold;
-				};
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
 
-			}
-			vaadin-grid.material .cell {
-				overflow: hidden;
-				text-overflow: ellipsis;
-				padding-right: 56px;
-			}
+            }
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
 
-			vaadin-grid.material .cell.last {
-				padding-right: 24px;
-			}
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
 
-			vaadin-grid.material .cell.numeric {
-				text-align: right;
-			}
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
 
-			vaadin-grid.material paper-checkbox {
-				--primary-color: var(--paper-indigo-500);
-				margin: 0 24px;
-			}
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
 
-			vaadin-grid.material vaadin-grid-sorter {
-				--vaadin-grid-sorter-arrow: {
-					display: none !important;
-				};
-			}
+            vaadin-grid.material vaadin-grid-sorter {
+                --vaadin-grid-sorter-arrow: {
+                    display: none !important;
+                };
+            }
 
-			vaadin-grid.material vaadin-grid-sorter .cell {
-				flex: 1;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			}
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-			vaadin-grid.material vaadin-grid-sorter iron-icon {
-				transform: scale(0.8);
-			}
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
 
-			vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
-				color: rgba(0, 0, 0, var(--dark-disabled-opacity));
-			}
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
 
-			vaadin-grid.material vaadin-grid-sorter[direction] {
-				color: rgba(0, 0, 0, var(--dark-primary-opacity));
-			}
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
 
-			vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
-				transform: scale(0.8) rotate(180deg);
-			}
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
 
 
-			vaadin-grid.material::slotted(div){
-				outline:0 !important;
-			}
+            vaadin-grid.material::slotted(div){
+                outline:0 !important;
+            }
 
-			paper-checkbox{
-				--paper-checkbox-unchecked-color: var(--app-text-color);
-				--paper-checkbox-label-color: var(--app-text-color);
-				--paper-checkbox-checked-color: var(--app-secondary-color);
-				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
-			}
+            paper-checkbox{
+                --paper-checkbox-unchecked-color: var(--app-text-color);
+                --paper-checkbox-label-color: var(--app-text-color);
+                --paper-checkbox-checked-color: var(--app-secondary-color);
+                --paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
+            }
 
             paper-icon-button {
                 transition: .5s ease;
             }
 
-			.trash{
-				align-self: flex-start;
-				width:100%;
-				padding: 0 8px;
+            .trash{
+                align-self: flex-start;
+                width:100%;
+                padding: 0 8px;
                 box-sizing: border-box;
-			}
+            }
             .trash.selected {
                 background: var(--app-primary-color);
                 color: white;
@@ -440,64 +434,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-secondary-color);
             }
 
-			paper-item{
-				cursor: pointer;
-				justify-content: space-between;
-				user-select: none;
-			}
-			.menu-trigger{
-				padding: 0 8px;
-			}
+            paper-item{
+                cursor: pointer;
+                justify-content: space-between;
+                user-select: none;
+            }
+            .menu-trigger{
+                padding: 0 8px;
+            }
 
-			.batchNumber{
-				padding: 1px 5px;
-				font-size: 11px;
-				color: var(--app-text-color-light);
-				border-radius: 10px;
-				min-height: 0;
-				display: block;
-				line-height: 16px;
-    			height: 15px;
-			}
+            .batchNumber{
+                padding: 1px 5px;
+                font-size: 11px;
+                color: var(--app-text-color-light);
+                border-radius: 10px;
+                min-height: 0;
+                display: block;
+                line-height: 16px;
+                height: 15px;
+            }
 
-			.batchPending{
-				background-color: var(--paper-orange-400);
-			}
+            .batchPending{
+                background-color: var(--paper-orange-400);
+            }
 
-			.batchToBeSend{
-				background-color: var(--paper-orange-400);
-			}
+            .batchToBeSend{
+                background-color: var(--paper-orange-400);
+            }
 
-			.batchToBeCorrected{
-				background-color: var(--paper-red-400);
-			}
+            .batchToBeCorrected{
+                background-color: var(--paper-red-400);
+            }
 
-			.batchProcessed{
-				background-color: var(--paper-blue-400);
-			}
+            .batchProcessed{
+                background-color: var(--paper-blue-400);
+            }
 
-			.batchRejected{
-				background-color: var(--paper-red-400);
-			}
+            .batchRejected{
+                background-color: var(--paper-red-400);
+            }
 
-			.batchAccepted{
-				background-color: var(--paper-green-400);
-			}
+            .batchAccepted{
+                background-color: var(--paper-green-400);
+            }
 
-			.batchArchived{
-				background-color: var(--paper-purple-300);
-			}
+            .batchArchived{
+                background-color: var(--paper-purple-300);
+            }
 
             .one-line-menu.list-title {
                 max-width: 100%;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-				overflow: hidden;
-				align-items: center;
-				display: flex;
-				flex-flow: row wrap;
-				justify-content: flex-start;
-			}
+                overflow: hidden;
+                align-items: center;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: flex-start;
+            }
 
             #inbox {
                 flex-direction: row;
@@ -508,7 +502,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 white-space: nowrap;
                 overflow: hidden;
             }
-            
+            /* .box-txt.force-ellipsis {
+                max-width: 60%;
+            } */
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;
@@ -519,7 +515,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             .inbox-line.one-line-menu {
                 width: 100%;
-				justify-content: space-between;
+                justify-content: space-between;
             }
 
             ht-spinner {
@@ -528,8 +524,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 50%;
                 z-index: 9999;
                 transform: translate(-50% -50%);
-				height: 42px;
-				width: 42px;
+                height: 42px;
+                width: 42px;
             }
 
             #flatRateInvoicingListingBoxCollapse {
@@ -546,43 +542,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border-top:2px dashed #cccccc;
             }
 
-            paper-tooltip.eh-disabled {
-                transform: scale(1.5);
-                transform-origin: top left;
-            }
-
-		</style>
-		<div class="col-left">
+        </style>
+        <div class="col-left">
             <template is="dom-if" if="[[isLoadingMailList]]"><ht-spinner class="center" active="[[isLoadingMailList]]"></ht-spinner></template>
-			<paper-button id="new-msg-btn" class$="new-msg-btn eh-[[ehealthSession]]" on-tap="_newMsg">[[localize('new_mes','New Message',language)]]</paper-button>
-            <template is="dom-if" if="[[!ehealthSession]]"><paper-tooltip class="eh-disabled" for="new-msg-btn" position="bottom">[[localize('ehe_is_not_con','eHealth is not connected',language)]]</paper-tooltip></template>
-			<collapse-button id="inboxcollapse">
-				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
-					<div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
-				</paper-item>
-				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
-					<!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>-->
-					<!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>-->
+            <paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
+            <collapse-button id="inboxcollapse">
+                <paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
+                    <div class="one-line-menu list-title inbox-line"><div><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('inb','Inbox',language)]]</span></div><template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
+                    <!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>-->
+                    <!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('boxtitle.eheIn','eHealth inbox',language)]]</paper-item>-->
-                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="labResult"><iron-icon icon="icons:assignment"></iron-icon> [[localize('lab_res','Lab Results',language)]] / [[localize('rep','Report',language)]]</paper-item>
                     <!--<paper-item class="one-line-menu menu-item" id="unsettedProtIn">[[localize('unassigned_labresults','unassigned lab results',language)]]</paper-item>-->
                     <!--<paper-item class="one-line-menu menu-item" id="protIn">[[localize('assigned_labresults','assigned lab results',language)]]</paper-item>-->
-					<!--<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>-->
-                    <paper-item class="one-line-menu menu-item flex-start" id="mycarenet"><iron-icon icon="maps:local-hospital"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('mycarenet','My Carenet',language)]]</span></paper-item>
-				</paper-listbox>
-			</collapse-button>
-			<collapse-button id="sentboxcollapse">
-				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
+                    <!--<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>-->
+                    <paper-item class="one-line-menu menu-item flex-start" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
+                </paper-listbox>
+            </collapse-button>
+            <collapse-button id="sentboxcollapse">
+                <paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
                     <div class="one-line-menu list-title"><div><iron-icon icon="icons:send"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('sen_mes','Send Messages',language)]]</span></div><template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber force-ellipsis">[[sendNumber]]</span></template></div>
-					<!--<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>-->
-				</paper-item>
-				<!--<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">-->
-					<!--<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>-->
-					<!--&lt;!&ndash;<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>&ndash;&gt;-->
-					<!--&lt;!&ndash;<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>&ndash;&gt;-->
-				<!--</paper-listbox>-->
-			</collapse-button>
+                    <!--<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>-->
+                </paper-item>
+                <!--<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">-->
+                <!--<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>-->
+                <!--&lt;!&ndash;<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>&ndash;&gt;-->
+                <!--&lt;!&ndash;<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>&ndash;&gt;-->
+                <!--</paper-listbox>-->
+            </collapse-button>
             <collapse-button id="trashboxcollapse">
                 <paper-item id="hidden" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_hidden" elevation="">
                     <div class="one-line-menu list-title"><iron-icon icon="icons:visibility-off"></iron-icon><span class="force-left force-ellipsis box-txt">[[localize('hidden_msgs','Hidden messages',language)]]</span></div>
@@ -598,7 +588,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="invoiceboxlist" class="menu-content sublist"  selected="{{invoiceSelectionIndex}}" selected-item="{{invoiceSelectionItem}}" selectable="paper-item">
-					<paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeCorrected">[[localize('_e_inv_toBeCorrected','To be corrected',language)]] <span class="batchNumber batchToBeCorrected">[[batchCounter.toBeCorrected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeCorrected">[[localize('_e_inv_toBeCorrected','To be corrected',language)]] <span class="batchNumber batchToBeCorrected">[[batchCounter.toBeCorrected]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeSend">[[localize('_e_inv_toBeSend','To be send',language)]] <span class="batchNumber batchToBeSend">[[batchCounter.toBeSend]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="process">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="reject">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
@@ -616,500 +606,506 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j3"><div class="one-line-menu list-title"><iron-icon icon="view-headline"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('_e_flatrateinv_listing','Export listing',language)]]</span></div></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="archivej3"><div class="one-line-menu list-title"><iron-icon icon="markunread-mailbox"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('_e_flatrateinv_archives_listing','Archives listing',language)]]</span></div></paper-item>
                     <hr class="menuHr"/>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeCorrected"><div class="one-line-menu list-title"><iron-icon icon="error"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeCorrected','To be corrected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.toBeCorrected]]</span></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeSend"><div class="one-line-menu list-title"><iron-icon icon="send"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeSend','To be send',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.toBeSend]]</span></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_process"><div class="one-line-menu list-title"><iron-icon icon="cached"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_process','Processing',language)]]</span></div> <span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.processing]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeCorrected"><div class="one-line-menu list-title"><iron-icon icon="error"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeCorrected','To be corrected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeCorrected">[[j20_batchCounter.error]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_toBeSend"><div class="one-line-menu list-title"><iron-icon icon="send"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_toBeSend','To be send',language)]]</span></div> <!--<span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.xxx]]</span>--><span class="batchNumber j20_batchNumber batchToBeSend">+</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_process"><div class="one-line-menu list-title"><iron-icon icon="cached"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_process','Processing',language)]]</span></div> <span class="batchNumber j20_batchNumber batchProcessed">[[j20_batchCounter.pending]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_reject"><div class="one-line-menu list-title"><iron-icon icon="cancel"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_reject','Rejected',language)]]</span></div> <span class="batchNumber j20_batchNumber batchRejected">[[j20_batchCounter.rejected]]</span></paper-item>
-                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_accept"><div class="one-line-menu list-title"><iron-icon icon="check-circle"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_accept','Accepted',language)]]</span></div> <span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.accepted]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_partiallyAccepted"><div class="one-line-menu list-title"><iron-icon icon="settings-backup-restore"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_partiallyAccepted','Partially accepted batches',language)]]</span></div> <span class="batchNumber j20_batchNumber batchToBeSend">[[j20_batchCounter.partiallyAccepted]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_accept"><div class="one-line-menu list-title"><iron-icon icon="check-circle"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_accept','Accepted',language)]]</span></div> <span class="batchNumber j20_batchNumber batchAccepted">[[j20_batchCounter.fullyAccepted]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_flatrateinvOut" data-status="j20_archive"><div class="one-line-menu list-title"><iron-icon icon="markunread-mailbox"></iron-icon> <span class="force-left force-ellipsis box-txt">[[localize('j20_archive','Archived',language)]]</span></div> <span class="batchNumber j20_batchNumber batchArchived">[[j20_batchCounter.archived]]</span></paper-item>
 
                 </paper-listbox>
             </collapse-button>
 
-			<!--<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>-->
-		</div>
-	</template>
-	<script>
+            <!--<paper-item class$="trash [[trashSelected]]" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>-->
+        </div>
+    </template>
+    <script>
 
-import moment from 'moment/src/moment';
-import _ from 'lodash/lodash';
-import styx from '../../../scripts/styx';
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+        import styx from '../../../scripts/styx';
 
-class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
-	static get is() {
-		return 'ht-msg-menu';
-	}
-
-	static get properties() {
-		return {
-			api: {
-				type: Object,
-                observer: '_isConnectedToEhbox'
-			},
-			user: {
-				type: Object
-			},
-			events: {
-				type: Array,
-				value: function () {
-					return [];
-				}
-			},
-			selectedLocalize: {
-				type: Array,
-				value: function () {
-					return [];
-				}
-			},
-			selected: {
-				type: Boolean,
-				value: false
-			},
-			showFiltersPanel: {
-				type: Boolean,
-				value: false
-			},
-			msgSearchString: {
-				type: String,
-				value: null
-			},
-			showDetailsFiltersPanel: {
-				type: Boolean,
-				value: false
-			},
-			isLatestYear: {
-				type: Boolean,
-				value: false
-			},
-			selectedContactItems: {
-				type: Array,
-				value: function () {
-					return [];
-				}
-			},
-			itemSelected: {
-				type: Boolean,
-				value: false
-			},
-			i18n: {
-				type: Object
-			},
-            unreadNumber: {
-			    type: Number,
-                value: 0
-			},
-			batchCounter: {
-			    type: Object,
-				value: () => ({
-					toBeSend: 0,
-					toBeCorrected: 0,
-					processing: 0,
-					rejected: 0,
-					accepted: 0,
-					archived: 0
-				})
-			},
-			j20_batchCounter: {
-			    type: Object,
-				value: () => ({
-					toBeSend: 0,
-					toBeCorrected: 0,
-					processing: 0,
-					rejected: 0,
-					accepted: 0,
-					archived: 0
-				})
-			},
-            inboxSelectionIndex: {
-			    type: Number,
-			    value: null
-			},
-            flatRateInvoicingSelectionIndex: {
-			    type: Number,
-			    value: null
-			},
-            sentboxSelectionIndex: {
-                type: Number,
-                value: null
-            },
-            isLoadingMailList: {
-			    type: Boolean,
-                value: false
-            },
-            ehealthSession: {
-			    type: Boolean,
-                value: false
+        class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-msg-menu';
             }
-		};
-	}
-
-	static get observers() {
-		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)'];
-	}
-
-	constructor() {
-		super();
-	}
-
-    ready() {
-        super.ready();
-        this.set('unreadNumber',0)
-        this._updateUnreadCount()
-        this._isConnectedToEhbox()
-    }
-
-    _isConnectedToEhbox() {
-        this.set("ehealthSession", this.api.tokenId ? true : false)
-    }
-
-	_newMsg(params){
-		if (this.ehealthSession) this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
-	}
-
-	_updateUnreadCount() {
-        this.set('unreadNumber',0)
-        this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {messages.rows.forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadNumber',this.unreadNumber+1)}})})
-    }
-
-    toggleMenu(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
-        styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
-	}
-
-    _inbox(e) {
-        e.stopPropagation()
-        e.preventDefault()
-
-
-        this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'inbox'}}}));
-
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('trashSelected',null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        this.$.inbox.classList.add('iron-selected')
-        this.$.sentbox.classList.remove('iron-selected')
-        this.$.invoicebox.classList.remove('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-        this.$.trash.classList.remove('iron-selected')
-        this.$.hidden.classList.remove('iron-selected')
-
-        this._updateUnreadCount()
-	}
-
-    _inboxSelectionIndexChanged() {
-        if (this.inboxSelectionIndex !== null && this.inboxSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.inboxSelectionItem.id } } }));
-
-            this.set('sentboxSelectionIndex', null)
-            this.set('invoiceSelectionIndex', null)
-            this.set('trashSelected',null)
-            this.set('flatRateInvoicingSelectionIndex', null)
-
-            this.$.inbox.classList.remove('iron-selected')
-            this.$.sentbox.classList.remove('iron-selected')
-            this.$.invoicebox.classList.remove('iron-selected')
-            this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-            this.$.trash.classList.remove('iron-selected')
-            this.$.hidden.classList.remove('iron-selected')
-
-            this._updateUnreadCount()
-        }
-    }
-
-    _sentbox(e){
-        e.stopPropagation()
-        e.preventDefault()
-
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
-
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('trashSelected',null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        this.$.inbox.classList.remove('iron-selected')
-        this.$.sentbox.classList.add('iron-selected')
-        this.$.invoicebox.classList.remove('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-        this.$.trash.classList.remove('iron-selected')
-        this.$.hidden.classList.remove('iron-selected')
-
-        this._updateUnreadCount()
-    }
-
-    _sentboxSelectionIndexChanged() {
-        if (this.sentboxSelectionIndex !== null && this.sentboxSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.sentboxSelectionItem.id } } }));
-
-            this.set('inboxSelectionIndex', null)
-            this.set('invoiceSelectionIndex', null)
-            this.set('trashSelected',null)
-            this.set('flatRateInvoicingSelectionIndex', null)
-
-            this.$.inbox.classList.remove('iron-selected')
-            this.$.sentbox.classList.remove('iron-selected')
-            this.$.invoicebox.classList.remove('iron-selected')
-            this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-            this.$.trash.classList.remove('iron-selected')
-            this.$.hidden.classList.remove('iron-selected')
-        }
-    }
-
-	_report(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
-    }
-
-    _invoicebox(e){
-        e.stopPropagation()
-        e.preventDefault()
-
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'toBeSend'} } }));
-
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('trashSelected',null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        this.$.inbox.classList.remove('iron-selected')
-        this.$.sentbox.classList.remove('iron-selected')
-        this.$.invoicebox.classList.add('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-        this.$.trash.classList.remove('iron-selected')
-        this.$.hidden.classList.remove('iron-selected')
-
-        this._updateUnreadCount()
-    }
-
-    _toggleFlatRateInvoivingListingBox(e){
-        e.stopPropagation()
-        e.preventDefault()
-
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_flatrateinvOut', status: 'j3'} } }));
-
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('trashSelected',null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        this.$.inbox.classList.remove('iron-selected')
-        this.$.sentbox.classList.remove('iron-selected')
-        this.$.invoicebox.classList.remove('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.add('iron-selected')
-        this.$.trash.classList.remove('iron-selected')
-        this.$.hidden.classList.remove('iron-selected')
-    }
-
-    _invoiceSelectionIndexChanged() {
-        if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
-
-            this.set('inboxSelectionIndex', null)
-            this.set('sentboxSelectionIndex', null)
-            this.set('trashSelected',null)
-            this.set('flatRateInvoicingSelectionIndex', null)
-
-            this.$.inbox.classList.remove('iron-selected')
-            this.$.sentbox.classList.remove('iron-selected')
-            this.$.invoicebox.classList.remove('iron-selected')
-            this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-            this.$.trash.classList.remove('iron-selected')
-            this.$.hidden.classList.remove('iron-selected')
-        }
-    }
-
-    _trashSelectionIndexChanged() {
-        // console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
-        if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.trashSelectionItem.id, status: this.trashSelectionItem.dataset.status } } }));
-
-            this.set('inboxSelectionIndex', null)
-            this.set('sentboxSelectionIndex', null)
-            this.set('trashSelected',null)
-            this.set('flatRateInvoicingSelectionIndex', null)
-
-            this.$.inbox.classList.remove('iron-selected')
-            this.$.sentbox.classList.remove('iron-selected')
-            this.$.invoicebox.classList.remove('iron-selected')
-            this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-            this.$.trash.classList.add('iron-selected')
-            this.$.hidden.classList.remove('iron-selected')
-        }
-    }
-
-    _flatRateInvoicingSelectionIndexChanged() {
-
-        if (this.flatRateInvoicingSelectionIndex !== null && this.flatRateInvoicingSelectionIndex !== undefined) {
-            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.flatRateInvoicingSelectionItem.id, status: this.flatRateInvoicingSelectionItem.dataset.status } } }));
-
-            this.set('inboxSelectionIndex', null)
-            this.set('sentboxSelectionIndex', null)
-            this.set('invoiceSelectionIndex', null)
-            this.set('trashSelected',null)
-
-            this.$.inbox.classList.remove('iron-selected')
-            this.$.sentbox.classList.remove('iron-selected')
-            this.$.invoicebox.classList.remove('iron-selected')
-            this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-            this.$.trash.classList.remove('iron-selected')
-            this.$.hidden.classList.remove('iron-selected')
-        }
-    }
-
-    _hidden(e){
-        e.stopPropagation()
-        e.preventDefault()
-
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'hidden' } } }));
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        // this.set('hiddenSelected','selected')
-
-        this.$.inbox.classList.remove('iron-selected')
-        this.$.sentbox.classList.remove('iron-selected')
-        this.$.invoicebox.classList.remove('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-        this.$.trash.classList.remove('iron-selected')
-        this.$.hidden.classList.add('iron-selected')
-
-        this._updateUnreadCount()
-    }
-    _trash(){
-		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
-        this.set('sentboxSelectionIndex', null)
-        this.set('inboxSelectionIndex', null)
-        this.set('invoiceSelectionIndex', null)
-        this.set('flatRateInvoicingSelectionIndex', null)
-
-        // this.set('trashSelected','selected')
-
-        this.$.inbox.classList.remove('iron-selected')
-        this.$.sentbox.classList.remove('iron-selected')
-        this.$.invoicebox.classList.remove('iron-selected')
-        this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
-        this.$.trash.classList.add('iron-selected')
-        this.$.hidden.classList.remove('iron-selected')
-
-        this._updateUnreadCount()
-	}
-
-	selectedContactItemsChanged() {
-		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
-		ctcDetailPanel && ctcDetailPanel.flushSave();
-
-		this.set('selectedContacts', this.selectedContactItems.map(i => i.contact));
-	}
-
-	_timeFormat(date) {
-		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
-	}
-
-	_dateFormat(date) {
-		return this.api.moment(date).format('DD/MM/YYYY');
-	}
-
-	_selectToday() {
-		this.$.adminFileMenu.select(1);
-
-		this.set('timeSpanStart', parseInt(moment().startOf('day').format('YYYYMMDD')));
-		this.set('timeSpanEnd', null);
-
-		this.updateContactYears();
-	}
-
-	_select6Months() {
-		this.set('timeSpanStart', parseInt(moment().subtract(6, 'month').format('YYYYMMDD')));
-		this.set('timeSpanEnd', null);
-
-		this.updateContactYears();
-	}
-
-	_selectAll() {
-		this.set('timeSpanStart', null);
-		this.set('timeSpanEnd', null);
-
-		this.updateContactYears();
-	}
-
-	updateContactYears() {
-		this.notifyPath('contactYears');
-	}
-
-	contactFilter() {
-		return function (ctc) {
-			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
-
-			const heIds = this.selectedMainElements.map(he => he.id);
-			const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
-			const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
-
-			return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
-		}.bind(this);
-	}
-
-	isNotEmpty(a) {
-		return a && a.length > 0;
-	}
-
-	isEmpty(a) {
-		return !a || a.length === 0;
-	}
-
-	isAdminSelected(el) {
-		return el && el.id === '_admin_info';
-	}
-
-	_concat(a, b) {
-		return (a || []).concat(b || []);
-	}
-
-    selectedMainElementItemsChanged(event) {
-        const domRepeat = event.target.querySelector("dom-repeat");
-        const selectedModels = event.target.selectedItems.map(el => domRepeat.modelForElement(el).he);
-
-        if (!domRepeat || !selectedModels) {
-            return;
-        }
-        const allModels = domRepeat.items || [];
-
-        this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
-    }
-
-    initializeBatchCounter(e){
-
-	    this.set("batchCounter.toBeSend", e.detail.toBeSend)
-		this.set("batchCounter.toBeCorrected", e.detail.toBeCorrected)
-        this.set("batchCounter.processing", e.detail.processing)
-        this.set("batchCounter.rejected", e.detail.rejected)
-        this.set("batchCounter.accepted", e.detail.accepted)
-        this.set("batchCounter.archived", e.detail.archived)
-
-    }
-
-    _checkForMedicalHouse() {
-	    this.shadowRoot.getElementById("flatRateInvoicingListingBoxCollapse").classList.add("doNotDisplay");
-        if (this.user && this.user.healthcarePartyId) {
-            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-                if (_.trim(_.get(hcp, "type", "")).toLowerCase() === 'medicalhouse') {
-                    this.shadowRoot.getElementById("flatRateInvoicingListingBoxCollapse").classList.remove("doNotDisplay")
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    events: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    selectedLocalize: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    selected: {
+                        type: Boolean,
+                        value: false
+                    },
+                    showFiltersPanel: {
+                        type: Boolean,
+                        value: false
+                    },
+                    msgSearchString: {
+                        type: String,
+                        value: null
+                    },
+                    showDetailsFiltersPanel: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isLatestYear: {
+                        type: Boolean,
+                        value: false
+                    },
+                    selectedContactItems: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    itemSelected: {
+                        type: Boolean,
+                        value: false
+                    },
+                    i18n: {
+                        type: Object
+                    },
+                    unreadNumber: {
+                        type: Number,
+                        value: 0
+                    },
+                    batchCounter: {
+                        type: Object,
+                        value: () => ({
+                            toBeSend: 0,
+                            toBeCorrected: 0,
+                            processing: 0,
+                            rejected: 0,
+                            accepted: 0,
+                            archived: 0
+                        })
+                    },
+                    j20_batchCounter: {
+                        type: Object,
+                        value: () => ({
+                            archived: 0,
+                            error: 0,
+                            partiallyAccepted: 0,
+                            fullyAccepted: 0,
+                            rejected: 0,
+                            treated: 0,
+                            acceptedForTreatment: 0,
+                            successfullySentToOA: 0,
+                            pending: 0
+                        })
+                    },
+                    inboxSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    flatRateInvoicingSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    sentboxSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    isLoadingMailList: {
+                        type: Boolean,
+                        value: false
+                    }
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_inboxSelectionIndexChanged(inboxSelectionIndex)',
+                    '_sentboxSelectionIndexChanged(sentboxSelectionIndex)',
+                    '_invoiceSelectionIndexChanged(invoiceSelectionIndex)',
+                    '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)',
+                    '_checkForMedicalHouse(user)',
+                    '_trashSelectionIndexChanged(trashSelectionIndex)',
+                    '_updateUnreadCount(messages)'
+                ];
+            }
+
+            constructor() {
+                super();
+            }
+
+            ready() {
+                super.ready();
+                this.set('unreadNumber',0)
+                this._updateUnreadCount()
+            }
+
+            _newMsg(params){
+                this.dispatchEvent(new CustomEvent('new-msg', { detail: {},params: params ? params : null}));
+            }
+
+            _updateUnreadCount() {
+                this.set('unreadNumber',0)
+                this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, 1000).then(messages => {messages.rows.forEach(m=>{if ((m.status & 1 << 1) !== 0) {this.set('unreadNumber',this.unreadNumber+1)}})})
+            }
+
+            toggleMenu(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+                styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
+            }
+
+            _inbox(e) {
+                e.stopPropagation()
+                e.preventDefault()
+
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'inbox'}}}));
+
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('trashSelected',null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                this.$.inbox.classList.add('iron-selected')
+                this.$.sentbox.classList.remove('iron-selected')
+                this.$.invoicebox.classList.remove('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                this.$.trash.classList.remove('iron-selected')
+                this.$.hidden.classList.remove('iron-selected')
+
+                this._updateUnreadCount()
+            }
+
+            _inboxSelectionIndexChanged() {
+                if (this.inboxSelectionIndex !== null && this.inboxSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.inboxSelectionItem.id } } }));
+
+                    this.set('sentboxSelectionIndex', null)
+                    this.set('invoiceSelectionIndex', null)
+                    this.set('trashSelected',null)
+                    this.set('flatRateInvoicingSelectionIndex', null)
+
+                    this.$.inbox.classList.remove('iron-selected')
+                    this.$.sentbox.classList.remove('iron-selected')
+                    this.$.invoicebox.classList.remove('iron-selected')
+                    this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                    this.$.trash.classList.remove('iron-selected')
+                    this.$.hidden.classList.remove('iron-selected')
+
+                    this._updateUnreadCount()
                 }
-            })
+            }
+
+            _sentbox(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('trashSelected',null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                this.$.inbox.classList.remove('iron-selected')
+                this.$.sentbox.classList.add('iron-selected')
+                this.$.invoicebox.classList.remove('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                this.$.trash.classList.remove('iron-selected')
+                this.$.hidden.classList.remove('iron-selected')
+
+                this._updateUnreadCount()
+            }
+
+            _sentboxSelectionIndexChanged() {
+                if (this.sentboxSelectionIndex !== null && this.sentboxSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.sentboxSelectionItem.id } } }));
+
+                    this.set('inboxSelectionIndex', null)
+                    this.set('invoiceSelectionIndex', null)
+                    this.set('trashSelected',null)
+                    this.set('flatRateInvoicingSelectionIndex', null)
+
+                    this.$.inbox.classList.remove('iron-selected')
+                    this.$.sentbox.classList.remove('iron-selected')
+                    this.$.invoicebox.classList.remove('iron-selected')
+                    this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                    this.$.trash.classList.remove('iron-selected')
+                    this.$.hidden.classList.remove('iron-selected')
+                }
+            }
+
+            _report(){
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
+            }
+
+            _invoicebox(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'toBeSend'} } }));
+
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('trashSelected',null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                this.$.inbox.classList.remove('iron-selected')
+                this.$.sentbox.classList.remove('iron-selected')
+                this.$.invoicebox.classList.add('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                this.$.trash.classList.remove('iron-selected')
+                this.$.hidden.classList.remove('iron-selected')
+
+                this._updateUnreadCount()
+            }
+
+            _toggleFlatRateInvoivingListingBox(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_flatrateinvOut', status: 'j3'} } }));
+
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('trashSelected',null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                this.$.inbox.classList.remove('iron-selected')
+                this.$.sentbox.classList.remove('iron-selected')
+                this.$.invoicebox.classList.remove('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.add('iron-selected')
+                this.$.trash.classList.remove('iron-selected')
+                this.$.hidden.classList.remove('iron-selected')
+            }
+
+            _invoiceSelectionIndexChanged() {
+                if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
+
+                    this.set('inboxSelectionIndex', null)
+                    this.set('sentboxSelectionIndex', null)
+                    this.set('trashSelected',null)
+                    this.set('flatRateInvoicingSelectionIndex', null)
+
+                    this.$.inbox.classList.remove('iron-selected')
+                    this.$.sentbox.classList.remove('iron-selected')
+                    this.$.invoicebox.classList.remove('iron-selected')
+                    this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                    this.$.trash.classList.remove('iron-selected')
+                    this.$.hidden.classList.remove('iron-selected')
+                }
+            }
+
+            _trashSelectionIndexChanged() {
+                console.log('trashSelectionChanged',this.trashSelectionIndex,this.trashSelectionItem)
+                if (this.trashSelectionIndex !== null && this.trashSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.trashSelectionItem.id, status: this.trashSelectionItem.dataset.status } } }));
+
+                    this.set('inboxSelectionIndex', null)
+                    this.set('sentboxSelectionIndex', null)
+                    this.set('trashSelected',null)
+                    this.set('flatRateInvoicingSelectionIndex', null)
+
+                    this.$.inbox.classList.remove('iron-selected')
+                    this.$.sentbox.classList.remove('iron-selected')
+                    this.$.invoicebox.classList.remove('iron-selected')
+                    this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                    this.$.trash.classList.add('iron-selected')
+                    this.$.hidden.classList.remove('iron-selected')
+                }
+            }
+
+            _flatRateInvoicingSelectionIndexChanged() {
+                if (this.flatRateInvoicingSelectionIndex !== null && this.flatRateInvoicingSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.flatRateInvoicingSelectionItem.id, status: this.flatRateInvoicingSelectionItem.dataset.status } } }));
+
+                    this.set('inboxSelectionIndex', null)
+                    this.set('sentboxSelectionIndex', null)
+                    this.set('invoiceSelectionIndex', null)
+                    this.set('trashSelected',null)
+
+                    this.$.inbox.classList.remove('iron-selected')
+                    this.$.sentbox.classList.remove('iron-selected')
+                    this.$.invoicebox.classList.remove('iron-selected')
+                    this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                    this.$.trash.classList.remove('iron-selected')
+                    this.$.hidden.classList.remove('iron-selected')
+                }
+            }
+
+            _hidden(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'hidden' } } }));
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                // this.set('hiddenSelected','selected')
+
+                this.$.inbox.classList.remove('iron-selected')
+                this.$.sentbox.classList.remove('iron-selected')
+                this.$.invoicebox.classList.remove('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                this.$.trash.classList.remove('iron-selected')
+                this.$.hidden.classList.add('iron-selected')
+
+                this._updateUnreadCount()
+            }
+
+            _trash(){
+                this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+                this.set('sentboxSelectionIndex', null)
+                this.set('inboxSelectionIndex', null)
+                this.set('invoiceSelectionIndex', null)
+                this.set('flatRateInvoicingSelectionIndex', null)
+
+                // this.set('trashSelected','selected')
+
+                this.$.inbox.classList.remove('iron-selected')
+                this.$.sentbox.classList.remove('iron-selected')
+                this.$.invoicebox.classList.remove('iron-selected')
+                this.$.flatRateInvoicingListingBox.classList.remove('iron-selected')
+                this.$.trash.classList.add('iron-selected')
+                this.$.hidden.classList.remove('iron-selected')
+
+                this._updateUnreadCount()
+            }
+
+            selectedContactItemsChanged() {
+                const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+                ctcDetailPanel && ctcDetailPanel.flushSave();
+
+                this.set('selectedContacts', this.selectedContactItems.map(i => i.contact));
+            }
+
+            _timeFormat(date) {
+                return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+            }
+
+            _dateFormat(date) {
+                return this.api.moment(date).format('DD/MM/YYYY');
+            }
+
+            _selectToday() {
+                this.$.adminFileMenu.select(1);
+
+                this.set('timeSpanStart', parseInt(moment().startOf('day').format('YYYYMMDD')));
+                this.set('timeSpanEnd', null);
+
+                this.updateContactYears();
+            }
+
+            _select6Months() {
+                this.set('timeSpanStart', parseInt(moment().subtract(6, 'month').format('YYYYMMDD')));
+                this.set('timeSpanEnd', null);
+
+                this.updateContactYears();
+            }
+
+            _selectAll() {
+                this.set('timeSpanStart', null);
+                this.set('timeSpanEnd', null);
+
+                this.updateContactYears();
+            }
+
+            updateContactYears() {
+                this.notifyPath('contactYears');
+            }
+
+            contactFilter() {
+                return function (ctc) {
+                    const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
+
+                    const heIds = this.selectedMainElements.map(he => he.id);
+                    const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
+                    const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
+
+                    return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
+                }.bind(this);
+            }
+
+            isNotEmpty(a) {
+                return a && a.length > 0;
+            }
+
+            isEmpty(a) {
+                return !a || a.length === 0;
+            }
+
+            isAdminSelected(el) {
+                return el && el.id === '_admin_info';
+            }
+
+            _concat(a, b) {
+                return (a || []).concat(b || []);
+            }
+
+            selectedMainElementItemsChanged(event) {
+                const domRepeat = event.target.querySelector("dom-repeat");
+                const selectedModels = event.target.selectedItems.map(el => domRepeat.modelForElement(el).he);
+
+                if (!domRepeat || !selectedModels) {
+                    return;
+                }
+                const allModels = domRepeat.items || [];
+
+                this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
+            }
+
+            initializeBatchCounter(e){
+
+                this.set("batchCounter.toBeSend", e.detail.toBeSend)
+                this.set("batchCounter.toBeCorrected", e.detail.toBeCorrected)
+                this.set("batchCounter.processing", e.detail.processing)
+                this.set("batchCounter.rejected", e.detail.rejected)
+                this.set("batchCounter.accepted", e.detail.accepted)
+                this.set("batchCounter.archived", e.detail.archived)
+
+            }
+
+            initializeBatchCounterJ20(e){
+                if(_.size(e.detail)) _.map(e.detail, (batchCount,batchKey) => this.set("j20_batchCounter." + batchKey , parseInt(batchCount)))
+            }
+
+            _checkForMedicalHouse() {
+                this.shadowRoot.getElementById("flatRateInvoicingListingBoxCollapse").classList.add("doNotDisplay");
+                if (this.user && this.user.healthcarePartyId) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                        if (_.trim(_.get(hcp, "type", "")).toLowerCase() === 'medicalhouse') {
+                            this.shadowRoot.getElementById("flatRateInvoicingListingBoxCollapse").classList.remove("doNotDisplay")
+                        }
+                    })
+                }
+            }
+
         }
-    }
 
-}
-
-customElements.define(HtMsgMenu.is, HtMsgMenu);
-</script>
+        customElements.define(HtMsgMenu.is, HtMsgMenu);
+    </script>
 </dom-module>
