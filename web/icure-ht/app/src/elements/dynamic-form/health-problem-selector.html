@@ -380,7 +380,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_updateDescription() {
-        if (this.selectedItem || this.surgerySelectedItem) {
+        if (this.selectedItem || this.surgerySelectedItem || this.allergenSelectedItem || this.familyRiskSelectedItem || this.drugSelectedItem) {
             this.set('entity.descr', (this.searchAllergen && this.allergenSelectedItem) ? `${this.selectedItem.descr} (${this.allergenSelectedItem.descr})` : (this.searchFamilyRisk && this.familyRiskSelectedItem) ? `${this.selectedItem.descr} (${this.familyRiskSelectedItem.descr})` : (this.searchDrug && this.drugSelectedItem) ? `${this.selectedItem.descr} (${this.drugSelectedItem.name})` : (this.searchSurgery && this.surgerySelectedItem) ? `${this.surgerySelectedItem.descr}` : this.selectedItem.descr);
         }
     }
