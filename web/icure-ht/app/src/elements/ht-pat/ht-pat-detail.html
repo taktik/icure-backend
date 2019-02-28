@@ -87,7 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .container {
                 width: 100%;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 64px - 20px);
                 display:grid;
                 grid-template-columns: 20% 30% 50%;
                 grid-template-rows: 100%;
@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .first-panel{
                 display: flex;
                 flex-direction: column;
-                height:calc(100vh - 64px); /* 64px = app-header */
+                height:calc(100vh - 64px - 20px); /* 64px = app-header */
                 background: var(--app-background-color-dark);
                 top:64px;
                 left:0;
@@ -213,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             collapse-button > .menu-item.iron-selected {
-                @apply --padding-right-left-16;
+                @apply --padding-menu-item;
                 color:var(--app-text-color-light);
                 background:var(--app-primary-color);
                 @apply --text-shadow;
@@ -269,7 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .menu-item{
-                @apply --padding-right-left-16;
+                @apply --padding-menu-item;
                 height:48px;
                 @apply --paper-font-button;
                 text-transform: inherit;
@@ -468,6 +468,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: center;
                 flex-wrap: nowrap;
                 padding-top:8px;
+                margin-bottom: 20px;
             }
 
             .selection-toast-button{
