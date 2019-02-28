@@ -1291,7 +1291,7 @@
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
-                    <paper-button class="modal-button" on-tap="_gotoMyProfile"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab1"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
                 </div>
             </paper-dialog>
             <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
@@ -1312,6 +1312,39 @@
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpContactPerson" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson','Please provide an invoicing contact person',language)]].</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab1"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpBce" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhBce','Please provide a valid BCE',language)]].</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab2"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpBankAccount" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhBankAccount','Please provide with a valid bank account',language)]].</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab3"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -1997,9 +2030,19 @@
                 _.map( this.shadowRoot.querySelectorAll('.modalDialog'), i=> i && typeof i.close === "function" && i.close() )
             }
 
-            _gotoMyProfile() {
+            _gotoMyProfileTab1() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:0} }));
+            }
+
+            _gotoMyProfileTab2() {
                 this._closeDialogs()
                 this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:1} }));
+            }
+
+            _gotoMyProfileTab3() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:2} }));
             }
 
             _gotoMyAdmin() {
@@ -3191,30 +3234,22 @@
                                 && parseInt(_.get(i, "metas.batchExportTstamp", 0)) === parseInt( _.get( this.activeGridItem, "metas.batchExportTstamp", 0 ))
                                 && _.trim(_.get(i, "transportGuid", "")) !== "MH:FLATRATE:INVOICING-BATCH-ZIP"
                                 && _.trim(_.get(i, "metas.parentOaId", "")) === _.trim( _.get( this.activeGridItem, "metas.parentOaId", "" ))
-                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => { this.api.register(msg, 'message'); return msg; }) )
-                    ).then(messages=>{
-                        return ( !_.trim(actionSettings.newInvoicingCodeStatus) ) ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
-                            .then(invoices => invoices.map(inv => {
-                                inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicingCodeStatus] = true)
-                                return this.api.invoice().modifyInvoice(inv).then(inv => { this.api.register(inv,'invoice'); return inv; })
-                            }))
-                            .then(() => {
-                                return (actionSettings.newStatusKey!=="rejected") ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
-                                    .then(invoices => {
-                                        const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
-                                        const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
-                                        this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
-                                        console.log("---invoices---");
-                                        console.log(invoices);
-                                        console.log("---activeGridItem---");
-                                        console.log(this.activeGridItem);
-                                        console.log("---acceptedAmount---");
-                                        console.log(acceptedAmount);
-                                        console.log("---refusedAmount---");
-                                        console.log(refusedAmount);
-                                        // FZ: Alors que put avec status canceled ok => inv reviennent en status canceled = false :/ Investigate here
-                                        // return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); })
-                                    })
+                        }).map(singleMessage => this.api.message().modifyMessage(_.merge(singleMessage, {status:newStatus})).then(msg =>this.api.register(msg, 'message')) )
+                    ).then(allMessages=>{
+                        return ( !_.trim(actionSettings.newInvoicingCodeStatus) ) ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(allMessages, msg=>msg.invoiceIds.map(i => i))))}))
+                            .then(invoices => {
+                                return Promise.all(invoices.map(inv => {
+                                    inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicingCodeStatus] = true)
+                                    return this.api.invoice().modifyInvoice(inv).then(inv =>this.api.register(inv,'invoice'))
+                                }))
+                            })
+                            .then(invoices => {
+                                if((actionSettings.newStatusKey!=="rejected") || !_.size(invoices)) return false;
+                                const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                let updatedFlatFileMessage = _.get(_.filter(allMessages, {id:this.activeGridItem.id}), "[0]", {})
+                                updatedFlatFileMessage.metas = _.merge(updatedFlatFileMessage.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                return this.api.message().modifyMessage(updatedFlatFileMessage).then(msg =>this.api.register(msg,'message'))
                             })
                     })
                     .catch((e)=>{console.log(e)})
@@ -3231,7 +3266,7 @@
 
                 this.set('_isLoadingSmall', true );
                 const invoiceId = _.get(e, "target.dataset.invoiceId", "")
-                let oldActiveGridItem = {}
+                let oldActiveGridItemId = _.trim(_.get(this, "activeGridItem.id", ""))
 
                 this.api.invoice().getInvoice(invoiceId)
                     .then(invoice => {
@@ -3245,7 +3280,7 @@
                                 const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
                                 const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
                                 this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
-                                return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); oldActiveGridItem = msg; })
+                                return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); })
                             })
                     })
                     .catch((e)=>{console.log(e)})
@@ -3253,7 +3288,7 @@
                         this.set('_isLoadingSmall', false );
                         this.set('activeGridItem', null )
                         this._fetchJ20Messages(true).then(()=>{
-                            _.size(oldActiveGridItem) && this.set('activeGridItem', oldActiveGridItem );
+                            _.size(_.get(_.filter(this.messagesGridData, {id:oldActiveGridItemId}), "[0]")) && this.set('activeGridItem', _.get(_.filter(this.messagesGridData, {id:oldActiveGridItemId}), "[0]") );
                             _.size(this.activeGridItem) && this._toggleBatchDetails({currentTarget:{dataset:{status:"partiallyAccepted"}}})
                         })
                     })
@@ -3362,7 +3397,7 @@
                     Promise.all(_.uniq( _.flatten(_.map(messages, i=>i.invoiceIds))).map(i => this.api.invoice().deleteInvoice(i).catch(()=>{}) ))
                         .then(()=> this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})).catch(()=>{}) );
                 })
-                    .catch((e)=>console.log(e))
+                .catch((e)=>console.log(e))
 
             }
 
@@ -3518,6 +3553,21 @@
                 this.$["noDataToExport"].open()
             }
 
+            _showWarningNoHcpContactPerson() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpContactPerson"].open()
+            }
+
+            _showWarningNoCbe() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpBce"].open()
+            }
+
+            _showWarningNoBankAccount() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpBankAccount"].open()
+            }
+
             _showWarningNoHcpNihii() {
                 this.set("_bodyOverlay", true);
                 this.$["missingNihiiDialog"].open()
@@ -3546,7 +3596,7 @@
                                 nihii: _.trim(_.get(this.hcp, "nihii", "")),
                                 nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
                                 contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
-                                contactPerson: _.trim(_.get(this, "contactPerson", "")),
+                                contactPerson: "",  // Make it empty at first, done on purpose
                                 financialInfo: _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) )
                             },
                             patientsData: [],
@@ -3593,6 +3643,29 @@
                                 name: _.trim(_.get(this.flatRateInvoicingDataObject, "hcpData.financialInfo.name", "")),
                             }
                         })
+
+
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.cbe"))) throw new Error("missing-cbe");
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.contactPersonHcpId"))) throw new Error("missing-contact-person");
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.size(this.flatRateInvoicingDataObject.hcpData.financialInfo) || !_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount", ""))) throw new Error("missing-bank-account");
+
+                        // Check again, even if already done in this.super() - could be got updated meanwhile & this.super() is only called !once
+                        this.api.hcparty().getHealthcareParty(_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.contactPersonHcpId")))
+                            .then(hcpContactPerson => {
+                                if(!_.size(hcpContactPerson) || !_.trim(_.get(hcpContactPerson, "id", "")) || !_.trim(_.get(hcpContactPerson, "lastName", "")) || !_.trim(_.get(hcpContactPerson, "firstName", ""))) throw new Error("missing-contact-person");
+                                const contactPerson = _.trim(_.trim(_.get(hcpContactPerson, "lastName", "")) + " " + _.trim(_.get(hcpContactPerson, "firstName", "")))
+                                this.set("contactPerson", contactPerson );
+                                this.flatRateInvoicingDataObject.hcpData.contactPerson = contactPerson
+                            })
+                            .catch((e)=>{ throw new Error("missing-contact-person"); })
+
+
 
                         this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth = _.merge(
                             [
@@ -4053,15 +4126,21 @@
                             ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() :
                             ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() :
                             ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() :
+                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() :
+                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() :
+                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() :
                             console.log(e)
                         )
                     })
-                    .finally(()=>{
+                    .finally((e)=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
                         this.set('activeGridItem', null );
                         this.set('messagesCachedData', null );
+                        this.set('messagesGridData', null );
+                        const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
+                        const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
                         this._fetchJ20Messages(true).then(()=>{ this.set('flatrateMenuSection', "j20_process" ); })
                     })
 

@@ -1129,7 +1129,10 @@
     "provideMissingValorisations": "Please provide your flat rates",
     "noDataToExport": "No data to export",
     "rejectInvoice" : "Reject invoice",
-    "rejectVerb" : "Reject"
+    "rejectVerb" : "Reject",
+    "missingMhHcpContactPerson": "Please provide with an invoicing contact person",
+    "missingMhBce": "Please provide with a valid BCE",
+    "missingMhBankAccount": "Please provide with a valid bank account"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2346,7 +2349,10 @@
     "flatrate_slipfile_24":"Fonction :..........................                ....................",
     "flatrate_slipfile_25":"Signature :.........................                Signature :.........",
     "rejectInvoice" : "Rejeter la facture",
-    "rejectVerb" : "Rejeter"
+    "rejectVerb" : "Rejeter",
+    "missingMhHcpContactPerson": "Veuillez svp renseigner une personne de contact pour la facturation au forfait. Cette information est requise par les Assurances",
+    "missingMhBce": "Veuillez svp renseigner votre numéro BCE",
+    "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3568,6 +3574,9 @@
     "flatrate_slipfile_24":"Functie  :................................          ....................",
     "flatrate_slipfile_25":"Handtekening :............................          Handtekening :......",
     "rejectInvoice" : "Reject invoice",
-    "rejectVerb" : "Reject"
+    "rejectVerb" : "Reject",
+    "missingMhHcpContactPerson": "Please provide an invoicing contact person",
+    "missingMhBce": "Please provide with a valid BCE",
+    "missingMhBankAccount": "Please provide with a valid bank account"
   }
 }
