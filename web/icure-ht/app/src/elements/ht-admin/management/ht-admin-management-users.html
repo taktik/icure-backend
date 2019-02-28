@@ -301,7 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-listbox>
                             </paper-dropdown-menu>
                             <paper-dropdown-menu class="input" label="[[localize('spe','Speciality',language)]]">
-                                <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
                                     <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
                                         <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
                                     </template>
