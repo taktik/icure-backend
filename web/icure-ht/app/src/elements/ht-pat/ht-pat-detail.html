@@ -859,6 +859,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            .edmg-hcps {
+                position: fixed;
+                top: 190px;
+                left: 0;
+                display: flex;
+                flex-direction: column;
+                background: rgba(69, 90, 100,.95); /* is --app-primary-color with opacity 95% */
+                color: white;
+                width: calc(20% - 16px); /* 20% is first col wdth, 16px is for margins */
+                padding: 16px;
+                margin: 0 8px;
+                z-index: 10;
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+
+            .edmg-hcps > p {
+                font-size: 1.3em;
+                margin-top: 0;
+                margin-bottom: 8px;
+            }
+            .edmg-hcps > p > span.ul {
+                text-decoration: underline;
+            }
+            .edmg-hcps > p > small {
+                margin: 8px 4px 12px 0;
+                font-size: 1em;
+                padding-left: 4px;
+                display: block;
+            }
+
             #insuranceStatus.medicalHouse, #edmgStatus.edmgPending {
                 --paper-fab-background: var(--app-status-color-pending);
             }
@@ -1409,11 +1440,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
                                     <paper-tooltip for="hubStatus">Hub</paper-tooltip>
                                     <paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
-                                    <paper-tooltip for="edmgStatus"><div style="min-width: 280px;"><h4>[[localize('edmg','e-DMG',language)]]</h4>
-                                        <template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
-                                            <p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
+                                    <paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]
+                                        <template is="dom-if" if="[[refPeriods.length]]">
+                                            <div class="edmg-hcps">
+                                                <template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
+                                                    <p><span class="ul">[[localize('begin','Begin',language)]]: <b>[[_dateFormat(item.startDate)]]</b> - [[localize('end','End',language)]]: <b>[[_dateFormat(item.endDate)]]</b></span>
+                                                        <template is="dom-if" if="[[item.comment.length]]"><br/><small>[[item.comment]]</small></template>
+                                                    </p>
+                                                </template>
+                                            </div>
                                         </template>
-                                    </div></paper-tooltip>
+                                    </paper-tooltip>
                                     <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
                                     <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
                                 </div>
@@ -2374,6 +2411,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     socket : {
                         type : Object,
                         value: {}
+                    },
+                    refPeriods: {
+                        type: Array,
+                        value: []
                     }
                 };
             }
@@ -3214,7 +3255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
-
+                this.set('refPeriods', this._myReferralPeriods(patient.patientHealthCareParties) || [])
             }
 
 
