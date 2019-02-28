@@ -2042,9 +2042,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     this.btnSelectionPatient = true
                                 }
 
-                                if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-                                    grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
+                                if(startIndex===0){
+                                    grid.set("size", res.totalSize - (res.rows.length -startIndex - keptPatients.length))
+                                } else if (grid.size !== grid.size - (res.rows.length -startIndex - keptPatients.length)) {
+                                    grid.set("size", grid.size - (res.rows.length -startIndex - keptPatients.length))
                                 }
+                                
                                 callback(keptPatients.map(this.pimpPatient))
                             }).finally(() => {
                                 this.set('hideSpinner', true)
