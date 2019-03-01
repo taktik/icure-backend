@@ -3177,6 +3177,7 @@
                         itm.dateCode = invCd.dateCode;
                         itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
                         itm.reimbursedAmount = invCd.reimbursement * 100;
+                        itm.units = 1;
                         inv.items.push(itm);
                     })
                 });
